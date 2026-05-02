@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Go DSA Cheatsheet — Every Trick You Need</title>
+<link rel="stylesheet" href="_styles.css" />
+<style>
+  /* Compact-row table for cheatsheet density */
+  .cheat-table td, .cheat-table th { padding: 8px 10px; vertical-align: top; font-size: 13.5px; }
+  .cheat-table code { white-space: nowrap; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; letter-spacing: .3px; }
+  .pill.ok    { background: #dcfce7; color: #14532d; }
+  .pill.warn  { background: #fef3c7; color: #78350f; }
+  .pill.bad   { background: #fee2e2; color: #7f1d1d; }
+  .pill.info  { background: #dbeafe; color: #1e3a8a; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+  .mini-card {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; background: #fff;
+  }
+  .mini-card h4 { margin: 0 0 8px; color: var(--accent-dark); font-size: 14px; }
+  .toc-card a { display: block; padding: 4px 0; }
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Go <span>DSA</span> Cheatsheet</h1>
+  <p>Every Go-specific trick, idiom, and gotcha you need to crush coding interviews and LeetCode in Go.</p>
+  <div class="nav">
+    <a href="../go-roadmap.html">← Roadmap</a>
+    <a href="phase1.html">Phase 1</a>
+    <a href="phase2.html">Phase 2</a>
+    <a href="phase3.html">Phase 3</a>
+    <a class="active" href="dsa-cheatsheet.html">DSA Cheatsheet</a>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h3>📚 Table of Contents</h3>
+  <ol>
+    <li><a href="#why">Why Go for DSA? (vs Python/Java/C++)</a></li>
+    <li><a href="#io">Fast I/O Template</a></li>
+    <li><a href="#nums">Numeric Tricks (math, overflow, bit ops)</a></li>
+    <li><a href="#strings">Strings &amp; Runes</a></li>
+    <li><a href="#slices">Slices — the Swiss Army Knife</a></li>
+    <li><a href="#maps">Maps &amp; Sets</a></li>
+    <li><a href="#sort">Sorting &amp; Custom Comparators</a></li>
+    <li><a href="#stack-queue">Stack, Queue &amp; Deque</a></li>
+    <li><a href="#heap">Heap / Priority Queue</a></li>
+    <li><a href="#linked-list">Linked List</a></li>
+    <li><a href="#trees">Trees &amp; Recursion</a></li>
+    <li><a href="#graphs">Graphs (BFS / DFS / Dijkstra / UF)</a></li>
+    <li><a href="#dp">Dynamic Programming Templates</a></li>
+    <li><a href="#twoptr">Two Pointers / Sliding Window / Binary Search</a></li>
+    <li><a href="#bitset">Bitset / Bitmask DP</a></li>
+    <li><a href="#trie">Trie</a></li>
+    <li><a href="#segtree">Segment Tree / BIT (Fenwick)</a></li>
+    <li><a href="#gotchas">Top 15 Go Interview Gotchas</a></li>
+    <li><a href="#snippets">Copy-Paste Ready Snippets</a></li>
+    <li><a href="#monotonic">Monotonic Stack &amp; Queue</a></li>
+    <li><a href="#prefix">Prefix Sums &amp; Difference Arrays</a></li>
+    <li><a href="#toposort">Topological Sort</a></li>
+    <li><a href="#more-graphs">MST, Bellman-Ford, Floyd-Warshall</a></li>
+    <li><a href="#strmatch">String Matching (KMP, Rabin-Karp)</a></li>
+    <li><a href="#more-dp">More DP (LIS, Kadane, Knapsack, Tree)</a></li>
+    <li><a href="#backtrack">Backtracking Patterns</a></li>
+    <li><a href="#math2">Math (Sieve, nCr, Modular Inverse)</a></li>
+    <li><a href="#more-tricks">More Go-Specific Tricks</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<section class="note" id="why">
+  <h2><span class="num">01</span> Why Go for DSA?</h2>
+  <p class="tagline">Go is verbose for DSA but blazing fast. Know what you trade.</p>
+
+  <table>
+    <thead><tr><th>Aspect</th><th>Python</th><th>Java</th><th>C++</th><th>Go</th></tr></thead>
+    <tbody>
+      <tr><td>Speed</td><td>Slow</td><td>Medium</td><td>Fastest</td><td>Fast (close to C++)</td></tr>
+      <tr><td>Built-in heap</td><td>✅ heapq</td><td>✅ PriorityQueue</td><td>✅ priority_queue</td><td>⚠️ container/heap (verbose)</td></tr>
+      <tr><td>Built-in deque</td><td>✅ deque</td><td>✅ ArrayDeque</td><td>✅ deque</td><td>❌ use slice</td></tr>
+      <tr><td>Built-in set</td><td>✅ set</td><td>✅ HashSet</td><td>✅ unordered_set</td><td>❌ use <code>map[T]struct{}</code></td></tr>
+      <tr><td>Sort with lambda</td><td>1 line</td><td>verbose</td><td>1 line</td><td>1 line (<code>sort.Slice</code>)</td></tr>
+      <tr><td>Generics</td><td>—</td><td>✅</td><td>✅</td><td>✅ (1.18+)</td></tr>
+      <tr><td>Big integers</td><td>built-in</td><td>BigInteger</td><td>—</td><td>math/big</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box tip">
+    <b>Bottom line:</b> Go is great for FAANG-style interviews where speed matters. Verbosity is the price. This cheatsheet flattens that learning curve.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="io">
+  <h2><span class="num">02</span> Fast I/O Template</h2>
+  <p class="tagline"><code>fmt.Scan</code> is SLOW for big inputs. Always use <code>bufio</code> on competitive sites.</p>
+
+<pre><code><span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="str">"bufio"</span>
+    <span class="str">"fmt"</span>
+    <span class="str">"os"</span>
+    <span class="str">"strconv"</span>
+)
+
+<span class="kw">var</span> (
+    reader = bufio.<span class="fn">NewReader</span>(os.Stdin)
+    writer = bufio.<span class="fn">NewWriter</span>(os.Stdout)
+)
+
+<span class="kw">func</span> <span class="fn">readInt</span>() <span class="ty">int</span> {
+    <span class="kw">var</span> n <span class="ty">int</span>
+    fmt.<span class="fn">Fscan</span>(reader, &amp;n)
+    <span class="kw">return</span> n
+}
+
+<span class="kw">func</span> <span class="fn">readLine</span>() <span class="ty">string</span> {
+    line, _ := reader.<span class="fn">ReadString</span>(<span class="str">'\n'</span>)
+    <span class="kw">return</span> line
+}
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="kw">defer</span> writer.<span class="fn">Flush</span>()  <span class="cm">// CRITICAL — without this, no output!</span>
+
+    n := <span class="fn">readInt</span>()
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; n; i++ {
+        x := <span class="fn">readInt</span>()
+        fmt.<span class="fn">Fprintln</span>(writer, x*<span class="num">2</span>)
+    }
+}
+</code></pre>
+
+  <div class="box danger">
+    <b>Forgot <code>writer.Flush()</code>?</b> Output won't appear. Use <code>defer writer.Flush()</code> as the FIRST line of <code>main</code>.
+  </div>
+  <div class="box tip"><b>For huge inputs</b> (1e6+ lines), use <code>bufio.Scanner</code> with custom buffer:
+<pre><code>sc := bufio.<span class="fn">NewScanner</span>(os.Stdin)
+sc.<span class="fn">Buffer</span>(<span class="kw">make</span>([]<span class="ty">byte</span>, <span class="num">1024</span>*<span class="num">1024</span>), <span class="num">1024</span>*<span class="num">1024</span>*<span class="num">64</span>)
+sc.<span class="fn">Split</span>(bufio.ScanWords)
+sc.<span class="fn">Scan</span>(); n, _ := strconv.<span class="fn">Atoi</span>(sc.<span class="fn">Text</span>())</code></pre>
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="nums">
+  <h2><span class="num">03</span> Numeric Tricks</h2>
+
+  <h3 class="syntax">Min / Max / Abs (Go 1.21+)</h3>
+<pre><code><span class="cm">// Built-in (Go 1.21+) — works for any ordered type</span>
+a := <span class="kw">min</span>(<span class="num">3</span>, <span class="num">5</span>, <span class="num">1</span>)        <span class="cm">// 1 — variadic!</span>
+b := <span class="kw">max</span>(<span class="num">3.14</span>, <span class="num">2.71</span>)      <span class="cm">// 3.14</span>
+
+<span class="cm">// Older Go: math.Min/Max are FLOAT64 only — be careful</span>
+math.<span class="fn">Min</span>(<span class="num">3.0</span>, <span class="num">5.0</span>)         <span class="cm">// returns float64</span>
+
+<span class="cm">// Abs for ints (no built-in!)</span>
+<span class="kw">func</span> <span class="fn">abs</span>(x <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">if</span> x &lt; <span class="num">0</span> { <span class="kw">return</span> -x }; <span class="kw">return</span> x }
+</code></pre>
+
+  <h3 class="syntax">Integer Limits</h3>
+<pre><code><span class="kw">import</span> <span class="str">"math"</span>
+
+math.<span class="ty">MaxInt</span>      <span class="cm">// platform-dependent (usually 1&lt;&lt;63 - 1)</span>
+math.<span class="ty">MinInt</span>      <span class="cm">// -1&lt;&lt;63</span>
+math.<span class="ty">MaxInt32</span>    <span class="cm">// 2147483647</span>
+math.<span class="ty">MaxInt64</span>    <span class="cm">// 9223372036854775807</span>
+math.<span class="ty">Inf</span>(<span class="num">1</span>)      <span class="cm">// +∞ (float64)</span>
+math.<span class="ty">Inf</span>(-<span class="num">1</span>)     <span class="cm">// -∞</span>
+</code></pre>
+
+  <h3 class="syntax">Bit Operations</h3>
+<pre><code>x &amp; y          <span class="cm">// AND</span>
+x | y          <span class="cm">// OR</span>
+x ^ y          <span class="cm">// XOR (also: NOT when used as ^x — unary)</span>
+x &amp;^ y         <span class="cm">// AND NOT (clear bits) — Go-SPECIFIC, super useful!</span>
+x &lt;&lt; k         <span class="cm">// shift left</span>
+x &gt;&gt; k         <span class="cm">// shift right (signed for int, unsigned for uint)</span>
+
+<span class="cm">// math/bits package — fast intrinsics</span>
+<span class="kw">import</span> <span class="str">"math/bits"</span>
+bits.<span class="fn">OnesCount</span>(<span class="num">0b1011</span>)         <span class="cm">// 3 (popcount)</span>
+bits.<span class="fn">LeadingZeros</span>(x)           <span class="cm">// for log2-like ops</span>
+bits.<span class="fn">TrailingZeros</span>(x)
+bits.<span class="fn">Len</span>(x)                     <span class="cm">// bit length (1+floor(log2(x)))</span>
+bits.<span class="fn">Reverse</span>(x)
+</code></pre>
+
+  <div class="box warn">
+    <b>Overflow gotcha:</b> Go does NOT check overflow. <code>int(1e18) * 10</code> silently overflows. For very large numbers use <code>math/big</code>:
+<pre><code><span class="kw">import</span> <span class="str">"math/big"</span>
+a := <span class="kw">new</span>(big.Int).<span class="fn">SetInt64</span>(<span class="num">100</span>)
+a.<span class="fn">Mul</span>(a, a)        <span class="cm">// in-place</span>
+a.<span class="fn">Mod</span>(a, mod)
+fmt.<span class="fn">Println</span>(a.<span class="fn">String</span>())</code></pre>
+  </div>
+
+  <h3 class="code">Power, GCD, LCM</h3>
+<pre><code><span class="cm">// gcd (recursive)</span>
+<span class="kw">func</span> <span class="fn">gcd</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">if</span> b == <span class="num">0</span> { <span class="kw">return</span> a }; <span class="kw">return</span> <span class="fn">gcd</span>(b, a%b) }
+
+<span class="cm">// lcm</span>
+<span class="kw">func</span> <span class="fn">lcm</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> a / <span class="fn">gcd</span>(a, b) * b }  <span class="cm">// divide first to avoid overflow</span>
+
+<span class="cm">// Fast power (mod)</span>
+<span class="kw">func</span> <span class="fn">powMod</span>(base, exp, mod <span class="ty">int</span>) <span class="ty">int</span> {
+    res := <span class="num">1</span>
+    base %= mod
+    <span class="kw">for</span> exp &gt; <span class="num">0</span> {
+        <span class="kw">if</span> exp&amp;<span class="num">1</span> == <span class="num">1</span> { res = res * base % mod }
+        base = base * base % mod
+        exp &gt;&gt;= <span class="num">1</span>
+    }
+    <span class="kw">return</span> res
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="strings">
+  <h2><span class="num">04</span> Strings &amp; Runes</h2>
+  <p class="tagline">Strings in Go are immutable bytes. Indexing returns a <code>byte</code>, not a character.</p>
+
+  <h3 class="syntax">The CRITICAL distinction</h3>
+<pre><code>s := <span class="str">"héllo"</span>           <span class="cm">// 6 bytes (é is 2 bytes UTF-8)</span>
+<span class="kw">len</span>(s)                  <span class="cm">// 6 — BYTES, not characters!</span>
+s[<span class="num">1</span>]                    <span class="cm">// byte (0xC3) — not 'é'!</span>
+
+<span class="cm">// To iterate by CHARACTER (rune):</span>
+<span class="kw">for</span> i, r := <span class="kw">range</span> s {  <span class="cm">// i = byte index, r = rune (int32)</span>
+    fmt.<span class="fn">Printf</span>(<span class="str">"%d: %c\n"</span>, i, r)
+}
+
+<span class="cm">// Convert to []rune for index-based access</span>
+runes := []<span class="ty">rune</span>(s)      <span class="cm">// allocates! O(n)</span>
+runes[<span class="num">1</span>]               <span class="cm">// 'é'</span>
+
+<span class="cm">// Convert to []byte (mutable copy)</span>
+bytes := []<span class="ty">byte</span>(s)
+</code></pre>
+
+  <h3 class="syntax">Building Strings — use <code>strings.Builder</code></h3>
+<pre><code><span class="cm">// ❌ DON'T — quadratic time!</span>
+result := <span class="str">""</span>
+<span class="kw">for</span> _, c := <span class="kw">range</span> input {
+    result += <span class="kw">string</span>(c)   <span class="cm">// allocates each time</span>
+}
+
+<span class="cm">// ✅ DO — O(n) total</span>
+<span class="kw">var</span> sb strings.<span class="ty">Builder</span>
+sb.<span class="fn">Grow</span>(<span class="kw">len</span>(input))    <span class="cm">// pre-size for performance</span>
+<span class="kw">for</span> _, c := <span class="kw">range</span> input {
+    sb.<span class="fn">WriteRune</span>(c)        <span class="cm">// or WriteByte / WriteString</span>
+}
+result := sb.<span class="fn">String</span>()
+</code></pre>
+
+  <h3 class="syntax">Common <code>strings</code> functions</h3>
+  <table class="cheat-table">
+    <tbody>
+      <tr><td><code>strings.Contains(s, sub)</code></td><td>substring check</td></tr>
+      <tr><td><code>strings.Index(s, sub)</code></td><td>first index, -1 if absent</td></tr>
+      <tr><td><code>strings.Split(s, sep)</code></td><td>→ <code>[]string</code></td></tr>
+      <tr><td><code>strings.Join(parts, sep)</code></td><td>→ <code>string</code></td></tr>
+      <tr><td><code>strings.Replace(s, old, new, n)</code></td><td>n=-1 for all</td></tr>
+      <tr><td><code>strings.ReplaceAll(s, old, new)</code></td><td>cleaner alias</td></tr>
+      <tr><td><code>strings.ToLower / ToUpper</code></td><td>case</td></tr>
+      <tr><td><code>strings.TrimSpace(s)</code></td><td>strip whitespace</td></tr>
+      <tr><td><code>strings.Repeat("ab", 3)</code></td><td>"ababab"</td></tr>
+      <tr><td><code>strings.HasPrefix / HasSuffix</code></td><td>prefix/suffix check</td></tr>
+      <tr><td><code>strconv.Itoa(n)</code></td><td>int → string</td></tr>
+      <tr><td><code>strconv.Atoi(s)</code></td><td>string → int (returns err)</td></tr>
+      <tr><td><code>strconv.FormatFloat(f, 'f', 6, 64)</code></td><td>float formatting</td></tr>
+      <tr><td><code>fmt.Sprintf("%d-%s", n, s)</code></td><td>generic formatting</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="code">Char checks (instead of <code>isalpha</code>/<code>isdigit</code>)</h3>
+<pre><code><span class="kw">import</span> <span class="str">"unicode"</span>
+unicode.<span class="fn">IsLetter</span>(r)
+unicode.<span class="fn">IsDigit</span>(r)
+unicode.<span class="fn">IsSpace</span>(r)
+unicode.<span class="fn">IsUpper</span>(r)
+unicode.<span class="fn">ToLower</span>(r)
+
+<span class="cm">// For ASCII speed-hack:</span>
+isDigit := c &gt;= <span class="str">'0'</span> &amp;&amp; c &lt;= <span class="str">'9'</span>
+isLower := c &gt;= <span class="str">'a'</span> &amp;&amp; c &lt;= <span class="str">'z'</span>
+toLower := c | <span class="num">0x20</span>     <span class="cm">// works for ASCII letters only!</span>
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="slices">
+  <h2><span class="num">05</span> Slices — the Swiss Army Knife</h2>
+
+  <h3 class="syntax">Initialize</h3>
+<pre><code><span class="kw">var</span> s []<span class="ty">int</span>                        <span class="cm">// nil slice (len 0, cap 0)</span>
+s := []<span class="ty">int</span>{}                       <span class="cm">// empty (not nil)</span>
+s := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}                <span class="cm">// literal</span>
+s := <span class="kw">make</span>([]<span class="ty">int</span>, <span class="num">10</span>)              <span class="cm">// len=10, all 0</span>
+s := <span class="kw">make</span>([]<span class="ty">int</span>, <span class="num">0</span>, <span class="num">100</span>)            <span class="cm">// len=0, cap=100 (pre-sized)</span>
+
+<span class="cm">// 2D slice (matrix)</span>
+n, m := <span class="num">3</span>, <span class="num">4</span>
+grid := <span class="kw">make</span>([][]<span class="ty">int</span>, n)
+<span class="kw">for</span> i := <span class="kw">range</span> grid {
+    grid[i] = <span class="kw">make</span>([]<span class="ty">int</span>, m)
+}
+</code></pre>
+
+  <h3 class="syntax">Common operations</h3>
+<pre><code><span class="cm">// Append</span>
+s = <span class="kw">append</span>(s, x)
+s = <span class="kw">append</span>(s, a, b, c)
+s = <span class="kw">append</span>(s, other...)         <span class="cm">// spread!</span>
+
+<span class="cm">// Slice (a[low:high:max])</span>
+sub := s[<span class="num">2</span>:<span class="num">5</span>]                  <span class="cm">// [2,3,4]</span>
+sub := s[:<span class="num">3</span>]                    <span class="cm">// first 3</span>
+sub := s[<span class="num">3</span>:]                    <span class="cm">// from 3 to end</span>
+copySafe := <span class="kw">append</span>([]<span class="ty">int</span>{}, s...)  <span class="cm">// independent copy</span>
+
+<span class="cm">// Length / capacity</span>
+<span class="kw">len</span>(s)   <span class="cm">// elements present</span>
+<span class="kw">cap</span>(s)   <span class="cm">// total allocated</span>
+
+<span class="cm">// Remove element at index i (order doesn't matter)</span>
+s[i] = s[<span class="kw">len</span>(s)-<span class="num">1</span>]
+s = s[:<span class="kw">len</span>(s)-<span class="num">1</span>]
+
+<span class="cm">// Remove preserving order</span>
+s = <span class="kw">append</span>(s[:i], s[i+<span class="num">1</span>:]...)
+
+<span class="cm">// Insert at index i</span>
+s = <span class="kw">append</span>(s[:i], <span class="kw">append</span>([]<span class="ty">int</span>{x}, s[i:]...)...)
+
+<span class="cm">// Reverse in-place</span>
+<span class="kw">for</span> i, j := <span class="num">0</span>, <span class="kw">len</span>(s)-<span class="num">1</span>; i &lt; j; i, j = i+<span class="num">1</span>, j-<span class="num">1</span> {
+    s[i], s[j] = s[j], s[i]
+}
+
+<span class="cm">// slices package (Go 1.21+) — USE THESE!</span>
+<span class="kw">import</span> <span class="str">"slices"</span>
+slices.<span class="fn">Contains</span>(s, x)
+slices.<span class="fn">Index</span>(s, x)             <span class="cm">// -1 if not found</span>
+slices.<span class="fn">Reverse</span>(s)               <span class="cm">// in-place</span>
+slices.<span class="fn">Sort</span>(s)
+slices.<span class="fn">Min</span>(s)                   <span class="cm">// panics on empty</span>
+slices.<span class="fn">Max</span>(s)
+slices.<span class="fn">Equal</span>(a, b)
+slices.<span class="fn">Clone</span>(s)
+slices.<span class="fn">Concat</span>(a, b, c)
+</code></pre>
+
+  <div class="box danger">
+    <b>The #1 slice gotcha:</b> Slicing shares memory with the parent array. Modifying <code>sub</code> changes <code>s</code>!
+<pre><code>s := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>}
+sub := s[<span class="num">1</span>:<span class="num">3</span>]
+sub[<span class="num">0</span>] = <span class="num">99</span>          <span class="cm">// s is now [1, 99, 3, 4, 5] !!</span>
+
+<span class="cm">// Make independent copy:</span>
+sub = <span class="kw">append</span>([]<span class="ty">int</span>{}, s[<span class="num">1</span>:<span class="num">3</span>]...)
+<span class="cm">// or:</span>
+sub = slices.<span class="fn">Clone</span>(s[<span class="num">1</span>:<span class="num">3</span>])</code></pre>
+  </div>
+
+  <div class="box warn">
+    <b>Append in DFS/backtracking:</b> When passing slices to recursive calls, append may or may not share underlying array. ALWAYS clone before adding to result:
+<pre><code>result = <span class="kw">append</span>(result, <span class="kw">append</span>([]<span class="ty">int</span>{}, path...))</code></pre>
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="maps">
+  <h2><span class="num">06</span> Maps &amp; Sets</h2>
+
+  <h3 class="syntax">Map basics</h3>
+<pre><code>m := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>)
+m := <span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>{<span class="str">"a"</span>: <span class="num">1</span>, <span class="str">"b"</span>: <span class="num">2</span>}
+m := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>, <span class="num">100</span>)  <span class="cm">// pre-sized</span>
+
+m[<span class="str">"key"</span>] = <span class="num">42</span>
+
+<span class="cm">// Existence check (the comma-ok idiom — MEMORIZE THIS)</span>
+v, ok := m[<span class="str">"key"</span>]
+<span class="kw">if</span> ok { <span class="cm">// key exists</span> }
+
+<span class="cm">// Read-only — missing key returns ZERO VALUE (no error!)</span>
+count := m[<span class="str">"missing"</span>]   <span class="cm">// 0 — gotcha if you confuse "missing" with "0"</span>
+
+<span class="kw">delete</span>(m, <span class="str">"key"</span>)         <span class="cm">// no-op if absent</span>
+<span class="kw">len</span>(m)                  <span class="cm">// number of keys</span>
+
+<span class="cm">// Iterate — ORDER IS RANDOMIZED (Go does this on purpose!)</span>
+<span class="kw">for</span> k, v := <span class="kw">range</span> m {
+    <span class="cm">// ...</span>
+}
+</code></pre>
+
+  <h3 class="syntax">Set pattern (Go has no built-in set!)</h3>
+<pre><code><span class="cm">// ✅ Idiomatic: map[T]struct{} — uses 0 bytes per value</span>
+seen := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">int</span>]<span class="kw">struct</span>{})
+seen[<span class="num">42</span>] = <span class="kw">struct</span>{}{}
+_, exists := seen[<span class="num">42</span>]
+
+<span class="cm">// Lazier: map[T]bool (uses 1 byte per value, but cleaner code)</span>
+seen := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">int</span>]<span class="ty">bool</span>)
+seen[<span class="num">42</span>] = <span class="kw">true</span>
+<span class="kw">if</span> seen[<span class="num">42</span>] { <span class="cm">// works because zero value is false</span> }
+</code></pre>
+
+  <h3 class="syntax">Counter / frequency map</h3>
+<pre><code>freq := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">rune</span>]<span class="ty">int</span>)
+<span class="kw">for</span> _, c := <span class="kw">range</span> s {
+    freq[c]++          <span class="cm">// missing key starts at 0, ++ works!</span>
+}
+</code></pre>
+
+  <h3 class="syntax">Map of slices (default value pattern)</h3>
+<pre><code>graph := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">int</span>][]<span class="ty">int</span>)
+graph[<span class="num">1</span>] = <span class="kw">append</span>(graph[<span class="num">1</span>], <span class="num">2</span>)   <span class="cm">// works! nil slice + append = new slice</span>
+graph[<span class="num">1</span>] = <span class="kw">append</span>(graph[<span class="num">1</span>], <span class="num">3</span>)
+</code></pre>
+
+  <div class="box danger">
+    <b>Cannot take address of map value:</b>
+<pre><code>m := <span class="kw">map</span>[<span class="ty">int</span>]Point{<span class="num">1</span>: {x: <span class="num">5</span>}}
+<span class="cm">// m[1].x = 10  // ❌ compile error!</span>
+p := m[<span class="num">1</span>]; p.x = <span class="num">10</span>; m[<span class="num">1</span>] = p   <span class="cm">// ✅ read-modify-write</span>
+<span class="cm">// OR use map[int]*Point</span></code></pre>
+  </div>
+  <div class="box warn">
+    <b>Map iteration order is RANDOMIZED.</b> Don't rely on order. To iterate in sorted key order:
+<pre><code>keys := <span class="kw">make</span>([]<span class="ty">int</span>, <span class="num">0</span>, <span class="kw">len</span>(m))
+<span class="kw">for</span> k := <span class="kw">range</span> m { keys = <span class="kw">append</span>(keys, k) }
+sort.<span class="fn">Ints</span>(keys)
+<span class="kw">for</span> _, k := <span class="kw">range</span> keys { <span class="cm">/* use m[k] */</span> }</code></pre>
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="sort">
+  <h2><span class="num">07</span> Sorting &amp; Custom Comparators</h2>
+
+  <h3 class="syntax">Built-in sorting</h3>
+<pre><code><span class="kw">import</span> <span class="str">"sort"</span>
+
+sort.<span class="fn">Ints</span>(nums)                     <span class="cm">// []int ascending</span>
+sort.<span class="fn">Strings</span>(words)
+sort.<span class="fn">Float64s</span>(vals)
+sort.<span class="fn">Sort</span>(sort.<span class="fn">Reverse</span>(sort.<span class="fn">IntSlice</span>(nums)))  <span class="cm">// descending</span>
+
+<span class="cm">// Custom — use sort.Slice (most common)</span>
+sort.<span class="fn">Slice</span>(people, <span class="kw">func</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> {
+    <span class="kw">return</span> people[i].age &lt; people[j].age   <span class="cm">// ascending by age</span>
+})
+
+<span class="cm">// Stable sort (preserves order of equal elements)</span>
+sort.<span class="fn">SliceStable</span>(s, <span class="kw">func</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> { <span class="cm">/* ... */</span> })
+
+<span class="cm">// slices package (Go 1.21+)</span>
+slices.<span class="fn">Sort</span>(nums)                    <span class="cm">// generic, faster than sort.Ints!</span>
+slices.<span class="fn">SortFunc</span>(people, <span class="kw">func</span>(a, b Person) <span class="ty">int</span> {
+    <span class="kw">return</span> a.age - b.age              <span class="cm">// negative=less, 0=equal, positive=greater</span>
+})
+slices.<span class="fn">SortStableFunc</span>(...)
+</code></pre>
+
+  <h3 class="syntax">Multi-key sort (chained comparator)</h3>
+<pre><code>sort.<span class="fn">Slice</span>(items, <span class="kw">func</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> {
+    <span class="kw">if</span> items[i].priority != items[j].priority {
+        <span class="kw">return</span> items[i].priority &gt; items[j].priority   <span class="cm">// 1st key DESC</span>
+    }
+    <span class="kw">if</span> items[i].name != items[j].name {
+        <span class="kw">return</span> items[i].name &lt; items[j].name           <span class="cm">// 2nd key ASC</span>
+    }
+    <span class="kw">return</span> items[i].id &lt; items[j].id                   <span class="cm">// tie-breaker</span>
+})
+</code></pre>
+
+  <h3 class="syntax">Binary search</h3>
+<pre><code>idx := sort.<span class="fn">SearchInts</span>(sortedNums, target)
+<span class="cm">// Returns the smallest index i such that sortedNums[i] &gt;= target.</span>
+<span class="cm">// If target is bigger than all, returns len(sortedNums).</span>
+
+<span class="cm">// Generic version (Go 1.21+)</span>
+idx, found := slices.<span class="fn">BinarySearch</span>(sortedNums, target)
+
+<span class="cm">// Custom predicate</span>
+idx := sort.<span class="fn">Search</span>(n, <span class="kw">func</span>(i <span class="ty">int</span>) <span class="ty">bool</span> {
+    <span class="kw">return</span> isFeasible(i)   <span class="cm">// returns smallest i where this is true</span>
+})
+</code></pre>
+
+  <div class="box tip"><b>Pattern:</b> Use <code>sort.Search</code> for "binary search the answer" problems (e.g. min capacity to ship in D days).</div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="stack-queue">
+  <h2><span class="num">08</span> Stack, Queue &amp; Deque</h2>
+  <p class="tagline">Go has no built-in stack/queue/deque. Slices do everything.</p>
+
+  <h3 class="syntax">Stack — slice with append/pop</h3>
+<pre><code><span class="kw">var</span> stack []<span class="ty">int</span>
+
+stack = <span class="kw">append</span>(stack, x)         <span class="cm">// push</span>
+top := stack[<span class="kw">len</span>(stack)-<span class="num">1</span>]      <span class="cm">// peek</span>
+stack = stack[:<span class="kw">len</span>(stack)-<span class="num">1</span>]    <span class="cm">// pop</span>
+isEmpty := <span class="kw">len</span>(stack) == <span class="num">0</span>
+</code></pre>
+
+  <h3 class="syntax">Queue — use slice as ring buffer OR just slice (BFS)</h3>
+<pre><code><span class="cm">// Simple FIFO via slice (fine for BFS — total work is O(n))</span>
+queue := []<span class="ty">int</span>{start}
+<span class="kw">for</span> <span class="kw">len</span>(queue) &gt; <span class="num">0</span> {
+    node := queue[<span class="num">0</span>]
+    queue = queue[<span class="num">1</span>:]            <span class="cm">// dequeue (O(1) amortized — slice header moves)</span>
+    <span class="cm">// process node...</span>
+    queue = <span class="kw">append</span>(queue, neighbor)  <span class="cm">// enqueue</span>
+}
+</code></pre>
+  <div class="box warn">
+    <b>The <code>queue[1:]</code> trick is fine for BFS</b> but the underlying array grows unboundedly if you push and pop a LOT (memory leak). For long-running queues use <code>container/list</code> or a ring buffer.
+  </div>
+
+  <h3 class="syntax">Deque — double-ended queue (sliding window max etc.)</h3>
+<pre><code><span class="kw">var</span> dq []<span class="ty">int</span>
+
+<span class="cm">// Push back / pop back (cheap)</span>
+dq = <span class="kw">append</span>(dq, x)
+back := dq[<span class="kw">len</span>(dq)-<span class="num">1</span>]; dq = dq[:<span class="kw">len</span>(dq)-<span class="num">1</span>]
+
+<span class="cm">// Push front / pop front</span>
+dq = <span class="kw">append</span>([]<span class="ty">int</span>{x}, dq...)   <span class="cm">// push front (O(n) — avoid hot loops)</span>
+front := dq[<span class="num">0</span>]; dq = dq[<span class="num">1</span>:]    <span class="cm">// pop front (O(1) amortized)</span>
+</code></pre>
+
+  <h3 class="code">container/list — doubly linked list (rarely needed)</h3>
+<pre><code><span class="kw">import</span> <span class="str">"container/list"</span>
+
+l := list.<span class="fn">New</span>()
+l.<span class="fn">PushBack</span>(<span class="num">1</span>)
+l.<span class="fn">PushFront</span>(<span class="num">2</span>)
+front := l.<span class="fn">Front</span>().Value.(<span class="ty">int</span>)   <span class="cm">// type assert!</span>
+l.<span class="fn">Remove</span>(l.<span class="fn">Front</span>())
+</code></pre>
+  <div class="box tip">In practice <b>plain slices beat <code>container/list</code> for almost everything</b> due to cache locality. Only use list when you need O(1) middle removal.</div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="heap">
+  <h2><span class="num">09</span> Heap / Priority Queue</h2>
+  <p class="tagline">Go's <code>container/heap</code> is a INTERFACE — you must implement 5 methods. Verbose but you'll memorize it.</p>
+
+  <h3 class="syntax">Min-heap of ints (template)</h3>
+<pre><code><span class="kw">import</span> <span class="str">"container/heap"</span>
+
+<span class="cm">// 1. Define a slice TYPE that satisfies heap.Interface</span>
+<span class="kw">type</span> IntHeap []<span class="ty">int</span>
+
+<span class="kw">func</span> (h IntHeap) <span class="fn">Len</span>() <span class="ty">int</span>           { <span class="kw">return</span> <span class="kw">len</span>(h) }
+<span class="kw">func</span> (h IntHeap) <span class="fn">Less</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> { <span class="kw">return</span> h[i] &lt; h[j] }  <span class="cm">// MIN heap (use &gt; for max)</span>
+<span class="kw">func</span> (h IntHeap) <span class="fn">Swap</span>(i, j <span class="ty">int</span>)      { h[i], h[j] = h[j], h[i] }
+<span class="kw">func</span> (h *IntHeap) <span class="fn">Push</span>(x <span class="kw">any</span>)        { *h = <span class="kw">append</span>(*h, x.(<span class="ty">int</span>)) }
+<span class="kw">func</span> (h *IntHeap) <span class="fn">Pop</span>() <span class="kw">any</span> {
+    old := *h
+    n := <span class="kw">len</span>(old)
+    x := old[n-<span class="num">1</span>]
+    *h = old[:n-<span class="num">1</span>]
+    <span class="kw">return</span> x
+}
+
+<span class="cm">// 2. Use it</span>
+h := &amp;IntHeap{<span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">5</span>}
+heap.<span class="fn">Init</span>(h)                    <span class="cm">// heapify O(n)</span>
+heap.<span class="fn">Push</span>(h, <span class="num">9</span>)
+top := (*h)[<span class="num">0</span>]                 <span class="cm">// peek (no Peek method!)</span>
+min := heap.<span class="fn">Pop</span>(h).(<span class="ty">int</span>)        <span class="cm">// pop &amp; type-assert</span>
+</code></pre>
+
+  <h3 class="syntax">Max-heap → flip the <code>Less</code> sign</h3>
+<pre><code><span class="kw">func</span> (h IntHeap) <span class="fn">Less</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> { <span class="kw">return</span> h[i] &gt; h[j] }
+</code></pre>
+
+  <h3 class="syntax">Priority queue with custom struct</h3>
+<pre><code><span class="kw">type</span> Item <span class="kw">struct</span> {
+    val      <span class="ty">int</span>
+    priority <span class="ty">int</span>
+}
+<span class="kw">type</span> PQ []*Item
+
+<span class="kw">func</span> (q PQ) <span class="fn">Len</span>() <span class="ty">int</span>            { <span class="kw">return</span> <span class="kw">len</span>(q) }
+<span class="kw">func</span> (q PQ) <span class="fn">Less</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span>  { <span class="kw">return</span> q[i].priority &lt; q[j].priority }
+<span class="kw">func</span> (q PQ) <span class="fn">Swap</span>(i, j <span class="ty">int</span>)       { q[i], q[j] = q[j], q[i] }
+<span class="kw">func</span> (q *PQ) <span class="fn">Push</span>(x <span class="kw">any</span>)         { *q = <span class="kw">append</span>(*q, x.(*Item)) }
+<span class="kw">func</span> (q *PQ) <span class="fn">Pop</span>() <span class="kw">any</span>            { o := *q; n := <span class="kw">len</span>(o); x := o[n-<span class="num">1</span>]; *q = o[:n-<span class="num">1</span>]; <span class="kw">return</span> x }
+</code></pre>
+
+  <div class="box danger">
+    <b>Common mistakes:</b>
+    <ol>
+      <li>Calling <code>h.Push(x)</code> instead of <code>heap.Push(h, x)</code> — won't reheapify!</li>
+      <li>Forgetting type assertion: <code>heap.Pop(h).(int)</code></li>
+      <li>Push/Pop must be on POINTER receiver (they modify the slice header).</li>
+    </ol>
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="linked-list">
+  <h2><span class="num">10</span> Linked List</h2>
+
+<pre><code><span class="kw">type</span> ListNode <span class="kw">struct</span> {
+    Val  <span class="ty">int</span>
+    Next *ListNode
+}
+
+<span class="cm">// Sentinel/dummy node — eliminates edge cases for head changes</span>
+dummy := &amp;ListNode{}
+dummy.Next = head
+prev := dummy
+<span class="kw">for</span> prev.Next != <span class="kw">nil</span> {
+    <span class="kw">if</span> prev.Next.Val == target {
+        prev.Next = prev.Next.Next     <span class="cm">// remove</span>
+    } <span class="kw">else</span> {
+        prev = prev.Next
+    }
+}
+<span class="kw">return</span> dummy.Next
+
+<span class="cm">// Reverse</span>
+<span class="kw">var</span> prev *ListNode
+curr := head
+<span class="kw">for</span> curr != <span class="kw">nil</span> {
+    next := curr.Next
+    curr.Next = prev
+    prev, curr = curr, next
+}
+<span class="kw">return</span> prev   <span class="cm">// new head</span>
+
+<span class="cm">// Cycle detection (Floyd's)</span>
+slow, fast := head, head
+<span class="kw">for</span> fast != <span class="kw">nil</span> &amp;&amp; fast.Next != <span class="kw">nil</span> {
+    slow, fast = slow.Next, fast.Next.Next
+    <span class="kw">if</span> slow == fast { <span class="kw">return</span> <span class="kw">true</span> }
+}
+<span class="kw">return</span> <span class="kw">false</span>
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="trees">
+  <h2><span class="num">11</span> Trees &amp; Recursion</h2>
+
+<pre><code><span class="kw">type</span> TreeNode <span class="kw">struct</span> {
+    Val         <span class="ty">int</span>
+    Left, Right *TreeNode
+}
+
+<span class="cm">// DFS — recursive</span>
+<span class="kw">var</span> dfs <span class="kw">func</span>(node *TreeNode) <span class="ty">int</span>
+dfs = <span class="kw">func</span>(node *TreeNode) <span class="ty">int</span> {
+    <span class="kw">if</span> node == <span class="kw">nil</span> { <span class="kw">return</span> <span class="num">0</span> }
+    l := <span class="fn">dfs</span>(node.Left)
+    r := <span class="fn">dfs</span>(node.Right)
+    <span class="kw">return</span> <span class="num">1</span> + <span class="kw">max</span>(l, r)
+}
+height := <span class="fn">dfs</span>(root)
+
+<span class="cm">// DFS — iterative with stack</span>
+stack := []*TreeNode{root}
+<span class="kw">for</span> <span class="kw">len</span>(stack) &gt; <span class="num">0</span> {
+    n := stack[<span class="kw">len</span>(stack)-<span class="num">1</span>]
+    stack = stack[:<span class="kw">len</span>(stack)-<span class="num">1</span>]
+    <span class="kw">if</span> n == <span class="kw">nil</span> { <span class="kw">continue</span> }
+    <span class="cm">// process n.Val</span>
+    stack = <span class="kw">append</span>(stack, n.Right, n.Left)   <span class="cm">// push right first so left is popped first</span>
+}
+
+<span class="cm">// BFS — level order</span>
+queue := []*TreeNode{root}
+<span class="kw">for</span> <span class="kw">len</span>(queue) &gt; <span class="num">0</span> {
+    levelSize := <span class="kw">len</span>(queue)
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; levelSize; i++ {
+        n := queue[<span class="num">0</span>]; queue = queue[<span class="num">1</span>:]
+        <span class="kw">if</span> n.Left != <span class="kw">nil</span>  { queue = <span class="kw">append</span>(queue, n.Left) }
+        <span class="kw">if</span> n.Right != <span class="kw">nil</span> { queue = <span class="kw">append</span>(queue, n.Right) }
+    }
+    <span class="cm">// `levelSize` = nodes on this level</span>
+}
+
+<span class="cm">// Closure trick for backtracking — captures `result` cleanly</span>
+<span class="kw">func</span> <span class="fn">paths</span>(root *TreeNode) [][]<span class="ty">int</span> {
+    <span class="kw">var</span> result [][]<span class="ty">int</span>
+    <span class="kw">var</span> path []<span class="ty">int</span>
+    <span class="kw">var</span> dfs <span class="kw">func</span>(*TreeNode)
+    dfs = <span class="kw">func</span>(node *TreeNode) {
+        <span class="kw">if</span> node == <span class="kw">nil</span> { <span class="kw">return</span> }
+        path = <span class="kw">append</span>(path, node.Val)
+        <span class="kw">if</span> node.Left == <span class="kw">nil</span> &amp;&amp; node.Right == <span class="kw">nil</span> {
+            result = <span class="kw">append</span>(result, <span class="kw">append</span>([]<span class="ty">int</span>{}, path...))  <span class="cm">// CLONE!</span>
+        }
+        <span class="fn">dfs</span>(node.Left)
+        <span class="fn">dfs</span>(node.Right)
+        path = path[:<span class="kw">len</span>(path)-<span class="num">1</span>]    <span class="cm">// backtrack</span>
+    }
+    <span class="fn">dfs</span>(root)
+    <span class="kw">return</span> result
+}
+</code></pre>
+
+  <div class="box danger"><b>The closure trick</b> is the cleanest way to do recursion in Go. <b>Always clone slices before adding to result</b> in backtracking.</div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="graphs">
+  <h2><span class="num">12</span> Graphs (BFS / DFS / Dijkstra / Union-Find)</h2>
+
+  <h3 class="syntax">Adjacency list</h3>
+<pre><code><span class="cm">// For n nodes labeled 0..n-1</span>
+graph := <span class="kw">make</span>([][]<span class="ty">int</span>, n)
+<span class="kw">for</span> _, e := <span class="kw">range</span> edges {
+    u, v := e[<span class="num">0</span>], e[<span class="num">1</span>]
+    graph[u] = <span class="kw">append</span>(graph[u], v)
+    graph[v] = <span class="kw">append</span>(graph[v], u)   <span class="cm">// undirected</span>
+}
+</code></pre>
+
+  <h3 class="syntax">BFS shortest path (unweighted)</h3>
+<pre><code>dist := <span class="kw">make</span>([]<span class="ty">int</span>, n)
+<span class="kw">for</span> i := <span class="kw">range</span> dist { dist[i] = -<span class="num">1</span> }
+dist[start] = <span class="num">0</span>
+queue := []<span class="ty">int</span>{start}
+<span class="kw">for</span> <span class="kw">len</span>(queue) &gt; <span class="num">0</span> {
+    u := queue[<span class="num">0</span>]; queue = queue[<span class="num">1</span>:]
+    <span class="kw">for</span> _, v := <span class="kw">range</span> graph[u] {
+        <span class="kw">if</span> dist[v] == -<span class="num">1</span> {
+            dist[v] = dist[u] + <span class="num">1</span>
+            queue = <span class="kw">append</span>(queue, v)
+        }
+    }
+}
+</code></pre>
+
+  <h3 class="syntax">Dijkstra (weighted, non-negative)</h3>
+<pre><code><span class="kw">type</span> Edge <span class="kw">struct</span> { to, w <span class="ty">int</span> }
+<span class="kw">type</span> PQItem <span class="kw">struct</span> { node, dist <span class="ty">int</span> }
+<span class="kw">type</span> PQ []PQItem
+
+<span class="kw">func</span> (q PQ) <span class="fn">Len</span>() <span class="ty">int</span>           { <span class="kw">return</span> <span class="kw">len</span>(q) }
+<span class="kw">func</span> (q PQ) <span class="fn">Less</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> { <span class="kw">return</span> q[i].dist &lt; q[j].dist }
+<span class="kw">func</span> (q PQ) <span class="fn">Swap</span>(i, j <span class="ty">int</span>)      { q[i], q[j] = q[j], q[i] }
+<span class="kw">func</span> (q *PQ) <span class="fn">Push</span>(x <span class="kw">any</span>)        { *q = <span class="kw">append</span>(*q, x.(PQItem)) }
+<span class="kw">func</span> (q *PQ) <span class="fn">Pop</span>() <span class="kw">any</span>           { o := *q; x := o[<span class="kw">len</span>(o)-<span class="num">1</span>]; *q = o[:<span class="kw">len</span>(o)-<span class="num">1</span>]; <span class="kw">return</span> x }
+
+<span class="kw">func</span> <span class="fn">dijkstra</span>(graph [][]Edge, src <span class="ty">int</span>) []<span class="ty">int</span> {
+    n := <span class="kw">len</span>(graph)
+    dist := <span class="kw">make</span>([]<span class="ty">int</span>, n)
+    <span class="kw">for</span> i := <span class="kw">range</span> dist { dist[i] = math.<span class="ty">MaxInt</span> }
+    dist[src] = <span class="num">0</span>
+
+    pq := &amp;PQ{{src, <span class="num">0</span>}}
+    heap.<span class="fn">Init</span>(pq)
+    <span class="kw">for</span> pq.<span class="fn">Len</span>() &gt; <span class="num">0</span> {
+        cur := heap.<span class="fn">Pop</span>(pq).(PQItem)
+        <span class="kw">if</span> cur.dist &gt; dist[cur.node] { <span class="kw">continue</span> }   <span class="cm">// stale entry</span>
+        <span class="kw">for</span> _, e := <span class="kw">range</span> graph[cur.node] {
+            <span class="kw">if</span> nd := cur.dist + e.w; nd &lt; dist[e.to] {
+                dist[e.to] = nd
+                heap.<span class="fn">Push</span>(pq, PQItem{e.to, nd})
+            }
+        }
+    }
+    <span class="kw">return</span> dist
+}
+</code></pre>
+
+  <h3 class="syntax">Union-Find (DSU)</h3>
+<pre><code><span class="kw">type</span> DSU <span class="kw">struct</span> {
+    parent, rank []<span class="ty">int</span>
+}
+
+<span class="kw">func</span> <span class="fn">NewDSU</span>(n <span class="ty">int</span>) *DSU {
+    p := <span class="kw">make</span>([]<span class="ty">int</span>, n)
+    <span class="kw">for</span> i := <span class="kw">range</span> p { p[i] = i }
+    <span class="kw">return</span> &amp;DSU{parent: p, rank: <span class="kw">make</span>([]<span class="ty">int</span>, n)}
+}
+
+<span class="kw">func</span> (d *DSU) <span class="fn">Find</span>(x <span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">if</span> d.parent[x] != x {
+        d.parent[x] = d.<span class="fn">Find</span>(d.parent[x])   <span class="cm">// path compression</span>
+    }
+    <span class="kw">return</span> d.parent[x]
+}
+
+<span class="kw">func</span> (d *DSU) <span class="fn">Union</span>(x, y <span class="ty">int</span>) <span class="ty">bool</span> {
+    rx, ry := d.<span class="fn">Find</span>(x), d.<span class="fn">Find</span>(y)
+    <span class="kw">if</span> rx == ry { <span class="kw">return</span> <span class="kw">false</span> }
+    <span class="kw">if</span> d.rank[rx] &lt; d.rank[ry] { rx, ry = ry, rx }
+    d.parent[ry] = rx
+    <span class="kw">if</span> d.rank[rx] == d.rank[ry] { d.rank[rx]++ }
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="dp">
+  <h2><span class="num">13</span> Dynamic Programming Templates</h2>
+
+  <h3 class="syntax">1D DP — climbing stairs / coin change</h3>
+<pre><code>dp := <span class="kw">make</span>([]<span class="ty">int</span>, n+<span class="num">1</span>)
+dp[<span class="num">0</span>] = <span class="num">1</span>
+<span class="kw">for</span> i := <span class="num">1</span>; i &lt;= n; i++ {
+    <span class="kw">for</span> _, c := <span class="kw">range</span> coins {
+        <span class="kw">if</span> i &gt;= c { dp[i] += dp[i-c] }
+    }
+}
+</code></pre>
+
+  <h3 class="syntax">2D DP — LCS / edit distance</h3>
+<pre><code>m, n := <span class="kw">len</span>(a), <span class="kw">len</span>(b)
+dp := <span class="kw">make</span>([][]<span class="ty">int</span>, m+<span class="num">1</span>)
+<span class="kw">for</span> i := <span class="kw">range</span> dp { dp[i] = <span class="kw">make</span>([]<span class="ty">int</span>, n+<span class="num">1</span>) }
+
+<span class="kw">for</span> i := <span class="num">1</span>; i &lt;= m; i++ {
+    <span class="kw">for</span> j := <span class="num">1</span>; j &lt;= n; j++ {
+        <span class="kw">if</span> a[i-<span class="num">1</span>] == b[j-<span class="num">1</span>] {
+            dp[i][j] = dp[i-<span class="num">1</span>][j-<span class="num">1</span>] + <span class="num">1</span>
+        } <span class="kw">else</span> {
+            dp[i][j] = <span class="kw">max</span>(dp[i-<span class="num">1</span>][j], dp[i][j-<span class="num">1</span>])
+        }
+    }
+}
+</code></pre>
+
+  <h3 class="syntax">Memoization with map (top-down)</h3>
+<pre><code>memo := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">int</span>]<span class="ty">int</span>)            <span class="cm">// or [2]int key for 2D</span>
+<span class="kw">var</span> solve <span class="kw">func</span>(<span class="ty">int</span>) <span class="ty">int</span>
+solve = <span class="kw">func</span>(state <span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">if</span> v, ok := memo[state]; ok { <span class="kw">return</span> v }
+    <span class="kw">if</span> base { <span class="kw">return</span> <span class="num">0</span> }
+    res := <span class="cm">/* recurrence */</span> <span class="num">0</span>
+    memo[state] = res
+    <span class="kw">return</span> res
+}
+</code></pre>
+
+  <div class="box tip">
+    For 2D memo with int keys, encode as <code>i*MAX + j</code> or use <code>map[[2]int]int</code> (struct/array keys are valid in Go).
+  </div>
+
+  <h3 class="syntax">Bitmask DP (TSP-style)</h3>
+<pre><code><span class="cm">// dp[mask][i] = min cost to visit set `mask` ending at i</span>
+dp := <span class="kw">make</span>([][]<span class="ty">int</span>, <span class="num">1</span>&lt;&lt;n)
+<span class="kw">for</span> i := <span class="kw">range</span> dp {
+    dp[i] = <span class="kw">make</span>([]<span class="ty">int</span>, n)
+    <span class="kw">for</span> j := <span class="kw">range</span> dp[i] { dp[i][j] = math.<span class="ty">MaxInt</span> }
+}
+dp[<span class="num">1</span>][<span class="num">0</span>] = <span class="num">0</span>   <span class="cm">// start at node 0</span>
+
+<span class="kw">for</span> mask := <span class="num">1</span>; mask &lt; <span class="num">1</span>&lt;&lt;n; mask++ {
+    <span class="kw">for</span> u := <span class="num">0</span>; u &lt; n; u++ {
+        <span class="kw">if</span> mask&amp;(<span class="num">1</span>&lt;&lt;u) == <span class="num">0</span> { <span class="kw">continue</span> }
+        <span class="kw">for</span> v := <span class="num">0</span>; v &lt; n; v++ {
+            <span class="kw">if</span> mask&amp;(<span class="num">1</span>&lt;&lt;v) != <span class="num">0</span> { <span class="kw">continue</span> }
+            newMask := mask | (<span class="num">1</span>&lt;&lt;v)
+            <span class="kw">if</span> nd := dp[mask][u] + cost[u][v]; nd &lt; dp[newMask][v] {
+                dp[newMask][v] = nd
+            }
+        }
+    }
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="twoptr">
+  <h2><span class="num">14</span> Two Pointers / Sliding Window / Binary Search</h2>
+
+  <h3 class="syntax">Two pointers (sorted array, e.g. two-sum)</h3>
+<pre><code>l, r := <span class="num">0</span>, <span class="kw">len</span>(nums)-<span class="num">1</span>
+<span class="kw">for</span> l &lt; r {
+    sum := nums[l] + nums[r]
+    <span class="kw">switch</span> {
+    <span class="kw">case</span> sum == target: <span class="kw">return</span> []<span class="ty">int</span>{l, r}
+    <span class="kw">case</span> sum &lt; target:  l++
+    <span class="kw">default</span>:           r--
+    }
+}
+</code></pre>
+
+  <h3 class="syntax">Sliding window (longest substring without repeat)</h3>
+<pre><code>seen := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">byte</span>]<span class="ty">int</span>)
+best, l := <span class="num">0</span>, <span class="num">0</span>
+<span class="kw">for</span> r := <span class="num">0</span>; r &lt; <span class="kw">len</span>(s); r++ {
+    <span class="kw">if</span> idx, ok := seen[s[r]]; ok &amp;&amp; idx &gt;= l {
+        l = idx + <span class="num">1</span>
+    }
+    seen[s[r]] = r
+    <span class="kw">if</span> r-l+<span class="num">1</span> &gt; best { best = r - l + <span class="num">1</span> }
+}
+</code></pre>
+
+  <h3 class="syntax">Binary search the answer</h3>
+<pre><code>lo, hi := <span class="num">1</span>, maxVal
+<span class="kw">for</span> lo &lt; hi {
+    mid := lo + (hi-lo)/<span class="num">2</span>          <span class="cm">// avoid overflow</span>
+    <span class="kw">if</span> <span class="fn">canDo</span>(mid) {
+        hi = mid                    <span class="cm">// keep mid as a candidate</span>
+    } <span class="kw">else</span> {
+        lo = mid + <span class="num">1</span>
+    }
+}
+<span class="kw">return</span> lo  <span class="cm">// smallest value satisfying canDo</span>
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="bitset">
+  <h2><span class="num">15</span> Bitset / Bitmask</h2>
+
+<pre><code><span class="cm">// Subset enumeration</span>
+<span class="kw">for</span> mask := <span class="num">0</span>; mask &lt; <span class="num">1</span>&lt;&lt;n; mask++ {
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; n; i++ {
+        <span class="kw">if</span> mask&amp;(<span class="num">1</span>&lt;&lt;i) != <span class="num">0</span> {
+            <span class="cm">// element i is in subset</span>
+        }
+    }
+}
+
+<span class="cm">// Set / clear / toggle / test bit i</span>
+mask |= (<span class="num">1</span> &lt;&lt; i)        <span class="cm">// set</span>
+mask &amp;^= (<span class="num">1</span> &lt;&lt; i)       <span class="cm">// clear (Go-specific operator!)</span>
+mask ^= (<span class="num">1</span> &lt;&lt; i)        <span class="cm">// toggle</span>
+isSet := mask&amp;(<span class="num">1</span>&lt;&lt;i) != <span class="num">0</span>
+
+<span class="cm">// Iterate over set bits</span>
+<span class="kw">for</span> m := mask; m != <span class="num">0</span>; m &amp;= m - <span class="num">1</span> {
+    bit := bits.<span class="fn">TrailingZeros</span>(<span class="kw">uint</span>(m))   <span class="cm">// lowest set bit position</span>
+    <span class="cm">// process bit</span>
+}
+
+<span class="cm">// Big bitset: use big.Int or []uint64</span>
+<span class="kw">var</span> bs big.<span class="ty">Int</span>
+bs.<span class="fn">SetBit</span>(&amp;bs, <span class="num">10000</span>, <span class="num">1</span>)
+isSet := bs.<span class="fn">Bit</span>(<span class="num">10000</span>) == <span class="num">1</span>
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="trie">
+  <h2><span class="num">16</span> Trie</h2>
+
+<pre><code><span class="kw">type</span> Trie <span class="kw">struct</span> {
+    children [<span class="num">26</span>]*Trie    <span class="cm">// or: map[rune]*Trie for full Unicode</span>
+    isEnd    <span class="ty">bool</span>
+}
+
+<span class="kw">func</span> (t *Trie) <span class="fn">Insert</span>(word <span class="ty">string</span>) {
+    node := t
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="kw">len</span>(word); i++ {
+        c := word[i] - <span class="str">'a'</span>
+        <span class="kw">if</span> node.children[c] == <span class="kw">nil</span> {
+            node.children[c] = &amp;Trie{}
+        }
+        node = node.children[c]
+    }
+    node.isEnd = <span class="kw">true</span>
+}
+
+<span class="kw">func</span> (t *Trie) <span class="fn">Search</span>(word <span class="ty">string</span>) <span class="ty">bool</span> {
+    node := t
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="kw">len</span>(word); i++ {
+        c := word[i] - <span class="str">'a'</span>
+        <span class="kw">if</span> node.children[c] == <span class="kw">nil</span> { <span class="kw">return</span> <span class="kw">false</span> }
+        node = node.children[c]
+    }
+    <span class="kw">return</span> node.isEnd
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="segtree">
+  <h2><span class="num">17</span> Segment Tree / Fenwick (BIT)</h2>
+
+  <h3 class="syntax">Fenwick (BIT) — point update, prefix sum</h3>
+<pre><code><span class="kw">type</span> BIT []<span class="ty">int</span>
+
+<span class="kw">func</span> <span class="fn">NewBIT</span>(n <span class="ty">int</span>) BIT { <span class="kw">return</span> <span class="kw">make</span>(BIT, n+<span class="num">1</span>) }
+
+<span class="kw">func</span> (b BIT) <span class="fn">Update</span>(i, v <span class="ty">int</span>) {     <span class="cm">// add v at index i (1-based)</span>
+    <span class="kw">for</span> ; i &lt; <span class="kw">len</span>(b); i += i &amp; -i {
+        b[i] += v
+    }
+}
+
+<span class="kw">func</span> (b BIT) <span class="fn">Query</span>(i <span class="ty">int</span>) <span class="ty">int</span> {     <span class="cm">// prefix sum [1..i]</span>
+    s := <span class="num">0</span>
+    <span class="kw">for</span> ; i &gt; <span class="num">0</span>; i -= i &amp; -i {
+        s += b[i]
+    }
+    <span class="kw">return</span> s
+}
+
+<span class="cm">// Range sum [l..r]: bit.Query(r) - bit.Query(l-1)</span>
+</code></pre>
+
+  <h3 class="syntax">Segment Tree (range sum, point update)</h3>
+<pre><code><span class="kw">type</span> SegTree <span class="kw">struct</span> {
+    n    <span class="ty">int</span>
+    data []<span class="ty">int</span>
+}
+
+<span class="kw">func</span> <span class="fn">NewSeg</span>(n <span class="ty">int</span>) *SegTree { <span class="kw">return</span> &amp;SegTree{n: n, data: <span class="kw">make</span>([]<span class="ty">int</span>, <span class="num">4</span>*n)} }
+
+<span class="kw">func</span> (s *SegTree) <span class="fn">Update</span>(node, l, r, idx, v <span class="ty">int</span>) {
+    <span class="kw">if</span> l == r { s.data[node] = v; <span class="kw">return</span> }
+    mid := (l + r) / <span class="num">2</span>
+    <span class="kw">if</span> idx &lt;= mid { s.<span class="fn">Update</span>(<span class="num">2</span>*node, l, mid, idx, v) } <span class="kw">else</span> { s.<span class="fn">Update</span>(<span class="num">2</span>*node+<span class="num">1</span>, mid+<span class="num">1</span>, r, idx, v) }
+    s.data[node] = s.data[<span class="num">2</span>*node] + s.data[<span class="num">2</span>*node+<span class="num">1</span>]
+}
+
+<span class="kw">func</span> (s *SegTree) <span class="fn">Query</span>(node, l, r, ql, qr <span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">if</span> qr &lt; l || r &lt; ql { <span class="kw">return</span> <span class="num">0</span> }
+    <span class="kw">if</span> ql &lt;= l &amp;&amp; r &lt;= qr { <span class="kw">return</span> s.data[node] }
+    mid := (l + r) / <span class="num">2</span>
+    <span class="kw">return</span> s.<span class="fn">Query</span>(<span class="num">2</span>*node, l, mid, ql, qr) + s.<span class="fn">Query</span>(<span class="num">2</span>*node+<span class="num">1</span>, mid+<span class="num">1</span>, r, ql, qr)
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="gotchas">
+  <h2><span class="num">18</span> Top 15 Go DSA Gotchas</h2>
+
+  <ol>
+    <li><b>String indexing returns byte, not character.</b> Use <code>[]rune(s)</code> for Unicode.</li>
+    <li><b><code>len(s)</code> for strings is bytes, not characters.</b> Use <code>utf8.RuneCountInString(s)</code>.</li>
+    <li><b>Map iteration order is RANDOMIZED.</b> Sort keys if order matters.</li>
+    <li><b>Cannot modify struct field directly via map index:</b> <code>m[k].x = 5</code> ❌. Use pointer or read-modify-write.</li>
+    <li><b>Slicing shares memory.</b> Modifying <code>sub := s[1:3]</code> mutates <code>s</code>.</li>
+    <li><b>Append in backtracking shares array.</b> Always <code>append([]int{}, path...)</code> before adding to results.</li>
+    <li><b>Integer division truncates toward zero, not floor!</b> <code>-7/2 == -3</code>, not -4. For floor division of negatives, special-case.</li>
+    <li><b>Go has no overflow protection.</b> <code>int</code> is 64-bit on modern systems but doesn't panic on overflow.</li>
+    <li><b>Heap requires <code>heap.Push(h, x)</code></b>, not <code>h.Push(x)</code>. The latter compiles but doesn't reheapify!</li>
+    <li><b>Type assertion can panic:</b> <code>x.(int)</code> panics if not int. Use <code>x.(int)</code> with comma-ok: <code>v, ok := x.(int)</code>.</li>
+    <li><b>Defer captures by value (vars) but slices/maps are references.</b> <code>defer fmt.Println(slice)</code> prints CURRENT slice contents, not snapshot.</li>
+    <li><b>Range loop variable is reused</b> (pre-Go 1.22). Capturing in closure/goroutine needs <code>v := v</code>. Go 1.22+ fixes this.</li>
+    <li><b>Comparing slices/maps with <code>==</code> is forbidden</b> (compile error). Use <code>reflect.DeepEqual</code> or <code>slices.Equal</code>.</li>
+    <li><b>Nil slice vs empty slice:</b> <code>var s []int</code> (nil) and <code>s := []int{}</code> (empty) behave identically for <code>len</code>/<code>append</code>/<code>range</code>, but differ in JSON marshaling and <code>== nil</code>.</li>
+    <li><b><code>fmt.Println</code> is SLOW.</b> For competitive programming, use <code>bufio.Writer</code> + <code>defer w.Flush()</code>.</li>
+  </ol>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="snippets">
+  <h2><span class="num">19</span> Copy-Paste Ready Snippets</h2>
+
+  <h3 class="syntax">LeetCode-style ListNode/TreeNode</h3>
+<pre><code><span class="kw">type</span> ListNode <span class="kw">struct</span> { Val <span class="ty">int</span>; Next *ListNode }
+<span class="kw">type</span> TreeNode <span class="kw">struct</span> { Val <span class="ty">int</span>; Left, Right *TreeNode }
+</code></pre>
+
+  <h3 class="syntax">Generic helpers (Go 1.21+)</h3>
+<pre><code><span class="cm">// Pre-Go-1.21 — fallback helpers</span>
+<span class="kw">func</span> <span class="fn">abs</span>(x <span class="ty">int</span>) <span class="ty">int</span>     { <span class="kw">if</span> x &lt; <span class="num">0</span> { <span class="kw">return</span> -x }; <span class="kw">return</span> x }
+<span class="kw">func</span> <span class="fn">imin</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">if</span> a &lt; b { <span class="kw">return</span> a }; <span class="kw">return</span> b }
+<span class="kw">func</span> <span class="fn">imax</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">if</span> a &gt; b { <span class="kw">return</span> a }; <span class="kw">return</span> b }
+</code></pre>
+
+  <h3 class="syntax">2D grid traversal directions</h3>
+<pre><code><span class="kw">var</span> dirs = [<span class="num">4</span>][<span class="num">2</span>]<span class="ty">int</span>{{-<span class="num">1</span>,<span class="num">0</span>}, {<span class="num">1</span>,<span class="num">0</span>}, {<span class="num">0</span>,-<span class="num">1</span>}, {<span class="num">0</span>,<span class="num">1</span>}}   <span class="cm">// up/down/left/right</span>
+<span class="kw">var</span> dirs8 = [<span class="num">8</span>][<span class="num">2</span>]<span class="ty">int</span>{<span class="cm">/* include diagonals */</span>}
+
+<span class="kw">for</span> _, d := <span class="kw">range</span> dirs {
+    nr, nc := r+d[<span class="num">0</span>], c+d[<span class="num">1</span>]
+    <span class="kw">if</span> nr &gt;= <span class="num">0</span> &amp;&amp; nr &lt; rows &amp;&amp; nc &gt;= <span class="num">0</span> &amp;&amp; nc &lt; cols {
+        <span class="cm">// in bounds, process grid[nr][nc]</span>
+    }
+}
+</code></pre>
+
+  <h3 class="syntax">Format integer with commas (rare but cute)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">commas</span>(n <span class="ty">int</span>) <span class="ty">string</span> {
+    s := strconv.<span class="fn">Itoa</span>(n)
+    <span class="kw">var</span> b strings.<span class="ty">Builder</span>
+    <span class="kw">for</span> i, c := <span class="kw">range</span> s {
+        <span class="kw">if</span> i &gt; <span class="num">0</span> &amp;&amp; (<span class="kw">len</span>(s)-i)%<span class="num">3</span> == <span class="num">0</span> { b.<span class="fn">WriteByte</span>(<span class="str">','</span>) }
+        b.<span class="fn">WriteRune</span>(c)
+    }
+    <span class="kw">return</span> b.<span class="fn">String</span>()
+}
+</code></pre>
+
+  <h3 class="syntax">Common complexity reference</h3>
+  <table>
+    <thead><tr><th>Operation</th><th>Slice</th><th>Map</th><th>Heap (n elements)</th></tr></thead>
+    <tbody>
+      <tr><td>Access by index</td><td>O(1)</td><td>—</td><td>O(1) for top</td></tr>
+      <tr><td>Append</td><td>O(1) amortized</td><td>—</td><td>—</td></tr>
+      <tr><td>Insert middle</td><td>O(n)</td><td>—</td><td>—</td></tr>
+      <tr><td>Search</td><td>O(n)</td><td>O(1) avg</td><td>O(n)</td></tr>
+      <tr><td>Push / Pop</td><td>O(1) end</td><td>O(1)</td><td>O(log n)</td></tr>
+      <tr><td>Sort</td><td>O(n log n)</td><td>—</td><td>O(n) heapify</td></tr>
+    </tbody>
+  </table>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<!-- AUDIT-DRIVEN ADDITIONS: Patterns frequently asked at FAANG    -->
+<!-- ============================================================ -->
+<section class="note" id="monotonic">
+  <h2><span class="num">20</span> Monotonic Stack &amp; Queue</h2>
+  <p class="tagline">A specialized stack/queue that maintains elements in increasing/decreasing order. Solves "next greater element" family in O(n).</p>
+
+  <h3 class="why">When to reach for it</h3>
+  <ul>
+    <li>Next/previous greater (or smaller) element</li>
+    <li>Largest rectangle in histogram</li>
+    <li>Trapping rain water</li>
+    <li>Daily temperatures</li>
+    <li>Sliding window maximum (monotonic deque)</li>
+  </ul>
+
+  <h3 class="code">Next Greater Element (template)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">nextGreater</span>(nums []<span class="ty">int</span>) []<span class="ty">int</span> {
+    n := <span class="kw">len</span>(nums)
+    res := <span class="kw">make</span>([]<span class="ty">int</span>, n)
+    <span class="kw">for</span> i := <span class="kw">range</span> res { res[i] = -<span class="num">1</span> }
+
+    stack := []<span class="ty">int</span>{}                 <span class="cm">// holds INDICES, not values</span>
+    <span class="kw">for</span> i, v := <span class="kw">range</span> nums {
+        <span class="kw">for</span> <span class="kw">len</span>(stack) &gt; <span class="num">0</span> &amp;&amp; nums[stack[<span class="kw">len</span>(stack)-<span class="num">1</span>]] &lt; v {
+            top := stack[<span class="kw">len</span>(stack)-<span class="num">1</span>]
+            stack = stack[:<span class="kw">len</span>(stack)-<span class="num">1</span>]
+            res[top] = v          <span class="cm">// v is the next greater for index `top`</span>
+        }
+        stack = <span class="kw">append</span>(stack, i)
+    }
+    <span class="kw">return</span> res
+}
+</code></pre>
+
+  <h3 class="code">Sliding Window Maximum (monotonic deque)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">maxSlidingWindow</span>(nums []<span class="ty">int</span>, k <span class="ty">int</span>) []<span class="ty">int</span> {
+    res := []<span class="ty">int</span>{}
+    dq := []<span class="ty">int</span>{}                     <span class="cm">// indices, values DECREASING</span>
+    <span class="kw">for</span> i, v := <span class="kw">range</span> nums {
+        <span class="cm">// 1. drop indices that fall out of the window</span>
+        <span class="kw">for</span> <span class="kw">len</span>(dq) &gt; <span class="num">0</span> &amp;&amp; dq[<span class="num">0</span>] &lt;= i-k {
+            dq = dq[<span class="num">1</span>:]
+        }
+        <span class="cm">// 2. drop tail values smaller than current (they can never be max)</span>
+        <span class="kw">for</span> <span class="kw">len</span>(dq) &gt; <span class="num">0</span> &amp;&amp; nums[dq[<span class="kw">len</span>(dq)-<span class="num">1</span>]] &lt; v {
+            dq = dq[:<span class="kw">len</span>(dq)-<span class="num">1</span>]
+        }
+        dq = <span class="kw">append</span>(dq, i)
+        <span class="kw">if</span> i &gt;= k-<span class="num">1</span> {
+            res = <span class="kw">append</span>(res, nums[dq[<span class="num">0</span>]])  <span class="cm">// front is window max</span>
+        }
+    }
+    <span class="kw">return</span> res
+}
+</code></pre>
+
+  <div class="box tip"><b>Mental model:</b> A monotonic stack maintains an invariant. When the invariant is broken by a new element, you POP — and the popped element's "answer" is the current element. That's why this runs O(n): each element is pushed once, popped once.</div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="prefix">
+  <h2><span class="num">21</span> Prefix Sums &amp; Difference Arrays</h2>
+  <p class="tagline">Convert range queries into O(1) lookups, range updates into O(1) writes.</p>
+
+  <h3 class="syntax">1D Prefix Sum</h3>
+<pre><code>prefix := <span class="kw">make</span>([]<span class="ty">int</span>, <span class="kw">len</span>(nums)+<span class="num">1</span>)
+<span class="kw">for</span> i, v := <span class="kw">range</span> nums {
+    prefix[i+<span class="num">1</span>] = prefix[i] + v
+}
+<span class="cm">// Sum of nums[l..r] inclusive (0-indexed):</span>
+sum := prefix[r+<span class="num">1</span>] - prefix[l]
+</code></pre>
+
+  <h3 class="syntax">2D Prefix Sum (matrix)</h3>
+<pre><code>m, n := <span class="kw">len</span>(grid), <span class="kw">len</span>(grid[<span class="num">0</span>])
+ps := <span class="kw">make</span>([][]<span class="ty">int</span>, m+<span class="num">1</span>)
+<span class="kw">for</span> i := <span class="kw">range</span> ps { ps[i] = <span class="kw">make</span>([]<span class="ty">int</span>, n+<span class="num">1</span>) }
+<span class="kw">for</span> i := <span class="num">1</span>; i &lt;= m; i++ {
+    <span class="kw">for</span> j := <span class="num">1</span>; j &lt;= n; j++ {
+        ps[i][j] = grid[i-<span class="num">1</span>][j-<span class="num">1</span>] + ps[i-<span class="num">1</span>][j] + ps[i][j-<span class="num">1</span>] - ps[i-<span class="num">1</span>][j-<span class="num">1</span>]
+    }
+}
+<span class="cm">// Sum of submatrix from (r1,c1) to (r2,c2) inclusive:</span>
+sum := ps[r2+<span class="num">1</span>][c2+<span class="num">1</span>] - ps[r1][c2+<span class="num">1</span>] - ps[r2+<span class="num">1</span>][c1] + ps[r1][c1]
+</code></pre>
+
+  <h3 class="syntax">Difference Array (range update, point query)</h3>
+<pre><code><span class="cm">// To do many "add v to all of nums[l..r]" updates in O(1) each:</span>
+diff := <span class="kw">make</span>([]<span class="ty">int</span>, n+<span class="num">1</span>)
+<span class="kw">for</span> _, op := <span class="kw">range</span> ops {
+    l, r, v := op[<span class="num">0</span>], op[<span class="num">1</span>], op[<span class="num">2</span>]
+    diff[l]   += v
+    diff[r+<span class="num">1</span>] -= v
+}
+<span class="cm">// Reconstruct final array</span>
+nums := <span class="kw">make</span>([]<span class="ty">int</span>, n)
+nums[<span class="num">0</span>] = diff[<span class="num">0</span>]
+<span class="kw">for</span> i := <span class="num">1</span>; i &lt; n; i++ {
+    nums[i] = nums[i-<span class="num">1</span>] + diff[i]
+}
+</code></pre>
+
+  <div class="box tip"><b>Pattern:</b> "Prefix-sum hash map" combo solves <i>subarray sum equals K</i> family — store <code>prefix → count</code>, then for each prefix check <code>prefix - K</code>.</div>
+
+<pre><code><span class="kw">func</span> <span class="fn">subarraySum</span>(nums []<span class="ty">int</span>, k <span class="ty">int</span>) <span class="ty">int</span> {
+    seen := <span class="kw">map</span>[<span class="ty">int</span>]<span class="ty">int</span>{<span class="num">0</span>: <span class="num">1</span>}     <span class="cm">// empty prefix counts once</span>
+    sum, count := <span class="num">0</span>, <span class="num">0</span>
+    <span class="kw">for</span> _, v := <span class="kw">range</span> nums {
+        sum += v
+        count += seen[sum-k]      <span class="cm">// missing key returns 0 — Go-friendly!</span>
+        seen[sum]++
+    }
+    <span class="kw">return</span> count
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="toposort">
+  <h2><span class="num">22</span> Topological Sort</h2>
+  <p class="tagline">Order DAG nodes so every edge u→v has u before v. Used in: course schedule, build systems, alien dictionary.</p>
+
+  <h3 class="code">Kahn's algorithm (BFS-based, also detects cycles)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">topoSort</span>(n <span class="ty">int</span>, edges [][]<span class="ty">int</span>) ([]<span class="ty">int</span>, <span class="ty">bool</span>) {
+    graph := <span class="kw">make</span>([][]<span class="ty">int</span>, n)
+    indeg := <span class="kw">make</span>([]<span class="ty">int</span>, n)
+    <span class="kw">for</span> _, e := <span class="kw">range</span> edges {
+        u, v := e[<span class="num">0</span>], e[<span class="num">1</span>]    <span class="cm">// edge u → v</span>
+        graph[u] = <span class="kw">append</span>(graph[u], v)
+        indeg[v]++
+    }
+
+    queue := []<span class="ty">int</span>{}
+    <span class="kw">for</span> i, d := <span class="kw">range</span> indeg {
+        <span class="kw">if</span> d == <span class="num">0</span> { queue = <span class="kw">append</span>(queue, i) }
+    }
+
+    order := <span class="kw">make</span>([]<span class="ty">int</span>, <span class="num">0</span>, n)
+    <span class="kw">for</span> <span class="kw">len</span>(queue) &gt; <span class="num">0</span> {
+        u := queue[<span class="num">0</span>]; queue = queue[<span class="num">1</span>:]
+        order = <span class="kw">append</span>(order, u)
+        <span class="kw">for</span> _, v := <span class="kw">range</span> graph[u] {
+            indeg[v]--
+            <span class="kw">if</span> indeg[v] == <span class="num">0</span> { queue = <span class="kw">append</span>(queue, v) }
+        }
+    }
+    <span class="kw">if</span> <span class="kw">len</span>(order) != n {
+        <span class="kw">return</span> <span class="kw">nil</span>, <span class="kw">false</span>     <span class="cm">// cycle exists!</span>
+    }
+    <span class="kw">return</span> order, <span class="kw">true</span>
+}
+</code></pre>
+
+  <h3 class="code">DFS-based topo sort (with cycle detection)</h3>
+<pre><code><span class="kw">const</span> ( WHITE = <span class="kw">iota</span>; GRAY; BLACK )    <span class="cm">// iota = 0,1,2 — Go enum idiom</span>
+
+<span class="kw">func</span> <span class="fn">topoDFS</span>(n <span class="ty">int</span>, graph [][]<span class="ty">int</span>) ([]<span class="ty">int</span>, <span class="ty">bool</span>) {
+    color := <span class="kw">make</span>([]<span class="ty">int</span>, n)            <span class="cm">// all WHITE initially</span>
+    order := []<span class="ty">int</span>{}
+    <span class="kw">var</span> dfs <span class="kw">func</span>(<span class="ty">int</span>) <span class="ty">bool</span>
+    dfs = <span class="kw">func</span>(u <span class="ty">int</span>) <span class="ty">bool</span> {
+        <span class="kw">if</span> color[u] == GRAY  { <span class="kw">return</span> <span class="kw">false</span> }    <span class="cm">// back edge = cycle</span>
+        <span class="kw">if</span> color[u] == BLACK { <span class="kw">return</span> <span class="kw">true</span> }
+        color[u] = GRAY
+        <span class="kw">for</span> _, v := <span class="kw">range</span> graph[u] {
+            <span class="kw">if</span> !<span class="fn">dfs</span>(v) { <span class="kw">return</span> <span class="kw">false</span> }
+        }
+        color[u] = BLACK
+        order = <span class="kw">append</span>(order, u)              <span class="cm">// post-order</span>
+        <span class="kw">return</span> <span class="kw">true</span>
+    }
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; n; i++ {
+        <span class="kw">if</span> !<span class="fn">dfs</span>(i) { <span class="kw">return</span> <span class="kw">nil</span>, <span class="kw">false</span> }
+    }
+    <span class="cm">// reverse for forward topo order</span>
+    <span class="kw">for</span> i, j := <span class="num">0</span>, <span class="kw">len</span>(order)-<span class="num">1</span>; i &lt; j; i, j = i+<span class="num">1</span>, j-<span class="num">1</span> {
+        order[i], order[j] = order[j], order[i]
+    }
+    <span class="kw">return</span> order, <span class="kw">true</span>
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="more-graphs">
+  <h2><span class="num">23</span> More Graphs: MST, Bellman-Ford, Floyd-Warshall</h2>
+
+  <h3 class="syntax">Kruskal's MST (use the DSU from §12)</h3>
+<pre><code><span class="kw">type</span> Edge <span class="kw">struct</span> { u, v, w <span class="ty">int</span> }
+
+<span class="kw">func</span> <span class="fn">kruskal</span>(n <span class="ty">int</span>, edges []Edge) <span class="ty">int</span> {
+    sort.<span class="fn">Slice</span>(edges, <span class="kw">func</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> { <span class="kw">return</span> edges[i].w &lt; edges[j].w })
+    dsu := <span class="fn">NewDSU</span>(n)
+    total, taken := <span class="num">0</span>, <span class="num">0</span>
+    <span class="kw">for</span> _, e := <span class="kw">range</span> edges {
+        <span class="kw">if</span> dsu.<span class="fn">Union</span>(e.u, e.v) {       <span class="cm">// returns true if not already connected</span>
+            total += e.w
+            taken++
+            <span class="kw">if</span> taken == n-<span class="num">1</span> { <span class="kw">break</span> }
+        }
+    }
+    <span class="kw">return</span> total
+}
+</code></pre>
+
+  <h3 class="syntax">Prim's MST (use a heap)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">prim</span>(graph [][]Edge) <span class="ty">int</span> {
+    n := <span class="kw">len</span>(graph)
+    inMST := <span class="kw">make</span>([]<span class="ty">bool</span>, n)
+    pq := &amp;PQ{{<span class="num">0</span>, <span class="num">0</span>}}                  <span class="cm">// {node, weight} — start at 0</span>
+    heap.<span class="fn">Init</span>(pq)
+    total := <span class="num">0</span>
+    <span class="kw">for</span> pq.<span class="fn">Len</span>() &gt; <span class="num">0</span> {
+        cur := heap.<span class="fn">Pop</span>(pq).(PQItem)
+        <span class="kw">if</span> inMST[cur.node] { <span class="kw">continue</span> }
+        inMST[cur.node] = <span class="kw">true</span>
+        total += cur.dist
+        <span class="kw">for</span> _, e := <span class="kw">range</span> graph[cur.node] {
+            <span class="kw">if</span> !inMST[e.to] {
+                heap.<span class="fn">Push</span>(pq, PQItem{e.to, e.w})
+            }
+        }
+    }
+    <span class="kw">return</span> total
+}
+</code></pre>
+
+  <h3 class="syntax">Bellman-Ford (handles negative edges, detects negative cycles)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">bellmanFord</span>(n <span class="ty">int</span>, edges []Edge, src <span class="ty">int</span>) ([]<span class="ty">int</span>, <span class="ty">bool</span>) {
+    dist := <span class="kw">make</span>([]<span class="ty">int</span>, n)
+    <span class="kw">for</span> i := <span class="kw">range</span> dist { dist[i] = math.<span class="ty">MaxInt</span> }
+    dist[src] = <span class="num">0</span>
+
+    <span class="cm">// Relax all edges (n-1) times</span>
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; n-<span class="num">1</span>; i++ {
+        <span class="kw">for</span> _, e := <span class="kw">range</span> edges {
+            <span class="kw">if</span> dist[e.u] != math.<span class="ty">MaxInt</span> &amp;&amp; dist[e.u]+e.w &lt; dist[e.v] {
+                dist[e.v] = dist[e.u] + e.w
+            }
+        }
+    }
+    <span class="cm">// One more pass — any update means negative cycle</span>
+    <span class="kw">for</span> _, e := <span class="kw">range</span> edges {
+        <span class="kw">if</span> dist[e.u] != math.<span class="ty">MaxInt</span> &amp;&amp; dist[e.u]+e.w &lt; dist[e.v] {
+            <span class="kw">return</span> <span class="kw">nil</span>, <span class="kw">false</span>          <span class="cm">// negative cycle</span>
+        }
+    }
+    <span class="kw">return</span> dist, <span class="kw">true</span>
+}
+</code></pre>
+
+  <h3 class="syntax">Floyd-Warshall (all-pairs shortest path, O(n³))</h3>
+<pre><code>dist := <span class="kw">make</span>([][]<span class="ty">int</span>, n)
+<span class="kw">for</span> i := <span class="kw">range</span> dist {
+    dist[i] = <span class="kw">make</span>([]<span class="ty">int</span>, n)
+    <span class="kw">for</span> j := <span class="kw">range</span> dist[i] { dist[i][j] = math.<span class="ty">MaxInt</span> / <span class="num">2</span> }   <span class="cm">// /2 prevents overflow on add</span>
+    dist[i][i] = <span class="num">0</span>
+}
+<span class="kw">for</span> _, e := <span class="kw">range</span> edges { dist[e.u][e.v] = e.w }
+
+<span class="kw">for</span> k := <span class="num">0</span>; k &lt; n; k++ {
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; n; i++ {
+        <span class="kw">for</span> j := <span class="num">0</span>; j &lt; n; j++ {
+            <span class="kw">if</span> dist[i][k]+dist[k][j] &lt; dist[i][j] {
+                dist[i][j] = dist[i][k] + dist[k][j]
+            }
+        }
+    }
+}
+</code></pre>
+
+  <h3 class="when">When to use which?</h3>
+  <table>
+    <thead><tr><th>Algorithm</th><th>Edges</th><th>Time</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td>BFS</td><td>unweighted</td><td>O(V+E)</td><td>shortest path in unweighted graph</td></tr>
+      <tr><td>Dijkstra</td><td>non-negative</td><td>O(E log V)</td><td>single-source, no neg edges</td></tr>
+      <tr><td>Bellman-Ford</td><td>any (incl. negative)</td><td>O(V·E)</td><td>negative edges or detect neg cycle</td></tr>
+      <tr><td>Floyd-Warshall</td><td>any</td><td>O(V³)</td><td>all-pairs, small V (≤ 400)</td></tr>
+      <tr><td>Kruskal</td><td>weighted, undirected</td><td>O(E log E)</td><td>MST, sparse graph</td></tr>
+      <tr><td>Prim</td><td>weighted, undirected</td><td>O(E log V)</td><td>MST, dense graph</td></tr>
+    </tbody>
+  </table>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="strmatch">
+  <h2><span class="num">24</span> String Matching</h2>
+
+  <h3 class="syntax">KMP (Knuth-Morris-Pratt) — O(n+m)</h3>
+<pre><code><span class="cm">// Build LPS array (longest proper prefix that's also suffix)</span>
+<span class="kw">func</span> <span class="fn">buildLPS</span>(p <span class="ty">string</span>) []<span class="ty">int</span> {
+    lps := <span class="kw">make</span>([]<span class="ty">int</span>, <span class="kw">len</span>(p))
+    k := <span class="num">0</span>
+    <span class="kw">for</span> i := <span class="num">1</span>; i &lt; <span class="kw">len</span>(p); i++ {
+        <span class="kw">for</span> k &gt; <span class="num">0</span> &amp;&amp; p[k] != p[i] {
+            k = lps[k-<span class="num">1</span>]
+        }
+        <span class="kw">if</span> p[k] == p[i] { k++ }
+        lps[i] = k
+    }
+    <span class="kw">return</span> lps
+}
+
+<span class="kw">func</span> <span class="fn">kmpSearch</span>(text, pattern <span class="ty">string</span>) []<span class="ty">int</span> {
+    lps := <span class="fn">buildLPS</span>(pattern)
+    matches := []<span class="ty">int</span>{}
+    j := <span class="num">0</span>
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="kw">len</span>(text); i++ {
+        <span class="kw">for</span> j &gt; <span class="num">0</span> &amp;&amp; text[i] != pattern[j] {
+            j = lps[j-<span class="num">1</span>]
+        }
+        <span class="kw">if</span> text[i] == pattern[j] { j++ }
+        <span class="kw">if</span> j == <span class="kw">len</span>(pattern) {
+            matches = <span class="kw">append</span>(matches, i-j+<span class="num">1</span>)
+            j = lps[j-<span class="num">1</span>]
+        }
+    }
+    <span class="kw">return</span> matches
+}
+</code></pre>
+
+  <h3 class="syntax">Rolling hash (Rabin-Karp)</h3>
+<pre><code><span class="kw">const</span> (
+    base = <span class="num">31</span>
+    mod  = <span class="num">1_000_000_007</span>
+)
+
+<span class="kw">func</span> <span class="fn">rabinKarp</span>(text, pattern <span class="ty">string</span>) <span class="ty">int</span> {
+    n, m := <span class="kw">len</span>(text), <span class="kw">len</span>(pattern)
+    <span class="kw">if</span> m &gt; n { <span class="kw">return</span> -<span class="num">1</span> }
+
+    <span class="kw">var</span> patHash, curHash, power <span class="ty">int</span> = <span class="num">0</span>, <span class="num">0</span>, <span class="num">1</span>
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; m; i++ {
+        patHash = (patHash*base + <span class="kw">int</span>(pattern[i])) % mod
+        curHash = (curHash*base + <span class="kw">int</span>(text[i]))    % mod
+        <span class="kw">if</span> i &lt; m-<span class="num">1</span> { power = power * base % mod }
+    }
+    <span class="kw">if</span> curHash == patHash &amp;&amp; text[:m] == pattern { <span class="kw">return</span> <span class="num">0</span> }
+
+    <span class="kw">for</span> i := m; i &lt; n; i++ {
+        curHash = (curHash - <span class="kw">int</span>(text[i-m])*power%mod + mod*mod) % mod
+        curHash = (curHash*base + <span class="kw">int</span>(text[i])) % mod
+        <span class="kw">if</span> curHash == patHash &amp;&amp; text[i-m+<span class="num">1</span>:i+<span class="num">1</span>] == pattern {
+            <span class="kw">return</span> i - m + <span class="num">1</span>
+        }
+    }
+    <span class="kw">return</span> -<span class="num">1</span>
+}
+</code></pre>
+
+  <div class="box tip"><b>Quick win:</b> for simple "find substring" problems Go's <code>strings.Index(text, pattern)</code> uses an optimized algorithm and is usually fast enough. Reach for KMP/RK only when you need multiple matches OR are doing rolling-hash tricks (e.g., longest duplicate substring).</div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="more-dp">
+  <h2><span class="num">25</span> More DP: LIS, Kadane, Knapsack, Tree DP</h2>
+
+  <h3 class="syntax">Kadane's algorithm — max subarray</h3>
+<pre><code><span class="kw">func</span> <span class="fn">maxSubarray</span>(nums []<span class="ty">int</span>) <span class="ty">int</span> {
+    best, cur := nums[<span class="num">0</span>], nums[<span class="num">0</span>]
+    <span class="kw">for</span> i := <span class="num">1</span>; i &lt; <span class="kw">len</span>(nums); i++ {
+        cur = <span class="kw">max</span>(nums[i], cur+nums[i])    <span class="cm">// extend or restart</span>
+        best = <span class="kw">max</span>(best, cur)
+    }
+    <span class="kw">return</span> best
+}
+</code></pre>
+
+  <h3 class="syntax">Longest Increasing Subsequence — O(n log n) with binary search</h3>
+<pre><code><span class="kw">func</span> <span class="fn">lengthOfLIS</span>(nums []<span class="ty">int</span>) <span class="ty">int</span> {
+    tails := []<span class="ty">int</span>{}                         <span class="cm">// tails[i] = smallest tail of LIS of length i+1</span>
+    <span class="kw">for</span> _, v := <span class="kw">range</span> nums {
+        i := sort.<span class="fn">SearchInts</span>(tails, v)         <span class="cm">// first idx where tails[idx] &gt;= v</span>
+        <span class="kw">if</span> i == <span class="kw">len</span>(tails) {
+            tails = <span class="kw">append</span>(tails, v)
+        } <span class="kw">else</span> {
+            tails[i] = v                       <span class="cm">// replace to keep small</span>
+        }
+    }
+    <span class="kw">return</span> <span class="kw">len</span>(tails)                       <span class="cm">// note: tails is NOT the LIS itself</span>
+}
+</code></pre>
+
+  <h3 class="syntax">0/1 Knapsack (space-optimized)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">knapsack</span>(weights, values []<span class="ty">int</span>, capacity <span class="ty">int</span>) <span class="ty">int</span> {
+    dp := <span class="kw">make</span>([]<span class="ty">int</span>, capacity+<span class="num">1</span>)
+    <span class="kw">for</span> i, w := <span class="kw">range</span> weights {
+        <span class="cm">// iterate BACKWARDS — each item used at most once</span>
+        <span class="kw">for</span> c := capacity; c &gt;= w; c-- {
+            dp[c] = <span class="kw">max</span>(dp[c], dp[c-w]+values[i])
+        }
+    }
+    <span class="kw">return</span> dp[capacity]
+}
+<span class="cm">// Unbounded knapsack: iterate FORWARD instead.</span>
+</code></pre>
+
+  <h3 class="syntax">Tree DP — diameter / max path sum</h3>
+<pre><code><span class="kw">func</span> <span class="fn">diameter</span>(root *TreeNode) <span class="ty">int</span> {
+    best := <span class="num">0</span>
+    <span class="kw">var</span> depth <span class="kw">func</span>(*TreeNode) <span class="ty">int</span>
+    depth = <span class="kw">func</span>(n *TreeNode) <span class="ty">int</span> {
+        <span class="kw">if</span> n == <span class="kw">nil</span> { <span class="kw">return</span> <span class="num">0</span> }
+        l := <span class="fn">depth</span>(n.Left)
+        r := <span class="fn">depth</span>(n.Right)
+        best = <span class="kw">max</span>(best, l+r)              <span class="cm">// path through this node</span>
+        <span class="kw">return</span> <span class="num">1</span> + <span class="kw">max</span>(l, r)
+    }
+    <span class="fn">depth</span>(root)
+    <span class="kw">return</span> best
+}
+</code></pre>
+
+  <h3 class="syntax">Top-down vs Bottom-up — when to use which</h3>
+  <table>
+    <thead><tr><th>Approach</th><th>Pros</th><th>Cons</th></tr></thead>
+    <tbody>
+      <tr><td>Top-down (memo)</td><td>Mirrors recurrence naturally; only computes needed states</td><td>Recursion overhead; stack-overflow risk on deep states</td></tr>
+      <tr><td>Bottom-up (tab)</td><td>No recursion; easy to space-optimize</td><td>Computes everything even if not needed; harder to write for irregular state spaces</td></tr>
+    </tbody>
+  </table>
+  <div class="box tip"><b>Rule of thumb:</b> start with top-down memo to verify correctness, then convert to bottom-up if you need to space-optimize (e.g., from O(n²) memory to O(n)).</div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="backtrack">
+  <h2><span class="num">26</span> Backtracking Patterns</h2>
+  <p class="tagline">Same skeleton works for permutations, combinations, subsets, N-queens, sudoku.</p>
+
+  <h3 class="syntax">Permutations</h3>
+<pre><code><span class="kw">func</span> <span class="fn">permute</span>(nums []<span class="ty">int</span>) [][]<span class="ty">int</span> {
+    <span class="kw">var</span> res [][]<span class="ty">int</span>
+    used := <span class="kw">make</span>([]<span class="ty">bool</span>, <span class="kw">len</span>(nums))
+    <span class="kw">var</span> path []<span class="ty">int</span>
+    <span class="kw">var</span> dfs <span class="kw">func</span>()
+    dfs = <span class="kw">func</span>() {
+        <span class="kw">if</span> <span class="kw">len</span>(path) == <span class="kw">len</span>(nums) {
+            res = <span class="kw">append</span>(res, <span class="kw">append</span>([]<span class="ty">int</span>{}, path...))
+            <span class="kw">return</span>
+        }
+        <span class="kw">for</span> i, v := <span class="kw">range</span> nums {
+            <span class="kw">if</span> used[i] { <span class="kw">continue</span> }
+            used[i] = <span class="kw">true</span>
+            path = <span class="kw">append</span>(path, v)
+            <span class="fn">dfs</span>()
+            path = path[:<span class="kw">len</span>(path)-<span class="num">1</span>]    <span class="cm">// undo choice</span>
+            used[i] = <span class="kw">false</span>
+        }
+    }
+    <span class="fn">dfs</span>()
+    <span class="kw">return</span> res
+}
+</code></pre>
+
+  <h3 class="syntax">Combinations / Subsets</h3>
+<pre><code><span class="kw">func</span> <span class="fn">subsets</span>(nums []<span class="ty">int</span>) [][]<span class="ty">int</span> {
+    <span class="kw">var</span> res [][]<span class="ty">int</span>
+    <span class="kw">var</span> path []<span class="ty">int</span>
+    <span class="kw">var</span> dfs <span class="kw">func</span>(<span class="ty">int</span>)
+    dfs = <span class="kw">func</span>(start <span class="ty">int</span>) {
+        res = <span class="kw">append</span>(res, <span class="kw">append</span>([]<span class="ty">int</span>{}, path...))
+        <span class="kw">for</span> i := start; i &lt; <span class="kw">len</span>(nums); i++ {
+            path = <span class="kw">append</span>(path, nums[i])
+            <span class="fn">dfs</span>(i + <span class="num">1</span>)                  <span class="cm">// i+1 = no reuse</span>
+            path = path[:<span class="kw">len</span>(path)-<span class="num">1</span>]
+        }
+    }
+    <span class="fn">dfs</span>(<span class="num">0</span>)
+    <span class="kw">return</span> res
+}
+<span class="cm">// For combinations of fixed size k, add: if len(path)==k { record; return }</span>
+<span class="cm">// For "with reuse" (combination sum), recurse with `i` instead of `i+1`</span>
+</code></pre>
+
+  <h3 class="syntax">Handling duplicates (skip equal at same depth)</h3>
+<pre><code>sort.<span class="fn">Ints</span>(nums)
+<span class="kw">for</span> i := start; i &lt; <span class="kw">len</span>(nums); i++ {
+    <span class="kw">if</span> i &gt; start &amp;&amp; nums[i] == nums[i-<span class="num">1</span>] { <span class="kw">continue</span> }   <span class="cm">// CRUCIAL line</span>
+    <span class="cm">// ... rest of recursion</span>
+}
+</code></pre>
+
+  <h3 class="syntax">N-Queens (board[row]=col representation)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">solveNQueens</span>(n <span class="ty">int</span>) <span class="ty">int</span> {
+    cols := <span class="kw">make</span>([]<span class="ty">bool</span>, n)
+    diag1 := <span class="kw">make</span>([]<span class="ty">bool</span>, <span class="num">2</span>*n)        <span class="cm">// row+col</span>
+    diag2 := <span class="kw">make</span>([]<span class="ty">bool</span>, <span class="num">2</span>*n)        <span class="cm">// row-col+n</span>
+    count := <span class="num">0</span>
+    <span class="kw">var</span> dfs <span class="kw">func</span>(<span class="ty">int</span>)
+    dfs = <span class="kw">func</span>(row <span class="ty">int</span>) {
+        <span class="kw">if</span> row == n { count++; <span class="kw">return</span> }
+        <span class="kw">for</span> c := <span class="num">0</span>; c &lt; n; c++ {
+            <span class="kw">if</span> cols[c] || diag1[row+c] || diag2[row-c+n] { <span class="kw">continue</span> }
+            cols[c], diag1[row+c], diag2[row-c+n] = <span class="kw">true</span>, <span class="kw">true</span>, <span class="kw">true</span>
+            <span class="fn">dfs</span>(row + <span class="num">1</span>)
+            cols[c], diag1[row+c], diag2[row-c+n] = <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>
+        }
+    }
+    <span class="fn">dfs</span>(<span class="num">0</span>)
+    <span class="kw">return</span> count
+}
+</code></pre>
+
+  <div class="box tip"><b>Universal backtracking template:</b> 1) check goal → record. 2) for each choice → make → recurse → undo. The "undo" is what makes it backtracking, not just DFS.</div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="math2">
+  <h2><span class="num">27</span> Math: Sieve, Primes, nCr, Modular Inverse</h2>
+
+  <h3 class="syntax">Sieve of Eratosthenes</h3>
+<pre><code><span class="kw">func</span> <span class="fn">sieve</span>(n <span class="ty">int</span>) []<span class="ty">int</span> {
+    isComposite := <span class="kw">make</span>([]<span class="ty">bool</span>, n+<span class="num">1</span>)
+    primes := []<span class="ty">int</span>{}
+    <span class="kw">for</span> i := <span class="num">2</span>; i &lt;= n; i++ {
+        <span class="kw">if</span> !isComposite[i] {
+            primes = <span class="kw">append</span>(primes, i)
+            <span class="kw">for</span> j := i * i; j &lt;= n; j += i {
+                isComposite[j] = <span class="kw">true</span>
+            }
+        }
+    }
+    <span class="kw">return</span> primes
+}
+</code></pre>
+
+  <h3 class="syntax">Modular inverse (Fermat's little theorem, prime mod)</h3>
+<pre><code><span class="kw">const</span> mod = <span class="num">1_000_000_007</span>
+
+<span class="kw">func</span> <span class="fn">modInverse</span>(a <span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">return</span> <span class="fn">powMod</span>(a, mod-<span class="num">2</span>, mod)        <span class="cm">// a^(p-2) mod p</span>
+}
+</code></pre>
+
+  <h3 class="syntax">Precomputed factorials &amp; nCr</h3>
+<pre><code><span class="kw">var</span> fact, invFact []<span class="ty">int</span>
+
+<span class="kw">func</span> <span class="fn">precompute</span>(n <span class="ty">int</span>) {
+    fact    = <span class="kw">make</span>([]<span class="ty">int</span>, n+<span class="num">1</span>)
+    invFact = <span class="kw">make</span>([]<span class="ty">int</span>, n+<span class="num">1</span>)
+    fact[<span class="num">0</span>] = <span class="num">1</span>
+    <span class="kw">for</span> i := <span class="num">1</span>; i &lt;= n; i++ {
+        fact[i] = fact[i-<span class="num">1</span>] * i % mod
+    }
+    invFact[n] = <span class="fn">modInverse</span>(fact[n])
+    <span class="kw">for</span> i := n - <span class="num">1</span>; i &gt;= <span class="num">0</span>; i-- {
+        invFact[i] = invFact[i+<span class="num">1</span>] * (i + <span class="num">1</span>) % mod
+    }
+}
+
+<span class="kw">func</span> <span class="fn">nCr</span>(n, r <span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">if</span> r &lt; <span class="num">0</span> || r &gt; n { <span class="kw">return</span> <span class="num">0</span> }
+    <span class="kw">return</span> fact[n] * invFact[r] % mod * invFact[n-r] % mod
+}
+</code></pre>
+
+  <h3 class="syntax">Quick prime test (trial division)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">isPrime</span>(n <span class="ty">int</span>) <span class="ty">bool</span> {
+    <span class="kw">if</span> n &lt; <span class="num">2</span> { <span class="kw">return</span> <span class="kw">false</span> }
+    <span class="kw">for</span> i := <span class="num">2</span>; i*i &lt;= n; i++ {
+        <span class="kw">if</span> n%i == <span class="num">0</span> { <span class="kw">return</span> <span class="kw">false</span> }
+    }
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<section class="note" id="more-tricks">
+  <h2><span class="num">28</span> More Go-Specific Tricks</h2>
+
+  <h3 class="syntax"><code>iota</code> for enums &amp; direction constants</h3>
+<pre><code><span class="kw">const</span> (
+    UP <span class="ty">int</span> = <span class="kw">iota</span>      <span class="cm">// 0</span>
+    DOWN              <span class="cm">// 1</span>
+    LEFT              <span class="cm">// 2</span>
+    RIGHT             <span class="cm">// 3</span>
+)
+
+<span class="cm">// Bit flags via shifted iota</span>
+<span class="kw">const</span> (
+    Read    = <span class="num">1</span> &lt;&lt; <span class="kw">iota</span>   <span class="cm">// 1</span>
+    Write                  <span class="cm">// 2</span>
+    Execute                <span class="cm">// 4</span>
+)
+perms := Read | Write
+</code></pre>
+
+  <h3 class="syntax">Composite map keys — use struct or array</h3>
+<pre><code><span class="cm">// Slices/maps can't be map keys. But arrays and structs CAN!</span>
+visited := <span class="kw">make</span>(<span class="kw">map</span>[[<span class="num">2</span>]<span class="ty">int</span>]<span class="ty">bool</span>)         <span class="cm">// (row, col) key</span>
+visited[[<span class="num">2</span>]<span class="ty">int</span>{r, c}] = <span class="kw">true</span>
+
+<span class="kw">type</span> State <span class="kw">struct</span> { x, y, mask <span class="ty">int</span> }
+seen := <span class="kw">make</span>(<span class="kw">map</span>[State]<span class="ty">int</span>)            <span class="cm">// 3D BFS state</span>
+seen[State{r, c, m}] = dist
+</code></pre>
+
+  <h3 class="syntax">Fixed-size arrays beat slices for hot loops</h3>
+<pre><code><span class="cm">// Counting alphabet — array is faster (no bounds checks, cache-friendly)</span>
+<span class="kw">var</span> count [<span class="num">26</span>]<span class="ty">int</span>
+<span class="kw">for</span> _, c := <span class="kw">range</span> s {
+    count[c-<span class="str">'a'</span>]++
+}
+<span class="cm">// Comparison: arrays support == directly!</span>
+<span class="kw">var</span> a, b [<span class="num">26</span>]<span class="ty">int</span>
+<span class="kw">if</span> a == b { <span class="cm">/* anagram check in one line */</span> }
+</code></pre>
+
+  <h3 class="syntax">Loop variable in closures (Go &lt; 1.22)</h3>
+<pre><code><span class="cm">// ❌ Pre-Go-1.22: all goroutines see the SAME `i`!</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">10</span>; i++ {
+    <span class="kw">go</span> <span class="kw">func</span>() { fmt.<span class="fn">Println</span>(i) }()    <span class="cm">// usually prints 10, 10, 10, ...</span>
+}
+
+<span class="cm">// ✅ Capture by argument</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">10</span>; i++ {
+    <span class="kw">go</span> <span class="kw">func</span>(i <span class="ty">int</span>) { fmt.<span class="fn">Println</span>(i) }(i)
+}
+
+<span class="cm">// ✅ Or shadow</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">10</span>; i++ {
+    i := i
+    <span class="kw">go</span> <span class="kw">func</span>() { fmt.<span class="fn">Println</span>(i) }()
+}
+<span class="cm">// In Go 1.22+ this is FIXED — each iteration has its own variable.</span>
+</code></pre>
+
+  <h3 class="syntax">Compare slices/maps</h3>
+<pre><code><span class="cm">// slices/maps cannot use ==</span>
+slices.<span class="fn">Equal</span>(a, b)             <span class="cm">// Go 1.21+ generic, fast</span>
+maps.<span class="fn">Equal</span>(m1, m2)            <span class="cm">// Go 1.21+</span>
+reflect.<span class="fn">DeepEqual</span>(a, b)       <span class="cm">// works for anything but slow</span>
+</code></pre>
+
+  <h3 class="syntax"><code>new()</code> vs <code>make()</code></h3>
+<pre><code>p := <span class="kw">new</span>(MyStruct)              <span class="cm">// returns *MyStruct, all-zero</span>
+s := <span class="kw">make</span>([]<span class="ty">int</span>, <span class="num">10</span>)            <span class="cm">// initialized slice — REQUIRED for slice/map/chan</span>
+m := <span class="kw">make</span>(<span class="kw">map</span>[<span class="ty">int</span>]<span class="ty">int</span>)
+ch := <span class="kw">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+<span class="cm">// Rule: use make() for slice/map/chan; new() for everything else (or just &amp;Foo{}).</span>
+</code></pre>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+</div>
+
+<footer class="page">
+  Cheatsheet for FAANG-style coding interviews in Go.<br/>
+  <small>Pair this with daily LeetCode practice. The first 50 problems will be slow, then it clicks.</small><br/>
+  <a href="../go-roadmap.html">← Back to Roadmap</a>
+</footer>
+
+<details class="floating-toc">
+  <summary title="Table of Contents" aria-label="Table of Contents"></summary>
+  <div class="ft-panel">
+    <h4>DSA Cheatsheet — Jump to</h4>
+    <ol>
+      <li><a href="#why">Why Go for DSA</a></li>
+      <li><a href="#io">Fast I/O</a></li>
+      <li><a href="#nums">Numeric Tricks</a></li>
+      <li><a href="#strings">Strings &amp; Runes</a></li>
+      <li><a href="#slices">Slices</a></li>
+      <li><a href="#maps">Maps &amp; Sets</a></li>
+      <li><a href="#sort">Sorting</a></li>
+      <li><a href="#stack-queue">Stack / Queue / Deque</a></li>
+      <li><a href="#heap">Heap / PQ</a></li>
+      <li><a href="#linked-list">Linked List</a></li>
+      <li><a href="#trees">Trees</a></li>
+      <li><a href="#graphs">Graphs</a></li>
+      <li><a href="#dp">DP Templates</a></li>
+      <li><a href="#twoptr">Two Pointers</a></li>
+      <li><a href="#bitset">Bitmask</a></li>
+      <li><a href="#trie">Trie</a></li>
+      <li><a href="#segtree">SegTree / BIT</a></li>
+      <li><a href="#gotchas">Top 15 Gotchas</a></li>
+      <li><a href="#snippets">Snippets</a></li>
+      <li><a href="#monotonic">Monotonic Stack/Queue</a></li>
+      <li><a href="#prefix">Prefix Sums</a></li>
+      <li><a href="#toposort">Topological Sort</a></li>
+      <li><a href="#more-graphs">MST / Bellman-Ford</a></li>
+      <li><a href="#strmatch">String Matching</a></li>
+      <li><a href="#more-dp">More DP</a></li>
+      <li><a href="#backtrack">Backtracking</a></li>
+      <li><a href="#math2">Math / Number Theory</a></li>
+      <li><a href="#more-tricks">Go Tricks (iota, etc.)</a></li>
+    </ol>
+    <div class="ft-extra">
+      <a href="phase1.html">📖 Phase 1</a>
+      <a href="phase3.html">📖 Phase 3 (Concurrency)</a>
+      <a href="../go-roadmap.html">← Roadmap</a>
+    </div>
+  </div>
+</details>
+
+</body>
+</html>

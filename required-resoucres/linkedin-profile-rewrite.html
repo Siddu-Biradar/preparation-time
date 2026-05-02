@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Profile Rewrite – Sidrameshwar Biradar</title>
+<style>
+  :root {
+    --bg: #0c0f1a; --paper: #161b2e; --ink: #e2e8f0;
+    --accent: #60a5fa; --green: #4ade80; --red: #f87171;
+    --orange: #fb923c; --border: #1e293b; --code-bg: #1a2332;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--ink);
+    line-height: 1.7; padding: 2rem;
+    max-width: 900px; margin: 0 auto;
+  }
+  h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #fff; }
+  h2 {
+    font-size: 1.5rem; margin: 2.5rem 0 1rem;
+    color: var(--accent); border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  h3 { font-size: 1.1rem; color: var(--orange); margin: 1.5rem 0 0.5rem; }
+  .subtitle { color: #94a3b8; font-size: 1rem; margin-bottom: 2rem; }
+
+  .audit-box {
+    background: #1a1020; border-left: 4px solid var(--red);
+    padding: 1.2rem 1.5rem; border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+  .audit-box h4 { color: var(--red); margin-bottom: 0.3rem; font-size: 0.9rem; text-transform: uppercase; }
+
+  .rewrite-box {
+    background: #0d1f12; border-left: 4px solid var(--green);
+    padding: 1.2rem 1.5rem; border-radius: 0 8px 8px 0;
+    margin: 1rem 0; position: relative;
+  }
+  .rewrite-box h4 { color: var(--green); margin-bottom: 0.3rem; font-size: 0.9rem; text-transform: uppercase; }
+
+  .copy-btn {
+    position: absolute; top: 0.8rem; right: 0.8rem;
+    background: var(--green); color: #000; border: none;
+    padding: 4px 12px; border-radius: 4px; cursor: pointer;
+    font-size: 0.8rem; font-weight: 600;
+  }
+  .copy-btn:hover { opacity: 0.8; }
+  .copy-btn.copied { background: #94a3b8; }
+
+  .score-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  .score-table th, .score-table td {
+    padding: 0.6rem 1rem; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .score-table th { color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; }
+  .bad { color: var(--red); font-weight: 700; }
+  .good { color: var(--green); font-weight: 700; }
+  .warn { color: var(--orange); font-weight: 700; }
+
+  .keyword-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem; margin: 1rem 0;
+  }
+  .keyword-tag {
+    background: var(--code-bg); padding: 0.4rem 0.8rem;
+    border-radius: 4px; font-size: 0.85rem;
+    border: 1px solid var(--border);
+  }
+  .keyword-tag.missing { border-color: var(--red); }
+  .keyword-tag.present { border-color: var(--green); }
+  .keyword-tag .status { font-size: 0.75rem; float: right; }
+
+  .checklist { list-style: none; margin: 1rem 0; }
+  .checklist li {
+    padding: 0.5rem 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 0.5rem;
+  }
+  .checklist li::before { content: "☐"; color: var(--accent); font-size: 1.1rem; flex-shrink: 0; }
+
+  .section-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;
+  }
+
+  .vs-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  .vs-table td { padding: 0.8rem; vertical-align: top; width: 50%; }
+  .vs-table td:first-child { border-right: 2px solid var(--border); }
+  .vs-label { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .vs-label.old { color: var(--red); }
+  .vs-label.new { color: var(--green); }
+
+  pre {
+    background: var(--code-bg); padding: 1rem;
+    border-radius: 8px; overflow-x: auto;
+    white-space: pre-wrap; word-wrap: break-word;
+    font-size: 0.9rem; line-height: 1.6;
+  }
+  .note {
+    background: #1a1a2e; border: 1px solid #2d2d5e;
+    padding: 0.8rem 1rem; border-radius: 8px;
+    font-size: 0.85rem; color: #a5b4fc; margin: 0.5rem 0;
+  }
+  a { color: var(--accent); }
+  strong { color: #fff; }
+  .divider { border: none; border-top: 2px solid var(--border); margin: 3rem 0; }
+</style>
+</head>
+<body>
+
+<h1>LinkedIn Profile Complete Rewrite</h1>
+<p class="subtitle">Sidrameshwar Biradar — Copy-paste every section below directly into LinkedIn</p>
+
+<!-- ==================== BRUTAL AUDIT ==================== -->
+<h2>1. BRUTAL AUDIT — Why Your Profile Is Invisible</h2>
+
+<div class="section-card">
+<table class="score-table">
+  <tr><th>Metric</th><th>Your Current</th><th>What SDE-2s Get</th><th>Verdict</th></tr>
+  <tr><td>Profile Views</td><td>54 total</td><td>200-500/week</td><td class="bad">Dead</td></tr>
+  <tr><td>Post Impressions</td><td>1</td><td>500-5,000+</td><td class="bad">Ghost</td></tr>
+  <tr><td>Search Appearances</td><td>6</td><td>50-200+/week</td><td class="bad">Buried</td></tr>
+  <tr><td>Activity</td><td>3× "Congrats 🎉"</td><td>Weekly posts + comments</td><td class="bad">Zero</td></tr>
+  <tr><td>Headline Keywords</td><td>0 searchable terms</td><td>5-8 keywords</td><td class="bad">Invisible</td></tr>
+  <tr><td>About Section</td><td>Skills dump</td><td>Story + impact + CTA</td><td class="bad">Wasted</td></tr>
+  <tr><td>Experience Bullets</td><td>100% empty</td><td>4-6 impact bullets each</td><td class="bad">Blank</td></tr>
+  <tr><td>Connections</td><td>500+</td><td>500+</td><td class="good">OK</td></tr>
+  <tr><td>Followers</td><td>1,084</td><td>1,000+</td><td class="good">OK</td></tr>
+</table>
+
+<h3>Why Recruiters Can't Find You — The Algorithm Problem</h3>
+<p>LinkedIn search ranks profiles by <strong>keyword density + profile completeness + engagement</strong>. Here's what's broken:</p>
+<ul style="margin: 0.8rem 0 0 1.5rem;">
+  <li><strong>Headline says "Software Developer @Kyndryl"</strong> — zero match for "Frontend Engineer," "Angular Developer," "React Developer," or "SDE-2"</li>
+  <li><strong>About is a college-style skills list</strong> — no keywords, no story, no reason to click</li>
+  <li><strong>All 3 Experience entries are EMPTY</strong> — the algorithm has zero text to index. Your incredible resume achievements exist nowhere on LinkedIn.</li>
+  <li><strong>Your resume says "95% bundle reduction" and "Angular v9→v20"</strong> — LinkedIn says nothing</li>
+  <li><strong>No AI/LLM keywords</strong> — your resume has OpenAI, LLM, prompt engineering — LinkedIn has zero</li>
+  <li><strong>"Problem Solving" is a top skill</strong> — this is meaningless noise. Replace with "RxJS" or "Web Performance"</li>
+  <li><strong>High school listed</strong> — makes you look junior</li>
+</ul>
+</div>
+
+<hr class="divider">
+
+<!-- ==================== HEADLINE ==================== -->
+<h2>2. HEADLINE — Stop the Scroll in 3 Seconds</h2>
+
+<div class="audit-box">
+  <h4>Current (Broken)</h4>
+  <p>Software Developer @Kyndryl</p>
+</div>
+
+<div class="rewrite-box">
+  <h4>New Headline — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Senior Frontend Engineer | Angular · React · TypeScript | 95% Bundle Reduction | AI-Powered DevOps Dashboards | SDE-2</pre>
+</div>
+
+<div class="note">
+  <strong>Why this works:</strong> Contains 8 searchable keywords recruiters type: "Senior Frontend Engineer," "Angular," "React," "TypeScript," "SDE-2." The "95% Bundle Reduction" is a scroll-stopping metric. "AI-Powered" catches the 2026 hiring wave.
+</div>
+
+<hr class="divider">
+
+<!-- ==================== ABOUT ==================== -->
+<h2>3. ABOUT — Customer-Centered Story That Converts</h2>
+
+<div class="audit-box">
+  <h4>Current (Broken)</h4>
+  <pre>SKILLS AND LANGUAGES
+✅ Subjects: Data Structures, Algorithm Design and Analysis, Object-Oriented Programming.
+✅ Web Technologies: React, Angular.
+✅ Languages: Javascript, TypeScript, Python.
+✅ Development Tools: Git, Docker, Kubernetes.</pre>
+  <p style="margin-top: 0.5rem; color: var(--red);">Problems: Looks like a college fresher's resume. No story. No impact. No CTA. No searchable narrative. The algorithm can't rank a bullet list.</p>
+</div>
+
+<div class="rewrite-box">
+  <h4>New About — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">I reduced a 43MB frontend bundle to 1.8MB. That's a 95% reduction — and the kind of problem I live for.
+
+I'm a Frontend Engineer with 4 years of experience building high-performance, scalable web applications at enterprise scale. At Kyndryl (IBM spin-off), I'm the frontend architect behind DevOps Intelligence — a real-time analytics platform that gives engineering leaders visibility into their entire software delivery lifecycle.
+
+What I've shipped:
+
+→ Led Angular migration (v9 → v20) across a production enterprise app, cutting bundle size by 95% and improving load time by 80%+
+→ Built real-time data pipelines using WebSockets and RxJS, eliminating polling overhead and delivering live dashboard updates
+→ Developed an AI-powered insights assistant using LLM APIs to detect engineering bottlenecks and generate actionable recommendations
+→ Architected modular, micro-frontend-ready component systems serving 500+ enterprise users
+→ Drove Core Web Vitals improvements (LCP, CLS, TTI) through code-splitting, lazy loading, and smart caching strategies
+→ Led design system migration (Carbon → Shidoka) across 40+ components with zero user-reported regressions
+
+Tech I work with daily: Angular, React, TypeScript, JavaScript, RxJS, NgRx, Tailwind CSS, REST APIs, WebSockets, OpenAI APIs, Webpack, Docker, Kubernetes, Git, CI/CD, Selenium
+
+I'm currently exploring Senior Frontend Engineer / SDE-2 / SDE-3 opportunities where I can own complex UI architecture, drive performance at scale, and build AI-integrated products.
+
+Let's connect → biradarsiddu789@gmail.com</pre>
+</div>
+
+<div class="note">
+  <strong>Keyword count:</strong> 30+ searchable terms embedded naturally. Opens with a jaw-dropping metric. Ends with a clear CTA. Every line answers "why should I hire this person?"
+</div>
+
+<hr class="divider">
+
+<!-- ==================== EXPERIENCE ==================== -->
+<h2>4. EXPERIENCE — Impact-Driven, Not Job Descriptions</h2>
+
+<p>Your experience section is <span class="bad">100% empty</span>. Your resume has incredible content that LinkedIn doesn't know about. Here's exactly what to paste into each role:</p>
+
+<!-- Role 1 -->
+<div class="section-card">
+<h3>Role 1: Senior Associate Software Engineering Development</h3>
+<p style="color: #94a3b8; margin-bottom: 0.5rem;">Kyndryl · Jul 2023 – Present</p>
+<p style="color: #94a3b8; margin-bottom: 1rem;">Also update the <strong>Title</strong> from "Senior Associate Software Engineering Development" to:</p>
+<div class="rewrite-box">
+  <h4>New Job Title</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Software Engineer II (Frontend)</pre>
+</div>
+
+<div class="rewrite-box">
+  <h4>New Description — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Frontend architect for DevOps Intelligence — an enterprise-grade analytics platform that delivers real-time SDLC metrics and AI-powered engineering insights across Kyndryl's global organization.
+
+Key Impact:
+
+• Reduced frontend bundle size by 95% (43MB → 1.8MB) by leading Angular migration from v9 to v20, adopting standalone components, tree-shaking, and modern build optimizations — improving page load time by 80%+
+
+• Built real-time dashboard updates using WebSockets and RxJS reactive pipelines, eliminating polling overhead and reducing redundant API calls by 60%
+
+• Developed AI-powered insights assistant using LLM APIs (OpenAI) to analyze engineering metrics, detect bottlenecks, and generate actionable recommendations for engineering managers
+
+• Implemented semantic search over logs and metrics using vector embeddings, enabling contextual query-based insights across the platform
+
+• Drove Core Web Vitals improvements (LCP, CLS, TTI) through code-splitting, lazy loading, performance budgets, and CI-integrated performance checks that prevent regressions
+
+• Led complete design system migration from IBM Carbon to Shidoka across 40+ UI components, delivering a seamless visual transition with zero user-reported regressions
+
+• Architected modular, micro-frontend-ready component architecture enabling faster feature delivery and independent team scalability
+
+• Built security intelligence module aggregating vulnerability and compliance data into unified dashboards for engineering leadership
+
+Tech: Angular 20, TypeScript, RxJS, NgRx, WebSockets, OpenAI APIs, Tailwind CSS, Webpack, REST APIs, Selenium, Docker, Jenkins, Git, CI/CD</pre>
+</div>
+</div>
+
+<!-- Role 2 -->
+<div class="section-card">
+<h3>Role 2: Software Developer Graduate</h3>
+<p style="color: #94a3b8; margin-bottom: 0.5rem;">Kyndryl · Jul 2022 – Aug 2023</p>
+<p style="color: #94a3b8; margin-bottom: 1rem;">Update the <strong>Title</strong> to:</p>
+<div class="rewrite-box">
+  <h4>New Job Title</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Software Engineer (Frontend)</pre>
+</div>
+
+<div class="rewrite-box">
+  <h4>New Description — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Joined Kyndryl's graduate engineering program and ramped to production-level frontend ownership within 3 months. Built the initial frontend architecture for DevOps Intelligence that now serves 500+ enterprise users.
+
+Key Contributions:
+
+• Architected the initial Angular 9 frontend for DevOps Intelligence using Carbon Design System, establishing the scalable component architecture that powers the platform today
+
+• Built 15+ reusable Angular components (data tables, real-time charts, configurable filters, modals) following atomic design principles and ensuring cross-team consistency
+
+• Designed and integrated RESTful API consumption layer with proper error handling, loading states, retry logic, and response caching
+
+• Developed automated UI test suites using Selenium, establishing regression testing infrastructure and achieving comprehensive coverage during the project's initial phase
+
+• Wrote unit tests with Jasmine/Karma achieving 80%+ code coverage on critical business logic modules
+
+• Collaborated with backend engineers and UX designers in an Agile/Scrum workflow, participating in sprint planning, code reviews, and architecture discussions
+
+Tech: Angular 9, TypeScript, JavaScript, RxJS, Carbon Design System, REST APIs, Selenium, Jasmine, Karma, Git</pre>
+</div>
+</div>
+
+<!-- Role 3 -->
+<div class="section-card">
+<h3>Role 3: Frontend Developer (Internship)</h3>
+<p style="color: #94a3b8; margin-bottom: 0.5rem;">The Sparks Foundation · Feb 2022 – May 2022</p>
+
+<div class="rewrite-box">
+  <h4>New Description — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Built responsive, accessible web interfaces during a structured frontend development internship program.
+
+• Developed interactive UI components using HTML5, CSS3, and JavaScript with clean semantic markup and cross-browser compatibility
+
+• Implemented responsive layouts using CSS Grid and Flexbox, ensuring optimal user experience across mobile, tablet, and desktop viewports
+
+• Practiced Git-based version control workflows including branching, pull requests, and collaborative code reviews in an Agile team environment
+
+Tech: HTML5, CSS3, JavaScript, Git, Responsive Design</pre>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- ==================== PROJECTS ==================== -->
+<h2>5. PROJECTS — Add These Missing From LinkedIn</h2>
+
+<p>Your LinkedIn only has 2 projects. Your resume has 3 strong ones. <strong>Add the AI project immediately</strong> — it's your most valuable differentiator in 2026.</p>
+
+<div class="section-card">
+<h3>ADD: AI DevOps Insights Assistant</h3>
+<div class="rewrite-box">
+  <h4>Project Title</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">AI DevOps Insights Assistant</pre>
+</div>
+<div class="rewrite-box">
+  <h4>Project Description — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">AI-powered assistant that analyzes engineering metrics and detects bottlenecks across the software development lifecycle using LLM APIs.
+
+• Built intelligent insights engine using OpenAI APIs to generate actionable recommendations from engineering metrics (commit frequency, PR complexity, review latency, merge lead time)
+
+• Implemented semantic search over logs and metrics using vector embeddings, enabling natural language queries like "Why did deployment velocity drop last sprint?"
+
+• Designed role-based insights dashboards — developers see personal productivity trends while engineering managers see team-level bottlenecks and capacity forecasts
+
+• Integrated prompt engineering techniques to optimize LLM responses for accuracy and context-relevance in DevOps domain
+
+Tech: Angular, TypeScript, OpenAI APIs, LLM Integration, Prompt Engineering, Vector Embeddings, REST APIs</pre>
+</div>
+</div>
+
+<div class="section-card">
+<h3>UPDATE: DevOps Intelligence (Existing)</h3>
+<div class="rewrite-box">
+  <h4>Updated Description — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Enterprise-grade DevOps analytics platform delivering real-time SDLC metrics and AI-powered insights across Kyndryl's global engineering organization.
+
+• Solely architected the frontend, building scalable real-time dashboards tracking Code Review Latency, Review Throughput, Commit Frequency, PR Complexity, and Merge Lead Time
+
+• Reduced bundle size by 95% (43MB → 1.8MB) through Angular v9 → v20 migration, tree-shaking, code-splitting, and modern build optimizations
+
+• Built real-time data pipelines using WebSockets and RxJS, eliminating polling and reducing API calls by 60%
+
+• Led design system migration from Carbon to Shidoka across 40+ components with zero regressions
+
+• Integrated Image Management and Release Management modules enabling Release Managers to assess go-live readiness at application and global levels
+
+• Established automated UI testing infrastructure using Selenium with comprehensive regression coverage
+
+Tech: Angular 20, TypeScript, RxJS, NgRx, WebSockets, Shidoka Design System, REST APIs, Selenium, Docker, Jenkins, CI/CD</pre>
+</div>
+</div>
+
+<div class="section-card">
+<h3>ADD: Frontend Performance Playground (Side Project)</h3>
+<div class="rewrite-box">
+  <h4>Project Description — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Benchmarking application that compares rendering performance across Angular and React implementations using real-world scenarios.
+
+• Built interactive performance comparison tool measuring render efficiency across different framework implementations
+
+• Implemented virtualization, memoization, and lazy loading strategies — demonstrating measurable performance gains with before/after metrics
+
+• Measured and visualized Core Web Vitals (LCP, CLS, TTI) using real-world data sets and scenarios
+
+• Open-source project demonstrating deep understanding of frontend performance optimization patterns
+
+Tech: Angular, React, TypeScript, Web Performance APIs, Core Web Vitals, Virtualization</pre>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- ==================== SKILLS ==================== -->
+<h2>6. SKILLS — Reorder + Add for Maximum Search Visibility</h2>
+
+<div class="audit-box">
+  <h4>Current Skills Order (Wrong)</h4>
+  <p>Angular · JavaScript · TypeScript · Problem Solving · Python</p>
+  <p style="color: var(--red); margin-top: 0.3rem;">"Problem Solving" and "Python" waste your top-5 slots. These don't match SDE-2 Frontend searches.</p>
+</div>
+
+<div class="rewrite-box">
+  <h4>New Skills — Add/Reorder to This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Top 3 (Pinned — most search weight):
+1. Angular
+2. React  
+3. TypeScript
+
+Remaining (add all of these):
+4. JavaScript
+5. RxJS
+6. Frontend Development
+7. Web Performance Optimization
+8. HTML5
+9. CSS3
+10. REST APIs
+11. WebSockets
+12. NgRx
+13. State Management
+14. OpenAI / LLM Integration
+15. Tailwind CSS
+16. Webpack
+17. Single Page Applications (SPA)
+18. Responsive Web Design
+19. Component Architecture
+20. Micro-Frontends
+21. Core Web Vitals
+22. Selenium
+23. Docker
+24. Kubernetes
+25. CI/CD
+26. Git
+27. Agile / Scrum
+28. System Design
+
+REMOVE these:
+- Problem Solving (meaningless — every human solves problems)
+- Python (not your target role's keyword)</pre>
+</div>
+
+<hr class="divider">
+
+<!-- ==================== EDUCATION ==================== -->
+<h2>7. EDUCATION — Clean Up</h2>
+
+<div class="section-card">
+  <h3>Keep: B.M.S. College of Engineering</h3>
+  <p>B.E. (Electrical & Electronics) · CGPA: 8.54 · 2018-2022</p>
+  <p style="color: var(--green); margin-top: 0.3rem;">✓ This is fine. Good college, good GPA.</p>
+
+  <h3 style="margin-top: 1.5rem;">REMOVE: CB Gurukul Kardiyal Bhalki (2007-2018)</h3>
+  <p style="color: var(--red);">Delete this. High school/pre-university on LinkedIn makes you look junior. No recruiter cares about school. It pushes your college further down.</p>
+
+  <h3 style="margin-top: 1.5rem;">ADD: AWS Certified Solutions Architect – Associate</h3>
+  <p>Your resume mentions this certification but it's <strong>not on your LinkedIn!</strong> Add it under Licenses & Certifications immediately — it's a major credibility signal.</p>
+  <div class="rewrite-box">
+    <h4>Add This Certification</h4>
+    <button class="copy-btn" onclick="copyText(this)">Copy</button>
+    <pre class="copyable">Name: AWS Certified Solutions Architect – Associate
+Issuing Organization: Amazon Web Services (AWS)
+(Add credential ID and issue date if you have them)</pre>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ==================== OPEN TO WORK ==================== -->
+<h2>8. "OPEN TO WORK" — Fix the Job Titles</h2>
+
+<div class="audit-box">
+  <h4>Current</h4>
+  <p>Frontend Developer, Senior Frontend Develop...</p>
+</div>
+
+<div class="rewrite-box">
+  <h4>Update to These Job Titles</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">1. Senior Frontend Engineer
+2. Software Engineer II (Frontend)
+3. Frontend Developer (SDE-2)
+4. Angular Developer
+5. React Developer
+
+Location: Bengaluru, India (+ Remote)
+Start date: Immediately</pre>
+</div>
+
+<hr class="divider">
+
+<!-- ==================== KEYWORD MAP ==================== -->
+<h2>9. KEYWORD OPTIMIZATION — What Recruiters Search</h2>
+
+<p>These are the exact terms hiring managers and recruiters type into LinkedIn search. After applying all rewrites above, your profile will contain <strong>every single one</strong>:</p>
+
+<div class="keyword-grid">
+  <div class="keyword-tag missing">Senior Frontend Engineer <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">SDE-2 / SDE-3 <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Angular Developer <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">React Developer <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag present">TypeScript <span class="status good">✅</span></div>
+  <div class="keyword-tag present">JavaScript <span class="status good">✅</span></div>
+  <div class="keyword-tag missing">RxJS <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">NgRx <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">WebSockets <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Web Performance <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Core Web Vitals <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Frontend Architecture <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">REST APIs <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Micro-Frontends <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Design Systems <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">OpenAI / LLM <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">CI/CD <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Code Splitting <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Lazy Loading <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Bundle Optimization <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">Webpack <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag present">Docker <span class="status good">✅</span></div>
+  <div class="keyword-tag present">Kubernetes <span class="status good">✅</span></div>
+  <div class="keyword-tag missing">Selenium Testing <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag missing">AWS <span class="status bad">was ❌ → now ✅</span></div>
+  <div class="keyword-tag present">Bengaluru <span class="status good">✅</span></div>
+</div>
+
+<div class="note">
+  <strong>Before:</strong> 5 out of 26 target keywords present → <strong>19% match rate</strong><br>
+  <strong>After rewrites:</strong> 26 out of 26 → <strong>100% match rate</strong> → Search appearances should jump from 6 to 100+
+</div>
+
+<hr class="divider">
+
+<!-- ==================== CHECKLIST ==================== -->
+<h2>10. ACTION CHECKLIST — Do These In Order</h2>
+
+<div class="section-card">
+<ul class="checklist">
+  <li><strong>FIRST: Change your LinkedIn password</strong> — you shared it in an earlier chat message. Do this NOW.</li>
+  <li><strong>Paste new Headline</strong> — Section 2 above</li>
+  <li><strong>Replace entire About section</strong> — Section 3 above</li>
+  <li><strong>Change job titles</strong> — "Senior Associate..." → "Software Engineer II (Frontend)" and "Software Developer Graduate" → "Software Engineer (Frontend)"</li>
+  <li><strong>Paste experience descriptions</strong> for all 3 roles — Section 4 above</li>
+  <li><strong>Add AI DevOps Insights Assistant project</strong> — Section 5</li>
+  <li><strong>Update DevOps Intelligence project description</strong> — Section 5</li>
+  <li><strong>Add Frontend Performance Playground project</strong> — Section 5</li>
+  <li><strong>Reorder skills</strong> — Pin Angular, React, TypeScript as top 3. Remove "Problem Solving" and "Python"</li>
+  <li><strong>Add 20+ missing skills</strong> — Full list in Section 6</li>
+  <li><strong>Add AWS certification</strong> — Section 7</li>
+  <li><strong>Delete CB Gurukul high school</strong> from Education</li>
+  <li><strong>Update "Open to Work" job titles</strong> — Section 8</li>
+  <li><strong>Request 2-3 recommendations</strong> from Kyndryl colleagues</li>
+  <li><strong>Upload your updated resume PDF</strong> to the Featured section</li>
+  <li><strong>Write your first real LinkedIn post this week</strong> (see content ideas below)</li>
+</ul>
+</div>
+
+<hr class="divider">
+
+<!-- ==================== FIRST POST ==================== -->
+<h2>BONUS: Your First LinkedIn Post (Copy & Post Today)</h2>
+
+<div class="rewrite-box">
+  <h4>Post — Copy This</h4>
+  <button class="copy-btn" onclick="copyText(this)">Copy</button>
+  <pre class="copyable">Our frontend bundle was 43MB.
+
+Yes, forty-three megabytes. For a web app.
+
+Users waited 12+ seconds for first load. The app felt broken.
+
+Here's how I cut it to 1.8MB (95% reduction):
+
+1. 🔍 Audited with Webpack Bundle Analyzer — found 3 libraries we imported but never used
+2. 🌳 Enabled tree-shaking properly — Angular's default config wasn't enough
+3. ✂️ Code-split every route — went from 1 monolithic bundle to 12 lazy-loaded chunks
+4. 📦 Replaced moment.js (300KB) with date-fns (30KB)
+5. 🗜️ Added Brotli compression — 40% smaller than gzip
+6. ⚡ Implemented performance budgets in CI — any PR that adds >50KB gets flagged
+
+Result:
+→ Load time dropped from 12s to 2.1s
+→ Core Web Vitals went from "Poor" to "Good"
+→ Zero user complaints about speed since then
+
+The lesson? Performance isn't a feature. It's the product.
+
+---
+
+If you're struggling with Angular bundle size, drop a comment. Happy to share the Webpack config.
+
+#FrontendEngineering #Angular #WebPerformance #JavaScript #TypeScript</pre>
+</div>
+
+<div class="note">
+  <strong>Why this post will work:</strong> Opens with a shocking number (scroll-stopper). Tells a specific story. Gives actionable steps (people save these). Ends with engagement CTA. Hashtags are searchable keywords.
+</div>
+
+<script>
+function copyText(btn) {
+  const pre = btn.parentElement.querySelector('.copyable');
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

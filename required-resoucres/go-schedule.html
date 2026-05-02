@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Go Backend — 24-Week Daily Schedule (5h/day)</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg-alt: #f7f9fc; --panel: #ffffff; --panel-2: #f3f6fb;
+    --text: #1b2330; --muted: #5b6675; --accent: #00ADD8; --accent-dark: #0082a3;
+    --accent-2: #1a7f72; --border: #e3e8ef; --border-strong: #cfd6df;
+    --success: #16a34a; --warn: #b45309;
+    --shadow: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+    background: var(--bg-alt); color: var(--text); line-height: 1.6;
+  }
+  header {
+    padding: 48px 24px 28px; text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #eaf9fc 0%, #ffffff 100%);
+  }
+  header h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 38px); color: #0f1621; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); max-width: 780px; margin: 0 auto; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 24px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 18px 0 0; }
+  .pill { border: 1px solid var(--border-strong); background: #fff; color: var(--muted); padding: 6px 12px; border-radius: 999px; font-size: 13px; }
+  .pill.accent { color: var(--accent-dark); border-color: rgba(0,173,216,.35); background: #eaf9fc; }
+  .daily {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 22px; margin: 20px 0; box-shadow: var(--shadow);
+  }
+  .daily h2 { margin: 0 0 6px; color: var(--accent-dark); }
+  .slots { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+  @media (max-width: 720px) { .slots { grid-template-columns: 1fr; } }
+  .slot {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .slot h4 { margin: 0 0 6px; color: var(--accent-2); text-transform: uppercase; font-size: 13px; letter-spacing: .5px; }
+  .slot .time { display: inline-block; background: var(--accent); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
+  .week {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px 24px; margin: 20px 0;
+    box-shadow: var(--shadow);
+  }
+  .week h2 {
+    margin: 0 0 6px; font-size: 20px; color: #0f1621;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .week h2 .tag {
+    font-size: 12px; color: #fff; background: var(--accent);
+    padding: 3px 10px; border-radius: 6px; font-weight: 700;
+  }
+  .week .sub { color: var(--muted); margin: 0 0 12px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .card h3 { margin: 0 0 8px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: .5px; }
+  ul { margin: 6px 0 0 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  a { color: var(--accent-dark); text-decoration: none; border-bottom: 1px dashed rgba(0,130,163,.35); }
+  a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  code { background: #eef3f8; color: #0b5d73; padding: 2px 6px; border-radius: 4px; font-size: 13px; border: 1px solid var(--border); }
+  .callout {
+    background: #f1fbfd; border: 1px solid rgba(0,173,216,.3);
+    border-left: 4px solid var(--accent); border-radius: 8px;
+    padding: 14px 18px; margin: 16px 0;
+  }
+  .callout b { color: var(--accent-dark); }
+  .warn {
+    background: #fff8eb; border: 1px solid #f5d69a;
+    border-left: 4px solid var(--warn); border-radius: 8px;
+    padding: 14px 18px; margin: 16px 0; color: #7a4a05;
+  }
+  .toc { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px; margin: 20px 0; box-shadow: var(--shadow); }
+  .toc h3 { margin-top: 0; color: var(--accent-dark); }
+  .toc ol { columns: 3; column-gap: 24px; padding-left: 20px; }
+  @media (max-width: 720px) { .toc ol { columns: 1; } }
+  .milestone {
+    border-left: 4px solid var(--success); background: #f0fdf4;
+    padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 10px 0;
+    font-size: 14px;
+  }
+  .milestone b { color: var(--success); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { background: var(--panel-2); color: var(--accent-2); text-transform: uppercase; font-size: 12px; letter-spacing: .5px; }
+  footer { text-align: center; color: var(--muted); padding: 36px 20px; border-top: 1px solid var(--border); margin-top: 40px; font-size: 14px; background: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📅 <span>Go Backend</span> — 24-Week Daily Schedule</h1>
+  <p>Realistic plan for an SDE2 frontend at IBM transitioning to Go backend. <b>5 hours/day, 7 days/week.</b> Aligned with <a href="go-roadmap.html">go-roadmap.html</a>.</p>
+  <div class="legend">
+    <span class="pill accent">Duration: 24 weeks (6 months)</span>
+    <span class="pill">Total: ~840 hours</span>
+    <span class="pill accent">5h/day × 7 days</span>
+    <span class="pill">Target: ₹30L+ Go roles</span>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- DAILY TEMPLATE -->
+<div class="daily">
+  <h2>🗓️ Your Daily Template (every day, including weekends)</h2>
+  <p style="color: var(--muted); margin: 4px 0 0;">Same structure every day. Consistency &gt; intensity. Don't break the chain.</p>
+  <div class="slots">
+    <div class="slot">
+      <span class="time">11:00 AM – 1:00 PM</span>
+      <h4>🌞 Morning Slot — Learn (2h)</h4>
+      <ul>
+        <li><b>0:00–1:15</b> — Watch the day's tutorial(s) from <a href="go-roadmap.html">roadmap</a></li>
+        <li><b>1:15–2:00</b> — Code along + take 5-line notes</li>
+      </ul>
+      <small style="color: var(--muted);">Fresh brain = concept absorption. No DSA here.</small>
+    </div>
+    <div class="slot">
+      <span class="time">9:30 PM – 12:30 AM</span>
+      <h4>🌙 Night Slot — Apply (3h)</h4>
+      <ul>
+        <li><b>9:30–10:30</b> — DSA: 1 NeetCode problem (Go) ⭐</li>
+        <li><b>10:30–12:00</b> — Build: project work / extend morning concept</li>
+        <li><b>12:00–12:30</b> — Review, commit to GitHub, plan tomorrow</li>
+      </ul>
+      <small style="color: var(--muted);">30m buffer to 1 AM if deep in flow.</small>
+    </div>
+  </div>
+  <div class="callout">
+    <b>⏰ Weekly recap (Sunday 9:30 PM):</b> Skip Sunday's DSA. Use that hour to: (1) write one paragraph "what I learned this week" in a learning log, (2) push that week's project work, (3) plan next week's tickets.
+  </div>
+</div>
+
+<!-- FIXED HABITS -->
+<div class="daily">
+  <h2>🎯 The 4 Non-Negotiable Daily Habits</h2>
+  <table>
+    <thead><tr><th>Habit</th><th>Time/day</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>1 NeetCode problem in Go</td><td>1h</td><td>SDE2+ rejection killer #1</td></tr>
+      <tr><td>Code along (no copy-paste)</td><td>≥1h</td><td>Tutorial hell prevention</td></tr>
+      <tr><td>Daily commit to GitHub</td><td>5 min</td><td>Recruiter signal + accountability</td></tr>
+      <tr><td>5-line learning log entry</td><td>5 min</td><td>Spaced recall for interviews</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="toc">
+  <h3>📚 Schedule by Phase</h3>
+  <ol>
+    <li><a href="#w1-2">Weeks 1–2 — Prerequisites</a></li>
+    <li><a href="#w3-5">Weeks 3–5 — Go Fundamentals</a></li>
+    <li><a href="#w6-7">Weeks 6–7 — Intermediate Go</a></li>
+    <li><a href="#w8-9">Weeks 8–9 — Concurrency</a></li>
+    <li><a href="#w10-13">Weeks 10–13 — Backend (HTTP, Architecture)</a></li>
+    <li><a href="#w14-15">Weeks 14–15 — Databases</a></li>
+    <li><a href="#w16">Week 16 — Auth &amp; Security</a></li>
+    <li><a href="#w17">Week 17 — Testing</a></li>
+    <li><a href="#w18-19">Weeks 18–19 — Microservices &amp; gRPC</a></li>
+    <li><a href="#w20-21">Weeks 20–21 — Docker, K8s, Cloud</a></li>
+    <li><a href="#w22">Week 22 — Observability</a></li>
+    <li><a href="#w23-24">Weeks 23–24 — System Design + Job Apps</a></li>
+  </ol>
+</div>
+
+<!-- =================== WEEK 1-2 =================== -->
+<section class="week" id="w1-2">
+  <h2><span class="tag">Weeks 1–2</span> Prerequisites Sprint</h2>
+  <p class="sub">Get fluent with terminal, Git, Vim, curl, Docker CLI before touching Go.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 1 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Terminal &amp; shell essentials</li>
+        <li><b>Tue:</b> Git basics + branches</li>
+        <li><b>Wed:</b> Git rebase, undo, reflog</li>
+        <li><b>Thu:</b> Vim survival kit</li>
+        <li><b>Fri:</b> npm + .npmrc + nvm</li>
+        <li><b>Sat:</b> curl + Postman + HTTP fundamentals</li>
+        <li><b>Sun:</b> SSH + tmux + remote workflows</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 2 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Docker CLI preview</li>
+        <li><b>Tue:</b> docker-compose</li>
+        <li><b>Wed:</b> VS Code shortcuts + extensions</li>
+        <li><b>Thu:</b> Homebrew / apt / WSL2 setup</li>
+        <li><b>Fri:</b> fzf, ripgrep, bat, jq, lazygit</li>
+        <li><b>Sat:</b> Install Go + VS Code Go ext + delve + air</li>
+        <li><b>Sun:</b> "Why Go?" + Tour of Go (start)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights (both weeks)</h3>
+      <ul>
+        <li><b>DSA:</b> Arrays &amp; Hashing (NeetCode 9 problems)</li>
+        <li><b>Build:</b> Set up dotfiles repo, push to GitHub</li>
+        <li><b>Build:</b> Configure zsh + Starship + aliases</li>
+        <li><b>Build:</b> Solve 5 git scenarios from <a href="https://learngitbranching.js.org/" target="_blank">learngitbranching</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> Comfortable in terminal/git/vim/docker/curl. Tour of Go started. 14 LeetCode easy + 5 medium done.</div>
+</section>
+
+<!-- =================== WEEK 3-5 =================== -->
+<section class="week" id="w3-5">
+  <h2><span class="tag">Weeks 3–5</span> Go Fundamentals</h2>
+  <p class="sub">Finish Tour of Go + freeCodeCamp 7h course. Build 1 CLI.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 3 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Tue:</b> Tour of Go (finish completely)</li>
+        <li><b>Wed:</b> Variables, types, functions</li>
+        <li><b>Thu:</b> Control flow (if/for/switch)</li>
+        <li><b>Fri:</b> Slices, maps, arrays + gotchas</li>
+        <li><b>Sat:</b> Structs, methods, composition</li>
+        <li><b>Sun:</b> Pointers &amp; memory</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 4 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Interfaces (the Go way)</li>
+        <li><b>Tue:</b> "Accept interfaces, return structs"</li>
+        <li><b>Wed:</b> Error handling + <code>errors.Is/As</code></li>
+        <li><b>Thu:</b> defer, panic, recover</li>
+        <li><b>Fri:</b> Packages &amp; modules</li>
+        <li><b>Sat–Sun:</b> Go by Example (sweep all topics)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 5 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Wed:</b> Build CLI tool (todo manager / file organizer)</li>
+        <li><b>Thu:</b> Add unit tests to CLI</li>
+        <li><b>Fri:</b> Refactor with interfaces</li>
+        <li><b>Sat:</b> Publish CLI to GitHub with README</li>
+        <li><b>Sun:</b> Slack &amp; review week — read Effective Go</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights — DSA Track</h3>
+      <ul>
+        <li><b>Wk 3:</b> Two Pointers + Sliding Window (NeetCode)</li>
+        <li><b>Wk 4:</b> Stack + Binary Search</li>
+        <li><b>Wk 5:</b> Linked List basics</li>
+        <li>Solve all in <b>Go</b> — kills 2 birds with 1 stone</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> 1 CLI shipped on GitHub, ~30 LeetCode problems, can read any Go code at work without google.</div>
+</section>
+
+<!-- =================== WEEK 6-7 =================== -->
+<section class="week" id="w6-7">
+  <h2><span class="tag">Weeks 6–7</span> Intermediate Go</h2>
+  <p class="sub">The bridge from "knows syntax" to "writes idiomatic Go".</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 6 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Generics</li>
+        <li><b>Tue–Wed:</b> Context package (CRITICAL)</li>
+        <li><b>Thu:</b> JSON, time, strings stdlib</li>
+        <li><b>Fri:</b> io.Reader / io.Writer interfaces</li>
+        <li><b>Sat:</b> Reflection + custom JSON marshalling</li>
+        <li><b>Sun:</b> slog structured logging</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 7 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> go test &amp; coverage</li>
+        <li><b>Tue:</b> go:generate, go vet, go build flags</li>
+        <li><b>Wed–Sun:</b> Read "Learning Go" (Bodner) — first 6 chapters</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights — DSA + Build</h3>
+      <ul>
+        <li><b>DSA:</b> Trees + DFS/BFS (NeetCode)</li>
+        <li><b>Build:</b> JSON-to-CSV converter (use <code>encoding/json</code> + <code>encoding/csv</code>)</li>
+        <li><b>Build:</b> Add slog + context propagation to your CLI</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> Read &amp; understand any stdlib package. ~50 LeetCode total.</div>
+</section>
+
+<!-- =================== WEEK 8-9 =================== -->
+<section class="week" id="w8-9">
+  <h2><span class="tag">Weeks 8–9</span> Concurrency Deep Dive</h2>
+  <p class="sub">Go's superpower. Make-or-break for Go interviews.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 8 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Goroutines basics</li>
+        <li><b>Tue:</b> Channels + buffered vs unbuffered</li>
+        <li><b>Wed:</b> select statement mastery</li>
+        <li><b>Thu:</b> Mutex + RWMutex + WaitGroup</li>
+        <li><b>Fri:</b> sync/atomic + sync.Pool</li>
+        <li><b>Sat–Sun:</b> Worker pool pattern (build it)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 9 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Fan-out / Fan-in</li>
+        <li><b>Tue:</b> Pipeline pattern + cancellation</li>
+        <li><b>Wed:</b> errgroup + advanced patterns</li>
+        <li><b>Thu:</b> Race detector + goroutine leaks</li>
+        <li><b>Fri–Sun:</b> Concurrent web scraper project</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights — DSA + Project</h3>
+      <ul>
+        <li><b>DSA:</b> Graphs + Heap (NeetCode)</li>
+        <li><b>Build (P1 start):</b> URL Shortener foundations — repo, layout, stdlib server</li>
+        <li>Read Rob Pike "Go Concurrency Patterns" talk</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> Can explain goroutines/channels/race conditions cold. Web scraper shipped. ~70 LeetCode total.</div>
+</section>
+
+<!-- =================== WEEK 10-13 =================== -->
+<section class="week" id="w10-13">
+  <h2><span class="tag">Weeks 10–13</span> Backend Development (BIG block)</h2>
+  <p class="sub">Most-asked area in interviews. Build URL Shortener in parallel.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 10 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Tue:</b> net/http + Go 1.22 router</li>
+        <li><b>Wed:</b> HTTP server patterns</li>
+        <li><b>Thu–Fri:</b> Middleware chaining</li>
+        <li><b>Sat–Sun:</b> Chi router + REST CRUD</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 11 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Gin (compare with Chi)</li>
+        <li><b>Tue:</b> Fiber (just awareness)</li>
+        <li><b>Wed–Fri:</b> Clean / Hexagonal architecture</li>
+        <li><b>Sat–Sun:</b> Standard project layout, refactor URL shortener</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 12 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Wed:</b> Dependency Injection (Wire)</li>
+        <li><b>Thu:</b> Validator package</li>
+        <li><b>Fri:</b> Graceful shutdown</li>
+        <li><b>Sat–Sun:</b> Read Alex Edwards "Let's Go" (skim)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 13 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Sun:</b> Anthony GG full backend playlist (binge + code-along)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights — Project P1: URL Shortener</h3>
+      <ul>
+        <li><b>Wk 10:</b> Routes, handlers, in-memory store</li>
+        <li><b>Wk 11:</b> Refactor to Chi + middleware (logging, recover)</li>
+        <li><b>Wk 12:</b> Add Wire DI, structured errors</li>
+        <li><b>Wk 13:</b> Tests for handlers (httptest)</li>
+        <li><b>DSA:</b> Mediums on hash/string (5/wk)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> URL shortener v1 working locally. 100 LeetCode total. Can design a REST API from scratch in 30 min.</div>
+</section>
+
+<!-- =================== WEEK 14-15 =================== -->
+<section class="week" id="w14-15">
+  <h2><span class="tag">Weeks 14–15</span> Databases (SQL + NoSQL)</h2>
+  <p class="sub">Most backend bugs are DB bugs. Critical for interviews.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 14 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Tue:</b> Postgres fundamentals + SQL</li>
+        <li><b>Wed:</b> Indexes + EXPLAIN</li>
+        <li><b>Thu:</b> database/sql + pgx</li>
+        <li><b>Fri:</b> sqlc tutorial</li>
+        <li><b>Sat:</b> Migrations (golang-migrate)</li>
+        <li><b>Sun:</b> Transactions + isolation levels</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 15 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Connection pooling tuning</li>
+        <li><b>Tue–Wed:</b> MongoDB with Go (your org stack)</li>
+        <li><b>Thu–Fri:</b> Redis: caching, pub/sub, rate limit</li>
+        <li><b>Sat–Sun:</b> TechSchool Backend Master Class start</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights — Project P1 + DSA</h3>
+      <ul>
+        <li><b>Wk 14:</b> URL shortener → Postgres + sqlc + migrations</li>
+        <li><b>Wk 15:</b> Add Redis cache layer + analytics</li>
+        <li><b>DSA:</b> DP basics (NeetCode 1D DP — 10 problems)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> URL shortener v2 with Postgres + Redis live. Comfortable writing JOINs + EXPLAIN.</div>
+</section>
+
+<!-- =================== WEEK 16 =================== -->
+<section class="week" id="w16">
+  <h2><span class="tag">Week 16</span> Auth &amp; Security</h2>
+  <p class="sub">Non-negotiable for any real backend.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Sessions vs JWT</li>
+        <li><b>Tue:</b> bcrypt / argon2 password hashing</li>
+        <li><b>Wed:</b> JWT + refresh tokens flow</li>
+        <li><b>Thu:</b> OAuth2 / OIDC (Google login)</li>
+        <li><b>Fri:</b> OWASP Top 10 + CORS/CSRF</li>
+        <li><b>Sat:</b> Rate limiting (token bucket)</li>
+        <li><b>Sun:</b> TLS/HTTPS in Go + secrets management</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights</h3>
+      <ul>
+        <li>Add JWT auth + refresh tokens to URL shortener</li>
+        <li>Add user accounts + private URLs</li>
+        <li>Add rate limiter middleware (Redis-backed)</li>
+        <li><b>DSA:</b> 2D DP + Greedy</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> URL shortener v3: auth + rate limit. Can explain JWT vs session debate cold.</div>
+</section>
+
+<!-- =================== WEEK 17 =================== -->
+<section class="week" id="w17">
+  <h2><span class="tag">Week 17</span> Testing</h2>
+  <p class="sub">Juniors write code. Seniors write tests. SDE2+ MUST.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Unit tests + table-driven</li>
+        <li><b>Tue:</b> testify + mocking</li>
+        <li><b>Wed:</b> httptest for handlers</li>
+        <li><b>Thu:</b> testcontainers-go</li>
+        <li><b>Fri:</b> Benchmarks + pprof</li>
+        <li><b>Sat:</b> Fuzz testing (Go 1.18+)</li>
+        <li><b>Sun:</b> Integration / E2E patterns</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights</h3>
+      <ul>
+        <li>Write tests for ALL URL shortener handlers</li>
+        <li>Add integration tests with testcontainers (Postgres)</li>
+        <li>Run pprof, find one bottleneck, fix it</li>
+        <li><b>DSA:</b> Backtracking</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> URL shortener has 70%+ test coverage. Can demo pprof flame graph.</div>
+</section>
+
+<!-- =================== WEEK 18-19 =================== -->
+<section class="week" id="w18-19">
+  <h2><span class="tag">Weeks 18–19</span> Microservices &amp; gRPC</h2>
+  <p class="sub">Go's natural territory. Start Project P2: Realtime Chat.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 18 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Wed:</b> gRPC + Protocol Buffers (TechSchool series)</li>
+        <li><b>Thu:</b> buf CLI</li>
+        <li><b>Fri:</b> WebSockets in Go</li>
+        <li><b>Sat–Sun:</b> Realtime chat starter (P2)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 19 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Tue:</b> Kafka with Go</li>
+        <li><b>Wed:</b> NATS / RabbitMQ basics</li>
+        <li><b>Thu:</b> Circuit breakers + retries</li>
+        <li><b>Fri–Sun:</b> Wire gRPC service into URL shortener (analytics microservice)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights — Project P2 + DSA</h3>
+      <ul>
+        <li><b>Wk 18:</b> Chat: WS server, room management, broadcast</li>
+        <li><b>Wk 19:</b> Add Redis pub/sub for multi-instance scale</li>
+        <li><b>DSA:</b> Mediums review — pick weak topics</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> 2 projects on GitHub. Can explain gRPC vs REST tradeoffs. ~150 LeetCode total.</div>
+</section>
+
+<!-- =================== WEEK 20-21 =================== -->
+<section class="week" id="w20-21">
+  <h2><span class="tag">Weeks 20–21</span> Docker, K8s &amp; Cloud</h2>
+  <p class="sub">Backend devs own deployment. Deploy your projects publicly.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 20 — Mornings</h3>
+      <ul>
+        <li><b>Mon–Tue:</b> Docker complete + multi-stage Go builds</li>
+        <li><b>Wed:</b> docker-compose</li>
+        <li><b>Thu–Sun:</b> K8s fundamentals (TechWorld with Nana 4h course)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 21 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Helm + Kustomize</li>
+        <li><b>Tue–Wed:</b> AWS for backend devs</li>
+        <li><b>Thu:</b> CI/CD with GitHub Actions</li>
+        <li><b>Fri:</b> Terraform basics</li>
+        <li><b>Sat:</b> GitOps (Argo CD)</li>
+        <li><b>Sun:</b> K8s Operators / CRDs (awareness)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights</h3>
+      <ul>
+        <li>Dockerize URL shortener (multi-stage)</li>
+        <li>docker-compose: app + postgres + redis</li>
+        <li>Deploy to <a href="https://fly.io" target="_blank">Fly.io</a> or Render — public URL ⭐</li>
+        <li>GitHub Actions: test + build + deploy on push</li>
+        <li><b>DSA:</b> System-related (LRU, design Twitter feed)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> URL shortener LIVE on public URL with CI/CD. This alone moves you to top 10% of candidates.</div>
+</section>
+
+<!-- =================== WEEK 22 =================== -->
+<section class="week" id="w22">
+  <h2><span class="tag">Week 22</span> Observability &amp; Production Polish</h2>
+  <p class="sub">"It works on my machine" ≠ production-ready.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> slog production patterns</li>
+        <li><b>Tue:</b> Prometheus metrics in Go</li>
+        <li><b>Wed:</b> Grafana dashboards</li>
+        <li><b>Thu:</b> OpenTelemetry tracing</li>
+        <li><b>Fri:</b> Loki / ELK log aggregation</li>
+        <li><b>Sat:</b> Sentry for error tracking</li>
+        <li><b>Sun:</b> SLI / SLO / SLA + alerting</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights</h3>
+      <ul>
+        <li>Add Prometheus + Grafana to URL shortener</li>
+        <li>Add OTel tracing across handlers + DB calls</li>
+        <li>Build a Grafana dashboard, screenshot for README</li>
+        <li><b>DSA:</b> Final mediums sweep — weak areas</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Milestone:</b> Live demo: Grafana dashboard showing live traffic on your project. Killer interview prop.</div>
+</section>
+
+<!-- =================== WEEK 23-24 =================== -->
+<section class="week" id="w23-24">
+  <h2><span class="tag">Weeks 23–24</span> System Design + Job Applications</h2>
+  <p class="sub">Reverse the 2h/3h split: more design + applications, less learning.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Week 23 — Mornings</h3>
+      <ul>
+        <li><b>Mon:</b> Scalability, CAP, consistency</li>
+        <li><b>Tue:</b> Sharding + replication</li>
+        <li><b>Wed:</b> Caching patterns</li>
+        <li><b>Thu:</b> Load balancing + consistent hashing</li>
+        <li><b>Fri:</b> Message queues + delivery guarantees</li>
+        <li><b>Sat:</b> Bloom filter + rate limit algos</li>
+        <li><b>Sun:</b> CQRS + event sourcing + saga</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Week 24 — Mornings (Design Practice)</h3>
+      <ul>
+        <li><b>Mon:</b> Design URL shortener (write-up)</li>
+        <li><b>Tue:</b> Design Twitter feed</li>
+        <li><b>Wed:</b> Design rate limiter</li>
+        <li><b>Thu:</b> Design chat system</li>
+        <li><b>Fri:</b> Design payment gateway (fintech bonus)</li>
+        <li><b>Sat:</b> Read DDIA Ch 5, 7, 9</li>
+        <li><b>Sun:</b> Mock system design on Pramp/Exponent</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nights — Apply &amp; Interview</h3>
+      <ul>
+        <li>Polish 3 GitHub READMEs (architecture diagram + live demo link)</li>
+        <li>Update resume with projects + metrics</li>
+        <li>Update LinkedIn headline: "Go Backend | Angular | Cloud-native"</li>
+        <li>Apply to 5 companies/day (Razorpay, CRED, PhonePe, Zerodha, Groww, Dream11, Swiggy, Hasura, Postman, InMobi)</li>
+        <li>Mock interviews (Pramp) every 2 days</li>
+        <li><b>DSA:</b> Companies' tagged questions on LeetCode</li>
+      </ul>
+    </div>
+  </div>
+  <div class="milestone"><b>✅ Final Milestone:</b> 3 polished projects, 200+ LeetCode, 5 system designs cold, applications out, mock-interview ready. <b>You're job-ready for ₹30L+ Go roles.</b></div>
+</section>
+
+<!-- WEEKLY RHYTHM -->
+<section class="week">
+  <h2>📊 Weekly Time Distribution (35h/week)</h2>
+  <table>
+    <thead><tr><th>Activity</th><th>Hours/week</th><th>%</th></tr></thead>
+    <tbody>
+      <tr><td>Concept learning (mornings)</td><td>14h</td><td>40%</td></tr>
+      <tr><td>Project building (nights)</td><td>10h</td><td>29%</td></tr>
+      <tr><td>DSA / LeetCode (nights)</td><td>7h</td><td>20%</td></tr>
+      <tr><td>Review + commit + plan (nights)</td><td>4h</td><td>11%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- TRACKING -->
+<section class="week">
+  <h2>📈 Track Your Progress</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Daily (5 min)</h3>
+      <ul>
+        <li>GitHub commit (any size)</li>
+        <li>5-line learning log entry</li>
+        <li>Tick off DSA problem</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Weekly (Sunday)</h3>
+      <ul>
+        <li>Push project work</li>
+        <li>1-paragraph "what I learned"</li>
+        <li>Plan next 7 days</li>
+        <li>Review missed days — adjust</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Monthly</h3>
+      <ul>
+        <li>Audit: am I on schedule?</li>
+        <li>If 1 week behind → drop frameworks (Fiber, NATS), keep core</li>
+        <li>If 2+ weeks behind → cut Phase 12 (AI+Go)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="warn">
+  <b>⚠️ Reality checks before you start:</b>
+  <ul>
+    <li><b>Day-job conflicts:</b> Some weekdays you'll have IBM crunch. Do bare minimum (1 DSA + 30m morning) and don't break the chain. Catch up Saturday.</li>
+    <li><b>Skip Sunday DSA</b> in Sundays — use that hour for review. 7-day grind without ANY break = burnout by week 8.</li>
+    <li><b>Don't skip projects.</b> Tutorials feel productive but interviews ask about <i>your</i> code, not your video count.</li>
+    <li><b>If you fall 2+ weeks behind by Week 12,</b> this is normal — cut Phase 12 (AI+Go) and Service Mesh entirely. Ship 2 projects instead of 3.</li>
+  </ul>
+</div>
+
+<div class="callout">
+  <b>🎯 The 80/20 if you only have 12 weeks (not 24):</b>
+  Skip Vim mastery, generics deep dive, Fiber, NATS, RabbitMQ, Kustomize, Operators, Service Mesh, Phase 12 entirely. Keep: Go fundamentals, concurrency, net/http + Chi, Postgres + Redis, JWT, testing, Docker, K8s basics, Prometheus, system design. Ship 2 projects (URL shortener + chat). That alone = job-ready.
+</div>
+
+</div>
+
+<footer>
+  Schedule designed for: <b>5h/day × 7 days × 24 weeks = ~840h</b>. Bookmark. Tick weeks. Don't break the chain. <br/>
+  <small>Pair with <a href="go-roadmap.html">go-roadmap.html</a> for the actual content.</small>
+</footer>
+
+</body>
+</html>

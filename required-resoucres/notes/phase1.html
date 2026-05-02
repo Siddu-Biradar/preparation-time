@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Phase 1 Notes — Go Fundamentals</title>
+<link rel="stylesheet" href="_styles.css" />
+</head>
+<body>
+
+<header class="page">
+  <h1>📘 <span>Phase 1</span> — Go Fundamentals (E2E Notes)</h1>
+  <p>Theory + code + gotchas + interview Q&amp;A for every concept. Written for a frontend dev (Angular/TS) who is brand new to Go.</p>
+  <div class="nav">
+    <a href="../go-roadmap.html">← Roadmap</a>
+    <a href="phase1.html" class="active">Phase 1</a>
+    <a href="phase2.html">Phase 2</a>
+    <a href="phase3.html">Phase 3</a>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h3>📑 Concepts in this phase</h3>
+  <ol>
+    <li><a href="#vars">Variables, Types &amp; Functions</a></li>
+    <li><a href="#flow">Control Flow (if / for / switch)</a></li>
+    <li><a href="#defer">defer, panic &amp; recover</a></li>
+    <li><a href="#slices">Slices, Maps &amp; Arrays (with gotchas)</a></li>
+    <li><a href="#structs">Structs, Methods &amp; Composition</a></li>
+    <li><a href="#interfaces">Interfaces — the Go way</a></li>
+    <li><a href="#errors">Error Handling (idiomatic Go)</a></li>
+    <li><a href="#pointers">Pointers &amp; Memory</a></li>
+    <li><a href="#packages">Packages &amp; Modules</a></li>
+    <li><a href="#mental-model">Bonus: Go Mental Model for TS Devs</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. VARIABLES, TYPES, FUNCTIONS -->
+<!-- ============================================================ -->
+<section class="note" id="vars">
+  <h2><span class="num">01</span> Variables, Types &amp; Functions</h2>
+  <p class="tagline">The atoms of any Go program. Coming from TypeScript, most surprises come from <em>zero values</em> and <em>strict typing</em>.</p>
+
+  <h3 class="why">Why does this exist (and why like this)?</h3>
+  <p>Go was designed at Google to fix three real problems:</p>
+  <ul>
+    <li><strong>Slow compile times</strong> in C++ → Go's grammar is small and parses in one pass.</li>
+    <li><strong>Implicit type conversions</strong> in C cause bugs → Go forbids them entirely (you must <em>explicitly</em> cast).</li>
+    <li><strong>Uninitialized memory</strong> causes nondeterministic bugs → every variable in Go has a <strong>zero value</strong> (no <code>undefined</code>, no <code>null</code> for value types).</li>
+  </ul>
+
+  <h3 class="theory">Theory</h3>
+  <p><strong>1. Static typing, but inferred.</strong> Like TypeScript, Go infers types when it can. Unlike TS, types can never change at runtime.</p>
+  <p><strong>2. Zero values.</strong> Every type has a default value when declared without an initializer:</p>
+  <table>
+    <thead><tr><th>Type</th><th>Zero value</th><th>TS equivalent intuition</th></tr></thead>
+    <tbody>
+      <tr><td><code>int</code>, <code>int64</code>, <code>float64</code></td><td><code>0</code> / <code>0.0</code></td><td>like <code>0</code> (never <code>NaN</code> by default)</td></tr>
+      <tr><td><code>string</code></td><td><code>""</code> (empty string)</td><td>like <code>""</code> (never <code>undefined</code>)</td></tr>
+      <tr><td><code>bool</code></td><td><code>false</code></td><td>same</td></tr>
+      <tr><td>pointers, slices, maps, channels, interfaces, funcs</td><td><code>nil</code></td><td>like <code>null</code> (only for reference-y types)</td></tr>
+      <tr><td>structs</td><td>each field's zero value</td><td>like <code>{}</code> with each prop pre-initialized</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>3. Numeric types are explicit and many.</strong> No single <code>number</code> type. You pick the size.</p>
+  <ul>
+    <li><code>int</code>, <code>int8</code>, <code>int16</code>, <code>int32</code>, <code>int64</code> (signed)</li>
+    <li><code>uint</code>, <code>uint8</code> (=<code>byte</code>), <code>uint16</code>, <code>uint32</code>, <code>uint64</code></li>
+    <li><code>float32</code>, <code>float64</code> (default for decimals)</li>
+    <li><code>rune</code> = <code>int32</code> = a single Unicode code point</li>
+  </ul>
+
+  <h3 class="syntax">Syntax — 4 ways to declare</h3>
+<pre><code><span class="cm">// 1. var with type, no value -> zero value</span>
+<span class="kw">var</span> name <span class="ty">string</span>           <span class="cm">// ""</span>
+<span class="kw">var</span> age <span class="ty">int</span>              <span class="cm">// 0</span>
+
+<span class="cm">// 2. var with type and value</span>
+<span class="kw">var</span> city <span class="ty">string</span> = <span class="str">"Bengaluru"</span>
+
+<span class="cm">// 3. var with inferred type</span>
+<span class="kw">var</span> country = <span class="str">"India"</span>      <span class="cm">// inferred string</span>
+
+<span class="cm">// 4. short declaration (most common, only inside functions)</span>
+salary := <span class="num">3000000</span>            <span class="cm">// inferred int</span>
+ratio  := <span class="num">3.14</span>               <span class="cm">// inferred float64</span>
+</code></pre>
+
+  <h3 class="code">Functions — full anatomy</h3>
+<pre><code><span class="cm">// Multiple return values are idiomatic in Go (TS would use a tuple/object).</span>
+<span class="kw">func</span> <span class="fn">divide</span>(a, b <span class="ty">float64</span>) (<span class="ty">float64</span>, <span class="ty">error</span>) {
+    <span class="kw">if</span> b == <span class="num">0</span> {
+        <span class="kw">return</span> <span class="num">0</span>, errors.<span class="fn">New</span>(<span class="str">"division by zero"</span>)
+    }
+    <span class="kw">return</span> a / b, <span class="kw">nil</span>
+}
+
+<span class="cm">// Named return values (acts like pre-declared variables, optional)</span>
+<span class="kw">func</span> <span class="fn">stats</span>(nums []<span class="ty">int</span>) (sum, max <span class="ty">int</span>) {
+    <span class="kw">for</span> _, n := <span class="kw">range</span> nums {
+        sum += n
+        <span class="kw">if</span> n &gt; max { max = n }
+    }
+    <span class="kw">return</span> <span class="cm">// "naked" return — uses sum, max as-is</span>
+}
+
+<span class="cm">// Variadic — accepts any number of args of same type</span>
+<span class="kw">func</span> <span class="fn">total</span>(nums ...<span class="ty">int</span>) <span class="ty">int</span> {
+    s := <span class="num">0</span>
+    <span class="kw">for</span> _, n := <span class="kw">range</span> nums { s += n }
+    <span class="kw">return</span> s
+}
+<span class="fn">total</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)               <span class="cm">// 6</span>
+nums := []<span class="ty">int</span>{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>}
+<span class="fn">total</span>(nums...)               <span class="cm">// "spread" syntax</span>
+
+<span class="cm">// First-class — functions are values, can be passed/returned (closures!)</span>
+<span class="kw">func</span> <span class="fn">multiplier</span>(factor <span class="ty">int</span>) <span class="kw">func</span>(<span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">return</span> <span class="kw">func</span>(n <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> n * factor }
+}
+double := <span class="fn">multiplier</span>(<span class="num">2</span>)
+double(<span class="num">5</span>)                    <span class="cm">// 10</span>
+</code></pre>
+
+  <h3 class="when">When &amp; Why use what?</h3>
+  <ul>
+    <li><strong>Use <code>:=</code></strong> inside functions whenever you don't need a specific size. It's the idiomatic default.</li>
+    <li><strong>Use <code>var</code></strong> at package level (<code>:=</code> is illegal there) or when you want a zero-valued variable to assign later.</li>
+    <li><strong>Pick <code>int</code>/<code>float64</code></strong> unless you have a real reason (file format, network protocol, big arithmetic). Don't prematurely optimize to <code>int8</code>.</li>
+    <li><strong>Multiple returns</strong> are how Go does errors. Always return <code>(value, error)</code>.</li>
+    <li><strong>Named returns</strong> — useful only for short functions or when the return values need explanation. Avoid for long functions, naked returns hide bugs.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. No implicit conversions.</b> <code>var x int = 5; var y int64 = x</code> ❌ compile error. You must write <code>y := int64(x)</code>. Same with <code>int → float64</code>.
+  </div>
+  <div class="box danger">
+    <b>2. Unused variables = compile error.</b> Go forbids unused locals. Use <code>_</code> (blank identifier) to discard:
+    <pre><code>x, _ := <span class="fn">divide</span>(<span class="num">10</span>, <span class="num">2</span>)  <span class="cm">// ignore the error (BAD habit but legal)</span></code></pre>
+  </div>
+  <div class="box warn">
+    <b>3. <code>:=</code> with multiple vars is "at least one new".</b> <code>x, err := foo()</code> works even if <code>x</code> exists, as long as one variable on the left is new.
+  </div>
+  <div class="box warn">
+    <b>4. Shadowing.</b> Inside a block, <code>x := ...</code> creates a NEW <code>x</code>, hiding the outer one. Easy to do accidentally with <code>err</code> in <code>if</code> blocks. Use linters (<code>golangci-lint</code>) to catch.
+  </div>
+  <div class="box tip">
+    <b>5. Constants are typed or untyped.</b> Untyped consts (<code>const Pi = 3.14</code>) auto-fit any compatible numeric type at use site. Typed consts (<code>const Pi float64 = 3.14</code>) lock you to that type.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: What's the zero value of a struct?</p>
+    <p class="a">Each field's individual zero value. So <code>type User struct { Name string; Age int }</code> → <code>User{Name: "", Age: 0}</code>. <em>No constructors run automatically</em> — Go has no constructors.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Why does Go forbid unused variables?</p>
+    <p class="a">Unused vars usually indicate a bug or stale code. Forcing removal keeps codebases clean. (Unused <em>imports</em> also fail to compile.)</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Difference between <code>:=</code> and <code>=</code>?</p>
+    <p class="a"><code>:=</code> declares AND assigns (only in functions). <code>=</code> assigns to an already-declared variable. Mix them up and you'll either shadow a variable or get a compile error.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Go has <code>int</code> AND <code>int32</code>. Why?</p>
+    <p class="a"><code>int</code> is platform-sized (32 bits on 32-bit systems, 64 on 64-bit). <code>int32</code> is always exactly 32 bits. Use <code>int32</code> when you need a fixed size (file format, RPC, binary protocols). Otherwise use <code>int</code>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. CONTROL FLOW -->
+<!-- ============================================================ -->
+<section class="note" id="flow">
+  <h2><span class="num">02</span> Control Flow — if / for / switch</h2>
+  <p class="tagline">Go has only ONE loop keyword (<code>for</code>) and a much more powerful <code>switch</code> than TS.</p>
+
+  <h3 class="why">Why does this exist?</h3>
+  <p>Go's designers stripped redundancy. Instead of <code>for / while / do-while</code>, there is just <code>for</code> in three forms. Instead of cascading <code>if / else if</code>, idiomatic Go uses <code>switch</code> for cleanliness.</p>
+
+  <h3 class="theory">Theory + Syntax</h3>
+
+  <h3 class="syntax">if — with optional init statement</h3>
+<pre><code><span class="cm">// Init statement runs BEFORE the condition. Variable scoped to the if/else.</span>
+<span class="kw">if</span> err := <span class="fn">save</span>(); err != <span class="kw">nil</span> {
+    <span class="fn">log</span>.<span class="fn">Println</span>(err)
+    <span class="kw">return</span>
+}
+<span class="cm">// err does NOT exist here.</span>
+
+<span class="cm">// Plain if</span>
+<span class="kw">if</span> x &gt; <span class="num">10</span> {
+    <span class="cm">// ...</span>
+} <span class="kw">else if</span> x &gt; <span class="num">5</span> {
+    <span class="cm">// ...</span>
+} <span class="kw">else</span> {
+    <span class="cm">// ...</span>
+}
+</code></pre>
+  <div class="box tip"><b>Why init?</b> Keeps the variable's scope tight (only valid where it makes sense). This is the <em>most common Go pattern</em> for error handling. Memorize it.</div>
+
+  <h3 class="syntax">for — the only loop</h3>
+<pre><code><span class="cm">// 1. Classic C-style</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">10</span>; i++ { ... }
+
+<span class="cm">// 2. while-style</span>
+<span class="kw">for</span> x &lt; <span class="num">100</span> { x *= <span class="num">2</span> }
+
+<span class="cm">// 3. Infinite loop (use break/return to exit)</span>
+<span class="kw">for</span> { ... }
+
+<span class="cm">// 4. range — over slice/array/map/channel/string</span>
+<span class="kw">for</span> i, v := <span class="kw">range</span> nums { ... }     <span class="cm">// index, value</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> nums { ... }     <span class="cm">// just value</span>
+<span class="kw">for</span> i := <span class="kw">range</span> nums { ... }        <span class="cm">// just index</span>
+<span class="kw">for</span> k, v := <span class="kw">range</span> myMap { ... }    <span class="cm">// map iteration (UNORDERED!)</span>
+<span class="kw">for</span> v := <span class="kw">range</span> myChannel { ... }   <span class="cm">// receive until channel closes</span>
+<span class="kw">for</span> i, r := <span class="kw">range</span> <span class="str">"héllo"</span> { ... }  <span class="cm">// i = byte index, r = rune (Unicode!)</span>
+
+<span class="cm">// 5. Go 1.22+: range over int (counts 0..n-1)</span>
+<span class="kw">for</span> i := <span class="kw">range</span> <span class="num">10</span> { <span class="fn">fmt</span>.<span class="fn">Println</span>(i) }   <span class="cm">// 0..9</span>
+</code></pre>
+
+  <h3 class="syntax">switch — the underrated workhorse</h3>
+<pre><code><span class="cm">// No fallthrough by default (opposite of C/JS!)</span>
+<span class="kw">switch</span> day {
+<span class="kw">case</span> <span class="str">"Sat"</span>, <span class="str">"Sun"</span>:
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"weekend"</span>)
+<span class="kw">case</span> <span class="str">"Mon"</span>:
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"meh"</span>)
+<span class="kw">default</span>:
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"weekday"</span>)
+}
+
+<span class="cm">// Switch on conditions (replaces if/else if chains)</span>
+<span class="kw">switch</span> {
+<span class="kw">case</span> score &gt;= <span class="num">90</span>: grade = <span class="str">"A"</span>
+<span class="kw">case</span> score &gt;= <span class="num">75</span>: grade = <span class="str">"B"</span>
+<span class="kw">default</span>:           grade = <span class="str">"C"</span>
+}
+
+<span class="cm">// Type switch — runtime type checking on interfaces</span>
+<span class="kw">switch</span> v := i.(<span class="kw">type</span>) {
+<span class="kw">case</span> <span class="ty">int</span>:    <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"int:"</span>, v)
+<span class="kw">case</span> <span class="ty">string</span>: <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"string:"</span>, v)
+<span class="kw">default</span>:     <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"unknown"</span>)
+}
+</code></pre>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li><strong><code>switch</code> over <code>if/else if</code></strong> when you have 3+ branches. Cleaner, faster, more idiomatic.</li>
+    <li><strong>Use <code>range</code></strong> for iteration over collections — almost never write <code>for i := 0; i &lt; len(s); i++</code> unless you specifically need control over the index.</li>
+    <li><strong>Init in <code>if</code></strong> for any error/result-checking pattern.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Map iteration order is random.</b> Go intentionally randomizes it so you don't accidentally rely on it. If order matters, sort the keys first.
+<pre><code>keys := <span class="fn">make</span>([]<span class="ty">string</span>, <span class="num">0</span>, <span class="fn">len</span>(m))
+<span class="kw">for</span> k := <span class="kw">range</span> m { keys = <span class="fn">append</span>(keys, k) }
+<span class="fn">sort</span>.<span class="fn">Strings</span>(keys)
+<span class="kw">for</span> _, k := <span class="kw">range</span> keys { ... }</code></pre>
+  </div>
+  <div class="box danger">
+    <b>2. Loop variable capture (FIXED in Go 1.22+).</b> Pre-1.22:
+<pre><code><span class="cm">// Pre-Go 1.22 — broken</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> items {
+    <span class="kw">go</span> <span class="kw">func</span>() { <span class="fn">fmt</span>.<span class="fn">Println</span>(v) }()  <span class="cm">// All print last item!</span>
+}
+<span class="cm">// Pre-1.22 fix: shadow the var</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> items {
+    v := v   <span class="cm">// new variable per iteration</span>
+    <span class="kw">go</span> <span class="kw">func</span>() { <span class="fn">fmt</span>.<span class="fn">Println</span>(v) }()
+}</code></pre>
+    Go 1.22+ does this automatically. Always check what Go version your project uses.
+  </div>
+  <div class="box warn">
+    <b>3. <code>switch</code> doesn't fall through by default.</b> Unlike C/Java/JS, you don't need <code>break</code>. To explicitly fall through use the <code>fallthrough</code> keyword (rare).
+  </div>
+  <div class="box warn">
+    <b>4. Range copies the value.</b> <code>for _, item := range items { item.Name = "x" }</code> mutates the COPY, not the original. Use the index: <code>items[i].Name = "x"</code>.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Why no <code>while</code> in Go?</p>
+    <p class="a">Simplicity. <code>for cond { }</code> is identical to <code>while</code>. Fewer keywords, same expressivity.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How do you loop over Unicode characters?</p>
+    <p class="a"><code>for i, r := range str</code> — <code>i</code> is the byte index, <code>r</code> is the rune (code point). If you index <code>str[i]</code> you get a single byte (could be mid-character for multi-byte chars). For correct Unicode iteration, always use range.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 3. defer / panic / recover -->
+<!-- ============================================================ -->
+<section class="note" id="defer">
+  <h2><span class="num">03</span> defer, panic &amp; recover</h2>
+  <p class="tagline">Go's answer to <code>finally</code>, exceptions, and resource cleanup. Different model from JS/Java.</p>
+
+  <h3 class="why">Why does this exist?</h3>
+  <p>Go has <strong>no exceptions</strong>. Errors are values, returned explicitly. But you still need:</p>
+  <ul>
+    <li><strong>Cleanup</strong> guaranteed even when functions return early or fail → <code>defer</code></li>
+    <li><strong>Crash mechanism</strong> for unrecoverable bugs (nil pointer, out of bounds) → <code>panic</code></li>
+    <li><strong>Last-resort recovery</strong> at program boundaries (HTTP server, goroutine roots) → <code>recover</code></li>
+  </ul>
+
+  <h3 class="theory">Theory</h3>
+  <p><strong>defer</strong> schedules a function call to run when the surrounding function returns — whether normally or via panic.</p>
+  <p><strong>panic</strong> stops normal flow, runs deferred funcs upward, and crashes the program if not recovered.</p>
+  <p><strong>recover</strong> (only inside a deferred func) catches a panic and returns control to the caller.</p>
+
+  <pre class="diagram">  ┌────────────────────────────────────────────────┐
+  │ func doWork() {                                │
+  │     defer cleanup()      ← scheduled (LIFO)    │
+  │     defer logExit()      ← scheduled           │
+  │                                                │
+  │     panic("boom")        ─────┐                │
+  │                                ▼               │
+  │     // unreachable        unwinds:             │
+  │ }                          1. logExit() runs   │
+  │                            2. cleanup() runs   │
+  │                            3. panic propagates │
+  └────────────────────────────────────────────────┘</pre>
+
+  <h3 class="syntax">Syntax + Code</h3>
+<pre><code><span class="cm">// 1. defer for cleanup — runs when function returns (LIFO order)</span>
+<span class="kw">func</span> <span class="fn">readFile</span>(path <span class="ty">string</span>) ([]<span class="ty">byte</span>, <span class="ty">error</span>) {
+    f, err := os.<span class="fn">Open</span>(path)
+    <span class="kw">if</span> err != <span class="kw">nil</span> { <span class="kw">return</span> <span class="kw">nil</span>, err }
+    <span class="kw">defer</span> f.<span class="fn">Close</span>()      <span class="cm">// guaranteed to run before this function returns</span>
+    <span class="kw">return</span> io.<span class="fn">ReadAll</span>(f)
+}
+
+<span class="cm">// 2. defers run in REVERSE order (stack)</span>
+<span class="kw">func</span> <span class="fn">demo</span>() {
+    <span class="kw">defer</span> <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"first deferred"</span>)
+    <span class="kw">defer</span> <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"second deferred"</span>)
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"normal"</span>)
+}
+<span class="cm">// Output: normal / second deferred / first deferred</span>
+
+<span class="cm">// 3. panic — abort with a message</span>
+<span class="kw">func</span> <span class="fn">mustHaveDB</span>() {
+    <span class="kw">if</span> db == <span class="kw">nil</span> {
+        <span class="kw">panic</span>(<span class="str">"db connection is nil"</span>)
+    }
+}
+
+<span class="cm">// 4. recover — catch a panic in a deferred func</span>
+<span class="kw">func</span> <span class="fn">safeRun</span>(work <span class="kw">func</span>()) (err <span class="ty">error</span>) {
+    <span class="kw">defer</span> <span class="kw">func</span>() {
+        <span class="kw">if</span> r := <span class="fn">recover</span>(); r != <span class="kw">nil</span> {
+            err = <span class="fn">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"recovered: %v"</span>, r)
+        }
+    }()
+    <span class="fn">work</span>()
+    <span class="kw">return</span> <span class="kw">nil</span>
+}
+</code></pre>
+
+  <h3 class="when">When &amp; Why</h3>
+  <table>
+    <thead><tr><th>Use case</th><th>Tool</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Close files, DB connections, HTTP bodies</td><td><code>defer</code></td><td>Guaranteed cleanup even on early return</td></tr>
+      <tr><td>Unlock a mutex</td><td><code>defer mu.Unlock()</code></td><td>Prevent deadlocks on panic</td></tr>
+      <tr><td>Log function entry/exit</td><td><code>defer</code></td><td>Tracing/debugging</td></tr>
+      <tr><td>Truly unrecoverable state</td><td><code>panic</code></td><td>e.g., bug detected at startup</td></tr>
+      <tr><td>Top of HTTP handler/goroutine</td><td><code>recover</code></td><td>Don't let one request crash the whole server</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box good">
+    <b>Rule of thumb:</b> Use <code>defer</code> liberally. Use <code>panic</code> rarely (only for "this should never happen" bugs). Use <code>recover</code> only at process boundaries (servers, workers).
+  </div>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Arguments to deferred functions evaluate IMMEDIATELY.</b>
+<pre><code>x := <span class="num">10</span>
+<span class="kw">defer</span> <span class="fn">fmt</span>.<span class="fn">Println</span>(x)   <span class="cm">// captures 10 NOW</span>
+x = <span class="num">20</span>
+<span class="cm">// Prints: 10</span>
+
+<span class="cm">// To capture latest value, wrap in closure:</span>
+<span class="kw">defer</span> <span class="kw">func</span>() { <span class="fn">fmt</span>.<span class="fn">Println</span>(x) }()  <span class="cm">// prints 20</span></code></pre>
+  </div>
+  <div class="box danger">
+    <b>2. defer in a loop = memory hog.</b> Each iteration's defer queues up. Don't <code>defer f.Close()</code> inside a 1M-iteration loop. Wrap in a function:
+<pre><code><span class="kw">for</span> _, name := <span class="kw">range</span> files {
+    <span class="kw">func</span>() {
+        f, _ := os.<span class="fn">Open</span>(name)
+        <span class="kw">defer</span> f.<span class="fn">Close</span>()
+        <span class="cm">// process</span>
+    }()
+}</code></pre>
+  </div>
+  <div class="box warn">
+    <b>3. <code>recover</code> only works inside a deferred function</b> called from the panicking goroutine. <code>recover()</code> elsewhere returns nil. And it doesn't catch panics in <em>other</em> goroutines — each goroutine needs its own recover.
+  </div>
+  <div class="box warn">
+    <b>4. Don't use panic/recover as exception control flow.</b> It's not <code>try/catch</code>. The convention is errors-as-values. recover is for crash safety, not branching logic.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Order of defers?</p>
+    <p class="a">LIFO — last deferred runs first. Stack semantics. Useful when deferred operations have dependencies (e.g., open DB → start tx → defer rollback → defer close).</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Will defer run if my program crashes via panic?</p>
+    <p class="a">Yes. Defers in the panicking goroutine all run (in LIFO order) before the program exits. This is why <code>defer mu.Unlock()</code> is critical for safe locking.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Why doesn't Go have try/catch?</p>
+    <p class="a">Design choice. Exceptions cause invisible control flow and "exception specifications" (Java) become unmaintainable. Go forces you to handle errors at every step, making code more explicit (and verbose, yes).</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. SLICES, MAPS, ARRAYS -->
+<!-- ============================================================ -->
+<section class="note" id="slices">
+  <h2><span class="num">04</span> Arrays, Slices &amp; Maps (the BIG gotcha section)</h2>
+  <p class="tagline">90% of "WTF" Go moments for new devs come from slice internals. Master this, save weeks of pain.</p>
+
+  <h3 class="why">Why both arrays AND slices?</h3>
+  <p><strong>Arrays</strong> have a fixed size baked into the type. <code>[3]int</code> and <code>[4]int</code> are <em>different types</em>. They live on the stack and copy on assignment.</p>
+  <p><strong>Slices</strong> are growable views over an underlying array. They're what you'll use 99% of the time.</p>
+
+  <h3 class="theory">Slice internals (this is the key)</h3>
+  <p>A slice is a 3-word struct under the hood:</p>
+  <pre class="diagram">  ┌──────────────────────────┐
+  │ Slice header              │
+  │  ┌──────────┐             │
+  │  │ ptr      │ ──┐         │
+  │  │ len  = 3 │   │         │
+  │  │ cap  = 5 │   │         │
+  │  └──────────┘   │         │
+  └──────────────────┼────────┘
+                     ▼
+                Underlying array (in heap)
+                ┌──┬──┬──┬──┬──┐
+                │a │b │c │  │  │
+                └──┴──┴──┴──┴──┘
+                 0  1  2  3  4
+                len=3 ──┘  cap=5 ─┘</pre>
+  <ul>
+    <li><strong>ptr</strong> — pointer to the start of data</li>
+    <li><strong>len</strong> — number of elements visible</li>
+    <li><strong>cap</strong> — capacity before reallocation</li>
+  </ul>
+  <p>When you <code>append</code> beyond <code>cap</code>, Go allocates a NEW bigger array, copies, and returns a new slice. Until then, multiple slices can share the same underlying array — this is the source of every gotcha.</p>
+
+  <h3 class="syntax">Syntax + Code</h3>
+<pre><code><span class="cm">// Array — fixed size</span>
+<span class="kw">var</span> a [<span class="num">3</span>]<span class="ty">int</span>                   <span class="cm">// [0 0 0]</span>
+b := [<span class="num">3</span>]<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+c := [...]<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}        <span class="cm">// compiler counts → [3]int</span>
+
+<span class="cm">// Slice — growable</span>
+<span class="kw">var</span> s []<span class="ty">int</span>                    <span class="cm">// nil slice (len=0, cap=0, ptr=nil)</span>
+t := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}              <span class="cm">// literal</span>
+u := <span class="fn">make</span>([]<span class="ty">int</span>, <span class="num">5</span>)             <span class="cm">// len=5, cap=5, all zeros</span>
+v := <span class="fn">make</span>([]<span class="ty">int</span>, <span class="num">3</span>, <span class="num">10</span>)           <span class="cm">// len=3, cap=10 (perf hint)</span>
+
+<span class="cm">// Append</span>
+s = <span class="fn">append</span>(s, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)            <span class="cm">// always reassign! append may return new slice</span>
+s = <span class="fn">append</span>(s, t...)               <span class="cm">// spread another slice</span>
+
+<span class="cm">// Slicing s[low:high:cap]</span>
+nums := []<span class="ty">int</span>{<span class="num">10</span>,<span class="num">20</span>,<span class="num">30</span>,<span class="num">40</span>,<span class="num">50</span>}
+sub := nums[<span class="num">1</span>:<span class="num">4</span>]                <span class="cm">// [20 30 40] — shares memory!</span>
+sub2 := nums[<span class="num">1</span>:<span class="num">4</span>:<span class="num">4</span>]              <span class="cm">// 3-index form caps it (safer)</span>
+
+<span class="cm">// Maps</span>
+m := <span class="fn">make</span>(<span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>)
+m[<span class="str">"sid"</span>] = <span class="num">42</span>
+val, ok := m[<span class="str">"foo"</span>]               <span class="cm">// idiomatic: value + exists?</span>
+<span class="kw">delete</span>(m, <span class="str">"sid"</span>)
+<span class="fn">len</span>(m)                            <span class="cm">// number of entries</span>
+</code></pre>
+
+  <h3 class="when">When to use what</h3>
+  <table>
+    <thead><tr><th>Use</th><th>For</th></tr></thead>
+    <tbody>
+      <tr><td>Array <code>[N]T</code></td><td>Rare. Fixed-size buffers, hashing, when size is part of the type contract (e.g., <code>[16]byte</code> for a UUID).</td></tr>
+      <tr><td>Slice <code>[]T</code></td><td>Default. All "list" use cases.</td></tr>
+      <tr><td>Map <code>map[K]V</code></td><td>Lookup by key. Like JS object / TS Record. Random-access, no order.</td></tr>
+      <tr><td><code>make([]T, 0, N)</code></td><td>When you know roughly how many items you'll append. Avoids reallocation. Big perf win.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="gotcha">Gotchas — READ TWICE</h3>
+  <div class="box danger">
+    <b>1. <code>append</code> MAY or MAY NOT mutate.</b>
+<pre><code>a := []<span class="ty">int</span>{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>}
+b := <span class="fn">append</span>(a, <span class="num">4</span>)   <span class="cm">// a still [1,2,3], b is [1,2,3,4] (probably new array)</span>
+<span class="cm">// But if a had spare cap, append would mutate a's array!</span>
+<span class="cm">// → ALWAYS reassign: x = append(x, ...)</span></code></pre>
+  </div>
+  <div class="box danger">
+    <b>2. Slicing aliases memory.</b>
+<pre><code>orig := []<span class="ty">int</span>{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>}
+sub := orig[<span class="num">1</span>:<span class="num">3</span>]            <span class="cm">// [2,3]</span>
+sub[<span class="num">0</span>] = <span class="num">99</span>                 <span class="cm">// orig is now [1,99,3,4,5] !</span></code></pre>
+    To break the link, copy: <code>cp := append([]int{}, sub...)</code> or <code>cp := slices.Clone(sub)</code>.
+  </div>
+  <div class="box danger">
+    <b>3. Returning a sub-slice can leak the whole underlying array.</b> If <code>orig</code> has 1M elements and you return <code>orig[:10]</code>, the GC can't free the other 999,990 because the slice still references the array. Fix: copy explicitly.
+  </div>
+  <div class="box danger">
+    <b>4. Nil map vs empty map.</b>
+<pre><code><span class="kw">var</span> m <span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>          <span class="cm">// nil map</span>
+m[<span class="str">"x"</span>] = <span class="num">1</span>                    <span class="cm">// PANIC: assignment to entry in nil map</span>
+
+m = <span class="fn">make</span>(<span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>)        <span class="cm">// must make first</span>
+m[<span class="str">"x"</span>] = <span class="num">1</span>                    <span class="cm">// OK</span></code></pre>
+    But <em>reading</em> from a nil map is fine — returns zero value. Asymmetric, surprising.
+  </div>
+  <div class="box warn">
+    <b>5. Map values aren't addressable.</b> <code>m["k"].field = 1</code> ❌. You must read, modify, write back: <code>v := m["k"]; v.field = 1; m["k"] = v</code>. Or store pointers: <code>map[string]*Foo</code>.
+  </div>
+  <div class="box warn">
+    <b>6. Iterating a map while modifying it.</b> Go allows it but new entries may or may not appear in the iteration. Don't rely on either behavior.
+  </div>
+  <div class="box tip">
+    <b>7. Pre-allocate when you know the size.</b> <code>make([]T, 0, 10000)</code> is way faster than appending one by one and growing geometrically. Same for maps: <code>make(map[K]V, expectedSize)</code>.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Pass a slice by value or pointer?</p>
+    <p class="a">By value is fine. The slice header (24 bytes) is cheap to copy, and both copies share the same underlying array. You only need <code>*[]T</code> if you need the function to <em>change which array</em> the caller's slice points to (e.g., reassign after a giant append).</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How does slice growth work?</p>
+    <p class="a">Roughly: doubles capacity until ~256, then grows by ~25%. Implementation detail and has changed across Go versions — never depend on exact numbers.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How to deep-copy a slice?</p>
+    <p class="a"><code>slices.Clone(s)</code> (Go 1.21+) or <code>cp := make([]T, len(s)); copy(cp, s)</code>. <code>append([]T{}, s...)</code> also works. For slices of pointers/structs with refs, you must clone each element manually.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Why doesn't Go have a Set type?</p>
+    <p class="a">Convention: use <code>map[T]struct{}</code> (zero-byte values). Add: <code>set[k] = struct{}{}</code>. Check: <code>_, ok := set[k]</code>. Some libs wrap this.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 5. STRUCTS / METHODS / COMPOSITION -->
+<!-- ============================================================ -->
+<section class="note" id="structs">
+  <h2><span class="num">05</span> Structs, Methods &amp; Composition</h2>
+  <p class="tagline">Go has no classes. Structs + methods + embedding = its alternative to OOP. Think: simpler, less ceremony.</p>
+
+  <h3 class="why">Why no classes?</h3>
+  <p>Inheritance is widely considered the <em>worst</em> feature of OOP — fragile base classes, deep hierarchies, "is-a" relationships that break at scale. Go embraces:</p>
+  <ul>
+    <li><strong>Composition over inheritance</strong> — embed structs to reuse</li>
+    <li><strong>Implicit interfaces</strong> — no <code>implements</code> keyword (covered in next section)</li>
+    <li><strong>Plain methods</strong> on plain structs — no virtual tables, no <code>this</code> magic</li>
+  </ul>
+
+  <h3 class="theory">Theory + Syntax</h3>
+<pre><code><span class="cm">// Struct = plain data record. Like a TS interface/type alias.</span>
+<span class="kw">type</span> User <span class="kw">struct</span> {
+    ID        <span class="ty">int</span>       <span class="cm">// exported (capital first letter)</span>
+    Name      <span class="ty">string</span>
+    email     <span class="ty">string</span>    <span class="cm">// unexported (lowercase) — private to package</span>
+    CreatedAt time.<span class="ty">Time</span>
+}
+
+<span class="cm">// Construct</span>
+u1 := User{ID: <span class="num">1</span>, Name: <span class="str">"Sid"</span>}        <span class="cm">// named (preferred)</span>
+u2 := User{<span class="num">1</span>, <span class="str">"Sid"</span>, <span class="str">"x@y.com"</span>, time.<span class="fn">Now</span>()}  <span class="cm">// positional (fragile)</span>
+<span class="kw">var</span> u3 User                            <span class="cm">// zero-valued</span>
+
+<span class="cm">// Methods — functions with a receiver</span>
+<span class="kw">func</span> (u User) <span class="fn">FullName</span>() <span class="ty">string</span> {        <span class="cm">// VALUE receiver — gets a copy</span>
+    <span class="kw">return</span> u.Name + <span class="str">" #"</span> + <span class="fn">strconv</span>.<span class="fn">Itoa</span>(u.ID)
+}
+
+<span class="kw">func</span> (u *User) <span class="fn">SetName</span>(n <span class="ty">string</span>) {       <span class="cm">// POINTER receiver — can mutate</span>
+    u.Name = n
+}
+
+<span class="cm">// Embedding — the "inheritance" of Go</span>
+<span class="kw">type</span> Admin <span class="kw">struct</span> {
+    User                 <span class="cm">// no field name = embedded</span>
+    Permissions []<span class="ty">string</span>
+}
+
+a := Admin{User: User{Name: <span class="str">"root"</span>}, Permissions: []<span class="ty">string</span>{<span class="str">"*"</span>}}
+a.<span class="fn">FullName</span>()         <span class="cm">// promoted method! Calls User's FullName</span>
+a.Name              <span class="cm">// promoted field</span>
+a.User.Name         <span class="cm">// also valid (explicit)</span>
+</code></pre>
+
+  <h3 class="when">When pointer receiver vs value receiver?</h3>
+  <table>
+    <thead><tr><th>Use POINTER receiver when…</th><th>Use VALUE receiver when…</th></tr></thead>
+    <tbody>
+      <tr><td>Method modifies the receiver</td><td>Method only reads</td></tr>
+      <tr><td>Struct is large (avoid copy)</td><td>Struct is small (int, small struct)</td></tr>
+      <tr><td>Struct contains a mutex / sync primitive</td><td>Type is a basic value (e.g., <code>type ID int</code>)</td></tr>
+      <tr><td>Consistency: if any method needs *T, use *T for ALL methods of that type</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="box good">
+    <b>Default rule:</b> Use pointer receivers unless you have a strong reason not to. It's the safer default — avoids accidental copies and keeps method sets consistent.
+  </div>
+
+  <div class="box warn">
+    <b>The Method Set rule (advanced but critical):</b>
+    <ul>
+      <li>The method set of <strong>type <code>T</code></strong> contains all methods with VALUE receivers <code>func (t T)</code>.</li>
+      <li>The method set of <strong>type <code>*T</code></strong> contains methods with EITHER value or pointer receivers — pointer's method set is a SUPERSET.</li>
+    </ul>
+    Practical impact: if <code>(*User).Save()</code> exists (pointer receiver), then <code>*User</code> satisfies any interface needing <code>Save</code>, but <code>User</code> does NOT — even though you can <em>call</em> <code>u.Save()</code> on a <code>User</code> value (Go auto-addresses it). The auto-addressing only works for direct variables; for interface satisfaction or for non-addressable values (like map entries), the type itself must satisfy.
+<pre><code><span class="kw">type</span> Saver <span class="kw">interface</span> { <span class="fn">Save</span>() <span class="ty">error</span> }
+<span class="kw">type</span> User <span class="kw">struct</span>{}
+<span class="kw">func</span> (u *User) <span class="fn">Save</span>() <span class="ty">error</span> { <span class="kw">return</span> <span class="kw">nil</span> }
+
+<span class="kw">var</span> _ Saver = &amp;User{}     <span class="cm">// ✅ *User satisfies Saver</span>
+<span class="kw">var</span> _ Saver = User{}      <span class="cm">// ❌ compile error: User does not satisfy Saver</span></code></pre>
+  </div>
+
+  <h3 class="code">Composition example (the "OOP replacement")</h3>
+<pre><code><span class="kw">type</span> Animal <span class="kw">struct</span> { Name <span class="ty">string</span> }
+<span class="kw">func</span> (a Animal) <span class="fn">Greet</span>() <span class="ty">string</span> { <span class="kw">return</span> <span class="str">"hi, I'm "</span> + a.Name }
+
+<span class="kw">type</span> Dog <span class="kw">struct</span> {
+    Animal              <span class="cm">// embed</span>
+    Breed <span class="ty">string</span>
+}
+<span class="kw">func</span> (d Dog) <span class="fn">Bark</span>() <span class="ty">string</span> { <span class="kw">return</span> <span class="str">"woof"</span> }
+
+d := Dog{Animal: Animal{Name: <span class="str">"Rex"</span>}, Breed: <span class="str">"Lab"</span>}
+d.<span class="fn">Greet</span>()        <span class="cm">// "hi, I'm Rex"  (Animal's method)</span>
+d.<span class="fn">Bark</span>()         <span class="cm">// "woof"          (Dog's method)</span>
+
+<span class="cm">// Override: just declare a method with same name on Dog</span>
+<span class="kw">func</span> (d Dog) <span class="fn">Greet</span>() <span class="ty">string</span> { <span class="kw">return</span> <span class="str">"woof, I'm "</span> + d.Name }
+</code></pre>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Mixing receivers is confusing.</b> If <code>Save()</code> is on <code>*User</code> and <code>Display()</code> is on <code>User</code>, your method set differs based on whether the variable is <code>User</code> or <code>*User</code>. Pick ONE convention per type.
+  </div>
+  <div class="box warn">
+    <b>2. Struct comparison.</b> Structs are <code>==</code>-comparable only if all their fields are. Slices/maps/funcs in a struct → not comparable. Use <code>reflect.DeepEqual</code> or the <code>cmp</code> package.
+  </div>
+  <div class="box warn">
+    <b>3. Embedding is NOT inheritance.</b> No virtual dispatch. The outer type doesn't "is-a" the inner. The inner doesn't know it's embedded.
+  </div>
+  <div class="box warn">
+    <b>4. Struct tags</b> are critical for JSON/DB:
+<pre><code><span class="kw">type</span> User <span class="kw">struct</span> {
+    Name <span class="ty">string</span> <span class="str">`json:"name"`</span>
+    Pwd  <span class="ty">string</span> <span class="str">`json:"-"`</span>      <span class="cm">// don't serialize</span>
+    Age  <span class="ty">int</span>    <span class="str">`json:"age,omitempty"`</span>  <span class="cm">// omit if zero</span>
+}</code></pre>
+    Without tags, JSON keys default to the field name (capitalized!).
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do I do "private" fields?</p>
+    <p class="a">Lowercase first letter = unexported (package-private). Uppercase = exported. There's NO file-level or class-level privacy.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Can I have constructors?</p>
+    <p class="a">No language feature, but the convention is a function named <code>NewX</code> returning <code>*X</code> (or <code>X</code>): <code>func NewUser(name string) *User { ... }</code>.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: What's the difference between <code>type Foo struct{...}</code> and <code>type Foo = struct{...}</code>?</p>
+    <p class="a"><code>type Foo X</code> creates a new distinct type. <code>type Foo = X</code> is a type alias — same type, different name. You'll mostly use the former.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 6. INTERFACES -->
+<!-- ============================================================ -->
+<section class="note" id="interfaces">
+  <h2><span class="num">06</span> Interfaces — the Go way</h2>
+  <p class="tagline">The single most important Go concept. If you only learn one thing deeply, learn this.</p>
+
+  <h3 class="why">Why are Go interfaces different?</h3>
+  <p>In Java/TS, you say <code>class Foo implements Bar</code>. In Go, there's no <code>implements</code> keyword. A type satisfies an interface <strong>automatically</strong> if it has the right methods. This is called <strong>structural / duck typing at compile time</strong>.</p>
+  <p>This unlocks two superpowers:</p>
+  <ul>
+    <li><strong>Decoupling</strong> — your library can define an interface, and any user's type can satisfy it without modifying their code.</li>
+    <li><strong>Small interfaces</strong> — Go culture loves 1-method interfaces (like <code>io.Reader</code>). They compose perfectly.</li>
+  </ul>
+
+  <h3 class="theory">Theory + Syntax</h3>
+<pre><code><span class="cm">// Define</span>
+<span class="kw">type</span> Greeter <span class="kw">interface</span> {
+    <span class="fn">Greet</span>() <span class="ty">string</span>
+}
+
+<span class="cm">// Two types that satisfy it WITHOUT saying so</span>
+<span class="kw">type</span> Dog <span class="kw">struct</span>{ Name <span class="ty">string</span> }
+<span class="kw">func</span> (d Dog) <span class="fn">Greet</span>() <span class="ty">string</span> { <span class="kw">return</span> <span class="str">"woof, "</span> + d.Name }
+
+<span class="kw">type</span> Robot <span class="kw">struct</span>{ ID <span class="ty">int</span> }
+<span class="kw">func</span> (r Robot) <span class="fn">Greet</span>() <span class="ty">string</span> { <span class="kw">return</span> <span class="fn">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"beep #%d"</span>, r.ID) }
+
+<span class="cm">// Use polymorphically</span>
+<span class="kw">func</span> <span class="fn">SayHi</span>(g Greeter) {
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(g.<span class="fn">Greet</span>())
+}
+<span class="fn">SayHi</span>(Dog{<span class="str">"Rex"</span>})       <span class="cm">// woof, Rex</span>
+<span class="fn">SayHi</span>(Robot{<span class="num">42</span>})       <span class="cm">// beep #42</span>
+</code></pre>
+
+  <h3 class="theory">Under the hood</h3>
+  <p>An interface value is two words:</p>
+  <pre class="diagram">  ┌────────────────────┐
+  │ Interface value    │
+  │  ┌──────────┐      │
+  │  │ type     │ ──▶ which concrete type? (Dog / Robot)
+  │  │ value    │ ──▶ pointer to actual data
+  │  └──────────┘      │
+  └────────────────────┘</pre>
+  <p>This is why a <code>nil</code> interface is tricky: an interface is nil only if BOTH type AND value are nil. (See gotchas below.)</p>
+
+  <h3 class="when">When &amp; how to design interfaces</h3>
+  <ul>
+    <li><strong>Define interfaces at the consumer side</strong>, not the producer. The package that <em>uses</em> a dependency declares what it needs. This keeps producers free.</li>
+    <li><strong>Keep them small.</strong> The std lib <code>io.Reader</code> has 1 method. <code>io.Writer</code> has 1. They compose into <code>io.ReadWriter</code>, <code>io.ReadCloser</code>, etc.</li>
+    <li><strong>Accept interfaces, return structs</strong> — let callers pass any implementation, but give them a concrete type back so they can use all its methods.</li>
+  </ul>
+
+  <h3 class="code">Realistic example — repository pattern</h3>
+<pre><code><span class="cm">// In package "user" (the consumer)</span>
+<span class="kw">type</span> Repository <span class="kw">interface</span> {
+    <span class="fn">FindByID</span>(ctx context.<span class="ty">Context</span>, id <span class="ty">int</span>) (*User, <span class="ty">error</span>)
+    <span class="fn">Save</span>(ctx context.<span class="ty">Context</span>, u *User) <span class="ty">error</span>
+}
+
+<span class="kw">type</span> Service <span class="kw">struct</span> {
+    repo Repository
+}
+
+<span class="kw">func</span> (s *Service) <span class="fn">Update</span>(ctx context.<span class="ty">Context</span>, id <span class="ty">int</span>, name <span class="ty">string</span>) <span class="ty">error</span> {
+    u, err := s.repo.<span class="fn">FindByID</span>(ctx, id)
+    <span class="kw">if</span> err != <span class="kw">nil</span> { <span class="kw">return</span> err }
+    u.Name = name
+    <span class="kw">return</span> s.repo.<span class="fn">Save</span>(ctx, u)
+}
+
+<span class="cm">// In a different package, "postgres":</span>
+<span class="kw">type</span> PostgresRepo <span class="kw">struct</span> { db *sql.<span class="ty">DB</span> }
+<span class="kw">func</span> (p *PostgresRepo) <span class="fn">FindByID</span>(...) ...   <span class="cm">// implementation</span>
+<span class="kw">func</span> (p *PostgresRepo) <span class="fn">Save</span>(...) ...
+
+<span class="cm">// In tests, an in-memory mock</span>
+<span class="kw">type</span> mockRepo <span class="kw">struct</span> { users <span class="kw">map</span>[<span class="ty">int</span>]*User }
+<span class="kw">func</span> (m *mockRepo) <span class="fn">FindByID</span>(...) ...
+<span class="kw">func</span> (m *mockRepo) <span class="fn">Save</span>(...) ...
+<span class="cm">// → testable without DB!</span>
+</code></pre>
+
+  <h3 class="theory">The empty interface and <code>any</code></h3>
+  <p><code>interface{}</code> is the empty interface — every type satisfies it (it has no methods). Since Go 1.18 there's an alias <code>any</code> that means the same thing.</p>
+  <p>It's useful but escapes the type system, so use sparingly. Common in JSON handling and generic-ish APIs (pre-generics).</p>
+
+  <h3 class="theory">Type assertion &amp; type switch</h3>
+<pre><code><span class="kw">var</span> i any = <span class="str">"hello"</span>
+s := i.(<span class="ty">string</span>)              <span class="cm">// PANIC if i isn't a string</span>
+s, ok := i.(<span class="ty">string</span>)          <span class="cm">// safe: ok=true if assertion succeeds</span>
+
+<span class="kw">switch</span> v := i.(<span class="kw">type</span>) {       <span class="cm">// type switch</span>
+<span class="kw">case</span> <span class="ty">string</span>: <span class="cm">/* v is string */</span>
+<span class="kw">case</span> <span class="ty">int</span>:    <span class="cm">/* v is int */</span>
+<span class="kw">default</span>: <span class="cm">/* v is interface{} */</span>
+}
+</code></pre>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. The "typed nil" trap.</b>
+<pre><code><span class="kw">type</span> MyError <span class="kw">struct</span>{ Msg <span class="ty">string</span> }
+<span class="kw">func</span> (e *MyError) <span class="fn">Error</span>() <span class="ty">string</span> { <span class="kw">return</span> e.Msg }
+
+<span class="kw">func</span> <span class="fn">do</span>() <span class="ty">error</span> {
+    <span class="kw">var</span> e *MyError      <span class="cm">// nil pointer</span>
+    <span class="kw">return</span> e            <span class="cm">// returns NON-NIL interface! (type=*MyError, value=nil)</span>
+}
+<span class="kw">if</span> err := <span class="fn">do</span>(); err != <span class="kw">nil</span> {
+    <span class="cm">// THIS RUNS — even though "logically" we returned nil</span>
+}</code></pre>
+    Always return <code>nil</code> directly: <code>return nil</code>, not <code>return e</code> when <code>e</code> is a typed nil.
+  </div>
+  <div class="box warn">
+    <b>2. Pointer vs value method sets.</b> If <code>(*T).Foo()</code> exists, then <code>*T</code> satisfies any interface needing <code>Foo</code>. <code>T</code> does NOT (you'd need to take its address). This causes "type X does not implement Y" errors.
+  </div>
+  <div class="box warn">
+    <b>3. Big "god" interfaces.</b> An interface with 12 methods means you can never mock it cheaply. Split it.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you mock dependencies for testing?</p>
+    <p class="a">Define what you need as an interface in your service package. The real impl is in another package; the mock is in <code>_test.go</code>. Inject via the constructor. No mock library needed (though <code>gomock</code>/<code>testify</code> exist).</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Why "accept interfaces, return structs"?</p>
+    <p class="a">Accepting interfaces makes your function flexible. Returning a struct gives the caller the full set of methods + future-proofs your API (you can add methods without breaking interface contracts).</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How is Go's interface different from Java's?</p>
+    <p class="a">Java requires explicit <code>implements</code>. Go is implicit (structural). Result: you can satisfy interfaces from third-party libs without modifying their code, and tests are easier (less coupling).</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 7. ERROR HANDLING -->
+<!-- ============================================================ -->
+<section class="note" id="errors">
+  <h2><span class="num">07</span> Error Handling — idiomatic Go</h2>
+  <p class="tagline">Errors are values. No try/catch. Verbose? Yes. Reliable? Also yes.</p>
+
+  <h3 class="why">Why errors-as-values?</h3>
+  <p>Exceptions allow code to silently throw across many layers. Programmers forget what can fail. Go forces every error to be either:</p>
+  <ul>
+    <li>Handled at the call site, or</li>
+    <li>Explicitly returned to the caller</li>
+  </ul>
+  <p>This makes error paths visible in code review.</p>
+
+  <h3 class="theory">The basics</h3>
+<pre><code><span class="cm">// error is a built-in interface:</span>
+<span class="kw">type</span> error <span class="kw">interface</span> { <span class="fn">Error</span>() <span class="ty">string</span> }
+
+<span class="cm">// Idiomatic pattern</span>
+result, err := <span class="fn">doWork</span>()
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> <span class="kw">nil</span>, <span class="fn">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"doWork failed: %w"</span>, err)
+}
+<span class="cm">// use result</span>
+</code></pre>
+
+  <h3 class="syntax">Creating errors</h3>
+<pre><code><span class="cm">// Simple</span>
+err := errors.<span class="fn">New</span>(<span class="str">"not found"</span>)
+err := <span class="fn">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"user %d not found"</span>, id)
+
+<span class="cm">// Sentinel — exported variables compared by identity</span>
+<span class="kw">var</span> ErrNotFound = errors.<span class="fn">New</span>(<span class="str">"user not found"</span>)
+<span class="kw">if</span> errors.<span class="fn">Is</span>(err, ErrNotFound) { ... }
+
+<span class="cm">// Custom error type — when you want extra data</span>
+<span class="kw">type</span> ValidationError <span class="kw">struct</span> {
+    Field <span class="ty">string</span>
+    Msg   <span class="ty">string</span>
+}
+<span class="kw">func</span> (e *ValidationError) <span class="fn">Error</span>() <span class="ty">string</span> {
+    <span class="kw">return</span> <span class="fn">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"%s: %s"</span>, e.Field, e.Msg)
+}
+
+<span class="kw">var</span> ve *ValidationError
+<span class="kw">if</span> errors.<span class="fn">As</span>(err, &amp;ve) {
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(ve.Field)   <span class="cm">// type-asserted access</span>
+}
+</code></pre>
+
+  <h3 class="theory">Wrapping (Go 1.13+)</h3>
+  <p>Use <code>%w</code> in <code>fmt.Errorf</code> to <em>wrap</em> an error, preserving the chain:</p>
+<pre><code><span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> <span class="fn">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"saving user %d: %w"</span>, id, err)
+}
+
+<span class="cm">// Caller can later check the underlying error:</span>
+<span class="kw">if</span> errors.<span class="fn">Is</span>(err, sql.<span class="ty">ErrNoRows</span>) { ... }
+<span class="kw">if</span> errors.<span class="fn">As</span>(err, &amp;myType) { ... }
+</code></pre>
+
+  <h3 class="when">When to use what?</h3>
+  <table>
+    <thead><tr><th>Tool</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><code>errors.New</code> / <code>fmt.Errorf</code></td><td>One-off error message</td></tr>
+      <tr><td>Sentinel <code>var ErrX = errors.New(...)</code></td><td>Caller needs to detect a specific error class</td></tr>
+      <tr><td>Custom struct + <code>Error()</code></td><td>Need to attach data (status code, field, etc.)</td></tr>
+      <tr><td><code>%w</code> wrapping</td><td>Always when adding context as error bubbles up</td></tr>
+      <tr><td><code>errors.Is</code></td><td>Compare to a sentinel</td></tr>
+      <tr><td><code>errors.As</code></td><td>Extract a typed error from the chain</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Don't use <code>==</code> for wrapped errors.</b> <code>err == sql.ErrNoRows</code> fails if someone wrapped it. Use <code>errors.Is(err, sql.ErrNoRows)</code>.
+  </div>
+  <div class="box warn">
+    <b>2. Don't ignore errors.</b> <code>v, _ := foo()</code> is a code smell. Acceptable only when you've reasoned about why ignoring is safe.
+  </div>
+  <div class="box warn">
+    <b>3. Don't double-log.</b> Either log AND return the error (DRY violation, leads to log spam), or just return it. Pick one — the convention is "log at the boundary (handler), return everywhere else."
+  </div>
+  <div class="box warn">
+    <b>4. Lower-case error messages.</b> Convention: <code>"user not found"</code> not <code>"User not found."</code>. They get composed: <code>"saving: user not found"</code> reads naturally.
+  </div>
+  <div class="box danger">
+    <b>5. The typed-nil pitfall (again).</b> See Interfaces section. Always <code>return nil</code> on success.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: <code>errors.Is</code> vs <code>errors.As</code>?</p>
+    <p class="a"><code>Is</code> = "is this error in the chain equal to X (sentinel)?". <code>As</code> = "is there an error in the chain whose type is T, and bind it to this var".</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How do you handle errors at HTTP boundaries?</p>
+    <p class="a">Map domain errors to HTTP codes in your handler/middleware. Example: <code>errors.Is(err, ErrNotFound) → 404</code>. Log at the handler. Return clean JSON to the client.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: <code>panic</code> vs <code>error</code>?</p>
+    <p class="a">Errors are for expected failures (file missing, bad input). Panics are for programmer bugs (nil pointer, index out of range). Library code should almost never panic.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 8. POINTERS / MEMORY -->
+<!-- ============================================================ -->
+<section class="note" id="pointers">
+  <h2><span class="num">08</span> Pointers &amp; Memory</h2>
+  <p class="tagline">Go has pointers but is GC'd — you get safety without manual <code>free</code>. Coming from JS, the rules below feel new.</p>
+
+  <h3 class="why">Why pointers exist in a GC language?</h3>
+  <ul>
+    <li><strong>Mutation</strong> — pass a value to a function and let it modify the original.</li>
+    <li><strong>Avoid copying</strong> — large structs are expensive to pass by value.</li>
+    <li><strong>Optional values</strong> — sometimes <code>nil</code> means "not provided".</li>
+  </ul>
+  <p>You'll never <code>malloc</code>/<code>free</code> manually. Go's escape analysis decides stack vs heap. The GC handles cleanup.</p>
+
+  <h3 class="theory">Syntax + Theory</h3>
+<pre><code>x := <span class="num">42</span>
+p := &amp;x          <span class="cm">// p is *int, points to x</span>
+<span class="fn">fmt</span>.<span class="fn">Println</span>(*p)  <span class="cm">// 42 — dereference</span>
+*p = <span class="num">100</span>          <span class="cm">// modifies x</span>
+<span class="fn">fmt</span>.<span class="fn">Println</span>(x)   <span class="cm">// 100</span>
+
+<span class="cm">// new allocates a zero-valued T and returns *T</span>
+q := <span class="kw">new</span>(<span class="ty">int</span>)     <span class="cm">// q is *int, *q is 0</span>
+*q = <span class="num">7</span>
+
+<span class="cm">// Struct pointer</span>
+u := &amp;User{Name: <span class="str">"Sid"</span>}
+u.Name           <span class="cm">// auto-dereferenced! You don't write (*u).Name</span>
+</code></pre>
+
+  <h3 class="theory">Stack vs Heap (escape analysis)</h3>
+  <p>The Go compiler decides automatically:</p>
+  <ul>
+    <li>If a value's pointer never leaves the function → stack (fast, freed on return).</li>
+    <li>If a pointer escapes (returned, stored in a global, captured by a closure that outlives the function) → heap (GC-managed).</li>
+  </ul>
+  <p>Inspect with <code>go build -gcflags="-m"</code>:</p>
+<pre><code><span class="kw">func</span> <span class="fn">leak</span>() *<span class="ty">int</span> {
+    x := <span class="num">42</span>
+    <span class="kw">return</span> &amp;x   <span class="cm">// "x escapes to heap"</span>
+}</code></pre>
+
+  <h3 class="when">When to use a pointer?</h3>
+  <ul>
+    <li>Need to <strong>mutate</strong> the caller's value → pointer.</li>
+    <li>Struct is <strong>large</strong> (rule of thumb: more than ~3-4 small fields, or contains slices/maps you don't want recopied) → pointer.</li>
+    <li>Need to express "<strong>optional</strong>" with nil → pointer.</li>
+    <li>Otherwise — pass by value. Smaller, safer, no aliasing.</li>
+  </ul>
+
+  <h3 class="code">Realistic example</h3>
+<pre><code><span class="kw">type</span> Counter <span class="kw">struct</span>{ N <span class="ty">int</span> }
+
+<span class="kw">func</span> <span class="fn">incVal</span>(c Counter)  { c.N++ }   <span class="cm">// modifies COPY, useless</span>
+<span class="kw">func</span> <span class="fn">incPtr</span>(c *Counter) { c.N++ }   <span class="cm">// modifies original</span>
+
+c := Counter{N: <span class="num">0</span>}
+<span class="fn">incVal</span>(c)        <span class="cm">// c.N still 0</span>
+<span class="fn">incPtr</span>(&amp;c)       <span class="cm">// c.N now 1</span>
+</code></pre>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Nil pointer dereference panics at runtime.</b> Always check before deref:
+<pre><code><span class="kw">if</span> u != <span class="kw">nil</span> { <span class="fn">fmt</span>.<span class="fn">Println</span>(u.Name) }</code></pre>
+  </div>
+  <div class="box warn">
+    <b>2. <code>&amp;</code> on map values.</b> Illegal: <code>p := &amp;m["k"]</code>. Map values are not addressable. Workaround: store pointers in the map.
+  </div>
+  <div class="box warn">
+    <b>3. Pointer to loop variable</b> (pre-Go-1.22) — see Control Flow gotcha.
+  </div>
+  <div class="box warn">
+    <b>4. Don't reach for pointers prematurely.</b> Small structs (under ~64 bytes) often perform better as values — better cache locality, GC has less to track.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Are slices pointers?</p>
+    <p class="a">A slice <em>contains</em> a pointer (in its 3-word header). Passing a slice copies the header but both copies still point at the same underlying array.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Does Go have pointer arithmetic?</p>
+    <p class="a">No, intentionally. <code>p + 1</code> won't compile (except via <code>unsafe</code>, which you almost never use). This kills a whole class of memory bugs.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How does Go's GC work (briefly)?</p>
+    <p class="a">Concurrent mark-sweep with low pause times (sub-millisecond on most workloads). It runs alongside your program. You can't trigger explicit GC easily, but <code>GOGC</code> and <code>GOMEMLIMIT</code> tune behavior.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 9. PACKAGES / MODULES -->
+<!-- ============================================================ -->
+<section class="note" id="packages">
+  <h2><span class="num">09</span> Packages &amp; Modules</h2>
+  <p class="tagline">How Go organizes code on disk and pulls dependencies. Modern (post-1.11) Go uses <strong>modules</strong>.</p>
+
+  <h3 class="why">Why two concepts?</h3>
+  <ul>
+    <li>A <strong>package</strong> is one folder of <code>.go</code> files compiled together. Smallest unit of compilation.</li>
+    <li>A <strong>module</strong> is a versioned collection of packages, identified by a path (e.g., <code>github.com/user/project</code>). It's what lives in <code>go.mod</code>.</li>
+  </ul>
+
+  <h3 class="theory">Folder structure</h3>
+  <pre class="diagram">myapp/
+├── go.mod                ← module name + Go version + deps
+├── go.sum                ← checksums for deps (always commit)
+├── main.go               ← package main (entry point)
+├── internal/             ← only importable inside this module
+│   └── auth/
+│       └── auth.go       ← package auth
+├── pkg/                  ← public, importable by others (optional convention)
+│   └── parser/
+│       └── parser.go     ← package parser
+└── cmd/
+    └── server/
+        └── main.go       ← another binary (package main)</pre>
+
+  <h3 class="syntax">Code</h3>
+<pre><code><span class="cm">// main.go</span>
+<span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="str">"fmt"</span>                                <span class="cm">// stdlib</span>
+    <span class="str">"github.com/user/myapp/internal/auth"</span>  <span class="cm">// own package</span>
+    log <span class="str">"github.com/sirupsen/logrus"</span>       <span class="cm">// aliased third-party</span>
+)
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    auth.<span class="fn">Login</span>(<span class="str">"sid"</span>)
+    log.<span class="fn">Info</span>(<span class="str">"started"</span>)
+}
+</code></pre>
+
+  <h3 class="theory">Visibility rule</h3>
+  <p><strong>Capitalize</strong> the first letter of an identifier to export it from a package; lowercase to keep it private. There is no <code>public</code>/<code>private</code> keyword.</p>
+
+  <h3 class="syntax">Module commands (cheat-sheet)</h3>
+  <table>
+    <thead><tr><th>Command</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>go mod init github.com/u/repo</code></td><td>Creates <code>go.mod</code></td></tr>
+      <tr><td><code>go mod tidy</code></td><td>Adds missing &amp; removes unused deps</td></tr>
+      <tr><td><code>go get pkg@v1.2.3</code></td><td>Pin a dep version</td></tr>
+      <tr><td><code>go get -u ./...</code></td><td>Upgrade all deps</td></tr>
+      <tr><td><code>go list -m all</code></td><td>List used module versions</td></tr>
+      <tr><td><code>go mod why pkg</code></td><td>Why is this dep here?</td></tr>
+      <tr><td><code>go mod vendor</code></td><td>Copy deps into <code>vendor/</code> (offline / reproducible builds)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li><strong>Use <code>internal/</code></strong> for code you DON'T want consumed by external modules. The Go toolchain enforces this.</li>
+    <li><strong>One package per folder</strong> — Go forbids two packages in the same dir. Test files (<code>_test.go</code>) can be in the same pkg or <code>pkg_test</code>.</li>
+    <li><strong>Small packages</strong> &gt; one giant package. Group by what changes together, not by tech layer.</li>
+    <li><strong>Avoid cyclic imports</strong> — Go forbids them at compile time. Refactor to break cycles by introducing an interface in a shared "smaller" package.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box warn">
+    <b>1. Package name vs folder name.</b> Doesn't have to match (e.g., folder <code>parser/</code> can have <code>package parserv2</code>). But ergonomics suffer — keep them the same.
+  </div>
+  <div class="box warn">
+    <b>2. <code>internal/</code> magic.</b> Code in <code>foo/internal/</code> can only be imported by code rooted at <code>foo/</code>. Good for hiding implementation details.
+  </div>
+  <div class="box danger">
+    <b>3. <code>go get</code> in a module folder modifies <code>go.mod</code>.</b> To install a global CLI tool, use <code>go install pkg@latest</code> — it doesn't touch your module.
+  </div>
+  <div class="box warn">
+    <b>4. <code>init()</code> functions.</b> Each file can have an <code>init()</code> that runs at import time. Useful for registration, but avoid heavy work — it makes startup slow and order tricky.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: <code>go.sum</code> — commit or ignore?</p>
+    <p class="a">Always commit. It pins exact checksums for reproducible builds and prevents supply-chain swaps.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How do you handle private repos?</p>
+    <p class="a">Set <code>GOPRIVATE=github.com/myorg/*</code> so Go skips the public proxy and sumdb for those paths. Configure SSH or a personal access token via <code>git config</code>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 10. MENTAL MODEL FOR TS DEVS -->
+<!-- ============================================================ -->
+<section class="note" id="mental-model">
+  <h2><span class="num">10</span> Bonus — Go Mental Model for TypeScript Devs</h2>
+  <p class="tagline">Translation table to retrain your brain.</p>
+
+  <table>
+    <thead><tr><th>TypeScript / Angular</th><th>Go equivalent</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>let x = 5</code></td><td><code>x := 5</code></td><td>Inside functions only</td></tr>
+      <tr><td><code>const PI = 3.14</code></td><td><code>const PI = 3.14</code></td><td>Untyped → fits any numeric</td></tr>
+      <tr><td><code>null</code> / <code>undefined</code></td><td><code>nil</code></td><td>Only for ref-y types (pointers, slices, maps, interfaces, chans, funcs)</td></tr>
+      <tr><td><code>any</code></td><td><code>any</code> (alias for <code>interface{}</code>)</td><td>Avoid in production code</td></tr>
+      <tr><td><code>string[]</code></td><td><code>[]string</code></td><td>Slice</td></tr>
+      <tr><td><code>Record&lt;string, number&gt;</code></td><td><code>map[string]int</code></td><td></td></tr>
+      <tr><td><code>interface User { ... }</code></td><td><code>type User struct { ... }</code></td><td>Go's <code>interface</code> = behavioral contract, NOT data shape</td></tr>
+      <tr><td><code>class Foo extends Bar</code></td><td><code>type Foo struct { Bar }</code></td><td>Embedding ≠ inheritance</td></tr>
+      <tr><td><code>throw new Error()</code></td><td><code>return err</code></td><td>Errors are values</td></tr>
+      <tr><td><code>try/catch/finally</code></td><td><code>defer</code> + <code>err != nil</code> checks</td><td><code>recover</code> only at boundaries</td></tr>
+      <tr><td><code>async/await</code></td><td><code>go</code> + channels (and <code>context.Context</code>)</td><td>See Phase 3 notes</td></tr>
+      <tr><td><code>generics &lt;T&gt;</code></td><td><code>[T any]</code></td><td>Go 1.18+, see Phase 2 notes</td></tr>
+      <tr><td><code>JSON.parse</code></td><td><code>json.Unmarshal</code></td><td>Pre-declare a struct (typed!)</td></tr>
+      <tr><td><code>console.log</code></td><td><code>fmt.Println</code> or <code>slog.Info</code></td><td><code>slog</code> for structured logs in prod</td></tr>
+      <tr><td>npm packages</td><td>Go modules (<code>go.mod</code>)</td><td>Versioning is semver-strict</td></tr>
+      <tr><td><code>npm install</code></td><td><code>go mod tidy</code></td><td></td></tr>
+      <tr><td>Tests with Jest</td><td><code>go test ./...</code></td><td>Built-in, no framework needed</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box good">
+    <b>The single biggest mindset shift:</b> in TypeScript, types are erased at runtime — they're documentation. In Go, types are real, enforced, and shape memory layout. Embrace explicitness.
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+</div>
+
+<footer class="page">
+  Phase 1 done. Next: <a href="phase2.html">Phase 2 — Intermediate Go</a> →<br/>
+  <small>Pair with the YouTube videos linked in the roadmap. Reading + watching + coding = retention.</small>
+</footer>
+
+<details class="floating-toc">
+  <summary title="Table of Contents" aria-label="Table of Contents"></summary>
+  <div class="ft-panel">
+    <h4>Phase 1 — Concepts</h4>
+    <ol>
+      <li><a href="#vars">Variables, Types &amp; Functions</a></li>
+      <li><a href="#flow">Control Flow</a></li>
+      <li><a href="#defer">defer, panic &amp; recover</a></li>
+      <li><a href="#slices">Slices, Maps &amp; Arrays</a></li>
+      <li><a href="#structs">Structs, Methods &amp; Composition</a></li>
+      <li><a href="#interfaces">Interfaces</a></li>
+      <li><a href="#errors">Error Handling</a></li>
+      <li><a href="#pointers">Pointers &amp; Memory</a></li>
+      <li><a href="#packages">Packages &amp; Modules</a></li>
+      <li><a href="#mental-model">Mental Model for TS Devs</a></li>
+    </ol>
+    <div class="ft-extra">
+      <a href="phase2.html">→ Phase 2 (Intermediate)</a>
+      <a href="phase3.html">→ Phase 3 (Concurrency)</a>
+      <a href="../go-roadmap.html">← Roadmap</a>
+    </div>
+  </div>
+</details>
+
+</body>
+</html>

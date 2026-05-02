@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Phase 3 Notes — Go Concurrency</title>
+<link rel="stylesheet" href="_styles.css" />
+</head>
+<body>
+
+<header class="page">
+  <h1>📕 <span>Phase 3</span> — Concurrency &amp; Goroutines (E2E Notes)</h1>
+  <p>Go's superpower. The reason companies adopt Go for backend. Get this right and you'll be a top-tier backend engineer.</p>
+  <div class="nav">
+    <a href="../go-roadmap.html">← Roadmap</a>
+    <a href="phase1.html">Phase 1</a>
+    <a href="phase2.html">Phase 2</a>
+    <a href="phase3.html" class="active">Phase 3</a>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h3>📑 Concepts in this phase</h3>
+  <ol>
+    <li><a href="#goroutines">Goroutines &amp; the Go Scheduler</a></li>
+    <li><a href="#channels">Channels &amp; Select</a></li>
+    <li><a href="#sync">sync Package — Mutex, WaitGroup, Once</a></li>
+    <li><a href="#patterns">Worker Pool &amp; Fan-Out / Fan-In</a></li>
+    <li><a href="#errgroup">errgroup &amp; Advanced Patterns</a></li>
+    <li><a href="#race">Race Detector &amp; Memory Model</a></li>
+    <li><a href="#atomic">sync/atomic &amp; sync.Pool</a></li>
+    <li><a href="#pipeline">Pipeline Pattern &amp; Cancellation</a></li>
+    <li><a href="#leaks">Bonus: Goroutine Leaks (top interview topic)</a></li>
+    <li><a href="#shutdown">Bonus: Graceful Shutdown (production-critical)</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. GOROUTINES -->
+<!-- ============================================================ -->
+<section class="note" id="goroutines">
+  <h2><span class="num">01</span> Goroutines &amp; the Scheduler</h2>
+  <p class="tagline">Lightweight, multiplexed onto OS threads by Go's runtime. Cheap to create, expensive to misuse.</p>
+
+  <h3 class="why">Why goroutines instead of threads or async/await?</h3>
+  <ul>
+    <li><strong>OS threads</strong> are expensive (~1MB stack each). You can't have millions.</li>
+    <li><strong>async/await</strong> infects your codebase — every function becomes <code>async</code> ("function color problem").</li>
+    <li><strong>Goroutines</strong> start with ~2KB stacks (grow on demand). You can have millions on one machine. Code is written like sync; the runtime parallelizes it.</li>
+  </ul>
+
+  <h3 class="theory">The G-M-P scheduler model</h3>
+  <pre class="diagram">  G = goroutine (your code)
+  M = OS thread
+  P = processor (logical CPU, count = GOMAXPROCS)
+
+  ┌─ P0 ──────────┐   ┌─ P1 ──────────┐
+  │ local queue:  │   │ local queue:  │
+  │ [G3 G7 G9]    │   │ [G2 G5]       │
+  │      ↓        │   │     ↓         │
+  │   M0 runs G3  │   │   M1 runs G2  │
+  └───────────────┘   └───────────────┘
+        ↕                   ↕     work-stealing across Ps
+  ┌─ Global queue (overflow): [G15 G22 G33] ─┐
+  │                                          │
+  │  Network poller (epoll/kqueue) hands     │
+  │  ready-from-IO goroutines back to Ps     │
+  └──────────────────────────────────────────┘</pre>
+  <p>When a goroutine blocks on I/O, the runtime parks it and the M moves on to another G. You get C10M (ten million concurrent connections) potential, sync-style code.</p>
+
+  <h3 class="syntax">Syntax</h3>
+<pre><code><span class="cm">// Spawn — just prefix `go`</span>
+<span class="kw">go</span> <span class="fn">handleRequest</span>(req)
+
+<span class="cm">// Anonymous func</span>
+<span class="kw">go</span> <span class="kw">func</span>(id <span class="ty">int</span>) {
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(<span class="str">"worker"</span>, id)
+}(<span class="num">1</span>)
+
+<span class="cm">// Number of logical CPUs the runtime uses</span>
+runtime.<span class="fn">GOMAXPROCS</span>(<span class="num">0</span>)        <span class="cm">// 0 = read current</span>
+runtime.<span class="fn">NumGoroutine</span>()       <span class="cm">// for monitoring</span>
+</code></pre>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li>Per-request: HTTP server starts one goroutine per connection (you don't have to).</li>
+    <li>Background work: refresh cache, drain a queue.</li>
+    <li>Parallel computation: split work across cores using a worker pool.</li>
+    <li>Fan-out/fan-in: multiple downstream calls, gather results.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Goroutines are not free.</b> Spawning 100K to do nothing wastes RAM. They're cheap relative to threads — not free.
+  </div>
+  <div class="box danger">
+    <b>2. <code>main</code> exiting kills all goroutines.</b> No graceful shutdown unless you arrange one (WaitGroup, signal handling). Background work must finish or you'll lose it.
+  </div>
+  <div class="box danger">
+    <b>3. Fire-and-forget = leaks waiting to happen.</b> If a goroutine blocks on a channel that nobody closes, it lives forever. See "Goroutine Leaks" section.
+  </div>
+  <div class="box warn">
+    <b>4. <code>GOMAXPROCS</code> in containers.</b> By default Go reads the host's CPU count, not the cgroup limit. In Kubernetes, set <code>GOMAXPROCS</code> via env or use <code>uber-go/automaxprocs</code> to align with CPU limits.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Are goroutines threads?</p>
+    <p class="a">No. They're scheduled USER-SPACE by the Go runtime onto OS threads. Many goroutines per thread; threads are reused.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How does the runtime know when to switch goroutines?</p>
+    <p class="a">Cooperatively at function calls + on I/O blocks. Since Go 1.14, also preemptively (signal-based) so tight loops don't starve others.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. CHANNELS -->
+<!-- ============================================================ -->
+<section class="note" id="channels">
+  <h2><span class="num">02</span> Channels &amp; Select — communicate, don't share</h2>
+  <p class="tagline">"Don't communicate by sharing memory; share memory by communicating." — Go's mantra.</p>
+
+  <h3 class="why">Why channels?</h3>
+  <p>Channels turn shared state into typed message passing. They eliminate most locking by design. Closer to Erlang's actor model than Java's threads.</p>
+
+  <h3 class="theory">Channel anatomy</h3>
+<pre><code><span class="cm">// Unbuffered — sync handoff (sender blocks until receiver ready)</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+
+<span class="cm">// Buffered — async up to capacity</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>, <span class="num">10</span>)
+
+<span class="cm">// Send / receive</span>
+ch &lt;- <span class="num">42</span>           <span class="cm">// send</span>
+v := &lt;-ch          <span class="cm">// receive</span>
+v, ok := &lt;-ch      <span class="cm">// receive + check if channel closed (ok=false → closed and drained)</span>
+
+<span class="cm">// Close — by SENDER, signals "no more values"</span>
+<span class="fn">close</span>(ch)
+
+<span class="cm">// Range — receive until close</span>
+<span class="kw">for</span> v := <span class="kw">range</span> ch { ... }
+
+<span class="cm">// Direction in function signatures (compile-time enforced)</span>
+<span class="kw">func</span> <span class="fn">producer</span>(out <span class="kw">chan</span>&lt;- <span class="ty">int</span>) { out &lt;- <span class="num">1</span> }    <span class="cm">// send-only</span>
+<span class="kw">func</span> <span class="fn">consumer</span>(in &lt;-<span class="kw">chan</span> <span class="ty">int</span>) { v := &lt;-in }   <span class="cm">// receive-only</span>
+</code></pre>
+
+  <h3 class="theory">Select — wait on multiple channels</h3>
+<pre><code><span class="kw">select</span> {
+<span class="kw">case</span> v := &lt;-ch1:
+    <span class="fn">handle</span>(v)
+<span class="kw">case</span> ch2 &lt;- <span class="num">5</span>:
+    <span class="fn">log</span>(<span class="str">"sent"</span>)
+<span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>():
+    <span class="kw">return</span> ctx.<span class="fn">Err</span>()
+<span class="kw">case</span> &lt;-time.<span class="fn">After</span>(<span class="num">2</span> * time.<span class="ty">Second</span>):
+    <span class="kw">return</span> errors.<span class="fn">New</span>(<span class="str">"timeout"</span>)
+<span class="kw">default</span>:                 <span class="cm">// non-blocking — runs if no case ready</span>
+    <span class="fn">log</span>(<span class="str">"nothing ready"</span>)
+}
+</code></pre>
+  <p>If multiple cases are ready, <code>select</code> chooses one at random (intentional — prevents starvation).</p>
+
+  <pre class="diagram">  Sender ──▶ [        channel buffer          ] ──▶ Receiver
+                ↑ blocks if full                ↑ blocks if empty (unless closed)
+            close() = no more sends</pre>
+
+  <h3 class="code">Common patterns</h3>
+<pre><code><span class="cm">// 1. Generator — produce values from a goroutine</span>
+<span class="kw">func</span> <span class="fn">naturals</span>() &lt;-<span class="kw">chan</span> <span class="ty">int</span> {
+    out := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        <span class="kw">defer</span> <span class="fn">close</span>(out)
+        <span class="kw">for</span> i := <span class="num">1</span>; ; i++ { out &lt;- i }
+    }()
+    <span class="kw">return</span> out
+}
+
+<span class="cm">// 2. Done channel — signal completion</span>
+done := <span class="fn">make</span>(<span class="kw">chan</span> <span class="kw">struct</span>{})
+<span class="kw">go</span> <span class="kw">func</span>() {
+    <span class="kw">defer</span> <span class="fn">close</span>(done)
+    <span class="fn">work</span>()
+}()
+&lt;-done   <span class="cm">// wait</span>
+
+<span class="cm">// 3. Timeout</span>
+<span class="kw">select</span> {
+<span class="kw">case</span> v := &lt;-ch:
+    <span class="fn">handle</span>(v)
+<span class="kw">case</span> &lt;-time.<span class="fn">After</span>(<span class="num">5</span> * time.<span class="ty">Second</span>):
+    <span class="kw">return</span> errors.<span class="fn">New</span>(<span class="str">"timeout"</span>)
+}
+</code></pre>
+
+  <h3 class="when">Buffered vs Unbuffered?</h3>
+  <table>
+    <thead><tr><th>Use unbuffered</th><th>Use buffered</th></tr></thead>
+    <tbody>
+      <tr><td>You want a synchronization handoff (rendezvous)</td><td>You want decoupling — sender continues without waiting</td></tr>
+      <tr><td>Default choice when in doubt</td><td>Producer is bursty, consumer is steady (queue smoothing)</td></tr>
+      <tr><td>Signal/done channels</td><td>Worker pools (capacity = number of workers or job batch size)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Sending on a CLOSED channel = PANIC.</b> Receiving from closed is fine (returns zero value + ok=false). Convention: only the sender closes.
+  </div>
+  <div class="box danger">
+    <b>2. Closing a NIL channel = panic. Sending/receiving on nil = blocks FOREVER.</b> The "block forever" can be useful in <code>select</code> to disable a case — but accidental nil channels = goroutine leak.
+  </div>
+  <div class="box danger">
+    <b>3. Closing a channel TWICE = panic.</b> If multiple goroutines might want to close, use <code>sync.Once</code> or a single dedicated closer.
+  </div>
+  <div class="box warn">
+    <b>4. Don't close to signal cancellation FROM consumer to producer.</b> The producer might still be sending and you'll panic. Use <code>context</code> for cancellation.
+  </div>
+  <div class="box warn">
+    <b>5. <code>select</code> with no ready cases AND no <code>default</code></b> = block forever. Add <code>ctx.Done()</code> case for safety.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: What's the difference between an unbuffered channel and a buffered channel of size 1?</p>
+    <p class="a">Unbuffered: send blocks until a receive happens. Buffered(1): send returns immediately if empty, blocks only when buffer full. The semantic difference matters — unbuffered guarantees handoff, buffered allows the sender to move on.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How do you wait for a goroutine to finish without WaitGroup?</p>
+    <p class="a">A done channel (<code>chan struct{}</code>) closed by the goroutine. Receiver blocks on <code>&lt;-done</code> until close.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 3. SYNC -->
+<!-- ============================================================ -->
+<section class="note" id="sync">
+  <h2><span class="num">03</span> sync — Mutex, WaitGroup, Once, RWMutex</h2>
+  <p class="tagline">When channels are overkill, classic locks are still right.</p>
+
+  <h3 class="why">Why locks if we have channels?</h3>
+  <p>Channels are great for <em>passing</em> data between goroutines. Locks are better for <em>guarding shared state</em> (in-memory caches, counters, maps). The Go community: use whichever makes the code clearest.</p>
+
+  <h3 class="theory">sync.Mutex</h3>
+<pre><code><span class="kw">type</span> Counter <span class="kw">struct</span> {
+    mu sync.<span class="ty">Mutex</span>      <span class="cm">// zero-valued mutex is ready to use</span>
+    n  <span class="ty">int</span>
+}
+
+<span class="kw">func</span> (c *Counter) <span class="fn">Inc</span>() {
+    c.mu.<span class="fn">Lock</span>()
+    <span class="kw">defer</span> c.mu.<span class="fn">Unlock</span>()
+    c.n++
+}
+<span class="kw">func</span> (c *Counter) <span class="fn">Get</span>() <span class="ty">int</span> {
+    c.mu.<span class="fn">Lock</span>()
+    <span class="kw">defer</span> c.mu.<span class="fn">Unlock</span>()
+    <span class="kw">return</span> c.n
+}
+</code></pre>
+
+  <h3 class="theory">sync.RWMutex — many readers OR one writer</h3>
+<pre><code><span class="kw">var</span> mu sync.<span class="ty">RWMutex</span>
+
+mu.<span class="fn">RLock</span>(); v := cache[k]; mu.<span class="fn">RUnlock</span>()    <span class="cm">// many readers</span>
+mu.<span class="fn">Lock</span>();  cache[k] = v; mu.<span class="fn">Unlock</span>()        <span class="cm">// one writer, blocks readers</span>
+</code></pre>
+  <p>Useful only when reads vastly outnumber writes (~10:1+). Otherwise plain Mutex is faster (no internal bookkeeping).</p>
+
+  <h3 class="theory">sync.WaitGroup — wait for N goroutines to finish</h3>
+<pre><code><span class="kw">var</span> wg sync.<span class="ty">WaitGroup</span>
+<span class="kw">for</span> _, item := <span class="kw">range</span> items {
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)
+    <span class="kw">go</span> <span class="kw">func</span>(it Item) {
+        <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+        <span class="fn">process</span>(it)
+    }(item)
+}
+wg.<span class="fn">Wait</span>()           <span class="cm">// blocks until counter hits 0</span>
+</code></pre>
+
+  <h3 class="theory">sync.Once — do something exactly once</h3>
+<pre><code><span class="kw">var</span> (
+    once sync.<span class="ty">Once</span>
+    db   *sql.<span class="ty">DB</span>
+)
+<span class="kw">func</span> <span class="fn">getDB</span>() *sql.<span class="ty">DB</span> {
+    once.<span class="fn">Do</span>(<span class="kw">func</span>() {
+        db, _ = sql.<span class="fn">Open</span>(<span class="str">"postgres"</span>, dsn)
+    })
+    <span class="kw">return</span> db
+}
+</code></pre>
+  <p>Thread-safe lazy init. Concurrent callers all wait for the first one's <code>f()</code> to complete.</p>
+
+  <h3 class="when">Decision tree</h3>
+  <table>
+    <thead><tr><th>Scenario</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>Pass values between goroutines</td><td>Channel</td></tr>
+      <tr><td>Counter / shared map / cache</td><td>Mutex (or sync.Map for very specific patterns)</td></tr>
+      <tr><td>Read-heavy, write-rare</td><td>RWMutex</td></tr>
+      <tr><td>Wait for N tasks</td><td>WaitGroup (or errgroup if errors matter)</td></tr>
+      <tr><td>Lazy init / singleton</td><td>sync.Once</td></tr>
+      <tr><td>Pure counter atomic</td><td>sync/atomic (faster, no lock)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. NEVER copy a sync.Mutex.</b> Once locked, the copy has different state from the original = chaos. <code>go vet</code> catches this. Always use pointer receivers on types containing sync.
+  </div>
+  <div class="box danger">
+    <b>2. wg.Add inside a goroutine is wrong.</b>
+<pre><code><span class="cm">// BAD — wg.Wait might fire before Add runs</span>
+<span class="kw">go</span> <span class="kw">func</span>() {
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)       <span class="cm">// race</span>
+    <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+    <span class="cm">// ...</span>
+}()</code></pre>
+    Always <code>wg.Add</code> on the parent goroutine BEFORE spawning.
+  </div>
+  <div class="box warn">
+    <b>3. Forgetting to Unlock on early return.</b> Always <code>defer mu.Unlock()</code> immediately after <code>mu.Lock()</code>. Saves you from countless bugs.
+  </div>
+  <div class="box warn">
+    <b>4. Deadlock from lock ordering.</b> If goroutine A locks mu1 then mu2, and B locks mu2 then mu1 → deadlock. Always acquire locks in the same order across the codebase.
+  </div>
+  <div class="box warn">
+    <b>5. <code>sync.Map</code> is NOT a "concurrent map".</b> It's optimized for two specific patterns (write-once-read-many, disjoint key sets per goroutine). For general use, plain map + RWMutex is faster.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you protect a map from concurrent access?</p>
+    <p class="a">Wrap it in a struct with a mutex. Concurrent writes (or write+read) on a built-in map = panic, detected by Go runtime. Don't trust "looks fine" — add the lock.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: WaitGroup vs channel for waiting?</p>
+    <p class="a">WaitGroup if you just need "all done". Channel if you also want to collect results or errors. errgroup combines both.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. WORKER POOL / FAN-OUT FAN-IN -->
+<!-- ============================================================ -->
+<section class="note" id="patterns">
+  <h2><span class="num">04</span> Worker Pool &amp; Fan-Out / Fan-In</h2>
+  <p class="tagline">The two patterns you'll use weekly in real backend code.</p>
+
+  <h3 class="why">Why a worker pool?</h3>
+  <p>You have N jobs (could be millions) and want to run them with bounded parallelism (e.g., 10 at a time, to avoid hammering an external API or running out of file descriptors).</p>
+
+  <h3 class="code">Worker pool</h3>
+<pre><code><span class="kw">func</span> <span class="fn">workerPool</span>(ctx context.<span class="ty">Context</span>, jobs []Job, numWorkers <span class="ty">int</span>) []Result {
+    jobCh := <span class="fn">make</span>(<span class="kw">chan</span> Job)
+    resCh := <span class="fn">make</span>(<span class="kw">chan</span> Result, <span class="fn">len</span>(jobs))
+
+    <span class="cm">// Spawn workers</span>
+    <span class="kw">var</span> wg sync.<span class="ty">WaitGroup</span>
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; numWorkers; i++ {
+        wg.<span class="fn">Add</span>(<span class="num">1</span>)
+        <span class="kw">go</span> <span class="kw">func</span>() {
+            <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+            <span class="kw">for</span> j := <span class="kw">range</span> jobCh {
+                <span class="kw">select</span> {
+                <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>(): <span class="kw">return</span>
+                <span class="kw">case</span> resCh &lt;- <span class="fn">process</span>(ctx, j):
+                }
+            }
+        }()
+    }
+
+    <span class="cm">// Feed jobs</span>
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        <span class="kw">defer</span> <span class="fn">close</span>(jobCh)
+        <span class="kw">for</span> _, j := <span class="kw">range</span> jobs {
+            <span class="kw">select</span> {
+            <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>(): <span class="kw">return</span>
+            <span class="kw">case</span> jobCh &lt;- j:
+            }
+        }
+    }()
+
+    <span class="cm">// Close result chan when all workers done</span>
+    <span class="kw">go</span> <span class="kw">func</span>() { wg.<span class="fn">Wait</span>(); <span class="fn">close</span>(resCh) }()
+
+    <span class="cm">// Drain</span>
+    results := <span class="fn">make</span>([]Result, <span class="num">0</span>, <span class="fn">len</span>(jobs))
+    <span class="kw">for</span> r := <span class="kw">range</span> resCh {
+        results = <span class="fn">append</span>(results, r)
+    }
+    <span class="kw">return</span> results
+}
+</code></pre>
+
+  <pre class="diagram">  jobs ──▶ jobCh ──┬──▶ Worker 1 ──┐
+                    ├──▶ Worker 2 ──┼──▶ resCh ──▶ collector
+                    └──▶ Worker N ──┘
+   (fan-out)                          (fan-in)</pre>
+
+  <h3 class="theory">Fan-out / Fan-in (distinct from pool)</h3>
+  <p>Pool = fixed workers, dynamic jobs. <strong>Fan-out</strong> = one input multiplexed to many parallel goroutines. <strong>Fan-in</strong> = many goroutines' outputs merged into one channel.</p>
+
+<pre><code><span class="cm">// Fan-in — merge many channels into one</span>
+<span class="kw">func</span> <span class="fn">merge</span>[T <span class="kw">any</span>](chs ...&lt;-<span class="kw">chan</span> T) &lt;-<span class="kw">chan</span> T {
+    out := <span class="fn">make</span>(<span class="kw">chan</span> T)
+    <span class="kw">var</span> wg sync.<span class="ty">WaitGroup</span>
+    wg.<span class="fn">Add</span>(<span class="fn">len</span>(chs))
+    <span class="kw">for</span> _, c := <span class="kw">range</span> chs {
+        <span class="kw">go</span> <span class="kw">func</span>(c &lt;-<span class="kw">chan</span> T) {
+            <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+            <span class="kw">for</span> v := <span class="kw">range</span> c { out &lt;- v }
+        }(c)
+    }
+    <span class="kw">go</span> <span class="kw">func</span>() { wg.<span class="fn">Wait</span>(); <span class="fn">close</span>(out) }()
+    <span class="kw">return</span> out
+}
+</code></pre>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li>Worker pool: scraping, image processing, bulk DB ops, calling external APIs in parallel.</li>
+    <li>Fan-out: parallelize independent tasks. Fan-in: collect their results.</li>
+    <li>Pick worker count based on bottleneck: I/O-bound → many workers (50-500). CPU-bound → ~<code>runtime.NumCPU()</code>.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Forgetting to close jobCh = workers block forever.</b> The feeder MUST close jobCh after sending all jobs.
+  </div>
+  <div class="box danger">
+    <b>2. Result channel buffer.</b> If workers can produce faster than collector consumes, an unbuffered resCh causes workers to block. Buffer = number of jobs (if memory allows) or use the pattern shown.
+  </div>
+  <div class="box warn">
+    <b>3. Errors get lost.</b> Workers must communicate errors. <code>errgroup</code> (next section) is built for this.
+  </div>
+  <div class="box warn">
+    <b>4. Order is not preserved.</b> First in, last out — totally possible. If order matters, send <code>(idx, result)</code> tuples and reorder at the end.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you bound concurrency without a worker pool?</p>
+    <p class="a">A semaphore — buffered channel of size N: <code>sem := make(chan struct{}, N)</code>. Each goroutine does <code>sem &lt;- struct{}{}</code> before work and <code>&lt;-sem</code> when done. Simple alternative.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How do you handle a worker pool where work itself spawns more work (recursive)?</p>
+    <p class="a">Tricky — naive approach deadlocks (workers block on full job queue). Solutions: unbounded job queue (slice + mutex), separate "scheduler" goroutine, or <code>golang.org/x/sync/semaphore</code> with weighted limits.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 5. ERRGROUP -->
+<!-- ============================================================ -->
+<section class="note" id="errgroup">
+  <h2><span class="num">05</span> errgroup &amp; Advanced Patterns</h2>
+  <p class="tagline">The 80% solution to "run N things, fail fast, propagate first error". Use it daily.</p>
+
+  <h3 class="why">Why errgroup?</h3>
+  <p>WaitGroup doesn't track errors. Channels work but boilerplate-heavy. <code>golang.org/x/sync/errgroup</code> wraps both with cancellation: when one task errors, the shared context is canceled and others can stop.</p>
+
+  <h3 class="code">Basic usage</h3>
+<pre><code><span class="kw">import</span> <span class="str">"golang.org/x/sync/errgroup"</span>
+
+<span class="kw">func</span> <span class="fn">fetchAll</span>(ctx context.<span class="ty">Context</span>, urls []<span class="ty">string</span>) ([][]<span class="ty">byte</span>, <span class="ty">error</span>) {
+    g, ctx := errgroup.<span class="fn">WithContext</span>(ctx)
+    results := <span class="fn">make</span>([][]<span class="ty">byte</span>, <span class="fn">len</span>(urls))
+
+    <span class="kw">for</span> i, u := <span class="kw">range</span> urls {
+        i, u := i, u   <span class="cm">// pre-Go-1.22 capture (auto in 1.22+)</span>
+        g.<span class="fn">Go</span>(<span class="kw">func</span>() <span class="ty">error</span> {
+            req, _ := http.<span class="fn">NewRequestWithContext</span>(ctx, <span class="str">"GET"</span>, u, <span class="kw">nil</span>)
+            res, err := http.<span class="ty">DefaultClient</span>.<span class="fn">Do</span>(req)
+            <span class="kw">if</span> err != <span class="kw">nil</span> { <span class="kw">return</span> err }
+            <span class="kw">defer</span> res.Body.<span class="fn">Close</span>()
+            b, err := io.<span class="fn">ReadAll</span>(res.Body)
+            <span class="kw">if</span> err != <span class="kw">nil</span> { <span class="kw">return</span> err }
+            results[i] = b
+            <span class="kw">return</span> <span class="kw">nil</span>
+        })
+    }
+    <span class="kw">if</span> err := g.<span class="fn">Wait</span>(); err != <span class="kw">nil</span> {
+        <span class="kw">return</span> <span class="kw">nil</span>, err
+    }
+    <span class="kw">return</span> results, <span class="kw">nil</span>
+}
+</code></pre>
+
+  <h3 class="theory">Bounded errgroup (Go 1.20+ in x/sync)</h3>
+<pre><code>g, ctx := errgroup.<span class="fn">WithContext</span>(ctx)
+g.<span class="fn">SetLimit</span>(<span class="num">10</span>)         <span class="cm">// at most 10 concurrent goroutines</span>
+<span class="kw">for</span> _, u := <span class="kw">range</span> urls {
+    g.<span class="fn">Go</span>(<span class="kw">func</span>() <span class="ty">error</span> { ... })
+}
+g.<span class="fn">Wait</span>()
+</code></pre>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li>Anytime you'd combine WaitGroup + error channel + context cancel.</li>
+    <li>Service composition — call 5 backends in parallel, fail fast.</li>
+    <li>Bulk operations with size limit.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. <code>g.Wait()</code> returns the FIRST error.</b> Subsequent errors are lost. If you need all errors, collect them yourself in a slice + mutex.
+  </div>
+  <div class="box warn">
+    <b>2. <code>ctx</code> from <code>WithContext</code> is canceled on first error</b> — use it inside goroutines so they exit.
+  </div>
+  <div class="box warn">
+    <b>3. Don't share <code>results</code> via a single index from the loop variable</b> (pre-Go-1.22 issue) — capture <code>i</code> properly.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: errgroup vs sync.WaitGroup?</p>
+    <p class="a">errgroup adds error propagation + context cancellation. WaitGroup is just a counter. For 99% of "run N things" cases, errgroup is the right call.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 6. RACE / MEMORY MODEL -->
+<!-- ============================================================ -->
+<section class="note" id="race">
+  <h2><span class="num">06</span> Race Detector &amp; Go Memory Model</h2>
+  <p class="tagline">Concurrency bugs are the worst: nondeterministic, often invisible until production. Tools save you.</p>
+
+  <h3 class="why">Why a memory model?</h3>
+  <p>Without rules, the compiler/CPU can reorder reads and writes for performance. The Go memory model defines which orderings are guaranteed across goroutines (the "happens-before" relation).</p>
+  <p>Practical takeaway: <strong>any concurrent read+write of the same variable without synchronization is a DATA RACE</strong> — undefined behavior. The compiler is allowed to assume races don't happen, so a race can corrupt arbitrary memory.</p>
+
+  <h3 class="theory">What synchronizes?</h3>
+  <ul>
+    <li>Channel operations: send happens-before corresponding receive completes.</li>
+    <li>Closing a channel happens-before receivers see closed.</li>
+    <li><code>sync.Mutex</code> Lock/Unlock: nth Unlock happens-before (n+1)th Lock.</li>
+    <li><code>sync.Once.Do</code>: <code>f()</code> completes before any other Do returns.</li>
+    <li><code>atomic</code> operations.</li>
+  </ul>
+  <p>If you read &amp; write a variable in different goroutines without one of these, → race.</p>
+
+  <h3 class="code">Race detector</h3>
+<pre><code>go run -race ./...
+go test -race ./...
+go build -race main.go
+</code></pre>
+  <p>It instruments memory accesses. ~5-10x slowdown — only run in CI/dev, not in production binary.</p>
+
+  <h3 class="code">A classic race</h3>
+<pre><code><span class="kw">var</span> counter <span class="ty">int</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">1000</span>; i++ {
+    <span class="kw">go</span> <span class="kw">func</span>() { counter++ }()
+}
+<span class="cm">// Final counter is NOT 1000. counter++ is read-modify-write.</span>
+<span class="cm">// Fix: sync.Mutex or atomic.AddInt64.</span>
+</code></pre>
+
+  <h3 class="when">Always use <code>-race</code> in CI</h3>
+  <p>One CI job that runs <code>go test -race ./...</code> catches an enormous class of bugs you'd otherwise hit in production at 3am.</p>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. The race detector finds RACES YOU EXECUTE.</b> If a code path isn't exercised, races there go undetected. Pair with good test coverage.
+  </div>
+  <div class="box warn">
+    <b>2. "It works on my machine" but races still exist.</b> CPUs have different memory ordering — Intel is more forgiving than ARM. Buggy code can pass on x86 and break on M1/AWS Graviton.
+  </div>
+  <div class="box warn">
+    <b>3. <code>-race</code> false negatives are rare; false positives essentially don't exist.</b> If it says race, fix it.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Are reads of an <code>int</code> atomic?</p>
+    <p class="a">No guarantee. The Go memory model treats unaligned/unsynced word reads as racy. Use <code>atomic</code> or a mutex.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Does <code>append</code> need a lock if multiple goroutines append to the same slice?</p>
+    <p class="a">Yes. Slice header writes are not atomic, and the underlying array can be reallocated mid-append. Lock or use channels to funnel appends through one goroutine.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 7. ATOMIC / POOL -->
+<!-- ============================================================ -->
+<section class="note" id="atomic">
+  <h2><span class="num">07</span> sync/atomic &amp; sync.Pool</h2>
+  <p class="tagline">Lock-free primitives + object pooling. The "performance toolbox".</p>
+
+  <h3 class="why">Why atomic?</h3>
+  <p>For simple operations (counter, flag, pointer swap) on a single word, atomic CPU instructions are 5-100x faster than a Mutex. The downside: only works for one variable at a time, not multi-step invariants.</p>
+
+  <h3 class="theory">atomic basics (Go 1.19+ types are nicer)</h3>
+<pre><code><span class="kw">var</span> count atomic.<span class="ty">Int64</span>
+count.<span class="fn">Add</span>(<span class="num">1</span>)
+v := count.<span class="fn">Load</span>()
+count.<span class="fn">Store</span>(<span class="num">100</span>)
+swapped := count.<span class="fn">CompareAndSwap</span>(old, new)
+
+<span class="cm">// atomic.Pointer for lock-free reference swap (e.g., config hot-reload)</span>
+<span class="kw">var</span> cfg atomic.<span class="ty">Pointer</span>[Config]
+cfg.<span class="fn">Store</span>(newCfg)
+c := cfg.<span class="fn">Load</span>()
+</code></pre>
+
+  <h3 class="theory">sync.Pool — recycle objects</h3>
+  <p>The GC handles allocation, but for hot paths (e.g., per-request buffers in an HTTP server), allocating + GC'ing thousands per second adds up. <code>sync.Pool</code> lets you reuse objects.</p>
+
+<pre><code><span class="kw">var</span> bufPool = sync.<span class="ty">Pool</span>{
+    New: <span class="kw">func</span>() <span class="kw">any</span> { <span class="kw">return</span> <span class="fn">make</span>([]<span class="ty">byte</span>, <span class="num">1024</span>) },
+}
+
+<span class="kw">func</span> <span class="fn">handle</span>(req <span class="ty">string</span>) {
+    buf := bufPool.<span class="fn">Get</span>().([]<span class="ty">byte</span>)
+    <span class="kw">defer</span> <span class="kw">func</span>() {
+        buf = buf[:<span class="num">0</span>]            <span class="cm">// reset for reuse</span>
+        bufPool.<span class="fn">Put</span>(buf)
+    }()
+    <span class="cm">// use buf...</span>
+}
+</code></pre>
+
+  <h3 class="when">When to use?</h3>
+  <ul>
+    <li><strong>atomic</strong> — simple counters, hot-reload pointers, lock-free flags. Don't try to build complex data structures with it (you'll fail).</li>
+    <li><strong>sync.Pool</strong> — objects that are expensive to allocate AND short-lived AND used in high-frequency code paths (e.g., HTTP request buffers, JSON decoders). Used internally by <code>fmt</code>, <code>encoding/json</code>, etc.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. atomic for invariants over MULTIPLE variables = wrong.</b> "If x &gt; 0 then y must be &gt; 0" — atomic can't enforce that. Use a Mutex.
+  </div>
+  <div class="box danger">
+    <b>2. sync.Pool objects can be GC'd at any time.</b> It's a CACHE, not a guaranteed pool. Don't store anything you can't recreate.
+  </div>
+  <div class="box warn">
+    <b>3. ALWAYS reset pooled objects.</b> Get + use without zeroing → leaked data from previous use. <code>buf = buf[:0]</code> for slices.
+  </div>
+  <div class="box warn">
+    <b>4. Don't use sync.Pool for cheap-to-create objects.</b> Overhead of Get/Put can be more than allocation. Benchmark.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Mutex vs atomic — which is faster?</p>
+    <p class="a">Atomic, by 5-100x for single-variable ops. But mutex is more flexible (multi-step transactions). Profile before choosing.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: When does sync.Pool actually help?</p>
+    <p class="a">High-throughput servers where allocations dominate the profile (visible in <code>pprof</code>). Adding Pool can drop GC pressure significantly. For low traffic, it's overhead.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 8. PIPELINE -->
+<!-- ============================================================ -->
+<section class="note" id="pipeline">
+  <h2><span class="num">08</span> Pipeline Pattern &amp; Cancellation</h2>
+  <p class="tagline">Compose stages of channels for streaming data processing. Foundation of Go's concurrency style.</p>
+
+  <h3 class="why">Why pipelines?</h3>
+  <p>Many backend tasks are: read data → transform → filter → write. Each stage can run in parallel with the others, with backpressure naturally handled by channel capacity. Like Unix pipes but inside one process.</p>
+
+  <h3 class="theory">A pipeline = stages connected by channels</h3>
+  <pre class="diagram">  source ──▶ stage1 ──▶ stage2 ──▶ sink
+   (gen)     (filter)   (transform)  (consume)
+   chan       chan       chan</pre>
+
+  <h3 class="code">Concrete example</h3>
+<pre><code><span class="cm">// Stage 1: produce numbers</span>
+<span class="kw">func</span> <span class="fn">gen</span>(ctx context.<span class="ty">Context</span>, nums ...<span class="ty">int</span>) &lt;-<span class="kw">chan</span> <span class="ty">int</span> {
+    out := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        <span class="kw">defer</span> <span class="fn">close</span>(out)
+        <span class="kw">for</span> _, n := <span class="kw">range</span> nums {
+            <span class="kw">select</span> {
+            <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>(): <span class="kw">return</span>
+            <span class="kw">case</span> out &lt;- n:
+            }
+        }
+    }()
+    <span class="kw">return</span> out
+}
+
+<span class="cm">// Stage 2: square</span>
+<span class="kw">func</span> <span class="fn">square</span>(ctx context.<span class="ty">Context</span>, in &lt;-<span class="kw">chan</span> <span class="ty">int</span>) &lt;-<span class="kw">chan</span> <span class="ty">int</span> {
+    out := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        <span class="kw">defer</span> <span class="fn">close</span>(out)
+        <span class="kw">for</span> n := <span class="kw">range</span> in {
+            <span class="kw">select</span> {
+            <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>(): <span class="kw">return</span>
+            <span class="kw">case</span> out &lt;- n * n:
+            }
+        }
+    }()
+    <span class="kw">return</span> out
+}
+
+<span class="cm">// Compose</span>
+ctx, cancel := context.<span class="fn">WithCancel</span>(context.<span class="fn">Background</span>())
+<span class="kw">defer</span> <span class="fn">cancel</span>()
+<span class="kw">for</span> v := <span class="kw">range</span> <span class="fn">square</span>(ctx, <span class="fn">gen</span>(ctx, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>)) {
+    <span class="fn">fmt</span>.<span class="fn">Println</span>(v)        <span class="cm">// 1 4 9 16</span>
+}
+</code></pre>
+
+  <h3 class="theory">The cancellation contract</h3>
+  <p>Each stage:</p>
+  <ol>
+    <li>Closes its output channel when input closes (use <code>defer close(out)</code>).</li>
+    <li>Selects on <code>ctx.Done()</code> for every send AND the input range (range cooperates because input close propagates).</li>
+    <li>Returns when context is canceled — prevents goroutine leaks if downstream stops consuming.</li>
+  </ol>
+
+  <h3 class="when">When to use?</h3>
+  <ul>
+    <li>Stream processing — log enrichment, ETL, video frame processing.</li>
+    <li>Multi-step backend transformations: parse → validate → enrich → save.</li>
+    <li>When you want backpressure for free (channel capacity = buffer size).</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. If the consumer stops, all upstream stages leak</b> unless they listen to <code>ctx.Done()</code>. Always wire context through.
+  </div>
+  <div class="box warn">
+    <b>2. Buffered stage channels mask backpressure.</b> Useful for smoothing bursty stages, but avoid huge buffers — they hide bottlenecks and use memory.
+  </div>
+  <div class="box warn">
+    <b>3. Don't share state between stages.</b> Each stage should be a pure-ish function: in-channel → out-channel. State = synchronization headaches.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you stop a pipeline early (e.g., consumer found what it wanted)?</p>
+    <p class="a">Cancel the context. Every stage selects on <code>ctx.Done()</code>, drains, and exits. Upstream's defer close(out) cascades.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 9. GOROUTINE LEAKS -->
+<!-- ============================================================ -->
+<section class="note" id="leaks">
+  <h2><span class="num">09</span> Goroutine Leaks — the #1 production concurrency bug</h2>
+  <p class="tagline">A goroutine that never exits = memory leak, file-descriptor leak, eventually a crash. Top interview/incident topic.</p>
+
+  <h3 class="why">Why this section?</h3>
+  <p>Most Go production incidents involving slow leaks trace to goroutines waiting forever on a channel/lock that won't be released. You should know the patterns by heart.</p>
+
+  <h3 class="theory">The 5 most common leak patterns</h3>
+
+  <div class="box danger">
+    <b>1. Send on a channel with no receiver.</b>
+<pre><code>ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+<span class="kw">go</span> <span class="kw">func</span>() { ch &lt;- <span class="fn">work</span>() }()   <span class="cm">// blocks forever if main returns</span>
+<span class="cm">// Fix: buffered channel OR add select with ctx.Done()</span></code></pre>
+  </div>
+
+  <div class="box danger">
+    <b>2. Receive from a channel that's never closed AND never sent to.</b>
+<pre><code><span class="kw">go</span> <span class="kw">func</span>() {
+    <span class="kw">for</span> v := <span class="kw">range</span> ch {  <span class="cm">// blocks forever if no one closes ch</span>
+        <span class="fn">use</span>(v)
+    }
+}()</code></pre>
+  </div>
+
+  <div class="box danger">
+    <b>3. Forgetting <code>defer cancel()</code> on context.</b> The internal goroutine that fires the timer leaks until process exit.
+  </div>
+
+  <div class="box danger">
+    <b>4. HTTP body not closed.</b>
+<pre><code>res, _ := http.<span class="fn">Get</span>(url)
+<span class="cm">// forgot defer res.Body.Close() — connection leaks, response goroutine waits</span></code></pre>
+  </div>
+
+  <div class="box danger">
+    <b>5. Ignoring context in long loops.</b>
+<pre><code><span class="kw">for</span> {
+    <span class="fn">doWork</span>()    <span class="cm">// no ctx check — this goroutine never exits</span>
+}
+<span class="cm">// Fix:</span>
+<span class="kw">for</span> {
+    <span class="kw">select</span> {
+    <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>(): <span class="kw">return</span>
+    <span class="kw">default</span>:
+        <span class="fn">doWork</span>()
+    }
+}</code></pre>
+  </div>
+
+  <h3 class="code">Detecting leaks</h3>
+<pre><code><span class="cm">// In tests — uber-go/goleak</span>
+<span class="kw">import</span> <span class="str">"go.uber.org/goleak"</span>
+<span class="kw">func</span> <span class="fn">TestMain</span>(m *testing.<span class="ty">M</span>) {
+    goleak.<span class="fn">VerifyTestMain</span>(m)
+}
+
+<span class="cm">// In production — pprof</span>
+<span class="kw">import</span> _ <span class="str">"net/http/pprof"</span>
+<span class="kw">go</span> http.<span class="fn">ListenAndServe</span>(<span class="str">":6060"</span>, <span class="kw">nil</span>)
+<span class="cm">// curl localhost:6060/debug/pprof/goroutine?debug=2 → see all goroutine stacks</span>
+</code></pre>
+  <p>If <code>runtime.NumGoroutine()</code> climbs steadily under steady load, you have a leak. <code>pprof goroutine</code> shows where.</p>
+
+  <div class="box tip">
+    <b>Reading <code>pprof goroutine?debug=2</code> output:</b> Each goroutine block looks like:
+<pre><code>goroutine <span class="num">42</span> [chan receive, <span class="num">17</span> minutes]:
+main.<span class="fn">worker</span>(...)
+        /app/main.go:<span class="num">88</span>
+created by main.<span class="fn">handle</span>
+        /app/main.go:<span class="num">120</span></code></pre>
+    Key fields:
+    <ul>
+      <li><b>State</b> in brackets: <code>chan receive</code> (waiting on channel), <code>chan send</code>, <code>select</code>, <code>IO wait</code>, <code>semacquire</code> (mutex), <code>runnable</code>.</li>
+      <li><b>Duration</b>: minutes/hours = leak suspect.</li>
+      <li><b>Top frame</b>: where it's stuck.</li>
+      <li><b>"created by"</b>: where it was spawned (your bug origin).</li>
+    </ul>
+    Group by stack trace — 1000 goroutines stuck at the same line = found it.
+  </div>
+
+  <h3 class="when">Always-do checklist for any goroutine you spawn</h3>
+  <ol>
+    <li>What ends this goroutine? (close of channel, context cancel, return condition)</li>
+    <li>Does every blocking operation have a <code>ctx.Done()</code> escape?</li>
+    <li>Is there a single owner who'll close the channels it sends on?</li>
+    <li>If using <code>defer cancel()</code>, is it called on every path?</li>
+  </ol>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you detect goroutine leaks in CI?</p>
+    <p class="a"><code>uber-go/goleak</code> in <code>TestMain</code> snapshots goroutines at start, compares at end, fails the test if extras remain.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Production memory grows over time but no obvious heap leak. What's likely?</p>
+    <p class="a">Goroutine leak. Each goroutine has a stack (~2KB to 8KB+). 100K leaked goroutines = ~1 GB. Check <code>runtime.NumGoroutine</code> and pprof goroutine profile.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Can you have too many goroutines?</p>
+    <p class="a">Yes. Goroutines are cheap, not free. Beyond a few hundred thousand, scheduler overhead and stack memory hurt. Bound concurrency with worker pools or semaphores.</p>
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ============================================================ -->
+<!-- 10. GRACEFUL SHUTDOWN -->
+<!-- ============================================================ -->
+<section class="note" id="shutdown">
+  <h2><span class="num">10</span> Graceful Shutdown — production-critical pattern</h2>
+  <p class="tagline">Every Go service needs this. Without it, in-flight requests are killed mid-flight on deploy/restart.</p>
+
+  <h3 class="why">Why this matters?</h3>
+  <p>Kubernetes sends <code>SIGTERM</code> when scaling down or rolling out. Default Go behavior on signal: process exits immediately, killing all goroutines. That means: half-written DB rows, dropped HTTP responses, lost in-flight messages from queues.</p>
+  <p>Graceful shutdown means:</p>
+  <ol>
+    <li>Stop accepting NEW work (close listener / unsubscribe consumer).</li>
+    <li>Let IN-FLIGHT work finish (with a timeout).</li>
+    <li>Close resources cleanly (DB, files, message broker).</li>
+    <li>Exit with code 0.</li>
+  </ol>
+
+  <h3 class="theory">The standard pattern</h3>
+<pre><code><span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="str">"context"</span>
+    <span class="str">"errors"</span>
+    <span class="str">"log/slog"</span>
+    <span class="str">"net/http"</span>
+    <span class="str">"os"</span>
+    <span class="str">"os/signal"</span>
+    <span class="str">"sync"</span>
+    <span class="str">"syscall"</span>
+    <span class="str">"time"</span>
+)
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="cm">// 1. Root context wired to OS signals</span>
+    ctx, stop := signal.<span class="fn">NotifyContext</span>(context.<span class="fn">Background</span>(),
+        syscall.<span class="ty">SIGINT</span>, syscall.<span class="ty">SIGTERM</span>)
+    <span class="kw">defer</span> <span class="fn">stop</span>()
+    <span class="cm">// ↑ ctx is canceled on Ctrl-C or kubelet's SIGTERM</span>
+
+    srv := &amp;http.<span class="ty">Server</span>{
+        Addr:    <span class="str">":8080"</span>,
+        Handler: <span class="fn">routes</span>(),
+    }
+
+    <span class="cm">// 2. Run server in a goroutine so main can wait on signals</span>
+    <span class="kw">var</span> wg sync.<span class="ty">WaitGroup</span>
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+        slog.<span class="fn">Info</span>(<span class="str">"server starting"</span>, <span class="str">"addr"</span>, srv.Addr)
+        <span class="kw">if</span> err := srv.<span class="fn">ListenAndServe</span>(); err != <span class="kw">nil</span> &amp;&amp; !errors.<span class="fn">Is</span>(err, http.<span class="ty">ErrServerClosed</span>) {
+            slog.<span class="fn">Error</span>(<span class="str">"server crashed"</span>, <span class="str">"err"</span>, err)
+            os.<span class="fn">Exit</span>(<span class="num">1</span>)
+        }
+    }()
+
+    <span class="cm">// 3. Block until signal</span>
+    &lt;-ctx.<span class="fn">Done</span>()
+    slog.<span class="fn">Info</span>(<span class="str">"shutdown signal received"</span>)
+
+    <span class="cm">// 4. Give in-flight requests up to 30s to finish</span>
+    shutdownCtx, cancel := context.<span class="fn">WithTimeout</span>(context.<span class="fn">Background</span>(), <span class="num">30</span>*time.<span class="ty">Second</span>)
+    <span class="kw">defer</span> <span class="fn">cancel</span>()
+
+    <span class="kw">if</span> err := srv.<span class="fn">Shutdown</span>(shutdownCtx); err != <span class="kw">nil</span> {
+        slog.<span class="fn">Error</span>(<span class="str">"forced shutdown"</span>, <span class="str">"err"</span>, err)
+    }
+
+    <span class="cm">// 5. Wait for any background goroutines (workers, etc.)</span>
+    wg.<span class="fn">Wait</span>()
+
+    <span class="cm">// 6. Close downstream resources</span>
+    <span class="cm">// db.Close(), redis.Close(), kafka.Close(), tracer.Shutdown(), etc.</span>
+
+    slog.<span class="fn">Info</span>(<span class="str">"clean exit"</span>)
+}
+</code></pre>
+
+  <pre class="diagram">  SIGTERM ──▶ ctx canceled ──▶ srv.Shutdown(ctx, 30s)
+                                  │
+                                  ├─ stop accepting new conns
+                                  ├─ wait for in-flight handlers
+                                  └─ close idle connections
+                                  
+   Background workers also see ctx.Done() and exit ──▶ wg.Wait() returns
+                                  │
+                                  └──▶ close DB/Kafka/etc ──▶ os.Exit(0)</pre>
+
+  <h3 class="code">Worker shutdown — how the workers cooperate</h3>
+<pre><code><span class="kw">func</span> <span class="fn">runWorker</span>(ctx context.<span class="ty">Context</span>, jobs &lt;-<span class="kw">chan</span> Job) {
+    <span class="kw">for</span> {
+        <span class="kw">select</span> {
+        <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>():
+            slog.<span class="fn">Info</span>(<span class="str">"worker draining"</span>)
+            <span class="cm">// Optionally: drain remaining jobs in `jobs` if buffered</span>
+            <span class="kw">return</span>
+        <span class="kw">case</span> j, ok := &lt;-jobs:
+            <span class="kw">if</span> !ok { <span class="kw">return</span> }
+            <span class="fn">process</span>(ctx, j)
+        }
+    }
+}
+</code></pre>
+
+  <h3 class="when">Common deployment scenarios</h3>
+  <table>
+    <thead><tr><th>Platform</th><th>Signal</th><th>Default grace period</th></tr></thead>
+    <tbody>
+      <tr><td>Kubernetes</td><td>SIGTERM</td><td>30s (configurable via <code>terminationGracePeriodSeconds</code>)</td></tr>
+      <tr><td>Docker (<code>docker stop</code>)</td><td>SIGTERM</td><td>10s before SIGKILL</td></tr>
+      <tr><td>systemd</td><td>SIGTERM</td><td>90s default</td></tr>
+      <tr><td>AWS ECS</td><td>SIGTERM</td><td>30s default (configurable)</td></tr>
+    </tbody>
+  </table>
+  <div class="box tip">Match your shutdown timeout to the orchestrator's grace period. Too short = aborts. Too long = orchestrator SIGKILLs you anyway.</div>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Don't ignore <code>http.ErrServerClosed</code>.</b> A clean <code>Shutdown</code> returns that error from <code>ListenAndServe</code> — it's NORMAL, not a failure. Use <code>errors.Is(err, http.ErrServerClosed)</code> to skip it.
+  </div>
+  <div class="box danger">
+    <b>2. <code>signal.Notify</code> needs buffered channel.</b> If you build the handler manually (instead of <code>NotifyContext</code>), use a buffered <code>chan os.Signal</code> of size 1 — otherwise the signal can be missed.
+  </div>
+  <div class="box warn">
+    <b>3. Closing the DB BEFORE workers finish</b> causes their final queries to fail. Order: stop input → wait for in-flight → close downstream. Reverse the startup order.
+  </div>
+  <div class="box warn">
+    <b>4. Long-running requests vs grace period.</b> If a request takes 5 minutes and your grace is 30s, it WILL be killed. Either shorten the request, increase grace, or stream progress so client can resume.
+  </div>
+  <div class="box warn">
+    <b>5. Health-check endpoints during shutdown.</b> Once shutdown begins, your <code>/healthz</code> readiness probe should fail (return 503) so the load balancer stops sending NEW traffic. <code>livenessProbe</code> stays OK so K8s doesn't double-kill you.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you handle a deploy with zero downtime?</p>
+    <p class="a">Combination: (1) graceful shutdown so existing requests finish. (2) Readiness probe flips to "not ready" before SIGTERM (in K8s, the <code>preStop</code> hook can sleep a few seconds). (3) Multiple replicas behind a load balancer so traffic shifts to healthy pods. (4) Database connection draining.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: What's <code>signal.NotifyContext</code> vs <code>signal.Notify</code>?</p>
+    <p class="a"><code>NotifyContext</code> (Go 1.16+) gives you a context that's canceled on signal — fits idiomatically with the rest of context-based code. <code>Notify</code> is the lower-level channel API; use only if you need custom signal handling logic.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Why don't you call <code>os.Exit()</code> in graceful shutdown?</p>
+    <p class="a"><code>os.Exit</code> bypasses deferred functions — your DB connections, Kafka producers, tracers won't flush. Just <code>return</code> from main and let the runtime exit cleanly. Only use <code>os.Exit(1)</code> for unrecoverable errors during STARTUP, before deferred cleanups are needed.</p>
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+</div>
+
+<footer class="page">
+  Phase 3 done. You now have the foundation of a senior Go backend engineer.<br/>
+  <small>Next: practical work in Phases 4-12 (HTTP, DB, microservices, K8s, system design). Notes for those will follow as you reach each phase.</small><br/>
+  <a href="../go-roadmap.html">← Back to Roadmap</a>
+</footer>
+
+<details class="floating-toc">
+  <summary title="Table of Contents" aria-label="Table of Contents"></summary>
+  <div class="ft-panel">
+    <h4>Phase 3 — Concurrency</h4>
+    <ol>
+      <li><a href="#goroutines">Goroutines &amp; Scheduler</a></li>
+      <li><a href="#channels">Channels &amp; Select</a></li>
+      <li><a href="#sync">sync Package</a></li>
+      <li><a href="#patterns">Worker Pool / Fan-Out</a></li>
+      <li><a href="#errgroup">errgroup</a></li>
+      <li><a href="#race">Race Detector</a></li>
+      <li><a href="#atomic">sync/atomic &amp; sync.Pool</a></li>
+      <li><a href="#pipeline">Pipeline &amp; Cancellation</a></li>
+      <li><a href="#leaks">Goroutine Leaks</a></li>
+      <li><a href="#shutdown">Graceful Shutdown</a></li>
+    </ol>
+    <div class="ft-extra">
+      <a href="phase1.html">← Phase 1</a>
+      <a href="phase2.html">← Phase 2</a>
+      <a href="../go-roadmap.html">← Roadmap</a>
+    </div>
+  </div>
+</details>
+
+</body>
+</html>
