@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accessibility (a11y) — Frontend SDE2/SDE3 Interview Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #f7f9fc;
+      --panel-2: #f1f4fa;
+      --ink: #1a2233;
+      --muted: #5a6678;
+      --line: #e2e7f0;
+      --accent: #0f9d7a;
+      --accent-2: #2a5bd7;
+      --warn: #b26b00;
+      --danger: #c23046;
+      --critical: #7a1d2c;
+      --ok: #1a8f4d;
+      --code-bg: #f5f7fb;
+      --chip: #eef1f8;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .layout { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; }
+    aside {
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+      background: #f7f9fc; border-right: 1px solid var(--line);
+      padding: 22px 18px;
+    }
+    aside h2 {
+      font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin: 18px 0 8px;
+    }
+    aside a {
+      display: block; padding: 6px 10px; border-radius: 8px;
+      color: #33425c; text-decoration: none; font-size: 13.5px;
+    }
+    aside a:hover, aside a:focus-visible { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; }
+    strong { color: #0f2a4a; }
+
+    code {
+      font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace;
+      background: #f1f4fa; padding: 2px 6px; border-radius: 5px;
+      font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0;
+    }
+    pre {
+      background: var(--code-bg); border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px; padding: 14px 16px; overflow-x: auto;
+      font-size: 13px; line-height: 1.55;
+    }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+
+    .chip {
+      display: inline-block; font-size: 11px; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px;
+      margin-left: 8px; vertical-align: middle;
+    }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); }
+    .chip.intermediate { background: #fdf1dc; color: var(--warn); }
+    .chip.advanced { background: #fbe1e5; color: var(--danger); }
+    .chip.critical { background: #f3d3d9; color: var(--critical); }
+
+    .callout {
+      border-radius: 10px; padding: 12px 16px; margin: 14px 0;
+      border: 1px solid var(--line); background: var(--panel);
+    }
+    .callout.gotcha   { border-left: 4px solid var(--danger); background: #fdf1f3; }
+    .callout.tip      { border-left: 4px solid var(--accent); background: #e8f7f1; }
+    .callout.warn     { border-left: 4px solid var(--warn); background: #fdf5e8; }
+    .callout.qa       { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout.critical { border-left: 4px solid var(--critical); background: #f5dee2; }
+    .callout .tag {
+      font-weight: 700; font-size: 12px; letter-spacing: 0.08em;
+      text-transform: uppercase; display: block; margin-bottom: 4px;
+    }
+    .callout.gotcha .tag   { color: var(--danger); }
+    .callout.tip .tag      { color: var(--accent); }
+    .callout.warn .tag     { color: var(--warn); }
+    .callout.qa .tag       { color: var(--accent-2); }
+    .callout.critical .tag { color: var(--critical); }
+
+    table {
+      width: 100%; border-collapse: collapse; margin: 14px 0 20px;
+      background: var(--panel-2); border-radius: 10px; overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line); padding: 10px 12px;
+      text-align: left; font-size: 14px; vertical-align: top;
+    }
+    th {
+      background: #eef1f8; color: #0f2a4a; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px;
+    }
+    tr:last-child td { border-bottom: 0; }
+
+    .qa-block {
+      margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line);
+      border-radius: 10px; background: var(--panel);
+    }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; }
+    .qa-block .a { color: #2c3648; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      main { padding: 24px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .lead { color: var(--muted); font-size: 16px; margin-bottom: 20px; }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+    a.anchor-link { color: var(--accent-2); text-decoration: none; }
+    a.anchor-link:hover { text-decoration: underline; }
+    kbd {
+      background: #eef1f8; border: 1px solid var(--line); border-bottom-width: 2px;
+      border-radius: 4px; padding: 1px 5px; font-family: monospace; font-size: 12px;
+    }
+    /* Skip link — practice what we preach */
+    .skip-link {
+      position: absolute; left: -10000px; top: 8px;
+      background: var(--accent-2); color: #fff; padding: 8px 12px;
+      border-radius: 6px; z-index: 999; text-decoration: none;
+    }
+    .skip-link:focus { left: 8px; }
+    :focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; border-radius: 4px; }
+
+    .video-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px; margin: 14px 0 24px;
+    }
+    .video-card {
+      display: flex; flex-direction: column; background: var(--panel);
+      border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+      text-decoration: none; color: inherit;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .video-card:hover, .video-card:focus-visible {
+      transform: translateY(-2px); border-color: var(--accent-2);
+      box-shadow: 0 6px 20px rgba(42, 91, 215, 0.12);
+    }
+    .video-card img { width: 100%; height: auto; display: block; background: #e2e7f0; }
+    .video-meta { padding: 10px 12px 12px; }
+    .video-title { font-weight: 600; font-size: 14px; color: #0f2a4a; line-height: 1.35; margin-bottom: 4px; }
+    .video-channel { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+    .video-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .vtag {
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 2px 7px; border-radius: 999px; background: var(--chip);
+      color: #33425c; font-weight: 600;
+    }
+    .vtag.beginner     { background: #e2f5ea; color: var(--ok); }
+    .vtag.intermediate { background: #fdf1dc; color: var(--warn); }
+    .vtag.advanced     { background: #fbe1e5; color: var(--danger); }
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="layout">
+  <aside aria-label="Table of contents">
+    <div class="brand">Accessibility (a11y)<small>Frontend · 0 → Advanced · SDE2/SDE3</small></div>
+
+    <h2>WCAG Fundamentals</h2>
+    <a href="#intro">1. Why a11y Matters (Business + Legal)</a>
+    <a href="#pour">2. POUR Principles</a>
+    <a href="#wcag">3. WCAG 2.1 / 2.2 — A, AA, AAA</a>
+    <a href="#contrast">4. Color &amp; Contrast</a>
+    <a href="#alt">5. Alternative Text &amp; Images</a>
+
+    <h2>Semantics &amp; ARIA</h2>
+    <a href="#semantic">6. Semantic HTML First</a>
+    <a href="#aria">7. ARIA — Roles, States, Properties</a>
+    <a href="#landmarks">8. Landmarks &amp; Page Structure</a>
+    <a href="#live">9. Live Regions &amp; Announcements</a>
+    <a href="#a11y-tree">10. The Accessibility Tree</a>
+
+    <h2>Keyboard &amp; Focus</h2>
+    <a href="#keyboard">11. Keyboard Navigation Basics</a>
+    <a href="#focus">12. Focus Management</a>
+    <a href="#focus-trap">13. Focus Trapping (Modals)</a>
+    <a href="#roving">14. Roving Tabindex Pattern</a>
+    <a href="#shortcuts">15. Custom Keyboard Shortcuts</a>
+
+    <h2>Forms &amp; Components</h2>
+    <a href="#forms">16. Accessible Forms</a>
+    <a href="#errors">17. Error Handling &amp; Validation</a>
+    <a href="#widgets">18. WAI-ARIA Authoring Patterns</a>
+    <a href="#datagrid">19. Accessible Data Grids</a>
+
+    <h2>Beyond the Basics</h2>
+    <a href="#motion">20. Motion, Animation &amp; <code>prefers-reduced-motion</code></a>
+    <a href="#i18n">21. Internationalization &amp; RTL</a>
+    <a href="#mobile">22. Mobile &amp; Touch a11y</a>
+    <a href="#cognitive">23. Cognitive Accessibility</a>
+
+    <h2>Testing &amp; Audits</h2>
+    <a href="#sr-testing">24. Screen Reader Testing</a>
+    <a href="#auto">25. Automated Testing (axe, Lighthouse)</a>
+    <a href="#manual">26. Manual Testing Checklist</a>
+    <a href="#remediation">27. Remediating 100s of Violations</a>
+
+    <h2>Best Practices &amp; Interview Kit</h2>
+    <a href="#checklist">28. Best Practices Checklist</a>
+    <a href="#qa">29. Top Interview Questions</a>
+    <a href="#scenarios">30. Real-World Scenarios</a>
+    <a href="#rapid">31. Rapid-Fire Gotchas</a>
+    <a href="#videos">32. Video Tutorials</a>
+  </aside>
+
+  <main id="main">
+    <h1>Accessibility — From 0 to Advanced (Frontend Edition)</h1>
+    <p class="lead">
+      A complete, interview-grade accessibility guide for Frontend SDE2/SDE3 roles.
+      Covers WCAG, ARIA, keyboard, focus, screen readers, testing, and the questions interviewers actually ask — with code, gotchas, and patterns from the WAI-ARIA Authoring Practices Guide.
+    </p>
+
+    <!-- =================================================================== -->
+    <section id="intro">
+      <h2>1. Why Accessibility Matters <span class="chip beginner">Beginner</span></h2>
+      <ul>
+        <li><strong>Users:</strong> ~16% of the world (1.3 billion+) lives with a disability. Add temporary (broken arm) and situational (sun glare, noisy room) impairments and you cover almost everyone.</li>
+        <li><strong>Legal:</strong> ADA (US), Section 508, EAA (EU 2025), AODA (Ontario), Equality Act (UK). Lawsuits target inaccessible sites — Domino's, Target, Beyoncé, Netflix have all been sued.</li>
+        <li><strong>Business:</strong> SEO benefits (semantic HTML &amp; alt text), bigger market, lower bounce rates, higher trust.</li>
+        <li><strong>Engineering:</strong> Accessible code is more maintainable; semantic HTML maps better to design systems.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="tag">Senior framing</span>
+        At SDE2/SDE3 level interviewers want to hear "<em>a11y is a quality bar I bake in from day one, not a remediation pass at the end</em>". Talk about lint rules, design tokens for contrast, ESLint plugin <code>jsx-a11y</code>, axe in CI.
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="pour">
+      <h2>2. POUR Principles <span class="chip beginner">Beginner</span></h2>
+      <p>WCAG is built on four principles. Memorise the acronym — it shows up in interviews verbatim.</p>
+      <table>
+        <tr><th>Principle</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><strong>P</strong>erceivable</td><td>Information must be presentable via senses the user has.</td><td>Alt text on images, captions on videos, sufficient contrast.</td></tr>
+        <tr><td><strong>O</strong>perable</td><td>Interface must be usable via the input the user has.</td><td>Keyboard accessible, no time limits, no seizure-inducing flashing.</td></tr>
+        <tr><td><strong>U</strong>nderstandable</td><td>Content &amp; UI must be understandable.</td><td>Predictable navigation, clear errors, consistent labels.</td></tr>
+        <tr><td><strong>R</strong>obust</td><td>Content must work with current and future assistive tech.</td><td>Valid HTML, proper ARIA, no reliance on quirks.</td></tr>
+      </table>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="wcag">
+      <h2>3. WCAG 2.1 / 2.2 — A, AA, AAA <span class="chip beginner">Beginner</span></h2>
+      <ul>
+        <li><strong>Level A:</strong> bare minimum. If you fail this, the site is unusable for some.</li>
+        <li><strong>Level AA:</strong> the legal &amp; industry standard. <em>Always target this.</em></li>
+        <li><strong>Level AAA:</strong> highest. Often impractical for entire sites; aim for it on critical flows.</li>
+      </ul>
+
+      <p>
+        WCAG 2.2 (Oct 2023) adds 9 new criteria: <strong>focus appearance</strong>, <strong>focus not obscured</strong>, <strong>dragging movements</strong> (24 px target), <strong>consistent help</strong>, <strong>redundant entry</strong>, <strong>accessible authentication</strong>, etc. These come up in 2025+ interviews.
+      </p>
+
+      <div class="callout warn">
+        <span class="tag">WCAG 3 (Silver)</span>
+        Still in draft. It will replace pass/fail with a scored model. Don't bring it up unless asked, but mention you're tracking it.
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="contrast">
+      <h2>4. Color &amp; Contrast <span class="chip intermediate">Intermediate</span></h2>
+      <table>
+        <tr><th>Content</th><th>WCAG AA</th><th>WCAG AAA</th></tr>
+        <tr><td>Normal text (&lt; 18pt or &lt; 14pt bold)</td><td><strong>4.5:1</strong></td><td>7:1</td></tr>
+        <tr><td>Large text (≥ 18pt or ≥ 14pt bold)</td><td><strong>3:1</strong></td><td>4.5:1</td></tr>
+        <tr><td>UI components &amp; graphical objects</td><td>3:1</td><td>—</td></tr>
+        <tr><td>Focus indicator (WCAG 2.2)</td><td>3:1 against adjacent colors</td><td>—</td></tr>
+      </table>
+
+      <h4>Don't rely on color alone</h4>
+      <p>Required fields, error states, chart series — always pair color with an icon, pattern, or text label. ~8% of men &amp; ~0.5% of women are colorblind.</p>
+
+      <pre><code>/* Bad — only color */
+.error { color: red; }
+
+/* Good — color + icon + label */
+.error::before { content: "⚠ "; }
+.error[role="alert"] { color: var(--danger); }</code></pre>
+
+      <div class="callout tip">
+        <span class="tag">Tools</span>
+        Chrome DevTools color picker shows AA/AAA inline. Use Stark, Polypane, axe-DevTools, or <code>npm:wcag-contrast</code>. New <strong>APCA</strong> algorithm (likely WCAG 3) accounts for font weight better.
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="alt">
+      <h2>5. Alternative Text &amp; Images <span class="chip beginner">Beginner</span></h2>
+      <ul>
+        <li><strong>Informative image</strong>: describe the meaning, not the appearance. <em>"Quarterly sales chart showing 30% growth"</em> — not <em>"image of a chart"</em>.</li>
+        <li><strong>Decorative image</strong>: <code>alt=""</code> (empty but PRESENT). Screen reader skips it.</li>
+        <li><strong>Functional image</strong> (icon-only button): describe the action. <code>&lt;button aria-label="Close"&gt;&lt;svg ...&gt;&lt;/svg&gt;&lt;/button&gt;</code></li>
+        <li><strong>Complex image</strong>: short alt + long description nearby (or <code>aria-describedby</code>, or a linked transcript).</li>
+        <li><strong>Text in image</strong>: avoid. If unavoidable, repeat the text in alt verbatim.</li>
+      </ul>
+
+      <pre><code>&lt;!-- Decorative --&gt;
+&lt;img src="curl.svg" alt="" role="presentation"&gt;
+
+&lt;!-- Informative --&gt;
+&lt;img src="ceo.jpg" alt="Sundar Pichai speaking at Google I/O 2025"&gt;
+
+&lt;!-- Functional --&gt;
+&lt;a href="/cart" aria-label="View cart, 3 items"&gt;
+  &lt;svg aria-hidden="true"&gt;...&lt;/svg&gt; &lt;span&gt;3&lt;/span&gt;
+&lt;/a&gt;
+
+&lt;!-- SVG inline (preferred) --&gt;
+&lt;svg role="img" aria-labelledby="logoTitle"&gt;
+  &lt;title id="logoTitle"&gt;Acme Corp&lt;/title&gt;
+  &lt;path d="..."/&gt;
+&lt;/svg&gt;</code></pre>
+
+      <div class="callout gotcha">
+        <span class="tag">Gotchas</span>
+        <ul>
+          <li>Missing <code>alt</code> entirely → screen readers read the filename ("IMG_4523.jpg").</li>
+          <li>Don't start alt with "image of" — screen readers already announce "graphic".</li>
+          <li>Background-image SVGs (CSS) are inaccessible — assistive tech can't see them.</li>
+          <li>Captions on charts ≠ alt text. Both serve different audiences.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="semantic">
+      <h2>6. Semantic HTML First <span class="chip beginner">Beginner</span></h2>
+      <p>The most important a11y practice. Native elements come with built-in roles, keyboard support, focus, and AT integration that you'd otherwise rebuild (poorly).</p>
+
+      <table>
+        <tr><th>Don't</th><th>Do</th></tr>
+        <tr><td><code>&lt;div onclick&gt;</code></td><td><code>&lt;button&gt;</code></td></tr>
+        <tr><td><code>&lt;span class="link"&gt;</code></td><td><code>&lt;a href&gt;</code></td></tr>
+        <tr><td><code>&lt;div class="header"&gt;</code></td><td><code>&lt;header&gt;</code></td></tr>
+        <tr><td><code>&lt;div&gt;</code> for lists</td><td><code>&lt;ul&gt;/&lt;ol&gt;/&lt;li&gt;</code></td></tr>
+        <tr><td>Custom dropdown</td><td><code>&lt;select&gt;</code> when possible</td></tr>
+        <tr><td>Custom modal</td><td><code>&lt;dialog&gt;</code> with <code>showModal()</code></td></tr>
+        <tr><td>Custom accordion</td><td><code>&lt;details&gt;/&lt;summary&gt;</code></td></tr>
+      </table>
+
+      <div class="callout critical">
+        <span class="tag">First Rule of ARIA</span>
+        <strong>Don't use ARIA if a native HTML element does the job.</strong> No ARIA is better than bad ARIA. <code>&lt;button&gt;</code> &gt; <code>&lt;div role="button" tabindex="0"&gt;</code>.
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="aria">
+      <h2>7. ARIA — Roles, States, Properties <span class="chip intermediate">Intermediate</span></h2>
+
+      <h3>The 5 Rules of ARIA</h3>
+      <ol>
+        <li>If you can use a native element, use it.</li>
+        <li>Don't change native semantics unless you really must.</li>
+        <li>All interactive ARIA controls must be keyboard accessible.</li>
+        <li>Don't use <code>role="presentation"</code> or <code>aria-hidden="true"</code> on focusable elements.</li>
+        <li>All interactive elements must have an accessible name.</li>
+      </ol>
+
+      <h3>Three categories</h3>
+      <ul>
+        <li><strong>Roles</strong> — what something is: <code>button</code>, <code>dialog</code>, <code>tab</code>, <code>tabpanel</code>, <code>menu</code>, <code>tree</code>, <code>grid</code>, <code>alert</code>, <code>status</code>.</li>
+        <li><strong>States</strong> — current condition: <code>aria-expanded</code>, <code>aria-selected</code>, <code>aria-checked</code>, <code>aria-disabled</code>, <code>aria-busy</code>, <code>aria-pressed</code>.</li>
+        <li><strong>Properties</strong> — relationships &amp; descriptions: <code>aria-label</code>, <code>aria-labelledby</code>, <code>aria-describedby</code>, <code>aria-controls</code>, <code>aria-owns</code>, <code>aria-current</code>.</li>
+      </ul>
+
+      <h4>Accessible name resolution (priority)</h4>
+      <ol>
+        <li><code>aria-labelledby</code> (wins over everything)</li>
+        <li><code>aria-label</code></li>
+        <li>Native label (<code>&lt;label for&gt;</code>, <code>&lt;legend&gt;</code>, <code>&lt;caption&gt;</code>, alt)</li>
+        <li>Inner text content</li>
+        <li><code>title</code> attribute (last resort)</li>
+      </ol>
+
+      <pre><code>&lt;!-- Toggle button with state --&gt;
+&lt;button aria-pressed="false" aria-label="Mute audio"&gt;
+  &lt;svg aria-hidden="true"&gt;...&lt;/svg&gt;
+&lt;/button&gt;
+
+&lt;!-- Disclosure --&gt;
+&lt;button aria-expanded="false" aria-controls="menu1"&gt;Menu&lt;/button&gt;
+&lt;ul id="menu1" hidden&gt; ... &lt;/ul&gt;
+
+&lt;!-- Tabs --&gt;
+&lt;div role="tablist" aria-label="Settings"&gt;
+  &lt;button role="tab" aria-selected="true"  aria-controls="p1" id="t1"&gt;Profile&lt;/button&gt;
+  &lt;button role="tab" aria-selected="false" aria-controls="p2" id="t2" tabindex="-1"&gt;Billing&lt;/button&gt;
+&lt;/div&gt;
+&lt;div role="tabpanel" id="p1" aria-labelledby="t1"&gt;...&lt;/div&gt;
+&lt;div role="tabpanel" id="p2" aria-labelledby="t2" hidden&gt;...&lt;/div&gt;</code></pre>
+
+      <div class="callout gotcha">
+        <span class="tag">Common ARIA mistakes</span>
+        <ul>
+          <li><code>role="button"</code> on an <code>&lt;a href&gt;</code> — confusing for AT. Pick one.</li>
+          <li><code>aria-label</code> on a non-interactive <code>&lt;div&gt;</code> — ignored by most ATs.</li>
+          <li>Forgetting to update <code>aria-expanded</code>/<code>aria-selected</code> after the state changes.</li>
+          <li>Putting <code>aria-hidden="true"</code> on a focusable element creates a "ghost" — visible, focusable, invisible to AT. Either hide visually too or remove from tab order.</li>
+          <li><code>role="presentation"</code> doesn't remove children's roles for <code>&lt;table&gt;</code>/<code>&lt;ul&gt;</code> structures (implicit semantics still apply for required children).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="landmarks">
+      <h2>8. Landmarks &amp; Page Structure <span class="chip intermediate">Intermediate</span></h2>
+      <p>Landmarks let screen-reader users jump between sections like sighted users skim. NVDA's <kbd>D</kbd> and VoiceOver's <kbd>VO</kbd>+<kbd>U</kbd> rotor depend on these.</p>
+
+      <table>
+        <tr><th>Element</th><th>Implicit Role</th></tr>
+        <tr><td><code>&lt;header&gt;</code> (top-level)</td><td>banner</td></tr>
+        <tr><td><code>&lt;nav&gt;</code></td><td>navigation</td></tr>
+        <tr><td><code>&lt;main&gt;</code></td><td>main</td></tr>
+        <tr><td><code>&lt;aside&gt;</code></td><td>complementary</td></tr>
+        <tr><td><code>&lt;footer&gt;</code> (top-level)</td><td>contentinfo</td></tr>
+        <tr><td><code>&lt;form aria-label&gt;</code></td><td>form</td></tr>
+        <tr><td><code>&lt;section aria-label&gt;</code></td><td>region</td></tr>
+        <tr><td><code>role="search"</code></td><td>search</td></tr>
+      </table>
+
+      <h4>Rules</h4>
+      <ul>
+        <li>Exactly one <code>&lt;main&gt;</code>.</li>
+        <li>Multiple <code>&lt;nav&gt;</code>s? Differentiate with <code>aria-label="Primary"</code>, <code>aria-label="Footer"</code>.</li>
+        <li>All content should live inside a landmark.</li>
+        <li>Use <strong>headings</strong> (h1–h6) in logical order — they form a parallel navigation system.</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="live">
+      <h2>9. Live Regions &amp; Announcements <span class="chip advanced">Advanced</span></h2>
+      <p>How you tell screen readers about content that changes asynchronously (toast, search results count, chat message).</p>
+
+      <table>
+        <tr><th>Value</th><th>Behavior</th><th>Use for</th></tr>
+        <tr><td><code>aria-live="polite"</code></td><td>Announce when AT is idle</td><td>Status updates, "5 results found"</td></tr>
+        <tr><td><code>aria-live="assertive"</code></td><td>Interrupt current speech</td><td>Errors, time-critical</td></tr>
+        <tr><td><code>role="status"</code></td><td>Implicit polite</td><td>Loading, progress text</td></tr>
+        <tr><td><code>role="alert"</code></td><td>Implicit assertive</td><td>Form errors, warnings</td></tr>
+        <tr><td><code>role="log"</code></td><td>Polite, append-only history</td><td>Chat, console</td></tr>
+      </table>
+
+      <pre><code>&lt;!-- The container must exist on initial render. --&gt;
+&lt;div role="status" aria-live="polite" id="toast"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function announce(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = '';                  // re-trigger announcement
+  setTimeout(() =&gt; { el.textContent = msg; }, 50);
+}
+announce('Profile saved');
+&lt;/script&gt;</code></pre>
+
+      <h4>Other attributes</h4>
+      <ul>
+        <li><code>aria-atomic="true"</code> — announce the entire region, not just the diff.</li>
+        <li><code>aria-relevant="additions text"</code> — what changes are announced (default is good).</li>
+        <li><code>aria-busy="true"</code> — pause announcements while doing batch updates.</li>
+      </ul>
+
+      <div class="callout gotcha">
+        <span class="tag">Gotchas</span>
+        <ul>
+          <li>The live region must <strong>exist in the DOM at initial paint</strong>; adding it AND content together often fails to announce.</li>
+          <li>Repeating the same string won't re-announce — clear &amp; re-set.</li>
+          <li>Don't overuse <code>assertive</code> — it interrupts users mid-task.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="a11y-tree">
+      <h2>10. The Accessibility Tree <span class="chip advanced">Advanced</span></h2>
+      <p>
+        The browser builds a parallel tree from the DOM that exposes name, role, state, and value to AT. <code>display: none</code>, <code>visibility: hidden</code>, and <code>aria-hidden="true"</code> remove nodes from it. Position-off-screen (<code>.sr-only</code>) keeps them in the tree (use this for visually-hidden labels).
+      </p>
+
+      <pre><code>/* Visually-hidden but accessible to AT */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}</code></pre>
+      <p>Inspect with Chrome DevTools → Elements → <strong>Accessibility</strong> tab. Firefox has the same plus a tree view.</p>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="keyboard">
+      <h2>11. Keyboard Navigation Basics <span class="chip intermediate">Intermediate</span></h2>
+      <table>
+        <tr><th>Key</th><th>Action</th></tr>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd></td><td>Move focus forward / backward</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Activate links and submit forms</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>Activate buttons, toggle checkboxes</td></tr>
+        <tr><td>Arrows</td><td>Within composite widgets (radio, tabs, menu, grid)</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Close dialog/menu, cancel</td></tr>
+        <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First / last item in a widget or grid row</td></tr>
+        <tr><td><kbd>PageUp</kbd> / <kbd>PageDown</kbd></td><td>Scroll big chunks (sliders, listboxes)</td></tr>
+      </table>
+
+      <h4>tabindex values</h4>
+      <ul>
+        <li><code>0</code> — natural document order, focusable.</li>
+        <li><code>-1</code> — focusable via JS only, not in tab order. Use for items inside roving-tabindex widgets and for receiving focus on programmatic dialogs.</li>
+        <li><strong>positive numbers</strong> — almost always wrong. Breaks natural order, hard to maintain.</li>
+      </ul>
+
+      <h4>Skip link (must-have)</h4>
+      <pre><code>&lt;a href="#main" class="skip-link"&gt;Skip to main content&lt;/a&gt;
+&lt;!-- ... lots of nav ... --&gt;
+&lt;main id="main" tabindex="-1"&gt;...&lt;/main&gt;</code></pre>
+      <p>The <code>tabindex="-1"</code> on <code>main</code> ensures focus actually lands there in some browsers (Safari quirk).</p>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="focus">
+      <h2>12. Focus Management <span class="chip intermediate">Intermediate</span></h2>
+      <ul>
+        <li><strong>Visible focus ring</strong> — never <code>outline: none</code> without a replacement. Use <code>:focus-visible</code> to show only on keyboard focus.</li>
+        <li><strong>SPA route changes:</strong> after navigation, focus the new page's <code>&lt;h1&gt;</code> (with <code>tabindex="-1"</code>) and announce the new title in a live region.</li>
+        <li><strong>Async actions:</strong> after deletion, move focus to the next sensible item (sibling, parent, or "Undo" toast).</li>
+        <li><strong>Modals/dialogs:</strong> store the trigger before opening; restore focus to it on close.</li>
+      </ul>
+
+      <pre><code>/* Show focus ring only when keyboard-focused */
+button:focus { outline: none; }
+button:focus-visible { outline: 3px solid #2a5bd7; outline-offset: 2px; }</code></pre>
+
+      <pre><code>// SPA route change
+useEffect(() =&gt; {
+  document.title = `${page.title} — Acme`;
+  pageH1Ref.current?.focus();
+  announce(`Navigated to ${page.title}`);
+}, [pageId]);</code></pre>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="focus-trap">
+      <h2>13. Focus Trapping (Modals &amp; Dialogs) <span class="chip advanced">Advanced</span></h2>
+
+      <h4>The native way (preferred)</h4>
+      <pre><code>const dlg = document.querySelector('dialog');
+openBtn.addEventListener('click', () =&gt; dlg.showModal()); // traps focus + ESC + backdrop
+closeBtn.addEventListener('click', () =&gt; dlg.close());</code></pre>
+
+      <h4>The manual way (when you can't use <code>&lt;dialog&gt;</code>)</h4>
+      <pre><code>const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]),' +
+  ' textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function trap(container) {
+  const focusables = container.querySelectorAll(FOCUSABLE);
+  const first = focusables[0];
+  const last  = focusables[focusables.length - 1];
+
+  container.addEventListener('keydown', (e) =&gt; {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey &amp;&amp; document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey &amp;&amp; document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+}</code></pre>
+
+      <h4>Modal a11y checklist</h4>
+      <ul>
+        <li><code>role="dialog"</code> + <code>aria-modal="true"</code></li>
+        <li><code>aria-labelledby="dialog-title"</code> (or <code>aria-label</code>)</li>
+        <li>Initial focus on the dialog (often the first focusable, or the dialog container itself)</li>
+        <li>Trap <kbd>Tab</kbd> inside</li>
+        <li>Close on <kbd>Esc</kbd> and on backdrop click</li>
+        <li>Restore focus to the trigger on close</li>
+        <li>Mark page background <code>aria-hidden="true"</code> or <code>inert</code> while open</li>
+      </ul>
+
+      <pre><code>&lt;!-- Use the new `inert` attribute (2024+) on background --&gt;
+&lt;div id="page" inert&gt; ...rest of app... &lt;/div&gt;
+&lt;dialog open&gt;...&lt;/dialog&gt;</code></pre>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="roving">
+      <h2>14. Roving Tabindex Pattern <span class="chip advanced">Advanced</span></h2>
+      <p>
+        Composite widgets (toolbars, menus, tabs, listboxes, grids, trees) should be a <strong>single tab stop</strong>. Once focused, arrow keys move within the widget. This is the <em>roving tabindex</em> pattern.
+      </p>
+
+      <pre><code>// Only ONE child has tabindex=0 at any time
+&lt;div role="toolbar" aria-label="Format"&gt;
+  &lt;button tabindex="0"&gt;Bold&lt;/button&gt;
+  &lt;button tabindex="-1"&gt;Italic&lt;/button&gt;
+  &lt;button tabindex="-1"&gt;Underline&lt;/button&gt;
+&lt;/div&gt;
+
+// JS: arrow keys move tabindex AND focus
+toolbar.addEventListener('keydown', (e) =&gt; {
+  const items = [...toolbar.querySelectorAll('button')];
+  const i = items.indexOf(document.activeElement);
+  let next = i;
+  if (e.key === 'ArrowRight') next = (i + 1) % items.length;
+  if (e.key === 'ArrowLeft')  next = (i - 1 + items.length) % items.length;
+  if (next !== i) {
+    items[i].tabIndex = -1;
+    items[next].tabIndex = 0;
+    items[next].focus();
+    e.preventDefault();
+  }
+});</code></pre>
+
+      <p>Alternative: <code>aria-activedescendant</code> — focus stays on the container, ARIA points to the active child. Used by many comboboxes.</p>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="shortcuts">
+      <h2>15. Custom Keyboard Shortcuts <span class="chip advanced">Advanced</span></h2>
+      <ul>
+        <li>Don't override platform shortcuts (<kbd>Cmd+L</kbd>, <kbd>Cmd+T</kbd>, screen reader keys).</li>
+        <li>Provide a <strong>way to remap or disable</strong> shortcuts (WCAG 2.1.4 — character key shortcuts).</li>
+        <li>Document them in a "?" help dialog.</li>
+        <li>Don't trigger shortcuts while typing in inputs unless modified.</li>
+        <li>Use <code>aria-keyshortcuts="Control+K"</code> to advertise to AT.</li>
+      </ul>
+
+      <pre><code>document.addEventListener('keydown', (e) =&gt; {
+  const inField = ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName);
+  if (e.key === 'k' &amp;&amp; (e.metaKey || e.ctrlKey)) {
+    e.preventDefault(); openCommandPalette();
+  } else if (e.key === '/' &amp;&amp; !inField) {
+    e.preventDefault(); focusSearch();
+  }
+});</code></pre>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="forms">
+      <h2>16. Accessible Forms <span class="chip intermediate">Intermediate</span></h2>
+
+      <h4>The non-negotiables</h4>
+      <ul>
+        <li>Every input has a visible <code>&lt;label&gt;</code>. <strong>Placeholder is not a label.</strong></li>
+        <li>Use <code>&lt;fieldset&gt;</code> + <code>&lt;legend&gt;</code> for radio/checkbox groups.</li>
+        <li>Use the right input <code>type</code> — mobile keyboards adapt (email/tel/number/search).</li>
+        <li>Use <code>autocomplete</code> tokens (<code>email</code>, <code>given-name</code>, <code>postal-code</code>, <code>current-password</code>, <code>one-time-code</code>) — required by WCAG 2.2 AA.</li>
+        <li>Required fields: visible asterisk + <code>required</code> + <code>aria-required="true"</code> if needed for legacy AT.</li>
+        <li>Don't disable the submit button — let users submit and show errors.</li>
+      </ul>
+
+      <pre><code>&lt;form novalidate&gt;
+  &lt;label for="email"&gt;Email&lt;/label&gt;
+  &lt;input id="email" name="email" type="email"
+         autocomplete="email" required
+         aria-describedby="emailHelp emailError"
+         aria-invalid="false"&gt;
+  &lt;p id="emailHelp" class="help"&gt;We'll never share it.&lt;/p&gt;
+  &lt;p id="emailError" class="error" role="alert" hidden&gt;&lt;/p&gt;
+&lt;/form&gt;</code></pre>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="errors">
+      <h2>17. Error Handling &amp; Validation <span class="chip advanced">Advanced</span></h2>
+      <ul>
+        <li>On submit with errors: <strong>focus the first invalid field</strong> and announce a summary.</li>
+        <li>Tie error text to the input via <code>aria-describedby</code>.</li>
+        <li>Set <code>aria-invalid="true"</code> only AFTER the user has interacted (avoid screaming on first paint).</li>
+        <li>Inline errors should appear in a <code>role="alert"</code> region or live region for AT users.</li>
+        <li>Provide concrete fix instructions, not "Invalid input".</li>
+      </ul>
+
+      <pre><code>function submit(form) {
+  const invalids = [...form.querySelectorAll(':invalid')];
+  if (invalids.length) {
+    invalids[0].focus();
+    summaryRegion.textContent =
+      `${invalids.length} error${invalids.length>1?'s':''} found. Please fix them.`;
+    return;
+  }
+  form.submit();
+}</code></pre>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="widgets">
+      <h2>18. WAI-ARIA Authoring Practices (APG) <span class="chip advanced">Advanced</span></h2>
+      <p>The W3C maintains a catalog of patterns with required keys, roles, and example code. <strong>Don't invent your own keyboard model</strong> — copy these.</p>
+
+      <table>
+        <tr><th>Widget</th><th>Required keys</th><th>Key ARIA</th></tr>
+        <tr><td>Accordion</td><td>Enter/Space, Arrow Up/Down (optional)</td><td><code>aria-expanded</code>, <code>aria-controls</code></td></tr>
+        <tr><td>Tabs</td><td>Arrow keys, Home/End</td><td><code>tablist</code>, <code>tab</code>, <code>tabpanel</code>, <code>aria-selected</code></td></tr>
+        <tr><td>Combobox</td><td>Arrow Down opens, Enter selects, Esc closes</td><td><code>combobox</code>, <code>listbox</code>, <code>aria-expanded</code>, <code>aria-controls</code>, <code>aria-activedescendant</code></td></tr>
+        <tr><td>Menu / Menubar</td><td>Arrow keys, Esc, type-ahead</td><td><code>menu</code>, <code>menuitem</code>, <code>menuitemcheckbox</code>, <code>menuitemradio</code></td></tr>
+        <tr><td>Dialog (modal)</td><td>Tab trap, Esc closes</td><td><code>dialog</code>, <code>aria-modal</code>, <code>aria-labelledby</code></td></tr>
+        <tr><td>Tree</td><td>Arrow Right expands, Left collapses</td><td><code>tree</code>, <code>treeitem</code>, <code>aria-expanded</code>, <code>aria-level</code></td></tr>
+        <tr><td>Slider</td><td>Arrow keys, Home/End</td><td><code>slider</code>, <code>aria-valuemin/max/now/text</code></td></tr>
+        <tr><td>Disclosure</td><td>Enter/Space</td><td><code>aria-expanded</code>, <code>aria-controls</code></td></tr>
+      </table>
+
+      <p>Reference: <a class="anchor-link" href="https://www.w3.org/WAI/ARIA/apg/patterns/" target="_blank" rel="noopener noreferrer">W3C ARIA Authoring Practices Guide</a></p>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="datagrid">
+      <h2>19. Accessible Data Grids <span class="chip critical">Critical</span></h2>
+      <p>Most failed in interviews. A <strong>true</strong> grid is a single tab stop with 2D arrow navigation, like a spreadsheet.</p>
+
+      <ul>
+        <li><code>role="grid"</code> on the table; <code>role="row"</code>; <code>role="columnheader"</code>; <code>role="gridcell"</code>.</li>
+        <li>Arrow keys move between cells; <kbd>Home</kbd>/<kbd>End</kbd> first/last in row; <kbd>Ctrl+Home</kbd>/<kbd>Ctrl+End</kbd> first/last cell.</li>
+        <li>Sort buttons in headers expose <code>aria-sort="ascending|descending|none"</code>.</li>
+        <li>Resizable columns: announce new size via live region.</li>
+        <li>Use roving tabindex on cells.</li>
+      </ul>
+
+      <pre><code>&lt;table role="grid" aria-label="Employees" aria-rowcount="500"&gt;
+  &lt;thead&gt;
+    &lt;tr role="row"&gt;
+      &lt;th role="columnheader" aria-sort="ascending"&gt;
+        &lt;button&gt;Name&lt;/button&gt;
+      &lt;/th&gt;
+      &lt;th role="columnheader" aria-sort="none"&gt;
+        &lt;button&gt;Role&lt;/button&gt;
+      &lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr role="row" aria-rowindex="2"&gt;
+      &lt;td role="gridcell" tabindex="0"&gt;Sid&lt;/td&gt;
+      &lt;td role="gridcell" tabindex="-1"&gt;SDE3&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+
+      <div class="callout warn">
+        <span class="tag">If it's just data display</span>
+        Use a regular <code>&lt;table&gt;</code> with <code>scope="col/row"</code> and <code>&lt;caption&gt;</code>. Don't add grid semantics unless it actually behaves like a grid (cell focus, edit-in-place, etc.).
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="motion">
+      <h2>20. Motion, Animation &amp; Reduced Motion <span class="chip intermediate">Intermediate</span></h2>
+      <ul>
+        <li>WCAG 2.3.1 — no content flashes more than 3× per second (seizure risk).</li>
+        <li>WCAG 2.3.3 — pause/stop/hide for animation triggered by interaction (AAA).</li>
+        <li>Respect <code>prefers-reduced-motion</code> for vestibular disorders.</li>
+        <li>Avoid parallax, big translate/scale animations, autoplaying carousels.</li>
+      </ul>
+
+      <pre><code>@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}</code></pre>
+      <p>Also check <code>matchMedia('(prefers-reduced-motion: reduce)').matches</code> from JS to short-circuit framer-motion / Lottie animations.</p>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="i18n">
+      <h2>21. Internationalization &amp; RTL <span class="chip intermediate">Intermediate</span></h2>
+      <ul>
+        <li><code>&lt;html lang="en"&gt;</code> on every page; <code>lang</code> on inline foreign-language spans.</li>
+        <li>Use logical CSS properties: <code>margin-inline-start</code> instead of <code>margin-left</code>, so RTL flips automatically.</li>
+        <li><code>dir="auto"</code> on <code>&lt;input&gt;</code>/<code>&lt;textarea&gt;</code> for user-generated content.</li>
+        <li>Don't bake text into images.</li>
+        <li>Avoid date/number formatting via string concatenation — use <code>Intl.DateTimeFormat</code>, <code>Intl.NumberFormat</code>.</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="mobile">
+      <h2>22. Mobile &amp; Touch a11y <span class="chip intermediate">Intermediate</span></h2>
+      <ul>
+        <li><strong>Target size</strong> WCAG 2.5.5 (AAA) ≥ 44×44 CSS px; WCAG 2.2 (AA) 24×24 minimum spacing.</li>
+        <li>Allow zoom — <strong>don't</strong> set <code>user-scalable=no</code> in viewport meta.</li>
+        <li>Support landscape AND portrait (WCAG 1.3.4).</li>
+        <li>Use OS gestures sparingly; provide alternatives (WCAG 2.5.1).</li>
+        <li>VoiceOver (iOS) and TalkBack (Android) work with the same ARIA you ship for desktop.</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="cognitive">
+      <h2>23. Cognitive Accessibility <span class="chip intermediate">Intermediate</span></h2>
+      <ul>
+        <li>Plain language; aim for grade-8 reading level on consumer apps.</li>
+        <li>Consistent navigation across pages (WCAG 3.2.3).</li>
+        <li>Don't auto-log-out without warning.</li>
+        <li>Provide undo for destructive actions.</li>
+        <li>Avoid CAPTCHAs that rely on visual puzzles — offer alternatives (WCAG 2.2: Accessible Authentication).</li>
+        <li>Break long forms into steps with clear progress.</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="sr-testing">
+      <h2>24. Screen Reader Testing <span class="chip intermediate">Intermediate</span></h2>
+      <table>
+        <tr><th>Screen Reader</th><th>OS</th><th>Browser</th><th>Activate</th></tr>
+        <tr><td>VoiceOver</td><td>macOS / iOS</td><td>Safari</td><td><kbd>Cmd</kbd>+<kbd>F5</kbd></td></tr>
+        <tr><td>NVDA (free)</td><td>Windows</td><td>Firefox / Chrome</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd></td></tr>
+        <tr><td>JAWS</td><td>Windows</td><td>Chrome / Edge</td><td>commercial</td></tr>
+        <tr><td>TalkBack</td><td>Android</td><td>Chrome</td><td>Settings → Accessibility</td></tr>
+        <tr><td>Narrator</td><td>Windows 11</td><td>Edge</td><td><kbd>Win</kbd>+<kbd>Ctrl</kbd>+<kbd>Enter</kbd></td></tr>
+      </table>
+
+      <h4>Minimum test matrix</h4>
+      <ul>
+        <li>NVDA + Firefox</li>
+        <li>NVDA + Chrome</li>
+        <li>VoiceOver + Safari (macOS &amp; iOS)</li>
+        <li>JAWS + Chrome (enterprise)</li>
+      </ul>
+
+      <h4>VoiceOver shortcuts</h4>
+      <ul>
+        <li><kbd>VO</kbd> = <kbd>Ctrl+Option</kbd></li>
+        <li><kbd>VO+A</kbd> read all; <kbd>VO+→</kbd> next item</li>
+        <li><kbd>VO+U</kbd> rotor (headings, landmarks, form controls)</li>
+        <li><kbd>VO+Space</kbd> activate</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="auto">
+      <h2>25. Automated Testing — axe, Lighthouse, ESLint <span class="chip intermediate">Intermediate</span></h2>
+      <p>Automated tools catch ~30–50% of issues. Necessary but not sufficient.</p>
+
+      <h4>ESLint plugin</h4>
+      <pre><code>npm i -D eslint-plugin-jsx-a11y
+// .eslintrc
+{ "extends": ["plugin:jsx-a11y/recommended"] }</code></pre>
+
+      <h4>axe-core in unit tests (Jest + RTL)</h4>
+      <pre><code>import { render } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
+
+test('login is accessible', async () =&gt; {
+  const { container } = render(&lt;Login /&gt;);
+  expect(await axe(container)).toHaveNoViolations();
+});</code></pre>
+
+      <h4>axe in Playwright / Cypress</h4>
+      <pre><code>// Playwright
+import AxeBuilder from '@axe-core/playwright';
+const { violations } = await new AxeBuilder({ page }).analyze();
+expect(violations).toEqual([]);</code></pre>
+
+      <h4>Lighthouse</h4>
+      <p>Built into Chrome DevTools. Audits color contrast, ARIA validity, headings, link names. Score &gt; 95 in CI is a good gate.</p>
+
+      <h4>Browser extensions</h4>
+      <ul>
+        <li><strong>axe DevTools</strong> (Deque) — most thorough.</li>
+        <li><strong>WAVE</strong> (WebAIM) — visual overlays.</li>
+        <li><strong>Accessibility Insights</strong> (Microsoft) — guided manual + automated.</li>
+        <li><strong>ARC Toolkit</strong> — quick checks.</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="manual">
+      <h2>26. Manual Testing Checklist <span class="chip intermediate">Intermediate</span></h2>
+      <ul>
+        <li>Unplug your mouse — can you reach every control with <kbd>Tab</kbd>?</li>
+        <li>Is focus always visible?</li>
+        <li>Tab order matches visual order?</li>
+        <li>Can you submit / cancel / close from the keyboard?</li>
+        <li>Zoom to 200% — does the layout still work? No horizontal scroll? (WCAG 1.4.10 reflow at 320 px)</li>
+        <li>Disable CSS — is the content still in a logical order?</li>
+        <li>Disable images — are alt texts meaningful?</li>
+        <li>Use a screen reader to read each interactive element.</li>
+        <li>Toggle <code>prefers-reduced-motion</code> — animations stop?</li>
+        <li>Force <code>prefers-color-scheme: dark</code> — contrast still passes?</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="remediation">
+      <h2>27. Remediating 100s of Violations — Batch Approach <span class="chip critical">Critical</span></h2>
+      <p>This is a real SDE3-level scenario. You inherit a codebase with hundreds of axe violations. The wrong answer is "fix them one by one".</p>
+
+      <ol>
+        <li><strong>Audit &amp; categorize</strong> — run axe sitewide, group by rule (e.g., "230 missing-alt", "120 color-contrast", "60 button-name"). Most violations cluster around &lt; 10 root causes.</li>
+        <li><strong>Fix at the root</strong> — one design-system fix often kills hundreds:
+          <ul>
+            <li>Update <code>&lt;Button&gt;</code> to require <code>children</code> or <code>aria-label</code>.</li>
+            <li>Add a token system that enforces contrast at compile time.</li>
+            <li>Wrap all <code>&lt;Modal&gt;</code> instances with focus trap + dialog role.</li>
+          </ul>
+        </li>
+        <li><strong>Add CI gates</strong> — block new violations even before you fix the old ones (delta budget).</li>
+        <li><strong>ESLint + axe in CI</strong> as the foundation.</li>
+        <li><strong>Triage by impact</strong>: critical/serious first, by traffic-weighted page.</li>
+        <li><strong>Track</strong> in a dashboard (axe-watcher, Sentry, in-house). Communicate weekly progress.</li>
+        <li><strong>Pair with design</strong> on contrast / focus tokens — a11y is co-owned.</li>
+        <li><strong>Bring in a screen reader user</strong> for usability testing — automated tools won't catch awkward UX.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="tag">Resume bullet (real)</span>
+        "Reduced WCAG 2.1 AA violations from 120+ to 0 across a 200-screen Angular dashboard by introducing axe-CI gates, refactoring 7 design-system components, and standardizing focus management; cut accessibility-related production tickets by 80%."
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="checklist">
+      <h2>28. Best Practices Checklist <span class="chip intermediate">Intermediate</span></h2>
+      <div class="grid-2">
+        <div class="callout tip">
+          <span class="tag">Structure</span>
+          <ul>
+            <li>One <code>&lt;h1&gt;</code>, ordered headings.</li>
+            <li>Landmarks: <code>header/nav/main/footer</code>.</li>
+            <li>Skip-link as first focusable.</li>
+            <li><code>lang</code> on <code>&lt;html&gt;</code>.</li>
+          </ul>
+        </div>
+        <div class="callout tip">
+          <span class="tag">Forms</span>
+          <ul>
+            <li>Visible labels for every input.</li>
+            <li><code>autocomplete</code> tokens.</li>
+            <li>Tie errors with <code>aria-describedby</code> + <code>role="alert"</code>.</li>
+            <li>Focus first invalid on submit.</li>
+          </ul>
+        </div>
+        <div class="callout tip">
+          <span class="tag">Keyboard / Focus</span>
+          <ul>
+            <li>Visible focus, only via <code>:focus-visible</code>.</li>
+            <li>Trap focus in modals; restore on close.</li>
+            <li>Roving tabindex on composite widgets.</li>
+            <li>Never <code>tabindex&gt;0</code>.</li>
+          </ul>
+        </div>
+        <div class="callout tip">
+          <span class="tag">ARIA &amp; SR</span>
+          <ul>
+            <li>Native first; ARIA only when needed.</li>
+            <li>Live region for async announcements.</li>
+            <li>Test with NVDA + VoiceOver.</li>
+            <li>Run axe in CI.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="qa">
+      <h2>29. Top Interview Questions <span class="chip advanced">Advanced</span></h2>
+
+      <div class="qa-block">
+        <div class="q">Q1. What is WCAG and what are its principles?</div>
+        <div class="a">Web Content Accessibility Guidelines, maintained by the W3C. Built on POUR: Perceivable, Operable, Understandable, Robust. Three conformance levels — A, AA, AAA — with AA being the legal/industry standard.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q2. Difference between <code>aria-label</code>, <code>aria-labelledby</code>, and <code>aria-describedby</code>?</div>
+        <div class="a">
+          <strong>aria-label</strong>: provides an accessible name as a string.<br>
+          <strong>aria-labelledby</strong>: accessible name from another element's id(s); wins over aria-label.<br>
+          <strong>aria-describedby</strong>: extra description (announced after the name); used for hints, errors.
+        </div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q3. Why is semantic HTML preferred over ARIA?</div>
+        <div class="a">Native elements come with built-in role, keyboard support, focus, and AT integration. No ARIA is better than bad ARIA. Use ARIA only to fill semantic gaps not covered by HTML.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q4. How do you make a custom dropdown accessible?</div>
+        <div class="a">Use the WAI-ARIA combobox or listbox pattern: <code>role="combobox"</code> on the input, <code>aria-expanded</code>, <code>aria-controls</code> pointing to the listbox, <code>aria-activedescendant</code> on the input pointing to the focused option. Arrow keys move within options, Enter selects, Esc closes. Trap focus inside.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q5. What's a focus trap and how do you build one?</div>
+        <div class="a">A focus trap keeps Tab cycling within a container (a modal). Find first &amp; last focusable elements; on Tab from last → focus first; on Shift+Tab from first → focus last. Use the native <code>&lt;dialog&gt;</code> with <code>showModal()</code> for free trapping.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q6. What's the roving tabindex pattern?</div>
+        <div class="a">Used for composite widgets (toolbars, tabs, listboxes). Only one child has <code>tabindex="0"</code> at a time; the rest are <code>-1</code>. Arrow keys move focus AND swap the tabindex. Result: a single tab stop into the widget, then arrow keys inside.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q7. What is the accessibility tree?</div>
+        <div class="a">A parallel tree built from the DOM that exposes role, name, state, and value to assistive tech. <code>display:none</code>, <code>visibility:hidden</code>, and <code>aria-hidden=true</code> remove nodes. Visually hiding without removing means using <code>.sr-only</code> CSS.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q8. How do you announce dynamic content changes (toasts, search results)?</div>
+        <div class="a">Use a live region (<code>aria-live="polite"</code> or <code>role="status"</code> for non-urgent; <code>aria-live="assertive"</code> or <code>role="alert"</code> for urgent). The container must exist on initial paint; updating its text content triggers the announcement.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q9. What contrast ratio does WCAG AA require?</div>
+        <div class="a">4.5:1 for normal text, 3:1 for large text (≥18pt or ≥14pt bold), 3:1 for UI components and graphical objects. WCAG 2.2 also requires 3:1 for the focus indicator.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q10. How do you handle focus in a single-page app on route change?</div>
+        <div class="a">After navigation, focus the new page's heading (often <code>&lt;h1 tabindex="-1"&gt;</code>) and announce the title in a live region. Update <code>document.title</code>. Don't leave focus on the old (now-detached) link.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q11. <code>&lt;button&gt;</code> vs <code>&lt;div onClick&gt;</code> — what do you lose?</div>
+        <div class="a">Buttons are focusable, keyboard-operable (Enter/Space), announced as "button", submit forms, support <code>:disabled</code>, and respect form/fieldset disabling. Divs need <code>tabindex</code>, <code>role="button"</code>, key handlers, and still don't behave the same for AT.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q12. What does <code>aria-hidden="true"</code> do? Common pitfall?</div>
+        <div class="a">Removes an element (and descendants) from the accessibility tree. Pitfall: applying it to a focusable element makes it visible &amp; tabbable but invisible to AT — a confusing "ghost". Combine with <code>tabindex="-1"</code> or use <code>inert</code>.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q13. Difference between <code>aria-disabled</code> and <code>disabled</code>?</div>
+        <div class="a"><code>disabled</code> removes the element from the tab order, makes it non-interactive, and excludes it from form submission. <code>aria-disabled="true"</code> communicates the state to AT but the element remains focusable — useful when you want users to focus the disabled control to learn why it's disabled.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q14. How would you make an icon-only button accessible?</div>
+        <div class="a">Add <code>aria-label</code> describing the action. Mark the SVG <code>aria-hidden="true"</code> so its content doesn't double-announce. Ensure 44×44 px target size and 3:1 contrast with surroundings.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q15. How do you test accessibility?</div>
+        <div class="a">Layered approach: ESLint <code>jsx-a11y</code> while coding → axe-core in unit/E2E tests in CI → Lighthouse audit → manual keyboard test → screen reader (NVDA + VoiceOver) → user testing with disabled users.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q16. What is the difference between <code>role="alert"</code> and <code>role="status"</code>?</div>
+        <div class="a">Both are live regions. <code>alert</code> = assertive (interrupts current speech) — use for errors. <code>status</code> = polite (waits for idle) — use for non-critical updates like "Saved".</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q17. What is the "first rule of ARIA"?</div>
+        <div class="a">"If you can use a native HTML element with the semantics and behavior you require already built in, instead of repurposing an element and adding ARIA, do so."</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q18. How would you make a modal accessible?</div>
+        <div class="a">
+          Use <code>&lt;dialog&gt;</code> + <code>showModal()</code> if possible. Otherwise:
+          <code>role="dialog"</code> + <code>aria-modal="true"</code> + <code>aria-labelledby</code>; trap focus inside; mark background <code>inert</code>; close on Esc; restore focus to the trigger on close; initial focus on the dialog (or first input).
+        </div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q19. Explain skip-links.</div>
+        <div class="a">A link as the first focusable element that jumps focus past repeated nav directly to the main content. Hidden visually until focused. Required for WCAG 2.4.1 (Bypass Blocks).</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q20. What's <code>prefers-reduced-motion</code>?</div>
+        <div class="a">A CSS media query / JS matchMedia that reflects the user's OS preference for reduced motion. Use it to short-circuit animations that may trigger vestibular disorders.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q21. What is the inert attribute?</div>
+        <div class="a">A modern boolean attribute that makes an element &amp; its subtree unfocusable AND ignored by AT — perfect for hiding background content under a modal. Replaces verbose <code>aria-hidden</code> + <code>tabindex="-1"</code> recursion.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q22. Walk me through making a tab component accessible.</div>
+        <div class="a">
+          <code>role="tablist"</code> on container; each <code>role="tab"</code> with <code>aria-selected</code> and <code>aria-controls="panelId"</code>; matching <code>role="tabpanel"</code> with <code>aria-labelledby="tabId"</code>. Roving tabindex on tabs. Arrow Right/Left moves between tabs (and activates them in the "automatic" pattern), Home/End jump to first/last. Hide inactive panels with <code>hidden</code>.
+        </div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q23. How do you handle a long list of dynamically-loaded items for AT users?</div>
+        <div class="a">Announce additions via a polite live region ("10 more results loaded"). Use <code>aria-busy="true"</code> while loading. For "infinite scroll", offer a "Load more" button as an alternative — auto-loading is hostile to keyboard/AT users.</div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q24. What's the difference between <code>visibility: hidden</code>, <code>display: none</code>, <code>opacity: 0</code>, and <code>.sr-only</code>?</div>
+        <div class="a">
+          <strong>display:none</strong> + <strong>visibility:hidden</strong> → removed from a11y tree.<br>
+          <strong>opacity:0</strong> → still in a11y tree, still focusable.<br>
+          <strong>.sr-only</strong> (clip/positioned offscreen) → in a11y tree but not visible. Use for visually-hidden labels and skip-links.
+        </div>
+      </div>
+
+      <div class="qa-block">
+        <div class="q">Q25. You've inherited a project with 120+ a11y violations. How do you approach it?</div>
+        <div class="a">See §27 in this guide — audit, group by rule, fix at the root in the design system, gate new violations in CI, triage by impact, track and communicate progress weekly, and finish with screen reader user testing.</div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="scenarios">
+      <h2>30. Real-World Scenarios <span class="chip advanced">Advanced</span></h2>
+
+      <h3>Scenario A — "Build a fully accessible autocomplete"</h3>
+      <ul>
+        <li>Use the WAI-ARIA combobox pattern (1.2 spec).</li>
+        <li><code>role="combobox"</code> on input, <code>aria-expanded</code>, <code>aria-controls="listbox"</code>, <code>aria-autocomplete="list"</code>.</li>
+        <li><code>aria-activedescendant</code> updates as user arrows through results — focus stays in the input.</li>
+        <li>Live region announces "X results, use up and down arrows".</li>
+        <li>Esc clears or closes; Enter selects.</li>
+      </ul>
+
+      <h3>Scenario B — "Login form keeps failing accessibility"</h3>
+      <ul>
+        <li>Inputs probably lack <code>&lt;label for&gt;</code> — placeholder isn't enough.</li>
+        <li>Missing <code>autocomplete</code> tokens (<code>username</code>, <code>current-password</code>).</li>
+        <li>Errors not announced — wrap in <code>role="alert"</code>.</li>
+        <li>Submit button disabled while invalid → users can't trigger the error announcement; let them submit.</li>
+        <li>Password show/hide button missing <code>aria-label</code> &amp; <code>aria-pressed</code>.</li>
+      </ul>
+
+      <h3>Scenario C — "Toast notifications aren't read by screen readers"</h3>
+      <ul>
+        <li>Confirm a single live region exists at app root with <code>role="status"</code>.</li>
+        <li>Toast renders into THAT region, not a fresh one each time.</li>
+        <li>Clear text before re-setting if the same message repeats.</li>
+        <li>Don't auto-dismiss too fast — give AT time to announce.</li>
+      </ul>
+
+      <h3>Scenario D — "Make a complex data table accessible"</h3>
+      <ul>
+        <li>Decide: simple <code>&lt;table&gt;</code> (just data) vs <code>role="grid"</code> (interactive cells).</li>
+        <li>Use <code>&lt;caption&gt;</code> + <code>scope="col/row"</code>.</li>
+        <li>Sort buttons with <code>aria-sort</code>.</li>
+        <li>For grids: roving tabindex, arrow nav, Home/End/PgUp/PgDn.</li>
+        <li>Announce row count and current cell coordinates in a live region as user navigates.</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="rapid">
+      <h2>31. Rapid-Fire Gotchas <span class="chip advanced">Advanced</span></h2>
+      <ul>
+        <li><strong>Placeholder ≠ label.</strong> Always use <code>&lt;label&gt;</code>.</li>
+        <li><strong>Never <code>tabindex&gt;0</code>.</strong> Use <code>0</code> or <code>-1</code> only.</li>
+        <li><strong><code>outline: none</code></strong> without a replacement = WCAG fail.</li>
+        <li><strong>Auto-playing carousels</strong> violate WCAG 2.2.2 unless pausable.</li>
+        <li><strong>Click handlers on divs</strong> miss keyboard support entirely.</li>
+        <li><strong>Headings for styling</strong> (h3 because it "looks right") break document outline.</li>
+        <li><strong>Modals without focus trap</strong> let users Tab to background content.</li>
+        <li><strong>Modal opens but background still scrolls</strong> — set <code>inert</code> on background and lock body scroll.</li>
+        <li><strong><code>aria-hidden</code> on focusable elements</strong> = ghost element.</li>
+        <li><strong>SVG without title/aria-label</strong> when used as standalone graphic.</li>
+        <li><strong>Decorative SVG</strong> needs <code>aria-hidden="true"</code> or <code>role="presentation"</code>.</li>
+        <li><strong>Disabled submit button</strong> swallows error announcements — let users submit.</li>
+        <li><strong>Live region added after announcement</strong> won't fire — must exist in DOM first.</li>
+        <li><strong>Same string twice</strong> in a live region → no re-announce.</li>
+        <li><strong>Color-only indicators</strong> (red border for error) fail WCAG 1.4.1.</li>
+        <li><strong>Missing <code>lang</code> attribute</strong> → AT mispronounces.</li>
+        <li><strong>Toast that disappears in 2 seconds</strong> too fast for AT &amp; cognitive disabilities.</li>
+        <li><strong>Custom checkbox without <code>aria-checked</code> updating</strong> → state lost.</li>
+        <li><strong>Image inside button</strong> needs alt OR button needs aria-label, not both.</li>
+        <li><strong>Modal with Escape only</strong> — also need a visible Close button.</li>
+        <li><strong><code>title</code> attribute</strong> for accessible name is fragile (mobile, keyboard-only); don't rely on it.</li>
+        <li><strong>Skip-link must be visible on focus</strong> — common to forget the <code>:focus</code> style.</li>
+        <li><strong>Toast/snackbar with action</strong> — that action must be keyboard reachable before dismiss.</li>
+        <li><strong>SPA route change</strong> without focus management leaves AT confused.</li>
+        <li><strong>Drag-and-drop without keyboard alternative</strong> = WCAG fail (2.5.7 in WCAG 2.2).</li>
+      </ul>
+    </section>
+
+    <!-- =================================================================== -->
+    <section id="videos">
+      <h2>32. Video Tutorials &amp; Resources <span class="chip advanced">Advanced</span></h2>
+      <p class="lead">Curated YouTube videos verified via YouTube's oEmbed API. Order: overview → keyboard/screen reader → focus → tools.</p>
+
+      <div class="video-grid">
+        <a class="video-card" href="https://www.youtube.com/watch?v=CZGqnp06DnI" target="_blank" rel="noopener noreferrer">
+          <img src="https://i.ytimg.com/vi/CZGqnp06DnI/hqdefault.jpg" alt="Just use button A11ycasts thumbnail" loading="lazy">
+          <div class="video-meta">
+            <div class="video-title">Just use button — A11ycasts #05</div>
+            <div class="video-channel">Chrome for Developers</div>
+            <div class="video-tags"><span class="vtag advanced">Advanced</span><span class="vtag">Semantic</span></div>
+          </div>
+        </a>
+      </div>
+
+      <h3>Recommended Reading</h3>
+      <ul>
+        <li><a class="anchor-link" href="https://www.w3.org/WAI/WCAG21/quickref/" target="_blank" rel="noopener noreferrer">WCAG 2.1 Quick Reference</a></li>
+        <li><a class="anchor-link" href="https://www.w3.org/WAI/ARIA/apg/patterns/" target="_blank" rel="noopener noreferrer">ARIA Authoring Practices Guide (the bible)</a></li>
+        <li><a class="anchor-link" href="https://webaim.org/" target="_blank" rel="noopener noreferrer">WebAIM</a> — articles, contrast checker, screen reader surveys</li>
+        <li><a class="anchor-link" href="https://www.deque.com/axe/" target="_blank" rel="noopener noreferrer">Deque axe-core</a> — testing engine</li>
+        <li><a class="anchor-link" href="https://inclusive-components.design/" target="_blank" rel="noopener noreferrer">Inclusive Components by Heydon Pickering</a></li>
+        <li><a class="anchor-link" href="https://www.smashingmagazine.com/category/accessibility/" target="_blank" rel="noopener noreferrer">Smashing Magazine — Accessibility</a></li>
+        <li><a class="anchor-link" href="https://developer.mozilla.org/en-US/docs/Web/Accessibility" target="_blank" rel="noopener noreferrer">MDN Accessibility</a></li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="tag">Suggested study path</span>
+        <ol>
+          <li>POUR &amp; WCAG levels — get vocabulary right.</li>
+          <li>Semantic HTML + first rule of ARIA — internalize "native first".</li>
+          <li>Build a focus-trapped modal from scratch.</li>
+          <li>Build a tabs widget with roving tabindex.</li>
+          <li>Run axe + Lighthouse on your own portfolio; fix everything.</li>
+          <li>Spend 30 minutes navigating a major site with VoiceOver — rotor, landmarks, headings.</li>
+          <li>Practice answering the §29 questions out loud.</li>
+        </ol>
+      </div>
+    </section>
+
+    <hr />
+    <p class="lead" style="text-align:center">
+      Accessibility isn't a checklist — it's a quality bar. Master semantic HTML, the WAI-ARIA APG patterns, focus management, and screen-reader testing, and you'll stand out in any frontend interview.
+    </p>
+  </main>
+</div>
+</body>
+</html>

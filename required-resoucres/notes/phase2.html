@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Phase 2 Notes — Intermediate Go</title>
+<link rel="stylesheet" href="_styles.css" />
+</head>
+<body>
+
+<header class="page">
+  <h1>📗 <span>Phase 2</span> — Intermediate Go (E2E Notes)</h1>
+  <p>Generics, context, stdlib mastery, structured logging, tooling, io, reflection. The toolkit a senior Go dev reaches for daily.</p>
+  <div class="nav">
+    <a href="../go-roadmap.html">← Roadmap</a>
+    <a href="phase1.html">Phase 1</a>
+    <a href="phase2.html" class="active">Phase 2</a>
+    <a href="phase3.html">Phase 3</a>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h3>📑 Concepts in this phase</h3>
+  <ol>
+    <li><a href="#generics">Generics (Go 1.18+)</a></li>
+    <li><a href="#context">Context Package — CRITICAL</a></li>
+    <li><a href="#stdlib">JSON, Time, Strings &amp; Stdlib</a></li>
+    <li><a href="#io">io.Reader / io.Writer Interfaces</a></li>
+    <li><a href="#reflection">Reflection &amp; encoding/json deep dive</a></li>
+    <li><a href="#slog">Structured Logging with slog</a></li>
+    <li><a href="#tooling">Go Tooling (test, vet, build, generate)</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. GENERICS -->
+<!-- ============================================================ -->
+<section class="note" id="generics">
+  <h2><span class="num">01</span> Generics (Go 1.18+)</h2>
+  <p class="tagline">Type parameters for functions and types. The single biggest language addition since modules.</p>
+
+  <h3 class="why">Why did Go finally add generics?</h3>
+  <p>For 10 years Go survived without them, using <code>interface{}</code> + type assertions, or code generation. The cost: lots of boilerplate (a <code>Min</code> function for every numeric type), plus runtime type assertions that the compiler couldn't check.</p>
+  <p>Generics give us:</p>
+  <ul>
+    <li><strong>Type-safe</strong> generic data structures (queues, sets, ordered maps).</li>
+    <li><strong>Zero-copy</strong> abstraction — code is monomorphized/specialized at compile time.</li>
+    <li><strong>Functional helpers</strong> — <code>Map</code>, <code>Filter</code>, <code>Reduce</code> on slices (now in <code>slices</code>/<code>maps</code> std lib).</li>
+  </ul>
+
+  <h3 class="theory">Theory + Syntax</h3>
+<pre><code><span class="cm">// Type parameter: [T any] after function name</span>
+<span class="kw">func</span> <span class="fn">Max</span>[T cmp.<span class="ty">Ordered</span>](a, b T) T {
+    <span class="kw">if</span> a &gt; b { <span class="kw">return</span> a }
+    <span class="kw">return</span> b
+}
+<span class="fn">Max</span>(<span class="num">3</span>, <span class="num">5</span>)              <span class="cm">// inferred T=int</span>
+<span class="fn">Max</span>[<span class="ty">float64</span>](<span class="num">1.1</span>, <span class="num">2.2</span>)   <span class="cm">// explicit type</span>
+
+<span class="cm">// Multiple type params + constraint</span>
+<span class="kw">func</span> <span class="fn">Map</span>[T, U <span class="kw">any</span>](in []T, f <span class="kw">func</span>(T) U) []U {
+    out := <span class="fn">make</span>([]U, <span class="fn">len</span>(in))
+    <span class="kw">for</span> i, v := <span class="kw">range</span> in { out[i] = <span class="fn">f</span>(v) }
+    <span class="kw">return</span> out
+}
+nums := []<span class="ty">int</span>{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>}
+strs := <span class="fn">Map</span>(nums, <span class="kw">func</span>(n <span class="ty">int</span>) <span class="ty">string</span> { <span class="kw">return</span> <span class="fn">strconv</span>.<span class="fn">Itoa</span>(n) })
+
+<span class="cm">// Generic type</span>
+<span class="kw">type</span> Stack[T <span class="kw">any</span>] <span class="kw">struct</span> {
+    items []T
+}
+<span class="kw">func</span> (s *Stack[T]) <span class="fn">Push</span>(x T) { s.items = <span class="fn">append</span>(s.items, x) }
+<span class="kw">func</span> (s *Stack[T]) <span class="fn">Pop</span>() (T, <span class="ty">bool</span>) {
+    <span class="kw">var</span> zero T
+    <span class="kw">if</span> <span class="fn">len</span>(s.items) == <span class="num">0</span> { <span class="kw">return</span> zero, <span class="kw">false</span> }
+    n := <span class="fn">len</span>(s.items) - <span class="num">1</span>
+    x := s.items[n]
+    s.items = s.items[:n]
+    <span class="kw">return</span> x, <span class="kw">true</span>
+}
+
+s := &amp;Stack[<span class="ty">string</span>]{}
+s.<span class="fn">Push</span>(<span class="str">"a"</span>); s.<span class="fn">Push</span>(<span class="str">"b"</span>)
+</code></pre>
+
+  <h3 class="theory">Constraints</h3>
+  <p>A constraint is an interface that limits what types <code>T</code> can be. Common ones:</p>
+  <ul>
+    <li><code>any</code> — anything (alias for <code>interface{}</code>).</li>
+    <li><code>comparable</code> — types usable with <code>==</code>, <code>!=</code> (good for map keys).</li>
+    <li><code>cmp.Ordered</code> (Go 1.21+) — types usable with <code>&lt; &gt; &lt;= &gt;=</code> (numbers + strings).</li>
+    <li>Custom: define your own interface with method signatures or type union.</li>
+  </ul>
+<pre><code><span class="cm">// Type union constraint</span>
+<span class="kw">type</span> Number <span class="kw">interface</span> {
+    ~<span class="ty">int</span> | ~<span class="ty">int64</span> | ~<span class="ty">float64</span>
+}
+<span class="kw">func</span> <span class="fn">Sum</span>[T Number](nums []T) T {
+    <span class="kw">var</span> total T
+    <span class="kw">for</span> _, n := <span class="kw">range</span> nums { total += n }
+    <span class="kw">return</span> total
+}
+</code></pre>
+  <p>The <code>~int</code> means "anything whose underlying type is <code>int</code>", so user-defined types like <code>type Money int</code> also satisfy it.</p>
+
+  <h3 class="when">When to use generics?</h3>
+  <table>
+    <thead><tr><th>Use generics</th><th>Don't use generics</th></tr></thead>
+    <tbody>
+      <tr><td>Generic data structures (Stack, LRU cache, ordered set)</td><td>Trivial helpers — interface might be cleaner</td></tr>
+      <tr><td>Functional combinators (Map, Filter, Reduce)</td><td>When you'd only use 1-2 concrete types — write them out</td></tr>
+      <tr><td>Numeric algorithms over multiple types</td><td>Just to avoid <code>interface{}</code> in one place</td></tr>
+    </tbody>
+  </table>
+  <div class="box tip">
+    <b>Rob Pike's heuristic:</b> "If your code calls methods on the type, an interface is probably better. If it just shuffles values around, generics fit."
+  </div>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box warn">
+    <b>1. No method type parameters (yet).</b> You can't have <code>func (r Repo) Find[T any](id int) T</code> — only the receiver type can be generic. Workaround: top-level generic function.
+  </div>
+  <div class="box warn">
+    <b>2. Inference isn't always perfect.</b> Sometimes you must specify <code>Foo[int](x)</code>.
+  </div>
+  <div class="box warn">
+    <b>3. Generic code can be slower than expected.</b> Go generates a "GC shape"-based dictionary at compile, not full monomorphization (like C++). Don't assume same perf as hand-written specialized code; benchmark.
+  </div>
+  <div class="box danger">
+    <b>4. Don't over-genericize.</b> One concrete type? Use it. Two? Maybe duplicate. Three+ or a real abstraction? Generics earn their keep.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Generic vs interface — when does each win?</p>
+    <p class="a">Interface = behavior abstraction (call methods). Generics = container/algorithm abstraction (move values around). Sometimes you need both: <code>func Sort[T cmp.Ordered](s []T)</code> uses generics; <code>func Sort(data sort.Interface)</code> uses interface — different ergonomics.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: What's <code>~int</code> vs <code>int</code> in a constraint?</p>
+    <p class="a"><code>int</code> matches only <code>int</code>. <code>~int</code> matches <code>int</code> AND any named type with underlying <code>int</code> (e.g., <code>type Score int</code>).</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. CONTEXT -->
+<!-- ============================================================ -->
+<section class="note" id="context">
+  <h2><span class="num">02</span> Context Package — the most important stdlib package</h2>
+  <p class="tagline">If you do nothing else right in Go server code, get context right. It's how cancellation, deadlines, and request-scoped values flow.</p>
+
+  <h3 class="why">Why does context exist?</h3>
+  <p>In a Go server, one HTTP request might fan out to: DB query, Redis call, downstream HTTP, goroutine that does background work. If the client disconnects (or the request takes too long), <strong>all of that work should stop</strong>. Without a unified mechanism, you'd have ad-hoc cancellation per call. Context is that mechanism.</p>
+
+  <h3 class="theory">The Context interface</h3>
+<pre><code><span class="kw">type</span> Context <span class="kw">interface</span> {
+    <span class="fn">Deadline</span>() (deadline time.<span class="ty">Time</span>, ok <span class="ty">bool</span>)
+    <span class="fn">Done</span>()    &lt;-<span class="kw">chan</span> <span class="kw">struct</span>{}   <span class="cm">// closes when canceled</span>
+    <span class="fn">Err</span>()     <span class="ty">error</span>             <span class="cm">// why was it canceled?</span>
+    <span class="fn">Value</span>(key <span class="kw">any</span>) <span class="kw">any</span>      <span class="cm">// request-scoped values</span>
+}
+</code></pre>
+  <p>The key idea: contexts form a <strong>tree</strong>. Cancel a parent, and ALL children cancel. Add a deadline to a child, the child has the tighter of (parent's, its own).</p>
+
+  <pre class="diagram">  ctx (root, no deadline)
+   ├── ctx1 with timeout 5s   ── derived
+   │     └── ctx2 with cancel() callable
+   └── ctx3 with value("requestID", "abc-123")</pre>
+
+  <h3 class="syntax">Creating contexts</h3>
+<pre><code><span class="cm">// Root contexts — start of a request or program</span>
+ctx := context.<span class="fn">Background</span>()        <span class="cm">// for main() / init</span>
+ctx := context.<span class="fn">TODO</span>()              <span class="cm">// "I'll figure out the right one later"</span>
+
+<span class="cm">// Derived contexts — the workhorses</span>
+ctx, cancel := context.<span class="fn">WithCancel</span>(parent)
+<span class="kw">defer</span> <span class="fn">cancel</span>()                            <span class="cm">// ALWAYS defer cancel!</span>
+
+ctx, cancel := context.<span class="fn">WithTimeout</span>(parent, <span class="num">5</span>*time.<span class="ty">Second</span>)
+<span class="kw">defer</span> <span class="fn">cancel</span>()
+
+ctx, cancel := context.<span class="fn">WithDeadline</span>(parent, time.<span class="fn">Now</span>().<span class="fn">Add</span>(<span class="num">10</span>*time.<span class="ty">Second</span>))
+<span class="kw">defer</span> <span class="fn">cancel</span>()
+
+<span class="cm">// WithDeadline use case: aligning with an external SLA</span>
+<span class="cm">// e.g., the upstream gave you a hard deadline; pass the SAME deadline downstream</span>
+deadline, ok := req.Context().<span class="fn">Deadline</span>()
+<span class="kw">if</span> ok {
+    ctx, cancel = context.<span class="fn">WithDeadline</span>(ctx, deadline)   <span class="cm">// honor caller's deadline</span>
+    <span class="kw">defer</span> <span class="fn">cancel</span>()
+}
+<span class="cm">// Note: derived ctx takes the EARLIER of (parent's deadline, your deadline)</span>
+
+<span class="cm">// Carry values (use sparingly! see gotchas)</span>
+ctx = context.<span class="fn">WithValue</span>(parent, requestIDKey, <span class="str">"abc-123"</span>)
+</code></pre>
+
+  <h3 class="code">Real usage — HTTP handler chain</h3>
+<pre><code><span class="kw">func</span> <span class="fn">handler</span>(w http.<span class="ty">ResponseWriter</span>, r *http.<span class="ty">Request</span>) {
+    ctx := r.<span class="fn">Context</span>()                <span class="cm">// already canceled if client disconnects</span>
+    ctx, cancel := context.<span class="fn">WithTimeout</span>(ctx, <span class="num">3</span>*time.<span class="ty">Second</span>)
+    <span class="kw">defer</span> <span class="fn">cancel</span>()
+
+    user, err := repo.<span class="fn">FindUser</span>(ctx, id)   <span class="cm">// ctx flows down</span>
+    <span class="kw">if</span> err != <span class="kw">nil</span> {
+        http.<span class="fn">Error</span>(w, err.<span class="fn">Error</span>(), <span class="num">500</span>); <span class="kw">return</span>
+    }
+    <span class="cm">// ...</span>
+}
+
+<span class="cm">// In repo</span>
+<span class="kw">func</span> (r *Repo) <span class="fn">FindUser</span>(ctx context.<span class="ty">Context</span>, id <span class="ty">int</span>) (*User, <span class="ty">error</span>) {
+    row := r.db.<span class="fn">QueryRowContext</span>(ctx, <span class="str">"SELECT ..."</span>, id)
+    <span class="cm">// ↑ if ctx is canceled, query is aborted</span>
+}
+
+<span class="cm">// Listening to cancellation in your own loop</span>
+<span class="kw">for</span> {
+    <span class="kw">select</span> {
+    <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>():
+        <span class="kw">return</span> ctx.<span class="fn">Err</span>()       <span class="cm">// context.Canceled or context.DeadlineExceeded</span>
+    <span class="kw">case</span> work := &lt;-jobs:
+        <span class="fn">process</span>(work)
+    }
+}
+</code></pre>
+
+  <h3 class="when">Rules of context</h3>
+  <ol>
+    <li><strong>Pass <code>ctx</code> as the FIRST argument</strong> of any function that does I/O, work, or further calls.</li>
+    <li><strong>Never store contexts in structs.</strong> They're per-call.</li>
+    <li><strong>Always defer cancel()</strong> when you derive a context. Even if you returned a value cleanly — pending timers leak otherwise.</li>
+    <li><strong>Don't pass <code>nil</code> ctx.</strong> Use <code>context.TODO()</code> if you don't have one yet.</li>
+    <li><strong>Use ctx.Value sparingly</strong> — only for request-scoped data (request ID, auth user). NEVER for optional function parameters.</li>
+  </ol>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Forgetting <code>defer cancel()</code>.</b> A <code>WithTimeout</code>/<code>WithCancel</code> spawns a goroutine to track the deadline. Not calling cancel leaks it. Linters (<code>govet</code>) catch this.
+  </div>
+  <div class="box danger">
+    <b>2. Context value type collisions.</b>
+<pre><code><span class="cm">// BAD: string keys collide across packages</span>
+ctx = context.<span class="fn">WithValue</span>(ctx, <span class="str">"user"</span>, u)
+
+<span class="cm">// GOOD: unexported type as key, scoped to your package</span>
+<span class="kw">type</span> ctxKey <span class="ty">int</span>
+<span class="kw">const</span> userKey ctxKey = <span class="num">1</span>
+ctx = context.<span class="fn">WithValue</span>(ctx, userKey, u)
+u, _ := ctx.<span class="fn">Value</span>(userKey).(*User)
+</code></pre>
+  </div>
+  <div class="box warn">
+    <b>3. Don't ignore <code>ctx.Done()</code> in long loops.</b> Even if you don't make external calls, periodically check the channel so cancellation is responsive.
+  </div>
+  <div class="box warn">
+    <b>4. <code>context.Background()</code> in HTTP handlers</b> = bug. The request's own ctx tracks the client's connection. Use <code>r.Context()</code>.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How does the DB driver know to cancel the query?</p>
+    <p class="a">It calls <code>ctx.Done()</code> in a goroutine; on close, it sends a cancel command to the DB (e.g., Postgres <code>pg_cancel_backend</code>). All major drivers support this.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Difference between <code>context.Canceled</code> and <code>context.DeadlineExceeded</code>?</p>
+    <p class="a">Both are sentinel errors. <code>Canceled</code> means someone called <code>cancel()</code>. <code>DeadlineExceeded</code> means timeout fired. Useful in handlers to map to <code>499</code> vs <code>504</code>.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: Can I pass tracing/logging info via context?</p>
+    <p class="a">Yes — request ID, trace ID, auth principal are textbook use cases. NOT for things like DB connections or business config.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 3. STDLIB -->
+<!-- ============================================================ -->
+<section class="note" id="stdlib">
+  <h2><span class="num">03</span> JSON, Time, Strings &amp; Stdlib Mastery</h2>
+  <p class="tagline">Go's standard library is a competitive moat. Know these packages cold and you'll need fewer dependencies than in any other language.</p>
+
+  <h3 class="why">Why is the stdlib so important?</h3>
+  <p>Unlike Node where <code>npm install x</code> for everything, the Go community prefers stdlib + minimal deps. <code>net/http</code>, <code>encoding/json</code>, <code>database/sql</code>, <code>html/template</code>, <code>crypto/*</code> — all production-ready. This means smaller binaries, less supply-chain risk, and stable APIs.</p>
+
+  <h3 class="theory">encoding/json</h3>
+<pre><code><span class="kw">type</span> User <span class="kw">struct</span> {
+    ID    <span class="ty">int</span>    <span class="str">`json:"id"`</span>
+    Name  <span class="ty">string</span> <span class="str">`json:"name"`</span>
+    Email <span class="ty">string</span> <span class="str">`json:"email,omitempty"`</span>  <span class="cm">// drop if zero</span>
+    Pwd   <span class="ty">string</span> <span class="str">`json:"-"`</span>                <span class="cm">// never serialize</span>
+}
+
+<span class="cm">// Marshal — Go → JSON bytes</span>
+b, err := json.<span class="fn">Marshal</span>(u)              <span class="cm">// compact</span>
+b, err := json.<span class="fn">MarshalIndent</span>(u, <span class="str">""</span>, <span class="str">"  "</span>)  <span class="cm">// pretty</span>
+
+<span class="cm">// Unmarshal — JSON bytes → Go struct</span>
+<span class="kw">var</span> u User
+err := json.<span class="fn">Unmarshal</span>(b, &amp;u)         <span class="cm">// ALWAYS pass pointer!</span>
+
+<span class="cm">// Streaming — Decoder/Encoder for big or io-based JSON</span>
+dec := json.<span class="fn">NewDecoder</span>(r.Body)
+dec.<span class="fn">DisallowUnknownFields</span>()           <span class="cm">// strict mode</span>
+err := dec.<span class="fn">Decode</span>(&amp;u)
+</code></pre>
+
+  <div class="box tip"><b>Custom JSON</b> — implement <code>MarshalJSON()</code> / <code>UnmarshalJSON()</code> on your type for special formats (e.g., custom date, money). See Reflection section below.</div>
+
+  <h3 class="theory">time</h3>
+<pre><code>now := time.<span class="fn">Now</span>()
+later := now.<span class="fn">Add</span>(<span class="num">2</span> * time.<span class="ty">Hour</span>)
+diff := later.<span class="fn">Sub</span>(now)               <span class="cm">// returns Duration</span>
+
+<span class="cm">// Parsing — uses the magic reference time: Mon Jan 2 15:04:05 MST 2006</span>
+t, _ := time.<span class="fn">Parse</span>(time.<span class="ty">RFC3339</span>, <span class="str">"2024-05-01T10:30:00Z"</span>)
+t, _ := time.<span class="fn">Parse</span>(<span class="str">"2006-01-02"</span>, <span class="str">"2024-05-01"</span>)
+
+<span class="cm">// Formatting</span>
+s := now.<span class="fn">Format</span>(time.<span class="ty">RFC3339</span>)         <span class="cm">// "2024-05-15T14:32:01Z"</span>
+s := now.<span class="fn">Format</span>(<span class="str">"02 Jan 2006"</span>)         <span class="cm">// "15 May 2024"</span>
+
+<span class="cm">// Timer / Ticker</span>
+&lt;-time.<span class="fn">After</span>(<span class="num">3</span> * time.<span class="ty">Second</span>)         <span class="cm">// blocks 3s</span>
+ticker := time.<span class="fn">NewTicker</span>(<span class="num">1</span> * time.<span class="ty">Second</span>)
+<span class="kw">defer</span> ticker.<span class="fn">Stop</span>()                  <span class="cm">// always stop tickers!</span>
+<span class="kw">for</span> t := <span class="kw">range</span> ticker.C { <span class="cm">// every 1s</span> }
+</code></pre>
+
+  <div class="box warn"><b>Why <code>2006-01-02</code>?</b> Go's reference time is mnemonic: <code>01/02 03:04:05PM 06 -0700</code> = <code>Jan 2nd, 3:04:05PM, 2006, MST</code>. Memorize once, save hours of confusion.</div>
+
+  <h3 class="theory">strings &amp; strconv</h3>
+<pre><code><span class="cm">// strings — string manipulation</span>
+strings.<span class="fn">Contains</span>(<span class="str">"hello"</span>, <span class="str">"ell"</span>)         <span class="cm">// true</span>
+strings.<span class="fn">HasPrefix</span>(<span class="str">"go-1.22"</span>, <span class="str">"go-"</span>)
+strings.<span class="fn">Split</span>(<span class="str">"a,b,c"</span>, <span class="str">","</span>)              <span class="cm">// [a b c]</span>
+strings.<span class="fn">Join</span>([]<span class="ty">string</span>{<span class="str">"a"</span>,<span class="str">"b"</span>}, <span class="str">"-"</span>)      <span class="cm">// "a-b"</span>
+strings.<span class="fn">ToLower</span>, .<span class="fn">ToUpper</span>, .<span class="fn">TrimSpace</span>, .<span class="fn">Replace</span>, .<span class="fn">ReplaceAll</span>
+
+<span class="cm">// strconv — string ↔ number</span>
+n, err := strconv.<span class="fn">Atoi</span>(<span class="str">"42"</span>)              <span class="cm">// "42" → 42 (int)</span>
+n, err := strconv.<span class="fn">ParseFloat</span>(<span class="str">"3.14"</span>, <span class="num">64</span>)
+s := strconv.<span class="fn">Itoa</span>(<span class="num">42</span>)                    <span class="cm">// 42 → "42"</span>
+s := strconv.<span class="fn">FormatFloat</span>(<span class="num">3.14</span>, <span class="str">'f'</span>, <span class="num">2</span>, <span class="num">64</span>)
+
+<span class="cm">// Builder — efficient concatenation (avoid s += s2 in loops!)</span>
+<span class="kw">var</span> sb strings.<span class="ty">Builder</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">100</span>; i++ {
+    sb.<span class="fn">WriteString</span>(<span class="str">"x"</span>)
+}
+result := sb.<span class="fn">String</span>()
+</code></pre>
+
+  <h3 class="theory">Other heavy hitters to know</h3>
+  <table>
+    <thead><tr><th>Package</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>net/http</code></td><td>HTTP server + client. Not just for hobby — runs in production.</td></tr>
+      <tr><td><code>database/sql</code></td><td>SQL driver-agnostic interface. Use with <code>pgx</code>/<code>mysql</code> drivers.</td></tr>
+      <tr><td><code>encoding/json</code>, <code>encoding/csv</code>, <code>encoding/base64</code></td><td>Common encodings.</td></tr>
+      <tr><td><code>regexp</code></td><td>Regex (RE2 — guaranteed linear time, no catastrophic backtracking).</td></tr>
+      <tr><td><code>sort</code></td><td>Generic sort (use <code>slices.Sort</code> in 1.21+).</td></tr>
+      <tr><td><code>os</code>, <code>os/exec</code></td><td>Files, env vars, subprocesses.</td></tr>
+      <tr><td><code>path/filepath</code></td><td>Cross-platform path handling. NEVER use string concatenation.</td></tr>
+      <tr><td><code>crypto/*</code></td><td>SHA, AES, TLS, etc. — all production grade.</td></tr>
+      <tr><td><code>net/url</code></td><td>URL parsing, query encoding.</td></tr>
+      <tr><td><code>html/template</code>, <code>text/template</code></td><td>Templating with auto-escaping.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. JSON unmarshal silently ignores unknown fields</b> by default. Add <code>dec.DisallowUnknownFields()</code> if you want strict validation (always, IMO).
+  </div>
+  <div class="box danger">
+    <b>2. JSON tags must match the JSON exactly</b> (case-sensitive). <code>"name"</code> tag won't match incoming <code>"Name"</code>.
+  </div>
+  <div class="box warn">
+    <b>3. <code>time.Time</code> defaults to local timezone.</b> Always <code>t.UTC()</code> at boundaries. Store UTC. Convert at the edge.
+  </div>
+  <div class="box warn">
+    <b>4. <code>time.Sleep</code> is not cancellable.</b> Use <code>select { case &lt;-time.After(d): case &lt;-ctx.Done(): }</code>.
+  </div>
+  <div class="box warn">
+    <b>5. <code>strings.TrimRight(s, "abc")</code> trims any of <em>those characters</em>, not the suffix.</b> For suffix removal use <code>strings.TrimSuffix</code>.
+  </div>
+  <div class="box danger">
+    <b>6. JSON numbers default to <code>float64</code>.</b> Unmarshal a big int into <code>any</code> and you may lose precision. Use <code>json.Number</code> or a typed struct.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: Why is Go's regex package "slow" compared to PCRE?</p>
+    <p class="a">It uses RE2, which guarantees O(n) time. It can't do backreferences or lookaheads, but it's safe against catastrophic regex inputs (security wins).</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How would you parse a date like <code>"15-May-2024"</code>?</p>
+    <p class="a"><code>time.Parse("02-Jan-2006", "15-May-2024")</code> — the layout always uses the reference values.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. IO READER/WRITER -->
+<!-- ============================================================ -->
+<section class="note" id="io">
+  <h2><span class="num">04</span> io.Reader / io.Writer — the universal interfaces</h2>
+  <p class="tagline">Two tiny interfaces that compose into all of Go's I/O. Master these and you'll never re-implement streaming.</p>
+
+  <h3 class="why">Why this design?</h3>
+  <p>In Java/Node, file I/O, HTTP body, network socket, in-memory buffer all have different APIs. Go unifies them with two single-method interfaces, letting any source/sink plug into any consumer (compression, hashing, encryption, encoding…).</p>
+
+  <h3 class="theory">The interfaces</h3>
+<pre><code><span class="kw">type</span> Reader <span class="kw">interface</span> {
+    <span class="fn">Read</span>(p []<span class="ty">byte</span>) (n <span class="ty">int</span>, err <span class="ty">error</span>)
+}
+
+<span class="kw">type</span> Writer <span class="kw">interface</span> {
+    <span class="fn">Write</span>(p []<span class="ty">byte</span>) (n <span class="ty">int</span>, err <span class="ty">error</span>)
+}
+</code></pre>
+  <p>That's it. <code>Read</code> fills <code>p</code> with up to <code>len(p)</code> bytes, returns count + error. EOF is signaled via <code>io.EOF</code>.</p>
+
+  <h3 class="theory">Who implements these?</h3>
+  <pre class="diagram">  Reader implementations               Writer implementations
+  ──────────────────────                ─────────────────────
+  *os.File           (file)             *os.File
+  *bytes.Buffer      (in-memory)        *bytes.Buffer
+  *strings.Reader    (string)           *strings.Builder
+  net.Conn           (TCP socket)       net.Conn
+  http.Request.Body  (request body)     http.ResponseWriter
+  *gzip.Reader       (decompressing)    *gzip.Writer
+  *cipher.StreamReader (decrypting)     *cipher.StreamWriter
+  *bufio.Reader      (buffered)         *bufio.Writer</pre>
+
+  <h3 class="code">Composition examples</h3>
+<pre><code><span class="cm">// Read a file, gunzip, parse JSON — all streaming, no big buffers</span>
+f, _ := os.<span class="fn">Open</span>(<span class="str">"data.json.gz"</span>)
+<span class="kw">defer</span> f.<span class="fn">Close</span>()
+gz, _ := gzip.<span class="fn">NewReader</span>(f)              <span class="cm">// gz is also an io.Reader</span>
+<span class="kw">defer</span> gz.<span class="fn">Close</span>()
+<span class="kw">var</span> data []User
+json.<span class="fn">NewDecoder</span>(gz).<span class="fn">Decode</span>(&amp;data)
+
+<span class="cm">// Copy from any reader to any writer</span>
+n, err := io.<span class="fn">Copy</span>(dst, src)             <span class="cm">// streaming, low memory</span>
+
+<span class="cm">// Tee — read AND simultaneously write a copy</span>
+hash := sha256.<span class="fn">New</span>()
+tee := io.<span class="fn">TeeReader</span>(src, hash)
+io.<span class="fn">Copy</span>(io.<span class="ty">Discard</span>, tee)
+<span class="fn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%x\n"</span>, hash.<span class="fn">Sum</span>(<span class="kw">nil</span>))     <span class="cm">// SHA of stream</span>
+
+<span class="cm">// MultiReader — concatenate streams</span>
+r := io.<span class="fn">MultiReader</span>(file1, file2, strings.<span class="fn">NewReader</span>(<span class="str">"trailer"</span>))
+
+<span class="cm">// MultiWriter — write to many sinks (e.g., file + stdout)</span>
+w := io.<span class="fn">MultiWriter</span>(os.Stdout, logFile)
+<span class="fn">fmt</span>.<span class="fn">Fprintln</span>(w, <span class="str">"hello"</span>)
+</code></pre>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li>Building a function that processes data? <strong>Take an <code>io.Reader</code></strong>. The caller can pass a file, an in-memory buffer (great for tests), an HTTP body, anything.</li>
+    <li>Returning data? <strong>Return an <code>io.Reader</code></strong> for streaming, or a <code>[]byte</code> only when the caller will need it all at once.</li>
+    <li><strong>Use <code>bufio.Reader</code></strong> when reading from network/file char-by-char or line-by-line — raw <code>os.File</code> is unbuffered.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. <code>Read</code> may return fewer bytes than asked — that's NORMAL.</b> Don't assume one Read = one logical message. Use <code>io.ReadFull</code>, <code>bufio</code>, or <code>io.ReadAll</code> for whole reads.
+  </div>
+  <div class="box warn">
+    <b>2. EOF is a value, not a panic.</b> <code>err == io.EOF</code> means success — the stream ended cleanly. <code>err == io.ErrUnexpectedEOF</code> = stream cut short mid-read.
+  </div>
+  <div class="box warn">
+    <b>3. Always close.</b> If you got an <code>io.ReadCloser</code> (like <code>http.Response.Body</code>), defer <code>Close()</code>. Forgetting leaks connections + memory.
+  </div>
+  <div class="box warn">
+    <b>4. <code>io.ReadAll</code> reads EVERYTHING into memory.</b> Don't use it on untrusted/unbounded inputs — DoS risk. Cap with <code>io.LimitReader</code>.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you stream a 10GB file processing without loading it into RAM?</p>
+    <p class="a">Open as <code>*os.File</code>, wrap with <code>bufio.NewScanner</code> for lines or <code>bufio.NewReader</code> for chunks, process incrementally. Use <code>io.Copy</code> for pipe-throughs.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How do you compute SHA of an HTTP upload while uploading to S3?</p>
+    <p class="a"><code>io.TeeReader(req.Body, hasher)</code> — pass the tee to S3 client. Hash is updated as bytes flow.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 5. REFLECTION -->
+<!-- ============================================================ -->
+<section class="note" id="reflection">
+  <h2><span class="num">05</span> Reflection &amp; Custom JSON</h2>
+  <p class="tagline">Inspect types at runtime. Powerful, but slow and easy to misuse — use as last resort.</p>
+
+  <h3 class="why">Why does reflection exist?</h3>
+  <p>Some libraries (encoding/json, ORM, validators) need to work with arbitrary user types. They can't be hardcoded. Reflection lets them ask at runtime: "What fields does this struct have? What's their type? What tags?"</p>
+
+  <h3 class="theory">The model</h3>
+  <p>Two types in <code>reflect</code>:</p>
+  <ul>
+    <li><code>reflect.Type</code> — the type metadata (name, kind, fields, methods).</li>
+    <li><code>reflect.Value</code> — a runtime handle to a concrete value (read/set/call).</li>
+  </ul>
+
+<pre><code><span class="kw">type</span> User <span class="kw">struct</span> {
+    Name <span class="ty">string</span> <span class="str">`json:"name" validate:"required"`</span>
+    Age  <span class="ty">int</span>    <span class="str">`json:"age"`</span>
+}
+
+u := User{Name: <span class="str">"Sid"</span>, Age: <span class="num">30</span>}
+t := reflect.<span class="fn">TypeOf</span>(u)
+v := reflect.<span class="fn">ValueOf</span>(u)
+
+<span class="fn">fmt</span>.<span class="fn">Println</span>(t.<span class="fn">Name</span>())              <span class="cm">// "User"</span>
+<span class="fn">fmt</span>.<span class="fn">Println</span>(t.<span class="fn">Kind</span>())              <span class="cm">// struct</span>
+<span class="fn">fmt</span>.<span class="fn">Println</span>(t.<span class="fn">NumField</span>())          <span class="cm">// 2</span>
+
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; t.<span class="fn">NumField</span>(); i++ {
+    f := t.<span class="fn">Field</span>(i)
+    <span class="fn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%s (%s) tag=%q value=%v\n"</span>,
+        f.Name, f.Type, f.Tag.<span class="fn">Get</span>(<span class="str">"json"</span>), v.<span class="fn">Field</span>(i))
+}
+<span class="cm">// Name (string) tag="name" value=Sid
+// Age (int) tag="age" value=30</span>
+</code></pre>
+
+  <h3 class="code">Custom JSON marshaling — the pragmatic use of reflection</h3>
+  <p>You usually don't write reflection yourself. You implement these interfaces:</p>
+<pre><code><span class="kw">type</span> Money <span class="kw">struct</span> {
+    Amount   <span class="ty">int64</span>     <span class="cm">// cents</span>
+    Currency <span class="ty">string</span>
+}
+
+<span class="cm">// Custom output: "$12.34"</span>
+<span class="kw">func</span> (m Money) <span class="fn">MarshalJSON</span>() ([]<span class="ty">byte</span>, <span class="ty">error</span>) {
+    s := <span class="fn">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"\"%s%.2f\""</span>, m.Currency, <span class="ty">float64</span>(m.Amount)/<span class="num">100</span>)
+    <span class="kw">return</span> []<span class="ty">byte</span>(s), <span class="kw">nil</span>
+}
+
+<span class="kw">func</span> (m *Money) <span class="fn">UnmarshalJSON</span>(b []<span class="ty">byte</span>) <span class="ty">error</span> {
+    <span class="kw">var</span> s <span class="ty">string</span>
+    <span class="kw">if</span> err := json.<span class="fn">Unmarshal</span>(b, &amp;s); err != <span class="kw">nil</span> { <span class="kw">return</span> err }
+    <span class="cm">// parse "$12.34" → m.Currency, m.Amount...</span>
+    <span class="kw">return</span> <span class="kw">nil</span>
+}
+</code></pre>
+  <p>The std lib's <code>encoding/json</code> package detects these methods via reflection and calls them.</p>
+
+  <h3 class="when">When to use reflection?</h3>
+  <ul>
+    <li>Writing a library that handles arbitrary user types (validator, ORM, encoder).</li>
+    <li>Wiring DI containers, registering plugins.</li>
+    <li>Generating test fixtures.</li>
+    <li><strong>Almost never in app code.</strong> Prefer interfaces, generics, or code generation.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Reflection is SLOW.</b> 10-100x slower than direct field access. Don't use in hot paths. Cache reflect.Type if you must.
+  </div>
+  <div class="box danger">
+    <b>2. Reflection sidesteps type safety.</b> Errors that would be compile-time become runtime panics. Test thoroughly.
+  </div>
+  <div class="box warn">
+    <b>3. To set a field via reflection</b>, you need <code>reflect.ValueOf(&amp;u).Elem()</code> (a settable value) and the field must be exported. Unexported fields can't be set via reflection.
+  </div>
+  <div class="box warn">
+    <b>4. Tag parsing is YOUR job.</b> <code>StructField.Tag.Get("json")</code> returns <code>"name,omitempty"</code> as ONE string — split it manually.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: What's the alternative to reflection in modern Go?</p>
+    <p class="a">Generics (Go 1.18+) eliminate many use cases. Code generation (<code>go generate</code> + <code>stringer</code>, <code>genny</code>) gives compile-time, zero-overhead specialization. Reach for reflect only when neither works.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How does <code>fmt.Println</code> know how to print any type?</p>
+    <p class="a">It uses reflection internally (or calls <code>String()</code>/<code>Error()</code> methods if implemented). For custom output, implement <code>fmt.Stringer</code>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 6. SLOG -->
+<!-- ============================================================ -->
+<section class="note" id="slog">
+  <h2><span class="num">06</span> Structured Logging with slog</h2>
+  <p class="tagline">Built-in (Go 1.21+), structured, leveled, fast. Replaces <code>log</code>, <code>logrus</code>, <code>zap</code> for most needs.</p>
+
+  <h3 class="why">Why structured?</h3>
+  <p>Old-style logs (<code>log.Println("user 42 saved in 17ms")</code>) are unparseable strings. Structured logs are JSON/key-value — your log aggregator (Loki, ELK, Datadog) can index and query them.</p>
+
+  <h3 class="theory">slog basics</h3>
+<pre><code><span class="kw">import</span> <span class="str">"log/slog"</span>
+
+<span class="cm">// Default text logger to stderr</span>
+slog.<span class="fn">Info</span>(<span class="str">"user saved"</span>, <span class="str">"id"</span>, <span class="num">42</span>, <span class="str">"duration_ms"</span>, <span class="num">17</span>)
+<span class="cm">// time=2024-05-15T10:30:00 level=INFO msg="user saved" id=42 duration_ms=17</span>
+
+<span class="cm">// JSON logger</span>
+logger := slog.<span class="fn">New</span>(slog.<span class="fn">NewJSONHandler</span>(os.Stderr, &amp;slog.<span class="ty">HandlerOptions</span>{
+    Level: slog.<span class="ty">LevelDebug</span>,
+}))
+slog.<span class="fn">SetDefault</span>(logger)
+
+slog.<span class="fn">Error</span>(<span class="str">"db query failed"</span>, <span class="str">"err"</span>, err, <span class="str">"query"</span>, q)
+<span class="cm">// {"time":"...","level":"ERROR","msg":"db query failed","err":"...","query":"..."}</span>
+</code></pre>
+
+  <h3 class="code">Common patterns</h3>
+<pre><code><span class="cm">// Levels: Debug, Info, Warn, Error</span>
+slog.<span class="fn">Debug</span>(<span class="str">"raw payload"</span>, <span class="str">"data"</span>, payload)
+slog.<span class="fn">Warn</span>(<span class="str">"retrying"</span>, <span class="str">"attempt"</span>, n)
+
+<span class="cm">// Group attributes</span>
+slog.<span class="fn">Info</span>(<span class="str">"http request"</span>,
+    slog.<span class="fn">Group</span>(<span class="str">"req"</span>,
+        <span class="str">"method"</span>, <span class="str">"GET"</span>,
+        <span class="str">"path"</span>, <span class="str">"/users"</span>,
+    ),
+    <span class="str">"status"</span>, <span class="num">200</span>,
+)
+
+<span class="cm">// Loggers with persistent context (e.g., per-request)</span>
+reqLogger := slog.<span class="fn">Default</span>().<span class="fn">With</span>(<span class="str">"requestID"</span>, id, <span class="str">"user"</span>, u)
+reqLogger.<span class="fn">Info</span>(<span class="str">"started"</span>)
+reqLogger.<span class="fn">Info</span>(<span class="str">"saved"</span>, <span class="str">"rows"</span>, <span class="num">3</span>)
+<span class="cm">// Both lines include requestID and user automatically.</span>
+
+<span class="cm">// With context — for trace propagation</span>
+slog.<span class="fn">InfoContext</span>(ctx, <span class="str">"work done"</span>)
+</code></pre>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li><strong>Default to JSON in production</strong>, text in local dev.</li>
+    <li><strong>Use <code>slog.With</code></strong> at request entry to attach request/trace IDs — they automatically appear in every log line for that request.</li>
+    <li><strong>Don't log secrets</strong> (passwords, tokens, PII). Build a redaction layer (custom <code>LogValuer</code> impl).</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box danger">
+    <b>1. Key-value pairs come in PAIRS.</b> <code>slog.Info("x", "k1", v1, "k2")</code> with odd args is silently mangled. Use <code>slog.Any("k", v)</code> typed attrs to avoid mistakes.
+  </div>
+  <div class="box warn">
+    <b>2. Loggers are concurrency-safe</b> — share one. Don't create a new logger per request unless deriving with <code>With</code>.
+  </div>
+  <div class="box warn">
+    <b>3. <code>slog</code> is slower than <code>zap</code> for the absolute hottest paths.</b> For >100k logs/sec consider <code>zerolog</code>/<code>zap</code>. Otherwise <code>slog</code> is plenty fast.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: How do you correlate logs to traces?</p>
+    <p class="a">Inject the <code>traceID</code>/<code>spanID</code> as attrs via <code>logger.With(...)</code> at request entry, ideally pulled from OpenTelemetry context.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: When would you NOT use slog?</p>
+    <p class="a">Pre-Go 1.21 codebases (<code>zap</code>/<code>zerolog</code>); ultra-high-throughput pipelines where allocation profile matters; specialized formats (CEF, GELF) needing existing libs.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 7. TOOLING -->
+<!-- ============================================================ -->
+<section class="note" id="tooling">
+  <h2><span class="num">07</span> Go Tooling — test, vet, build, generate</h2>
+  <p class="tagline">Go ships with one CLI that does ~everything. No <code>webpack.config</code>, no <code>tsconfig</code>, no <code>jest.config</code>.</p>
+
+  <h3 class="why">Why a single tool?</h3>
+  <p>Predictability across teams and codebases. <code>go test ./...</code> works the same in every Go project on earth. New hires don't need to learn 10 build tools.</p>
+
+  <h3 class="syntax">Cheat-sheet</h3>
+  <table>
+    <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>go run main.go</code></td><td>Compile + run (dev)</td></tr>
+      <tr><td><code>go build ./...</code></td><td>Compile every package; binary named after main package</td></tr>
+      <tr><td><code>go install</code></td><td>Build &amp; place binary in <code>$GOPATH/bin</code></td></tr>
+      <tr><td><code>go test ./...</code></td><td>Run all tests</td></tr>
+      <tr><td><code>go test -race ./...</code></td><td>With race detector (use in CI!)</td></tr>
+      <tr><td><code>go test -cover ./...</code></td><td>Code coverage</td></tr>
+      <tr><td><code>go test -bench=. -benchmem</code></td><td>Run benchmarks</td></tr>
+      <tr><td><code>go vet ./...</code></td><td>Static analysis (catches common bugs)</td></tr>
+      <tr><td><code>gofmt -w .</code> / <code>go fmt ./...</code></td><td>Auto-format</td></tr>
+      <tr><td><code>go mod tidy</code></td><td>Sync go.mod / go.sum</td></tr>
+      <tr><td><code>go generate ./...</code></td><td>Run generators (mocks, enums)</td></tr>
+      <tr><td><code>go doc fmt.Sprintf</code></td><td>Inline docs</td></tr>
+      <tr><td><code>go env</code></td><td>Show Go env (GOROOT, GOPATH, GOOS, etc.)</td></tr>
+      <tr><td><code>go tool pprof cpu.prof</code></td><td>Profiler UI</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="theory">Testing</h3>
+<pre><code><span class="cm">// file: math_test.go (must end in _test.go)</span>
+<span class="kw">package</span> mymath
+
+<span class="kw">import</span> <span class="str">"testing"</span>
+
+<span class="kw">func</span> <span class="fn">TestAdd</span>(t *testing.<span class="ty">T</span>) {
+    got := <span class="fn">Add</span>(<span class="num">2</span>, <span class="num">3</span>)
+    <span class="kw">if</span> got != <span class="num">5</span> {
+        t.<span class="fn">Errorf</span>(<span class="str">"Add(2,3) = %d; want 5"</span>, got)
+    }
+}
+
+<span class="cm">// Table-driven tests — idiomatic Go style</span>
+<span class="kw">func</span> <span class="fn">TestAddMany</span>(t *testing.<span class="ty">T</span>) {
+    cases := []<span class="kw">struct</span> {
+        name    <span class="ty">string</span>
+        a, b    <span class="ty">int</span>
+        want    <span class="ty">int</span>
+    }{
+        {<span class="str">"both pos"</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>},
+        {<span class="str">"with zero"</span>, <span class="num">5</span>, <span class="num">0</span>, <span class="num">5</span>},
+        {<span class="str">"neg"</span>, -<span class="num">1</span>, -<span class="num">1</span>, -<span class="num">2</span>},
+    }
+    <span class="kw">for</span> _, tc := <span class="kw">range</span> cases {
+        t.<span class="fn">Run</span>(tc.name, <span class="kw">func</span>(t *testing.<span class="ty">T</span>) {
+            <span class="kw">if</span> got := <span class="fn">Add</span>(tc.a, tc.b); got != tc.want {
+                t.<span class="fn">Errorf</span>(<span class="str">"got %d, want %d"</span>, got, tc.want)
+            }
+        })
+    }
+}
+
+<span class="cm">// Benchmark</span>
+<span class="kw">func</span> <span class="fn">BenchmarkAdd</span>(b *testing.<span class="ty">B</span>) {
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; b.N; i++ {
+        <span class="fn">Add</span>(<span class="num">1</span>, <span class="num">2</span>)
+    }
+}
+</code></pre>
+
+  <div class="box tip">
+    <b>Run a single test:</b> <code>go test -run TestAdd ./pkg</code>. <b>Verbose:</b> <code>-v</code>. <b>One subtest:</b> <code>-run "TestAddMany/with_zero"</code>.
+  </div>
+
+  <h3 class="theory">go generate</h3>
+  <p>Embed compiler-driven scripts in your code:</p>
+<pre><code><span class="cm">//go:generate stringer -type=Status</span>
+<span class="kw">type</span> Status <span class="ty">int</span>
+<span class="kw">const</span> ( Pending Status = <span class="kw">iota</span>; Active; Closed )
+<span class="cm">// running `go generate` produces status_string.go with String() method</span>
+</code></pre>
+  <p>Common generators: <code>stringer</code>, <code>mockgen</code> (gomock), <code>protoc-gen-go</code> (proto), <code>sqlc</code>, <code>ent</code>.</p>
+
+  <h3 class="when">When &amp; Why</h3>
+  <ul>
+    <li><strong>Always run <code>go vet</code> + <code>golangci-lint</code> in CI.</strong> Catches mistakes before review.</li>
+    <li><strong>Always run with <code>-race</code> in CI.</strong> Concurrency bugs hide for months otherwise.</li>
+    <li><strong>Test files next to source</strong> (same folder, <code>_test.go</code> suffix). External tests use <code>package foo_test</code> in same folder.</li>
+  </ul>
+
+  <h3 class="gotcha">Gotchas</h3>
+  <div class="box warn">
+    <b>1. Flaky tests.</b> Most are concurrency or time-dependent. Use <code>testing.Short</code> for slow tests; <code>t.Parallel()</code> needs care if shared globals exist.
+  </div>
+  <div class="box warn">
+    <b>2. <code>t.Parallel()</code> + table-driven tests + loop var.</b> Pre-Go 1.22, capture the test case: <code>tc := tc</code> before <code>t.Run</code> closure. Fixed in 1.22.
+  </div>
+  <div class="box danger">
+    <b>3. <code>go test ./...</code> doesn't fail on race conditions WITHOUT <code>-race</code>.</b> Add it to CI.
+  </div>
+  <div class="box warn">
+    <b>4. Coverage gates can lie.</b> 90% coverage means lines were executed, not that you tested all behaviors. Don't chase numbers blindly.
+  </div>
+
+  <h3 class="iv">Interview Q&amp;A</h3>
+  <div class="qa">
+    <p class="q">Q: What does <code>go vet</code> catch that the compiler doesn't?</p>
+    <p class="a">Lock copies, misuses of <code>Printf</code> formatting, suspicious shifts, unreachable code, etc. Use <code>golangci-lint</code> for a superset.</p>
+  </div>
+  <div class="qa">
+    <p class="q">Q: How do you isolate integration tests?</p>
+    <p class="a">Use build tags: <code>//go:build integration</code> at top of file, run with <code>go test -tags=integration</code>. Or check a flag/env var and <code>t.Skip()</code>.</p>
+  </div>
+
+  <a href="#" class="back-top">↑ Back to top</a>
+</section>
+
+</div>
+
+<footer class="page">
+  Phase 2 done. Next: <a href="phase3.html">Phase 3 — Concurrency &amp; Goroutines</a> →
+</footer>
+
+<details class="floating-toc">
+  <summary title="Table of Contents" aria-label="Table of Contents"></summary>
+  <div class="ft-panel">
+    <h4>Phase 2 — Concepts</h4>
+    <ol>
+      <li><a href="#generics">Generics</a></li>
+      <li><a href="#context">Context Package</a></li>
+      <li><a href="#stdlib">JSON, Time, Strings &amp; Stdlib</a></li>
+      <li><a href="#io">io.Reader / io.Writer</a></li>
+      <li><a href="#reflection">Reflection &amp; encoding/json</a></li>
+      <li><a href="#slog">Structured Logging (slog)</a></li>
+      <li><a href="#tooling">Go Tooling</a></li>
+    </ol>
+    <div class="ft-extra">
+      <a href="phase1.html">← Phase 1 (Fundamentals)</a>
+      <a href="phase3.html">→ Phase 3 (Concurrency)</a>
+      <a href="../go-roadmap.html">← Roadmap</a>
+    </div>
+  </div>
+</details>
+
+</body>
+</html>

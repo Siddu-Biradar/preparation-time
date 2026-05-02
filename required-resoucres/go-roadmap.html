@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Go Backend Roadmap — 0 to Advanced (E2E) with Video Tutorials</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f9fc;
+    --panel: #ffffff;
+    --panel-2: #f3f6fb;
+    --text: #1b2330;
+    --muted: #5b6675;
+    --accent: #00ADD8;
+    --accent-dark: #0082a3;
+    --accent-2: #1a7f72;
+    --border: #e3e8ef;
+    --border-strong: #cfd6df;
+    --success: #16a34a;
+    --warn: #b45309;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+    background: var(--bg-alt);
+    color: var(--text);
+    line-height: 1.65;
+  }
+  header {
+    padding: 52px 24px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #eaf9fc 0%, #ffffff 100%);
+  }
+  header h1 {
+    margin: 0 0 10px;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.5px;
+    color: #0f1621;
+  }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); max-width: 820px; margin: 0 auto; }
+  .container { max-width: 1120px; margin: 0 auto; padding: 24px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0 0; }
+  .pill {
+    border: 1px solid var(--border-strong); background: #fff;
+    color: var(--muted); padding: 6px 12px; border-radius: 999px; font-size: 13px;
+  }
+  .pill.accent { color: var(--accent-dark); border-color: rgba(0,173,216,0.35); background: #eaf9fc; }
+  .phase {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px 26px; margin: 22px 0;
+    box-shadow: var(--shadow);
+  }
+  .phase h2 {
+    margin: 0 0 6px; font-size: 22px; color: #0f1621;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .phase h2 .tag {
+    font-size: 12px; color: #fff; background: var(--accent);
+    padding: 3px 10px; border-radius: 6px; font-weight: 700;
+  }
+  .phase .sub { color: var(--muted); margin-top: 0; }
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 10px;
+  }
+  .card {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .card h3 {
+    margin: 0 0 10px; font-size: 14px; color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;
+  }
+  ul { margin: 6px 0 0 0; padding-left: 20px; }
+  li { margin: 5px 0; }
+  a { color: var(--accent-dark); text-decoration: none; border-bottom: 1px dashed rgba(0,130,163,0.35); }
+  a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  code {
+    background: #eef3f8; color: #0b5d73;
+    padding: 2px 6px; border-radius: 4px; font-size: 13px;
+    border: 1px solid var(--border);
+  }
+  .project {
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px; background: #f1fbfd;
+    border-radius: 0 8px 8px 0; margin: 12px 0;
+  }
+  .project b { color: var(--accent-dark); }
+  .checklist {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    margin-top: 12px;
+  }
+  .check {
+    background: #fff; border: 1px solid var(--border);
+    border-left: 3px solid var(--success);
+    border-radius: 8px; padding: 10px 12px; font-size: 14px;
+  }
+  .check::before { content: "✓ "; color: var(--success); font-weight: bold; }
+  .callout {
+    background: #f1fbfd; border: 1px solid rgba(0,173,216,0.3);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+  }
+  .callout b { color: var(--accent-dark); }
+  .warn {
+    background: #fff8eb; border: 1px solid #f5d69a;
+    border-left: 4px solid var(--warn);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+    color: #7a4a05;
+  }
+  .videos {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin: 12px 0;
+  }
+  .video {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    transition: box-shadow .15s ease, transform .1s ease;
+  }
+  .video:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .video .title { font-weight: 600; color: var(--text); }
+  .video small { color: var(--muted); display: block; margin-top: 4px; font-size: 12px; }
+  .video.notes-link {
+    background: linear-gradient(135deg, #e6fbff 0%, #f0fdf4 100%);
+    border-color: var(--accent);
+    border-left: 4px solid var(--accent);
+  }
+  .video.notes-link .title { color: var(--accent-dark); }
+  .video.notes-link small { color: #15803d; font-weight: 500; }
+  footer {
+    text-align: center; color: var(--muted); padding: 40px 20px;
+    border-top: 1px solid var(--border); margin-top: 40px; font-size: 14px;
+    background: #fff;
+  }
+  .toc {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+    box-shadow: var(--shadow);
+  }
+  .toc h3 { margin-top: 0; color: var(--accent-dark); }
+  .toc ol { columns: 2; column-gap: 30px; padding-left: 20px; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+  .concept {
+    margin: 14px 0 6px; padding: 8px 0 4px;
+    border-top: 1px dashed var(--border);
+  }
+  .concept:first-of-type { border-top: none; }
+  .concept h4 { margin: 0 0 6px; font-size: 15px; color: #0f1621; }
+  .concept h4::before { content: "▸ "; color: var(--accent); font-weight: 700; }
+
+  /* Floating TOC drawer */
+  .floating-toc { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+  .floating-toc > summary {
+    list-style: none; cursor: pointer;
+    background: var(--accent); color: #fff;
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0, 130, 163, .35);
+    transition: transform .15s ease, background .15s ease;
+    user-select: none;
+  }
+  .floating-toc > summary::-webkit-details-marker { display: none; }
+  .floating-toc > summary:hover { background: var(--accent-dark); transform: scale(1.05); }
+  .floating-toc[open] > summary { background: var(--accent-dark); border-radius: 50% 50% 0 0; }
+  .floating-toc[open] > summary::after { content: "✕"; }
+  .floating-toc:not([open]) > summary::after { content: "≡"; }
+  .ft-panel {
+    position: absolute; bottom: 64px; right: 0;
+    width: min(380px, calc(100vw - 40px));
+    max-height: 75vh; overflow-y: auto;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: 0 10px 30px rgba(16, 24, 40, .15);
+    padding: 16px 20px;
+  }
+  .ft-panel h4 { margin: 0 0 10px; color: var(--accent-dark); font-size: 14px; text-transform: uppercase; letter-spacing: .5px; }
+  .ft-panel ol { margin: 0; padding-left: 22px; }
+  .ft-panel li { margin: 6px 0; font-size: 14px; }
+  .ft-panel a { color: var(--accent-dark); text-decoration: none; }
+  .ft-panel a:hover { text-decoration: underline; color: var(--accent); }
+  .ft-panel .ft-extra { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 13px; }
+  .ft-panel .ft-extra a { display: block; padding: 3px 0; }
+  @media (max-width: 480px) {
+    .floating-toc { bottom: 14px; right: 14px; }
+    .floating-toc > summary { width: 50px; height: 50px; font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🚀 <span>Go</span> Backend Roadmap — 0 to Advanced</h1>
+  <p>End-to-end learning path for a frontend developer (Angular/TS) transitioning to backend with Go. Every concept paired with <b>curated video tutorials</b>. Clean light theme for long reading sessions.</p>
+  <div class="legend">
+    <span class="pill accent">Duration: 6–9 months</span>
+    <span class="pill">100+ video tutorials</span>
+    <span class="pill">12 phases, 7 projects</span>
+    <span class="pill accent">Light theme</span>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h3>📚 Table of Contents</h3>
+  <ol>
+    <li><a href="#prereq">Prerequisites — Daily-Use Commands &amp; Tools</a></li>
+    <li><a href="#phase0">Phase 0 — Setup &amp; Mindset</a></li>
+    <li><a href="#gocmds">Pre-1 — Go CLI Commands Reference</a></li>
+    <li><a href="#phase1">Phase 1 — Go Fundamentals</a></li>
+    <li><a href="#phase2">Phase 2 — Intermediate Go</a></li>
+    <li><a href="#phase3">Phase 3 — Concurrency Deep Dive</a></li>
+    <li><a href="#phase4">Phase 4 — Backend Development</a></li>
+    <li><a href="#phase5">Phase 5 — Databases (SQL + NoSQL)</a></li>
+    <li><a href="#phase6">Phase 6 — Auth &amp; Security</a></li>
+    <li><a href="#phase7">Phase 7 — Testing</a></li>
+    <li><a href="#phase8">Phase 8 — Microservices &amp; gRPC</a></li>
+    <li><a href="#phase9">Phase 9 — Docker, K8s &amp; Cloud</a></li>
+    <li><a href="#phase10">Phase 10 — Observability</a></li>
+    <li><a href="#phase11">Phase 11 — System Design</a></li>
+    <li><a href="#phase12">Phase 12 — AI + Go</a></li>
+    <li><a href="#projects">Capstone Projects</a></li>
+    <li><a href="#resources">Master Resource List</a></li>
+    <li><a href="#jobsearch">Job Search Playbook</a></li>
+  </ol>
+</div>
+
+<!-- PREREQ -->
+<section class="phase" id="prereq">
+  <h2><span class="tag">Pre-0</span> Prerequisites — Daily-Use Commands &amp; Tools</h2>
+  <p class="sub">Master these before touching Go. Every backend engineer uses these 100x a day. Skip this = pain later.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Comfortable in terminal, Git, Vim basics, npm, Docker CLI, and shell scripting. No googling every command.
+  </div>
+
+  <!-- Terminal / Shell -->
+  <div class="concept">
+    <h4>Terminal &amp; Shell (Bash/Zsh) Essentials</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Navigation &amp; Files</h3>
+        <ul>
+          <li><code>pwd</code> — <b>P</b>rint <b>W</b>orking <b>D</b>irectory. Shows the full path of where you currently are.</li>
+          <li><code>ls -la</code> — <b>L</b>i<b>S</b>t files. <code>-l</code> long format (permissions, size, date), <code>-a</code> includes hidden files (starting with <code>.</code>).</li>
+          <li><code>cd dir</code> — <b>C</b>hange <b>D</b>irectory. <code>cd ..</code> goes up one level. <code>cd -</code> jumps back to your previous directory (toggle).</li>
+          <li><code>mkdir -p a/b/c</code> — <b>M</b>a<b>K</b>e <b>DIR</b>ectory. <code>-p</code> creates parent dirs if missing, so the whole tree is built in one shot.</li>
+          <li><code>touch file.txt</code> — Creates an empty file. Also updates the last-modified timestamp if the file already exists.</li>
+          <li><code>cp -r src/ dst/</code> — <b>C</b>o<b>P</b>y files. <code>-r</code> (recursive) is required when copying directories and everything inside them.</li>
+          <li><code>mv old new</code> — <b>M</b>o<b>V</b>e or rename. Same command for both — moving within the same directory just renames.</li>
+          <li><code>rm -rf dir/</code> — <b>R</b>e<b>M</b>ove. <code>-r</code> recursive (for dirs), <code>-f</code> force (no prompts). ⚠️ Irreversible — double-check path first.</li>
+          <li><code>ln -s target link</code> — Create a <b>symbolic link</b> (shortcut/alias). Useful for pointing to files in other locations without copying.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>View &amp; Search</h3>
+        <ul>
+          <li><code>cat file</code> — dumps the <b>entire</b> file to terminal. Best for short files.</li>
+          <li><code>less file</code> — opens file in a scrollable pager (arrow keys, <code>/</code> search, <code>q</code> quits). Use for long files.</li>
+          <li><code>head -n 20 file</code> — shows the first 20 lines. <code>tail -n 20</code> shows last 20.</li>
+          <li><code>tail -f log</code> — <b>follow</b> mode. Streams new lines as they're written. Essential for watching live log files.</li>
+          <li><code>grep -r "pattern" .</code> — <b>G</b>lobal <b>R</b>egular <b>E</b>xpression <b>P</b>rint. <code>-r</code> searches recursively through all files from current dir.</li>
+          <li><code>find . -name "*.go"</code> — finds files matching a name pattern starting from <code>.</code> (current dir). Also supports <code>-type</code>, <code>-size</code>, <code>-mtime</code>.</li>
+          <li><code>fzf</code> — interactive <b>fuzzy finder</b>. Type parts of a name, it filters live. Pipe anything into it: <code>history | fzf</code>. ⭐</li>
+          <li><code>rg "pattern"</code> — <b>ripgrep</b>, a modern, 10x faster grep. Respects <code>.gitignore</code> by default.</li>
+          <li><code>wc -l file</code> — <b>W</b>ord <b>C</b>ount. <code>-l</code> counts lines, <code>-w</code> words, <code>-c</code> bytes.</li>
+          <li><code>diff a b</code> — shows the line-by-line differences between two files.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Processes &amp; System</h3>
+        <ul>
+          <li><code>ps aux | grep go</code> — lists all running processes (<code>a</code> all users, <code>u</code> user-readable, <code>x</code> incl. no terminal) and filters those containing "go".</li>
+          <li><code>top</code> — live process monitor (CPU, memory). Press <code>q</code> to quit.</li>
+          <li><code>htop</code> — prettier, colored, interactive version of <code>top</code>. Arrow keys + <code>F9</code> to kill a process.</li>
+          <li><code>kill PID</code> — politely asks process to terminate (SIGTERM). <code>kill -9 PID</code> = force kill (SIGKILL), use only when normal kill fails.</li>
+          <li><code>lsof -i :8080</code> — <b>L</b>i<b>S</b>t <b>O</b>pen <b>F</b>iles. Shows which process is listening on port 8080. Gold for "port already in use" errors.</li>
+          <li><code>df -h</code> — <b>D</b>isk <b>F</b>ree. Shows disk usage per mounted filesystem. <code>-h</code> = human-readable (MB/GB).</li>
+          <li><code>du -sh *</code> — <b>D</b>isk <b>U</b>sage. <code>-s</code> summary per item, <code>-h</code> human-readable. Shows size of each file/folder in current dir.</li>
+          <li><code>free -h</code> — shows RAM usage (Linux). On Mac use <code>vm_stat</code> or Activity Monitor.</li>
+          <li><code>uname -a</code> — prints all OS/kernel info (OS name, hostname, kernel version, architecture).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Network</h3>
+        <ul>
+          <li><code>curl -X POST url -d '{}'</code> — sends an HTTP POST request with a JSON body. <code>-X</code> specifies method, <code>-d</code> sends data.</li>
+          <li><code>curl -v url</code> — <b>verbose</b> mode. Prints the full request/response including headers — great for debugging APIs.</li>
+          <li><code>wget url</code> — downloads a file from a URL to disk. Simpler than curl for pure downloads.</li>
+          <li><code>ping host</code> — sends ICMP packets to test if a host is reachable and measure latency.</li>
+          <li><code>dig example.com</code> — DNS lookup tool. Shows A, CNAME, MX records. Modern replacement for <code>nslookup</code>.</li>
+          <li><code>netstat -tulpn</code> / <code>ss -tlnp</code> — list listening ports and the processes bound to them. <code>ss</code> is the modern tool.</li>
+          <li><code>ssh user@host</code> — opens an encrypted remote shell on another machine.</li>
+          <li><code>scp file user@host:/path</code> — <b>S</b>ecure <b>C</b>o<b>P</b>y. Copies files over SSH between local and remote.</li>
+          <li><code>jq '.key'</code> — command-line JSON processor. Parse, filter, transform JSON: <code>curl ... | jq '.users[0].name'</code>. ⭐</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pipes, Redirects, Chaining</h3>
+        <ul>
+          <li><code>cmd1 | cmd2</code> — <b>pipe</b>: sends stdout of cmd1 as stdin to cmd2. Enables composition, e.g., <code>cat log | grep ERROR | wc -l</code>.</li>
+          <li><code>cmd &gt; file</code> — redirect stdout to <code>file</code>, <b>overwriting</b> it.</li>
+          <li><code>cmd &gt;&gt; file</code> — redirect stdout and <b>append</b> to file (doesn't overwrite).</li>
+          <li><code>cmd 2&gt;&amp;1</code> — redirect stderr (fd 2) into stdout (fd 1). Use when piping both error + normal output together.</li>
+          <li><code>cmd1 &amp;&amp; cmd2</code> — runs cmd2 <b>only if</b> cmd1 succeeds (exit code 0). Chaining on success.</li>
+          <li><code>cmd1 || cmd2</code> — runs cmd2 <b>only if</b> cmd1 fails. Useful for fallbacks.</li>
+          <li><code>$(cmd)</code> — <b>command substitution</b>: replaces itself with cmd's output, e.g., <code>echo "today is $(date)"</code>.</li>
+          <li><code>xargs</code> — takes stdin lines and turns them into arguments for another command, e.g., <code>find . -name "*.log" | xargs rm</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Env &amp; Shell Config</h3>
+        <ul>
+          <li><code>export VAR=value</code> — sets an environment variable that child processes inherit. Without <code>export</code>, it's shell-local only.</li>
+          <li><code>echo $PATH</code> — prints the <code>PATH</code> env var (list of dirs searched for executables). Prefix any var with <code>$</code> to read it.</li>
+          <li><code>which go</code> — prints the absolute path of the <code>go</code> executable the shell will run.</li>
+          <li><code>type cmd</code> — tells you what <code>cmd</code> is: an alias, builtin, function, or file on PATH.</li>
+          <li><code>~/.zshrc</code> / <code>~/.bashrc</code> — your shell's startup config file. Put aliases, exports, and PATH edits here.</li>
+          <li><code>source ~/.zshrc</code> — <b>re-reads</b> the config into current shell without needing to restart.</li>
+          <li><code>alias gs='git status'</code> — creates a shortcut. Typing <code>gs</code> now runs <code>git status</code>.</li>
+          <li><b>Oh My Zsh</b> ⭐ — framework on top of zsh with themes, plugins, autocompletion. Install for a huge productivity boost.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Linux+Command+Line+Full+Course" target="_blank" class="title">Linux Command Line Full Course</a><small>freeCodeCamp (5h)</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Bash+Scripting+Tutorial" target="_blank" class="title">Bash Scripting Tutorial</a><small>ProgrammingKnowledge</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Zsh+%2B+Oh+My+Zsh+Setup" target="_blank" class="title">Zsh + Oh My Zsh Setup</a><small>Syntax</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Terminal+Productivity+Tips" target="_blank" class="title">Terminal Productivity Tips</a><small>ThePrimeagen</small></div>
+    </div>
+  </div>
+
+  <!-- Git -->
+  <div class="concept">
+    <h4>Git — Daily Commands (MOST IMPORTANT)</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Basics</h3>
+        <ul>
+          <li><code>git init</code> — turns the current folder into a new Git repo by creating a hidden <code>.git/</code> directory.</li>
+          <li><code>git clone url</code> — downloads an existing remote repo to your machine, with full history.</li>
+          <li><code>git status</code> — shows which files are modified, staged, or untracked. Run this constantly.</li>
+          <li><code>git diff</code> — shows line-by-line changes not yet staged. <code>git diff --staged</code> shows what's about to be committed.</li>
+          <li><code>git add .</code> — stages <b>all</b> changes in current directory. <code>git add file</code> stages a specific file.</li>
+          <li><code>git add -p</code> — <b>patch mode</b>: interactively stage individual chunks of a file. Great for splitting work into clean commits.</li>
+          <li><code>git commit -m "msg"</code> — creates a snapshot of staged changes with a message.</li>
+          <li><code>git commit --amend</code> — edits the <b>most recent</b> commit (message or contents). Don't use this on already-pushed commits.</li>
+          <li><code>git log --oneline --graph --all</code> — compact visual history of all branches in a single screen.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Branches</h3>
+        <ul>
+          <li><code>git branch</code> — lists local branches; the current one has a <code>*</code>.</li>
+          <li><code>git branch -d name</code> — deletes a branch (refuses if it has unmerged work). <code>-D</code> force-deletes.</li>
+          <li><code>git checkout -b feature/x</code> — creates a new branch <i>and</i> switches to it in one step.</li>
+          <li><code>git switch main</code> — modern, clearer version of <code>git checkout main</code> for switching branches.</li>
+          <li><code>git merge branch</code> — merges <code>branch</code> into your current branch, usually creating a merge commit.</li>
+          <li><code>git rebase main</code> ⭐ — replays your commits on top of <code>main</code>, giving a clean, linear history (no merge commits).</li>
+          <li><code>git cherry-pick hash</code> — copies a specific commit from another branch onto your current branch.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Remote &amp; Sync</h3>
+        <ul>
+          <li><code>git remote -v</code> — lists configured remote repos (usually <code>origin</code>) with their fetch/push URLs.</li>
+          <li><code>git fetch</code> — downloads new commits from remote but <b>doesn't</b> touch your working branch. Safe.</li>
+          <li><code>git pull</code> — <code>fetch</code> + <code>merge</code> in one. Updates your current branch with remote changes.</li>
+          <li><code>git push origin branch</code> — uploads your local commits to the remote branch.</li>
+          <li><code>git push --force-with-lease</code> — safer force-push: only overwrites remote if it hasn't changed since your last fetch.</li>
+          <li><code>git pull --rebase</code> ⭐ — pull, but rebase local commits on top instead of merging. Keeps history linear.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Undo &amp; Fix</h3>
+        <ul>
+          <li><code>git restore file</code> — discards unstaged changes in a file, reverting it to the last commit.</li>
+          <li><code>git restore --staged file</code> — unstages a file (removes from "to be committed") without losing changes.</li>
+          <li><code>git reset --soft HEAD~1</code> — undoes the last commit but keeps changes staged. Great for rewording commits.</li>
+          <li><code>git reset --hard HEAD~1</code> ⚠️ — nukes the last commit <b>and</b> all changes. Irreversible. Use carefully.</li>
+          <li><code>git revert hash</code> — creates a <b>new commit</b> that undoes the changes of the given commit. Safe on shared branches.</li>
+          <li><code>git stash</code> — temporarily saves uncommitted changes so you can switch branches. <code>git stash pop</code> brings them back.</li>
+          <li><code>git reflog</code> ⭐ — shows a log of every HEAD move (even reset/rebase). Use it to recover "lost" commits.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Inspect &amp; Blame</h3>
+        <ul>
+          <li><code>git show hash</code> — displays full details and diff of a specific commit.</li>
+          <li><code>git blame file</code> — shows who last modified each line of a file and in which commit. Great for tracking down context.</li>
+          <li><code>git log -p file</code> — shows the full commit history with diffs for a specific file.</li>
+          <li><code>git bisect</code> — binary-search tool to find the commit that introduced a bug. Mark good/bad commits and it narrows down.</li>
+          <li><code>git diff branch1..branch2</code> — shows what's different between two branches (or commits).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Workflow &amp; Best Practices</h3>
+        <ul>
+          <li>Conventional commits: <code>feat:</code>, <code>fix:</code>, <code>chore:</code></li>
+          <li>Always pull before push</li>
+          <li>Small, atomic commits</li>
+          <li>Rebase before merging PRs</li>
+          <li>Never force push to <code>main</code></li>
+          <li>Use <code>.gitignore</code> properly</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Git+%26+GitHub+Full+Course" target="_blank" class="title">Git &amp; GitHub Full Course</a><small>⭐ freeCodeCamp (1h)</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Git+for+Beginners" target="_blank" class="title">Git for Beginners</a><small>freeCodeCamp (long)</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Git+Branching+Strategies" target="_blank" class="title">Git Branching Strategies</a><small>GitKraken</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Advanced+Git+%28rebase%2C+cherry-pick%29" target="_blank" class="title">Advanced Git (rebase, cherry-pick)</a><small>The Net Ninja</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Git+Merge+vs+Rebase" target="_blank" class="title">Git Merge vs Rebase</a><small>Academind</small></div>
+      <div class="video">📘 <a href="https://ohshitgit.com/" target="_blank" class="title">Oh Shit, Git!?!</a><small>Recovery cheatsheet</small></div>
+    </div>
+  </div>
+
+  <!-- Vim -->
+  <div class="concept">
+    <h4>Vim — Survival Kit (you WILL need this)</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Modes (Vim's biggest concept)</h3>
+        <ul>
+          <li><code>Esc</code> — returns to <b>Normal mode</b>, where keys are commands (not typed text). Vim's default mode.</li>
+          <li><code>i</code> — enters <b>Insert mode</b> (type text before cursor). <code>a</code> = append (after cursor).</li>
+          <li><code>v</code> — <b>Visual mode</b> to select characters. <code>V</code> selects whole lines. <code>Ctrl+v</code> rectangular block selection.</li>
+          <li><code>:</code> — <b>Command mode</b> for file operations like save, quit, replace.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Movement (in Normal mode)</h3>
+        <ul>
+          <li><code>h j k l</code> — move cursor left / down / up / right. Faster than arrows once you're used to it.</li>
+          <li><code>w</code> — jump forward one word. <code>b</code> — jump back one word.</li>
+          <li><code>0</code> — go to start of line. <code>$</code> — go to end of line.</li>
+          <li><code>gg</code> — jump to top of file. <code>G</code> — jump to bottom.</li>
+          <li><code>:42</code> — jump directly to line 42.</li>
+          <li><code>Ctrl+d</code> / <code>Ctrl+u</code> — scroll down / up half a page.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Editing (Normal mode)</h3>
+        <ul>
+          <li><code>dd</code> — deletes (and cuts) the current line.</li>
+          <li><code>yy</code> — <b>yanks</b> (copies) the current line to Vim's clipboard.</li>
+          <li><code>p</code> — pastes clipboard <b>after</b> cursor. <code>P</code> pastes before.</li>
+          <li><code>u</code> — undo last change. <code>Ctrl+r</code> — redo.</li>
+          <li><code>cw</code> — <b>c</b>hange <b>w</b>ord: deletes from cursor to end of word and enters Insert mode.</li>
+          <li><code>.</code> — ⭐ repeats your <b>last action</b>. Incredibly powerful once you think in motions.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Save &amp; Quit (the famous problem)</h3>
+        <ul>
+          <li><code>:w</code> — <b>write</b> (save) the file.</li>
+          <li><code>:q</code> — quit. Refuses if there are unsaved changes.</li>
+          <li><code>:wq</code> — save and quit in one command.</li>
+          <li><code>:q!</code> — force-quit, <b>discarding</b> unsaved changes.</li>
+          <li><code>:x</code> — save (only if changed) and quit. Slightly more efficient than <code>:wq</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Search &amp; Replace</h3>
+        <ul>
+          <li><code>/pattern</code> — searches forward for <code>pattern</code> in the file.</li>
+          <li><code>n</code> — jump to next match. <code>N</code> — previous match.</li>
+          <li><code>:%s/old/new/g</code> — replace <b>all</b> occurrences of <code>old</code> with <code>new</code> in the file (<code>%</code> = whole file, <code>g</code> = global).</li>
+          <li><code>:%s/old/new/gc</code> — same as above but <code>c</code> prompts to <b>confirm</b> each replacement.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Go Beyond Survival</h3>
+        <ul>
+          <li>Learn <b>Neovim</b> — modern fork</li>
+          <li>Install <b>LazyVim</b> / <b>AstroNvim</b> distros</li>
+          <li>Vim keybindings in VS Code (VSCodeVim ext)</li>
+          <li>Practice at <a href="https://vim-adventures.com/" target="_blank">Vim Adventures</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Vim+in+100+Seconds" target="_blank" class="title">Vim in 100 Seconds</a><small>Fireship</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Learn+Vim+in+30+Minutes" target="_blank" class="title">Learn Vim in 30 Minutes</a><small>Ben Awad</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Vim+Tutorial+for+Beginners" target="_blank" class="title">Vim Tutorial for Beginners</a><small>The Net Ninja</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/@ThePrimeagen" target="_blank" class="title">ThePrimeagen's Vim content</a><small>⭐ Vim motion mastery</small></div>
+    </div>
+  </div>
+
+  <!-- Node / npm -->
+  <div class="concept">
+    <h4>Node.js, npm, pnpm &amp; .npmrc</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>npm Basics</h3>
+        <ul>
+          <li><code>npm init -y</code> — creates a <code>package.json</code> with default values (no prompts).</li>
+          <li><code>npm install pkg</code> / <code>npm i pkg</code> — installs a package and adds it to <code>dependencies</code>.</li>
+          <li><code>npm i -D pkg</code> — installs as <b>dev dependency</b> (only needed during development, e.g., testing tools).</li>
+          <li><code>npm i -g pkg</code> — installs <b>globally</b>, making it available as a CLI tool system-wide.</li>
+          <li><code>npm uninstall pkg</code> — removes a package from <code>node_modules</code> and <code>package.json</code>.</li>
+          <li><code>npm update</code> — updates installed packages to latest allowed by semver. <code>npm outdated</code> lists packages needing updates.</li>
+          <li><code>npm run script</code> — runs a script defined in <code>package.json</code>'s <code>scripts</code> section (e.g., <code>npm run build</code>).</li>
+          <li><code>npx pkg</code> — runs a package without installing globally. Downloads, runs, discards.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>.npmrc (registry &amp; auth config)</h3>
+        <ul>
+          <li><b>What it is:</b> npm's config file controlling registries, auth tokens, install behavior. Lives at <code>~/.npmrc</code> (user) or project root.</li>
+          <li><code>registry=https://registry.npmjs.org/</code> — default public npm registry URL.</li>
+          <li><code>@myorg:registry=https://npm.pkg.github.com/</code> — route <b>scoped</b> packages (like <code>@myorg/thing</code>) to a private registry (GitHub Packages here).</li>
+          <li><code>//npm.pkg.github.com/:_authToken=TOKEN</code> — auth token for that private registry. Required to install private packages.</li>
+          <li><code>save-exact=true</code> — installs pin exact versions (<code>1.2.3</code> not <code>^1.2.3</code>).</li>
+          <li><code>fund=false</code> / <code>audit=false</code> — disable the "funding" message and vulnerability audit on install (cleaner CI logs).</li>
+          <li><code>engine-strict=true</code> — fails install if Node version doesn't match <code>engines</code> in package.json.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Node Version Management</h3>
+        <ul>
+          <li><b>nvm</b> — lets you install &amp; switch between Node versions. <code>nvm install 20</code> downloads v20, <code>nvm use 20</code> activates it for the shell.</li>
+          <li><b>fnm</b> ⭐ — Fast Node Manager, written in Rust. Much quicker than nvm, same API.</li>
+          <li><code>.nvmrc</code> — a file at project root with a Node version. <code>nvm use</code> auto-picks that version.</li>
+          <li><b>Volta</b> — manages Node, npm, yarn, pnpm versions per-project automatically. Cross-platform.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>pnpm &amp; yarn (faster npm alternatives)</h3>
+        <ul>
+          <li><b>pnpm</b> ⭐ — uses a content-addressable store with hard links. Same deps installed once on disk, shared across projects. Much faster &amp; smaller.</li>
+          <li><code>pnpm install</code> — installs deps from package.json. <code>pnpm add pkg</code> adds a new one.</li>
+          <li><code>pnpm-workspace.yaml</code> — declares multiple packages in a monorepo (first-class support).</li>
+          <li><b>yarn</b> — older alternative, still widely used. Yarn Berry (v2+) uses PnP (no node_modules).</li>
+          <li><b>Bun</b> — new JS runtime + package manager + bundler in one. Very fast, drop-in for most npm workflows.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>package.json essentials</h3>
+        <ul>
+          <li><code>scripts</code> — named shortcut commands you run with <code>npm run &lt;name&gt;</code>. Common: <code>build</code>, <code>test</code>, <code>lint</code>, <code>dev</code>.</li>
+          <li><code>dependencies</code> — runtime deps shipped with your app. <code>devDependencies</code> — build/test tools, not needed in production.</li>
+          <li><code>engines.node</code> — declares the Node version your app requires. Combine with <code>engine-strict</code>.</li>
+          <li>Semver ranges: <code>^1.2.3</code> = any 1.x.x ≥ 1.2.3 (minor+patch updates). <code>~1.2.3</code> = patch only. <code>1.2.3</code> = exact.</li>
+          <li><code>package-lock.json</code> — records exact installed versions. <b>Commit it</b> — guarantees reproducible installs across team/CI.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Common Global Tools</h3>
+        <ul>
+          <li><code>typescript</code> — the TS compiler (<code>tsc</code>). <code>ts-node</code> runs TS files directly without precompiling.</li>
+          <li><code>nodemon</code> — watches files and restarts your Node app on every change. Huge dev-time productivity boost.</li>
+          <li><code>prettier</code> — opinionated code formatter. <code>eslint</code> — static analyzer that catches bugs &amp; style issues.</li>
+          <li><code>http-server</code> / <code>serve</code> — one-command static file servers, perfect for testing a built frontend.</li>
+          <li><code>ngrok</code> — exposes your local port over a public HTTPS URL. Essential for webhook testing.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=npm+Crash+Course" target="_blank" class="title">npm Crash Course</a><small>Traversy Media</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=.npmrc+Explained" target="_blank" class="title">.npmrc Explained</a><small>Jonathan Gamble</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=nvm+Tutorial" target="_blank" class="title">nvm Tutorial</a><small>Codevolution</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=pnpm+vs+npm+vs+yarn" target="_blank" class="title">pnpm vs npm vs yarn</a><small>Jack Herrington</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=package.json+Deep+Dive" target="_blank" class="title">package.json Deep Dive</a><small>Academind</small></div>
+    </div>
+  </div>
+
+  <!-- HTTP / API tools -->
+  <div class="concept">
+    <h4>HTTP, APIs &amp; Request Tools</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>curl (master this)</h3>
+        <ul>
+          <li><code>curl url</code> — simplest: GET request, prints response body.</li>
+          <li><code>curl -X POST url -d '{"k":"v"}' -H "Content-Type: application/json"</code> — POST with JSON body and correct header.</li>
+          <li><code>curl -H "Authorization: Bearer TOKEN" url</code> — adds an auth header for protected APIs.</li>
+          <li><code>curl -i url</code> — <b>includes</b> response headers in output. <code>-I</code> shows headers only.</li>
+          <li><code>curl -o file url</code> — saves response body to <code>file</code> instead of printing.</li>
+          <li><code>curl -L url</code> — follows HTTP redirects (3xx responses) automatically.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>GUI Clients</h3>
+        <ul>
+          <li><b>Postman</b> — industry standard</li>
+          <li><b>Insomnia</b> — lighter alternative</li>
+          <li><b>Bruno</b> ⭐ — open-source, git-friendly</li>
+          <li><b>HTTPie</b> — CLI with pretty output</li>
+          <li><b>REST Client</b> extension (VS Code)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>HTTP Fundamentals</h3>
+        <ul>
+          <li>Methods: GET, POST, PUT, PATCH, DELETE</li>
+          <li>Status codes: 2xx, 3xx, 4xx, 5xx</li>
+          <li>Headers: <code>Authorization</code>, <code>Content-Type</code>, <code>Accept</code></li>
+          <li>Cookies, sessions</li>
+          <li>CORS preflight (OPTIONS)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=curl+Tutorial" target="_blank" class="title">curl Tutorial</a><small>Traversy Media</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Postman+Crash+Course" target="_blank" class="title">Postman Crash Course</a><small>Traversy Media</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=HTTP+Explained" target="_blank" class="title">HTTP Explained</a><small>ByteByteGo</small></div>
+    </div>
+  </div>
+
+  <!-- SSH & remote -->
+  <div class="concept">
+    <h4>SSH, Keys &amp; Remote Access</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>SSH Keys</h3>
+        <ul>
+          <li><code>ssh-keygen -t ed25519 -C "email"</code> — generates a new SSH keypair using the modern ed25519 algorithm with a comment (your email).</li>
+          <li><code>~/.ssh/id_ed25519</code> = <b>private</b> key (never share). <code>id_ed25519.pub</code> = <b>public</b> key (give to GitHub/servers).</li>
+          <li><code>cat ~/.ssh/id_ed25519.pub | pbcopy</code> — prints public key and copies to clipboard (Mac). Linux: use <code>xclip</code>.</li>
+          <li>Add the public key in GitHub → Settings → SSH Keys, or paste into <code>~/.ssh/authorized_keys</code> on a server.</li>
+          <li><code>ssh-add ~/.ssh/id_ed25519</code> — loads the key into the ssh-agent so you don't have to re-enter passphrase every time.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Remote Commands</h3>
+        <ul>
+          <li><code>ssh user@host</code> — opens an interactive shell on the remote host as <code>user</code>.</li>
+          <li><code>ssh -i key.pem user@host</code> — uses a specific private key file (common with AWS EC2 <code>.pem</code> keys).</li>
+          <li><code>scp file user@host:/path</code> — copies a file over SSH to a remote path.</li>
+          <li><code>rsync -avz src/ user@host:/dst/</code> — smart sync: <code>-a</code> archive (preserve perms), <code>-v</code> verbose, <code>-z</code> compress. Only transfers what changed.</li>
+          <li><code>~/.ssh/config</code> ⭐ — define host aliases (<code>Host myserver</code>) with user/port/key, then just <code>ssh myserver</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>tmux / screen (persistent sessions)</h3>
+        <ul>
+          <li><code>tmux new -s work</code> — creates a new session named <code>work</code>. Survives terminal close &amp; SSH disconnects.</li>
+          <li><code>Ctrl+b d</code> — <b>detaches</b> from the session (leaves it running in background).</li>
+          <li><code>tmux attach -t work</code> — reattaches to the <code>work</code> session later.</li>
+          <li><code>Ctrl+b "</code> — splits the current pane <b>horizontally</b> (top/bottom).</li>
+          <li><code>Ctrl+b %</code> — splits the pane <b>vertically</b> (left/right).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=SSH+Explained" target="_blank" class="title">SSH Explained</a><small>NetworkChuck</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=SSH+Keys+Setup" target="_blank" class="title">SSH Keys Setup</a><small>Learn Linux TV</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=tmux+Crash+Course" target="_blank" class="title">tmux Crash Course</a><small>TechWorld with Nana</small></div>
+    </div>
+  </div>
+
+  <!-- Docker CLI preview -->
+  <div class="concept">
+    <h4>Docker CLI — Daily Commands Preview</h4>
+    <p class="sub">Full Docker/K8s deep-dive is in Phase 9. These are the commands you'll use daily <i>starting now</i>.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Images</h3>
+        <ul>
+          <li><code>docker pull image:tag</code> — downloads an image from Docker Hub (or another registry).</li>
+          <li><code>docker images</code> — lists all images stored locally.</li>
+          <li><code>docker build -t name .</code> — builds an image from a Dockerfile in current dir, tags it <code>name</code>.</li>
+          <li><code>docker rmi image</code> — <b>R</b>e<b>M</b>ove <b>I</b>mage from local storage.</li>
+          <li><code>docker image prune</code> — deletes <b>dangling</b> (unused) images to free disk space.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Containers</h3>
+        <ul>
+          <li><code>docker run -d -p 8080:8080 --name app image</code> — runs image: <code>-d</code> detached (background), <code>-p host:container</code> port map, <code>--name</code> friendly name.</li>
+          <li><code>docker ps</code> — lists <b>running</b> containers. <code>docker ps -a</code> shows all (incl. stopped).</li>
+          <li><code>docker logs -f container</code> — streams container logs live (<code>-f</code> follow, like <code>tail -f</code>).</li>
+          <li><code>docker exec -it container sh</code> — opens an interactive shell inside a running container (<code>-i</code> interactive, <code>-t</code> TTY).</li>
+          <li><code>docker stop / start / rm container</code> — stop (SIGTERM), start (restart), rm (delete). Must stop before removing.</li>
+          <li><code>docker system prune -a</code> ⚠️ — nukes <b>all</b> unused images, containers, networks, volumes. Frees lots of space.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>docker-compose</h3>
+        <ul>
+          <li><code>docker compose up -d</code> — starts all services defined in <code>docker-compose.yml</code> in detached mode.</li>
+          <li><code>docker compose down</code> — stops and removes containers, networks. <code>-v</code> also removes volumes.</li>
+          <li><code>docker compose logs -f svc</code> — follow logs of a specific service.</li>
+          <li><code>docker compose exec svc sh</code> — open shell in a running service container.</li>
+          <li><code>docker compose ps</code> — lists services in the current compose project and their status.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor & IDE -->
+  <div class="concept">
+    <h4>VS Code — Productivity Shortcuts</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Must-know Shortcuts (Mac — swap <code>Cmd</code>→<code>Ctrl</code> on Win/Linux)</h3>
+        <ul>
+          <li><code>Cmd+P</code> — fuzzy file search by name.</li>
+          <li><code>Cmd+Shift+P</code> — <b>Command Palette</b>: runs any VS Code or extension command by name.</li>
+          <li><code>Cmd+B</code> — toggle the left sidebar (file explorer).</li>
+          <li><code>Cmd+J</code> — toggle the integrated terminal panel.</li>
+          <li><code>Cmd+D</code> — select the <b>next occurrence</b> of the current word (multi-cursor magic).</li>
+          <li><code>Cmd+Shift+F</code> — search across <b>all files</b> in workspace.</li>
+          <li><code>F2</code> — rename symbol everywhere it's used (refactor-safe).</li>
+          <li><code>F12</code> — jump to the <b>definition</b> of a symbol.</li>
+          <li><code>Alt+↑/↓</code> — move current line up or down.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Essential Extensions</h3>
+        <ul>
+          <li><b>Go</b> (official)</li>
+          <li><b>GitLens</b> ⭐</li>
+          <li><b>Error Lens</b> ⭐</li>
+          <li><b>REST Client</b></li>
+          <li><b>Docker</b>, <b>Kubernetes</b></li>
+          <li><b>Prettier</b>, <b>ESLint</b></li>
+          <li><b>Thunder Client</b> (Postman alt)</li>
+          <li><b>VSCodeVim</b> (if using Vim)</li>
+          <li><b>GitHub Copilot</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=VS+Code+Top+Shortcuts" target="_blank" class="title">VS Code Top Shortcuts</a><small>Fireship</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=VS+Code+Tips+%26+Tricks" target="_blank" class="title">VS Code Tips &amp; Tricks</a><small>Beyond Fireship</small></div>
+    </div>
+  </div>
+
+  <!-- Package managers (system) -->
+  <div class="concept">
+    <h4>System Package Managers</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>macOS — Homebrew</h3>
+        <ul>
+          <li><code>brew install pkg</code> — installs a CLI package (formula).</li>
+          <li><code>brew install --cask app</code> — installs a <b>GUI application</b> (e.g., <code>--cask visual-studio-code</code>).</li>
+          <li><code>brew update</code> refreshes the package index, <code>brew upgrade</code> upgrades installed packages.</li>
+          <li><code>brew list</code> — lists installed packages. <code>brew search term</code> — searches for a package.</li>
+          <li><code>brew services start postgresql</code> — runs a service as a background daemon at boot (stop/restart similar).</li>
+          <li><code>brew uninstall pkg</code> — removes a package.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Linux (Debian/Ubuntu)</h3>
+        <ul>
+          <li><code>sudo apt update</code> — refreshes package lists. <code>sudo apt upgrade</code> upgrades installed packages.</li>
+          <li><code>sudo apt install pkg</code> — installs a package (<code>sudo</code> needed for system-wide).</li>
+          <li><code>apt search term</code> — searches available packages for a keyword.</li>
+          <li><code>dpkg -l</code> — lists all installed <code>.deb</code> packages.</li>
+          <li><b>Fedora/RHEL:</b> <code>dnf install pkg</code> — their equivalent of apt.</li>
+          <li><b>Arch Linux:</b> <code>pacman -S pkg</code> — rolling-release package manager.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Windows</h3>
+        <ul>
+          <li><b>winget</b> — Microsoft's official package manager. <code>winget install pkg</code>.</li>
+          <li><b>Chocolatey</b> — popular community package manager. <code>choco install pkg</code>.</li>
+          <li><b>Scoop</b> — developer-focused, installs per-user (no admin needed).</li>
+          <li><b>WSL2</b> ⭐ — runs a full Linux kernel inside Windows. Use Ubuntu + all above Linux commands work natively. Essential for devs on Windows.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Homebrew+Setup" target="_blank" class="title">Homebrew Setup</a><small>iJustine Dev</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=WSL2+Setup+for+Devs" target="_blank" class="title">WSL2 Setup for Devs</a><small>TechWorld with Nana</small></div>
+    </div>
+  </div>
+
+  <!-- Misc productivity -->
+  <div class="concept">
+    <h4>Must-Have Productivity Tools</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>CLI Tools to Install</h3>
+        <ul>
+          <li><code>fzf</code> ⭐ — fuzzy finder for anything piped in. Bind to <code>Ctrl+R</code> for magical shell history search.</li>
+          <li><code>ripgrep</code> (<code>rg</code>) ⭐ — fast, modern grep. Respects <code>.gitignore</code>. 10x faster than grep.</li>
+          <li><code>bat</code> — <code>cat</code> with syntax highlighting, line numbers, and git diff markers.</li>
+          <li><code>fd</code> — simpler, faster <code>find</code>. <code>fd pattern</code> just works.</li>
+          <li><code>jq</code> — parse &amp; transform JSON on the CLI. <code>curl ... | jq '.users[].name'</code>.</li>
+          <li><code>yq</code> — like jq but for YAML files.</li>
+          <li><code>tldr</code> — simplified, example-first man pages. <code>tldr tar</code> shows common usages.</li>
+          <li><code>gh</code> ⭐ — GitHub CLI. Create PRs, review, clone, run actions all from terminal (<code>gh pr create</code>).</li>
+          <li><code>lazygit</code> — keyboard-driven TUI for git. Stage, commit, rebase visually without leaving terminal.</li>
+          <li><code>htop</code> / <code>btop</code> — interactive system monitors (prettier than <code>top</code>).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Terminal Emulators</h3>
+        <ul>
+          <li><b>iTerm2</b> (Mac) — classic</li>
+          <li><b>Warp</b> ⭐ — AI-powered, modern</li>
+          <li><b>Alacritty</b> — GPU-accelerated</li>
+          <li><b>Wezterm</b> — configurable</li>
+          <li><b>Ghostty</b> — new, native</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Shell Enhancements</h3>
+        <ul>
+          <li><b>Oh My Zsh</b> — plugin framework for zsh. Pair with <b>Powerlevel10k</b> theme for a fast, gorgeous prompt.</li>
+          <li><b>Starship</b> ⭐ — minimal, fast prompt that works across bash/zsh/fish. Shows git, language versions, exit codes.</li>
+          <li><b>zoxide</b> — smarter <code>cd</code>. Learns your habits: <code>z project</code> jumps to the most-used folder matching "project".</li>
+          <li><b>atuin</b> — replaces shell history with a searchable, synced DB. Ctrl+R becomes a superpower.</li>
+          <li>Common aliases: <code>alias g=git</code>, <code>alias ll='ls -la'</code>, <code>alias ..='cd ..'</code> — save in your <code>.zshrc</code>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=10+Terminal+Tools+Every+Dev+Needs" target="_blank" class="title">10 Terminal Tools Every Dev Needs</a><small>DevOps Toolbox</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=fzf+%2B+ripgrep+Workflow" target="_blank" class="title">fzf + ripgrep Workflow</a><small>ThePrimeagen</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=GitHub+CLI+%28gh%29+Tutorial" target="_blank" class="title">GitHub CLI (gh) Tutorial</a><small>James Q Quick</small></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>🎯 Prerequisites Checklist (tick before Phase 0):</b>
+    <ul>
+      <li>Comfortable navigating files in terminal without Finder</li>
+      <li>Can use <code>grep</code>, <code>find</code>, pipes, redirects fluently</li>
+      <li>Can create branches, rebase, resolve merge conflicts in Git</li>
+      <li>Can exit Vim without panicking 😄 (<code>:q!</code>)</li>
+      <li>Know what <code>.npmrc</code>, <code>package.json</code>, <code>package-lock.json</code> do</li>
+      <li>Can <code>curl</code> a REST API with headers + JSON body</li>
+      <li>SSH key set up with GitHub</li>
+      <li>Homebrew / apt installed &amp; used a few packages</li>
+      <li>VS Code shortcuts feel natural</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PHASE 0 -->
+<section class="phase" id="phase0">
+  <h2><span class="tag">Week 0</span> Phase 0 — Setup &amp; Mindset</h2>
+  <p class="sub">Get your environment ready and understand why Go exists.</p>
+
+  <div class="concept">
+    <h4>Install Go + VS Code Setup</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Install+Go+on+Mac%2FWindows%2FLinux" target="_blank" class="title">Install Go on Mac/Windows/Linux</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=VS+Code+%2B+Go+Extension+Setup" target="_blank" class="title">VS Code + Go Extension Setup</a><small>Golang Dojo</small></div>
+      <div class="video">📘 <a href="https://go.dev/doc/install" target="_blank" class="title">Official Install Guide</a><small>go.dev</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Why Go? Philosophy &amp; Strengths</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Learn+Go+in+12+Minutes" target="_blank" class="title">Learn Go in 12 Minutes</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+in+100+Seconds" target="_blank" class="title">Go in 100 Seconds</a><small>Fireship</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Why+Go%3F+%E2%80%94+Rob+Pike" target="_blank" class="title">Why Go? — Rob Pike</a><small>Creator's philosophy</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Essential Tooling (golangci-lint, air, delve)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golangci-lint+Setup" target="_blank" class="title">golangci-lint Setup</a><small>JetBrainsTV</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Air+%E2%80%94+Hot+Reload+for+Go" target="_blank" class="title">Air — Hot Reload for Go</a><small>Coding with Patrik</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Debugging+with+Delve" target="_blank" class="title">Debugging with Delve</a><small>TutorialEdge</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- GO COMMANDS REFERENCE -->
+<section class="phase" id="gocmds">
+  <h2><span class="tag">Pre-1</span> Go CLI — Daily Commands Reference</h2>
+  <p class="sub">Memorize this BEFORE starting Tour of Go. You'll run these 50× a day. Run <code>go help</code> for the full list.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Know what every <code>go</code> subcommand does and the 5–6 flags you'll actually use. Skim once, return as cheatsheet.
+  </div>
+
+  <!-- Modules & Init -->
+  <div class="concept">
+    <h4>Modules &amp; Project Setup</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Initialize &amp; Manage Modules</h3>
+        <ul>
+          <li><code>go mod init github.com/user/repo</code> — creates a <code>go.mod</code> file declaring this folder a module. The path is the import URL others will use.</li>
+          <li><code>go mod tidy</code> — adds missing imports to <code>go.mod</code> &amp; removes unused ones. Run after every batch of edits.</li>
+          <li><code>go mod download</code> — downloads all deps into the module cache (<code>$GOPATH/pkg/mod</code>) without building.</li>
+          <li><code>go mod vendor</code> — copies all deps into a local <code>vendor/</code> folder. Useful for air-gapped builds &amp; reproducibility.</li>
+          <li><code>go mod why pkg</code> — explains <i>why</i> a package is in your dependency tree. Great for trimming bloat.</li>
+          <li><code>go mod graph</code> — prints the full module dependency graph (one line per edge). Pipe to <code>grep</code> for inspection.</li>
+          <li><code>go mod edit -replace=old=new</code> — temporarily swap a dep with a fork or local path (debugging libs).</li>
+          <li><code>go mod verify</code> — checks that downloaded deps match expected checksums in <code>go.sum</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Adding / Updating Dependencies</h3>
+        <ul>
+          <li><code>go get pkg</code> — adds <code>pkg</code> at latest version &amp; updates <code>go.mod</code>/<code>go.sum</code>. Don't use this just to "install" — it modifies your module.</li>
+          <li><code>go get pkg@v1.2.3</code> — pins to a specific version (semver).</li>
+          <li><code>go get pkg@latest</code> — bumps to latest tagged release.</li>
+          <li><code>go get -u ./...</code> — upgrades <b>all</b> deps in the module to latest minor/patch.</li>
+          <li><code>go get pkg@none</code> — removes a dependency.</li>
+          <li><code>go install pkg@latest</code> — installs an executable binary into <code>$GOBIN</code> (default <code>~/go/bin</code>). Use this for CLI tools, NOT for adding deps.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Workspaces (multi-module dev)</h3>
+        <ul>
+          <li><code>go work init ./moduleA ./moduleB</code> — creates a <code>go.work</code> file linking multiple local modules so edits in A are seen by B without publishing.</li>
+          <li><code>go work use ./newModule</code> — adds another module to the workspace.</li>
+          <li><code>go work sync</code> — syncs workspace's build list back into each module's <code>go.mod</code>.</li>
+          <li>⭐ <b>Use case:</b> developing a library + service together in a monorepo.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Build / Run -->
+  <div class="concept">
+    <h4>Building &amp; Running Code</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Run / Build</h3>
+        <ul>
+          <li><code>go run main.go</code> — compiles to a temp binary &amp; runs it. Fast for scripts/dev. Doesn't produce an output file.</li>
+          <li><code>go run ./cmd/api</code> — runs an entire package (folder). Common pattern for multi-binary repos.</li>
+          <li><code>go build</code> — compiles current package to a binary in current dir. Name = folder name (or <code>main</code> for main package).</li>
+          <li><code>go build -o myapp ./cmd/api</code> — builds and writes binary as <code>myapp</code>. <code>-o</code> = output path.</li>
+          <li><code>go build ./...</code> — builds every package in the module recursively. Fast sanity check before commit.</li>
+          <li><code>go build -race</code> — compile with race detector (development only — adds overhead).</li>
+          <li><code>go build -ldflags="-s -w"</code> — strip symbols + DWARF debug info → smaller binary (~30%).</li>
+          <li><code>go build -ldflags="-X main.version=v1.0"</code> — inject values into vars at build time (versioning).</li>
+          <li><code>go build -tags=prod</code> — build with build tags (conditional compilation).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Cross-Compilation ⭐</h3>
+        <ul>
+          <li><code>GOOS=linux GOARCH=amd64 go build</code> — build a Linux x86_64 binary on your Mac (no Docker needed).</li>
+          <li><code>GOOS=darwin GOARCH=arm64 go build</code> — Apple Silicon Mac.</li>
+          <li><code>GOOS=windows GOARCH=amd64 go build</code> — Windows 64-bit.</li>
+          <li><code>CGO_ENABLED=0 go build</code> — disables CGO → produces a fully static binary (no glibc). <b>Essential for distroless/scratch Docker images.</b></li>
+          <li><code>go tool dist list</code> — prints every supported <code>GOOS/GOARCH</code> combo.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Install Binaries</h3>
+        <ul>
+          <li><code>go install</code> — compiles current package &amp; copies binary to <code>$GOBIN</code>. Make sure <code>$GOBIN</code> is on your <code>PATH</code>.</li>
+          <li><code>go install github.com/user/tool@latest</code> — installs a remote CLI tool globally without cloning. The Go way to install binaries.</li>
+          <li><code>which mytool</code> — verify it landed on PATH.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testing -->
+  <div class="concept">
+    <h4>Testing &amp; Benchmarks</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Run Tests</h3>
+        <ul>
+          <li><code>go test</code> — runs all tests in current package.</li>
+          <li><code>go test ./...</code> — runs tests in every package recursively. Standard CI command.</li>
+          <li><code>go test -v</code> — <b>verbose</b>: prints each test name + log output, even on success.</li>
+          <li><code>go test -run TestLogin</code> — runs only tests whose name matches the regex. Speeds up TDD.</li>
+          <li><code>go test -run TestLogin/case_a</code> — runs a specific subtest (table-driven case).</li>
+          <li><code>go test -count=1 ./...</code> — disables test caching. Force a full re-run.</li>
+          <li><code>go test -short</code> — sets <code>testing.Short()</code> true so tests can skip slow paths.</li>
+          <li><code>go test -timeout 30s</code> — kill tests running longer than 30s (CI safety).</li>
+          <li><code>go test -failfast</code> — stop at the first failure instead of running all tests.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Race Detector ⭐</h3>
+        <ul>
+          <li><code>go test -race ./...</code> — runs all tests with the race detector ON. <b>Run before every PR if you use goroutines.</b> Adds ~2× CPU + 5–10× memory.</li>
+          <li><code>go run -race main.go</code> — race detect during dev too.</li>
+          <li><b>What it catches:</b> unsynchronized concurrent access to shared variables — the #1 source of mysterious Go bugs.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Coverage</h3>
+        <ul>
+          <li><code>go test -cover</code> — prints % coverage per package. Quick check.</li>
+          <li><code>go test -coverprofile=cover.out ./...</code> — writes detailed coverage data to a file.</li>
+          <li><code>go tool cover -html=cover.out</code> — opens a colored HTML report in your browser. Red = uncovered lines.</li>
+          <li><code>go tool cover -func=cover.out</code> — text breakdown by function.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Benchmarks &amp; Fuzz</h3>
+        <ul>
+          <li><code>go test -bench=.</code> — runs all <code>BenchmarkXxx</code> functions. Reports ns/op + allocs.</li>
+          <li><code>go test -bench=. -benchmem</code> — adds <b>memory</b> stats (B/op, allocs/op). Always use this.</li>
+          <li><code>go test -benchtime=10s</code> — runs each benchmark for 10s instead of default 1s (more stable numbers).</li>
+          <li><code>go test -fuzz=FuzzParse</code> — runs a fuzz test (Go 1.18+). Generates random inputs to find crashes.</li>
+          <li><code>go test -fuzz=. -fuzztime=30s</code> — time-bounded fuzz run.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code quality / inspection -->
+  <div class="concept">
+    <h4>Code Quality &amp; Inspection</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Format &amp; Lint</h3>
+        <ul>
+          <li><code>gofmt -l .</code> — lists files with formatting issues. <code>-w</code> overwrites them. Run before every commit.</li>
+          <li><code>go fmt ./...</code> — wraps gofmt for the whole module. Most editors do this automatically.</li>
+          <li><code>gofumpt -w .</code> — stricter <code>gofmt</code> with extra rules. Many teams adopt this.</li>
+          <li><code>goimports -w .</code> — runs <code>gofmt</code> + <b>auto-adds/removes</b> imports. Set this as your save-on-format tool.</li>
+          <li><code>go vet ./...</code> — built-in static analyzer. Catches printf format bugs, lock-by-value, unreachable code. Always green before merge.</li>
+          <li><code>golangci-lint run</code> ⭐ — meta-linter combining 50+ checks (errcheck, staticcheck, gosec, etc.). Industry standard. Configure in <code>.golangci.yml</code>.</li>
+          <li><code>staticcheck ./...</code> — Dominik Honnef's deep checker. Subset is included in golangci-lint.</li>
+          <li><code>govulncheck ./...</code> ⭐ — official vuln scanner. Reports CVEs in your imports. Run weekly + in CI.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Inspect &amp; Document</h3>
+        <ul>
+          <li><code>go doc fmt.Println</code> — prints docs for a symbol straight in terminal.</li>
+          <li><code>go doc -all fmt</code> — full docs for an entire package.</li>
+          <li><code>go list ./...</code> — lists every package in the module. Useful as input to other tools.</li>
+          <li><code>go list -m all</code> — lists all module deps + versions actually used.</li>
+          <li><code>go list -m -u all</code> — same, plus shows which deps have updates available.</li>
+          <li><code>go env</code> — prints the entire Go environment (<code>GOPATH</code>, <code>GOOS</code>, <code>GOMODCACHE</code>, etc.).</li>
+          <li><code>go env -w GOPROXY=https://proxy.golang.org,direct</code> — set env vars persistently.</li>
+          <li><code>go version -m mybinary</code> — prints Go version + module info compiled into a binary. Forensics!</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Code Generation</h3>
+        <ul>
+          <li><code>go generate ./...</code> — runs <code>//go:generate</code> directives in source files. Used for mocks, protobuf, sqlc, stringer, etc.</li>
+          <li>Common pairs: <code>mockgen</code> (gomock), <code>protoc-gen-go</code>, <code>sqlc generate</code>, <code>stringer</code>.</li>
+          <li><code>//go:generate stringer -type=Status</code> — example directive in your code.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profiling & debugging -->
+  <div class="concept">
+    <h4>Profiling, Debugging &amp; Tracing</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>pprof — CPU &amp; Memory ⭐</h3>
+        <ul>
+          <li><code>go test -cpuprofile=cpu.out -bench=.</code> — captures a CPU profile during a benchmark.</li>
+          <li><code>go test -memprofile=mem.out -bench=.</code> — captures a heap profile.</li>
+          <li><code>go tool pprof cpu.out</code> — interactive shell. Type <code>top</code>, <code>list FuncName</code>, <code>web</code> (opens flame graph in browser).</li>
+          <li><code>go tool pprof -http=:8080 cpu.out</code> — opens pprof's HTML UI directly. <b>Use this.</b></li>
+          <li>For a live server: import <code>net/http/pprof</code> and hit <code>http://host:port/debug/pprof/</code> for live profiles.</li>
+          <li><code>go tool pprof http://localhost:6060/debug/pprof/heap</code> — sample a running app's heap.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Execution Tracer</h3>
+        <ul>
+          <li><code>go test -trace=trace.out</code> — capture a goroutine/scheduler trace.</li>
+          <li><code>go tool trace trace.out</code> — opens a beautiful timeline view of every goroutine, GC, syscall, network event. Best for finding scheduling/contention issues.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Debugger (Delve)</h3>
+        <ul>
+          <li><code>dlv debug ./cmd/api</code> — start an interactive debug session.</li>
+          <li><code>dlv test</code> — debug your tests.</li>
+          <li><code>dlv attach PID</code> — attach to a running process.</li>
+          <li>Common keys inside dlv: <code>b main.go:42</code> (breakpoint), <code>c</code> (continue), <code>n</code> (next line), <code>s</code> (step in), <code>p var</code> (print), <code>goroutines</code>, <code>stack</code>.</li>
+          <li>VS Code uses Delve under the hood — F5 just works once Delve is installed.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Build Inspection</h3>
+        <ul>
+          <li><code>go build -gcflags="-m"</code> — shows escape analysis: which vars escape to heap. Optimization gold.</li>
+          <li><code>go build -gcflags="-S"</code> — print Go assembly. Rare, but useful for hot paths.</li>
+          <li><code>go tool objdump -s main.main mybinary</code> — disassemble a function from a built binary.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Misc & must-know flags -->
+  <div class="concept">
+    <h4>Useful Env Vars &amp; Misc</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Environment Variables</h3>
+        <ul>
+          <li><code>GOPATH</code> — workspace root (default <code>~/go</code>). Module cache + binaries live under here.</li>
+          <li><code>GOBIN</code> — where <code>go install</code> puts binaries. Default: <code>$GOPATH/bin</code>. Add to <code>$PATH</code>.</li>
+          <li><code>GOOS</code>, <code>GOARCH</code> — target OS/architecture for cross-compilation.</li>
+          <li><code>CGO_ENABLED=0</code> — disable C interop. Required for static binaries / scratch images.</li>
+          <li><code>GOPROXY</code> — module download proxy (default <code>https://proxy.golang.org,direct</code>). Set <code>off</code> for offline.</li>
+          <li><code>GOSUMDB</code> — checksum DB. <code>off</code> to disable (private/air-gapped envs).</li>
+          <li><code>GOPRIVATE=github.com/myorg/*</code> — don't use proxy/sumdb for these paths. Required for private repos.</li>
+          <li><code>GOFLAGS</code> — default flags applied to every <code>go</code> command (e.g., <code>-mod=readonly</code>).</li>
+          <li><code>GOMAXPROCS</code> — max OS threads running Go code. Defaults to # CPUs. Tune in containers.</li>
+          <li><code>GOMEMLIMIT</code> — soft memory limit (Go 1.19+). Helps GC behave in containers (set to ~80% of pod limit).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Hot-Reload &amp; Dev</h3>
+        <ul>
+          <li><code>air</code> ⭐ — file watcher that rebuilds + restarts your Go server on save. Configure via <code>.air.toml</code>.</li>
+          <li><code>reflex -r '\.go$' -- go run main.go</code> — generic file-watcher alternative.</li>
+          <li><code>CompileDaemon</code> — older alternative to air.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Cleanup &amp; Cache</h3>
+        <ul>
+          <li><code>go clean</code> — removes object files from the current package.</li>
+          <li><code>go clean -modcache</code> — wipes the entire module download cache (~/go/pkg/mod). Frees a LOT of disk.</li>
+          <li><code>go clean -testcache</code> — clears cached test results. Use when test caching gives false confidence.</li>
+          <li><code>go env GOCACHE</code> — find your build cache dir.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Version &amp; Update Go itself</h3>
+        <ul>
+          <li><code>go version</code> — print installed Go version.</li>
+          <li><code>go version -m mybinary</code> — version + module info embedded in any binary.</li>
+          <li><b>Manage Go versions:</b> use <code>asdf</code>, <code>g</code> (<code>stefanmaric/g</code>), or just download from <a href="https://go.dev/dl/" target="_blank">go.dev/dl</a>.</li>
+          <li><code>go install golang.org/dl/go1.23@latest &amp;&amp; go1.23 download</code> — install a specific version side-by-side.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>🎯 The 12 commands you'll actually run daily:</b>
+    <code>go run</code>, <code>go build</code>, <code>go test ./...</code>, <code>go test -race ./...</code>, <code>go test -v -run X</code>, <code>go mod tidy</code>, <code>go get pkg@latest</code>, <code>go install tool@latest</code>, <code>go vet ./...</code>, <code>golangci-lint run</code>, <code>go generate ./...</code>, <code>gofmt -w .</code>. Memorize these. The rest are situational.
+  </div>
+
+  <div class="warn">
+    <b>⚠️ Common pitfalls:</b>
+    <ul>
+      <li><code>go get</code> in a module folder modifies <code>go.mod</code>. Use <code>go install pkg@latest</code> for global CLI tools.</li>
+      <li>Forgetting <code>./...</code> only tests current package. Use <code>./...</code> in CI to cover the whole module.</li>
+      <li><code>go test</code> caches results — if a test "passed" without your change being applied, run with <code>-count=1</code>.</li>
+      <li>Don't commit <code>vendor/</code> unless your team agrees. <code>go.sum</code> always commits.</li>
+      <li>If <code>go build</code> hangs in containers, set <code>GOMODCACHE</code> to a writable path or <code>GOFLAGS=-mod=mod</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PHASE 1 -->
+<section class="phase" id="phase1">
+  <h2><span class="tag">Weeks 1–3</span> Phase 1 — Go Language Fundamentals</h2>
+  <p class="sub">Learn the language. It's small by design — you can do this fast.</p>
+
+  <div class="callout">
+    <b>📖 New: Inline E2E Notes</b> — Every concept in Phases 1, 2, 3 now has a green <b>Notes card</b> at the top of its videos.
+    Click it for full theory + syntax + code + when/why + gotchas + diagrams + interview Q&amp;A. Index pages:
+    <a href="notes/phase1.html" target="_blank">Phase 1</a> ·
+    <a href="notes/phase2.html" target="_blank">Phase 2</a> ·
+    <a href="notes/phase3.html" target="_blank">Phase 3</a>
+  </div>
+
+  <div class="concept">
+    <h4>Full Go Course (pick ONE, finish it)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+Full+Course+%E2%80%94+freeCodeCamp+%287h%29" target="_blank" class="title">Go Full Course — freeCodeCamp (7h)</a><small>⭐ Best starter</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Learn+Go+Fast+%E2%80%94+Alex+Mux+%282h%29" target="_blank" class="title">Learn Go Fast — Alex Mux (2h)</a><small>Crash course</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Golang+for+Beginners" target="_blank" class="title">Golang for Beginners</a><small>TechWorld with Nana (3h)</small></div>
+      <div class="video">📘 <a href="https://go.dev/tour/" target="_blank" class="title">Official Tour of Go</a><small>Interactive — do in 2 days</small></div>
+      <div class="video">📘 <a href="https://gobyexample.com/" target="_blank" class="title">Go by Example</a><small>Bookmark forever</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Variables, Types, Functions</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#vars" target="_blank" class="title">Notes — Variables, Types &amp; Functions</a><small>E2E theory · syntax · code · gotchas · interview Q&amp;A</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+Variables+%26+Types" target="_blank" class="title">Go Variables &amp; Types</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+Functions+Deep+Dive" target="_blank" class="title">Go Functions Deep Dive</a><small>Golang Dojo</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Control Flow (if / for / switch)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#flow" target="_blank" class="title">Notes — Control Flow</a><small>if init, range semantics, switch types, gotchas</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+control+flow+if+for+switch+tutorial" target="_blank" class="title">Control Flow in Go</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+for+loop+range+tutorial" target="_blank" class="title">For Loops &amp; Range</a><small>Golang Dojo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+switch+statement+type+switch" target="_blank" class="title">Switch &amp; Type Switch</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>defer, panic &amp; recover (CRITICAL)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#defer" target="_blank" class="title">Notes — defer, panic &amp; recover</a><small>LIFO order · arg evaluation · recover boundaries</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+defer+tutorial+explained" target="_blank" class="title">defer Explained</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+panic+recover+tutorial" target="_blank" class="title">panic &amp; recover</a><small>Golang Dojo</small></div>
+      <div class="video">📘 <a href="https://go.dev/blog/defer-panic-and-recover" target="_blank" class="title">Defer, Panic, Recover</a><small>Official Go blog</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Slices, Maps, Arrays (+ gotchas)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#slices" target="_blank" class="title">Notes — Slices, Maps &amp; Arrays</a><small>Internals · aliasing trap · nil map · 7 critical gotchas</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Slices+Explained+%28gotchas%21%29" target="_blank" class="title">Slices Explained (gotchas!)</a><small>Golang Dojo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Maps+in+Go" target="_blank" class="title">Maps in Go</a><small>Anthony GG</small></div>
+      <div class="video">📘 <a href="https://go.dev/blog/slices-intro" target="_blank" class="title">Slices: Usage &amp; Internals</a><small>Official Go blog</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Structs, Methods &amp; Composition</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#structs" target="_blank" class="title">Notes — Structs, Methods &amp; Composition</a><small>Pointer vs value receivers · embedding · struct tags</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Structs+%26+Methods" target="_blank" class="title">Structs &amp; Methods</a><small>Golang Dojo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Struct+Embedding+%2F+Composition" target="_blank" class="title">Struct Embedding / Composition</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interfaces (the Go way)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#interfaces" target="_blank" class="title">Notes — Interfaces</a><small>Implicit satisfaction · typed-nil trap · repository pattern</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Interfaces+Explained" target="_blank" class="title">Interfaces Explained</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Interfaces+Deep+Dive" target="_blank" class="title">Interfaces Deep Dive</a><small>Golang Dojo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Accept+interfaces%2C+return+structs" target="_blank" class="title">Accept interfaces, return structs</a><small>Flo Woelki</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Error Handling (idiomatic Go)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#errors" target="_blank" class="title">Notes — Error Handling</a><small>Sentinel · custom · wrapping · errors.Is vs As</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Error+Handling+in+Go" target="_blank" class="title">Error Handling in Go</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=errors.Is+%2F+errors.As+%2F+Wrapping" target="_blank" class="title">errors.Is / errors.As / Wrapping</a><small>Matt Holiday</small></div>
+      <div class="video">📘 <a href="https://go.dev/blog/go1.13-errors" target="_blank" class="title">Go 1.13 Error Wrapping</a><small>Official blog</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Pointers &amp; Memory</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#pointers" target="_blank" class="title">Notes — Pointers &amp; Memory</a><small>Stack vs heap · escape analysis · when to use *T</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Pointers+in+Go" target="_blank" class="title">Pointers in Go</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Value+vs+Pointer+Receivers" target="_blank" class="title">Value vs Pointer Receivers</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Packages &amp; Modules</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase1.html#packages" target="_blank" class="title">Notes — Packages &amp; Modules</a><small>internal/ · go.mod · visibility · cyclic imports</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+Modules+Tutorial" target="_blank" class="title">Go Modules Tutorial</a><small>TutorialEdge</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Packages+Explained" target="_blank" class="title">Packages Explained</a><small>Golang Dojo</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Constants &amp; <code>iota</code> (Tour of Go)</h4>
+    <div class="videos">
+      <div class="video">📘 <a href="https://go.dev/tour/basics/15" target="_blank" class="title">Tour — Numeric Constants &amp; iota</a><small>Untyped constants · enum pattern · bit-flags</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+iota+constants+enum+tutorial" target="_blank" class="title">iota &amp; Constants Explained</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+typed+vs+untyped+constants" target="_blank" class="title">Typed vs Untyped Constants</a><small>Matt Holiday</small></div>
+      <div class="video">📘 <a href="https://go.dev/blog/constants" target="_blank" class="title">Constants — Official Go blog</a><small>Rob Pike — must read</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Function Values &amp; Closures (Tour of Go)</h4>
+    <div class="videos">
+      <div class="video">📘 <a href="https://go.dev/tour/moretypes/24" target="_blank" class="title">Tour — Function Values &amp; Closures</a><small>First-class funcs · captured variables · loop-var trap</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+closures+function+values+tutorial" target="_blank" class="title">Closures in Go</a><small>Golang Dojo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+higher+order+functions+callbacks" target="_blank" class="title">Higher-Order Funcs &amp; Callbacks</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+1.22+loop+variable+closure+fix" target="_blank" class="title">Go 1.22 Loop-Variable Fix</a><small>Closure gotcha resolved</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Type Assertions, Type Switches &amp; Stringer (Tour of Go)</h4>
+    <div class="videos">
+      <div class="video">📘 <a href="https://go.dev/tour/methods/15" target="_blank" class="title">Tour — Type Assertions</a><small><code>v, ok := i.(T)</code> · panic vs comma-ok</small></div>
+      <div class="video">📘 <a href="https://go.dev/tour/methods/16" target="_blank" class="title">Tour — Type Switches</a><small><code>switch v := i.(type)</code> · default branch</small></div>
+      <div class="video">📘 <a href="https://go.dev/tour/methods/17" target="_blank" class="title">Tour — Stringer Interface</a><small><code>fmt.Stringer</code> · custom <code>String()</code> output</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+type+assertion+type+switch+tutorial" target="_blank" class="title">Type Assertions &amp; Switches</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+Stringer+interface+fmt+tutorial" target="_blank" class="title">Implementing Stringer</a><small>Flo Woelki</small></div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <b>✅ Tour of Go — End-to-End Coverage Map</b><br/>
+    Welcome (packages, vars, types, consts, iota) · Flow Control (for, if, switch, defer) ·
+    More Types (pointers, structs, arrays/slices/maps, range, function values, closures) ·
+    Methods &amp; Interfaces (methods, pointer receivers, interfaces, type assertions, type switches, Stringer, errors, Reader) ·
+    Generics (Phase 2) · Concurrency (goroutines, channels, select, sync.Mutex — Phase 3).
+    Every official <a href="https://go.dev/tour/" target="_blank">Tour of Go</a> page is now mapped to a concept card above.
+  </div>
+
+  <div class="project">
+    <b>✅ Project:</b> Build a CLI tool — file organizer, JSON-to-CSV converter, or todo manager.
+    <br/>🎥 <a href="https://www.youtube.com/results?search_query=Build+a+CLI+App+in+Go" target="_blank">Build a CLI App in Go</a>
+  </div>
+</section>
+
+<!-- PHASE 2 -->
+<section class="phase" id="phase2">
+  <h2><span class="tag">Week 4</span> Phase 2 — Intermediate Go</h2>
+  <p class="sub">Bridge from "knows syntax" to "builds real stuff."</p>
+
+  <div class="concept">
+    <h4>Generics (Go 1.18+)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase2.html#generics" target="_blank" class="title">Notes — Generics</a><small>Type params · constraints · ~int · when (not) to use</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Generics+Explained" target="_blank" class="title">Generics Explained</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Generics+in+Depth" target="_blank" class="title">Generics in Depth</a><small>Matt Holiday</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Context Package (CRITICAL)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase2.html#context" target="_blank" class="title">Notes — Context Package</a><small>Cancel · timeout · values · 5 strict rules · gotchas</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Context+in+Go" target="_blank" class="title">Context in Go</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=context.Context+Masterclass" target="_blank" class="title">context.Context Masterclass</a><small>Matt Holiday</small></div>
+      <div class="video">📘 <a href="https://go.dev/blog/context" target="_blank" class="title">Official Context Blog</a><small>go.dev</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>JSON, Time, Strings &amp; Stdlib</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase2.html#stdlib" target="_blank" class="title">Notes — JSON, Time, Strings &amp; Stdlib</a><small>Tags · 2006-01-02 mystery · strconv · stdlib map</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=JSON+in+Go" target="_blank" class="title">JSON in Go</a><small>TutorialEdge</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=time+Package" target="_blank" class="title">time Package</a><small>Golang Dojo</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Structured Logging with slog (Go 1.21+)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase2.html#slog" target="_blank" class="title">Notes — Structured Logging (slog)</a><small>JSON handler · With() context · trace correlation</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=slog+Structured+Logging" target="_blank" class="title">slog Structured Logging</a><small>Flo Woelki</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=slog+Deep+Dive" target="_blank" class="title">slog Deep Dive</a><small>GopherCon</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Go Tooling (test, vet, build, generate)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase2.html#tooling" target="_blank" class="title">Notes — Go Tooling</a><small>Cheat-sheet · table tests · benchmarks · go generate</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=go%3Agenerate+Explained" target="_blank" class="title">go:generate Explained</a><small>Mario Carrion</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=go+test+%26+Coverage" target="_blank" class="title">go test &amp; Coverage</a><small>TutorialEdge</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>io.Reader / io.Writer Interfaces</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase2.html#io" target="_blank" class="title">Notes — io.Reader / io.Writer</a><small>Composition · TeeReader · streaming · DoS prevention</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+io+Reader+Writer+interface+tutorial" target="_blank" class="title">io.Reader &amp; io.Writer</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+io+package+streams+pipes" target="_blank" class="title">io Package Patterns</a><small>Matt Holiday</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Reflection &amp; encoding/json deep dive</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase2.html#reflection" target="_blank" class="title">Notes — Reflection &amp; Custom JSON</a><small>Type/Value · MarshalJSON · when (not) to reflect</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+reflection+reflect+package+tutorial" target="_blank" class="title">Reflection in Go</a><small>JustForFunc</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+json+custom+marshal+unmarshal" target="_blank" class="title">Custom JSON Marshalling</a><small>Flo Woelki</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 3 -->
+<section class="phase" id="phase3">
+  <h2><span class="tag">Weeks 5–6</span> Phase 3 — Concurrency Deep Dive</h2>
+  <p class="sub">Go's superpower. Master this and you're a real Go dev.</p>
+
+  <div class="concept">
+    <h4>Goroutines Basics</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#goroutines" target="_blank" class="title">Notes — Goroutines &amp; Scheduler</a><small>G-M-P model · GOMAXPROCS · k8s gotcha</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Goroutines+Explained" target="_blank" class="title">Goroutines Explained</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+Concurrency+Patterns" target="_blank" class="title">Go Concurrency Patterns</a><small>Rob Pike (classic)</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Channels &amp; Select</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#channels" target="_blank" class="title">Notes — Channels &amp; Select</a><small>Buffered vs unbuffered · close panics · timeout pattern</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Channels+Deep+Dive" target="_blank" class="title">Channels Deep Dive</a><small>JustForFunc</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Buffered+vs+Unbuffered" target="_blank" class="title">Buffered vs Unbuffered</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=select+Statement+Mastery" target="_blank" class="title">select Statement Mastery</a><small>Flo Woelki</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>sync Package (Mutex, WaitGroup, Once)</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#sync" target="_blank" class="title">Notes — sync Package</a><small>Mutex copy bug · RWMutex tradeoffs · sync.Once</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Mutex+%26+RWMutex" target="_blank" class="title">Mutex &amp; RWMutex</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=WaitGroup+Tutorial" target="_blank" class="title">WaitGroup Tutorial</a><small>NerdCademy</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Worker Pool &amp; Fan-Out/Fan-In</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#patterns" target="_blank" class="title">Notes — Worker Pool &amp; Fan-Out/Fan-In</a><small>Bounded concurrency · semaphore · merge channels</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Worker+Pool+in+Go" target="_blank" class="title">Worker Pool in Go</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Fan-Out+%2F+Fan-In" target="_blank" class="title">Fan-Out / Fan-In</a><small>Rob Pike</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>errgroup &amp; Advanced Patterns</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#errgroup" target="_blank" class="title">Notes — errgroup &amp; Patterns</a><small>WithContext · SetLimit · fail-fast composition</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Advanced+Concurrency" target="_blank" class="title">Advanced Concurrency</a><small>Sameer Ajmani</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=errgroup+Explained" target="_blank" class="title">errgroup Explained</a><small>Mario Carrion</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Race Detector &amp; Pitfalls</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#race" target="_blank" class="title">Notes — Race Detector &amp; Memory Model</a><small>Happens-before · -race in CI · arch differences</small></div>
+      <div class="video notes-link">📖 <a href="notes/phase3.html#leaks" target="_blank" class="title">Notes — Goroutine Leaks (BONUS)</a><small>5 leak patterns · pprof · goleak detection</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Race+Conditions+%26+-race" target="_blank" class="title">Race Conditions &amp; -race</a><small>Flo Woelki</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Goroutine+Leaks" target="_blank" class="title">Goroutine Leaks</a><small>GopherCon</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>sync/atomic &amp; sync.Pool</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#atomic" target="_blank" class="title">Notes — sync/atomic &amp; sync.Pool</a><small>Lock-free counters · object reuse · pool gotchas</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+sync+atomic+package+tutorial" target="_blank" class="title">sync/atomic for Lock-Free Counters</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+sync+Pool+performance+tutorial" target="_blank" class="title">sync.Pool for Object Reuse</a><small>Flo Woelki</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Pipeline Pattern &amp; Cancellation</h4>
+    <div class="videos">
+      <div class="video notes-link">📖 <a href="notes/phase3.html#pipeline" target="_blank" class="title">Notes — Pipeline Pattern</a><small>Stage composition · cancellation contract · backpressure</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+pipeline+pattern+concurrency" target="_blank" class="title">Pipeline Pattern in Go</a><small>JustForFunc</small></div>
+      <div class="video">📘 <a href="https://go.dev/blog/pipelines" target="_blank" class="title">Go Concurrency Pipelines</a><small>Official Go blog</small></div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>✅ Project:</b> Concurrent web scraper — scrape N URLs in parallel, rate-limit, collect via channels.
+    <br/>🎥 <a href="https://www.youtube.com/results?search_query=Concurrent+Web+Scraper+in+Go" target="_blank">Concurrent Web Scraper in Go</a>
+  </div>
+</section>
+
+<!-- PHASE 4 -->
+<section class="phase" id="phase4">
+  <h2><span class="tag">Weeks 7–9</span> Phase 4 — Backend Development</h2>
+  <p class="sub">Build real HTTP APIs. Stdlib first, framework later.</p>
+
+  <div class="concept">
+    <h4>net/http — Stdlib Server</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=REST+API+with+net%2Fhttp" target="_blank" class="title">REST API with net/http</a><small>Nic Jackson</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+1.22+New+Router" target="_blank" class="title">Go 1.22 New Router</a><small>Alex Edwards</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=HTTP+Server+Patterns" target="_blank" class="title">HTTP Server Patterns</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Middleware Chaining</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Writing+Middleware" target="_blank" class="title">Writing Middleware</a><small>Alex Edwards</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Middleware+Patterns" target="_blank" class="title">Middleware Patterns</a><small>Flo Woelki</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Chi Router (recommended)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=REST+API+with+Chi" target="_blank" class="title">REST API with Chi</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Chi+%2B+Postgres+CRUD" target="_blank" class="title">Chi + Postgres CRUD</a><small>Coding with Patrik</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Gin &amp; Fiber</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Gin+Framework+Crash+Course" target="_blank" class="title">Gin Framework Crash Course</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Fiber+Tutorial" target="_blank" class="title">Fiber Tutorial</a><small>Tech with Tim</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Clean / Hexagonal Architecture</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Clean+Architecture+in+Go" target="_blank" class="title">Clean Architecture in Go</a><small>Mario Carrion</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Hexagonal+Architecture" target="_blank" class="title">Hexagonal Architecture</a><small>Flo Woelki</small></div>
+      <div class="video">📘 <a href="https://github.com/golang-standards/project-layout" target="_blank" class="title">Standard Project Layout</a><small>GitHub</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Dependency Injection (Wire / Fx)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Google+Wire+Tutorial" target="_blank" class="title">Google Wire Tutorial</a><small>Mario Carrion</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Uber+Fx+Framework" target="_blank" class="title">Uber Fx Framework</a><small>Uber Go Meetup</small></div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>✅ Project:</b> Blog REST API — users, posts, comments, JWT, Postgres.
+    <br/>🎥 <a href="https://www.youtube.com/playlist?list=PL0lYY7rL__7oZ-ZhPzcFreaVeKC4F9y72" target="_blank">Full Backend Series — Anthony GG</a>
+  </div>
+</section>
+
+<!-- PHASE 5 -->
+<section class="phase" id="phase5">
+  <h2><span class="tag">Weeks 10–11</span> Phase 5 — Databases (SQL + NoSQL)</h2>
+  <p class="sub">Most backend bugs are DB bugs. Learn this properly.</p>
+
+  <div class="concept">
+    <h4>SQL &amp; PostgreSQL Fundamentals</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Postgres+Full+Course" target="_blank" class="title">Postgres Full Course</a><small>freeCodeCamp (4h)</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Postgres+Crash+Course" target="_blank" class="title">Postgres Crash Course</a><small>Web Dev Simplified</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=SQL+Full+Tutorial" target="_blank" class="title">SQL Full Tutorial</a><small>freeCodeCamp</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Indexes, EXPLAIN, Query Performance</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Postgres+Indexes" target="_blank" class="title">Postgres Indexes</a><small>Hussein Nasser</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/@hnasr" target="_blank" class="title">Hussein Nasser's channel</a><small>DB internals goldmine</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>database/sql + pgx</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+%2B+database%2Fsql" target="_blank" class="title">Go + database/sql</a><small>TutorialEdge</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=pgx+Driver" target="_blank" class="title">pgx Driver</a><small>Coding with Patrik</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>sqlc — Type-safe SQL (RECOMMENDED)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=sqlc+Tutorial" target="_blank" class="title">sqlc Tutorial</a><small>TechSchool</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=sqlc+%2B+Postgres+Setup" target="_blank" class="title">sqlc + Postgres Setup</a><small>Coding with Patrik</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>GORM &amp; Ent (ORMs)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=GORM+Tutorial" target="_blank" class="title">GORM Tutorial</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Ent+Framework+Intro" target="_blank" class="title">Ent Framework Intro</a><small>Mario Carrion</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Migrations (golang-migrate / goose)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang-migrate+Tutorial" target="_blank" class="title">golang-migrate Tutorial</a><small>TechSchool</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=goose+Migrations" target="_blank" class="title">goose Migrations</a><small>Pressly</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>MongoDB with Go</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=MongoDB+%2B+Go+Full+Tutorial" target="_blank" class="title">MongoDB + Go Full Tutorial</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=MongoDB+Go+Driver" target="_blank" class="title">MongoDB Go Driver</a><small>MongoDB Official</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Redis — Caching, Pub/Sub, Rate Limiting</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Redis+with+Go" target="_blank" class="title">Redis with Go</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Redis+Crash+Course" target="_blank" class="title">Redis Crash Course</a><small>Traversy Media</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Redis+Cache+Patterns" target="_blank" class="title">Redis Cache Patterns</a><small>Hussein Nasser</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Database Transactions &amp; Connection Pooling</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+database+transactions+sqlx+tutorial" target="_blank" class="title">Transactions in Go</a><small>TechSchool</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=postgres+isolation+levels+explained" target="_blank" class="title">Postgres Isolation Levels</a><small>Hussein Nasser</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+database+connection+pool+pgx" target="_blank" class="title">Connection Pooling Tuning</a><small>Coding with Patrik</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>⭐ Backend Master Class (full series)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/playlist?list=PLy_6D98if3ULEtXtNSY_2qN21VCKgoQAE" target="_blank" class="title">Backend Master Class — TechSchool</a><small>30+ videos: Go + Postgres + Docker + K8s. MUST WATCH.</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 6 -->
+<section class="phase" id="phase6">
+  <h2><span class="tag">Week 12</span> Phase 6 — Authentication &amp; Security</h2>
+  <p class="sub">Non-negotiable for any real backend.</p>
+
+  <div class="concept">
+    <h4>Sessions vs JWT</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Sessions+vs+JWT" target="_blank" class="title">Sessions vs JWT</a><small>Web Dev Simplified</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=JWT+Auth+in+Go" target="_blank" class="title">JWT Auth in Go</a><small>TechSchool</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Password Hashing (bcrypt, argon2)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=bcrypt+in+Go" target="_blank" class="title">bcrypt in Go</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Password+Hashing+Explained" target="_blank" class="title">Password Hashing Explained</a><small>Computerphile</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>JWT + Refresh Tokens</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Refresh+Tokens+in+Go" target="_blank" class="title">Refresh Tokens in Go</a><small>TechSchool</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Access+%2B+Refresh+Flow" target="_blank" class="title">Access + Refresh Flow</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>OAuth2 / OIDC (Google, GitHub login)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=OAuth2+in+Go" target="_blank" class="title">OAuth2 in Go</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=OAuth2+Explained" target="_blank" class="title">OAuth2 Explained</a><small>OktaDev</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>PASETO (modern JWT alternative)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=PASETO+Tokens" target="_blank" class="title">PASETO Tokens</a><small>TechSchool</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>OWASP Top 10 &amp; Security Essentials</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=OWASP+Top+10" target="_blank" class="title">OWASP Top 10</a><small>F5 DevCentral</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=CORS+%26+CSRF" target="_blank" class="title">CORS &amp; CSRF</a><small>Hussein Nasser</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Rate+Limiting+Patterns" target="_blank" class="title">Rate Limiting Patterns</a><small>Hussein Nasser</small></div>
+      <div class="video">📘 <a href="https://owasp.org/www-project-top-ten/" target="_blank" class="title">OWASP Top 10 Official</a><small>Know all 10 cold</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Input Validation</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Validator+Package+Tutorial" target="_blank" class="title">Validator Package Tutorial</a><small>NerdCademy</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>TLS / HTTPS in Go</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+https+tls+certificate+tutorial" target="_blank" class="title">HTTPS Server in Go</a><small>Alex Edwards</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=lets+encrypt+autocert+golang" target="_blank" class="title">Let's Encrypt + autocert</a><small>Coding with Patrik</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Secrets Management (Vault, env, KMS)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=hashicorp+vault+tutorial+golang" target="_blank" class="title">HashiCorp Vault Crash Course</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=aws+kms+secrets+manager+tutorial" target="_blank" class="title">AWS Secrets Manager + KMS</a><small>Be A Better Dev</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 7 -->
+<section class="phase" id="phase7">
+  <h2><span class="tag">Week 13</span> Phase 7 — Testing</h2>
+  <p class="sub">Juniors write code. Seniors write tests.</p>
+
+  <div class="concept">
+    <h4>Unit &amp; Table-Driven Tests</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Testing+in+Go" target="_blank" class="title">Testing in Go</a><small>TutorialEdge</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Table-Driven+Tests" target="_blank" class="title">Table-Driven Tests</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Mocking &amp; testify</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=testify+Tutorial" target="_blank" class="title">testify Tutorial</a><small>NerdCademy</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Mocking+with+Interfaces" target="_blank" class="title">Mocking with Interfaces</a><small>Mario Carrion</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>HTTP Handler Tests (httptest)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Testing+HTTP+Handlers" target="_blank" class="title">Testing HTTP Handlers</a><small>Alex Edwards</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>testcontainers-go (real DB in tests)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Testcontainers+for+Go" target="_blank" class="title">Testcontainers for Go</a><small>Testcontainers official</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Benchmarks &amp; pprof</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Profiling+with+pprof" target="_blank" class="title">Profiling with pprof</a><small>GopherCon</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Benchmarks+in+Go" target="_blank" class="title">Benchmarks in Go</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Fuzzing (Go 1.18+)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+fuzzing+tutorial+go+test+fuzz" target="_blank" class="title">Fuzz Testing in Go</a><small>Matt Holiday</small></div>
+      <div class="video">📘 <a href="https://go.dev/security/fuzz/" target="_blank" class="title">Official Fuzz Tutorial</a><small>go.dev</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Integration &amp; E2E Tests</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+integration+test+docker+postgres" target="_blank" class="title">Integration Tests with Docker</a><small>Coding with Patrik</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=golang+e2e+api+test+tutorial" target="_blank" class="title">E2E API Testing Patterns</a><small>Mario Carrion</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 8 -->
+<section class="phase" id="phase8">
+  <h2><span class="tag">Weeks 14–15</span> Phase 8 — Microservices &amp; gRPC</h2>
+  <p class="sub">Go's natural territory.</p>
+
+  <div class="concept">
+    <h4>gRPC + Protocol Buffers</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=gRPC+Full+Course+%E2%80%94+TechSchool" target="_blank" class="title">gRPC Full Course — TechSchool</a><small>⭐ Complete series</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=gRPC+Crash+Course" target="_blank" class="title">gRPC Crash Course</a><small>Nic Jackson</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Protobuf+Explained" target="_blank" class="title">Protobuf Explained</a><small>Hussein Nasser</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>buf CLI (modern protobuf tooling)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=buf+Tutorial" target="_blank" class="title">buf Tutorial</a><small>Buf Technologies</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Kafka with Go</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Kafka+%2B+Go" target="_blank" class="title">Kafka + Go</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Kafka+Crash+Course" target="_blank" class="title">Kafka Crash Course</a><small>Hussein Nasser</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>NATS (Go-native messaging)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=NATS+Intro" target="_blank" class="title">NATS Intro</a><small>Synadia</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=NATS+%2B+Go" target="_blank" class="title">NATS + Go</a><small>NATS official</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>RabbitMQ</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=RabbitMQ+in+Go" target="_blank" class="title">RabbitMQ in Go</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Circuit Breakers &amp; Resilience</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Circuit+Breaker+Pattern" target="_blank" class="title">Circuit Breaker Pattern</a><small>ByteByteGo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Retries+with+Backoff" target="_blank" class="title">Retries with Backoff</a><small>Nicholas Grisey</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>WebSockets in Go</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=WebSockets+in+Go" target="_blank" class="title">WebSockets in Go</a><small>Anthony GG</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Realtime+Chat+with+WebSockets" target="_blank" class="title">Realtime Chat with WebSockets</a><small>Coding with Patrik</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 9 -->
+<section class="phase" id="phase9">
+  <h2><span class="tag">Weeks 15–17</span> Phase 9 — Docker, Kubernetes &amp; Cloud</h2>
+  <p class="sub">Backend devs own deployment in 2026.</p>
+
+  <div class="concept">
+    <h4>Docker — Complete</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Docker+Full+Course" target="_blank" class="title">Docker Full Course</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Docker+Crash+Course" target="_blank" class="title">Docker Crash Course</a><small>Traversy Media</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Multi-stage+Builds+for+Go" target="_blank" class="title">Multi-stage Builds for Go</a><small>Callum Whyte</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>docker-compose</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=docker-compose+Tutorial" target="_blank" class="title">docker-compose Tutorial</a><small>TechWorld with Nana</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Kubernetes Fundamentals</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Kubernetes+Full+Course+%284h%29" target="_blank" class="title">Kubernetes Full Course (4h)</a><small>⭐ TechWorld with Nana — GOLD</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=K8s+Crash+Course" target="_blank" class="title">K8s Crash Course</a><small>freeCodeCamp</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Helm &amp; Kustomize</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Helm+Tutorial" target="_blank" class="title">Helm Tutorial</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Kustomize+Explained" target="_blank" class="title">Kustomize Explained</a><small>DevOps Toolkit</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>AWS for Go Backend Devs</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=AWS+for+Developers" target="_blank" class="title">AWS for Developers</a><small>freeCodeCamp</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=AWS+Solutions+Architect" target="_blank" class="title">AWS Solutions Architect</a><small>freeCodeCamp (10h)</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>CI/CD with GitHub Actions</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=GitHub+Actions+Tutorial" target="_blank" class="title">GitHub Actions Tutorial</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+%2B+GitHub+Actions" target="_blank" class="title">Go + GitHub Actions</a><small>Mario Carrion</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Terraform (IaC)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Terraform+Full+Course" target="_blank" class="title">Terraform Full Course</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Terraform+Crash+Course" target="_blank" class="title">Terraform Crash Course</a><small>HashiCorp</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>GitOps with Argo CD / Flux</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=argo+cd+tutorial+gitops" target="_blank" class="title">Argo CD GitOps Tutorial</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=flux+cd+gitops+kubernetes" target="_blank" class="title">Flux CD Crash Course</a><small>DevOps Toolkit</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Service Mesh (Istio / Linkerd)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=istio+service+mesh+tutorial" target="_blank" class="title">Istio Service Mesh</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=linkerd+vs+istio+service+mesh" target="_blank" class="title">Linkerd vs Istio</a><small>DevOps Toolkit</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>K8s Operators &amp; CRDs (advanced)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=kubernetes+operator+pattern+golang" target="_blank" class="title">Build a K8s Operator in Go</a><small>KubeCon</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=kubebuilder+operator+tutorial" target="_blank" class="title">Kubebuilder Tutorial</a><small>VMware Tanzu</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 10 -->
+<section class="phase" id="phase10">
+  <h2><span class="tag">Week 18</span> Phase 10 — Observability &amp; Production</h2>
+  <p class="sub">"It works on my machine" ≠ production-ready.</p>
+
+  <div class="concept">
+    <h4>Structured Logging (slog)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=slog+Structured+Logs" target="_blank" class="title">slog Structured Logs</a><small>Flo Woelki</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=slog+Deep+Dive" target="_blank" class="title">slog Deep Dive</a><small>GopherCon</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Prometheus Metrics</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Prometheus+Crash+Course" target="_blank" class="title">Prometheus Crash Course</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Go+%2B+Prometheus" target="_blank" class="title">Go + Prometheus</a><small>Anton Putra</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Grafana Dashboards</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Grafana+Tutorial" target="_blank" class="title">Grafana Tutorial</a><small>TechWorld with Nana</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>OpenTelemetry (Distributed Tracing)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=OpenTelemetry+in+Go" target="_blank" class="title">OpenTelemetry in Go</a><small>KubeCon talk</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=OTel+Intro" target="_blank" class="title">OTel Intro</a><small>CNCF</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Jaeger+Tracing" target="_blank" class="title">Jaeger Tracing</a><small>CNCF</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Graceful Shutdown</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Graceful+Shutdown+in+Go" target="_blank" class="title">Graceful Shutdown in Go</a><small>Anthony GG</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Health Checks &amp; Readiness</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Health+Checks+in+K8s" target="_blank" class="title">Health Checks in K8s</a><small>DevOps Toolkit</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Log Aggregation (Loki / ELK)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=grafana+loki+tutorial+log+aggregation" target="_blank" class="title">Grafana Loki Tutorial</a><small>TechWorld with Nana</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=elk+stack+tutorial+elasticsearch+kibana" target="_blank" class="title">ELK Stack Crash Course</a><small>edureka!</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Error Tracking (Sentry)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=sentry+golang+error+tracking" target="_blank" class="title">Sentry + Go Integration</a><small>Sentry official</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>SLO / SLI / SLA &amp; Alerting</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=sre+sli+slo+sla+google+tutorial" target="_blank" class="title">SLI vs SLO vs SLA</a><small>Google SRE</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=prometheus+alertmanager+tutorial" target="_blank" class="title">Prometheus Alertmanager</a><small>TechWorld with Nana</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 11 -->
+<section class="phase" id="phase11">
+  <h2><span class="tag">Weeks 19–22</span> Phase 11 — System Design</h2>
+  <p class="sub">What separates mid from senior. Essential for SDE2+ interviews.</p>
+
+  <div class="concept">
+    <h4>Fundamentals (Scalability, CAP, Consistency)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/@ByteByteGo" target="_blank" class="title">ByteByteGo Channel</a><small>⭐ #1 System design channel</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/@gkcs" target="_blank" class="title">Gaurav Sen</a><small>System design interviews</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/@SystemDesignInterview" target="_blank" class="title">System Design Interview channel</a><small>Book walkthroughs</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Databases at Scale</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Database+Sharding" target="_blank" class="title">Database Sharding</a><small>Hussein Nasser</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Replication+Strategies" target="_blank" class="title">Replication Strategies</a><small>ByteByteGo</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Caching Patterns</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Caching+Strategies" target="_blank" class="title">Caching Strategies</a><small>ByteByteGo</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Load Balancing &amp; Consistent Hashing</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=load+balancing+algorithms+system+design" target="_blank" class="title">Load Balancing Explained</a><small>ByteByteGo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=consistent+hashing+system+design" target="_blank" class="title">Consistent Hashing</a><small>ByteByteGo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=nginx+vs+haproxy+vs+envoy" target="_blank" class="title">Nginx vs HAProxy vs Envoy</a><small>Hussein Nasser</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Message Queues &amp; Async Patterns</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=message+queue+system+design+kafka+rabbitmq" target="_blank" class="title">Message Queues Compared</a><small>ByteByteGo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=at+least+once+exactly+once+delivery" target="_blank" class="title">Delivery Guarantees</a><small>Hussein Nasser</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Bloom Filters, Rate Limiting Algorithms</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=bloom+filter+explained+system+design" target="_blank" class="title">Bloom Filters Explained</a><small>ByteByteGo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=token+bucket+leaky+bucket+rate+limiter" target="_blank" class="title">Token Bucket vs Leaky Bucket</a><small>Hussein Nasser</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Event Sourcing &amp; CQRS</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=CQRS+Explained" target="_blank" class="title">CQRS Explained</a><small>CodeOpinion</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Event+Sourcing+Basics" target="_blank" class="title">Event Sourcing Basics</a><small>Derek Comartin</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Saga &amp; Outbox Pattern</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Saga+Pattern" target="_blank" class="title">Saga Pattern</a><small>CodeOpinion</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Outbox+Pattern" target="_blank" class="title">Outbox Pattern</a><small>CodeOpinion</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Classic Design Problems</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Design+URL+Shortener" target="_blank" class="title">Design URL Shortener</a><small>System Design Interview</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Design+Rate+Limiter" target="_blank" class="title">Design Rate Limiter</a><small>ByteByteGo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Design+Chat+System" target="_blank" class="title">Design Chat System</a><small>ByteByteGo</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Design+Twitter+Feed" target="_blank" class="title">Design Twitter Feed</a><small>ByteByteGo</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Must-Read Books &amp; Guides</h4>
+    <div class="videos">
+      <div class="video">📗 <a href="https://dataintensive.net/" target="_blank" class="title">Designing Data-Intensive Applications</a><small>⭐ Martin Kleppmann — THE bible</small></div>
+      <div class="video">📘 <a href="https://github.com/donnemartin/system-design-primer" target="_blank" class="title">System Design Primer</a><small>GitHub, 280k stars</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 12 -->
+<section class="phase" id="phase12">
+  <h2><span class="tag">Weeks 22+</span> Phase 12 — AI + Go (2026 Edge)</h2>
+  <p class="sub">Be early here — rare combo = premium salaries.</p>
+
+  <div class="concept">
+    <h4>LLM API Integration</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Build+AI+Chat+Backend+in+Go" target="_blank" class="title">Build AI Chat Backend in Go</a><small>Nick Chapsas</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=OpenAI+API+%2B+Go" target="_blank" class="title">OpenAI API + Go</a><small>AI Jason</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Embeddings &amp; Vector Databases</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Vector+DBs+Explained" target="_blank" class="title">Vector DBs Explained</a><small>Fireship</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=pgvector+%2B+Postgres" target="_blank" class="title">pgvector + Postgres</a><small>Crunchy Data</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>RAG Systems End-to-End</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=RAG+from+Scratch" target="_blank" class="title">RAG from Scratch</a><small>LangChain</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/@AIEngineer" target="_blank" class="title">AI Engineer Channel</a><small>LLM app patterns</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Model Context Protocol (MCP)</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=What+is+MCP%3F" target="_blank" class="title">What is MCP?</a><small>Anthropic</small></div>
+      <div class="video">📘 <a href="https://modelcontextprotocol.io" target="_blank" class="title">MCP Official Docs</a><small>Anthropic</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>AI Agents</h4>
+    <div class="videos">
+      <div class="video">🎥 <a href="https://www.youtube.com/results?search_query=Build+an+Agent+from+Scratch" target="_blank" class="title">Build an Agent from Scratch</a><small>AI Jason</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="phase" id="projects">
+  <h2>🏗️ Capstone Projects</h2>
+  <p class="sub">Tutorials don't get jobs. <b>Shipped projects do.</b> Build 3–5 with clean READMEs + live demos.</p>
+
+  <div class="project">
+    <b>1. URL Shortener</b> — Go + Postgres + Redis + Docker. Rate limiting, analytics, custom slugs.
+    <br/>🎥 <a href="https://www.youtube.com/results?search_query=URL+Shortener+in+Go" target="_blank">URL Shortener in Go</a>
+  </div>
+  <div class="project">
+    <b>2. Real-time Chat</b> — WebSockets + Redis pub/sub + goroutines.
+    <br/>🎥 <a href="https://www.youtube.com/results?search_query=Realtime+Chat+with+Go+%26+WS" target="_blank">Realtime Chat with Go &amp; WS</a>
+  </div>
+  <div class="project">
+    <b>3. Job Queue / Scheduler</b> — Worker pool, retries, dead-letter queue.
+    <br/>🎥 <a href="https://www.youtube.com/results?search_query=Worker+Pool+Pattern" target="_blank">Worker Pool Pattern</a>
+  </div>
+  <div class="project">
+    <b>4. E-commerce Microservices</b> — user, catalog, order, payment + gRPC + Kafka + K8s.
+    <br/>🎥 <a href="https://www.youtube.com/playlist?list=PL0lYY7rL__7oZ-ZhPzcFreaVeKC4F9y72" target="_blank">Full Backend Series — Anthony GG</a>
+  </div>
+  <div class="project">
+    <b>5. RAG API</b> — Upload docs → chunk → embed to pgvector → query via LLM.
+    <br/>🎥 <a href="https://www.youtube.com/results?search_query=RAG+from+Scratch" target="_blank">RAG from Scratch</a>
+  </div>
+  <div class="project">
+    <b>6. Go CLI Tool</b> — Publish a real CLI on GitHub.
+    <br/>🎥 <a href="https://www.youtube.com/results?search_query=Build+a+CLI+in+Go" target="_blank">Build a CLI in Go</a>
+  </div>
+  <div class="project">
+    <b>7. Angular + Go Full-stack App</b> — Reuse your Angular skills. Biggest differentiator.
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="phase" id="resources">
+  <h2>📚 Master Resource List</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>📘 Books</h3>
+      <ul>
+        <li><a href="https://www.oreilly.com/library/view/learning-go-2nd/9781098139285/" target="_blank">Learning Go — Jon Bodner (2nd ed)</a> ⭐</li>
+        <li><a href="https://www.manning.com/books/100-go-mistakes-and-how-to-avoid-them" target="_blank">100 Go Mistakes</a> ⭐</li>
+        <li><a href="https://www.oreilly.com/library/view/the-go-programming/9780134190570/" target="_blank">The Go Programming Language</a></li>
+        <li><a href="https://dataintensive.net/" target="_blank">Designing Data-Intensive Applications</a> ⭐</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>🎥 Top YouTube Channels</h3>
+      <ul>
+        <li><a href="https://www.youtube.com/@anthonygg_" target="_blank">Anthony GG</a> ⭐ — practical Go backend</li>
+        <li><a href="https://www.youtube.com/@TechSchoolGuru" target="_blank">TechSchool</a> ⭐ — Backend Master Class</li>
+        <li><a href="https://www.youtube.com/@GolangDojo" target="_blank">Golang Dojo</a> — fundamentals</li>
+        <li><a href="https://www.youtube.com/@JustForFunc" target="_blank">JustForFunc</a> — Francesc Campoy</li>
+        <li><a href="https://www.youtube.com/@GopherConEurope" target="_blank">GopherCon talks</a></li>
+        <li><a href="https://www.youtube.com/@ByteByteGo" target="_blank">ByteByteGo</a> ⭐ — system design</li>
+        <li><a href="https://www.youtube.com/@hnasr" target="_blank">Hussein Nasser</a> ⭐ — backend/DB internals</li>
+        <li><a href="https://www.youtube.com/@TechWorldwithNana" target="_blank">TechWorld with Nana</a> ⭐ — DevOps/K8s</li>
+        <li><a href="https://www.youtube.com/@MarioCarrionDev" target="_blank">Mario Carrion</a> — Go patterns</li>
+        <li><a href="https://www.youtube.com/@codingwithpatrik" target="_blank">Coding with Patrik</a> — Go tutorials</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>🎓 Courses</h3>
+      <ul>
+        <li><a href="https://gophercises.com/" target="_blank">Gophercises (free)</a></li>
+        <li><a href="https://www.boot.dev/tracks/backend" target="_blank">Boot.dev Backend Track</a></li>
+        <li><a href="https://www.ardanlabs.com/training/" target="_blank">Ardan Labs Ultimate Go</a></li>
+        <li><a href="https://www.udemy.com/course/go-the-complete-developers-guide/" target="_blank">Stephen Grider — Go Guide</a></li>
+        <li><a href="https://lets-go.alexedwards.net/" target="_blank">Let's Go — Alex Edwards</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>📖 Docs &amp; Style Guides</h3>
+      <ul>
+        <li><a href="https://go.dev/doc/effective_go" target="_blank">Effective Go</a></li>
+        <li><a href="https://github.com/uber-go/guide" target="_blank">Uber Go Style Guide</a></li>
+        <li><a href="https://google.github.io/styleguide/go/" target="_blank">Google Go Style Guide</a></li>
+        <li><a href="https://dave.cheney.net/" target="_blank">Dave Cheney's blog</a></li>
+        <li><a href="https://github.com/golang-standards/project-layout" target="_blank">Standard Project Layout</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>🛠️ Essential Tools</h3>
+      <ul>
+        <li><code>golangci-lint</code> — linter</li>
+        <li><code>gofumpt</code> — stricter fmt</li>
+        <li><code>air</code> — hot reload</li>
+        <li><code>delve</code> — debugger</li>
+        <li><code>sqlc</code> — type-safe SQL</li>
+        <li><code>buf</code> — protobuf</li>
+        <li><code>goreleaser</code> — releases</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>🧠 Open-Source Repos</h3>
+      <ul>
+        <li><a href="https://github.com/kubernetes/kubernetes" target="_blank">Kubernetes</a></li>
+        <li><a href="https://github.com/hashicorp/terraform" target="_blank">Terraform</a></li>
+        <li><a href="https://github.com/grafana/grafana" target="_blank">Grafana</a></li>
+        <li><a href="https://github.com/gin-gonic/gin" target="_blank">Gin</a></li>
+        <li><a href="https://github.com/go-chi/chi" target="_blank">Chi</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- JOB SEARCH -->
+<section class="phase" id="jobsearch">
+  <h2>💼 Job Search Playbook</h2>
+  <p class="sub">Skills alone don't get jobs. This does.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>1. DSA / LeetCode (SDE2+ must)</h3>
+      <ul>
+        <li><a href="https://neetcode.io/roadmap" target="_blank">NeetCode 150</a> ⭐</li>
+        <li><a href="https://leetcode.com/" target="_blank">LeetCode — 100+ mediums</a></li>
+        <li><a href="https://www.youtube.com/@NeetCode" target="_blank">NeetCode YouTube</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>2. Resume &amp; LinkedIn</h3>
+      <ul>
+        <li>Quantify every bullet (%, numbers, impact)</li>
+        <li>Pin 3 GitHub projects</li>
+        <li>LinkedIn headline: "Go Backend Engineer | Angular | Cloud-native"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>3. Mock Interviews</h3>
+      <ul>
+        <li><a href="https://www.pramp.com/" target="_blank">Pramp (free peer mocks)</a></li>
+        <li><a href="https://www.tryexponent.com/" target="_blank">Exponent (system design)</a></li>
+        <li>Practice behavioral STAR stories</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>4. Target Companies (India)</h3>
+      <ul>
+        <li>Go-heavy: Razorpay, CRED, PhonePe, Uber, Swiggy, Dream11</li>
+        <li>Fintech: Zerodha, Groww, Jupiter</li>
+        <li>Infra: InMobi, Hasura, Postman</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CHECKLIST -->
+<section class="phase">
+  <h2>✅ "I'm Job-Ready" Checklist</h2>
+  <p class="sub">Tick all before applying to senior Go roles.</p>
+  <div class="checklist">
+    <div class="check">REST API with stdlib <code>net/http</code></div>
+    <div class="check">Chi/Gin with middleware</div>
+    <div class="check">Table-driven tests</div>
+    <div class="check"><code>context</code> for cancellation</div>
+    <div class="check">Explain goroutines vs threads</div>
+    <div class="check">Worker pool with channels</div>
+    <div class="check">SQL migrations</div>
+    <div class="check">sqlc or pgx for DB access</div>
+    <div class="check">JWT + refresh tokens</div>
+    <div class="check">Dockerize Go (multi-stage)</div>
+    <div class="check">Deploy to K8s with Helm</div>
+    <div class="check">Prometheus metrics</div>
+    <div class="check">OpenTelemetry tracing</div>
+    <div class="check">Graceful shutdown</div>
+    <div class="check">gRPC service with Protobuf</div>
+    <div class="check">Redis caching + rate limiting</div>
+    <div class="check">Kafka/NATS publishing</div>
+    <div class="check">pprof profiling (CPU + memory)</div>
+    <div class="check">Design URL shortener E2E</div>
+    <div class="check">LLM + vector DB feature</div>
+    <div class="check">100+ LeetCode mediums</div>
+    <div class="check">3+ projects on GitHub</div>
+  </div>
+</section>
+
+<div class="warn">
+  <b>⚠️ Don't fall into tutorial hell.</b> After Phase 3, for every 1 hour of video, spend 3 hours building. Shipped projects &gt; certificates.
+</div>
+
+<div class="callout">
+  <b>🎯 Your 90-day starter sprint:</b>
+  <ul>
+    <li><b>Weeks 1–2:</b> Tour of Go + Go by Example + CLI project</li>
+    <li><b>Weeks 3–4:</b> "Learning Go" (first half) + REST API with stdlib + Postgres</li>
+    <li><b>Weeks 5–6:</b> Redis, JWT, Docker. Deploy to Fly.io/Render.</li>
+    <li><b>Weeks 7–8:</b> Read org's Go code. Grab a real ticket. gRPC basics.</li>
+    <li><b>Weeks 9–10:</b> Concurrency patterns + worker pool. Learn pprof.</li>
+    <li><b>Weeks 11–12:</b> System design + OTel + ship a public project.</li>
+  </ul>
+  After 90 days you should be shipping Go at work.
+</div>
+
+</div>
+
+<footer>
+  Built for your Go journey 🚀 &nbsp;|&nbsp; Keep shipping. Stay curious. Read source code. <br/>
+  <small>Bookmark this file. Revisit monthly. Tick checkboxes as you go.</small>
+</footer>
+
+<details class="floating-toc">
+  <summary title="Table of Contents" aria-label="Table of Contents"></summary>
+  <div class="ft-panel">
+    <h4>Go Roadmap — Jump to</h4>
+    <ol>
+      <li><a href="#prereq">Prerequisites</a></li>
+      <li><a href="#phase0">Phase 0 — Setup</a></li>
+      <li><a href="#gocmds">Pre-1 — Go CLI</a></li>
+      <li><a href="#phase1">Phase 1 — Fundamentals</a></li>
+      <li><a href="#phase2">Phase 2 — Intermediate</a></li>
+      <li><a href="#phase3">Phase 3 — Concurrency</a></li>
+      <li><a href="#phase4">Phase 4 — Backend</a></li>
+      <li><a href="#phase5">Phase 5 — Databases</a></li>
+      <li><a href="#phase6">Phase 6 — Auth &amp; Security</a></li>
+      <li><a href="#phase7">Phase 7 — Testing</a></li>
+      <li><a href="#phase8">Phase 8 — Microservices</a></li>
+      <li><a href="#phase9">Phase 9 — Docker, K8s</a></li>
+      <li><a href="#phase10">Phase 10 — Observability</a></li>
+      <li><a href="#phase11">Phase 11 — System Design</a></li>
+      <li><a href="#phase12">Phase 12 — AI + Go</a></li>
+      <li><a href="#projects">Capstone Projects</a></li>
+      <li><a href="#resources">Master Resources</a></li>
+      <li><a href="#jobsearch">Job Search</a></li>
+    </ol>
+    <div class="ft-extra">
+      <a href="notes/phase1.html">📖 Notes — Phase 1</a>
+      <a href="notes/phase2.html">📖 Notes — Phase 2</a>
+      <a href="notes/phase3.html">📖 Notes — Phase 3</a>
+      <a href="notes/dsa-cheatsheet.html">⚡ DSA Cheatsheet</a>
+    </div>
+  </div>
+</details>
+
+</body>
+</html>

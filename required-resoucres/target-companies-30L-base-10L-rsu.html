@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Target Companies — 30-35L Base + 10L+ RSU (India, 4 YOE Full Stack / UI)</title>
+<style>
+  :root{--bg:#ffffff;--card:#f8f9fc;--text:#1a1a2e;--mut:#5a6078;--accent:#2563eb;--ok:#16a34a;--warn:#d97706;--bad:#dc2626}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px 32px;max-width:1440px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px;color:#111}
+  h2{margin:28px 0 10px;color:var(--accent);border-bottom:2px solid #e2e8f0;padding-bottom:6px;font-size:20px}
+  .sub{color:var(--mut);font-size:13px;margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+  /* Card */
+  .company-card{background:var(--card);border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;font-size:13px;cursor:pointer;transition:all .15s}
+  .company-card:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(37,99,235,.08)}
+  .company-card.active{border-color:var(--accent);box-shadow:0 2px 12px rgba(37,99,235,.12)}
+  .card-header{padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+  .card-header b{font-size:14px}
+  .card-info{color:var(--mut);font-size:12px;margin-top:2px}
+  .card-arrow{font-size:10px;color:var(--mut);transition:transform .2s;flex-shrink:0;margin-left:6px}
+  .company-card.active .card-arrow{transform:rotate(180deg)}
+  /* Panel */
+  .lc-panel{display:none;border-top:1px solid #e2e8f0}
+  .company-card.active .lc-panel{display:block}
+  /* Tabs */
+  .panel-tabs{display:flex;gap:0;background:#f1f5f9;border-bottom:1px solid #e2e8f0;overflow-x:auto}
+  .ptab{padding:6px 10px;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:11px;font-weight:600;color:#64748b;background:transparent;white-space:nowrap;transition:all .15s;flex-shrink:0}
+  .ptab:hover{color:var(--accent);background:#e8f0fe}
+  .ptab.active{color:var(--accent);border-bottom-color:var(--accent);background:#fff}
+  .tab-pane{display:none;max-height:380px;overflow-y:auto}
+  .tab-pane.show{display:block}
+  /* Algo table */
+  .lc-table{width:100%;border-collapse:collapse;font-size:12px}
+  .lc-table th,.lc-table td{padding:5px 8px;border-bottom:1px solid #f1f5f9;text-align:left}
+  .lc-table th{background:#f8fafc;font-weight:600;position:sticky;top:0;z-index:1}
+  .lc-table tr:hover td{background:#f8fafc}
+  .lc-link{color:#1e40af;text-decoration:none}
+  .lc-link:hover{text-decoration:underline}
+  .lc-e{color:#16a34a;font-weight:700}
+  .lc-m{color:#d97706;font-weight:700}
+  .lc-h{color:#dc2626;font-weight:700}
+  /* Q lists */
+  .q-list{list-style:none;padding:0;margin:0}
+  .q-list li{border-bottom:1px solid #f1f5f9}
+  .q-list li:last-child{border-bottom:none}
+  .q-link{color:#1e40af;text-decoration:none;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;line-height:1.4}
+  .q-link:hover{background:#eff6ff;color:#1d4ed8}
+  .q-tag{font-size:10px;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+  .qa-group{margin:0}
+  .qa-group-title{font-size:10px;font-weight:700;color:#64748b;padding:5px 10px 2px;text-transform:uppercase;letter-spacing:.6px;background:#f8fafc;border-bottom:1px solid #f1f5f9;position:sticky;top:0;z-index:1}
+  /* Pills */
+  .pill{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;margin-left:5px;vertical-align:middle;font-weight:600}
+  .p-ok{background:#dcfce7;color:var(--ok)}
+  .p-mid{background:#fef3c7;color:var(--warn)}
+  .p-meh{background:#fee2e2;color:var(--bad)}
+  .p-info{background:#dbeafe;color:var(--accent)}
+  /* Layout */
+  .legend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .note{background:#eff6ff;border-left:3px solid var(--accent);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:12px}
+  .meta{color:var(--mut);font-size:11px}
+  .click-hint{font-size:11px;color:var(--accent);font-style:italic;margin:4px 0 8px}
+  details{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin:8px 0}
+  summary{cursor:pointer;font-weight:600;color:#1e293b;font-size:14px}
+  table.action{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  table.action th,table.action td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left}
+  table.action th{background:#f1f5f9}
+  .loading{padding:12px;text-align:center;color:var(--mut);font-size:12px;font-style:italic}
+</style>
+</head>
+<body>
+
+<h1>Target Companies in India — 30-35L+ Base & 10L+ RSU/yr</h1>
+<p class="sub">Angular / Full Stack engineers with ~4 YOE • Click a card → 4 interview sections expand (Algo, Machine Coding, System Design, Q&A) • Every item links to the real question/resource</p>
+
+<div class="legend">
+  <span class="pill p-ok">Strong fit ✓</span>
+  <span class="pill p-mid">Level dependent</span>
+  <span class="pill p-meh">Stretch</span>
+  <span class="pill p-info">RSU heavy</span>
+</div>
+<div class="note">
+  <b>How to read:</b> "Base" = fixed cash, "RSU" = annual vesting (4-yr grant ÷ 4). Click any card → tabs appear: <b>⚡ Algo</b> (LC links), <b>💻 Machine Coding</b>, <b>🏗 System Design</b>, <b>💬 Q&A</b>. Indian unicorn ESOPs shown where they meet 10L equity bar.
+</div>
+<p class="click-hint">▼ Click any company card to expand all interview rounds for that company</p>
+
+<h2>Tier 1 — FAANG & Top US Product MNCs <span class="pill p-ok">All fit</span></h2>
+<p class="meta">SDE-2 / IC3 / L4-L5 typical TC: 60L–1.2Cr • Base 30-55L • RSU 15-50L/yr</p>
+<div class="grid" id="tier1"></div>
+
+<h2>Tier 2 — Investment Banks & Fintech Tech Centres <span class="pill p-ok">Strong fit</span></h2>
+<p class="meta">Tech / Strats / Quant Dev — base often very high; RSU varies (deferred stock)</p>
+<div class="grid" id="tier2"></div>
+
+<h2>Tier 3 — SaaS / B2B Product (US-HQ, India eng) <span class="pill p-ok">All fit</span></h2>
+<div class="grid" id="tier3"></div>
+
+<h2>Tier 4 — Indian Unicorns / Consumer Tech <span class="pill p-mid">ESOP (illiquid)</span></h2>
+<p class="meta">ESOPs at notional valuation. Listed only those with strong ESOP programmes meeting target.</p>
+<div class="grid" id="tier4"></div>
+
+<h2>Tier 5 — Retail Tech / Captives <span class="pill p-ok">Strong fit</span></h2>
+<div class="grid" id="tier5"></div>
+
+<h2>Tier 6 — HFT / Quant / Trading Tech <span class="pill p-info">Cash-heavy, TC ≫ target</span></h2>
+<p class="meta">Frontend ICs for trading dashboards / risk UIs. RSU replaced by huge cash bonus.</p>
+<div class="grid" id="tier6"></div>
+
+<h2>Tier 7 — Industrial / Supply Chain / Gaming / Healthcare / Indian Unicorns</h2>
+<p class="meta">GCCs, India-founded companies and domain-specific product firms clearing the 30L+ base + 10L+ equity bar</p>
+<div class="grid" id="tier7"></div>
+
+<h2>Tier 8 — AI / LLM / Web3 / Misc High-Pay</h2>
+<div class="grid" id="tier8"></div>
+
+<h2>Targeted Action Plan</h2>
+<details open>
+<summary>Best risk-adjusted picks for UI-heavy Full Stack @ 4 YOE</summary>
+<table class="action"><thead><tr><th>Priority</th><th>Companies</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>P0</td><td>Microsoft, Google, Amazon, Adobe, Atlassian, Salesforce, LinkedIn, Walmart, Intuit, ServiceNow, Workday</td><td>High UI/FE hiring, RSU liquid, level = SDE2</td></tr>
+<tr><td>P0 fintech</td><td>Goldman, JPMC, MS, Visa, Mastercard, Amex, Stripe, PayPal</td><td>Internal-tool frontends; deferred stock</td></tr>
+<tr><td>P1</td><td>Uber, Booking, Expedia, Airbnb, Pinterest, Snap, MongoDB, Confluent, Cloudflare, CrowdStrike, Postman, BrowserStack</td><td>Strong UI eng (Angular/TS), RSU on top</td></tr>
+<tr><td>P1 Indian</td><td>Flipkart, Swiggy, Zomato, PhonePe, Razorpay, CRED, Dream11, Meesho, Zepto</td><td>Listed/near-IPO ESOPs meet 10L bar</td></tr>
+<tr><td>P2 stretch</td><td>Meta, Netflix, Stripe, Coinbase, Databricks, Snowflake, Figma, Notion, Roblox</td><td>TC 80L-1.5Cr, very competitive</td></tr>
+<tr><td>P2 cash</td><td>Tower, HRT, Jump, Citadel, Optiver, Graviton, Quadeye</td><td>Base alone clears bar</td></tr>
+</tbody></table>
+</details>
+<details>
+<summary>Negotiation reference (SDE-2 / 4 YOE, Bangalore)</summary>
+<ul style="padding-left:20px;font-size:13px;margin-top:8px">
+<li>Median TC at this bar: <b>55-75L</b></li>
+<li>Aggressive ask: Base 35L + Joining 5L + RSU 60L/4yr = ~65L TC</li>
+<li>Top of band: Base 45L + Joining 10L + RSU 1Cr/4yr = ~85L TC</li>
+<li>If current is 16L → expect 70-100% hike at FAANG, 50-80% at Tier 2/3</li>
+</ul>
+</details>
+<p class="meta" style="margin-top:20px">Last updated: May 2026. All figures gross/year, Bangalore baseline.</p>
+
+<script>
+/* ================================================================
+   LEETCODE ALGO QUESTIONS
+   format: [lcNumber, "Problem Name", "E|M|H", "Topic"]
+================================================================ */
+const LC = {
+google:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[5,"Longest Palindromic Substring","M","DP"],[20,"Valid Parentheses","E","Stack"],[42,"Trapping Rain Water","H","Two Pointers"],[56,"Merge Intervals","M","Sorting"],[76,"Minimum Window Substring","H","Sliding Window"],[127,"Word Ladder","H","BFS"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[207,"Course Schedule","M","Topological Sort"],[253,"Meeting Rooms II","M","Heap"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[322,"Coin Change","M","DP"],[394,"Decode String","M","Stack"],[543,"Diameter of Binary Tree","E","Tree"],[680,"Valid Palindrome II","E","Two Pointers"],[721,"Accounts Merge","M","Union Find"],[843,"Guess the Word","H","Interactive"],[1235,"Maximum Profit in Job Scheduling","H","DP/BinSearch"]
+],
+amazon:[
+[1,"Two Sum","E","HashMap"],[2,"Add Two Numbers","M","LinkedList"],[5,"Longest Palindromic Substring","M","DP"],[21,"Merge Two Sorted Lists","E","LinkedList"],[23,"Merge k Sorted Lists","H","Heap"],[42,"Trapping Rain Water","H","Two Pointers"],[49,"Group Anagrams","M","HashMap"],[56,"Merge Intervals","M","Sorting"],[73,"Set Matrix Zeroes","M","Array"],[127,"Word Ladder","H","BFS"],[138,"Copy List with Random Pointer","M","LinkedList"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[238,"Product of Array Except Self","M","Prefix Sum"],[239,"Sliding Window Maximum","H","Deque"],[295,"Find Median from Data Stream","H","Two Heaps"],[472,"Concatenated Words","H","DP/Trie"],[588,"Design In-Memory File System","H","Design/Trie"],[692,"Top K Frequent Words","M","Heap"],[937,"Reorder Data in Log Files","M","Comparator"]
+],
+microsoft:[
+[1,"Two Sum","E","HashMap"],[2,"Add Two Numbers","M","LinkedList"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[4,"Median of Two Sorted Arrays","H","Binary Search"],[15,"3Sum","M","Two Pointers"],[33,"Search in Rotated Sorted Array","M","Binary Search"],[54,"Spiral Matrix","M","Simulation"],[56,"Merge Intervals","M","Sorting"],[73,"Set Matrix Zeroes","M","Array"],[146,"LRU Cache","M","Design"],[151,"Reverse Words in a String","M","String"],[200,"Number of Islands","M","BFS/DFS"],[236,"Lowest Common Ancestor of a Binary Tree","M","Tree"],[273,"Integer to English Words","H","Math/String"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[348,"Design Tic-Tac-Toe","M","Design"],[428,"Serialize and Deserialize N-ary Tree","H","Tree"],[445,"Add Two Numbers II","M","Stack/LinkedList"],[547,"Number of Provinces","M","Union Find"],[1239,"Max Length of Concatenated String","M","Backtracking"]
+],
+meta:[
+[1,"Two Sum","E","HashMap"],[15,"3Sum","M","Two Pointers"],[23,"Merge k Sorted Lists","H","Heap"],[56,"Merge Intervals","M","Sorting"],[71,"Simplify Path","M","Stack"],[76,"Minimum Window Substring","H","Sliding Window"],[88,"Merge Sorted Array","E","Two Pointers"],[124,"Binary Tree Maximum Path Sum","H","Tree"],[146,"LRU Cache","M","Design"],[199,"Binary Tree Right Side View","M","BFS"],[227,"Basic Calculator II","M","Stack"],[236,"Lowest Common Ancestor of a Binary Tree","M","Tree"],[249,"Group Shifted Strings","M","HashMap"],[314,"Binary Tree Vertical Order Traversal","M","BFS"],[339,"Nested List Weight Sum","M","DFS"],[408,"Valid Word Abbreviation","E","String"],[543,"Diameter of Binary Tree","E","Tree"],[680,"Valid Palindrome II","E","Two Pointers"],[791,"Custom Sort String","M","HashMap"],[1091,"Shortest Path in Binary Matrix","M","BFS"]
+],
+apple:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[7,"Reverse Integer","M","Math"],[11,"Container With Most Water","M","Two Pointers"],[42,"Trapping Rain Water","H","Two Pointers"],[46,"Permutations","M","Backtracking"],[53,"Maximum Subarray","M","Kadane"],[121,"Best Time to Buy and Sell Stock","E","Greedy"],[138,"Copy List with Random Pointer","M","LinkedList"],[146,"LRU Cache","M","Design"],[206,"Reverse Linked List","E","LinkedList"],[215,"Kth Largest Element in an Array","M","QuickSelect"],[238,"Product of Array Except Self","M","Prefix Sum"],[295,"Find Median from Data Stream","H","Two Heaps"],[380,"Insert Delete GetRandom O1","M","Design"]
+],
+adobe:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[5,"Longest Palindromic Substring","M","DP"],[11,"Container With Most Water","M","Two Pointers"],[15,"3Sum","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[22,"Generate Parentheses","M","Backtracking"],[53,"Maximum Subarray","M","Kadane"],[56,"Merge Intervals","M","Sorting"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[207,"Course Schedule","M","Topological Sort"],[215,"Kth Largest Element in an Array","M","QuickSelect"],[238,"Product of Array Except Self","M","Prefix Sum"],[322,"Coin Change","M","DP"]
+],
+uber:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[17,"Letter Combinations of a Phone Number","M","Backtracking"],[42,"Trapping Rain Water","H","Two Pointers"],[46,"Permutations","M","Backtracking"],[56,"Merge Intervals","M","Sorting"],[79,"Word Search","M","Backtracking"],[127,"Word Ladder","H","BFS"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[210,"Course Schedule II","M","Topological Sort"],[253,"Meeting Rooms II","M","Heap"],[332,"Reconstruct Itinerary","H","DFS/Eulerian"],[380,"Insert Delete GetRandom O1","M","Design"],[588,"Design In-Memory File System","H","Trie/Design"]
+],
+salesforce:[
+[1,"Two Sum","E","HashMap"],[4,"Median of Two Sorted Arrays","H","Binary Search"],[15,"3Sum","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[48,"Rotate Image","M","Matrix"],[56,"Merge Intervals","M","Sorting"],[79,"Word Search","M","Backtracking"],[102,"Binary Tree Level Order Traversal","M","BFS"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","DFS/BFS"],[207,"Course Schedule","M","Topological Sort"],[236,"Lowest Common Ancestor of a Binary Tree","M","Tree"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[380,"Insert Delete GetRandom O1","M","Design"],[560,"Subarray Sum Equals K","M","Prefix Sum"]
+],
+linkedin:[
+[1,"Two Sum","E","HashMap"],[46,"Permutations","M","Backtracking"],[50,"Pow(x, n)","M","Math/Recursion"],[53,"Maximum Subarray","M","Kadane"],[100,"Same Tree","E","Tree"],[127,"Word Ladder","H","BFS"],[149,"Max Points on a Line","H","Math/HashMap"],[150,"Evaluate Reverse Polish Notation","M","Stack"],[152,"Maximum Product Subarray","M","DP"],[187,"Repeated DNA Sequences","M","HashMap"],[236,"Lowest Common Ancestor of a Binary Tree","M","Tree"],[244,"Shortest Word Distance II","M","Design"],[254,"Factor Combinations","M","Backtracking"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[366,"Find Leaves of Binary Tree","M","Tree"]
+],
+atlassian:[
+[1,"Two Sum","E","HashMap"],[146,"LRU Cache","M","Design"],[155,"Min Stack","M","Stack/Design"],[200,"Number of Islands","M","DFS/BFS"],[208,"Implement Trie Prefix Tree","M","Trie"],[341,"Flatten Nested List Iterator","M","Stack/Iterator"],[355,"Design Twitter","M","Design/Heap"],[380,"Insert Delete GetRandom O1","M","Design"],[460,"LFU Cache","H","Design"],[588,"Design In-Memory File System","H","Trie/Design"],[642,"Design Search Autocomplete System","H","Trie/Design"],[1146,"Snapshot Array","M","Design/BinSearch"],[1166,"Design File System","M","Design/HashMap"],[1472,"Design Browser History","M","Design/Stack"],[1603,"Design Parking System","E","Design"]
+],
+flipkart:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[22,"Generate Parentheses","M","Backtracking"],[33,"Search in Rotated Sorted Array","M","Binary Search"],[42,"Trapping Rain Water","H","Two Pointers"],[56,"Merge Intervals","M","Sorting"],[78,"Subsets","M","Backtracking"],[84,"Largest Rectangle in Histogram","H","Stack"],[98,"Validate Binary Search Tree","M","Tree"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[239,"Sliding Window Maximum","H","Deque"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[493,"Reverse Pairs","H","Merge Sort"]
+],
+goldman:[
+[1,"Two Sum","E","HashMap"],[2,"Add Two Numbers","M","LinkedList"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[5,"Longest Palindromic Substring","M","DP"],[11,"Container With Most Water","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[42,"Trapping Rain Water","H","Two Pointers"],[48,"Rotate Image","M","Matrix"],[53,"Maximum Subarray","M","Kadane"],[56,"Merge Intervals","M","Sorting"],[121,"Best Time to Buy and Sell Stock","E","Greedy"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[273,"Integer to English Words","H","Math/String"],[362,"Design Hit Counter","M","Design/Queue"]
+],
+stripe:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[146,"LRU Cache","M","Design"],[155,"Min Stack","M","Stack/Design"],[200,"Number of Islands","M","BFS/DFS"],[207,"Course Schedule","M","Topological Sort"],[208,"Implement Trie Prefix Tree","M","Trie"],[210,"Course Schedule II","M","Topological Sort"],[295,"Find Median from Data Stream","H","Two Heaps"],[341,"Flatten Nested List Iterator","M","Stack/Iterator"],[355,"Design Twitter","M","Design/OOP"],[380,"Insert Delete GetRandom O1","M","Design"],[588,"Design In-Memory File System","H","Trie/Design"],[981,"Time Based Key-Value Store","M","Design/BinSearch"],[1396,"Design Underground System","M","Design/HashMap"]
+],
+intuit:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[49,"Group Anagrams","M","HashMap"],[56,"Merge Intervals","M","Sorting"],[121,"Best Time to Buy and Sell Stock","E","Greedy"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[238,"Product of Array Except Self","M","Prefix Sum"],[322,"Coin Change","M","DP"],[380,"Insert Delete GetRandom O1","M","Design"],[695,"Max Area of Island","M","DFS"],[981,"Time Based Key-Value Store","M","Design/BinSearch"]
+],
+walmart:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[23,"Merge k Sorted Lists","H","Heap"],[53,"Maximum Subarray","M","Kadane"],[56,"Merge Intervals","M","Sorting"],[73,"Set Matrix Zeroes","M","Array"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[239,"Sliding Window Maximum","H","Deque"],[295,"Find Median from Data Stream","H","Two Heaps"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[347,"Top K Frequent Elements","M","Heap/BucketSort"],[380,"Insert Delete GetRandom O1","M","Design"],[588,"Design In-Memory File System","H","Design"]
+],
+delivery:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[33,"Search in Rotated Sorted Array","M","Binary Search"],[46,"Permutations","M","Backtracking"],[56,"Merge Intervals","M","Sorting"],[73,"Set Matrix Zeroes","M","Array"],[84,"Largest Rectangle in Histogram","H","Stack"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[210,"Course Schedule II","M","Topological Sort"],[239,"Sliding Window Maximum","H","Deque"],[347,"Top K Frequent Elements","M","Heap"],[380,"Insert Delete GetRandom O1","M","Design"],[560,"Subarray Sum Equals K","M","Prefix Sum"]
+],
+unicorn:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[46,"Permutations","M","Backtracking"],[56,"Merge Intervals","M","Sorting"],[98,"Validate Binary Search Tree","M","Tree"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[207,"Course Schedule","M","Topological Sort"],[215,"Kth Largest Element in an Array","M","QuickSelect"],[322,"Coin Change","M","DP"],[380,"Insert Delete GetRandom O1","M","Design"],[560,"Subarray Sum Equals K","M","Prefix Sum"],[981,"Time Based Key-Value Store","M","Design/BinSearch"]
+],
+hft:[
+[1,"Two Sum","E","HashMap"],[4,"Median of Two Sorted Arrays","H","Binary Search"],[23,"Merge k Sorted Lists","H","Heap"],[25,"Reverse Nodes in k-Group","H","LinkedList"],[41,"First Missing Positive","H","Cyclic Sort"],[42,"Trapping Rain Water","H","Two Pointers"],[51,"N-Queens","H","Backtracking"],[76,"Minimum Window Substring","H","Sliding Window"],[84,"Largest Rectangle in Histogram","H","Stack"],[124,"Binary Tree Maximum Path Sum","H","Tree"],[239,"Sliding Window Maximum","H","Deque"],[295,"Find Median from Data Stream","H","Two Heaps"],[315,"Count of Smaller Numbers After Self","H","Merge Sort"],[460,"LFU Cache","H","Design"],[493,"Reverse Pairs","H","Merge Sort"]
+],
+figma:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[56,"Merge Intervals","M","Sorting"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[208,"Implement Trie Prefix Tree","M","Trie"],[225,"Implement Stack using Queues","E","Design"],[295,"Find Median from Data Stream","H","Two Heaps"],[341,"Flatten Nested List Iterator","M","Iterator/Stack"],[380,"Insert Delete GetRandom O1","M","Design"],[588,"Design In-Memory File System","H","Trie/Design"],[642,"Design Search Autocomplete System","H","Trie/Design"],[895,"Maximum Frequency Stack","H","Design"],[1146,"Snapshot Array","M","Design/BinSearch"],[1472,"Design Browser History","M","Design/DLL"]
+],
+security:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[42,"Trapping Rain Water","H","Two Pointers"],[56,"Merge Intervals","M","Sorting"],[76,"Minimum Window Substring","H","Sliding Window"],[127,"Word Ladder","H","BFS"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[207,"Course Schedule","M","Topological Sort"],[295,"Find Median from Data Stream","H","Two Heaps"],[380,"Insert Delete GetRandom O1","M","Design"],[460,"LFU Cache","H","Design"],[588,"Design In-Memory File System","H","Design/Trie"]
+],
+cards:[
+[1,"Two Sum","E","HashMap"],[2,"Add Two Numbers","M","LinkedList"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[20,"Valid Parentheses","E","Stack"],[49,"Group Anagrams","M","HashMap"],[53,"Maximum Subarray","M","Kadane"],[56,"Merge Intervals","M","Sorting"],[121,"Best Time to Buy and Sell Stock","E","Greedy"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[238,"Product of Array Except Self","M","Prefix Sum"],[322,"Coin Change","M","DP"],[362,"Design Hit Counter","M","Design/Queue"],[380,"Insert Delete GetRandom O1","M","Design"]
+],
+servicenow:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[53,"Maximum Subarray","M","Kadane"],[56,"Merge Intervals","M","Sorting"],[102,"Binary Tree Level Order Traversal","M","BFS"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[208,"Implement Trie Prefix Tree","M","Trie"],[236,"Lowest Common Ancestor of a Binary Tree","M","Tree"],[322,"Coin Change","M","DP"],[380,"Insert Delete GetRandom O1","M","Design"],[981,"Time Based Key-Value Store","M","Design/BinSearch"]
+],
+nvidia:[
+[1,"Two Sum","E","HashMap"],[2,"Add Two Numbers","M","LinkedList"],[15,"3Sum","M","Two Pointers"],[21,"Merge Two Sorted Lists","E","LinkedList"],[53,"Maximum Subarray","M","Kadane"],[56,"Merge Intervals","M","Sorting"],[121,"Best Time to Buy and Sell Stock","E","Greedy"],[141,"Linked List Cycle","E","Floyds"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[206,"Reverse Linked List","E","LinkedList"],[215,"Kth Largest Element in an Array","M","QuickSelect"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[380,"Insert Delete GetRandom O1","M","Design"]
+],
+datainfra:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[23,"Merge k Sorted Lists","H","Heap"],[56,"Merge Intervals","M","Sorting"],[127,"Word Ladder","H","BFS"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[207,"Course Schedule","M","Topological Sort"],[210,"Course Schedule II","M","Topological Sort"],[295,"Find Median from Data Stream","H","Two Heaps"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[380,"Insert Delete GetRandom O1","M","Design"],[588,"Design In-Memory File System","H","Design/Trie"],[642,"Design Search Autocomplete System","H","Trie/Design"],[1235,"Maximum Profit in Job Scheduling","H","DP/BinSearch"]
+],
+observability:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[56,"Merge Intervals","M","Sorting"],[146,"LRU Cache","M","Design"],[155,"Min Stack","M","Stack/Design"],[200,"Number of Islands","M","BFS/DFS"],[208,"Implement Trie Prefix Tree","M","Trie"],[238,"Product of Array Except Self","M","Prefix Sum"],[295,"Find Median from Data Stream","H","Two Heaps"],[362,"Design Hit Counter","M","Design/Queue"],[380,"Insert Delete GetRandom O1","M","Design"],[981,"Time Based Key-Value Store","M","Design/BinSearch"],[1146,"Snapshot Array","M","Design/BinSearch"]
+],
+banks:[
+[1,"Two Sum","E","HashMap"],[2,"Add Two Numbers","M","LinkedList"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[15,"3Sum","M","Two Pointers"],[20,"Valid Parentheses","E","Stack"],[42,"Trapping Rain Water","H","Two Pointers"],[53,"Maximum Subarray","M","Kadane"],[56,"Merge Intervals","M","Sorting"],[121,"Best Time to Buy and Sell Stock","E","Greedy"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[238,"Product of Array Except Self","M","Prefix Sum"],[273,"Integer to English Words","H","Math/String"],[322,"Coin Change","M","DP"],[362,"Design Hit Counter","M","Design/Queue"]
+],
+ai:[
+[1,"Two Sum","E","HashMap"],[3,"Longest Substring Without Repeating Characters","M","Sliding Window"],[23,"Merge k Sorted Lists","H","Heap"],[42,"Trapping Rain Water","H","Two Pointers"],[56,"Merge Intervals","M","Sorting"],[76,"Minimum Window Substring","H","Sliding Window"],[127,"Word Ladder","H","BFS"],[146,"LRU Cache","M","Design"],[200,"Number of Islands","M","BFS/DFS"],[207,"Course Schedule","M","Topological Sort"],[239,"Sliding Window Maximum","H","Deque"],[295,"Find Median from Data Stream","H","Two Heaps"],[297,"Serialize and Deserialize Binary Tree","H","Tree"],[460,"LFU Cache","H","Design"],[588,"Design In-Memory File System","H","Design/Trie"]
+]
+};
+
+/* ================================================================
+   MACHINE CODING QUESTIONS
+   format: {q, tag, link}
+================================================================ */
+const MC = {
+general:[
+{q:"Debounce function (with leading/trailing options)",tag:"JS Utility",link:"https://www.greatfrontend.com/questions/javascript/debounce"},
+{q:"Throttle function",tag:"JS Utility",link:"https://www.greatfrontend.com/questions/javascript/throttle"},
+{q:"Implement Promise.all / Promise.race / Promise.allSettled from scratch",tag:"Async JS",link:"https://www.greatfrontend.com/questions/javascript/promise-all"},
+{q:"Deep clone an object (handle circular refs, Date, Set, Map)",tag:"JS Utility",link:"https://www.greatfrontend.com/questions/javascript/deep-clone"},
+{q:"Curry function",tag:"JS Utility",link:"https://www.greatfrontend.com/questions/javascript/curry"},
+{q:"Flatten deeply nested array to specified depth",tag:"JS Utility",link:"https://www.greatfrontend.com/questions/javascript/flatten"},
+{q:"Implement EventEmitter — on, off, emit, once",tag:"Design Pattern",link:"https://www.greatfrontend.com/questions/javascript/event-emitter"},
+{q:"Memoize function with cache",tag:"JS Utility",link:"https://www.greatfrontend.com/questions/javascript/memoize"},
+{q:"Build a Todo List app (CRUD, filter, local state)",tag:"React/Vanilla UI",link:"https://www.greatfrontend.com/questions/user-interface/todo-list"},
+{q:"Build Tabs component (keyboard accessible)",tag:"UI Component",link:"https://www.greatfrontend.com/questions/user-interface/tabs"},
+{q:"Build Accordion component (single/multi expand)",tag:"UI Component",link:"https://www.greatfrontend.com/questions/user-interface/accordion"},
+{q:"Build Modal / Dialog (focus trap, Esc to close)",tag:"UI Component",link:"https://www.greatfrontend.com/questions/user-interface/modal-dialog"},
+{q:"Build Infinite Scroll with IntersectionObserver",tag:"Performance",link:"https://www.greatfrontend.com/questions/user-interface/infinite-scroll"},
+{q:"Build Star Rating component",tag:"UI Component",link:"https://www.greatfrontend.com/questions/user-interface/star-rating"},
+{q:"Build a multi-step form wizard with validation",tag:"UX / Forms",link:"https://www.greatfrontend.com/questions/user-interface/signup-form"},
+{q:"Build a Drag and Drop sortable list",tag:"UI Interaction",link:"https://www.greatfrontend.com/questions/user-interface/drag-and-drop-list"},
+{q:"Build a Virtual / Windowed List (Angular CDK Virtual Scroll)",tag:"Performance",link:"https://material.angular.io/cdk/scrolling/overview"},
+{q:"Implement a LRU Cache class",tag:"Data Structure",link:"https://www.greatfrontend.com/questions/javascript/lru-cache"}
+],
+advanced:[
+{q:"Debounce advanced — promise-based, cancelable",tag:"JS Utility",link:"https://www.greatfrontend.com/questions/javascript/debounce-ii"},
+{q:"Implement Promises A+ spec from scratch",tag:"Async JS",link:"https://www.greatfrontend.com/questions/javascript/promise"},
+{q:"Build Tic-Tac-Toe (minimax AI optional)",tag:"Game / State",link:"https://www.greatfrontend.com/questions/user-interface/tic-tac-toe"},
+{q:"Build Wordle game (keyboard + grid state)",tag:"Game / State",link:"https://www.greatfrontend.com/questions/user-interface/wordle"},
+{q:"Build a Typeahead / Autocomplete with debounce + highlight",tag:"Search / UX",link:"https://www.greatfrontend.com/questions/user-interface/typeahead"},
+{q:"Build a real-time chat UI using WebSocket",tag:"WebSocket",link:"https://javascript.info/websocket"},
+{q:"Build a Kanban board with cross-column DnD",tag:"UI / State",link:"https://www.greatfrontend.com/questions/user-interface/kanban-board"},
+{q:"Build a custom Angular structural directive (e.g., *appRepeat, *appLet) with typed template context",tag:"Angular Directives",link:"https://angular.dev/guide/directives"},
+{q:"Build an NgRx-like mini store (actions, reducers, selectors, effects using RxJS BehaviorSubject)",tag:"State Mgmt",link:"https://ngrx.io/guide/store"},
+{q:"Implement RxJS operators from scratch — fromEvent, map, filter, switchMap, debounceTime, takeUntil",tag:"RxJS",link:"https://rxjs.dev/guide/operators"},
+{q:"Build intersection observer lazy loader + lazy image component",tag:"Performance",link:"https://web.dev/articles/lazy-loading-images"},
+{q:"Build a rich-text / WYSIWYG editor (contenteditable + execCommand)",tag:"Editor",link:"https://developer.mozilla.org/en-US/docs/Web/API/document/execCommand"},
+{q:"Implement a Web Worker for heavy array computation (no UI block)",tag:"Web Workers",link:"https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers"},
+{q:"Build a real-time collaborative cursor system (WebSocket + SVG)",tag:"WebSocket/CRDT",link:"https://javascript.info/websocket"},
+{q:"Implement a micro-frontend shell (module federation concept)",tag:"Architecture",link:"https://javascript.info/modules-intro"}
+],
+fintech:[
+{q:"Build a real-time stock ticker UI (WebSocket + requestAnimationFrame)",tag:"Real-time / WS",link:"https://javascript.info/websocket"},
+{q:"Build a payment checkout flow (card input, validation, multi-step)",tag:"UX / Forms",link:"https://www.greatfrontend.com/questions/user-interface/signup-form"},
+{q:"Build an order book / bid-ask spread live table",tag:"Trading UI",link:"https://javascript.info/"},
+{q:"Build a portfolio P&L chart (canvas or SVG, time range selector)",tag:"Charts",link:"https://javascript.info/canvas"},
+{q:"Build a transaction history table (filter, sort, pagination, export)",tag:"Data Table",link:"https://www.greatfrontend.com/questions/user-interface/data-table"},
+{q:"Build an OTP / PIN input component (auto-focus, backspace, paste)",tag:"UI Component",link:"https://www.greatfrontend.com/questions/user-interface/otp-input"},
+{q:"Build a currency converter with live rate feed",tag:"API / Async",link:"https://javascript.info/"},
+{q:"Build a loan EMI calculator with amortization schedule table",tag:"Finance UI",link:"https://javascript.info/"},
+{q:"Build a credit card input with formatting and Luhn validation",tag:"Forms",link:"https://javascript.info/"},
+{q:"Build a sparkline mini-chart component (pure SVG/canvas)",tag:"Charts / SVG",link:"https://javascript.info/canvas"},
+{q:"Debounced live search for stock/fund discovery",tag:"UX / Async",link:"https://www.greatfrontend.com/questions/javascript/debounce"},
+{q:"Build a paginated data grid with virtual scroll (10k rows)",tag:"Performance",link:"https://www.greatfrontend.com/questions/user-interface/data-table"}
+],
+devtools:[
+{q:"Build a log viewer with real-time tail, severity filter, regex search",tag:"DevTools UI",link:"https://www.greatfrontend.com/questions/user-interface/data-table"},
+{q:"Build a metrics dashboard with time-range picker + sparklines",tag:"Charts",link:"https://www.greatfrontend.com/questions/user-interface/dashboard"},
+{q:"Build a JSON tree explorer (collapsible, search, copy path)",tag:"Tree UI",link:"https://www.greatfrontend.com/questions/user-interface/json-viewer"},
+{q:"Build a feature flag toggle panel (CRUD, targeting rules)",tag:"Settings UI",link:"https://javascript.info/"},
+{q:"Build a trace / flame graph visualizer (canvas, zoom, tooltip)",tag:"Visualization",link:"https://javascript.info/canvas"},
+{q:"Build a live error feed with deduplication and grouping",tag:"Real-time",link:"https://javascript.info/"},
+{q:"Build a query builder UI (drag-and-drop condition groups)",tag:"Complex UI",link:"https://javascript.info/"},
+{q:"Build a deployment / CI pipeline status board with live updates",tag:"Status UI",link:"https://javascript.info/"},
+{q:"Implement infinite scroll log tail (streaming SSE / WebSocket)",tag:"Streaming UI",link:"https://developer.mozilla.org/en-US/docs/Web/API/EventSource"},
+{q:"Build a config diff viewer (side-by-side, inline, collapsible)",tag:"Diff UI",link:"https://javascript.info/"},
+{q:"Build a Monaco/CodeMirror-lite syntax-highlighted code editor widget",tag:"Editor",link:"https://microsoft.github.io/monaco-editor/"},
+{q:"Build an API request/response inspector (like DevTools Network tab)",tag:"DevTools",link:"https://javascript.info/"}
+],
+design_tool:[
+{q:"Build a canvas-based drawing / whiteboard app (shapes, text, color)",tag:"Canvas / SVG",link:"https://javascript.info/canvas"},
+{q:"Implement undo / redo with command pattern (stack-based history)",tag:"Design Pattern",link:"https://javascript.info/"},
+{q:"Build a color picker (hex + HSL + opacity, eyedropper)",tag:"UI Component",link:"https://www.greatfrontend.com/questions/user-interface/color-picker"},
+{q:"Implement snap-to-grid and snap-to-object for draggable elements",tag:"Canvas / Geometry",link:"https://javascript.info/"},
+{q:"Build a layers panel (z-order, visibility toggle, lock, rename)",tag:"Tree UI",link:"https://javascript.info/"},
+{q:"Implement multi-select with shift-click, rubber-band selection",tag:"UI Interaction",link:"https://javascript.info/"},
+{q:"Build a bezier curve / path editor (control points, tangent handles)",tag:"SVG / Math",link:"https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths"},
+{q:"Build real-time collaborative presence cursors (WebSocket + SVG overlay)",tag:"WebSocket/CRDT",link:"https://javascript.info/websocket"},
+{q:"Implement zoom + pan on canvas with trackpad / mouse wheel",tag:"Canvas / Transform",link:"https://javascript.info/canvas"},
+{q:"Build a responsive grid / auto-layout builder (like Figma Auto Layout)",tag:"Layout Engine",link:"https://javascript.info/"},
+{q:"Implement font picker with Google Fonts live preview",tag:"Typography UI",link:"https://javascript.info/"},
+{q:"Build an alignment + distribution toolbar (align left, center, distribute)",tag:"Canvas / Geometry",link:"https://javascript.info/"}
+]
+};
+
+/* ================================================================
+   FRONTEND SYSTEM DESIGN QUESTIONS
+   format: {q, tag, link}
+================================================================ */
+const FSD = {
+consumer:[
+{q:"Design YouTube / Netflix frontend (video streaming, ABR, CDN)",tag:"Video / CDN / ABR",link:"https://www.greatfrontend.com/questions/system-design/video-streaming-netflix"},
+{q:"Design Facebook / LinkedIn News Feed (pagination, WebSocket, ads)",tag:"Feed / Pagination / WS",link:"https://www.greatfrontend.com/questions/system-design/news-feed-facebook"},
+{q:"Design Google Maps frontend (tiles, WebGL, routing overlay)",tag:"Maps / Tiles / WebGL",link:"https://www.greatfrontend.com/questions/system-design/google-maps"},
+{q:"Design Google Docs collaborative editor (OT / CRDT, WebSocket)",tag:"OT / CRDT / Real-time",link:"https://www.greatfrontend.com/questions/system-design/collaborative-editor-google-docs"},
+{q:"Design Twitter / X feed (virtual scroll, SSE, like/RT counters)",tag:"Feed / Infinite Scroll",link:"https://www.greatfrontend.com/questions/system-design/news-feed-twitter"},
+{q:"Design Airbnb / Booking search & listing page (filters, map view)",tag:"Search / Filters / Maps",link:"https://www.greatfrontend.com/questions/system-design/travel-booking-airbnb"},
+{q:"Design Amazon / Flipkart e-commerce (search, cart, recommendations)",tag:"E-commerce / Cart / Search",link:"https://www.greatfrontend.com/questions/system-design/e-commerce-amazon"},
+{q:"Design Instagram / photo sharing (media CDN, lazy load, stories)",tag:"Media / CDN / Lazy Load",link:"https://www.greatfrontend.com/questions/system-design/photo-sharing-instagram"},
+{q:"Design a Chat / Messaging app (WebSocket, read receipts, offline)",tag:"WebSocket / Message Queue",link:"https://www.greatfrontend.com/questions/system-design/chat-application-messenger"},
+{q:"Design Google Search autocomplete (typeahead, debounce, caching)",tag:"Typeahead / Debounce / Cache",link:"https://www.greatfrontend.com/questions/system-design/autocomplete"},
+{q:"Design a push / in-app Notification system (SSE, badge, history)",tag:"WebSocket / Push / SSE",link:"https://www.greatfrontend.com/questions/system-design/notification-service"},
+{q:"Design Dropbox / Google Drive file upload (chunked, progress, resume)",tag:"Chunked Upload / S3",link:"https://www.greatfrontend.com/questions/system-design/dropbox"},
+{q:"Design an Uber / Swiggy real-time map (WebSocket, marker updates)",tag:"Real-time Maps / WebSocket",link:"https://www.greatfrontend.com/questions/system-design/ride-sharing-uber"},
+{q:"Design an image carousel / product gallery (preload, swipe, lazy)",tag:"Performance / CDN / Lazy",link:"https://www.greatfrontend.com/questions/system-design/image-carousel"}
+],
+fintech_fsd:[
+{q:"Design a trading dashboard (order book, positions, P&L, charts)",tag:"Real-time / WS / Charts",link:"https://www.greatfrontend.com/questions/system-design/stock-trading-platform"},
+{q:"Design a payment checkout flow (PCI, iframe sandbox, 3DS redirect)",tag:"PCI / iframe / 3DS",link:"https://www.greatfrontend.com/questions/system-design/payment-checkout"},
+{q:"Design a portfolio analytics dashboard (WebSocket, time-series, cache)",tag:"Charts / WS / Cache",link:"https://javascript.info/"},
+{q:"Design a net banking portal (session auth, MFA, CSRF, audit log)",tag:"Security / Auth / CSRF",link:"https://owasp.org/www-community/attacks/csrf"},
+{q:"Design a crypto exchange frontend (order book depth, candlestick chart)",tag:"Real-time / Order Book",link:"https://javascript.info/"},
+{q:"Design a KYC document upload & verification flow",tag:"File Upload / OCR / UX",link:"https://javascript.info/"},
+{q:"Design a loan application multi-step wizard (save & resume, validation)",tag:"Multi-step Forms",link:"https://javascript.info/"},
+{q:"Design a stock screener with advanced filters (data table, sort, export)",tag:"Data Table / Search",link:"https://javascript.info/"},
+{q:"Design a personal finance / budget tracker (categories, charts, goals)",tag:"Charts / State",link:"https://javascript.info/"},
+{q:"Design a mutual fund / SIP investment platform",tag:"Charts / SIP Calculator",link:"https://javascript.info/"}
+],
+infra_fsd:[
+{q:"Design an observability / APM dashboard (like Datadog / Grafana)",tag:"Metrics / Time-series / Charts",link:"https://www.greatfrontend.com/questions/system-design/monitoring-dashboard"},
+{q:"Design a CI/CD pipeline visualization board (DAG, live status)",tag:"Status / Real-time / DAG",link:"https://javascript.info/"},
+{q:"Design a feature flag management system (targeting, rollout, A/B)",tag:"Config / Targeting / Rollout",link:"https://javascript.info/"},
+{q:"Design a distributed log aggregation viewer (search, stream, regex)",tag:"Streaming / Search / Regex",link:"https://javascript.info/"},
+{q:"Design an API documentation portal (OpenAPI, live try-it, SDK gen)",tag:"Docs / OpenAPI / SDK",link:"https://javascript.info/"},
+{q:"Design a Kubernetes / container management UI (real-time pod status)",tag:"Real-time / Status / Logs",link:"https://javascript.info/"},
+{q:"Design a code review / diff viewer (like GitHub PR, inline comments)",tag:"Diff / Comments / Threads",link:"https://javascript.info/"},
+{q:"Design a multi-tenant SaaS admin dashboard (RBAC, usage, billing)",tag:"RBAC / Tenancy / Settings",link:"https://javascript.info/"},
+{q:"Design a real-time alert / incident management system (on-call, timeline)",tag:"Alerts / On-call / Timeline",link:"https://javascript.info/"},
+{q:"Design a developer portal (API explorer, analytics, rate limit UI)",tag:"API Mgmt / Docs / Analytics",link:"https://javascript.info/"}
+]
+};
+
+/* ================================================================
+   Q&A QUESTIONS
+   format: {q, tag, link}
+================================================================ */
+const QA = {
+js_core:[
+{q:"Explain event loop: call stack, microtask queue, macrotask queue. What runs first after await?",tag:"Async JS",link:"https://javascript.info/event-loop"},
+{q:"Closures — definition, practical examples (counter, module pattern, memoize)",tag:"JS Core",link:"https://javascript.info/closure"},
+{q:"Prototypal inheritance vs class-based. How does Object.create work?",tag:"OOP",link:"https://javascript.info/prototype-inheritance"},
+{q:"How does 'this' work? 5 binding rules: default, implicit, explicit, new, arrow",tag:"JS Core",link:"https://javascript.info/object-methods"},
+{q:"var vs let vs const — hoisting, Temporal Dead Zone, function vs block scope",tag:"Scoping",link:"https://javascript.info/var"},
+{q:"Promises: states, chaining, error propagation. async/await pitfalls (unhandled rejection)",tag:"Async JS",link:"https://javascript.info/async-await"},
+{q:"WeakMap vs Map vs WeakRef — GC behavior, when to use each",tag:"Memory",link:"https://javascript.info/weakmap-weakset"},
+{q:"Generators and Iterators — Symbol.iterator, lazy infinite sequences",tag:"JS Advanced",link:"https://javascript.info/generators"},
+{q:"== vs === and JS type coercion rules (the famous truthy/falsy table)",tag:"JS Core",link:"https://javascript.info/type-conversions"},
+{q:"call / apply / bind — differences, polyfills, Function.prototype.bind",tag:"JS Core",link:"https://javascript.info/bind"},
+{q:"Module systems: CommonJS vs ESM — circular deps, tree-shaking, dynamic import",tag:"Modules",link:"https://javascript.info/modules-intro"},
+{q:"What is the Temporal Dead Zone? How is it different from a ReferenceError?",tag:"Hoisting",link:"https://javascript.info/var"}
+],
+angular:[
+{q:"Angular Change Detection — Default vs OnPush strategy. When does CD run, what triggers it, and how to optimise?",tag:"Angular Core",link:"https://angular.dev/guide/change-detection"},
+{q:"NgModules vs Standalone Components (Angular 14-17+) — migration path, bootstrapApplication, pros/cons",tag:"Angular Architecture",link:"https://angular.dev/guide/ngmodules"},
+{q:"Angular Dependency Injection — hierarchical injectors, providedIn: 'root' vs module, useClass/useFactory/useValue",tag:"DI",link:"https://angular.dev/guide/di"},
+{q:"Lifecycle hooks — constructor vs ngOnInit, ngOnChanges, ngAfterViewInit, ngOnDestroy. Execution order.",tag:"Lifecycle",link:"https://angular.dev/guide/lifecycle-hooks"},
+{q:"RxJS flattening operators — switchMap vs mergeMap vs concatMap vs exhaustMap. Real use cases in Angular services.",tag:"RxJS",link:"https://rxjs.dev/guide/operators"},
+{q:"Reactive Forms vs Template-driven Forms — FormBuilder, Validators, cross-field validation, ControlValueAccessor",tag:"Forms",link:"https://angular.dev/guide/forms"},
+{q:"Angular routing — lazy loading (loadChildren/loadComponent), CanActivate/CanDeactivate guards, Resolvers, withPreloading",tag:"Routing",link:"https://angular.dev/guide/routing"},
+{q:"Structural vs Attribute directives — *ngIf, *ngFor, HostListener, HostBinding, building a custom directive",tag:"Directives",link:"https://angular.dev/guide/directives"},
+{q:"Pure vs Impure pipes — how AsyncPipe handles subscriptions & change detection. When pipes re-evaluate.",tag:"Pipes",link:"https://angular.dev/guide/pipes"},
+{q:"Angular Signals (v16+) — signal(), computed(), effect(). How they differ from RxJS and when to prefer each.",tag:"Signals",link:"https://angular.dev/guide/signals"},
+{q:"NgRx pattern — actions, reducers, selectors, effects. When to use NgRx vs a service + BehaviorSubject.",tag:"State Mgmt",link:"https://ngrx.io/guide/store"},
+{q:"Memory leak prevention in Angular — takeUntilDestroyed, DestroyRef, async pipe vs manual subscribe/unsubscribe",tag:"Performance",link:"https://angular.dev/guide/lifecycle-hooks"}
+],
+react:[
+{q:"How does React reconciliation / diffing work? (fiber tree, work loop, lanes)",tag:"React Internals",link:"https://react.dev/learn/preserving-and-resetting-state"},
+{q:"React Fiber architecture — what problem does it solve vs stack reconciler?",tag:"React Internals",link:"https://react.dev/blog/2022/03/29/react-v18"},
+{q:"useMemo, useCallback, React.memo — when and when NOT to use (profiler first!)",tag:"Performance",link:"https://react.dev/reference/react/useMemo"},
+{q:"useEffect cleanup, dependency array pitfalls, stale closure problem",tag:"Hooks",link:"https://react.dev/learn/synchronizing-with-effects"},
+{q:"Avoiding prop drilling: Context vs Zustand vs Redux — trade-offs",tag:"State Mgmt",link:"https://react.dev/learn/passing-data-deeply-with-context"},
+{q:"Controlled vs Uncontrolled components — when to use refs vs state",tag:"Forms",link:"https://react.dev/learn/sharing-state-between-components"},
+{q:"Code splitting: React.lazy + Suspense, route-level + component-level",tag:"Performance",link:"https://react.dev/reference/react/lazy"},
+{q:"Error Boundaries — how, when, limitations (hooks not supported)",tag:"Error Handling",link:"https://react.dev/reference/react/Component"},
+{q:"React 18/19 Server Components vs Client Components — mental model",tag:"React 18+",link:"https://react.dev/blog/2023/03/22/react-labs-what-we-have-been-working-on-march-2023"},
+{q:"How does the key prop affect reconciliation? (state reset, avoid index as key)",tag:"Internals",link:"https://react.dev/learn/preserving-and-resetting-state"},
+{q:"useReducer vs useState — when to reach for reducer pattern",tag:"State Mgmt",link:"https://react.dev/learn/extracting-state-logic-into-a-reducer"},
+{q:"useTransition + useDeferredValue — concurrent features, blocking vs non-blocking",tag:"React 18+",link:"https://react.dev/reference/react/useTransition"}
+],
+perf:[
+{q:"Core Web Vitals: LCP, INP, CLS — definition, thresholds, how to improve each",tag:"Web Perf",link:"https://web.dev/articles/vitals"},
+{q:"Browser rendering pipeline: DOM → CSSOM → Render Tree → Layout → Paint → Composite",tag:"Browser",link:"https://web.dev/articles/critical-rendering-path"},
+{q:"Code splitting, tree shaking, dynamic import — Webpack / Vite setup",tag:"Build",link:"https://web.dev/articles/reduce-javascript-payloads-with-code-splitting"},
+{q:"Image optimization: WebP/AVIF, lazy loading, srcset, sizes, aspect-ratio",tag:"Assets",link:"https://web.dev/articles/fast"},
+{q:"What is layout thrashing? How do you batch DOM reads/writes (FastDOM)?",tag:"Rendering",link:"https://web.dev/articles/avoid-large-complex-layouts-and-layout-thrashing"},
+{q:"HTTP/2 multiplexing vs HTTP/1.1 — how does it change bundle strategy?",tag:"Network",link:"https://web.dev/articles/performance-http2"},
+{q:"Service Worker + Cache API — stale-while-revalidate, cache-first, network-first",tag:"PWA / Caching",link:"https://web.dev/articles/service-workers-cache-storage"},
+{q:"requestAnimationFrame vs setTimeout / setInterval for animations",tag:"Rendering",link:"https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame"},
+{q:"Virtualizing long lists — Angular CDK Virtual Scroll (CdkVirtualScrollViewport). When and how to implement.",tag:"Large Lists",link:"https://material.angular.io/cdk/scrolling/overview"},
+{q:"CSS containment + will-change — when they help vs hurt perf",tag:"CSS Perf",link:"https://web.dev/articles/css-containment"},
+{q:"TTFB, FCP, TTI, TBT — what each measures, cause and fix",tag:"Metrics",link:"https://web.dev/articles/metrics"},
+{q:"Preload vs Prefetch vs Preconnect vs dns-prefetch — when to use each",tag:"Resource Hints",link:"https://web.dev/articles/resource-hints"}
+],
+css:[
+{q:"CSS specificity — how is it calculated? (a,b,c,d weights). !important risks.",tag:"CSS Core",link:"https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity"},
+{q:"Flexbox vs CSS Grid — mental model for choosing one. Can they be nested?",tag:"Layout",link:"https://css-tricks.com/snippets/css/a-guide-to-flexbox/"},
+{q:"BEM vs CSS Modules vs CSS-in-JS (styled-components / Tailwind) — trade-offs in large apps",tag:"CSS Architecture",link:"https://css-tricks.com/bem-101/"},
+{q:"CSS custom properties (variables) — inheritance, dynamic theming, JS access via setProperty",tag:"Variables",link:"https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties"},
+{q:"Stacking context — what creates one? Why does z-index sometimes not work?",tag:"Stacking / z-index",link:"https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Understanding_z-index/Stacking_context"},
+{q:"CSS animations vs JS animations vs Web Animations API — GPU composite layer",tag:"Animations",link:"https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animations/Using_CSS_animations"},
+{q:"CSS Grid auto-placement, grid-template-areas, auto-fill vs auto-fit",tag:"Grid",link:"https://css-tricks.com/snippets/css/complete-guide-grid/"},
+{q:"Container queries vs media queries — use cases and browser support",tag:"Responsive",link:"https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries"},
+{q:"Pseudo-elements vs pseudo-classes — ::before/::after, :is, :where, :has",tag:"CSS Selectors",link:"https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-elements"},
+{q:"CSS logical properties — writing-mode, inline vs block axes, RTL support",tag:"Modern CSS",link:"https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_logical_properties_and_values"}
+],
+security:[
+{q:"XSS — stored, reflected, DOM-based. Prevention: CSP, sanitization, textContent vs innerHTML",tag:"Security",link:"https://owasp.org/www-community/attacks/xss/"},
+{q:"CSRF — how it works. SameSite cookies (Strict/Lax/None), double-submit, CSRF tokens",tag:"Security",link:"https://owasp.org/www-community/attacks/csrf"},
+{q:"CORS — preflight (OPTIONS), simple requests, credentials, allowed-origins header",tag:"HTTP",link:"https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS"},
+{q:"Content Security Policy — directives (script-src, default-src), nonce-based, report-uri",tag:"Security",link:"https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"},
+{q:"OAuth 2.0 + PKCE flow for SPAs — why implicit flow is deprecated (token in URL fragment)",tag:"Auth",link:"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-pkce"},
+{q:"JWT — structure (header.payload.sig), storage security (localStorage vs httpOnly cookie)",tag:"Auth",link:"https://jwt.io/introduction"},
+{q:"Subresource Integrity (SRI) — hash verification of 3rd-party CDN scripts",tag:"Security",link:"https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity"},
+{q:"Clickjacking — X-Frame-Options vs frame-ancestors CSP. How iframes sandbox works.",tag:"Security",link:"https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options"},
+{q:"Prototype pollution — how it works in lodash/assign patterns, prevention",tag:"Security",link:"https://owasp.org/www-community/attacks/xss/"},
+{q:"Permissions-Policy, Referrer-Policy, COOP, COEP headers — when to set them",tag:"Security Headers",link:"https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy"}
+],
+ts:[
+{q:"TypeScript's structural type system vs nominal — why two matching shapes are compatible",tag:"TypeScript",link:"https://www.typescriptlang.org/docs/handbook/type-compatibility.html"},
+{q:"Generics — constraints (extends), conditional types, infer keyword in return types",tag:"TypeScript",link:"https://www.typescriptlang.org/docs/handbook/2/generics.html"},
+{q:"Discriminated unions + exhaustive checking with never in switch statements",tag:"TypeScript",link:"https://www.typescriptlang.org/docs/handbook/2/narrowing.html"},
+{q:"Template literal types and mapped types — real use cases (e.g., EventMap, CSS vars)",tag:"TypeScript",link:"https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html"},
+{q:"Utility types: Partial, Required, Readonly, Pick, Omit, ReturnType, Parameters, Awaited",tag:"TypeScript",link:"https://www.typescriptlang.org/docs/handbook/utility-types.html"},
+{q:"Declaration merging and module augmentation — extending 3rd-party types",tag:"Advanced TS",link:"https://www.typescriptlang.org/docs/handbook/declaration-merging.html"},
+{q:"Type guards: typeof, instanceof, custom is predicates, asserts keyword",tag:"TypeScript",link:"https://www.typescriptlang.org/docs/handbook/2/narrowing.html"},
+{q:"satisfies operator (TS 4.9+) — inference without widening, vs as const",tag:"Modern TS",link:"https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html"}
+],
+behavioral:[
+{q:"Tell me about a technically complex frontend project you led end-to-end",tag:"Leadership / Impact",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"Describe a time you improved app performance significantly — what did you measure and change?",tag:"Impact / Metrics",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"How did you handle a technical disagreement with a senior engineer or PM?",tag:"Conflict Resolution",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"How do you ramp up in a large, unfamiliar codebase? (Walk me through your process)",tag:"Adaptability",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"Tell me about a production incident you owned — root cause, fix, prevention",tag:"Ownership / SRE",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"How do you prioritize tech debt vs new feature work? Give a real example.",tag:"Prioritization",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"Tell me about a time you mentored or leveled up a junior engineer",tag:"Mentorship",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"Why are you leaving your current company? (Frame positively)",tag:"Motivation",link:"https://www.techinterviewhandbook.org/behavioral-interview/"},
+{q:"Where do you see yourself in 3 years? (Sr / Staff / Tech Lead trajectory)",tag:"Career Goals",link:"https://www.techinterviewhandbook.org/behavioral-interview/"}
+]
+};
+
+/* ================================================================
+   TIER DEFAULTS — mc, fsd, qa keys per tier
+================================================================ */
+const DEFS = {
+  tier1:{mc:"advanced", fsd:"consumer",     qa:["js_core","react","perf","css","security","ts","behavioral"]},
+  tier2:{mc:"fintech",  fsd:"fintech_fsd",  qa:["js_core","react","perf","security","behavioral"]},
+  tier3:{mc:"general",  fsd:"consumer",     qa:["js_core","react","perf","css","ts","behavioral"]},
+  tier4:{mc:"general",  fsd:"consumer",     qa:["js_core","react","perf","behavioral"]},
+  tier5:{mc:"general",  fsd:"consumer",     qa:["js_core","react","perf","behavioral"]},
+  tier6:{mc:"advanced", fsd:"infra_fsd",    qa:["js_core","ts","perf","behavioral"]},
+  tier7:{mc:"devtools", fsd:"infra_fsd",    qa:["js_core","react","perf","ts","behavioral"]},
+  tier8:{mc:"advanced", fsd:"consumer",     qa:["js_core","react","perf","ts","behavioral"]}
+};
+
+/* ================================================================
+   COMPANY DATA — pills: p-ok p-mid p-meh p-info
+   Optional per-company overrides: mc, fsd, qa
+================================================================ */
+const companies = {
+tier1:[
+{name:"Google",info:"L4 Blr/Hyd: ~38-50L base + 25-40L RSU",pills:["p-info"],lc:"google",qa:["js_core","angular","react","perf","css","security","ts","behavioral"]},
+{name:"Microsoft",info:"SDE-2 L62-63: ~32-45L base + 12-25L RSU",pills:["p-info"],lc:"microsoft",qa:["js_core","angular","react","perf","css","security","ts","behavioral"]},
+{name:"Amazon",info:"SDE-2: ~38-55L base + 15-25L RSU (back-loaded)",pills:[],lc:"amazon"},
+{name:"Apple",info:"ICT3 Hyd/Blr: ~35-45L base + 15-30L RSU",pills:[],lc:"apple"},
+{name:"Meta",info:"E4: 45-60L base + 25-50L RSU (limited India)",pills:[],lc:"meta"},
+{name:"Netflix",info:"Cash heavy 80L-1.5Cr (RSU optional)",pills:[],lc:"meta"},
+{name:"Adobe",info:"MTS-2: 30-42L base + 10-18L RSU",pills:[],lc:"adobe",mc:"design_tool",qa:["js_core","angular","react","perf","css","ts","behavioral"]},
+{name:"Salesforce",info:"SMTS: 32-45L base + 12-25L RSU",pills:[],lc:"salesforce"},
+{name:"LinkedIn",info:"Sr Eng: 38-50L base + 18-30L RSU",pills:[],lc:"linkedin"},
+{name:"Atlassian",info:"P40-P50: 32-45L base + 12-20L RSU",pills:[],lc:"atlassian",mc:"devtools",fsd:"infra_fsd",qa:["js_core","angular","react","perf","ts","behavioral"]},
+{name:"Uber",info:"SDE-2: 35-48L base + 15-25L RSU",pills:[],lc:"uber"},
+{name:"Airbnb",info:"L4: 40-55L base + 18-30L RSU",pills:[],lc:"uber"},
+{name:"Stripe",info:"L3-L4: 40-55L base + 20-35L RSU",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Coinbase",info:"IC4: 45-60L base + 25-40L RSU",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Nvidia",info:"Sr Eng: 35-50L base + 20-40L RSU",pills:[],lc:"nvidia"},
+{name:"Intuit",info:"SDE-3: 32-45L base + 12-20L RSU",pills:[],lc:"intuit",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Walmart Global Tech",info:"Sr SE / Staff: 32-45L base + 10-18L RSU",pills:[],lc:"walmart"},
+{name:"Expedia Group",info:"SDE-2: 30-42L base + 10-15L RSU",pills:[],lc:"uber"},
+{name:"Booking.com",info:"Sr Dev: 32-45L base + 10-18L RSU",pills:[],lc:"uber"},
+{name:"Cisco",info:"Software Engr 3: 28-40L base + 10-15L RSU",pills:[],lc:"servicenow"},
+{name:"VMware / Broadcom",info:"MTS-3: 30-42L base + 10-18L RSU",pills:[],lc:"servicenow"},
+{name:"ServiceNow",info:"Staff Eng: 35-50L base + 15-25L RSU",pills:[],lc:"servicenow",qa:["js_core","angular","react","perf","css","ts","behavioral"]},
+{name:"Workday",info:"SDE-3: 32-45L base + 12-20L RSU",pills:[],lc:"servicenow"},
+{name:"PayPal",info:"SDE-3: 30-42L base + 10-18L RSU",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"eBay",info:"MTS-2: 28-40L base + 10-15L RSU",pills:[],lc:"walmart"},
+{name:"Visa",info:"Sr SE: 30-42L base + 10-15L RSU",pills:[],lc:"cards",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Mastercard",info:"Sr SDE: 30-40L base + 10-15L RSU",pills:[],lc:"cards",mc:"fintech",fsd:"fintech_fsd"},
+{name:"American Express",info:"Eng-II/III: 30-42L base + 10-15L RSU",pills:[],lc:"cards",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Pinterest",info:"L4 Blr: 40-55L base + 20-30L RSU",pills:[],lc:"meta"},
+{name:"Snap Inc.",info:"L4: 40-55L base + 20-35L RSU",pills:[],lc:"meta"},
+{name:"X (Twitter)",info:"SDE-3: 38-50L base + 15-25L RSU (limited)",pills:[],lc:"meta"},
+{name:"Tesla",info:"Sr SDE Blr/Pune: 32-45L base + 10-20L RSU",pills:[],lc:"nvidia"},
+{name:"Roblox",info:"Sr Eng: 40-55L base + 20-30L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Shopify",info:"Sr Dev: 35-48L base + 15-25L RSU",pills:[],lc:"figma"},
+{name:"Zoom",info:"Sr Eng Blr: 35-45L base + 15-20L RSU",pills:[],lc:"servicenow"},
+{name:"Lyft",info:"Sr Eng: 35-45L base + 15-25L RSU",pills:[],lc:"uber"},
+{name:"DoorDash",info:"Sr Eng: 35-45L base + 15-20L RSU",pills:[],lc:"delivery"},
+{name:"Instacart",info:"Sr Eng: 35-48L base + 15-25L RSU",pills:[],lc:"delivery"},
+{name:"Robinhood",info:"Sr Eng: 40-55L base + 20-35L RSU",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Plaid",info:"Sr Eng: 38-50L base + 18-30L RSU",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Spotify",info:"Sr Eng: 35-48L base + 15-25L RSU (limited)",pills:[],lc:"figma"},
+{name:"Discord",info:"Sr Eng: 45-60L base + 20-35L RSU (limited India)",pills:[],lc:"figma"},
+{name:"Reddit",info:"Sr Eng: 40-55L base + 18-30L RSU",pills:[],lc:"meta"},
+{name:"Oracle India",info:"SDE-4 Hyd/Blr GCC: 30-42L base + 10-15L RSU. 20k+ India engineers.",pills:[],lc:"servicenow",qa:["js_core","angular","perf","ts","behavioral"]},
+{name:"Intel India",info:"SDE-3 Blr (Whitefield): 30-40L base + 10-15L RSU. 5000+ engineers.",pills:[],lc:"nvidia"},
+{name:"Autodesk India",info:"Sr SDE Pune/Blr: 32-42L base + 12-18L RSU. Design tool FE roles.",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Arm Holdings",info:"SDE-3 Blr: 30-42L base + 12-18L RSU. CPU IP & tooling frontend.",pills:[],lc:"nvidia"},
+{name:"Rippling",info:"Sr Eng Blr: 35-48L base + 12-20L RSU. Fast-growing HR SaaS.",pills:[],lc:"servicenow"}
+],
+tier2:[
+{name:"Goldman Sachs",info:"Associate / Strats Blr/Hyd: 28-45L base + 8-15L deferred + 10-30L bonus",pills:[],lc:"goldman"},
+{name:"JP Morgan Chase",info:"VP / Lead SE: 30-45L base + 10-15L RSU",pills:[],lc:"banks"},
+{name:"Morgan Stanley",info:"Associate Tech: 28-40L base + 8-15L deferred",pills:[],lc:"banks"},
+{name:"Bank of America",info:"VP Tech: 28-40L base + 10-15L RSU",pills:[],lc:"banks"},
+{name:"Wells Fargo",info:"Lead SE: 28-38L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"Barclays",info:"VP Tech: 30-42L base + 8-15L RSU",pills:[],lc:"banks"},
+{name:"Deutsche Bank",info:"VP: 30-42L base + 10-15L RSU",pills:[],lc:"banks"},
+{name:"BNY Mellon",info:"Sr Lead: 28-38L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"UBS",info:"Director Tech: 32-45L base + 10-15L RSU",pills:[],lc:"banks"},
+{name:"HSBC Tech",info:"VP: 28-40L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"Citi",info:"VP Tech: 30-40L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"Standard Chartered",info:"VP: 28-38L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"Nomura",info:"VP: 30-42L base + 10-15L deferred",pills:[],lc:"banks"},
+{name:"BlackRock",info:"VP Tech Mumbai/Gurgaon: 32-42L base + 10-15L RSU",pills:[],lc:"banks"},
+{name:"Fidelity Investments",info:"Sr Eng Blr/Chennai: 28-38L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"Vanguard",info:"Sr Eng Chennai: 28-38L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"State Street",info:"VP Tech Blr/Hyd: 28-38L base + 8-12L RSU",pills:[],lc:"banks"},
+{name:"Interactive Brokers",info:"Sr Eng: 32-42L base + 10-15L RSU",pills:[],lc:"banks"},
+{name:"Brex",info:"Sr Eng: 40-50L base + 15-25L RSU",pills:[],lc:"stripe"},
+{name:"Mercury",info:"Sr Eng: 35-45L base + 12-20L RSU",pills:[],lc:"stripe"},
+{name:"Ramp",info:"Sr Eng: 38-48L base + 15-25L RSU",pills:[],lc:"stripe"},
+{name:"Bill.com",info:"Sr Eng: 32-42L base + 10-18L RSU",pills:[],lc:"stripe"},
+{name:"Wise (TransferWise)",info:"Sr Eng: 35-45L base + 15-25L RSU",pills:[],lc:"stripe"},
+{name:"Block (Square / Cash App)",info:"Sr Eng: 35-48L base + 15-25L RSU",pills:[],lc:"stripe"}
+],
+tier3:[
+{name:"MongoDB",info:"SDE-3: 32-45L base + 12-20L RSU",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"Confluent",info:"SDE-3: 35-48L base + 15-25L RSU",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"Databricks",info:"L4: 40-55L base + 20-40L RSU",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"Snowflake",info:"Sr SE: 40-55L base + 18-30L RSU",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"HashiCorp",info:"Sr Eng: 32-45L base + 12-20L RSU",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"GitLab",info:"Sr BE/FE: 32-42L base + 10-18L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Elastic",info:"Sr Eng: 30-42L base + 10-18L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Twilio",info:"L3: 32-45L base + 12-20L RSU",pills:[],lc:"servicenow"},
+{name:"Okta",info:"Sr SE: 30-42L base + 10-18L RSU",pills:[],lc:"security"},
+{name:"Splunk (Cisco)",info:"Sr SE: 30-42L base + 10-18L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Akamai",info:"Sr SE: 28-38L base + 10-15L RSU",pills:[],lc:"security"},
+{name:"Cloudflare",info:"Sr Eng: 35-48L base + 15-25L RSU",pills:[],lc:"security"},
+{name:"Palo Alto Networks",info:"Staff Eng: 32-45L base + 12-22L RSU",pills:[],lc:"security"},
+{name:"CrowdStrike",info:"Sr Eng: 32-45L base + 15-25L RSU",pills:[],lc:"security"},
+{name:"Zscaler",info:"Sr SE: 32-45L base + 12-20L RSU",pills:[],lc:"security"},
+{name:"SentinelOne",info:"Sr Eng: 30-42L base + 12-20L RSU",pills:[],lc:"security"},
+{name:"Wiz",info:"Sr Eng: 40-55L base + 20-35L RSU. Hyper-growth.",pills:[],lc:"security"},
+{name:"Snyk",info:"Sr Eng: 30-42L base + 10-18L RSU",pills:[],lc:"security"},
+{name:"Fortinet",info:"Sr Eng: 28-38L base + 10-15L RSU",pills:[],lc:"security"},
+{name:"DocuSign",info:"Sr SE: 30-42L base + 10-18L RSU",pills:[],lc:"servicenow"},
+{name:"Box",info:"Sr Eng: 30-40L base + 10-15L RSU",pills:[],lc:"servicenow"},
+{name:"Dropbox",info:"IC3: 35-48L base + 15-25L RSU",pills:[],lc:"figma"},
+{name:"Asana",info:"L4: 35-48L base + 15-25L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Notion",info:"Sr Eng: 40-55L base + 20-35L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Figma",info:"Sr Eng Blr: 45-60L base + 25-40L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Miro",info:"Sr Eng: 35-48L base + 15-25L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Canva",info:"Sr Eng: 35-48L base + 15-25L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Grammarly",info:"Sr Eng: 35-48L base + 15-25L RSU",pills:[],lc:"figma"},
+{name:"Postman",info:"SDE-3 / Staff: 32-45L base + 12-20L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Freshworks",info:"Lead/Principal: 30-42L base + 10-18L RSU (listed)",pills:[],lc:"servicenow",qa:["js_core","angular","react","perf","css","behavioral"]},
+{name:"Druva",info:"Sr SDE: 28-38L base + 8-12L ESOP",pills:[],lc:"servicenow"},
+{name:"BrowserStack",info:"Sr SDE: 32-45L base + 10-18L ESOP",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Nutanix",info:"SMTS: 32-45L base + 12-20L RSU",pills:[],lc:"servicenow"},
+{name:"Pure Storage",info:"Sr SE: 30-42L base + 12-20L RSU",pills:[],lc:"servicenow"},
+{name:"Coursera",info:"Sr SE: 30-42L base + 10-18L RSU",pills:[],lc:"figma"},
+{name:"Duolingo",info:"Sr Eng: 40-55L + 20-30L RSU (limited)",pills:[],lc:"figma"},
+{name:"SAP Labs",info:"T3+: 28-40L base + 8-12L RSU",pills:[],lc:"servicenow",qa:["js_core","angular","perf","css","ts","behavioral"]},
+{name:"Qualcomm",info:"Sr Eng: 30-42L base + 10-15L RSU",pills:[],lc:"nvidia"},
+{name:"AMD",info:"SMTS: 30-42L base + 10-15L RSU",pills:[],lc:"nvidia"},
+{name:"HubSpot",info:"Sr Eng: 30-40L base + 10-15L RSU. Blr office.",pills:[],lc:"servicenow"},
+{name:"Zendesk",info:"Sr SDE: 30-42L base + 10-18L RSU",pills:[],lc:"servicenow"},
+{name:"Intercom",info:"Sr Eng: 32-42L base + 12-18L RSU",pills:[],lc:"servicenow"},
+{name:"Vercel",info:"Sr Eng: 35-45L base + 12-20L RSU (FE focus)",pills:["p-info"],lc:"figma",mc:"devtools",fsd:"infra_fsd"},
+{name:"Webflow",info:"Sr Eng: 35-45L base + 15-20L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Retool",info:"Sr Eng: 32-42L base + 12-20L RSU",pills:[],lc:"figma",mc:"devtools"},
+{name:"Airtable",info:"Sr Eng: 35-45L base + 15-25L RSU",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Datadog",info:"Sr Eng: 35-48L base + 15-25L RSU. Large Blr team.",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Grafana Labs",info:"Sr Eng: 30-42L base + 10-18L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Sentry",info:"Sr Eng: 30-40L base + 10-15L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"PagerDuty",info:"Sr Eng: 30-42L base + 10-18L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"New Relic",info:"Sr Eng: 28-38L base + 8-12L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"JFrog",info:"Sr Eng: 32-42L base + 12-18L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Docker",info:"Sr Eng: 32-42L base + 12-18L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Cloudinary",info:"Sr Eng: 32-42L base + 12-18L RSU",pills:[],lc:"observability",mc:"devtools"},
+{name:"LaunchDarkly",info:"Sr Eng: 30-40L base + 10-15L RSU",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Dynatrace",info:"Sr Eng Blr/Noida: 32-48L base + 12-20L RSU. Observability SaaS.",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Harness.io",info:"Sr Eng Blr: 30-45L base + 12-20L ESOP. India-founded CI/CD unicorn.",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Rubrik",info:"Sr Eng Blr: 35-50L base + 15-25L RSU. Data security, IPO Apr 2024.",pills:[],lc:"security",mc:"devtools",fsd:"infra_fsd"},
+{name:"Cohesity",info:"Sr Eng Blr: 32-48L base + 12-20L RSU. Data management (Veritas merged).",pills:[],lc:"security",mc:"devtools",fsd:"infra_fsd"},
+{name:"CyberArk",info:"Sr Eng Blr: 30-42L base + 10-18L RSU. Identity security.",pills:[],lc:"security"},
+{name:"Qualys",info:"Sr Eng Pune/Blr: 30-40L base + 10-15L RSU. Cloud security SaaS.",pills:[],lc:"security"},
+{name:"Fivetran",info:"Sr Eng Blr: 30-42L base + 10-18L ESOP. ELT / data integration.",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"Monday.com",info:"Sr Eng Blr: 32-48L base + 12-20L RSU. Work OS SaaS.",pills:[],lc:"servicenow"},
+{name:"Arista Networks",info:"Sr Eng Blr: 40-65L base + 15-25L RSU. Networking OS + cloud. 1500+ India R&D.",pills:[],lc:"nvidia"},
+{name:"Juniper Networks",info:"Sr Eng Blr: 32-48L base + 12-20L RSU. 3000+ India R&D engineers.",pills:[],lc:"nvidia"},
+{name:"Marvell Technology",info:"Sr Eng Blr/Hyd: 32-45L base + 12-20L RSU. Networking & storage silicon + software.",pills:[],lc:"nvidia"},
+{name:"Wayfair India",info:"Sr Eng Blr: 32-48L base + 12-20L RSU. Home e-commerce. 1000+ India engineers.",pills:[],lc:"walmart"},
+{name:"Red Hat (IBM)",info:"Sr Eng Pune/Blr: 30-45L base + IBM RSU 10-18L/yr. OpenShift / Ansible.",pills:[],lc:"servicenow"},
+{name:"Pegasystems (Pega)",info:"Sr Eng Hyd/Blr: 30-42L base + 10-15L RSU. BPM/CRM low-code platform.",pills:[],lc:"servicenow"},
+{name:"Gong.io",info:"Sr Eng Blr: 32-45L base + 12-20L ESOP. Revenue AI unicorn, $7.25B valuation.",pills:[],lc:"servicenow"},
+{name:"ZoomInfo",info:"Sr Eng Blr: 30-42L base + 10-15L RSU. Revenue intelligence SaaS.",pills:[],lc:"servicenow"},
+{name:"AppsFlyer",info:"Sr Eng Blr: 30-42L base + 10-18L ESOP. Mobile attribution platform.",pills:[],lc:"servicenow"},
+{name:"MoEngage",info:"Sr Eng Blr: 28-40L base + 10-15L ESOP. India-founded customer engagement SaaS, $1B+ valuation.",pills:[],lc:"servicenow"},
+{name:"Darwinbox",info:"Sr Eng Hyd: 28-40L base + 10-15L ESOP. India-founded HRMS unicorn.",pills:[],lc:"servicenow",qa:["js_core","angular","perf","css","ts","behavioral"]},
+{name:"Zenoti",info:"Sr Eng Hyd: 28-38L base + 10-15L ESOP. India-founded vertical SaaS (salon/spa), $1.5B.",pills:[],lc:"servicenow"},
+{name:"Mindtickle",info:"Sr Eng Pune: 28-40L base + 10-15L ESOP. Sales enablement AI, $1.2B valuation.",pills:[],lc:"servicenow"},
+{name:"Contentstack",info:"Sr Eng Mumbai: 28-38L base + 8-12L ESOP. India-founded headless CMS, $1B+ valuation.",pills:[],lc:"figma"},
+{name:"6sense",info:"Sr Eng Blr: 30-42L base + 10-18L ESOP. Revenue AI unicorn, $5.2B valuation.",pills:[],lc:"servicenow"},
+{name:"Revolut",info:"Sr Eng Blr: 35-55L base + 12-20L ESOP. UK fintech, 800+ India engineers.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Adyen",info:"Sr Eng Mumbai/Blr: 35-50L base + 12-20L RSU. Global payments. AEX listed.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Checkout.com",info:"Sr Eng Blr: 30-45L base + 12-20L ESOP. Global payments unicorn.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Airwallex",info:"Sr Eng Blr: 30-40L base + 10-18L ESOP. Cross-border payments unicorn, $5.5B.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Marqeta",info:"Sr Eng Blr: 30-40L base + 10-18L RSU. Card issuing platform. NASDAQ listed.",pills:[],lc:"cards",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Broadridge Financial",info:"Sr Eng Hyd: 30-40L base + 10-15L RSU. Fintech services GCC, 6000+ India staff.",pills:[],lc:"banks",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Informatica",info:"Sr Eng: 28-38L base + 8-12L RSU",pills:[],lc:"servicenow"},
+{name:"Cadence Design Systems",info:"Sr Eng: 28-38L base + 8-12L RSU",pills:[],lc:"nvidia"},
+{name:"Applied Materials",info:"Sr Eng: 28-38L base + 8-12L RSU. GCC Blr.",pills:[],lc:"nvidia"},
+{name:"Synopsys",info:"Sr SDE Blr: 28-38L base + 10-15L RSU. EDA software, large India center.",pills:[],lc:"nvidia"},
+{name:"NetApp",info:"Sr SE Blr/Hyd: 28-38L base + 10-15L RSU. Storage platform, 3000+ India engineers.",pills:[],lc:"servicenow",mc:"devtools",fsd:"infra_fsd"},
+{name:"F5 Networks",info:"Sr SE Hyd: 30-40L base + 10-15L RSU. App delivery & security.",pills:[],lc:"security"},
+{name:"Mixpanel",info:"Sr Eng Blr: 30-40L base + 10-15L RSU. Product analytics SaaS.",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Amplitude",info:"Sr Eng Blr: 30-42L base + 10-18L RSU. Product analytics SaaS.",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"Braze",info:"Sr Eng India: 32-42L base + 12-18L RSU. Customer engagement platform.",pills:[],lc:"servicenow"},
+{name:"Sprinklr",info:"Sr Eng Blr/Hyd: 28-38L base + 10-15L RSU. Unified CXM SaaS, India-founded.",pills:[],lc:"servicenow",qa:["js_core","angular","perf","css","behavioral"]},
+{name:"Hasura",info:"Sr Eng Blr: 30-42L base + 12-18L ESOP. India-founded GraphQL/data platform.",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"Chargebee",info:"Sr Eng Chennai/Blr: 28-35L base + 8-12L ESOP. India-founded subscription billing SaaS.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"HighRadius",info:"Sr Eng Hyd: 30-42L base + 10-15L RSU. India-founded B2B fintech SaaS.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Clevertap",info:"Sr Eng Mumbai/Blr: 28-38L base + 8-12L ESOP. Mobile analytics SaaS, India-founded.",pills:[],lc:"observability"},
+{name:"Perfios",info:"Sr Eng Blr: 28-38L base + 8-12L ESOP. B2B fintech data platform, India-founded.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"}
+],
+tier4:[
+{name:"Flipkart",info:"SDE-3: 32-45L base + 10-20L ESOP",pills:[],lc:"flipkart"},
+{name:"Myntra",info:"SDE-3: 28-38L base + 8-15L ESOP",pills:[],lc:"flipkart"},
+{name:"Swiggy",info:"SDE-3: 30-42L base + 10-20L ESOP (listed)",pills:[],lc:"delivery"},
+{name:"Zomato (Eternal)",info:"SDE-3: 28-38L base + 10-20L RSU (listed)",pills:[],lc:"delivery"},
+{name:"PhonePe",info:"SDE-3: 32-45L base + 12-25L ESOP",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Razorpay",info:"SDE-3: 32-45L base + 12-25L ESOP",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"CRED",info:"SDE-3: 35-50L base + 15-30L ESOP",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Groww",info:"SDE-3: 30-42L base + 10-20L ESOP",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Zerodha",info:"30-50L base, cash-only, no RSU",pills:["p-meh"],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Upstox",info:"SDE-3: 28-38L base + 8-15L ESOP",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Paytm",info:"SDE-3: 28-38L base + 10-18L RSU (listed)",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Dream11",info:"SDE-3: 35-48L base + 12-20L ESOP",pills:[],lc:"unicorn"},
+{name:"Games24x7",info:"SDE-3: 32-45L base + 10-18L ESOP",pills:[],lc:"unicorn"},
+{name:"MPL",info:"SDE-3: 30-42L base + 10-18L ESOP",pills:[],lc:"unicorn"},
+{name:"Meesho",info:"SDE-3: 32-45L base + 10-20L ESOP",pills:[],lc:"unicorn"},
+{name:"Urban Company",info:"SDE-3: 30-42L base + 10-18L ESOP",pills:[],lc:"unicorn"},
+{name:"Zepto",info:"SDE-3: 35-50L base + 15-25L ESOP",pills:[],lc:"delivery"},
+{name:"ShareChat / Mohalla Tech",info:"SDE-3: 28-38L base + 8-15L ESOP",pills:[],lc:"unicorn"},
+{name:"InMobi / Glance",info:"SDE-3: 28-38L base + 10-15L ESOP",pills:[],lc:"unicorn"},
+{name:"Disney+ Hotstar",info:"Sr SDE: 30-42L base + 10-18L Disney RSU",pills:[],lc:"unicorn"},
+{name:"MakeMyTrip",info:"Sr SDE: 28-38L base + 10-15L RSU (Nasdaq)",pills:[],lc:"unicorn"},
+{name:"Agoda (Booking group)",info:"Sr Eng: 32-45L base + 10-18L RSU",pills:[],lc:"uber"},
+{name:"Polygon Labs",info:"Sr Eng: 50-70L base + 30-50L token (MATIC)",pills:[],lc:"ai"},
+{name:"CoinDCX",info:"SDE-3: 30-42L base + 10-18L ESOP/token",pills:[],lc:"ai"},
+{name:"Angel One",info:"Sr SDE: 28-38L base + 10-15L RSU (listed)",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Lenskart Tech",info:"Sr SDE: 28-38L base + 8-12L ESOP",pills:[],lc:"unicorn"},
+{name:"Navi",info:"SDE-3: 32-45L base + 10-18L ESOP",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Acko",info:"SDE-3: 28-38L base + 8-12L ESOP",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Truecaller",info:"Sr Eng: 30-40L base + 8-15L RSU",pills:[],lc:"unicorn"},
+{name:"Ola Cabs",info:"SDE-3 Blr: 30-42L base + 10-18L ESOP. Large mobility platform.",pills:[],lc:"unicorn"},
+{name:"Ola Electric",info:"SDE-3 Blr: 30-42L base + 10-18L ESOP. EV tech, growing software team.",pills:[],lc:"unicorn"},
+{name:"Delhivery",info:"SDE-3 Gurgaon: 28-38L base + 8-12L RSU (listed). Logistics tech.",pills:[],lc:"delivery"},
+{name:"Nykaa (FSN)",info:"SDE-3 Mumbai/Blr: 26-35L base + 8-12L RSU (listed). Beauty e-commerce.",pills:[],lc:"unicorn"},
+{name:"BharatPe",info:"SDE-3 Delhi/Blr: 28-38L base + 10-15L ESOP. Merchant payments unicorn.",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Juspay",info:"SDE-3 Blr: 28-38L base + 8-12L ESOP. India payment infra (handles Flipkart, Swiggy payments).",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"OfBusiness",info:"SDE-3 Gurgaon: 28-38L base + 8-12L ESOP. B2B commerce unicorn.",pills:[],lc:"unicorn"},
+{name:"Slice (North East SFB)",info:"SDE-3 Blr: 28-35L base + 8-12L ESOP. Neobank / credit card unicorn.",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Fi Money (Federal Bank)",info:"SDE-3 Blr: 28-38L base + 8-12L ESOP. Neobank with strong FE culture.",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Jupiter Money",info:"SDE-3 Blr: 28-38L base + 8-12L ESOP. Consumer neobank.",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Porter",info:"SDE-3 Blr: 28-38L base + 8-12L ESOP. Intra-city logistics unicorn.",pills:[],lc:"delivery"},
+{name:"Shiprocket",info:"SDE-3 Delhi: 28-38L base + 8-12L ESOP. E-commerce logistics SaaS.",pills:[],lc:"delivery"}
+],
+tier5:[
+{name:"Target India",info:"Lead Eng: 28-40L base + 10-15L RSU",pills:[],lc:"walmart"},
+{name:"Lowe's India",info:"Sr SE: 28-38L base + 8-12L RSU",pills:[],lc:"walmart"},
+{name:"Tesco Bengaluru",info:"Lead Eng: 26-36L base + 8-12L stock",pills:[],lc:"walmart"},
+{name:"Kroger India",info:"Sr SE: 26-36L base + 8-12L RSU",pills:[],lc:"walmart"},
+{name:"Sam's Club Tech",info:"SDE-3: 30-42L base + 10-15L RSU (Walmart)",pills:[],lc:"walmart"}
+],
+tier6:[
+{name:"Tower Research Capital",info:"SDE: 50-80L base + 30-80L bonus",pills:[],lc:"hft"},
+{name:"Jump Trading",info:"SDE: 60-90L base + 50L+ bonus",pills:[],lc:"hft"},
+{name:"Hudson River Trading (HRT)",info:"50-80L base + huge bonus",pills:[],lc:"hft"},
+{name:"Jane Street",info:"Limited India, TC 1Cr+ (NY/HK focus)",pills:[],lc:"hft"},
+{name:"Citadel / Citadel Securities",info:"50-80L base + 50L+ bonus",pills:[],lc:"hft"},
+{name:"D. E. Shaw",info:"Member of Tech: 35-50L base + 15-30L bonus",pills:[],lc:"hft"},
+{name:"Two Sigma",info:"40-60L base + bonus",pills:[],lc:"hft"},
+{name:"Optiver",info:"50-70L base + 30-50L bonus",pills:[],lc:"hft"},
+{name:"IMC Trading",info:"40-60L base + bonus",pills:[],lc:"hft"},
+{name:"Graviton Research",info:"50-80L base + bonus",pills:[],lc:"hft"},
+{name:"Quadeye",info:"40-60L base + 20-40L bonus",pills:[],lc:"hft"},
+{name:"AlphaGrep",info:"40-60L base + bonus",pills:[],lc:"hft"},
+{name:"Da Vinci Derivatives",info:"40-60L base + bonus",pills:[],lc:"hft"},
+{name:"Millennium",info:"40-60L base + bonus",pills:[],lc:"hft"},
+{name:"Squarepoint Capital",info:"40-60L base + bonus",pills:[],lc:"hft"},
+{name:"WorldQuant",info:"30-42L base + 10-15L bonus",pills:[],lc:"hft"},
+{name:"AQR Capital",info:"30-45L base + 10-20L deferred",pills:[],lc:"hft"},
+{name:"iRageCapital",info:"30-45L base + bonus",pills:[],lc:"hft"},
+{name:"SIG (Susquehanna)",info:"SDE Hyd: 40-60L base + 30-50L bonus. Major HFT with India presence.",pills:[],lc:"hft"},
+{name:"Virtu Financial",info:"SDE: 35-50L base + 20-40L bonus. Global market maker.",pills:[],lc:"hft"},
+{name:"XTX Markets",info:"SDE Blr: 40-60L base + 30-50L bonus. Algo trading, fast-growing India team.",pills:[],lc:"hft"},
+{name:"Belvedere Trading",info:"SDE: 35-50L base + 20-40L bonus. Options trading tech.",pills:[],lc:"hft"},
+{name:"Five Rings Capital",info:"SDE: 40-60L base + 30-50L bonus. Quant trading firm.",pills:[],lc:"hft"},
+{name:"NK Securities",info:"SDE: 35-50L base + bonus. India HFT, growing Blr team.",pills:[],lc:"hft"}
+],
+tier7:[
+{name:"Sumo Logic",info:"Sr Eng: 28-38L base + 8-12L RSU. Log management SaaS.",pills:[],lc:"observability",mc:"devtools",fsd:"infra_fsd"},
+{name:"PlanetScale",info:"Sr Eng: 32-42L base + 12-18L RSU. Serverless MySQL platform.",pills:[],lc:"datainfra",mc:"devtools",fsd:"infra_fsd"},
+{name:"Contentful",info:"Sr Eng: 30-40L base + 10-15L RSU. Headless CMS.",pills:[],lc:"figma",mc:"design_tool"},
+{name:"Quora",info:"Sr Eng: 35-48L base + 15-25L RSU",pills:[],lc:"meta"},
+{name:"Patreon",info:"Sr Eng: 35-45L base + 15-20L RSU",pills:[],lc:"figma"},
+{name:"Blue Yonder (Panasonic)",info:"Sr Eng Hyd: 32-48L base + 12-20L ESOP. Supply chain SaaS #1 globally. 3000+ India engineers.",pills:[],lc:"delivery",mc:"devtools",fsd:"infra_fsd"},
+{name:"Manhattan Associates",info:"Sr Eng Blr: 32-48L base + 15-20L RSU. Supply chain software. 4000+ India staff. NASDAQ listed.",pills:[],lc:"delivery"},
+{name:"Maersk Technology (GCTI)",info:"Sr Eng Blr/Pune: 30-42L base + 10-15L bonus. Container shipping GCC. 5000+ India engineers.",pills:[],lc:"delivery"},
+{name:"Honeywell India",info:"Sr Eng Blr/Hyd: 32-48L base + 12-20L RSU. Industrial/process software GCC. 5000+ engineers.",pills:[],lc:"servicenow"},
+{name:"GE Aerospace India",info:"Sr Eng Blr: 32-48L base + 12-20L RSU. Jet engine controls & avionics software.",pills:[],lc:"servicenow"},
+{name:"GE Healthcare India",info:"Sr Eng Blr: 32-48L base + 12-20L RSU. Medical imaging AI/software. NASDAQ: GEHC.",pills:[],lc:"servicenow"},
+{name:"Harman International (Samsung)",info:"Sr Eng Blr/Pune: 32-48L base + 12-20L RSU. Car infotainment + IoT. 5000+ India engineers.",pills:[],lc:"servicenow"},
+{name:"Bosch India R&D",info:"Sr Eng Blr: 30-40L base + 10-15L bonus. Automotive ECU/ADAS software. 16000+ India engineers.",pills:[],lc:"nvidia"},
+{name:"Mobileye (Intel)",info:"Sr Eng Hyd: 32-48L base + 12-20L RSU. Autonomous driving. NASDAQ: MBLY.",pills:[],lc:"nvidia"},
+{name:"Ansys India",info:"Sr Eng Pune/Hyd: 30-42L base + 10-15L RSU. Engineering simulation software. NASDAQ listed.",pills:[],lc:"nvidia"},
+{name:"EA India (Electronic Arts)",info:"Sr Eng Hyd: 35-55L base + 15-20L RSU. AAA game dev studio. NASDAQ listed.",pills:[],lc:"figma"},
+{name:"Unity Technologies India",info:"Sr Eng Blr: 32-48L base + 12-20L RSU. Game engine. NYSE listed.",pills:[],lc:"figma"},
+{name:"Zynga India (Take-Two)",info:"Sr Eng Blr: 30-45L base + 12-20L RSU. Mobile gaming. Take-Two owned.",pills:[],lc:"figma"},
+{name:"Krafton India",info:"Sr Eng Delhi/Blr: 32-48L base + 12-20L RSU. PUBG publisher. KOSPI listed.",pills:[],lc:"figma"},
+{name:"Jio Platforms (Reliance)",info:"Sr Eng Mumbai/Blr: 30-45L base + 10-20L ESOP. JioTV, JioCinema, 5G. Pre-IPO.",pills:[],lc:"unicorn"},
+{name:"Innovaccer",info:"Sr Eng Delhi/Noida: 30-42L base + 10-18L ESOP. Health data platform. India-founded, $1.7B.",pills:[],lc:"servicenow"},
+{name:"PolicyBazaar (PB Fintech)",info:"Sr SDE Gurgaon: 30-42L base + 10-15L RSU. Insurance aggregator. NSE/BSE listed.",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"OneCard (FPL Technologies)",info:"Sr Eng Pune: 30-42L base + 12-20L ESOP. Credit card unicorn, $1.4B valuation.",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Cashfree Payments",info:"Sr Eng Blr: 28-40L base + 10-15L ESOP. Payments API unicorn, $700M valuation.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Setu (Pine Labs)",info:"Sr Eng Blr: 28-40L base + 10-15L ESOP. Banking API infrastructure.",pills:[],lc:"stripe",mc:"fintech",fsd:"fintech_fsd"},
+{name:"MoneyView",info:"Sr Eng Blr: 28-38L base + 10-15L ESOP. Lending + finance unicorn, $900M.",pills:[],lc:"unicorn",mc:"fintech",fsd:"fintech_fsd"},
+{name:"Udaan",info:"Sr Eng Blr: 30-42L base + 10-15L ESOP. B2B e-commerce unicorn, $3B peak valuation.",pills:[],lc:"delivery"},
+{name:"Cars24",info:"Sr Eng Gurgaon: 30-42L base + 10-15L ESOP. Auto-tech unicorn, $3.3B valuation.",pills:[],lc:"unicorn"},
+{name:"Scaler (InterviewBit)",info:"Sr Eng Blr: 28-40L base + 10-15L ESOP. Tech education unicorn, $710M.",pills:[],lc:"figma"}
+],
+tier8:[
+{name:"OpenAI",info:"Sr Eng: 60-100L base + 30-60L equity (very limited India)",pills:[],lc:"ai"},
+{name:"Anthropic",info:"Sr Eng: 60-100L base + 30-50L equity (limited India)",pills:[],lc:"ai"},
+{name:"Cohere",info:"Sr Eng: 40-60L base + 15-30L equity",pills:[],lc:"ai"},
+{name:"Hugging Face",info:"Sr Eng: 40-60L base + 15-30L equity",pills:[],lc:"ai"},
+{name:"Scale AI",info:"Sr Eng: 40-60L base + 20-40L RSU",pills:[],lc:"ai"},
+{name:"Stability AI",info:"Sr Eng: 40-60L base + 20-40L equity",pills:[],lc:"ai"},
+{name:"Sarvam AI",info:"SDE-3 Blr: 35-50L base + 12-25L ESOP",pills:[],lc:"ai"},
+{name:"Together AI",info:"Sr Eng: 40-55L base + 20-35L equity",pills:[],lc:"ai"},
+{name:"Palantir",info:"Sr Eng: 50-70L base + 20-40L RSU (elite, limited)",pills:[],lc:"ai"},
+{name:"Kraken",info:"Sr Eng: 40-60L base + 20-40L RSU/bonus",pills:[],lc:"ai"},
+{name:"ConsenSys (MetaMask)",info:"Sr Eng: 40-55L base + 20-35L equity/token",pills:[],lc:"ai"},
+{name:"Chainalysis",info:"Sr Eng: 35-45L base + 12-20L RSU",pills:[],lc:"ai"},
+{name:"Krutrim AI (Ola)",info:"SDE-3 Blr: 35-50L base + 15-25L ESOP. India-founded LLM startup by Bhavish Aggarwal.",pills:[],lc:"ai"},
+{name:"Observe.AI",info:"SDE-3 Blr: 30-42L base + 10-18L ESOP. India-founded conversational AI SaaS.",pills:[],lc:"ai"},
+{name:"Yellow.ai",info:"SDE-3 Blr: 28-38L base + 8-15L ESOP. India-founded enterprise conversational AI.",pills:[],lc:"ai"},
+{name:"Fractal Analytics",info:"Sr Eng Blr/Mumbai: 30-42L base + 10-18L ESOP. India AI/analytics company.",pills:[],lc:"ai"},
+{name:"ElevenLabs",info:"Sr Eng: 40-55L base + 20-35L equity. Voice AI (limited India).",pills:[],lc:"ai"},
+{name:"Perplexity AI",info:"Sr Eng: 45-65L base + 25-40L equity. AI search (very limited India).",pills:[],lc:"ai"},
+{name:"CoinSwitch (KoinX)",info:"SDE-3 Blr: 30-40L base + 10-18L ESOP. Crypto exchange. 400+ engineers.",pills:[],lc:"ai"},
+{name:"Rivian",info:"Sr Eng Blr: 35-50L base + 15-25L RSU. EV software. India center opened 2023.",pills:[],lc:"nvidia"},
+{name:"Ather Energy",info:"Sr Eng Blr: 28-40L base + 10-15L ESOP. India EV startup, IPO 2025. Connected vehicle software.",pills:[],lc:"unicorn"}
+]
+};
+
+/* ================================================================
+   BUILD HELPERS
+================================================================ */
+function lcSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9 ]/g,' ').trim().replace(/ +/g,'-');
+}
+
+function buildAlgoTable(qs) {
+  const dc = {E:'lc-e',M:'lc-m',H:'lc-h'};
+  let h = '<table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>D</th><th>Topic</th></tr></thead><tbody>';
+  qs.forEach(q => {
+    const url = `https://leetcode.com/problems/${lcSlug(q[1])}/`;
+    h += `<tr><td>${q[0]}</td><td><a href="${url}" target="_blank" rel="noopener" class="lc-link">${q[1]}</a></td><td class="${dc[q[2]]}">${q[2]}</td><td>${q[3]}</td></tr>`;
+  });
+  h += '</tbody></table>';
+  return h;
+}
+
+function buildLinkList(items) {
+  if (!items || !items.length) return '<p style="padding:10px;color:#94a3b8;font-size:12px">No questions listed.</p>';
+  let h = '<ul class="q-list">';
+  items.forEach(it => {
+    h += `<li><a href="${it.link}" target="_blank" rel="noopener" class="q-link"><span>${it.q}</span><span class="q-tag">${it.tag}</span></a></li>`;
+  });
+  h += '</ul>';
+  return h;
+}
+
+const QA_LABELS = {
+  js_core:'JavaScript Core',
+  angular:'Angular / Frontend Frameworks',
+  react:'React / Frontend Frameworks',
+  perf:'Performance & Browser',
+  css:'CSS / Layout / Styling',
+  security:'Security & Auth',
+  ts:'TypeScript',
+  behavioral:'Behavioral / Leadership'
+};
+
+function buildQAContent(qaKeys) {
+  let h = '';
+  qaKeys.forEach(key => {
+    if (!QA[key]) return;
+    h += `<div class="qa-group"><div class="qa-group-title">${QA_LABELS[key]||key}</div>${buildLinkList(QA[key])}</div>`;
+  });
+  return h || '<p style="padding:10px;color:#94a3b8;font-size:12px">No Q&A listed.</p>';
+}
+
+/* ================================================================
+   RENDER
+================================================================ */
+function renderCards(containerId, data, tierKey) {
+  const def = DEFS[tierKey] || DEFS.tier3;
+  const container = document.getElementById(containerId);
+
+  data.forEach(function(c) {
+    const card = document.createElement('div');
+    card.className = 'company-card';
+    const pillHtml = (c.pills||[]).map(function(p){return '<span class="pill '+p+'"></span>';}).join('');
+
+    // Build card shell — content panes are empty, filled on first open
+    card.innerHTML =
+      '<div class="card-header">'+
+        '<div><b>'+c.name+'</b>'+pillHtml+'<div class="card-info">'+c.info+'</div></div>'+
+        '<span class="card-arrow">&#9660;</span>'+
+      '</div>'+
+      '<div class="lc-panel">'+
+        '<div class="panel-tabs">'+
+          '<button class="ptab active" data-tab="algo">&#9889; Algo (LC)</button>'+
+          '<button class="ptab" data-tab="mc">&#128187; Machine Coding</button>'+
+          '<button class="ptab" data-tab="fsd">&#127959; System Design</button>'+
+          '<button class="ptab" data-tab="qa">&#128172; Q&amp;A</button>'+
+        '</div>'+
+        '<div class="tab-pane show" data-tab="algo"><div class="loading">Loading…</div></div>'+
+        '<div class="tab-pane" data-tab="mc"></div>'+
+        '<div class="tab-pane" data-tab="fsd"></div>'+
+        '<div class="tab-pane" data-tab="qa"></div>'+
+      '</div>';
+
+    var contentBuilt = false;
+
+    function buildContent() {
+      if (contentBuilt) return;
+      contentBuilt = true;
+      var mcKey  = c.mc  || def.mc;
+      var fsdKey = c.fsd || def.fsd;
+      var qaKeys = c.qa  || def.qa;
+      card.querySelector('.tab-pane[data-tab="algo"]').innerHTML = buildAlgoTable(LC[c.lc]||[]);
+      card.querySelector('.tab-pane[data-tab="mc"]').innerHTML   = buildLinkList(MC[mcKey]||[]);
+      card.querySelector('.tab-pane[data-tab="fsd"]').innerHTML  = buildLinkList(FSD[fsdKey]||[]);
+      card.querySelector('.tab-pane[data-tab="qa"]').innerHTML   = buildQAContent(qaKeys);
+    }
+
+    // Card open / close
+    card.querySelector('.card-header').addEventListener('click', function() {
+      var opening = !card.classList.contains('active');
+      card.classList.toggle('active');
+      if (opening) {
+        buildContent();
+        // Always land on Algo tab when opening
+        card.querySelectorAll('.ptab').forEach(function(b){ b.classList.remove('active'); });
+        card.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('show'); });
+        card.querySelector('.ptab[data-tab="algo"]').classList.add('active');
+        card.querySelector('.tab-pane[data-tab="algo"]').classList.add('show');
+      }
+    });
+
+    // Tab switching — use event delegation on the tabs bar
+    card.querySelector('.panel-tabs').addEventListener('click', function(e) {
+      e.stopPropagation();
+      var btn = e.target.closest('.ptab');
+      if (!btn) return;
+      var tabName = btn.getAttribute('data-tab');
+      card.querySelectorAll('.ptab').forEach(function(b){ b.classList.remove('active'); });
+      card.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('show'); });
+      btn.classList.add('active');
+      card.querySelector('.tab-pane[data-tab="'+tabName+'"]').classList.add('show');
+    });
+
+    container.appendChild(card);
+  });
+}
+
+// Boot
+Object.keys(companies).forEach(tier => renderCards(tier, companies[tier], tier));
+</script>
+</body>
+</html>
