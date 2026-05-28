@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 1: Fundamentals &amp; Architecture</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #f7f9fc;
+      --panel-2: #f1f4fa;
+      --ink: #1a2233;
+      --muted: #5a6678;
+      --line: #e2e7f0;
+      --accent: #0f9d7a;
+      --accent-2: #2a5bd7;
+      --warn: #b26b00;
+      --danger: #c23046;
+      --critical: #7a1d2c;
+      --ok: #1a8f4d;
+      --code-bg: #f5f7fb;
+      --chip: #eef1f8;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; }
+    strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); }
+    .chip.intermediate { background: #fdf1dc; color: var(--warn); }
+    .chip.advanced { background: #fbe1e5; color: var(--danger); }
+    .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; }
+    .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; }
+    .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; }
+    .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); }
+    .callout.tip .tag { color: var(--accent); }
+    .callout.warn .tag { color: var(--warn); }
+    .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; }
+    .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; }
+    .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 1 of 8 — Fundamentals</small></div>
+  <h2>This Phase</h2>
+  <a href="#what-is-fsd">What is FSD?</a>
+  <a href="#how-to-approach">How to Approach</a>
+  <a href="#client-server">Client-Server Architecture</a>
+  <a href="#rendering-strategies">Rendering Strategies</a>
+  <a href="#spa-mpa">SPA vs MPA</a>
+  <a href="#component-architecture">Component Architecture</a>
+  <a href="#design-patterns">Design Patterns</a>
+  <a href="#module-systems">Module Systems</a>
+  <a href="#build-tools">Build Tools & Bundlers</a>
+  <a href="#monorepo">Monorepo Architecture</a>
+  <a href="#micro-frontends">Micro-Frontends</a>
+  <a href="#islands-architecture">Islands & Server Components</a>
+  <a href="#bundler-comparison">Bundler Deep Dive</a>
+  <a href="#edge-computing">Edge Computing & Edge SSR</a>
+  <a href="#exercises">Hands-On Exercises</a>
+  <a href="#interview-questions">Interview Questions</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html"><strong>① Fundamentals</strong></a>
+  <a href="phase2-networking-communication.html">② Networking</a>
+  <a href="phase3-performance-optimization.html">③ Performance</a>
+  <a href="phase4-state-management-data.html">④ State & Data</a>
+  <a href="phase5-security-auth.html">⑤ Security</a>
+  <a href="phase6-scalable-ui-architecture.html">⑥ Scalable UI</a>
+  <a href="phase7-observability-testing.html">⑦ Observability</a>
+  <a href="phase8-real-world-design-problems.html">⑧ Design Problems</a>
+</aside>
+
+<main>
+<h1>Phase 1: Fundamentals &amp; Architecture</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">Core concepts every frontend engineer must know before tackling system design interviews. From how the browser works to scalable architecture patterns.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="what-is-fsd">1. What is Frontend System Design?</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>Definition</h3>
+<p><strong>Frontend System Design (FSD)</strong> is the practice of designing the client-side architecture of web applications at scale. Unlike backend system design that focuses on databases, servers, and distributed systems, FSD focuses on:</p>
+<ul>
+  <li><strong>How</strong> the user interface is structured and rendered</li>
+  <li><strong>How</strong> data flows through the client</li>
+  <li><strong>How</strong> the application communicates with backend services</li>
+  <li><strong>How</strong> performance, accessibility, and reliability are maintained at scale</li>
+  <li><strong>How</strong> teams collaborate on the same codebase without stepping on each other</li>
+</ul>
+
+<h3>Why Companies Ask FSD in Interviews</h3>
+<table>
+  <tr><th>Company</th><th>Why They Ask</th><th>What They Evaluate</th></tr>
+  <tr><td>Google</td><td>Scale (billions of users)</td><td>Component design, performance budgets, a11y</td></tr>
+  <tr><td>Meta</td><td>Complex UIs (News Feed, Messenger)</td><td>State management, real-time updates, data normalization</td></tr>
+  <tr><td>Amazon</td><td>Conversion-critical UIs</td><td>Performance, progressive loading, error handling</td></tr>
+  <tr><td>Microsoft</td><td>Enterprise-grade products (Teams, Outlook)</td><td>Scalable architecture, offline support, collaboration</td></tr>
+  <tr><td>Flipkart/Swiggy</td><td>Mobile-first, flaky networks</td><td>PWA, caching, optimistic UI, SSR</td></tr>
+</table>
+
+<h3>FSD vs Backend System Design</h3>
+<table>
+  <tr><th>Aspect</th><th>Frontend SD</th><th>Backend SD</th></tr>
+  <tr><td>Focus</td><td>UI rendering, user experience, client state</td><td>Data storage, processing, APIs</td></tr>
+  <tr><td>Scale metric</td><td>Render performance (ms), bundle size (KB)</td><td>RPS, latency, throughput</td></tr>
+  <tr><td>State</td><td>Ephemeral (in-memory), local storage</td><td>Persistent (DB, cache)</td></tr>
+  <tr><td>Failure mode</td><td>UI freeze, white screen, stale data</td><td>Timeout, 5xx, data loss</td></tr>
+  <tr><td>Tools</td><td>DevTools, Lighthouse, bundlers</td><td>Load balancers, databases, queues</td></tr>
+</table>
+
+<div class="callout tip">
+  <span class="tag">Pro Tip</span>
+  In interviews, always start with: "Let me clarify the requirements" → then draw a high-level architecture diagram → then deep-dive into components.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=5vyKhm2NTfw" target="_blank">Frontend System Design Interview — Chirag Goel</a><div class="meta">Complete intro to FSD interviews</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=0163cssUxLA" target="_blank">What is System Design? — Gaurav Sen</a><div class="meta">High-level overview of system design thinking</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="how-to-approach">2. How to Approach a FSD Interview</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>The RADIO Framework (Recommended)</h3>
+<p>Used by engineers at Google and Meta for structured FSD interviews:</p>
+<table>
+  <tr><th>Step</th><th>What to Do</th><th>Time</th></tr>
+  <tr><td><strong>R</strong> — Requirements</td><td>Clarify functional & non-functional requirements. Ask about: target users, scale, platforms, offline needs, a11y, i18n</td><td>3-5 min</td></tr>
+  <tr><td><strong>A</strong> — Architecture</td><td>Draw high-level component diagram. Show data flow, API layer, state stores, routing</td><td>5-8 min</td></tr>
+  <tr><td><strong>D</strong> — Data Model</td><td>Define interfaces/types, API contracts, state shape, normalization strategy</td><td>5-8 min</td></tr>
+  <tr><td><strong>I</strong> — Interface (API)</td><td>Component API design (inputs/outputs), service contracts, event interfaces</td><td>5-8 min</td></tr>
+  <tr><td><strong>O</strong> — Optimizations</td><td>Performance, caching, lazy loading, error handling, monitoring, a11y</td><td>5-8 min</td></tr>
+</table>
+
+<h3>Non-Functional Requirements Checklist</h3>
+<p>Always mention these — they differentiate senior from junior candidates:</p>
+<ul>
+  <li><strong>Performance:</strong> Core Web Vitals (LCP &lt; 2.5s, INP &lt; 200ms, CLS &lt; 0.1)</li>
+  <li><strong>Accessibility:</strong> WCAG 2.1 AA compliance, keyboard navigation, screen reader support</li>
+  <li><strong>Internationalization (i18n):</strong> RTL support, pluralization, date/number formatting</li>
+  <li><strong>Responsiveness:</strong> Mobile-first, adaptive layouts, touch targets ≥ 44px</li>
+  <li><strong>SEO:</strong> SSR/SSG for public pages, structured data, meta tags</li>
+  <li><strong>Offline support:</strong> Service Workers, background sync</li>
+  <li><strong>Error handling:</strong> Graceful degradation, error boundaries, retry logic</li>
+  <li><strong>Security:</strong> XSS prevention, CSP, CORS, auth token management</li>
+  <li><strong>Testing:</strong> Unit, integration, E2E, visual regression</li>
+  <li><strong>Monitoring:</strong> RUM, error tracking, performance budgets</li>
+</ul>
+
+<div class="callout qa">
+  <span class="tag">Interview Insight</span>
+  At companies like Flipkart/Swiggy, they specifically look for: "What happens on a 2G connection?" and "How does the app work offline?" — always address network resilience.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=sV_4pOGosnU" target="_blank">How to Approach Frontend System Design — Chirag Goel</a><div class="meta">Step-by-step framework for FSD</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=_1E2a4IS4eQ" target="_blank">Frontend Interview Framework — BigFrontEnd</a><div class="meta">Structured approach to design rounds</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="client-server">3. Client-Server Architecture</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>Theory: How the Web Works</h3>
+<p>When a user types a URL and presses Enter:</p>
+<ol>
+  <li><strong>DNS Resolution:</strong> Browser looks up IP address (DNS cache → OS cache → resolver → root → TLD → authoritative)</li>
+  <li><strong>TCP Handshake:</strong> 3-way handshake (SYN → SYN-ACK → ACK)</li>
+  <li><strong>TLS Handshake:</strong> For HTTPS — certificate exchange, key agreement (adds 1-2 RTT)</li>
+  <li><strong>HTTP Request:</strong> Browser sends GET / with headers (User-Agent, Accept, Cookie, etc.)</li>
+  <li><strong>Server Response:</strong> HTML document returned (200 OK)</li>
+  <li><strong>HTML Parsing:</strong> DOM tree construction begins (top to bottom)</li>
+  <li><strong>Resource Discovery:</strong> Parser encounters CSS, JS, images → fires new requests</li>
+  <li><strong>CSSOM Construction:</strong> CSS parsed into CSSOM tree</li>
+  <li><strong>JavaScript Execution:</strong> Blocks parsing (unless async/defer)</li>
+  <li><strong>Render Tree:</strong> DOM + CSSOM merged → layout → paint → composite</li>
+</ol>
+
+<pre><code>┌──────────┐          ┌─────────────────────────────────────┐
+│  Browser │          │            Server                   │
+│ (Client) │          │  ┌─────────────────────────────┐    │
+│          │──DNS────→│  │  Load Balancer (Nginx/ALB)  │    │
+│          │←──IP─────│  └──────────────┬──────────────┘    │
+│          │          │                 │                    │
+│          │──TCP────→│  ┌──────────────▼──────────────┐    │
+│          │──TLS────→│  │  Application Server (Node)  │    │
+│          │──HTTP───→│  └──────────────┬──────────────┘    │
+│          │←─HTML────│                 │                    │
+│          │←─CSS─────│  ┌──────────────▼──────────────┐    │
+│          │←─JS──────│  │    Database / Cache / CDN    │    │
+│          │←─Assets──│  └─────────────────────────────┘    │
+└──────────┘          └─────────────────────────────────────┘</code></pre>
+
+<h3>Critical Rendering Path</h3>
+<p>The sequence of steps the browser must complete to render the first pixel:</p>
+<pre><code>HTML → DOM Tree
+                  ↘
+                    Render Tree → Layout → Paint → Composite
+                  ↗
+CSS  → CSSOM Tree
+
+JavaScript can BLOCK both DOM and CSSOM construction!
+</code></pre>
+
+<p><strong>Key facts for interviews:</strong></p>
+<ul>
+  <li>CSS is render-blocking (browser won't paint until CSSOM is ready)</li>
+  <li><code>&lt;script&gt;</code> without defer/async blocks HTML parsing</li>
+  <li><code>&lt;script defer&gt;</code> downloads in parallel, executes after DOM ready (in order)</li>
+  <li><code>&lt;script async&gt;</code> downloads in parallel, executes immediately (no order guarantee)</li>
+  <li><code>&lt;link rel="preload"&gt;</code> hints browser to fetch resources early</li>
+  <li><code>&lt;link rel="preconnect"&gt;</code> establishes connection to third-party origin early</li>
+</ul>
+
+<div class="callout warn">
+  <span class="tag">Common Mistake</span>
+  Placing <code>&lt;script&gt;</code> tags in <code>&lt;head&gt;</code> without <code>defer</code> blocks the entire page render. Always use <code>defer</code> for non-critical scripts or place them before <code>&lt;/body&gt;</code>.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=L5BlpPU_muY" target="_blank">Client Server Architecture — Hussein Nasser</a><div class="meta">In-depth client-server model explanation</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=hJHvdBlSxug" target="_blank">How the Web Works — Academind</a><div class="meta">Request-response lifecycle</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="rendering-strategies">4. Rendering Strategies (SSR, CSR, SSG, ISR)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: The Rendering Spectrum</h3>
+<table>
+  <tr><th>Strategy</th><th>Rendering Location</th><th>When HTML is Generated</th><th>Use Case</th><th>SEO</th><th>TTFB</th></tr>
+  <tr><td><strong>CSR</strong> (Client-Side)</td><td>Browser</td><td>On every page load (JS generates DOM)</td><td>Dashboards, SPAs, internal tools</td><td>❌ Poor</td><td>Fast (shell)</td></tr>
+  <tr><td><strong>SSR</strong> (Server-Side)</td><td>Server</td><td>On every request</td><td>E-commerce, news, social media</td><td>✅ Great</td><td>Slower</td></tr>
+  <tr><td><strong>SSG</strong> (Static Gen)</td><td>Build time</td><td>At deploy time</td><td>Blogs, docs, marketing</td><td>✅ Great</td><td>Fastest</td></tr>
+  <tr><td><strong>ISR</strong> (Incremental)</td><td>Server + CDN</td><td>Background revalidation</td><td>E-commerce (product pages)</td><td>✅ Great</td><td>Fast (cached)</td></tr>
+</table>
+
+<h3>Deep Dive: Client-Side Rendering (CSR)</h3>
+<pre><code>// How Angular works by default (CSR)
+// 1. Browser downloads empty HTML shell
+// 2. Downloads main.js bundle
+// 3. Angular bootstraps, creates DOM
+// 4. User sees content ONLY after JS executes
+
+// Timeline:
+// [blank screen]──[download JS]──[parse/execute JS]──[render]──[interactive]
+//                                                     ↑ FCP      ↑ TTI
+// Problem: Large gap between navigation and FCP</code></pre>
+
+<p><strong>Pros:</strong> Simple deployment (static files on CDN), rich interactivity, no server needed for rendering</p>
+<p><strong>Cons:</strong> Poor SEO (crawlers may not execute JS), slow FCP on slow devices, large JS bundles</p>
+
+<h3>Deep Dive: Server-Side Rendering (SSR)</h3>
+<pre><code>// Angular Universal (SSR) — how it works:
+// 1. Request hits Node.js server
+// 2. Angular renders component tree to HTML STRING on server
+// 3. Sends fully-formed HTML to browser
+// 4. Browser shows content immediately (FCP ✓)
+// 5. JS bundle downloads and "hydrates" — attaches event listeners
+// 6. App becomes interactive (TTI)
+
+// angular.json — enabling SSR:
+// ng add @angular/ssr
+
+// server.ts (simplified):
+import { renderApplication } from '@angular/platform-server';
+import { AppComponent } from './app/app.component';
+
+// Server renders full HTML:
+const html = await renderApplication(AppComponent, {
+  document: indexHtml,
+  url: req.url
+});
+res.send(html);</code></pre>
+
+<p><strong>Hydration in Angular 16+:</strong></p>
+<pre><code>// app.config.ts
+import { provideClientHydration } from '@angular/platform-browser';
+
+export const appConfig = {
+  providers: [
+    provideClientHydration()  // Enables non-destructive hydration
+  ]
+};
+
+// What hydration does:
+// 1. Server sends HTML + serialized state (TransferState)
+// 2. Client Angular reuses existing DOM nodes (doesn't destroy & recreate)
+// 3. Attaches event listeners to existing elements
+// 4. Result: No content flickering, faster TTI</code></pre>
+
+<div class="callout tip">
+  <span class="tag">Angular 17+ Tip</span>
+  Angular 17 introduced <strong>partial hydration</strong> via <code>@defer</code> blocks. Components inside <code>@defer</code> are not hydrated until their trigger condition is met (viewport, interaction, idle, timer).
+</div>
+
+<h3>SSG & ISR (Not native to Angular but important to know)</h3>
+<pre><code>// SSG: Pre-render pages at BUILD time
+// Angular Prerendering (angular.json):
+{
+  "prerender": {
+    "routesFile": "routes.txt"  // List of routes to pre-render
+  }
+}
+// Result: Static HTML files served from CDN — fastest possible TTFB
+
+// ISR: Frameworks like Next.js/Nuxt support this natively
+// Concept: Serve stale cached page → regenerate in background
+// Angular equivalent: Use SSR + CDN caching with stale-while-revalidate headers
+// Cache-Control: public, s-maxage=60, stale-while-revalidate=600</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=k-A2VfuUROg" target="_blank">CSR vs SSR vs SSG — Fireship</a><div class="meta">Clear 100-second explanation</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=Y6RKH1Q3pFI" target="_blank">Angular SSR Deep Dive — Angular Team</a><div class="meta">Official Angular Universal walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=860d8usGC0o" target="_blank">Rendering Patterns — Lydia Hallie</a><div class="meta">Visual explanation of all patterns</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="spa-mpa">5. SPA vs MPA (Single Page vs Multi Page)</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>Theory</h3>
+<table>
+  <tr><th>Aspect</th><th>SPA (Angular, React)</th><th>MPA (Traditional)</th></tr>
+  <tr><td>Navigation</td><td>Client-side routing (no full page reload)</td><td>Full page reload on every navigation</td></tr>
+  <tr><td>Initial Load</td><td>Heavier (downloads entire app shell + route)</td><td>Lighter per page</td></tr>
+  <tr><td>Subsequent Navigation</td><td>Instant (only data fetched)</td><td>Full reload each time</td></tr>
+  <tr><td>SEO</td><td>Needs SSR/prerendering</td><td>Naturally SEO-friendly</td></tr>
+  <tr><td>Complexity</td><td>Higher (state, routing, auth, caching)</td><td>Lower per page, higher at scale</td></tr>
+  <tr><td>User Experience</td><td>App-like, smooth transitions</td><td>Page flashes on navigation</td></tr>
+  <tr><td>Examples</td><td>Gmail, Figma, Notion</td><td>Wikipedia, Amazon (mostly), eBay</td></tr>
+</table>
+
+<h3>How Angular Router Works (SPA Navigation)</h3>
+<pre><code>// When user clicks a link in Angular SPA:
+// 1. Router intercepts click (prevents default navigation)
+// 2. URL updates via History API (pushState)
+// 3. Router matches URL to route config
+// 4. Lazy-loaded module downloaded (if not cached)
+// 5. Component rendered in &lt;router-outlet&gt;
+// 6. Guards/resolvers execute if configured
+// 7. No full page reload — only DOM update!
+
+// Route configuration:
+const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { 
+    path: 'dashboard',
+    loadComponent: () => import('./dashboard/dashboard.component')
+      .then(m => m.DashboardComponent),  // Lazy loaded!
+    canActivate: [AuthGuard]
+  },
+  { path: '**', component: NotFoundComponent }
+];</code></pre>
+
+<h3>Hybrid Approaches (Modern Trend)</h3>
+<p>Modern apps combine both:</p>
+<ul>
+  <li><strong>Marketing pages:</strong> SSG/MPA (SEO, fast load)</li>
+  <li><strong>App shell:</strong> SPA (rich interactivity)</li>
+  <li><strong>Example:</strong> Amazon — product listing (SSR) + checkout flow (SPA-like)</li>
+</ul>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=Kg0Q_YaQ3Gk" target="_blank">SPA vs MPA — Fireship</a><div class="meta">Quick comparison of both approaches</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=860d8usGC0o" target="_blank">When to Use SPA vs MPA — Theo</a><div class="meta">Practical decision framework</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="component-architecture">6. Component Architecture</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: Atomic Design</h3>
+<p>Brad Frost's methodology for building component hierarchies:</p>
+<pre><code>
+┌─────────────────────────────────────────────────────────────┐
+│  PAGES (full screens)                                       │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  TEMPLATES (page layouts with placeholders)           │  │
+│  │  ┌─────────────────────────────────────────────────┐  │  │
+│  │  │  ORGANISMS (complex components)                 │  │  │
+│  │  │  ┌──────────────────────────────────────────┐   │  │  │
+│  │  │  │  MOLECULES (groups of atoms)             │   │  │  │
+│  │  │  │  ┌───────────────────────────────────┐   │   │  │  │
+│  │  │  │  │  ATOMS (buttons, inputs, labels)  │   │   │  │  │
+│  │  │  │  └───────────────────────────────────┘   │   │  │  │
+│  │  │  └──────────────────────────────────────────┘   │  │  │
+│  │  └─────────────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+
+Examples:
+  Atoms     → Button, Input, Icon, Badge, Avatar
+  Molecules → SearchBar (Input + Button + Icon), FormField (Label + Input + Error)
+  Organisms → Header (Logo + Nav + SearchBar + UserMenu), ProductCard
+  Templates → DashboardLayout (Header + Sidebar + Content area)
+  Pages     → DashboardPage (Template + real data)</code></pre>
+
+<h3>Angular Component Design Principles</h3>
+<pre><code>// ═══ SMART vs DUMB COMPONENTS ═══
+
+// DUMB (Presentational) Component — Pure UI, no side effects
+@Component({
+  selector: 'app-product-card',
+  template: `
+    &lt;div class="card"&gt;
+      &lt;img [src]="product.image" [alt]="product.name"&gt;
+      &lt;h3&gt;{{ product.name }}&lt;/h3&gt;
+      &lt;p&gt;{{ product.price | currency }}&lt;/p&gt;
+      &lt;button (click)="addToCart.emit(product)"&gt;Add to Cart&lt;/button&gt;
+    &lt;/div&gt;
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush  // ← Key for performance!
+})
+export class ProductCardComponent {
+  @Input() product!: Product;
+  @Output() addToCart = new EventEmitter&lt;Product&gt;();
+}
+
+// SMART (Container) Component — Handles logic, state, API calls
+@Component({
+  selector: 'app-product-list',
+  template: `
+    &lt;app-product-card
+      *ngFor="let product of products$ | async"
+      [product]="product"
+      (addToCart)="onAddToCart($event)"
+    /&gt;
+  `
+})
+export class ProductListComponent {
+  products$ = this.store.select(selectProducts);
+  
+  constructor(private store: Store) {}
+  
+  onAddToCart(product: Product) {
+    this.store.dispatch(addToCart({ product }));
+  }
+}</code></pre>
+
+<h3>Component Communication Patterns</h3>
+<table>
+  <tr><th>Pattern</th><th>When to Use</th><th>Angular Implementation</th></tr>
+  <tr><td>@Input/@Output</td><td>Parent ↔ Child (1 level)</td><td>Property binding + Event emitter</td></tr>
+  <tr><td>Service + Subject</td><td>Siblings, unrelated components</td><td>Shared service with BehaviorSubject</td></tr>
+  <tr><td>NgRx Store</td><td>Global state, complex flows</td><td>Actions → Reducers → Selectors</td></tr>
+  <tr><td>Content Projection</td><td>Flexible component composition</td><td><code>ng-content</code>, <code>ng-template</code></td></tr>
+  <tr><td>ViewChild/ContentChild</td><td>Imperative child access</td><td>@ViewChild, @ContentChild decorators</td></tr>
+  <tr><td>Signals (Angular 16+)</td><td>Reactive primitives</td><td>signal(), computed(), effect()</td></tr>
+</table>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=tJz2s5kMEMc" target="_blank">Smart vs Presentational Components — Decoded Frontend</a><div class="meta">Angular-focused explanation</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=XJQBjKf-ft8" target="_blank">Atomic Design — Brad Frost</a><div class="meta">Original methodology talk</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="design-patterns">7. Design Patterns for Frontend</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: Patterns You MUST Know</h3>
+
+<h4>1. Observer Pattern (RxJS)</h4>
+<pre><code>// Foundation of Angular's reactive programming
+// Observable = data source that emits values over time
+// Observer = subscriber that reacts to emitted values
+
+import { Subject, BehaviorSubject } from 'rxjs';
+
+// NotificationService — global event bus
+@Injectable({ providedIn: 'root' })
+export class NotificationService {
+  private notifications$ = new BehaviorSubject&lt;Notification[]&gt;([]);
+  
+  getNotifications() { return this.notifications$.asObservable(); }
+  
+  addNotification(n: Notification) {
+    const current = this.notifications$.value;
+    this.notifications$.next([...current, n]);
+  }
+  
+  dismiss(id: string) {
+    const filtered = this.notifications$.value.filter(n => n.id !== id);
+    this.notifications$.next(filtered);
+  }
+}</code></pre>
+
+<h4>2. Singleton Pattern (Services)</h4>
+<pre><code>// Angular services with providedIn: 'root' are singletons
+@Injectable({ providedIn: 'root' })  // ← ONE instance for entire app
+export class AuthService {
+  private currentUser$ = new BehaviorSubject&lt;User | null&gt;(null);
+  
+  // Every component that injects AuthService gets the SAME instance
+  // This ensures consistent state across the app
+}</code></pre>
+
+<h4>3. Strategy Pattern (Dynamic behavior)</h4>
+<pre><code>// Different validation strategies based on context
+interface ValidationStrategy {
+  validate(value: string): ValidationResult;
+}
+
+class EmailValidation implements ValidationStrategy {
+  validate(value: string) {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    return { valid, error: valid ? null : 'Invalid email format' };
+  }
+}
+
+class PhoneValidation implements ValidationStrategy {
+  validate(value: string) {
+    const valid = /^\+?[\d\s-]{10,}$/.test(value);
+    return { valid, error: valid ? null : 'Invalid phone number' };
+  }
+}
+
+// Usage in component:
+class FormFieldComponent {
+  @Input() strategy!: ValidationStrategy;
+  
+  onBlur(value: string) {
+    const result = this.strategy.validate(value);
+    this.showError(result);
+  }
+}</code></pre>
+
+<h4>4. Facade Pattern (Simplify complex subsystems)</h4>
+<pre><code>// Hide complexity behind a clean interface
+@Injectable({ providedIn: 'root' })
+export class CheckoutFacade {
+  // Internally uses multiple services:
+  constructor(
+    private cartService: CartService,
+    private paymentService: PaymentService,
+    private inventoryService: InventoryService,
+    private notificationService: NotificationService,
+    private analyticsService: AnalyticsService
+  ) {}
+
+  // Exposes simple API to components:
+  async checkout(order: Order): Promise&lt;CheckoutResult&gt; {
+    const available = await this.inventoryService.checkStock(order.items);
+    if (!available) throw new OutOfStockError();
+    
+    const payment = await this.paymentService.processPayment(order.total);
+    if (!payment.success) throw new PaymentFailedError();
+    
+    await this.cartService.clear();
+    this.notificationService.show('Order placed!');
+    this.analyticsService.track('purchase', order);
+    
+    return { orderId: payment.orderId, status: 'confirmed' };
+  }
+}</code></pre>
+
+<h4>5. Decorator Pattern (Angular's @ decorators)</h4>
+<pre><code>// @Component, @Injectable, @Input — all decorators
+// Custom decorator for caching:
+function Cacheable(ttlMs: number = 60000) {
+  return function(target: any, key: string, descriptor: PropertyDescriptor) {
+    const original = descriptor.value;
+    const cache = new Map&lt;string, { value: any; timestamp: number }&gt;();
+    
+    descriptor.value = function(...args: any[]) {
+      const cacheKey = JSON.stringify(args);
+      const cached = cache.get(cacheKey);
+      
+      if (cached && Date.now() - cached.timestamp &lt; ttlMs) {
+        return of(cached.value);  // Return cached Observable
+      }
+      
+      return original.apply(this, args).pipe(
+        tap(result => cache.set(cacheKey, { value: result, timestamp: Date.now() }))
+      );
+    };
+    return descriptor;
+  };
+}
+
+// Usage:
+@Cacheable(30000)  // Cache for 30 seconds
+getProducts(): Observable&lt;Product[]&gt; {
+  return this.http.get&lt;Product[]&gt;('/api/products');
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=tv-_1er1mWI" target="_blank">10 Design Patterns Explained — Fireship</a><div class="meta">Visual overview of common patterns</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=lkIBVNEH77w" target="_blank">Frontend Design Patterns — Lydia Hallie</a><div class="meta">Patterns.dev visual walkthrough</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="module-systems">8. Module Systems &amp; Code Organization</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: ES Modules vs CommonJS</h3>
+<table>
+  <tr><th>Feature</th><th>ES Modules (ESM)</th><th>CommonJS (CJS)</th></tr>
+  <tr><td>Syntax</td><td><code>import/export</code></td><td><code>require()/module.exports</code></td></tr>
+  <tr><td>Loading</td><td>Static (analyzed at compile time)</td><td>Dynamic (evaluated at runtime)</td></tr>
+  <tr><td>Tree Shaking</td><td>✅ Yes (dead code elimination)</td><td>❌ No</td></tr>
+  <tr><td>Browser Support</td><td>Native (modern browsers)</td><td>Needs bundler</td></tr>
+  <tr><td>Used By</td><td>Angular, modern libraries</td><td>Node.js (legacy), older libraries</td></tr>
+</table>
+
+<h3>Angular Module Architecture (NgModule → Standalone)</h3>
+<pre><code>// ═══ TRADITIONAL (NgModule-based) ═══
+@NgModule({
+  declarations: [ProductListComponent, ProductCardComponent],
+  imports: [CommonModule, SharedModule],
+  exports: [ProductListComponent]
+})
+export class ProductModule {}
+
+// ═══ MODERN (Standalone Components — Angular 14+) ═══
+@Component({
+  selector: 'app-product-list',
+  standalone: true,                         // No NgModule needed!
+  imports: [CommonModule, ProductCardComponent],
+  template: `...`
+})
+export class ProductListComponent {}
+
+// Benefits of Standalone:
+// 1. Reduced boilerplate (no module declarations)
+// 2. Better tree-shaking (import only what you use)
+// 3. Simpler mental model
+// 4. Easier lazy loading (route-level code splitting)</code></pre>
+
+<h3>Folder Structure at Scale (Feature-Based)</h3>
+<pre><code>src/
+├── app/
+│   ├── core/                    # Singleton services, guards, interceptors
+│   │   ├── auth/
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.guard.ts
+│   │   │   └── auth.interceptor.ts
+│   │   ├── http/
+│   │   │   └── error.interceptor.ts
+│   │   └── core.module.ts       # (or provide in root)
+│   │
+│   ├── shared/                  # Reusable dumb components, pipes, directives
+│   │   ├── components/
+│   │   │   ├── button/
+│   │   │   ├── modal/
+│   │   │   └── data-table/
+│   │   ├── pipes/
+│   │   ├── directives/
+│   │   └── shared.module.ts
+│   │
+│   ├── features/                # Feature modules (lazy-loaded)
+│   │   ├── dashboard/
+│   │   │   ├── components/
+│   │   │   ├── services/
+│   │   │   ├── models/
+│   │   │   ├── store/           # Feature-specific state
+│   │   │   └── dashboard.routes.ts
+│   │   ├── products/
+│   │   └── checkout/
+│   │
+│   ├── layouts/                 # Shell components (header, sidebar, footer)
+│   └── app.routes.ts
+│
+├── assets/
+├── environments/
+└── styles/
+    ├── _variables.scss
+    ├── _mixins.scss
+    └── _base.scss</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=cRHQNNcYf6s" target="_blank">ES Modules Explained — Fireship</a><div class="meta">100-second overview of modules</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=mK54Cn4ceac" target="_blank">CommonJS vs ES Modules — Jack Herrington</a><div class="meta">Deep comparison with examples</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="build-tools">9. Build Tools &amp; Bundlers</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: Why Bundlers Exist</h3>
+<p>Browsers can load ES modules natively, but bundlers are still essential for:</p>
+<ul>
+  <li><strong>Code Splitting:</strong> Break one large bundle into smaller chunks loaded on demand</li>
+  <li><strong>Tree Shaking:</strong> Remove unused code (dead code elimination)</li>
+  <li><strong>Minification:</strong> Reduce file size (remove whitespace, shorten variable names)</li>
+  <li><strong>Transpilation:</strong> Convert TypeScript/modern JS to browser-compatible code</li>
+  <li><strong>Asset Optimization:</strong> Compress images, inline critical CSS, hash filenames for caching</li>
+  <li><strong>Dev Experience:</strong> Hot Module Replacement, source maps, dev server</li>
+</ul>
+
+<h3>Angular's Build System</h3>
+<table>
+  <tr><th>Angular Version</th><th>Bundler</th><th>Key Feature</th></tr>
+  <tr><td>Angular ≤ 16</td><td>Webpack</td><td>Mature, plugin ecosystem, slower</td></tr>
+  <tr><td>Angular 17+</td><td>esbuild + Vite</td><td>10-80x faster builds, native ESM dev server</td></tr>
+</table>
+
+<pre><code>// angular.json — build configuration
+{
+  "architect": {
+    "build": {
+      "builder": "@angular-devkit/build-angular:application",  // esbuild
+      "options": {
+        "outputPath": "dist/my-app",
+        "index": "src/index.html",
+        "browser": "src/main.ts",
+        "budgets": [
+          { "type": "initial", "maximumWarning": "500kB", "maximumError": "1MB" },
+          { "type": "anyComponentStyle", "maximumWarning": "4kB" }
+        ],
+        "optimization": true,     // Minification + tree-shaking
+        "sourceMap": false,        // Disable in prod for security
+        "namedChunks": false       // Use hash-based chunk names
+      }
+    }
+  }
+}
+
+// Build output analysis:
+// ng build --stats-json
+// npx webpack-bundle-analyzer dist/my-app/stats.json</code></pre>
+
+<h3>Code Splitting Strategies</h3>
+<pre><code>// 1. ROUTE-BASED splitting (most common in Angular)
+const routes: Routes = [
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.routes')
+      .then(m => m.ADMIN_ROUTES)
+    // Creates separate chunk: admin-HASH.js
+  }
+];
+
+// 2. COMPONENT-BASED splitting (Angular 17+ @defer)
+@Component({
+  template: `
+    @defer (on viewport) {
+      &lt;app-heavy-chart [data]="chartData" /&gt;
+    } @placeholder {
+      &lt;div class="skeleton"&gt;&lt;/div&gt;
+    } @loading (minimum 200ms) {
+      &lt;app-spinner /&gt;
+    } @error {
+      &lt;p&gt;Failed to load chart&lt;/p&gt;
+    }
+  `
+})
+// heavy-chart component is in its OWN chunk, loaded only when visible!
+
+// 3. SERVICE-BASED splitting
+async loadPdfGenerator() {
+  const { PdfService } = await import('./services/pdf.service');
+  const pdfService = new PdfService();
+  return pdfService.generate(this.data);
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=KCrXgy8qtjM" target="_blank">Vite in 100 Seconds — Fireship</a><div class="meta">Why Vite is fast</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=EsAwd2IEKgE" target="_blank">Webpack vs Vite — Jack Herrington</a><div class="meta">Real benchmarks and migration guide</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="monorepo">10. Monorepo Architecture</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: Monorepo vs Polyrepo</h3>
+<table>
+  <tr><th>Aspect</th><th>Monorepo</th><th>Polyrepo</th></tr>
+  <tr><td>Definition</td><td>All projects in one repository</td><td>Each project in its own repo</td></tr>
+  <tr><td>Examples</td><td>Google, Meta, Microsoft (Azure)</td><td>Most open-source projects</td></tr>
+  <tr><td>Dependency sharing</td><td>Easy (internal packages)</td><td>Hard (versioning, publishing)</td></tr>
+  <tr><td>Build speed</td><td>Optimized (affected-only builds)</td><td>Each repo builds independently</td></tr>
+  <tr><td>Team coordination</td><td>Atomic changes across projects</td><td>PRs across repos = pain</td></tr>
+  <tr><td>CI/CD</td><td>Complex (affected-only pipelines)</td><td>Simple per-repo pipelines</td></tr>
+</table>
+
+<h3>Nx — Enterprise Angular Monorepo</h3>
+<pre><code># Create Nx workspace:
+npx create-nx-workspace myorg --preset=angular-monorepo
+
+# Structure:
+myorg/
+├── apps/
+│   ├── customer-portal/     # Angular app
+│   ├── admin-dashboard/     # Angular app
+│   └── mobile-app/          # Ionic Angular
+├── libs/
+│   ├── shared/
+│   │   ├── ui/              # Shared UI components
+│   │   ├── utils/           # Shared utilities
+│   │   └── models/          # Shared interfaces/types
+│   ├── customer/
+│   │   ├── feature-cart/    # Customer cart feature
+│   │   └── data-access/     # Customer API services
+│   └── admin/
+│       └── feature-orders/  # Admin orders feature
+├── tools/
+└── nx.json
+
+# Key Nx commands:
+nx affected:build    # Only build what changed
+nx affected:test     # Only test affected projects
+nx graph             # Visualize dependency graph
+nx run-many --target=lint --all  # Lint everything</code></pre>
+
+<div class="callout tip">
+  <span class="tag">Interview Insight</span>
+  When asked "How would you scale a large Angular application?", mention: Nx monorepo + feature libraries + affected-only CI + shared UI library + enforced module boundaries (Nx's enforce-module-boundaries eslint rule).
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=9iU_IE6vnJ8" target="_blank">Monorepo Explained — Fireship</a><div class="meta">100-second monorepo overview</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=VUyBY72mwrQ" target="_blank">Nx Monorepo Tutorial — Nrwl</a><div class="meta">Nx workspace setup walkthrough</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="micro-frontends">11. Micro-Frontends</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: When & Why</h3>
+<p><strong>Micro-frontends</strong> apply microservices principles to the frontend. Each team owns a vertically sliced feature — from UI to API.</p>
+
+<p><strong>When to use:</strong></p>
+<ul>
+  <li>Multiple teams (5+) working on one product</li>
+  <li>Teams need independent deploy cycles</li>
+  <li>Legacy migration (incrementally replace old app)</li>
+  <li>Different tech stacks per team (rarely ideal but sometimes necessary)</li>
+</ul>
+
+<p><strong>When NOT to use:</strong></p>
+<ul>
+  <li>Small team (≤3 devs) — overhead outweighs benefits</li>
+  <li>Simple application — monolith is faster to develop</li>
+  <li>Shared state is critical between features</li>
+</ul>
+
+<h3>Implementation Approaches</h3>
+<table>
+  <tr><th>Approach</th><th>How It Works</th><th>Pros</th><th>Cons</th></tr>
+  <tr><td><strong>Module Federation</strong></td><td>Webpack/Vite shares modules at runtime between builds</td><td>Shared deps, runtime composition</td><td>Version conflicts, complex config</td></tr>
+  <tr><td><strong>iframes</strong></td><td>Each micro-FE in an iframe</td><td>Complete isolation</td><td>Poor UX, no shared styling, perf overhead</td></tr>
+  <tr><td><strong>Web Components</strong></td><td>Custom elements per micro-FE</td><td>Framework agnostic</td><td>Shadow DOM styling limitations</td></tr>
+  <tr><td><strong>Route-Based</strong></td><td>Each route served by different app</td><td>Simple, independent deploys</td><td>Full page reload on route change</td></tr>
+  <tr><td><strong>Single-SPA</strong></td><td>Orchestrator that mounts/unmounts apps</td><td>Framework agnostic, no reload</td><td>Shared dependencies management</td></tr>
+</table>
+
+<h3>Module Federation with Angular</h3>
+<pre><code>// Shell (host) application — webpack.config.js
+const { ModuleFederationPlugin } = require('webpack').container;
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'shell',
+      remotes: {
+        // Load micro-FEs at runtime from their deployed URLs
+        dashboard: 'dashboard@https://dashboard.myapp.com/remoteEntry.js',
+        orders: 'orders@https://orders.myapp.com/remoteEntry.js',
+      },
+      shared: {
+        '@angular/core': { singleton: true, strictVersion: true },
+        '@angular/common': { singleton: true, strictVersion: true },
+        '@angular/router': { singleton: true, strictVersion: true },
+        'rxjs': { singleton: true }
+      }
+    })
+  ]
+};
+
+// Shell routing — dynamically load remote modules:
+const routes: Routes = [
+  {
+    path: 'dashboard',
+    loadChildren: () => import('dashboard/DashboardModule')
+      .then(m => m.DashboardModule)
+  },
+  {
+    path: 'orders',
+    loadChildren: () => import('orders/OrdersModule')
+      .then(m => m.OrdersModule)
+  }
+];</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=s_Fs4AXsTnA" target="_blank">Micro-Frontends — Jack Herrington</a><div class="meta">Module Federation deep dive</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=lKKsjpH09dU" target="_blank">Micro-Frontends with Angular — Manfred Steyer</a><div class="meta">Angular-specific implementation</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="islands-architecture">12. Islands Architecture &amp; Server Components</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: The Problem with Full-Page Hydration</h3>
+<p>Traditional SSR sends full HTML, then <strong>hydrates the entire page</strong> with JavaScript. This means the browser downloads, parses, and executes JS for components that are STATIC (header, footer, text content). Wasteful!</p>
+
+<pre><code>// ═══ THE SPECTRUM OF RENDERING ARCHITECTURES ═══
+//
+// Traditional CSR:    □□□□□□□□□□□  (all JS, no HTML until JS runs)
+// Traditional SSR:    ████████████  (HTML sent, ALL re-hydrated)
+// Islands:            ██░░██░░░██  (HTML sent, only interactive parts hydrated)
+// Server Components:  ██░░░░░░░░░  (most stays server-rendered, never hydrated)
+//
+// █ = Interactive (hydrated with JS)
+// ░ = Static (pure HTML, ZERO JS cost)
+// □ = Empty (waiting for JS)
+
+// ═══ ISLANDS ARCHITECTURE (Astro, Fresh, 11ty) ═══
+//
+// Page is mostly STATIC HTML (the "sea")
+// Interactive widgets are "islands" that hydrate independently
+//
+// ┌──────────────────────────────────────────────────┐
+// │  Static Header (HTML only — 0 JS)                │
+// ├──────────────────────────────────────────────────┤
+// │  Static Content      │  [Interactive   ]         │
+// │  (article text,      │  [ Search Bar  ]  ← Island│
+// │   images, etc.)      │  [_____________]         │
+// │                      │                           │
+// │  More static text    │  [Interactive   ]         │
+// │  ...                 │  [ Comment Box ]  ← Island│
+// │                      │  [_____________]         │
+// ├──────────────────────────────────────────────────┤
+// │  Static Footer (HTML only — 0 JS)                │
+// └──────────────────────────────────────────────────┘
+//
+// BENEFIT: Page with 50KB of JS only loads ~5KB (just the islands)
+// IDEAL FOR: Content-heavy sites (blogs, docs, marketing, e-commerce)</code></pre>
+
+<h3>Angular's Approach: Partial Hydration with @defer</h3>
+<pre><code>// ═══ Angular 17+ — PARTIAL HYDRATION ═══
+// Angular's answer to Islands Architecture:
+// Components wrapped in @defer DON'T hydrate until triggered
+
+@Component({
+  template: `
+    &lt;!-- This hydrates immediately (critical interactive content) --&gt;
+    &lt;app-search-bar /&gt;
+
+    &lt;!-- This is server-rendered HTML, hydrated ONLY when visible --&gt;
+    @defer (on viewport) {
+      &lt;app-comments [postId]="postId" /&gt;
+    } @placeholder {
+      &lt;div class="comment-skeleton"&gt;Loading comments...&lt;/div&gt;
+    }
+
+    &lt;!-- This hydrates ONLY when user interacts --&gt;
+    @defer (on interaction) {
+      &lt;app-rich-editor /&gt;
+    } @placeholder {
+      &lt;div class="fake-editor" tabindex="0"&gt;Click to edit...&lt;/div&gt;
+    }
+
+    &lt;!-- This never hydrates until idle time --&gt;
+    @defer (on idle) {
+      &lt;app-recommendations /&gt;
+    }
+  `
+})
+// Result: Only search-bar JS loads immediately
+// Comments JS loads when scrolled into view
+// Editor JS loads on first click
+// Recommendations JS loads when browser is idle
+
+// ═══ Angular 19+ — EVENT REPLAY ═══
+// Problem: User clicks a @defer placeholder before it hydrates
+// Solution: Angular records the click, replays it after hydration
+// User doesn't notice any delay!</code></pre>
+
+<h3>React Server Components (RSC) — Concept for Angular Devs</h3>
+<pre><code>// ═══ SERVER COMPONENTS — What Angular devs should know ═══
+// (Even though Angular doesn't have RSC yet, interviewers may ask)
+//
+// KEY CONCEPT:
+// Server Components = components that ONLY run on the server
+// They NEVER ship JS to the client (not even for hydration!)
+//
+// React splits components into:
+// • Server Components (default): Run on server, render to HTML, no JS shipped
+// • Client Components ("use client"): Traditional — JS shipped + hydrated
+//
+// BENEFITS:
+// • Zero JS for data-fetching components (fetch in component, render HTML)
+// • Direct database access from component (no API layer needed!)
+// • Large dependencies (markdown parser, syntax highlighter) stay on server
+//
+// ANGULAR EQUIVALENT (upcoming):
+// • @defer (on viewport/interaction) achieves similar "no JS until needed"
+// • Angular SSR + signals is moving toward fine-grained reactivity
+// • Angular team is exploring "server-only components" for future versions
+//
+// INTERVIEW ANSWER: "Angular achieves similar benefits through partial hydration
+// with @defer blocks and provideClientHydration(). While not architecturally 
+// identical to RSC, the practical outcome is the same: reduced client JS,
+// faster TTI, and progressive interactivity."</code></pre>
+
+<div class="callout qa">
+  <span class="tag">Interview Q&amp;A</span>
+</div>
+<div class="qa-block">
+  <p class="q">Q: What are Islands Architecture and Server Components? How does Angular handle this? (Google, Meta, startups)</p>
+  <p class="a"><strong>Answer:</strong> Islands Architecture treats a page as mostly static HTML with isolated "islands" of interactivity that hydrate independently. Server Components (React) are components that only execute on the server and ship zero JS. Angular's equivalent is <code>@defer</code> blocks with partial hydration: SSR renders the full page, but deferred components don't hydrate until their trigger fires (viewport, interaction, idle). This achieves similar JS savings without architectural complexity. Angular 19+ adds event replay so clicks on unhydrated regions are captured and replayed after hydration.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=x7v6SNIgJpE" target="_blank">Islands Architecture — Ryan Carniato</a><div class="meta">Deep dive into partial hydration</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=dsTXcSeAZq8" target="_blank">Astro Islands Explained — Fireship</a><div class="meta">Practical islands example</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="bundler-comparison">13. Build Tools &amp; Bundlers — Deep Comparison</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>The Bundler Landscape (2024-2025)</h3>
+<table>
+  <tr><th>Tool</th><th>Language</th><th>Dev Speed</th><th>Prod Build</th><th>Ecosystem</th><th>Used By</th></tr>
+  <tr><td><strong>esbuild</strong></td><td>Go</td><td>⚡ Fastest (10-100x Webpack)</td><td>Good (no code splitting by default)</td><td>Growing</td><td>Angular 17+ (dev), Vite (internal)</td></tr>
+  <tr><td><strong>Vite</strong></td><td>JS (uses esbuild + Rollup)</td><td>⚡ Very fast (native ESM)</td><td>Excellent (Rollup)</td><td>Massive</td><td>Vue, Svelte, React (community)</td></tr>
+  <tr><td><strong>Webpack</strong></td><td>JS</td><td>Slow (needs HMR plugins)</td><td>Excellent (battle-tested)</td><td>Largest</td><td>Angular ≤16, Next.js (legacy)</td></tr>
+  <tr><td><strong>Rspack</strong></td><td>Rust</td><td>⚡ Fast (Webpack-compatible)</td><td>Good</td><td>Young</td><td>ByteDance (TikTok)</td></tr>
+  <tr><td><strong>Turbopack</strong></td><td>Rust</td><td>⚡ Fast</td><td>In development</td><td>Very young</td><td>Next.js 14+</td></tr>
+</table>
+
+<pre><code>// ═══ WHY ANGULAR SWITCHED from Webpack to esbuild (Angular 17+) ═══
+//
+// Webpack (Angular ≤16):
+// • Dev server startup: 20-40 seconds (large apps)
+// • HMR: 2-5 seconds per file change
+// • Build: 60-120 seconds (production)
+// • Config: complex (angular.json → webpack config → loaders → plugins)
+//
+// esbuild (Angular 17+ "application" builder):
+// • Dev server startup: 2-5 seconds (10x faster!)
+// • HMR: <100ms per file change
+// • Build: 10-20 seconds (production, using esbuild for TS/JS)
+// • Config: zero (angular.json only, no webpack knowledge needed)
+//
+// Migration: In angular.json, change builder:
+// "@angular-devkit/build-angular:browser" → "@angular-devkit/build-angular:application"
+
+// ═══ HOW EACH BUNDLER WORKS ═══
+//
+// WEBPACK: Traverses dependency graph → applies loaders (ts-loader, css-loader)
+//          → applies plugins → outputs bundles. Everything goes through JS.
+//
+// ESBUILD: Written in Go, parallelized. Parses TS/JS natively (no loaders).
+//          10-100x faster than Webpack because: Go is compiled, 
+//          parallelized across cores, minimal AST transformations.
+//
+// VITE:    Dev mode: serves files as native ES modules (no bundling!)
+//          Browser's import statements fetch files on-demand.
+//          Prod mode: uses Rollup for optimized, tree-shaken bundles.
+//          Angular support: @analogjs/vite-plugin-angular
+//
+// ═══ WHEN TO CHOOSE WHAT (Interview answer) ═══
+// Angular project (new):     Use default esbuild builder (Angular CLI)
+// Angular project (legacy):  Migrate from Webpack to application builder
+// Need custom Webpack:       Use @angular-builders/custom-webpack
+// Full-stack Angular (SSR):  Analog.js (Vite-based, like Next.js for Angular)
+// Micro-frontends:           Module Federation (still Webpack-based, or Native Federation)</code></pre>
+
+<h3>Tree Shaking — Deep Mechanics</h3>
+<pre><code>// ═══ WHY TREE SHAKING SOMETIMES FAILS ═══
+//
+// Tree shaking works by analyzing ES module import/export STATICALLY.
+// It CANNOT shake code that has SIDE EFFECTS.
+
+// ❌ SIDE EFFECT — can't be tree-shaken:
+import './polyfills';  // No export, just executes code
+// The file might modify globals — bundler can't remove it safely
+
+// ❌ BARREL FILE TRAP:
+// libs/shared/index.ts:
+export * from './button';    // 50KB
+export * from './table';     // 200KB  
+export * from './chart';     // 500KB
+// If you import { Button } from '@shared' → bundler MAY include all 750KB!
+// WHY: barrel re-exports can create side-effect chains
+
+// ✅ FIX: Import directly from the source:
+import { Button } from '@shared/button';  // Only 50KB
+
+// ═══ sideEffects field in package.json ═══
+// Tell bundler which files are safe to tree-shake:
+{
+  "sideEffects": false  // NONE of our files have side effects — shake freely
+}
+// Or specify which files DO have side effects:
+{
+  "sideEffects": ["./src/polyfills.ts", "**/*.css"]
+}
+
+// ═══ Angular-specific: providedIn: 'root' IS tree-shakable ═══
+// Services with providedIn: 'root' are ONLY included if injected somewhere
+// Services registered in module providers: [] are ALWAYS included
+@Injectable({ providedIn: 'root' }) // ✅ Tree-shakable
+export class AnalyticsService { }
+// If no component injects AnalyticsService → it's removed from bundle!</code></pre>
+
+<div class="callout tip">
+  <span class="tag">Interview Tip</span>
+  When asked "How would you reduce bundle size?", mention: (1) Lazy-load routes, (2) @defer for heavy components, (3) Import directly (not from barrel files), (4) Check sideEffects in package.json of dependencies, (5) Use Angular budgets to fail CI if bundle exceeds threshold, (6) Analyze with <code>source-map-explorer</code>.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=dJGUKYSGcKI" target="_blank">Comparing Every JS Bundler — Theo</a><div class="meta">Webpack vs Vite vs Turbopack vs esbuild</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=SbKPgaRZsxA" target="_blank">Build Tools Compared — uidotdev</a><div class="meta">Benchmarks and tradeoffs</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="edge-computing">14. Edge Computing &amp; Edge SSR</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: What is "The Edge"?</h3>
+<p><strong>Edge computing</strong> = running code at CDN nodes closest to the user (200+ locations worldwide), rather than at a central origin server. This reduces latency from 200-500ms to 10-50ms.</p>
+
+<pre><code>// ═══ TRADITIONAL vs EDGE ARCHITECTURE ═══
+//
+// TRADITIONAL (Origin-only):
+// User (Mumbai) → CDN (static only) → Origin (US-East) → Response
+// Latency: 200-400ms for dynamic content
+//
+// EDGE SSR:
+// User (Mumbai) → Edge Node (Mumbai) → Renders HTML at edge → Response  
+// Latency: 10-50ms! (code runs in Mumbai, not US)
+//
+// ═══ EDGE PLATFORMS ═══
+// • Cloudflare Workers: V8 isolates, 200+ locations, $0 for first 100K req/day
+// • Vercel Edge Functions: Built into Vercel, runs Middleware at edge
+// • AWS CloudFront Functions / Lambda@Edge
+// • Deno Deploy: Deno runtime at edge
+// • Fastly Compute@Edge: WASM-based
+//
+// ═══ WHAT CAN RUN AT THE EDGE? ═══
+// ✅ SSR rendering (generate HTML per-request)
+// ✅ Authentication checks (validate JWT, redirect if expired)
+// ✅ A/B testing (select variant, no client-side flicker!)
+// ✅ Geolocation (show local prices, language)
+// ✅ Personalization (different content per user segment)
+// ✅ API routing / rewriting
+// ❌ Database queries (DB is still at origin — use read replicas)
+// ❌ Heavy computation (edge has limited CPU/memory)
+
+// ═══ ANGULAR AT THE EDGE ═══
+// Angular SSR can run at edge with Cloudflare Workers:
+// 1. Build Angular with SSR: ng build --configuration production
+// 2. Deploy server bundle to Cloudflare Workers
+// 3. HTML is rendered at the nearest edge node
+//
+// Analog.js (Angular meta-framework) supports:
+// • Cloudflare Pages (edge SSR)
+// • Vercel Edge
+// • Netlify Edge Functions
+//
+// ═══ STALE-WHILE-REVALIDATE at Edge ═══
+// Edge caches SSR'd HTML for 60s:
+// Request 1: Edge renders HTML, caches it (100ms)
+// Request 2-100: Served from edge cache (5ms!)
+// After 60s: Serve stale cache + background revalidate
+// Perfect for: product pages, blog posts, dashboards</code></pre>
+
+<div class="callout warn">
+  <span class="tag">Edge Limitations</span>
+  Edge functions have <strong>constraints</strong>: limited memory (128MB), limited execution time (50ms on Cloudflare, 30s on Vercel), no filesystem access, limited Node.js APIs. Don't try to run heavy computation or database connections directly at edge — use it for rendering + lightweight logic.
+</div>
+
+<div class="qa-block">
+  <p class="q">Q: What is Edge SSR and when would you use it vs traditional SSR? (Google, Vercel-funded startups, senior roles)</p>
+  <p class="a"><strong>Answer:</strong> Edge SSR renders HTML at CDN nodes (200+ locations) closest to the user, reducing TTFB from 200-400ms to 10-50ms. Use it for: content that varies by geography (prices, language), authenticated pages (check JWT at edge), A/B tests (no client flicker). Use traditional SSR when: you need database access, heavy computation, or long-running operations. Angular supports this via Analog.js deployed to Cloudflare Pages or Vercel Edge. Trade-off: edge has limited CPU/memory, so complex pages might be slower at edge than a powerful origin server.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=cEOUeItHDdo" target="_blank">Edge Computing Explained — IBM</a><div class="meta">What edge computing means</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=WlP2X1MBWEQ" target="_blank">Edge Functions & SSR — Vercel</a><div class="meta">Edge runtime in practice</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="exercises">15. Hands-On Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 1: Draw the Architecture (Whiteboard)</h4>
+  <p><strong>Task:</strong> Design the frontend architecture for "Swiggy/Zomato" food delivery app. Include:</p>
+  <ul>
+    <li>Component hierarchy (header, search, restaurant list, cart, checkout)</li>
+    <li>State management approach</li>
+    <li>API layer design</li>
+    <li>Lazy loading strategy</li>
+    <li>Real-time order tracking approach</li>
+  </ul>
+  <p><strong>Expected time:</strong> 25-30 minutes</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2: Implement a Facade Service</h4>
+  <p><strong>Task:</strong> Create a <code>ProductSearchFacade</code> service that:</p>
+  <ul>
+    <li>Debounces search input (300ms)</li>
+    <li>Caches recent search results (last 10 queries)</li>
+    <li>Handles loading/error states</li>
+    <li>Cancels previous in-flight requests</li>
+    <li>Exposes clean Observable API to components</li>
+  </ul>
+  <pre><code>// Starter:
+@Injectable({ providedIn: 'root' })
+export class ProductSearchFacade {
+  private searchTerms$ = new Subject&lt;string&gt;();
+  
+  results$: Observable&lt;Product[]&gt;;
+  loading$: Observable&lt;boolean&gt;;
+  error$: Observable&lt;string | null&gt;;
+  
+  search(term: string) { /* implement */ }
+}</code></pre>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3: Module Federation Setup</h4>
+  <p><strong>Task:</strong> Set up two Angular apps using @angular-architects/module-federation:</p>
+  <ol>
+    <li>Shell app (host) with header + navigation</li>
+    <li>Remote app exposing a "FeatureComponent"</li>
+    <li>Shell lazily loads remote's component</li>
+  </ol>
+  <p><strong>Command:</strong> <code>ng add @angular-architects/module-federation --project shell --type host</code></p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="interview-questions">13. Interview Questions (Previously Asked)</h2>
+
+<div class="qa-block">
+  <p class="q">Q1: What's the difference between CSR, SSR, and SSG? When would you use each? (Google, Amazon, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> CSR renders entirely in the browser — good for dashboards/internal tools but poor SEO (Googlebot CAN render JS but slower crawl budget, potential soft 404s) and slow FCP. SSR renders on the server per request — ideal for dynamic content needing SEO (e-commerce, social media). SSG pre-renders at build time — fastest TTFB, perfect for static content (blogs, docs). ISR (Incremental Static Regeneration) — serve static, revalidate in background (not native Angular, but achievable with edge caching + stale-while-revalidate). Modern apps use hybrid: SSG for marketing, SSR for product pages, CSR for authenticated dashboard. Angular supports all three: default CSR, Angular Universal for SSR, and prerendering for SSG.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q2: How would you structure a large Angular application with 50+ developers? (Microsoft, Kyndryl, TCS)</p>
+  <p class="a"><strong>Answer:</strong> Nx monorepo with strict module boundaries. Feature libraries per domain (orders, products, users). Shared UI library with Storybook. Each team owns a slice: feature lib + data-access lib + API. Enforce boundaries via Nx's eslint rule. CI uses affected-only builds (nx affected:build). Shared state via NgRx with feature stores. Code generation via Nx generators for consistency. PR reviews enforced per-library CODEOWNERS. Bundle budgets per lazy route.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q3: Explain the critical rendering path and how you'd optimize it. (Google, Meta)</p>
+  <p class="a"><strong>Answer:</strong> CRP: HTML → DOM + CSS → CSSOM → Render Tree → Layout → Paint → Composite. Optimizations: (1) Minimize render-blocking CSS — inline critical CSS, defer non-critical. (2) Use font-display: swap to avoid invisible text. (3) Preload LCP image/fonts. (4) Defer non-critical JS with async/defer. (5) Reduce DOM depth/complexity. (6) Use contain: layout for isolated components. (7) Avoid layout thrashing (batch DOM reads then writes).</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q4: What are micro-frontends? When would you NOT use them? (Amazon, Flipkart, Atlassian)</p>
+  <p class="a"><strong>Answer:</strong> Micro-frontends are independently developed, deployed, and maintained frontend applications composed into one user experience. Implementation: Module Federation, Single-SPA, or route-based. I would NOT use them for: small teams (≤3 devs), simple apps, apps needing heavy shared state, when consistent UX is critical (shared design system is harder). Overhead includes: increased bundle size (shared deps), complex CI/CD, harder debugging across boundaries, potential version conflicts.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q5: Design the component architecture for a reusable data table. (Microsoft, Salesforce, Google)</p>
+  <p class="a"><strong>Answer:</strong> Atomic design: Table (organism) composed of: Header (molecule: sort + filter), Row (molecule: cells + actions), Cell (atom: text/link/badge), Pagination (molecule), Toolbar (molecule: search + bulk actions). API: @Input() columns (column config array), @Input() data, @Input() pageable, @Output() rowClick, @Output() sort, @Output() filter. Virtual scrolling via CDK for 10K+ rows. OnPush change detection. Signals for column visibility state. Content projection for custom cell templates.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q6: Explain Angular's change detection and how you optimize it. (All companies)</p>
+  <p class="a"><strong>Answer:</strong> Default: Angular checks EVERY component on every event (Zone.js patches async APIs). Tree traversal top→bottom. Optimizations: (1) OnPush strategy — only checks when @Input reference changes or event fires in component. (2) trackBy in *ngFor — prevents re-creating DOM for unchanged items. (3) Signals (Angular 16+) — fine-grained reactivity without Zone.js. (4) Detach change detector for static views. (5) Pure pipes (memoized). (6) NgZone.runOutsideAngular() for animations/timers that don't need CD.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q7: What is hydration in Angular? Explain partial hydration. (Google, modern Angular interviews)</p>
+  <p class="a"><strong>Answer:</strong> Hydration: After SSR sends HTML, client Angular "hydrates" — it reuses existing DOM nodes and attaches event listeners instead of destroying and recreating the DOM. Angular 16+ uses non-destructive hydration (provideClientHydration()). Partial hydration (Angular 17+): Only hydrate components that need interactivity. @defer blocks with on interaction/on viewport triggers delay hydration of heavy components until needed. Result: faster TTI, less JS executed upfront.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q8: How does tree shaking work? Why does Angular use ES modules? (Intermediate+)</p>
+  <p class="a"><strong>Answer:</strong> Tree shaking = dead code elimination. Bundler (esbuild/webpack) statically analyzes import/export statements, removes unused exports. Works because ES modules have static structure (imports at top level, no conditional imports). Angular uses ESM so unused services, components, and utilities are removed from final bundle. CommonJS can't be tree-shaken because require() is dynamic. Best practice: use named exports, avoid barrel files that re-export everything, use providedIn: 'root' (tree-shakable providers).</p>
+</div>
+
+<div class="nav-links">
+  <span></span>
+  <a href="phase2-networking-communication.html">Phase 2: Networking & Communication →</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>

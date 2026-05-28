@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 8: Real-World Design Problems</title>
+  <style>
+    :root { --bg: #ffffff; --panel: #f7f9fc; --panel-2: #f1f4fa; --ink: #1a2233; --muted: #5a6678; --line: #e2e7f0; --accent: #0f9d7a; --accent-2: #2a5bd7; --warn: #b26b00; --danger: #c23046; --critical: #7a1d2c; --ok: #1a8f4d; --code-bg: #f5f7fb; --chip: #eef1f8; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; } strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); } .chip.intermediate { background: #fdf1dc; color: var(--warn); } .chip.advanced { background: #fbe1e5; color: var(--danger); } .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; } .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; } .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; } .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); } .callout.tip .tag { color: var(--accent); } .callout.warn .tag { color: var(--warn); } .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; } .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; } .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    .problem-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px; margin: 20px 0; }
+    .problem-card h3 { margin-top: 0; font-size: 20px; }
+    .radio-step { margin: 12px 0; padding: 10px 14px; background: var(--panel-2); border-radius: 8px; border-left: 3px solid var(--accent-2); }
+    .radio-step strong { color: var(--accent-2); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 8 of 8 — Design Problems</small></div>
+  <h2>This Phase</h2>
+  <a href="#radio-framework">RADIO Framework Recap</a>
+  <a href="#google-search">Design: Google Search</a>
+  <a href="#twitter-feed">Design: Twitter/X Feed</a>
+  <a href="#ecommerce-pdp">Design: E-commerce PDP</a>
+  <a href="#chat-app">Design: Chat Application</a>
+  <a href="#dashboard">Design: Analytics Dashboard</a>
+  <a href="#video-player">Design: Video Player</a>
+  <a href="#collab-editor">Design: Collaborative Editor</a>
+  <a href="#food-delivery">Design: Food Delivery App</a>
+  <a href="#tips">Interview Tips</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html">① Fundamentals</a>
+  <a href="phase2-networking-communication.html">② Networking</a>
+  <a href="phase3-performance-optimization.html">③ Performance</a>
+  <a href="phase4-state-management-data.html">④ State & Data</a>
+  <a href="phase5-security-auth.html">⑤ Security</a>
+  <a href="phase6-scalable-ui-architecture.html">⑥ Scalable UI</a>
+  <a href="phase7-observability-testing.html">⑦ Observability</a>
+  <a href="phase8-real-world-design-problems.html"><strong>⑧ Design Problems</strong></a>
+</aside>
+
+<main>
+<h1>Phase 8: Real-World Design Problems</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">The final boss. Full system design walkthroughs using the RADIO framework. Practice structuring your answer for 45-minute interviews. Each problem covers architecture, data flow, performance, and trade-offs.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="radio-framework">RADIO Framework (Your Interview Structure)</h2>
+<span class="chip critical">Critical</span>
+
+<pre><code>// ═══ RADIO = How to STRUCTURE your FSD interview answer ═══
+// Spend ~5 min on each step in a 30-45 min interview
+
+R — REQUIREMENTS  (Clarify scope, features, constraints)
+    "What are the core features? What can I deprioritize?"
+    "How many concurrent users? What devices?"
+    "Offline support needed? Real-time updates?"
+
+A — ARCHITECTURE  (High-level system design)
+    Component tree, data flow direction, rendering strategy
+    Draw boxes: Client → BFF → Services
+    Key technology choices and WHY
+
+D — DATA MODEL    (State shape, API contracts, storage)
+    Client state structure (normalized entities)
+    API endpoints and response shapes
+    Caching strategy, storage (memory/localStorage/IndexedDB)
+
+I — INTERFACE     (Component API, key components)
+    Smart vs Dumb components
+    Key component inputs/outputs
+    Routing structure
+
+O — OPTIMIZATIONS (Performance, edge cases, trade-offs)
+    Performance: lazy loading, virtualization, caching
+    Accessibility, error handling, offline
+    What trade-offs did you make and why?
+
+// ═══ TIME ALLOCATION ═══
+// 0-5 min:  Requirements (ASK questions, don't assume)
+// 5-15 min: Architecture + Data Model (draw diagrams)
+// 15-30 min: Interface + key implementation details
+// 30-40 min: Optimizations + trade-offs
+// 40-45 min: Questions from interviewer</code></pre>
+
+<div class="callout tip">
+  <span class="tag">Interview Pro Tip</span>
+  Always START by asking clarifying questions. "Should I focus on mobile or desktop?" "Do we need offline support?" "What's the scale — thousands or millions of users?" This shows maturity and prevents you from designing the wrong thing.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=6MjRi6hr9Fk" target="_blank">RADIO Framework — GreatFrontEnd</a><div class="meta">Interview structure walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=sV_4pOGosnU" target="_blank">FSD Interview Approach — Chirag Goel</a><div class="meta">Step-by-step design method</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="google-search">Problem 1: Design Google Search Frontend</h2>
+<span class="chip critical">Critical</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>Search input with autocomplete suggestions (debounced)</li>
+  <li>Search results page with pagination</li>
+  <li>Different result types: web, images, videos, news</li>
+  <li>Recent searches / search history</li>
+  <li>Performance: instant feel (LCP &lt; 1.5s)</li>
+</ul>
+
+<div class="radio-step"><strong>R — Requirements Clarification:</strong> "Is voice search in scope? Do we need personalization? What's the expected QPS for autocomplete? Should results be SSR or CSR?"</div>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    ARCHITECTURE                          │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  ┌──────────────┐     ┌───────────────┐                │
+│  │  Search Bar  │ ──→ │ Autocomplete  │                │
+│  │  Component   │     │   Service     │                │
+│  └──────┬───────┘     └───────┬───────┘                │
+│         │                     │                         │
+│         │ submit         GET /suggestions?q=...         │
+│         ↓                     ↓                         │
+│  ┌──────────────┐     ┌───────────────┐                │
+│  │  Results     │ ←── │  Search API   │                │
+│  │  Page (SSR)  │     │  (BFF layer)  │                │
+│  └──────────────┘     └───────────────┘                │
+│         │                                               │
+│    ┌────┴────┬──────────┬─────────┐                    │
+│    ↓         ↓          ↓         ↓                    │
+│  Web      Images      Video     News                   │
+│  Results  Grid        Cards     Feed                   │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+Rendering: SSR for results page (SEO + fast LCP)
+CSR for autocomplete (interactive, no SEO needed)</code></pre>
+</div>
+
+<div class="radio-step"><strong>D — Data Model:</strong>
+<pre><code>// Autocomplete API:
+GET /api/suggestions?q=ang&limit=8
+Response: { suggestions: ["angular", "angular material", "angularjs"] }
+
+// Search API:
+GET /api/search?q=angular+tutorial&type=web&page=1
+Response: {
+  results: [
+    { id, title, url, snippet, favicon, timestamp },
+    ...
+  ],
+  totalResults: 1500000,
+  relatedSearches: ["angular docs", "angular vs react"],
+  spelling: { corrected: null }
+}
+
+// Client State:
+{
+  query: string,
+  suggestions: string[],
+  results: SearchResult[],
+  activeTab: 'web' | 'images' | 'video' | 'news',
+  page: number,
+  loading: boolean,
+  recentSearches: string[]  // localStorage
+}</code></pre>
+</div>
+
+<div class="radio-step"><strong>I — Interface (Key Components):</strong>
+<pre><code>// Component Tree:
+SearchPage
+├── SearchBar (input + suggestions dropdown)
+│   ├── Input (debounced, keyboard nav for suggestions)
+│   └── SuggestionsList (highlighted matching text)
+├── TabBar (web | images | video | news)
+├── ResultsList
+│   ├── WebResult (title, URL, snippet)
+│   ├── ImageGrid (masonry layout)
+│   ├── VideoCard (thumbnail, duration)
+│   └── NewsCard (source, time)
+├── Pagination
+└── RelatedSearches</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>Debounce</strong> autocomplete: 300ms delay, cancel on new keystroke</li>
+  <li><strong>Cache</strong> recent suggestion results (in-memory Map, LRU)</li>
+  <li><strong>SSR</strong> results page for SEO + fast LCP</li>
+  <li><strong>Prefetch</strong> first result's page on hover</li>
+  <li><strong>Virtual scroll</strong> for image grid (thousands of results)</li>
+  <li><strong>URL state</strong>: /search?q=...&type=web&page=2 (shareable, back works)</li>
+  <li><strong>Keyboard a11y</strong>: Arrow keys navigate suggestions, Enter selects</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=5vyKhm2NTfw" target="_blank">Design Google Search — Chirag Goel</a><div class="meta">Complete FSD for search</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=us0qySiUsGU" target="_blank">Autocomplete System Design — ByteByteGo</a><div class="meta">Typeahead architecture</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="twitter-feed">Problem 2: Design Twitter/X Feed</h2>
+<span class="chip advanced">Advanced</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>Infinite scroll feed with tweets (text, images, videos)</li>
+  <li>Real-time new tweet notifications ("5 new tweets" banner)</li>
+  <li>Like, retweet, reply (optimistic UI)</li>
+  <li>Compose tweet (with media upload)</li>
+  <li>Handle millions of concurrent users</li>
+</ul>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  ┌─────────────┐    ┌──────────────┐    ┌───────────────┐   │
+│  │  Feed Page   │    │ WebSocket    │    │   REST API    │   │
+│  │  (CSR/SPA)   │ ←─ │  Service     │    │  (BFF)        │   │
+│  └──────┬───────┘    └──────────────┘    └───────────────┘   │
+│         │                                                    │
+│    ┌────┴────┬──────────────────┐                           │
+│    ↓         ↓                  ↓                           │
+│  TweetCard  ComposeBox       Sidebar                        │
+│  (virtual)  (rich text)      (trends)                       │
+│                                                              │
+│  State: Normalized tweet entities (Map by ID)               │
+│  Feed: Ordered array of tweet IDs                           │
+│  WebSocket: New tweet IDs pushed, prepend to feed           │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘</code></pre>
+</div>
+
+<div class="radio-step"><strong>D — Data Model:</strong>
+<pre><code>// Normalized state:
+{
+  entities: {
+    tweets: {
+      "t1": { id: "t1", text: "...", authorId: "u1", likes: 42, 
+              retweetCount: 5, replyCount: 3, mediaIds: ["m1"],
+              timestamp: 1700000000, liked: false, retweeted: false },
+    },
+    users: {
+      "u1": { id: "u1", name: "Sid", handle: "@sid", avatar: "..." }
+    },
+    media: {
+      "m1": { id: "m1", type: "image", url: "...", width: 800, height: 600 }
+    }
+  },
+  feed: {
+    ids: ["t5", "t4", "t3", "t2", "t1"],  // Ordered
+    cursor: "abc123",                       // For pagination
+    hasMore: true,
+    newTweetIds: ["t8", "t7", "t6"]        // Buffered (not shown yet)
+  }
+}
+
+// API: Cursor-based pagination
+GET /api/feed?cursor=abc123&limit=20
+// WebSocket event: { type: "new_tweet", tweetId: "t8" }</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>Virtual scroll</strong>: Only render visible tweets (~10-15 in viewport)</li>
+  <li><strong>Optimistic likes</strong>: Increment immediately, revert on API failure</li>
+  <li><strong>Image lazy loading</strong>: IntersectionObserver, progressive JPEG</li>
+  <li><strong>New tweets banner</strong>: Buffer in state, show count, load on click (don't auto-scroll)</li>
+  <li><strong>Normalized entities</strong>: Update user avatar in one place → reflected in all tweets</li>
+  <li><strong>Connection-aware</strong>: Reduce image quality on slow connections</li>
+  <li><strong>Offline</strong>: Cache last 50 tweets in IndexedDB, show on revisit</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=4VBm-QxCtBQ" target="_blank">Design Twitter Feed — Chirag Goel</a><div class="meta">Infinite scroll & real-time updates</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=R4kKqS-KBqQ" target="_blank">News Feed System Design — ByteByteGo</a><div class="meta">Feed ranking & pagination</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="ecommerce-pdp">Problem 3: Design E-commerce Product Detail Page</h2>
+<span class="chip critical">Critical</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>Product images (gallery with zoom), title, price, variants (size, color)</li>
+  <li>Add to cart with quantity selector</li>
+  <li>Reviews section (ratings, text, images)</li>
+  <li>Related products carousel</li>
+  <li>SEO-critical (must be indexable)</li>
+</ul>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>// Rendering: SSR (Angular Universal) for SEO + fast LCP
+// Hydration: Full hydration for interactivity
+
+// Component Hierarchy:
+ProductDetailPage (SSR)
+├── Breadcrumbs
+├── ImageGallery (lazy load non-visible images)
+│   ├── MainImage (LCP element — preload!)
+│   ├── ThumbnailStrip
+│   └── ZoomOverlay (@defer on interaction)
+├── ProductInfo
+│   ├── Title + Rating summary
+│   ├── Price (with discount display)
+│   ├── VariantSelector (size/color matrix)
+│   ├── QuantitySelector
+│   └── AddToCartButton (sticky on mobile)
+├── ProductTabs
+│   ├── Description (HTML from CMS)
+│   ├── Specifications (table)
+│   └── Reviews (@defer on viewport — below fold)
+│       ├── RatingSummary (bar chart)
+│       ├── ReviewFilters
+│       └── ReviewList (paginated)
+└── RelatedProducts (@defer on idle — carousel)</code></pre>
+</div>
+
+<div class="radio-step"><strong>D — Data Model:</strong>
+<pre><code>// API (single request for above-fold data):
+GET /api/products/123
+{
+  id: "123",
+  title: "Premium Headphones",
+  price: { amount: 2999, currency: "INR", mrp: 4999, discount: 40 },
+  images: [{ url, alt, width, height }],  // First image = LCP
+  variants: [
+    { type: "color", options: [{ value: "black", stock: 15 }, ...] },
+    { type: "size", options: [{ value: "M", stock: 0 }, ...] }  // stock:0 = disabled
+  ],
+  rating: { average: 4.3, count: 1284 },
+  inStock: true,
+  deliveryEstimate: "Dec 15-17"
+}
+
+// Lazy-loaded (separate requests):
+GET /api/products/123/reviews?page=1&sort=recent
+GET /api/products/123/related?limit=12</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>SSR</strong>: Full HTML for SEO + LCP (product title + image immediately visible)</li>
+  <li><strong>Preload LCP image</strong>: <code>&lt;link rel="preload" as="image" fetchpriority="high"&gt;</code></li>
+  <li><strong>@defer reviews</strong>: Only load when user scrolls to reviews section</li>
+  <li><strong>Image CDN</strong>: srcset with responsive sizes, AVIF/WebP with fallback</li>
+  <li><strong>Variant selection</strong>: Disable out-of-stock combinations, URL state for selected variant</li>
+  <li><strong>Add to cart</strong>: Optimistic, sticky button on mobile, quantity validation</li>
+  <li><strong>Schema.org</strong>: Structured data for rich Google snippets (price, rating, availability)</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=sMWKuYsOWBE" target="_blank">Design E-commerce App — Chirag Goel</a><div class="meta">Product page architecture</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=V7DlGTG2vSg" target="_blank">E-commerce System Design — ByteByteGo</a><div class="meta">Cart, checkout, inventory</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="chat-app">Problem 4: Design a Chat Application (WhatsApp Web)</h2>
+<span class="chip advanced">Advanced</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>1:1 and group chats, message history (scroll to load older)</li>
+  <li>Real-time messaging (instant delivery)</li>
+  <li>Typing indicators, read receipts, online status</li>
+  <li>Media messages (images, files)</li>
+  <li>Offline support (queue messages, sync on reconnect)</li>
+</ul>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>┌───────────────────────────────────────────────────────────────┐
+│  WebSocket (persistent) for:                                  │
+│  • Message delivery/receive                                   │
+│  • Typing indicators                                          │
+│  • Online/offline status                                      │
+│  • Read receipts                                              │
+│                                                               │
+│  REST API for:                                                │
+│  • Message history (paginated)                                │
+│  • Media upload (presigned S3 URLs)                           │
+│  • User search / contacts                                     │
+│  • Conversation list                                          │
+│                                                               │
+│  IndexedDB for:                                               │
+│  • Cached messages (offline access)                           │
+│  • Message queue (send when online)                           │
+│  • Media thumbnails                                           │
+└───────────────────────────────────────────────────────────────┘
+
+Components:
+ChatApp
+├── ConversationList (virtual scroll — could have 1000s)
+│   └── ConversationItem (last msg, unread count, avatar)
+├── ChatWindow
+│   ├── ChatHeader (name, status, actions)
+│   ├── MessageList (virtual scroll, load older on scroll up)
+│   │   ├── MessageBubble (text/image/file/system)
+│   │   ├── DateSeparator
+│   │   └── TypingIndicator
+│   └── MessageInput (text, emoji, file attach)
+└── Sidebar (user profile, settings)</code></pre>
+</div>
+
+<div class="radio-step"><strong>D — Data Model:</strong>
+<pre><code>// Normalized state:
+{
+  conversations: {
+    "c1": { id: "c1", type: "1:1", participantIds: ["u1","u2"],
+            lastMessageId: "m50", unreadCount: 3 }
+  },
+  messages: {
+    "m50": { id: "m50", conversationId: "c1", senderId: "u2",
+             text: "Hey!", timestamp: 1700000000, 
+             status: "delivered" /* sent|delivered|read */,
+             type: "text" }
+  },
+  users: {
+    "u2": { id: "u2", name: "Alice", avatar: "...", online: true,
+            lastSeen: 1700000000 }
+  },
+  typing: { "c1": ["u2"] },  // Users currently typing in each conversation
+  offlineQueue: [
+    { id: "temp-1", conversationId: "c1", text: "Hi!", timestamp: ... }
+  ]
+}
+
+// WebSocket events:
+{ type: "message", data: { conversationId, message } }
+{ type: "typing", data: { conversationId, userId, isTyping } }
+{ type: "status", data: { userId, online, lastSeen } }
+{ type: "receipt", data: { messageId, status: "read" } }</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>Virtual scroll</strong>: Both conversation list AND message list</li>
+  <li><strong>WebSocket reconnection</strong>: Exponential backoff + fetch missed messages on reconnect</li>
+  <li><strong>Optimistic send</strong>: Show message immediately with "sending..." status</li>
+  <li><strong>IndexedDB</strong>: Cache last 100 messages per conversation (instant load on open)</li>
+  <li><strong>Throttle typing</strong>: Send typing event max once per 3 seconds</li>
+  <li><strong>Image upload</strong>: Show thumbnail immediately, upload in background, replace with final URL</li>
+  <li><strong>E2E encryption</strong>: Signal protocol for message content</li>
+  <li><strong>Multi-tab</strong>: SharedWorker for single WebSocket across tabs</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=vvhC64hQZMk" target="_blank">Design WhatsApp — Gaurav Sen</a><div class="meta">Real-time messaging design</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=zKYv8k1kZXE" target="_blank">Chat App Frontend Design — Chirag Goel</a><div class="meta">WebSocket chat architecture</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="dashboard">Problem 5: Design an Analytics Dashboard</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>Multiple widgets: charts, KPIs, tables, maps</li>
+  <li>Date range filter (affects all widgets)</li>
+  <li>Real-time data updates for some widgets</li>
+  <li>Customizable layout (drag & rearrange widgets)</li>
+  <li>Export to PDF/CSV</li>
+</ul>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>// Key decisions:
+// 1. Each widget fetches its OWN data (independent loading)
+// 2. Shared date range filter triggers all widgets to refetch
+// 3. Real-time widgets use SSE (server → client, unidirectional)
+// 4. Layout persisted per user (API or localStorage)
+
+DashboardPage
+├── FilterBar (date range, comparison mode)
+├── WidgetGrid (CSS Grid + CDK Drag&Drop)
+│   ├── KpiWidget (signal-based, small payload)
+│   ├── LineChartWidget (D3/ng2-charts)
+│   ├── BarChartWidget
+│   ├── DataTableWidget (virtual scroll, sortable)
+│   ├── MapWidget (@defer — heavy library)
+│   └── ActivityFeedWidget (SSE real-time)
+└── ExportMenu (PDF via html2canvas, CSV via blob)
+
+// Each widget is self-contained:
+@Component({ selector: 'widget-kpi' })
+export class KpiWidget {
+  config = input.required&lt;WidgetConfig&gt;();
+  dateRange = input.required&lt;DateRange&gt;();
+  // Fetches own data when dateRange changes:
+  data = computed(() => /* HTTP call based on dateRange */);
+}</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>Parallel data fetching</strong>: Each widget independent (one slow widget doesn't block others)</li>
+  <li><strong>Skeleton per widget</strong>: Show widget shape while loading</li>
+  <li><strong>@defer</strong> heavy chart libraries (only load when widget visible)</li>
+  <li><strong>Memoized computations</strong>: Don't recalculate chart data if inputs unchanged</li>
+  <li><strong>Web Worker</strong>: Process large datasets (10K+ rows) off main thread</li>
+  <li><strong>Export</strong>: Generate in Web Worker → Blob → download link</li>
+  <li><strong>Auto-refresh</strong>: SSE for live widgets, polling interval for others (configurable)</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=6yVz4O2ZDwk" target="_blank">Design Analytics Dashboard — Chirag Goel</a><div class="meta">Widget-based architecture</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=bUH2mim-O9A" target="_blank">Dashboard Design Patterns — uidotdev</a><div class="meta">Real-time data visualization</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="video-player">Problem 6: Design a Video Player (YouTube)</h2>
+<span class="chip advanced">Advanced</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>Video playback with adaptive bitrate streaming (HLS/DASH)</li>
+  <li>Custom controls: play/pause, seek, volume, speed, fullscreen, captions</li>
+  <li>Video recommendations sidebar</li>
+  <li>Comments section with nested replies</li>
+  <li>Performance: start playing in &lt; 2s, smooth seeking</li>
+</ul>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>VideoPage
+├── VideoPlayer
+│   ├── VideoElement (HLS.js for adaptive streaming)
+│   ├── ControlBar (custom — not native controls)
+│   │   ├── PlayButton, SeekBar, VolumeSlider
+│   │   ├── SpeedSelector, QualitySelector
+│   │   ├── CaptionToggle, FullscreenButton
+│   │   └── ProgressPreview (thumbnail on hover)
+│   └── Overlay (loading spinner, error state, end screen)
+├── VideoInfo (title, channel, likes, description)
+├── Recommendations (@defer on idle — sidebar)
+└── Comments (@defer on viewport — below fold)
+    ├── CommentForm
+    └── CommentThread (nested, lazy-load replies)
+
+// Streaming: HLS (HTTP Live Streaming)
+// Video split into 2-10 second segments at multiple qualities
+// Player dynamically switches quality based on bandwidth
+// m3u8 manifest → segment files (.ts)</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>Preload first segment</strong>: Start playback while downloading rest</li>
+  <li><strong>Adaptive bitrate</strong>: HLS.js detects bandwidth, switches quality seamlessly</li>
+  <li><strong>Thumbnail preview</strong>: Sprite sheet loaded on first hover over seekbar</li>
+  <li><strong>Lazy load below-fold</strong>: Comments and recommendations @defer</li>
+  <li><strong>Keyboard shortcuts</strong>: Space (play), F (fullscreen), M (mute), arrows (seek)</li>
+  <li><strong>Picture-in-Picture</strong>: Allow continued viewing while browsing</li>
+  <li><strong>Resume playback</strong>: Save position in localStorage, resume on revisit</li>
+  <li><strong>Preconnect</strong>: to CDN domain for faster first segment</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=J-guoERGNyE" target="_blank">Design YouTube — Chirag Goel</a><div class="meta">Video player architecture</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=7AMRfNKwuYo" target="_blank">Video Streaming — Hussein Nasser</a><div class="meta">HLS, DASH, adaptive streaming</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="collab-editor">Problem 7: Design a Collaborative Document Editor</h2>
+<span class="chip advanced">Advanced</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>Rich text editing (bold, italic, headings, lists, tables)</li>
+  <li>Multiple users editing simultaneously (real-time sync)</li>
+  <li>Cursor positions of other users visible</li>
+  <li>Conflict resolution (two users edit same paragraph)</li>
+  <li>Version history (undo, view older versions)</li>
+</ul>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>// Conflict resolution approach: OT or CRDT
+// OT (Operational Transform): Google Docs approach
+//   - Transform operations against each other
+//   - Server is source of truth (central)
+//   - Complex but battle-tested
+//
+// CRDT (Conflict-free Replicated Data Types): Figma approach
+//   - Data structure that automatically merges
+//   - No central server needed (P2P possible)
+//   - Growing ecosystem (Yjs, Automerge)
+
+// Recommended: Yjs (CRDT library) + WebSocket
+
+EditorPage
+├── Toolbar (formatting buttons, undo/redo)
+├── Editor (ProseMirror/TipTap + Yjs binding)
+│   ├── ContentEditable (rich text rendering)
+│   ├── RemoteCursors (colored cursors of other users)
+│   └── SelectionHighlights
+├── CollaboratorAvatars (who's viewing)
+├── CommentsPane (annotations on text ranges)
+└── VersionHistory (timeline of changes)
+
+// Data flow:
+// Local edit → Yjs Doc (local CRDT) → WebSocket → Server
+// Server → broadcast to other clients → Yjs merges automatically
+// No conflicts! CRDT guarantees eventual consistency</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>Yjs</strong>: CRDT handles conflict resolution automatically</li>
+  <li><strong>Awareness protocol</strong>: Lightweight cursor/selection sharing (separate from doc changes)</li>
+  <li><strong>Throttle syncs</strong>: Batch local changes, send every 100ms (not per keystroke)</li>
+  <li><strong>Offline</strong>: Edit locally, CRDT merges when reconnected (no conflicts!)</li>
+  <li><strong>Version history</strong>: Store snapshots at intervals, not every keystroke</li>
+  <li><strong>Large documents</strong>: Split into blocks, only sync visible portion</li>
+  <li><strong>Undo</strong>: Local undo stack (don't undo other users' changes)</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=2auwirNBvGs" target="_blank">Design Google Docs — Gaurav Sen</a><div class="meta">OT & CRDT collaboration</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=x7drE24geUw" target="_blank">CRDTs Explained — Martin Kleppmann</a><div class="meta">Conflict resolution for editors</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="food-delivery">Problem 8: Design Food Delivery App (Swiggy/Zomato)</h2>
+<span class="chip critical">Critical</span>
+
+<div class="problem-card">
+<h3>Requirements</h3>
+<ul>
+  <li>Restaurant listing with filters (cuisine, rating, delivery time)</li>
+  <li>Restaurant menu with categories, add to cart</li>
+  <li>Cart management (multi-restaurant handling?)</li>
+  <li>Real-time order tracking (driver location on map)</li>
+  <li>Search with autocomplete</li>
+</ul>
+
+<div class="radio-step"><strong>A — Architecture:</strong>
+<pre><code>┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│  REST API: Restaurant list, menu, cart, orders                 │
+│  WebSocket: Order tracking (driver location every 3-5 seconds) │
+│  SSE: Order status changes (placed → confirmed → picked up)   │
+│                                                                │
+│  App Shell (CSR — SPA):                                        │
+│  ├── HomePage                                                  │
+│  │   ├── LocationBar (geolocation / address)                  │
+│  │   ├── SearchBar (debounced, recent searches)               │
+│  │   ├── BannerCarousel                                        │
+│  │   ├── CategoryChips (quick filters)                        │
+│  │   └── RestaurantGrid (virtual scroll, infinite load)       │
+│  ├── RestaurantPage                                            │
+│  │   ├── Header (name, rating, delivery time, offers)         │
+│  │   ├── MenuCategories (sticky sidebar)                      │
+│  │   └── MenuItems (with add/customize)                       │
+│  ├── CartPage                                                  │
+│  │   ├── ItemList (qty adjust, remove)                        │
+│  │   ├── CouponInput                                           │
+│  │   └── OrderSummary + PlaceOrder                             │
+│  └── OrderTrackingPage                                         │
+│      ├── StatusTimeline (SSE updates)                          │
+│      ├── MapView (Leaflet + driver marker via WebSocket)       │
+│      └── DeliveryPartnerInfo                                   │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘</code></pre>
+</div>
+
+<div class="radio-step"><strong>D — Data Model:</strong>
+<pre><code>// Restaurant list (paginated, filtered):
+GET /api/restaurants?lat=12.97&lng=77.59&cuisine=indian&sort=rating&page=1
+
+// Menu (grouped by category):
+GET /api/restaurants/456/menu
+{ categories: [{ name: "Starters", items: [{ id, name, price, veg, customizations }] }] }
+
+// Cart (client-side signal, persisted to sessionStorage):
+{
+  restaurantId: "456",
+  items: [
+    { menuItemId: "i1", name: "Paneer Tikka", price: 249, qty: 2,
+      customizations: [{ name: "Extra Cheese", price: 30 }] }
+  ],
+  coupon: null,
+  deliveryFee: 40,
+  total: 568
+}
+
+// Order tracking:
+WebSocket: { type: "location", lat: 12.98, lng: 77.60, bearing: 45 }
+SSE: { type: "status_change", status: "out_for_delivery", eta: "8 min" }</code></pre>
+</div>
+
+<div class="radio-step"><strong>O — Optimizations:</strong>
+<ul>
+  <li><strong>Location-based caching</strong>: Cache restaurant list per location (stale-while-revalidate)</li>
+  <li><strong>Image CDN</strong>: Responsive food images, AVIF with fallback, low-quality placeholder</li>
+  <li><strong>Menu scroll spy</strong>: Category sidebar highlights current visible section</li>
+  <li><strong>Cart persistence</strong>: sessionStorage (don't lose cart on refresh)</li>
+  <li><strong>Map optimization</strong>: @defer map component (heavy), throttle marker updates to 1fps</li>
+  <li><strong>Service Worker</strong>: Cache restaurant pages (offline browsing of previously viewed menus)</li>
+  <li><strong>Payment retry</strong>: Idempotency key prevents double-charging on network retry</li>
+  <li><strong>Multi-restaurant</strong>: Warn user if adding from different restaurant (clear or keep both?)</li>
+</ul>
+</div>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=UVOz9-Nt1mo" target="_blank">Design Uber Eats — ByteByteGo</a><div class="meta">Food delivery system design</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=NcvGYqCOzNQ" target="_blank">Real-time Tracking UI — Chirag Goel</a><div class="meta">Maps & live location frontend</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="tips">Interview Tips &amp; Common Mistakes</h2>
+<span class="chip critical">Critical</span>
+
+<div class="callout tip">
+  <span class="tag">DO</span>
+  <ul>
+    <li><strong>Ask clarifying questions</strong> before designing (shows maturity)</li>
+    <li><strong>Think out loud</strong> — interviewer wants to hear your thought process</li>
+    <li><strong>Draw diagrams</strong> — even rough boxes and arrows help</li>
+    <li><strong>Discuss trade-offs</strong> — "I chose X over Y because..."</li>
+    <li><strong>Mention real tools</strong> — "I'd use CDK virtual scroll" not "I'd optimize the list"</li>
+    <li><strong>Cover non-functional requirements</strong> — accessibility, error handling, offline</li>
+    <li><strong>Prioritize</strong> — "For MVP, I'd start with... then add..."</li>
+  </ul>
+</div>
+
+<div class="callout gotcha">
+  <span class="tag">DON'T</span>
+  <ul>
+    <li><strong>Jump into implementation</strong> without understanding requirements</li>
+    <li><strong>Over-engineer</strong> — don't add microservices for a todo app</li>
+    <li><strong>Ignore scale</strong> — always ask "how many users?"</li>
+    <li><strong>Forget error states</strong> — what happens when API fails? Network drops?</li>
+    <li><strong>Skip accessibility</strong> — always mention keyboard nav, screen readers</li>
+    <li><strong>Say "React"</strong> when interviewing for Angular role (know your framework!)</li>
+    <li><strong>Design backend</strong> in a frontend interview — stay frontend-focused</li>
+  </ul>
+</div>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=5vyKhm2NTfw" target="_blank">Frontend System Design Interview — Chirag Goel</a><div class="meta">Full mock interview walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=sV_4pOGosnU" target="_blank">Design Google Search — GreatFrontEnd</a><div class="meta">Step-by-step search design</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=lG_czOQ6PNw" target="_blank">Design Twitter Feed — Frontend Engineer</a><div class="meta">Feed architecture deep dive</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=vMDoBaiRm_M" target="_blank">Design Chat App — Namaste Frontend System Design</a><div class="meta">Indian context, great explanation</div></div>
+</div>
+
+<div class="nav-links">
+  <a href="phase7-observability-testing.html">← Phase 7: Observability</a>
+  <a href="phase1-fundamentals-architecture.html">↺ Start Over: Phase 1</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>

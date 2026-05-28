@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 2: Networking &amp; Communication</title>
+  <style>
+    :root { --bg: #ffffff; --panel: #f7f9fc; --panel-2: #f1f4fa; --ink: #1a2233; --muted: #5a6678; --line: #e2e7f0; --accent: #0f9d7a; --accent-2: #2a5bd7; --warn: #b26b00; --danger: #c23046; --critical: #7a1d2c; --ok: #1a8f4d; --code-bg: #f5f7fb; --chip: #eef1f8; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; }
+    strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); }
+    .chip.intermediate { background: #fdf1dc; color: var(--warn); }
+    .chip.advanced { background: #fbe1e5; color: var(--danger); }
+    .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; }
+    .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; }
+    .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; }
+    .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); } .callout.tip .tag { color: var(--accent); } .callout.warn .tag { color: var(--warn); } .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; }
+    .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; }
+    .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 2 of 8 — Networking</small></div>
+  <h2>This Phase</h2>
+  <a href="#http-fundamentals">HTTP Fundamentals</a>
+  <a href="#rest-api">REST API Design</a>
+  <a href="#graphql">GraphQL</a>
+  <a href="#websockets">WebSockets & Real-Time</a>
+  <a href="#sse">Server-Sent Events</a>
+  <a href="#polling">Polling Strategies</a>
+  <a href="#cors">CORS Deep Dive</a>
+  <a href="#caching-http">HTTP Caching</a>
+  <a href="#cdn">CDN Architecture</a>
+  <a href="#service-workers">Service Workers & Offline</a>
+  <a href="#api-design-patterns">API Design Patterns</a>
+  <a href="#abort-controller">AbortController & Cancellation</a>
+  <a href="#rate-limiting">Rate Limiting & Retry Logic</a>
+  <a href="#streaming">Streaming & ReadableStream</a>
+  <a href="#exercises">Hands-On Exercises</a>
+  <a href="#interview-questions">Interview Questions</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html">① Fundamentals</a>
+  <a href="phase2-networking-communication.html"><strong>② Networking</strong></a>
+  <a href="phase3-performance-optimization.html">③ Performance</a>
+  <a href="phase4-state-management-data.html">④ State & Data</a>
+  <a href="phase5-security-auth.html">⑤ Security</a>
+  <a href="phase6-scalable-ui-architecture.html">⑥ Scalable UI</a>
+  <a href="phase7-observability-testing.html">⑦ Observability</a>
+  <a href="phase8-real-world-design-problems.html">⑧ Design Problems</a>
+</aside>
+
+<main>
+<h1>Phase 2: Networking &amp; Communication</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">Deep understanding of how frontends talk to backends. HTTP, WebSockets, caching, CDNs, offline support — all critical for system design interviews.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="http-fundamentals">1. HTTP Fundamentals</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>Theory: HTTP Protocol</h3>
+<p><strong>HTTP (HyperText Transfer Protocol)</strong> is a request-response protocol. The client sends a request, the server returns a response. It's stateless — each request is independent (no memory of previous requests).</p>
+
+<h4>HTTP/1.1 vs HTTP/2 vs HTTP/3</h4>
+<table>
+  <tr><th>Feature</th><th>HTTP/1.1</th><th>HTTP/2</th><th>HTTP/3</th></tr>
+  <tr><td>Transport</td><td>TCP</td><td>TCP</td><td>QUIC (UDP-based)</td></tr>
+  <tr><td>Multiplexing</td><td>❌ (one request per connection)</td><td>✅ (multiple streams per connection)</td><td>✅ (+ no head-of-line blocking)</td></tr>
+  <tr><td>Header Compression</td><td>❌</td><td>HPACK</td><td>QPACK</td></tr>
+  <tr><td>Server Push</td><td>❌</td><td>✅</td><td>✅</td></tr>
+  <tr><td>Connection Setup</td><td>TCP + TLS (3 RTT)</td><td>TCP + TLS (2-3 RTT)</td><td>0-1 RTT (QUIC)</td></tr>
+  <tr><td>Head-of-line blocking</td><td>TCP level</td><td>TCP level (shared)</td><td>❌ (per-stream)</td></tr>
+</table>
+
+<pre><code>// HTTP/1.1 problem: 6 connections per origin limit
+// Browser opens max 6 TCP connections to same domain
+// If you have 20 resources → queuing!
+
+// HTTP/2 solution: Multiplexing
+// Single TCP connection handles ALL requests simultaneously
+// Each request is a "stream" with a unique ID
+// No need for domain sharding, CSS sprites, or resource inlining!
+
+// HTTP/3 with QUIC:
+// Built on UDP, handles packet loss per-stream
+// If stream 3 loses a packet, streams 1,2,4 continue unblocked
+// 0-RTT reconnection for returning visitors</code></pre>
+
+<h4>HTTP Methods (Semantic Meaning)</h4>
+<table>
+  <tr><th>Method</th><th>Semantic</th><th>Idempotent</th><th>Safe</th><th>Body</th></tr>
+  <tr><td>GET</td><td>Retrieve resource</td><td>Yes</td><td>Yes</td><td>❌</td></tr>
+  <tr><td>POST</td><td>Create resource</td><td>No</td><td>No</td><td>✅</td></tr>
+  <tr><td>PUT</td><td>Replace entire resource</td><td>Yes</td><td>No</td><td>✅</td></tr>
+  <tr><td>PATCH</td><td>Partial update</td><td>No*</td><td>No</td><td>✅</td></tr>
+  <tr><td>DELETE</td><td>Remove resource</td><td>Yes</td><td>No</td><td>Optional</td></tr>
+  <tr><td>OPTIONS</td><td>CORS preflight / capabilities</td><td>Yes</td><td>Yes</td><td>❌</td></tr>
+  <tr><td>HEAD</td><td>GET without body (headers only)</td><td>Yes</td><td>Yes</td><td>❌</td></tr>
+</table>
+
+<h4>HTTP Status Codes (Must Know)</h4>
+<pre><code>// 2xx — Success
+200 OK           // Standard success
+201 Created      // Resource created (POST)
+204 No Content   // Success, no body (DELETE)
+
+// 3xx — Redirection
+301 Moved Permanently  // Resource moved (cacheable)
+302 Found              // Temporary redirect
+304 Not Modified       // Use cached version (conditional GET)
+
+// 4xx — Client Errors
+400 Bad Request        // Malformed request
+401 Unauthorized       // No/invalid auth credentials
+403 Forbidden          // Auth valid, but no permission
+404 Not Found          // Resource doesn't exist
+409 Conflict           // State conflict (duplicate, version mismatch)
+422 Unprocessable      // Valid syntax, invalid semantics
+429 Too Many Requests  // Rate limited
+
+// 5xx — Server Errors
+500 Internal Server Error  // Unexpected server failure
+502 Bad Gateway            // Upstream server error
+503 Service Unavailable    // Server overloaded/maintenance
+504 Gateway Timeout        // Upstream didn't respond in time</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=iYM2zFP3Zn0" target="_blank">HTTP/1.1 vs HTTP/2 vs HTTP/3 — Hussain Nasser</a><div class="meta">Detailed protocol comparison</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=-Mj2bZ8QBGE" target="_blank">HTTP Deep Dive — ByteByteGo</a><div class="meta">Visual explanation</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="rest-api">2. REST API Design</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>Theory: REST Principles</h3>
+<p><strong>REST (Representational State Transfer)</strong> is an architectural style with constraints:</p>
+<ol>
+  <li><strong>Client-Server:</strong> Separate UI from data storage</li>
+  <li><strong>Stateless:</strong> Each request contains all info needed (no server-side session)</li>
+  <li><strong>Cacheable:</strong> Responses must define if they're cacheable</li>
+  <li><strong>Uniform Interface:</strong> Resources identified by URIs, manipulated via representations</li>
+  <li><strong>Layered System:</strong> Client can't tell if connected to server directly or via proxy</li>
+</ol>
+
+<h3>RESTful URL Design</h3>
+<pre><code>// GOOD — Resource-based URLs:
+GET    /api/v1/products              // List all products
+GET    /api/v1/products/123          // Get specific product
+POST   /api/v1/products              // Create product
+PUT    /api/v1/products/123          // Replace product
+PATCH  /api/v1/products/123          // Partial update
+DELETE /api/v1/products/123          // Delete product
+
+// Nested resources:
+GET    /api/v1/products/123/reviews  // Reviews for product 123
+POST   /api/v1/products/123/reviews  // Add review to product 123
+
+// Filtering, sorting, pagination:
+GET    /api/v1/products?category=electronics&sort=-price&page=2&limit=20
+
+// BAD — Action-based URLs (not RESTful):
+POST   /api/getProducts          ❌
+POST   /api/deleteProduct/123    ❌
+GET    /api/fetchUserData        ❌</code></pre>
+
+<h3>Angular HTTP Client Patterns</h3>
+<pre><code>// ═══ Service Layer Pattern ═══
+@Injectable({ providedIn: 'root' })
+export class ProductService {
+  private readonly baseUrl = '/api/v1/products';
+  
+  constructor(private http: HttpClient) {}
+
+  // GET with params
+  getProducts(filters: ProductFilters): Observable&lt;PaginatedResponse&lt;Product&gt;&gt; {
+    const params = new HttpParams()
+      .set('category', filters.category || '')
+      .set('page', filters.page.toString())
+      .set('limit', filters.limit.toString())
+      .set('sort', filters.sortBy || '-createdAt');
+    
+    return this.http.get&lt;PaginatedResponse&lt;Product&gt;&gt;(this.baseUrl, { params });
+  }
+
+  // POST with body
+  createProduct(product: CreateProductDto): Observable&lt;Product&gt; {
+    return this.http.post&lt;Product&gt;(this.baseUrl, product);
+  }
+
+  // PUT (full replace)
+  updateProduct(id: string, product: Product): Observable&lt;Product&gt; {
+    return this.http.put&lt;Product&gt;(`${this.baseUrl}/${id}`, product);
+  }
+
+  // PATCH (partial update)
+  patchProduct(id: string, changes: Partial&lt;Product&gt;): Observable&lt;Product&gt; {
+    return this.http.patch&lt;Product&gt;(`${this.baseUrl}/${id}`, changes);
+  }
+
+  // DELETE
+  deleteProduct(id: string): Observable&lt;void&gt; {
+    return this.http.delete&lt;void&gt;(`${this.baseUrl}/${id}`);
+  }
+}
+
+// ═══ HTTP Interceptor for Auth ═══
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const token = authService.getToken();
+  
+  if (token) {
+    req = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+  }
+  
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        authService.logout();
+        inject(Router).navigate(['/login']);
+      }
+      return throwError(() => error);
+    })
+  );
+};</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=-MTSQjw5DrM" target="_blank">REST API Explained — Fireship</a><div class="meta">RESTful design in 100 seconds</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=fgTGo7_kGc0" target="_blank">REST API Design Best Practices — Traversy</a><div class="meta">Practical REST patterns</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="graphql">3. GraphQL</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: GraphQL vs REST</h3>
+<table>
+  <tr><th>Aspect</th><th>REST</th><th>GraphQL</th></tr>
+  <tr><td>Data fetching</td><td>Fixed endpoints return fixed shapes</td><td>Client specifies exactly what it needs</td></tr>
+  <tr><td>Over-fetching</td><td>Common (GET /user returns everything)</td><td>Never (request only name, email)</td></tr>
+  <tr><td>Under-fetching</td><td>Common (need 3 endpoints for 1 view)</td><td>Single query gets all needed data</td></tr>
+  <tr><td>Versioning</td><td>/api/v1, /api/v2</td><td>Evolve schema, deprecate fields</td></tr>
+  <tr><td>Caching</td><td>HTTP caching (ETag, Cache-Control)</td><td>Harder (single endpoint, POST)</td></tr>
+  <tr><td>Error handling</td><td>HTTP status codes</td><td>Always 200, errors in response body</td></tr>
+  <tr><td>File uploads</td><td>Native (multipart/form-data)</td><td>Complex (spec extension needed)</td></tr>
+</table>
+
+<pre><code>// GraphQL Query — client asks for EXACTLY what it needs:
+query GetProductDetails($id: ID!) {
+  product(id: $id) {
+    id
+    name
+    price
+    reviews(first: 5) {
+      rating
+      text
+      author { name avatar }
+    }
+    relatedProducts(limit: 3) {
+      id name price thumbnail
+    }
+  }
+}
+
+// REST equivalent would need:
+// GET /api/products/123
+// GET /api/products/123/reviews?limit=5
+// GET /api/products/123/related?limit=3
+// = 3 round trips vs 1 GraphQL query!
+
+// Angular Apollo Client:
+@Injectable({ providedIn: 'root' })
+export class ProductGqlService {
+  constructor(private apollo: Apollo) {}
+
+  getProductDetails(id: string) {
+    return this.apollo.watchQuery({
+      query: GET_PRODUCT_DETAILS,
+      variables: { id }
+    }).valueChanges.pipe(
+      map(result => result.data.product)
+    );
+  }
+}</code></pre>
+
+<div class="callout warn">
+  <span class="tag">When NOT to Use GraphQL</span>
+  Simple CRUD apps, file-heavy APIs, real-time (WebSocket better), when HTTP caching is critical, small teams without dedicated backend support. REST is simpler and "good enough" for most Angular apps.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=eIQh02xuVw4" target="_blank">GraphQL Explained — Fireship</a><div class="meta">GraphQL in 100 seconds</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=PeAOEAmR0D0" target="_blank">GraphQL vs REST — Ben Awad</a><div class="meta">When to choose GraphQL</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="websockets">4. WebSockets &amp; Real-Time Communication</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: WebSocket Protocol</h3>
+<p>WebSocket provides <strong>full-duplex, persistent</strong> communication over a single TCP connection. Unlike HTTP's request-response model, either side can send messages at any time.</p>
+
+<pre><code>// WebSocket Handshake (HTTP Upgrade):
+// Client → Server:
+GET /chat HTTP/1.1
+Host: server.example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13
+
+// Server → Client:
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+
+// After handshake: bidirectional message frames (no HTTP overhead!)
+
+┌──────────┐                  ┌──────────┐
+│  Client  │ ═══WebSocket═══  │  Server  │
+│          │ ←── message ──── │          │
+│          │ ──── message ──→ │          │
+│          │ ←── message ──── │          │
+│          │ ──── message ──→ │          │
+└──────────┘                  └──────────┘
+  Messages flow in BOTH directions at ANY time</code></pre>
+
+<h3>Angular WebSocket Implementation</h3>
+<pre><code>// ═══ Robust WebSocket Service with Reconnection ═══
+@Injectable({ providedIn: 'root' })
+export class WebSocketService {
+  private socket$ = new ReplaySubject&lt;WebSocket&gt;(1);
+  private messages$ = new Subject&lt;any&gt;();
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectInterval = 1000; // starts at 1s, doubles each retry
+
+  connect(url: string): Observable&lt;any&gt; {
+    this.createConnection(url);
+    return this.messages$.asObservable();
+  }
+
+  private createConnection(url: string) {
+    const ws = new WebSocket(url);
+
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+      this.reconnectAttempts = 0; // Reset on successful connect
+      this.socket$.next(ws);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        this.messages$.next(data);
+      } catch(e) {
+        this.messages$.next(event.data);
+      }
+    };
+
+    ws.onclose = (event) => {
+      if (!event.wasClean && this.reconnectAttempts &lt; this.maxReconnectAttempts) {
+        // Exponential backoff reconnection
+        const delay = this.reconnectInterval * Math.pow(2, this.reconnectAttempts);
+        this.reconnectAttempts++;
+        console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+        setTimeout(() => this.createConnection(url), delay);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+  }
+
+  send(message: any) {
+    this.socket$.pipe(take(1)).subscribe(ws => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(message));
+      }
+    });
+  }
+
+  disconnect() {
+    this.socket$.pipe(take(1)).subscribe(ws => ws.close());
+  }
+}
+
+// Usage in component:
+export class ChatComponent implements OnInit, OnDestroy {
+  messages: ChatMessage[] = [];
+  private destroy$ = new Subject&lt;void&gt;();
+
+  constructor(private ws: WebSocketService) {}
+
+  ngOnInit() {
+    this.ws.connect('wss://api.example.com/chat')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(msg => this.messages.push(msg));
+  }
+
+  sendMessage(text: string) {
+    this.ws.send({ type: 'chat', text, timestamp: Date.now() });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.ws.disconnect();
+  }
+}</code></pre>
+
+<h3>Use Cases for WebSockets</h3>
+<ul>
+  <li><strong>Chat applications</strong> (WhatsApp Web, Slack)</li>
+  <li><strong>Live notifications</strong> (email, social media)</li>
+  <li><strong>Collaborative editing</strong> (Google Docs, Figma)</li>
+  <li><strong>Live sports scores / stock tickers</strong></li>
+  <li><strong>Online gaming</strong> (multiplayer state sync)</li>
+  <li><strong>Order tracking</strong> (Swiggy delivery status)</li>
+</ul>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=1BfCnjr_Vjg" target="_blank">WebSockets Explained — Fireship</a><div class="meta">100-second WebSocket overview</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=2Nt-ZrNP22A" target="_blank">WebSocket Deep Dive — Hussein Nasser</a><div class="meta">Protocol internals & scaling</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="sse">5. Server-Sent Events (SSE)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: SSE vs WebSocket</h3>
+<table>
+  <tr><th>Feature</th><th>SSE</th><th>WebSocket</th></tr>
+  <tr><td>Direction</td><td>Server → Client only</td><td>Bidirectional</td></tr>
+  <tr><td>Protocol</td><td>HTTP (standard)</td><td>WS (separate protocol)</td></tr>
+  <tr><td>Reconnection</td><td>Built-in automatic</td><td>Manual implementation</td></tr>
+  <tr><td>Data format</td><td>Text (UTF-8)</td><td>Text or Binary</td></tr>
+  <tr><td>Browser support</td><td>All modern (no IE)</td><td>All modern</td></tr>
+  <tr><td>Proxy/Firewall</td><td>Works through (HTTP)</td><td>May be blocked</td></tr>
+  <tr><td>Connection limit</td><td>6 per domain (HTTP/1.1)</td><td>Separate from HTTP</td></tr>
+</table>
+
+<pre><code>// ═══ SSE Implementation ═══
+
+// Backend (Node.js):
+app.get('/api/events', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
+  });
+
+  // Send events:
+  const sendEvent = (data, event = 'message') => {
+    res.write(`event: ${event}\n`);
+    res.write(`data: ${JSON.stringify(data)}\n`);
+    res.write(`id: ${Date.now()}\n\n`);  // Last-Event-ID for reconnection
+  };
+
+  sendEvent({ status: 'connected' }, 'open');
+  
+  const interval = setInterval(() => {
+    sendEvent({ price: Math.random() * 100 }, 'stock-update');
+  }, 1000);
+
+  req.on('close', () => clearInterval(interval));
+});
+
+// Frontend (Angular):
+@Injectable({ providedIn: 'root' })
+export class SseService {
+  private zone = inject(NgZone);
+
+  getEvents(url: string): Observable&lt;MessageEvent&gt; {
+    return new Observable(observer => {
+      const eventSource = new EventSource(url);
+
+      eventSource.onmessage = (event) => {
+        this.zone.run(() => observer.next(event));
+      };
+
+      eventSource.addEventListener('stock-update', (event: any) => {
+        this.zone.run(() => observer.next(event));
+      });
+
+      eventSource.onerror = (error) => {
+        // EventSource automatically reconnects!
+        // Last-Event-ID header sent on reconnection
+        console.warn('SSE error, reconnecting...', error);
+      };
+
+      return () => eventSource.close();
+    });
+  }
+}
+
+// When to use SSE vs WebSocket:
+// SSE: Notifications, live feeds, stock prices, build logs (server→client only)
+// WebSocket: Chat, gaming, collab editing (need bidirectional)</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=4HlNv1qpZFY" target="_blank">Server-Sent Events — Web Dev Simplified</a><div class="meta">SSE tutorial with examples</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=n9mRjkQg3VE" target="_blank">SSE vs WebSocket — Hussein Nasser</a><div class="meta">When to use which</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="polling">6. Polling Strategies</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>Theory: Short Polling vs Long Polling</h3>
+<pre><code>// ═══ SHORT POLLING ═══
+// Client repeatedly asks server at fixed intervals
+// Simple but wasteful (many empty responses)
+
+// Angular implementation:
+pollOrders(): Observable&lt;Order[]&gt; {
+  return interval(5000).pipe(             // Every 5 seconds
+    startWith(0),                          // Immediately on subscribe
+    switchMap(() => this.http.get&lt;Order[]&gt;('/api/orders')),
+    distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+    retry(3)
+  );
+}
+
+// ═══ LONG POLLING ═══
+// Client sends request, server HOLDS it open until new data or timeout
+// More efficient than short polling (fewer empty responses)
+
+// Server (holds connection until data available):
+app.get('/api/updates', async (req, res) => {
+  const lastId = req.headers['last-event-id'] || 0;
+  const timeout = setTimeout(() => res.json({ data: null }), 30000);
+  
+  // Wait for new data...
+  const data = await waitForNewData(lastId);
+  clearTimeout(timeout);
+  res.json({ data, id: data.id });
+});
+
+// Angular:
+longPollUpdates(): Observable&lt;Update&gt; {
+  const poll = (): Observable&lt;Update&gt; => {
+    return this.http.get&lt;{data: Update, id: string}&gt;('/api/updates').pipe(
+      tap(res => { if(res.data) this.lastId = res.id; }),
+      filter(res => res.data !== null),
+      map(res => res.data),
+      // Immediately start next long poll after response:
+      concatMap(data => merge(of(data), poll()))
+    );
+  };
+  return poll();
+}
+
+// ═══ COMPARISON ═══
+// Short Polling: Simple, but network waste. Use for: dashboards, status checks
+// Long Polling: Efficient, but complex. Use for: chat (before WebSocket era)
+// SSE: Best for server→client streams. Use for: notifications, live feeds
+// WebSocket: Best for bidirectional real-time. Use for: chat, gaming, collab</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ZBM28ZPlin8" target="_blank">Long Polling vs WebSockets — Hussein Nasser</a><div class="meta">Comparison of real-time strategies</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=J0okraIFPJ0" target="_blank">Short Polling vs Long Polling — ByteByteGo</a><div class="meta">Visual explanation</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="cors">7. CORS Deep Dive</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: Same-Origin Policy &amp; CORS</h3>
+<p><strong>Same-Origin Policy (SOP)</strong> prevents scripts on one origin from accessing resources on another origin. An origin = scheme + host + port.</p>
+
+<pre><code>// Same origin:
+https://app.example.com/page1  ↔  https://app.example.com/page2  ✅
+
+// Different origin (port differs):
+https://app.example.com        ↔  https://app.example.com:8080   ❌
+
+// Different origin (subdomain differs):
+https://app.example.com        ↔  https://api.example.com        ❌
+
+// CORS = Server says "I allow this origin to access me"
+// Server sends response headers:
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400  // Cache preflight for 24h</code></pre>
+
+<h3>Preflight Requests (OPTIONS)</h3>
+<pre><code>// Browser automatically sends OPTIONS preflight for "complex" requests:
+// Complex = non-GET/POST, custom headers, or non-simple content types
+
+// Step 1: Browser sends OPTIONS:
+OPTIONS /api/products HTTP/1.1
+Origin: https://myapp.com
+Access-Control-Request-Method: PUT
+Access-Control-Request-Headers: Content-Type, Authorization
+
+// Step 2: Server responds:
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: https://myapp.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Max-Age: 86400
+
+// Step 3: If allowed, browser sends actual PUT request
+
+// OPTIMIZATION: Set Max-Age to reduce preflight requests!
+// Without Max-Age: EVERY complex request triggers OPTIONS first (2x latency)</code></pre>
+
+<h3>Angular Dev Proxy (bypass CORS locally)</h3>
+<pre><code>// proxy.conf.json — development only!
+{
+  "/api": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api": "" }
+  }
+}
+
+// angular.json:
+"serve": {
+  "options": {
+    "proxyConfig": "proxy.conf.json"
+  }
+}
+// Now: http://localhost:4200/api/products → http://localhost:3000/products
+// No CORS issues in development!</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=4KHiSt0oLJ0" target="_blank">CORS in 100 Seconds — Fireship</a><div class="meta">Quick CORS explanation</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=PNtFSVU-YTI" target="_blank">CORS Deep Dive — Web Dev Simplified</a><div class="meta">Fixing common CORS errors</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="caching-http">8. HTTP Caching</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: Cache Hierarchy</h3>
+<pre><code>┌──────────────────────────────────────────────────────────┐
+│  Request flow (checks each cache layer):                 │
+│                                                          │
+│  Browser Memory Cache (fastest, per-tab, volatile)       │
+│       ↓ miss                                             │
+│  Browser Disk Cache (persistent, shared across tabs)     │
+│       ↓ miss                                             │
+│  Service Worker Cache (programmatic, offline support)    │
+│       ↓ miss                                             │
+│  CDN / Edge Cache (geographically distributed)           │
+│       ↓ miss                                             │
+│  Origin Server (generates fresh response)                │
+└──────────────────────────────────────────────────────────┘</code></pre>
+
+<h3>Cache-Control Headers</h3>
+<pre><code>// ═══ IMMUTABLE ASSETS (JS, CSS with hash in filename) ═══
+// main.abc123.js — filename changes when content changes
+Cache-Control: public, max-age=31536000, immutable
+// Cache for 1 year! Browser NEVER revalidates (filename = cache key)
+
+// ═══ HTML (must always revalidate) ═══
+Cache-Control: no-cache
+// Forces browser to ALWAYS check with server (conditional GET)
+// If content unchanged, server responds 304 Not Modified (no body!)
+
+// ═══ API RESPONSES ═══
+// Dynamic data that changes frequently:
+Cache-Control: private, no-store
+// Never cache (user-specific, sensitive)
+
+// Data that changes but can be stale briefly:
+Cache-Control: private, max-age=60, stale-while-revalidate=600
+// Use cached version for 60s, then serve stale for 600s while revalidating in background
+
+// ═══ CONDITIONAL REQUESTS (ETag) ═══
+// First response:
+HTTP/1.1 200 OK
+ETag: "abc123"
+Cache-Control: no-cache
+
+// Subsequent request:
+GET /api/user HTTP/1.1
+If-None-Match: "abc123"
+
+// If unchanged:
+HTTP/1.1 304 Not Modified  // No body! Saves bandwidth
+
+// If changed:
+HTTP/1.1 200 OK
+ETag: "def456"
+{new data...}</code></pre>
+
+<h3>Angular Caching Strategy</h3>
+<pre><code>// HTTP Interceptor for Caching API responses:
+const cache = new Map&lt;string, { response: any; timestamp: number }&gt;();
+const CACHE_TTL = 30000; // 30 seconds
+
+export const cacheInterceptor: HttpInterceptorFn = (req, next) => {
+  // Only cache GET requests
+  if (req.method !== 'GET') {
+    // Invalidate cache on mutations
+    cache.forEach((_, key) => {
+      if (key.startsWith(req.url.split('?')[0])) cache.delete(key);
+    });
+    return next(req);
+  }
+
+  const cached = cache.get(req.urlWithParams);
+  if (cached && Date.now() - cached.timestamp &lt; CACHE_TTL) {
+    return of(new HttpResponse({ body: cached.response }));
+  }
+
+  return next(req).pipe(
+    tap(event => {
+      if (event instanceof HttpResponse) {
+        cache.set(req.urlWithParams, { response: event.body, timestamp: Date.now() });
+      }
+    })
+  );
+};</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=HiBDZgTNpXY" target="_blank">HTTP Caching — Web Dev Simplified</a><div class="meta">Cache-Control headers explained</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=HiBDZgTNpXY" target="_blank">Browser Caching Explained — Hussein Nasser</a><div class="meta">Etag, Last-Modified, stale-while-revalidate</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="cdn">9. CDN Architecture</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: How CDNs Work</h3>
+<p>A <strong>CDN (Content Delivery Network)</strong> is a geographically distributed network of servers that cache and serve content closer to users.</p>
+
+<pre><code>// Without CDN:
+User (Mumbai) ──────── 200ms ────────→ Origin (US-East)
+
+// With CDN:
+User (Mumbai) ──── 20ms ────→ CDN Edge (Mumbai) ──cache hit──→ Response!
+                                    │ cache miss
+                                    └──── 200ms ────→ Origin (US-East)
+                                                         │
+                                    ←──── cache + serve ──┘
+
+// CDN Decision Flow:
+// 1. User request hits nearest CDN edge (DNS-based routing)
+// 2. Edge checks if cached copy exists and is fresh
+// 3. If FRESH → serve immediately (cache HIT)
+// 4. If STALE → serve stale + revalidate in background (stale-while-revalidate)
+// 5. If MISS → fetch from origin, cache, serve</code></pre>
+
+<h3>CDN Strategies for Angular Apps</h3>
+<pre><code>// Deploy strategy:
+// 1. Static assets (JS/CSS/images) → CDN with immutable caching
+// 2. index.html → CDN with no-cache (always revalidate)
+// 3. API → NOT on CDN (or CDN with short TTL + vary headers)
+
+// Cloudflare/AWS CloudFront config:
+{
+  "patterns": [
+    { "path": "*.js", "cache": "1y", "immutable": true },
+    { "path": "*.css", "cache": "1y", "immutable": true },
+    { "path": "*.woff2", "cache": "1y", "immutable": true },
+    { "path": "index.html", "cache": "no-cache" },
+    { "path": "/api/*", "cache": "bypass" }
+  ]
+}
+
+// Cache Invalidation:
+// Angular uses content-hashed filenames (main.abc123.js)
+// On deploy: new hash = new URL = CDN treats as new resource
+// Old files: CDN expires naturally (no manual purge needed!)
+// index.html: Points to new hashed files → cache busted automatically</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=RI9np1LWzqw" target="_blank">CDN Explained — Fireship</a><div class="meta">How CDNs work in 100 seconds</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=8zX0rue2Hic" target="_blank">CDN Architecture — ByteByteGo</a><div class="meta">CDN internals and edge caching</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="service-workers">10. Service Workers &amp; Offline Support</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: Service Worker Lifecycle</h3>
+<pre><code>// Service Worker sits between browser and network:
+┌──────────┐     ┌─────────────────┐     ┌──────────┐
+│  Browser │ ←→  │  Service Worker │ ←→  │  Network │
+│  (Page)  │     │  (Proxy/Cache)  │     │  (Server)│
+└──────────┘     └─────────────────┘     └──────────┘
+
+// Lifecycle:
+// 1. Register → 2. Install (cache assets) → 3. Activate (claim clients)
+// 4. Idle (listening for fetch/push events)
+// 5. Update (new SW found → install → waiting → activate)
+
+// Caching Strategies:
+// ┌─────────────────────────────────────────────────────┐
+// │ Cache First (Static assets)                         │
+// │ Request → Cache → [Hit? Serve!] [Miss? Network]     │
+// ├─────────────────────────────────────────────────────┤
+// │ Network First (API calls)                           │
+// │ Request → Network → [OK? Serve + Cache] [Fail? Cache]│
+// ├─────────────────────────────────────────────────────┤
+// │ Stale While Revalidate (Semi-dynamic)               │
+// │ Request → Cache (serve stale) + Network (update cache)│
+// └─────────────────────────────────────────────────────┘</code></pre>
+
+<h3>Angular PWA (@angular/pwa)</h3>
+<pre><code># Add PWA support to Angular project:
+ng add @angular/pwa
+
+// ngsw-config.json — Service Worker configuration:
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",   // Cache on install (critical assets)
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/index.html", "/*.css", "/*.js", "/favicon.ico"]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",       // Cache on first use (images, fonts)
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/assets/**", "/**/*.woff2"]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-performance",
+      "urls": ["/api/products/**"],
+      "cacheConfig": {
+        "strategy": "performance",    // Cache first (stale data OK)
+        "maxSize": 100,
+        "maxAge": "1h"
+      }
+    },
+    {
+      "name": "api-freshness",
+      "urls": ["/api/user/**", "/api/cart/**"],
+      "cacheConfig": {
+        "strategy": "freshness",      // Network first (must be fresh)
+        "maxSize": 20,
+        "maxAge": "10m",
+        "timeout": "3s"               // Fall back to cache after 3s
+      }
+    }
+  ]
+}
+
+// Detecting updates:
+@Injectable({ providedIn: 'root' })
+export class UpdateService {
+  constructor(private swUpdate: SwUpdate) {
+    if (swUpdate.isEnabled) {
+      // Check for updates every 30 minutes:
+      interval(30 * 60 * 1000).pipe(
+        switchMap(() => swUpdate.checkForUpdate())
+      ).subscribe();
+
+      // Prompt user when update available:
+      swUpdate.versionUpdates.pipe(
+        filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
+      ).subscribe(() => {
+        if (confirm('New version available. Update now?')) {
+          window.location.reload();
+        }
+      });
+    }
+  }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ksXwaWHCW6k" target="_blank">Service Workers Explained — Fireship</a><div class="meta">PWA fundamentals</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=GNMHMouFQAo" target="_blank">Service Worker Lifecycle — Google Chrome</a><div class="meta">Install, activate, fetch events</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="api-design-patterns">11. API Design Patterns for Frontend</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Backend-for-Frontend (BFF) Pattern</h3>
+<pre><code>// Problem: Mobile needs different data shape than Desktop
+// Solution: Dedicated backend per frontend
+
+┌─────────────┐     ┌─────────────┐     ┌──────────────────┐
+│  Angular Web│ ──→ │  Web BFF    │ ──→ │                  │
+└─────────────┘     └─────────────┘     │  Microservices   │
+                                        │  ┌─────────────┐ │
+┌─────────────┐     ┌─────────────┐     │  │ User Service│ │
+│  Mobile App │ ──→ │  Mobile BFF │ ──→ │  │ Cart Service│ │
+└─────────────┘     └─────────────┘     │  │ Product Svc │ │
+                                        │  └─────────────┘ │
+                                        └──────────────────┘
+
+// Web BFF returns: full product details + recommendations + reviews
+// Mobile BFF returns: compact product card + thumbnail only</code></pre>
+
+<h3>API Gateway Pattern</h3>
+<pre><code>// Single entry point that handles:
+// 1. Authentication/Authorization
+// 2. Rate limiting
+// 3. Request routing to microservices
+// 4. Response aggregation
+// 5. Caching
+// 6. Logging/monitoring
+
+// Frontend makes ONE call, gateway aggregates:
+GET /api/dashboard
+// Gateway calls: User Service + Orders Service + Notifications Service
+// Returns combined response to frontend</code></pre>
+
+<h3>Pagination Patterns</h3>
+<pre><code>// 1. OFFSET-BASED (traditional):
+GET /api/products?page=3&limit=20
+// Response: { data: [...], total: 500, page: 3, totalPages: 25 }
+// Problem: Inconsistent results if data changes between pages
+
+// 2. CURSOR-BASED (recommended for real-time/large datasets):
+GET /api/products?cursor=abc123&limit=20
+// Response: { data: [...], nextCursor: "def456", hasMore: true }
+// Advantage: Consistent results regardless of inserts/deletes
+// Used by: Twitter, Facebook, Instagram feeds
+
+// 3. KEYSET-BASED (for sorted data):
+GET /api/products?after_id=123&after_price=29.99&limit=20
+// Uses composite key for pagination
+
+// Angular implementation (infinite scroll with cursor):
+@Injectable()
+export class InfiniteScrollService {
+  private cursor$ = new BehaviorSubject&lt;string | null&gt;(null);
+  private loading$ = new BehaviorSubject&lt;boolean&gt;(false);
+  
+  items$ = this.cursor$.pipe(
+    filter(() => !this.loading$.value),
+    tap(() => this.loading$.next(true)),
+    switchMap(cursor => this.http.get('/api/feed', { params: { cursor, limit: 20 }})),
+    tap((res: any) => {
+      this.loading$.next(false);
+      if (res.nextCursor) this.cursor$.next(res.nextCursor);
+    }),
+    scan((acc, res: any) => [...acc, ...res.data], [])
+  );
+  
+  loadMore() { /* emit current cursor */ }
+}</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ZnDZ6t4FGCE" target="_blank">WebSockets vs Polling vs SSE — Hussain Nasser</a><div class="meta">Best comparison video</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=1-H-LBORkVg" target="_blank">HTTP Caching — Web Dev Simplified</a><div class="meta">Cache-Control explained simply</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=VwpJxfgEsqw" target="_blank">Service Workers — Google Chrome Developers</a><div class="meta">Official guide to PWAs</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=7YcW25PHnAA" target="_blank">GraphQL vs REST — Fireship</a><div class="meta">When to use which</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="abort-controller">12. AbortController &amp; Request Cancellation</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: Why Request Cancellation Matters</h3>
+<p>Without cancellation, your app suffers from <strong>race conditions</strong>: user types "ang", "angu", "angul" → 3 requests fire, but response for "ang" may arrive AFTER "angul" response, overwriting correct results with stale data.</p>
+
+<pre><code>// ═══ PROBLEM: Race Condition Without Cancellation ═══
+// User types: a → an → ang → angu
+// Requests:   GET /search?q=a    (200ms)
+//             GET /search?q=an   (150ms)  ← arrives first!
+//             GET /search?q=ang  (300ms)
+//             GET /search?q=angu (100ms)  ← arrives second!
+// Without cancellation: UI shows results for "a" (last to resolve)
+// With cancellation: Only "angu" request is active, others aborted</code></pre>
+
+<h3>AbortController API</h3>
+<pre><code>// ═══ NATIVE AbortController ═══
+const controller = new AbortController();
+const signal = controller.signal;
+
+// Pass signal to fetch:
+fetch('/api/search?q=angular', { signal })
+  .then(res => res.json())
+  .then(data => console.log(data))
+  .catch(err => {
+    if (err.name === 'AbortError') {
+      console.log('Request cancelled'); // Expected, not an error
+    } else {
+      throw err; // Real error
+    }
+  });
+
+// Cancel the request:
+controller.abort(); // Immediately cancels the in-flight request
+
+// ═══ AbortSignal.timeout() — Auto-cancel after timeout ═══
+fetch('/api/slow-endpoint', {
+  signal: AbortSignal.timeout(5000) // Cancel if no response in 5s
+});
+
+// ═══ AbortSignal.any() — Cancel from multiple sources ═══
+const userCancel = new AbortController();
+const combinedSignal = AbortSignal.any([
+  userCancel.signal,
+  AbortSignal.timeout(10000)
+]);
+fetch('/api/data', { signal: combinedSignal });</code></pre>
+
+<h3>Angular: Cancellation with RxJS switchMap</h3>
+<pre><code>// ═══ RxJS switchMap = AUTOMATIC cancellation ═══
+// switchMap unsubscribes from previous inner observable when new value arrives
+// This AUTOMATICALLY cancels the previous HTTP request
+
+@Injectable({ providedIn: 'root' })
+export class SearchService {
+  private http = inject(HttpClient);
+  private searchTerms$ = new Subject&lt;string&gt;();
+
+  results$ = this.searchTerms$.pipe(
+    debounceTime(300),           // Wait 300ms after last keystroke
+    distinctUntilChanged(),      // Don't search if same term
+    switchMap(term =&gt;           // ← CANCELS previous request automatically
+      term.length &lt; 2
+        ? of([])
+        : this.http.get&lt;Result[]&gt;(`/api/search?q=${term}`)
+    )
+  );
+
+  search(term: string) {
+    this.searchTerms$.next(term);
+  }
+}
+
+// ═══ Cancel on route change (takeUntilDestroyed) ═══
+@Component({ ... })
+export class DataComponent {
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit() {
+    this.http.get('/api/heavy-data').pipe(
+      takeUntilDestroyed(this.destroyRef) // Cancel if user navigates away
+    ).subscribe(data =&gt; this.data = data);
+  }
+}
+
+// ═══ Manual cancellation with AbortController in Angular ═══
+@Component({ ... })
+export class UploadComponent {
+  private abortController: AbortController | null = null;
+
+  upload(file: File) {
+    this.abortController = new AbortController();
+    
+    // Angular HttpClient doesn't natively support AbortController,
+    // but unsubscribing from the observable cancels the XHR:
+    this.uploadSub = this.http.post('/api/upload', file).subscribe({
+      next: () =&gt; console.log('Done'),
+      error: (err) =&gt; console.error(err)
+    });
+  }
+
+  cancelUpload() {
+    this.uploadSub?.unsubscribe(); // This cancels the underlying XHR!
+  }
+}</code></pre>
+
+<div class="callout gotcha">
+  <span class="tag">Common Mistake</span>
+  Using <code>mergeMap</code> instead of <code>switchMap</code> for search/autocomplete. mergeMap runs all requests in parallel — you get race conditions. Always use <strong>switchMap</strong> when only the latest result matters.
+</div>
+
+<div class="callout tip">
+  <span class="tag">Interview Tip</span>
+  <strong>switchMap</strong> = only latest (search, autocomplete)<br>
+  <strong>exhaustMap</strong> = ignore new until current finishes (form submit, login)<br>
+  <strong>concatMap</strong> = queue in order (sequential file uploads)<br>
+  <strong>mergeMap</strong> = all parallel (analytics events, logging)
+</div>
+
+<div class="qa-block">
+  <p class="q">Q: How do you prevent stale API responses from overwriting current data? (Google, Amazon, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> Three approaches: (1) <strong>switchMap</strong> in RxJS — automatically cancels previous HTTP request when new one fires. (2) <strong>AbortController</strong> — explicitly cancel fetch with signal. (3) <strong>Request ID tracking</strong> — attach monotonically increasing ID to each request, ignore responses where ID &lt; latest sent ID. In Angular, switchMap is the idiomatic solution. For fetch-based code, AbortController.abort() sends TCP RST, saving bandwidth.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ScSn935bPOc" target="_blank">AbortController — Jake Archibald</a><div class="meta">Cancelling fetch requests properly</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=4mPfETK75LE" target="_blank">Abort Controller Tutorial — Steve Griffith</a><div class="meta">AbortSignal timeout patterns</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="rate-limiting">13. Rate Limiting &amp; Retry Logic</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: Client-Side Rate Limiting</h3>
+<p>Even though rate limiting is typically a server concern, <strong>smart frontends implement client-side rate limiting</strong> to avoid hitting server limits, improve UX, and reduce unnecessary network usage.</p>
+
+<table>
+  <tr><th>Strategy</th><th>How It Works</th><th>Use Case</th></tr>
+  <tr><td><strong>Debounce</strong></td><td>Wait N ms after last event before firing</td><td>Search input, resize handler</td></tr>
+  <tr><td><strong>Throttle</strong></td><td>Fire at most once per N ms</td><td>Scroll handler, mouse move, analytics</td></tr>
+  <tr><td><strong>Token Bucket</strong></td><td>N tokens refill per second; each request costs 1 token</td><td>API call limiting (prevent abuse)</td></tr>
+  <tr><td><strong>Sliding Window</strong></td><td>Max N requests in last T seconds</td><td>Protecting against burst traffic</td></tr>
+  <tr><td><strong>Queue + Drain</strong></td><td>Queue requests, process N per interval</td><td>Batch uploads, bulk operations</td></tr>
+</table>
+
+<pre><code>// ═══ TOKEN BUCKET Rate Limiter (Client-Side) ═══
+class TokenBucketRateLimiter {
+  private tokens: number;
+  private lastRefill: number;
+
+  constructor(
+    private maxTokens: number = 10,
+    private refillRate: number = 2 // tokens per second
+  ) {
+    this.tokens = maxTokens;
+    this.lastRefill = Date.now();
+  }
+
+  private refill() {
+    const now = Date.now();
+    const elapsed = (now - this.lastRefill) / 1000;
+    this.tokens = Math.min(this.maxTokens, this.tokens + elapsed * this.refillRate);
+    this.lastRefill = now;
+  }
+
+  canProceed(): boolean {
+    this.refill();
+    if (this.tokens >= 1) {
+      this.tokens -= 1;
+      return true;
+    }
+    return false; // Rate limited — show "slow down" UI
+  }
+}
+
+// ═══ Angular Interceptor: Respect Server Rate Limits (HTTP 429) ═══
+export const rateLimitInterceptor: HttpInterceptorFn = (req, next) =&gt; {
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) =&gt; {
+      if (error.status === 429) {
+        // Parse Retry-After header
+        const retryAfter = error.headers.get('Retry-After');
+        const delayMs = retryAfter ? parseInt(retryAfter) * 1000 : 5000;
+        
+        // Show user feedback
+        console.warn(`Rate limited. Retrying in ${delayMs}ms`);
+        
+        // Retry after the specified delay
+        return timer(delayMs).pipe(
+          switchMap(() =&gt; next(req))
+        );
+      }
+      return throwError(() =&gt; error);
+    })
+  );
+};</code></pre>
+
+<h3>Exponential Backoff with Jitter</h3>
+<pre><code>// ═══ PRODUCTION-GRADE Retry with Exponential Backoff + Jitter ═══
+
+export const retryWithBackoff: HttpInterceptorFn = (req, next) =&gt; {
+  const MAX_RETRIES = 3;
+  const BASE_DELAY = 1000; // 1 second
+
+  return next(req).pipe(
+    retry({
+      count: MAX_RETRIES,
+      delay: (error: HttpErrorResponse, retryCount: number) =&gt; {
+        // DON'T retry client errors (4xx) — those won't fix themselves
+        if (error.status &gt;= 400 && error.status &lt; 500) {
+          return throwError(() =&gt; error);
+        }
+        
+        // DON'T retry non-idempotent requests (POST, DELETE) without idempotency key
+        if (!req.headers.has('Idempotency-Key') && 
+            ['POST', 'DELETE', 'PATCH'].includes(req.method)) {
+          return throwError(() =&gt; error);
+        }
+
+        // Exponential backoff: 1s, 2s, 4s
+        const exponentialDelay = BASE_DELAY * Math.pow(2, retryCount - 1);
+        
+        // Add jitter (±25%) to prevent thundering herd
+        const jitter = exponentialDelay * 0.25 * (Math.random() * 2 - 1);
+        const finalDelay = Math.round(exponentialDelay + jitter);
+        
+        console.log(`Retry ${retryCount}/${MAX_RETRIES} in ${finalDelay}ms`);
+        return timer(finalDelay);
+      }
+    })
+  );
+};
+
+// ═══ WHY JITTER? — Thundering Herd Problem ═══
+// Without jitter: Server goes down, comes back up
+//   All 10,000 clients retry at exactly 1s, 2s, 4s → overwhelming the server again!
+// With jitter: Retries are spread out: 0.8s, 1.1s, 0.9s, 1.3s...
+//   Server can recover gradually
+
+// ═══ IDEMPOTENCY KEY — Safe retries for mutations ═══
+// Problem: User clicks "Pay" → network timeout → retry → DOUBLE CHARGE!
+// Solution: Attach unique key, server deduplicates
+const payment$ = this.http.post('/api/pay', payload, {
+  headers: { 'Idempotency-Key': crypto.randomUUID() }
+});
+// Server: if same key seen before, return cached response (no re-processing)</code></pre>
+
+<h3>Circuit Breaker Pattern (Frontend)</h3>
+<pre><code>// ═══ CIRCUIT BREAKER — Stop retrying when service is clearly down ═══
+// States: CLOSED (normal) → OPEN (failing) → HALF-OPEN (testing recovery)
+
+enum CircuitState { CLOSED, OPEN, HALF_OPEN }
+
+@Injectable({ providedIn: 'root' })
+export class CircuitBreakerService {
+  private state = CircuitState.CLOSED;
+  private failureCount = 0;
+  private lastFailureTime = 0;
+  
+  private readonly FAILURE_THRESHOLD = 5;  // Open after 5 failures
+  private readonly RECOVERY_TIMEOUT = 30000; // Try again after 30s
+
+  canRequest(): boolean {
+    if (this.state === CircuitState.CLOSED) return true;
+    if (this.state === CircuitState.OPEN) {
+      // Check if recovery timeout has passed
+      if (Date.now() - this.lastFailureTime > this.RECOVERY_TIMEOUT) {
+        this.state = CircuitState.HALF_OPEN;
+        return true; // Allow ONE test request
+      }
+      return false; // Circuit is open, show fallback UI
+    }
+    return true; // HALF_OPEN — allow test request
+  }
+
+  recordSuccess() {
+    this.failureCount = 0;
+    this.state = CircuitState.CLOSED;
+  }
+
+  recordFailure() {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+    if (this.failureCount >= this.FAILURE_THRESHOLD) {
+      this.state = CircuitState.OPEN;
+      // Show fallback UI: "Service temporarily unavailable"
+    }
+  }
+}</code></pre>
+
+<div class="callout warn">
+  <span class="tag">Interview Critical</span>
+  Always mention <strong>idempotency keys</strong> when discussing retry logic for payment/order APIs. Without them, retries can cause double-charges. This shows you understand real production systems.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=FjQ_a0KoBRQ" target="_blank">Rate Limiting Explained — ByteByteGo</a><div class="meta">Token bucket & sliding window</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=HFYlk5lK_Pc" target="_blank">Retry & Circuit Breaker — Hussein Nasser</a><div class="meta">Resilient frontend patterns</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="streaming">14. Streaming &amp; ReadableStream</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: What is HTTP Streaming?</h3>
+<p>Traditional HTTP: Request → wait → receive ENTIRE response. Streaming: receive response in <strong>chunks</strong> as they're generated. Critical for large payloads, AI responses (ChatGPT-like UX), and progressive rendering.</p>
+
+<table>
+  <tr><th>Type</th><th>Direction</th><th>Protocol</th><th>Use Case</th></tr>
+  <tr><td><strong>Chunked Transfer</strong></td><td>Server → Client</td><td>HTTP/1.1 Transfer-Encoding: chunked</td><td>Progressive HTML, AI text generation</td></tr>
+  <tr><td><strong>ReadableStream</strong></td><td>Server → Client</td><td>Fetch API + streams</td><td>File downloads, real-time logs</td></tr>
+  <tr><td><strong>WritableStream</strong></td><td>Client → Server</td><td>Fetch API + upload streaming</td><td>Large file uploads</td></tr>
+  <tr><td><strong>TransformStream</strong></td><td>Pipe</td><td>JS Streams API</td><td>Decompression, parsing on-the-fly</td></tr>
+</table>
+
+<pre><code>// ═══ READING A STREAM (ChatGPT-like progressive text) ═══
+async function streamAIResponse(prompt: string) {
+  const response = await fetch('/api/ai/chat', {
+    method: 'POST',
+    body: JSON.stringify({ prompt }),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  // Get the ReadableStream from response body
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    
+    // Decode chunk and append to display
+    const chunk = decoder.decode(value, { stream: true });
+    fullText += chunk;
+    updateUI(fullText); // Progressive rendering!
+  }
+}
+
+// ═══ ANGULAR: Streaming with HttpClient (reportProgress) ═══
+// Angular HttpClient supports download progress but not streaming text natively.
+// For streaming text, use fetch() directly:
+
+@Injectable({ providedIn: 'root' })
+export class StreamingService {
+  private ngZone = inject(NgZone);
+  
+  streamChat(prompt: string): Observable&lt;string&gt; {
+    return new Observable(observer =&gt; {
+      const controller = new AbortController();
+      
+      fetch('/api/ai/stream', {
+        method: 'POST',
+        body: JSON.stringify({ prompt }),
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' }
+      }).then(async response =&gt; {
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) { observer.complete(); break; }
+          
+          const chunk = decoder.decode(value, { stream: true });
+          this.ngZone.run(() =&gt; observer.next(chunk)); // Trigger CD
+        }
+      }).catch(err =&gt; observer.error(err));
+      
+      // Cleanup: abort stream on unsubscribe
+      return () =&gt; controller.abort();
+    });
+  }
+}
+
+// Usage in component:
+text = signal('');
+ngOnInit() {
+  this.streamingService.streamChat('Explain CORS')
+    .subscribe(chunk =&gt; this.text.update(t =&gt; t + chunk));
+}
+
+// ═══ NDJSON STREAMING (Newline-Delimited JSON) ═══
+// Server sends one JSON object per line, progressively:
+// {"id":1,"status":"processing"}\n
+// {"id":1,"status":"done","result":"..."}\n
+
+async function* parseNDJSON(response: Response) {
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop()!; // Keep incomplete line in buffer
+    
+    for (const line of lines) {
+      if (line.trim()) yield JSON.parse(line);
+    }
+  }
+}
+
+// ═══ BACKPRESSURE — When consumer is slower than producer ═══
+// ReadableStream handles this automatically:
+// If reader doesn't call .read(), the stream pauses (backpressure signal)
+// The server stops sending chunks until client catches up
+// This prevents memory overflow from buffering too much data</code></pre>
+
+<div class="callout tip">
+  <span class="tag">When to Use Streaming</span>
+  <ul>
+    <li><strong>AI/LLM responses</strong> — show text as it generates (like ChatGPT)</li>
+    <li><strong>Large file downloads</strong> — show progress, allow cancellation</li>
+    <li><strong>Real-time logs</strong> — tail -f style in browser</li>
+    <li><strong>SSR streaming</strong> — send HTML head immediately, body streams in (faster TTFB)</li>
+    <li><strong>Large JSON responses</strong> — parse progressively with NDJSON</li>
+  </ul>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q: How would you implement a ChatGPT-like streaming response in Angular? (Google, startups)</p>
+  <p class="a"><strong>Answer:</strong> Use native fetch() with ReadableStream (not HttpClient, which buffers the full response). Create an Observable wrapper: fetch with POST, get response.body.getReader(), loop with reader.read() yielding chunks via observer.next(). Use AbortController for cancellation on unsubscribe. Run inside NgZone to trigger change detection. For NDJSON, split on newlines and JSON.parse each line progressively. Show streaming text with a blinking cursor CSS animation.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=Cth_lm3f0aY" target="_blank">Streams API — Jake Archibald</a><div class="meta">ReadableStream in the browser</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=G9PpImUEeUA" target="_blank">Streaming in the Browser — Google Chrome</a><div class="meta">Fetch streaming demo</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="exercises">15. Hands-On Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 1: Implement Retry with Exponential Backoff</h4>
+  <p><strong>Task:</strong> Create an Angular HTTP interceptor that:</p>
+  <ul>
+    <li>Retries failed requests (5xx only) up to 3 times</li>
+    <li>Uses exponential backoff (1s, 2s, 4s)</li>
+    <li>Does NOT retry 4xx errors</li>
+    <li>Adds jitter to prevent thundering herd</li>
+  </ul>
+  <pre><code>// Starter:
+export const retryInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    // Your implementation here
+  );
+};</code></pre>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2: Build a Real-Time Notification System</h4>
+  <p><strong>Task:</strong> Implement using SSE:</p>
+  <ul>
+    <li>Angular service that connects to SSE endpoint</li>
+    <li>Handles different event types (message, alert, update)</li>
+    <li>Shows toast notifications</li>
+    <li>Reconnects automatically on disconnect</li>
+    <li>Stores missed notifications in IndexedDB</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3: Offline-First Todo App</h4>
+  <p><strong>Task:</strong> Build a todo app that:</p>
+  <ul>
+    <li>Works completely offline (Service Worker)</li>
+    <li>Syncs when back online (Background Sync API)</li>
+    <li>Handles conflict resolution (last-write-wins or merge)</li>
+    <li>Shows sync status indicator</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="interview-questions">13. Interview Questions (Previously Asked)</h2>
+
+<div class="qa-block">
+  <p class="q">Q1: How would you design a real-time chat application's frontend? (Meta, Google, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> WebSocket for bidirectional messaging. Connection management: reconnect with exponential backoff, heartbeat pings every 30s. Messages: optimistic UI (show immediately, confirm async). State: normalized message store (Map by messageId), conversation index. Offline: queue messages in IndexedDB, sync on reconnect with server-side ordering (vector clocks or timestamps). Typing indicators via lightweight WS events. Read receipts as background events. Pagination: cursor-based for history loading.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q2: Explain HTTP caching strategy for a production Angular app. (Amazon, Microsoft)</p>
+  <p class="a"><strong>Answer:</strong> index.html: no-cache (always revalidate, tiny file). JS/CSS bundles: immutable, max-age=1year (content-hashed filenames). Fonts: max-age=1year (rarely change). API responses: varies — user-specific data (private, no-store), product listings (stale-while-revalidate=60s), static configs (max-age=1h). Service Worker adds offline layer: Cache First for static assets, Network First for API. CDN handles geographic distribution with same cache rules.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q3: What's the difference between WebSocket, SSE, and Long Polling? When to use each? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> WebSocket: Full duplex, persistent TCP connection, both sides send anytime. Use for: chat, gaming, collaboration. SSE: Server-to-client only, built on HTTP, auto-reconnection. Use for: notifications, live feeds, dashboards. Long Polling: Client holds request open, server responds when data available. Use for: legacy systems, simple notifications. Decision: Need bidirectional? → WebSocket. Server push only? → SSE (simpler). Firewall/proxy issues? → Long Polling (safest).</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q4: How do you handle API failures gracefully in a frontend app? (Amazon, Flipkart, Swiggy)</p>
+  <p class="a"><strong>Answer:</strong> Layered approach: (1) Retry with exponential backoff for transient failures (5xx, timeout). (2) Circuit breaker pattern: after N failures, stop trying and show fallback UI. (3) Optimistic UI: show success immediately, rollback on failure. (4) Error boundaries: catch rendering errors, show degraded UI not white screen. (5) Offline queue: for mutations, store in IndexedDB, sync when online. (6) Stale data: show cached version with "last updated" indicator. (7) User feedback: toast notifications with retry button.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q5: Design the networking layer for a food delivery app (Swiggy/Zomato). (Swiggy, PhonePe, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> REST for CRUD (menu, orders). WebSocket for real-time order tracking (driver location every 3s). SSE for order status changes (placed → preparing → out → delivered). Caching: restaurant menus cached 5min (stale-while-revalidate), user location cached in memory. Offline: Service Worker caches last viewed restaurants. Retry: exponential backoff on payment APIs (idempotency key!). Rate limiting awareness: queue non-critical calls. BFF pattern: separate APIs for customer app vs restaurant app vs driver app.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q6: Explain CORS. Why does it exist? How do you handle it? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> CORS (Cross-Origin Resource Sharing) is a security mechanism. Same-Origin Policy prevents malicious scripts from reading data across origins. CORS is how a server explicitly allows specific origins. Handling: (1) Server sets Access-Control-Allow-Origin header. (2) For complex requests (PUT, custom headers), browser sends preflight OPTIONS. (3) Set Access-Control-Max-Age to cache preflight. (4) Development: use Angular proxy (proxy.conf.json). (5) Never use Access-Control-Allow-Origin: * with credentials! (6) Cookies need: withCredentials + explicit origin + Allow-Credentials: true.</p>
+</div>
+
+<div class="nav-links">
+  <a href="phase1-fundamentals-architecture.html">← Phase 1: Fundamentals</a>
+  <a href="phase3-performance-optimization.html">Phase 3: Performance →</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>

