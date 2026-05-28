@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 8: Advanced Topics & Interview Masterclass</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 8: Advanced Topics & Interview Masterclass</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (8 of 8 — Final)</p>
+  <div class="pill-row">
+    <span class="pill">Memory & GC</span>
+    <span class="pill">Performance</span>
+    <span class="pill">Security</span>
+    <span class="pill">TypeScript</span>
+    <span class="pill">Testing</span>
+    <span class="pill">Top Interview Qs</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#memory">Memory Management & Garbage Collection</a></li>
+    <li><a href="#performance">Performance Optimization</a></li>
+    <li><a href="#security">Security (XSS, CSRF, CSP)</a></li>
+    <li><a href="#typescript">TypeScript Essentials for Angular Devs</a></li>
+    <li><a href="#testing">Testing (Unit, Integration, E2E)</a></li>
+    <li><a href="#error-patterns">Error Handling Architecture</a></li>
+    <li><a href="#metaprogramming">Metaprogramming & Reflect</a></li>
+    <li><a href="#engine">V8 Engine Internals & Optimization</a></li>
+    <li><a href="#coding-challenges">Coding Challenges (Frequently Asked)</a></li>
+    <li><a href="#top-interview">Top 50 Interview Questions & Answers</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="memory">1. Memory Management & Garbage Collection</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=LaxbdIyBkL0" target="_blank">Memory Leaks — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=AeUCN2lPqL8" target="_blank">Garbage Collection — Lydia Hallie</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ceftD1MF1Qc" target="_blank">Memory Management — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// JavaScript memory lifecycle:
+// 1. Allocate memory (when you declare variables, create objects)
+// 2. Use memory (read/write operations)
+// 3. Release memory (garbage collection — automatic)
+
+// Garbage Collection: Mark-and-Sweep algorithm
+// Starting from roots (global, stack), mark all reachable objects
+// Everything NOT marked is garbage → freed
+
+// Common memory leaks:
+// 1. Accidental globals
+function leak() {
+  oops = "I'm global!"; // No let/const → attaches to window
+}
+
+// 2. Forgotten timers
+const id = setInterval(() => {
+  const data = getHugeData(); // 'data' captured, never freed
+}, 1000);
+// Fix: clearInterval(id) when done
+
+// 3. Detached DOM references
+const elements = [];
+function addElement() {
+  const el = document.createElement("div");
+  document.body.appendChild(el);
+  elements.push(el); // Still referenced even if removed from DOM!
+}
+function removeElement() {
+  document.body.removeChild(elements[0]);
+  // elements[0] still holds reference! Memory not freed!
+  elements.shift(); // Fix: remove from array too
+}
+
+// 4. Closures holding large scopes
+function createClosure() {
+  const hugeArray = new Array(1000000).fill("x");
+  return function() {
+    // Even if we don't USE hugeArray, V8 may keep it
+    // because the closure captures the entire scope
+    return "hello";
+  };
+}
+// Fix: Null out large variables after use
+function createClosure() {
+  let hugeArray = new Array(1000000).fill("x");
+  const result = processArray(hugeArray);
+  hugeArray = null; // Allow GC
+  return function() { return result; };
+}
+
+// 5. Event listeners not removed
+class Component {
+  constructor() {
+    this.handleResize = this.handleResize.bind(this);
+    window.addEventListener("resize", this.handleResize);
+  }
+  destroy() {
+    window.removeEventListener("resize", this.handleResize); // Critical!
+  }
+  handleResize() { /* ... */ }
+}
+
+// Angular: ngOnDestroy → unsubscribe from Observables!
+
+// Debugging memory: Chrome DevTools → Memory tab
+// - Heap snapshot: see all objects in memory
+// - Allocation timeline: track allocations over time
+// - Allocation sampling: lightweight profiling</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="performance">2. Performance Optimization</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=5fLW5Q5ODiE" target="_blank">JS Performance — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IronSpySFQ4" target="_blank">Debounce & Throttle — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Debounce ─────────────────────────────────────────────
+// Execute AFTER user stops triggering (search input, resize)
+function debounce(fn, delay) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+const debouncedSearch = debounce((query) => fetch(`/search?q=${query}`), 300);
+
+// ─── Throttle ─────────────────────────────────────────────
+// Execute at most once per interval (scroll, mousemove)
+function throttle(fn, limit) {
+  let inThrottle = false;
+  return function(...args) {
+    if (!inThrottle) {
+      fn.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+window.addEventListener("scroll", throttle(updatePosition, 100));
+
+// ─── requestIdleCallback ──────────────────────────────────
+// Run low-priority work when browser is idle
+requestIdleCallback((deadline) => {
+  while (deadline.timeRemaining() > 0 && tasks.length) {
+    processTask(tasks.shift());
+  }
+}, { timeout: 2000 }); // Max wait 2s
+
+// ─── Virtual Scrolling (conceptual) ──────────────────────
+// Only render visible items (Angular CDK VirtualScroll)
+class VirtualList {
+  #itemHeight = 40;
+  #visibleCount;
+  #container;
+  
+  render(scrollTop) {
+    const startIndex = Math.floor(scrollTop / this.#itemHeight);
+    const endIndex = startIndex + this.#visibleCount;
+    // Only render items[startIndex...endIndex]
+    // Use transform: translateY to position correctly
+  }
+}
+
+// ─── Web Vitals Metrics ───────────────────────────────────
+// LCP (Largest Contentful Paint) < 2.5s
+// FID (First Input Delay) < 100ms → INP < 200ms
+// CLS (Cumulative Layout Shift) < 0.1
+
+// ─── Avoiding layout thrashing ────────────────────────────
+// Batch DOM reads and writes (see Phase 6)
+// Use transform/opacity for animations (compositor-only)
+// will-change: transform (promote to GPU layer)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="security">3. Security (XSS, CSRF, CSP)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ns1LN6mS7-0" target="_blank">XSS Explained — Computerphile</a></li>
+  <li><a href="https://www.youtube.com/watch?v=eWEgUcHPle0" target="_blank">CSRF Attacks — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=txHc4zk6w3s" target="_blank">Frontend Security — Google Chrome Developers</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── XSS (Cross-Site Scripting) ───────────────────────────
+// Attacker injects malicious scripts into your page
+
+// Stored XSS: Malicious script saved in DB, served to users
+// Reflected XSS: Script in URL query params reflected in page
+// DOM XSS: Client-side JS inserts untrusted data into DOM
+
+// ❌ VULNERABLE:
+element.innerHTML = userInput; // If userInput = "<script>steal()</script>"
+document.write(location.hash);
+
+// ✅ SAFE:
+element.textContent = userInput; // Escapes HTML
+// Or use DOMPurify for rich content:
+element.innerHTML = DOMPurify.sanitize(userInput);
+
+// Angular protection:
+// - All {{ interpolation }} is auto-escaped
+// - [innerHTML] is sanitized by DomSanitizer
+// - bypassSecurityTrust* for trusted content only
+
+// ─── CSRF (Cross-Site Request Forgery) ────────────────────
+// Attacker tricks user's browser into making unwanted requests
+// Prevention:
+// 1. CSRF tokens (Angular HttpClient sends X-XSRF-TOKEN automatically)
+// 2. SameSite cookies (SameSite=Strict or Lax)
+// 3. Check Origin/Referer headers
+
+// ─── CSP (Content Security Policy) ───────────────────────
+// HTTP header that restricts what resources can load
+// Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.example.com
+
+// ─── Other security practices ─────────────────────────────
+// - Never store sensitive data in localStorage (XSS can read it)
+// - Use HttpOnly cookies for auth tokens
+// - Validate on server (client validation is UX only)
+// - Use Subresource Integrity (SRI) for CDN scripts
+// - Avoid eval(), new Function(), setTimeout(string)
+// - Use Object.freeze() for config objects
+// - Input sanitization at BOTH client and server
+
+// ─── Prototype Pollution (Senior Interview Topic!) ────────
+// Attack: Modifying Object.prototype to inject properties into ALL objects
+// Example vulnerability:
+function merge(target, source) {
+  for (const key in source) {
+    if (typeof source[key] === "object") {
+      target[key] = target[key] || {};
+      merge(target[key], source[key]); // Recursively merge
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+
+// Attack payload:
+// merge({}, JSON.parse('{"__proto__":{"isAdmin":true}}'));
+// Now EVERY object has .isAdmin === true!
+// const user = {}; user.isAdmin → true! (polluted prototype)
+
+// ✅ FIX: Block dangerous keys
+function safeMerge(target, source) {
+  for (const key of Object.keys(source)) { // Use Object.keys (not for...in)
+    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+      continue; // Block prototype pollution vectors!
+    }
+    if (typeof source[key] === "object" && source[key] !== null) {
+      target[key] = target[key] || {};
+      safeMerge(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+  return target;
+}
+
+// ✅ FIX 2: Use Object.create(null) for dictionaries (no prototype!)
+const safeDict = Object.create(null); // No __proto__!
+safeDict.key = "value"; // Safe — can't pollute prototype
+
+// ─── Clickjacking Prevention ─────────────────────────────
+// X-Frame-Options: DENY (or SAMEORIGIN)
+// CSP: frame-ancestors 'self'
+
+// ─── Secure Cookie Best Practices ─────────────────────────
+// Set-Cookie: token=abc; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600
+
+// ─── Interview: "How would you secure a frontend app?" ────
+// 1. Sanitize all user input (DOMPurify for HTML, escape for text)
+// 2. CSP headers (script-src 'self'; no inline scripts)
+// 3. HttpOnly + Secure cookies for auth
+// 4. CSRF tokens on state-changing requests
+// 5. SRI (Subresource Integrity) for CDN scripts
+// 6. No secrets in frontend code/localStorage
+// 7. Rate limiting on APIs
+// 8. Prototype pollution protection in object merges
+// 9. Input validation on server (client is UX only)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="typescript">4. TypeScript Essentials for Angular Devs</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=BwuLxPH8IDs" target="_blank">TypeScript in 100 Seconds — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ahCwqrYpIuM" target="_blank">TypeScript Full Course — Academind</a></li>
+  <li><a href="https://www.youtube.com/watch?v=jBmrduvKl5w" target="_blank">Advanced TypeScript — Matt Pocock</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Core Types ───────────────────────────────────────────
+let name: string = "Sid";
+let age: number = 25;
+let active: boolean = true;
+let items: string[] = ["a", "b"];
+let tuple: [string, number] = ["age", 25];
+let anything: any = "escape hatch"; // Avoid!
+let unknown: unknown = getData(); // Safer than any — must check before use
+
+// ─── Interfaces & Types ──────────────────────────────────
+interface User {
+  id: number;
+  name: string;
+  email?: string;           // Optional
+  readonly createdAt: Date; // Cannot reassign
+}
+
+type Status = "active" | "inactive" | "banned"; // Union literal
+type ApiResponse<T> = { data: T; error: null } | { data: null; error: string };
+
+// ─── Generics ─────────────────────────────────────────────
+function identity<T>(arg: T): T { return arg; }
+function first<T>(arr: T[]): T | undefined { return arr[0]; }
+
+interface Repository<T> {
+  findById(id: string): Promise<T>;
+  save(entity: T): Promise<T>;
+  delete(id: string): Promise<void>;
+}
+
+// ─── Utility Types ────────────────────────────────────────
+Partial<User>     // All properties optional
+Required<User>    // All properties required
+Readonly<User>    // All properties readonly
+Pick<User, "id" | "name">  // Only id & name
+Omit<User, "createdAt">    // Everything except createdAt
+Record<string, number>     // { [key: string]: number }
+ReturnType<typeof fn>      // Infer return type
+Parameters<typeof fn>      // Infer parameter types
+
+// ─── Discriminated Unions (Angular state management) ──────
+type Action = 
+  | { type: "LOADING" }
+  | { type: "SUCCESS"; data: User[] }
+  | { type: "ERROR"; error: string };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "LOADING": return { ...state, loading: true };
+    case "SUCCESS": return { loading: false, data: action.data }; // TS knows data exists!
+    case "ERROR": return { loading: false, error: action.error };
+  }
+}
+
+// ─── Type Guards ──────────────────────────────────────────
+function isString(value: unknown): value is string {
+  return typeof value === "string";
+}
+
+// ─── Decorators (Angular uses heavily) ────────────────────
+// @Component, @Injectable, @Input, @Output
+// Decorators are functions that modify class/method behavior
+function Log(target: any, key: string, desc: PropertyDescriptor) {
+  const original = desc.value;
+  desc.value = function(...args: any[]) {
+    console.log(`Calling ${key} with`, args);
+    return original.apply(this, args);
+  };
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="testing">5. Testing (Unit, Integration, E2E)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=FgnxcUQ5vho" target="_blank">JavaScript Testing — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=r9HdJ8P6GQI" target="_blank">Jest Crash Course — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=u5cLJpc47ZM" target="_blank">Testing Angular — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Testing pyramid: Unit (many) → Integration (some) → E2E (few)
+
+// ─── Unit Testing (Jest/Jasmine) ──────────────────────────
+describe("Calculator", () => {
+  let calc;
+  
+  beforeEach(() => { calc = new Calculator(); });
+  
+  it("should add two numbers", () => {
+    expect(calc.add(2, 3)).toBe(5);
+  });
+  
+  it("should throw on division by zero", () => {
+    expect(() => calc.divide(1, 0)).toThrow("Division by zero");
+  });
+  
+  it("should handle async operations", async () => {
+    const result = await calc.fetchRate("USD");
+    expect(result).toBeGreaterThan(0);
+  });
+});
+
+// ─── Mocking ──────────────────────────────────────────────
+// Mock dependencies to isolate unit under test
+const mockFetch = jest.fn().mockResolvedValue({ json: () => ({ rate: 1.2 }) });
+global.fetch = mockFetch;
+
+// Spy on methods
+const spy = jest.spyOn(service, "getData");
+spy.mockReturnValue(of(mockData)); // RxJS Observable mock
+
+// Angular TestBed:
+TestBed.configureTestingModule({
+  providers: [
+    UserService,
+    { provide: HttpClient, useValue: mockHttp }
+  ]
+});
+
+// ─── Testing Patterns ─────────────────────────────────────
+// AAA: Arrange → Act → Assert
+// Given-When-Then (BDD style)
+// Test behavior, not implementation
+// One assertion per test (ideally)
+// Use descriptive test names: "should return empty array when no items match"
+
+// ─── What to test (interview answer) ─────────────────────
+// ✅ Business logic, edge cases, error paths, public API
+// ❌ Framework internals, private methods, trivial getters</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="error-patterns">6. Error Handling Architecture</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=blBoIyNhGvY" target="_blank">Error Handling Patterns — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Custom Error Classes ─────────────────────────────────
+class AppError extends Error {
+  constructor(message, code, statusCode) {
+    super(message);
+    this.name = this.constructor.name;
+    this.code = code;
+    this.statusCode = statusCode;
+    Error.captureStackTrace?.(this, this.constructor);
+  }
+}
+
+class ValidationError extends AppError {
+  constructor(field, message) {
+    super(`Validation failed: ${field} — ${message}`, "VALIDATION", 400);
+    this.field = field;
+  }
+}
+
+class NotFoundError extends AppError {
+  constructor(resource, id) {
+    super(`${resource} ${id} not found`, "NOT_FOUND", 404);
+  }
+}
+
+// ─── Error Boundary Pattern ───────────────────────────────
+class ErrorBoundary {
+  #handlers = new Map();
+  
+  register(ErrorType, handler) {
+    this.#handlers.set(ErrorType, handler);
+  }
+  
+  async execute(fn) {
+    try {
+      return await fn();
+    } catch (error) {
+      for (const [Type, handler] of this.#handlers) {
+        if (error instanceof Type) return handler(error);
+      }
+      throw error; // Unhandled — re-throw
+    }
+  }
+}
+
+const boundary = new ErrorBoundary();
+boundary.register(ValidationError, (e) => ({ error: e.message, field: e.field }));
+boundary.register(NotFoundError, (e) => ({ error: e.message, status: 404 }));
+
+// ─── Result type (no-throw pattern) ──────────────────────
+class Result {
+  #value; #error; #isOk;
+  
+  static ok(value) { const r = new Result(); r.#value = value; r.#isOk = true; return r; }
+  static err(error) { const r = new Result(); r.#error = error; r.#isOk = false; return r; }
+  
+  isOk() { return this.#isOk; }
+  unwrap() { if (!this.#isOk) throw this.#error; return this.#value; }
+  unwrapOr(fallback) { return this.#isOk ? this.#value : fallback; }
+  
+  map(fn) { return this.#isOk ? Result.ok(fn(this.#value)) : this; }
+}
+
+// Usage:
+function divide(a, b) {
+  if (b === 0) return Result.err(new Error("Division by zero"));
+  return Result.ok(a / b);
+}
+divide(10, 2).map(x => x * 2).unwrap(); // 10</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="metaprogramming">7. Metaprogramming & Reflect</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=SV-hnwRaECg" target="_blank">Metaprogramming — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=gv0jH8qEi_0" target="_blank">Proxy Explained — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Metaprogramming: code that manipulates code/objects at runtime
+
+// ─── Proxy (Intercept ALL object operations) ──────────────
+// new Proxy(target, handler) — handler has "traps"
+
+// Validation Proxy:
+const schema = {
+  name: (v) => typeof v === "string" && v.length > 0,
+  age: (v) => Number.isInteger(v) && v >= 0 && v <= 150,
+  email: (v) => typeof v === "string" && v.includes("@")
+};
+
+function createValidated(schema) {
+  return new Proxy({}, {
+    set(target, prop, value) {
+      if (schema[prop] && !schema[prop](value)) {
+        throw new TypeError(`Invalid value for ${prop}: ${value}`);
+      }
+      return Reflect.set(target, prop, value);
+    }
+  });
+}
+
+const user = createValidated(schema);
+user.name = "Sid";  // ✅
+user.age = 25;      // ✅
+// user.age = -1;   // ❌ TypeError: Invalid value for age: -1
+
+// Logging/Debugging Proxy (wrap any object to trace access):
+function traceable(obj, label = "Object") {
+  return new Proxy(obj, {
+    get(target, prop) {
+      console.log(`[${label}] GET ${String(prop)}`);
+      return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+      console.log(`[${label}] SET ${String(prop)} = ${value}`);
+      return Reflect.set(target, prop, value);
+    }
+  });
+}
+
+// ─── Reflect API ──────────────────────────────────────────
+// Mirror of Object methods + Proxy traps — more consistent, returns booleans
+
+Reflect.get(obj, "prop");              // obj.prop
+Reflect.set(obj, "prop", value);       // obj.prop = value (returns boolean)
+Reflect.has(obj, "prop");              // "prop" in obj
+Reflect.deleteProperty(obj, "prop");   // delete obj.prop
+Reflect.ownKeys(obj);                  // All own keys (strings + symbols)
+Reflect.construct(Class, args);        // new Class(...args)
+Reflect.apply(fn, thisArg, args);      // fn.apply(thisArg, args)
+Reflect.defineProperty(obj, key, desc); // Like Object.defineProperty but returns boolean
+
+// Why Reflect over Object methods?
+// 1. Returns boolean (success/failure) instead of throwing
+// 2. Consistent with Proxy trap names
+// 3. First-class functions (no need for Object.prototype.hasOwnProperty.call)
+
+// ─── Property Descriptors ─────────────────────────────────
+Object.defineProperty(obj, "immutable", {
+  value: 42,
+  writable: false,       // Cannot reassign
+  enumerable: false,     // Hidden from for...in, Object.keys
+  configurable: false    // Cannot delete or redefine
+});
+
+// Accessor descriptors:
+Object.defineProperty(obj, "fullName", {
+  get() { return `${this.first} ${this.last}`; },
+  set(value) { [this.first, this.last] = value.split(" "); },
+  enumerable: true,
+  configurable: true
+});
+
+// ─── Object immutability levels ───────────────────────────
+Object.preventExtensions(obj); // No new properties
+Object.seal(obj);              // No new/delete, existing non-configurable
+Object.freeze(obj);            // seal + no value changes (shallow!)
+// Deep freeze:
+function deepFreeze(obj) {
+  Object.freeze(obj);
+  Object.getOwnPropertyNames(obj).forEach(prop => {
+    if (typeof obj[prop] === "object" && obj[prop] !== null) {
+      deepFreeze(obj[prop]);
+    }
+  });
+  return obj;
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="engine">8. V8 Engine Internals & Optimization</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=xckH5s3UuX4" target="_blank">How V8 Works — Franziska Hinkelmann</a></li>
+  <li><a href="https://www.youtube.com/watch?v=p-iiEDtpy6I" target="_blank">JS Engine Internals — Lydia Hallie</a></li>
+  <li><a href="https://www.youtube.com/watch?v=FSs_JYwnAdI" target="_blank">V8 Optimization — Google I/O</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>/*
+V8 Pipeline:
+Source Code → Parser → AST → Ignition (Bytecode Interpreter)
+                                    ↓ (hot functions)
+                              TurboFan (Optimizing JIT Compiler)
+                                    ↓
+                              Optimized Machine Code
+                                    ↓ (if assumptions invalidated)
+                              Deoptimization → back to Ignition
+*/
+
+// Hidden Classes (Shapes/Maps):
+// V8 creates hidden classes for objects with same structure
+// ✅ Always initialize properties in same order
+function Point(x, y) { this.x = x; this.y = y; }
+// All Point instances share the same hidden class → fast access
+
+// ❌ Bad: Adding properties in different orders
+const a = {}; a.x = 1; a.y = 2; // HiddenClass1 → HC2 → HC3
+const b = {}; b.y = 2; b.x = 1; // HC1 → HC4 → HC5 (different!)
+// 'a' and 'b' have DIFFERENT hidden classes → slower
+
+// Inline Caches (ICs):
+// V8 caches property lookup results at call sites
+// Monomorphic (1 shape) → fast
+// Polymorphic (2-4 shapes) → slower
+// Megamorphic (5+ shapes) → very slow (dictionary lookup)
+
+// ✅ Monomorphic: same shape objects
+function getX(obj) { return obj.x; } // Always same shape → fast
+getX({ x: 1, y: 2 });
+getX({ x: 3, y: 4 });
+
+// ❌ Megamorphic: different shapes
+getX({ x: 1 });
+getX({ x: 1, y: 2 });
+getX({ x: 1, y: 2, z: 3 });
+
+// Optimization tips:
+// 1. Use consistent object shapes (constructors/classes help)
+// 2. Avoid delete (changes hidden class) — set to undefined instead
+// 3. Use TypedArrays for numeric data (Float64Array, Int32Array)
+// 4. Avoid try/catch in hot paths (prevented optimization in old V8)
+// 5. Don't change variable types: let x = 1; x = "string"; // Bad!
+// 6. Small functions get inlined by TurboFan</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="coding-challenges">9. Coding Challenges (Frequently Asked)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=MY0UBGX2FtA" target="_blank">JS Interview Coding Questions — Roadside Coder</a></li>
+  <li><a href="https://www.youtube.com/watch?v=vDJpGenyHaA" target="_blank">Polyfills — Akshay Saini</a></li>
+</ul></details>
+
+<h3>Implement These (Asked in 80%+ Interviews)</h3>
+
+<div class="exercise">
+<h4>🏋️ Challenge 1: Implement Function.prototype.bind</h4>
+<pre><code>Function.prototype.myBind = function(context, ...boundArgs) {
+  const fn = this;
+  return function(...args) {
+    return fn.apply(context, [...boundArgs, ...args]);
+  };
+};
+
+const greet = function(greeting) { return `${greeting}, ${this.name}`; };
+const boundGreet = greet.myBind({ name: "Sid" }, "Hello");
+boundGreet(); // "Hello, Sid"</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Challenge 2: Implement Promise.all</h4>
+<pre><code>function promiseAll(promises) {
+  return new Promise((resolve, reject) => {
+    if (!promises.length) return resolve([]);
+    const results = new Array(promises.length);
+    let pending = promises.length;
+    
+    promises.forEach((p, i) => {
+      Promise.resolve(p).then(
+        value => { results[i] = value; if (--pending === 0) resolve(results); },
+        reject
+      );
+    });
+  });
+}</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Challenge 3: Implement debounce with leading/trailing options</h4>
+<pre><code>function debounce(fn, delay, { leading = false, trailing = true } = {}) {
+  let timeoutId, lastArgs;
+  
+  return function(...args) {
+    const callNow = leading && !timeoutId;
+    lastArgs = args;
+    
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      timeoutId = null;
+      if (trailing && lastArgs) fn.apply(this, lastArgs);
+      lastArgs = null;
+    }, delay);
+    
+    if (callNow) fn.apply(this, args);
+  };
+}</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Challenge 4: Deep clone (handling circular references)</h4>
+<pre><code>function deepClone(obj, seen = new WeakMap()) {
+  if (obj === null || typeof obj !== "object") return obj;
+  if (obj instanceof Date) return new Date(obj);
+  if (obj instanceof RegExp) return new RegExp(obj);
+  if (seen.has(obj)) return seen.get(obj); // Handle circular refs!
+  
+  const clone = Array.isArray(obj) ? [] : Object.create(Object.getPrototypeOf(obj));
+  seen.set(obj, clone);
+  
+  for (const key of Reflect.ownKeys(obj)) {
+    clone[key] = deepClone(obj[key], seen);
+  }
+  return clone;
+}
+// Or just: structuredClone(obj) — native ES2022!</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Challenge 5: Implement Array.prototype.flat</h4>
+<pre><code>Array.prototype.myFlat = function(depth = 1) {
+  if (depth <= 0) return this.slice();
+  return this.reduce((acc, item) => {
+    if (Array.isArray(item)) {
+      acc.push(...item.myFlat(depth - 1));
+    } else {
+      acc.push(item);
+    }
+    return acc;
+  }, []);
+};
+
+[1, [2, [3, [4]]]].myFlat(2); // [1, 2, 3, [4]]</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Challenge 6: Implement EventEmitter</h4>
+<pre><code>class EventEmitter {
+  #events = new Map();
+  
+  on(event, fn) {
+    if (!this.#events.has(event)) this.#events.set(event, []);
+    this.#events.get(event).push(fn);
+    return this;
+  }
+  
+  off(event, fn) {
+    const fns = this.#events.get(event);
+    if (fns) this.#events.set(event, fns.filter(f => f !== fn && f._original !== fn));
+    return this;
+  }
+  
+  emit(event, ...args) {
+    this.#events.get(event)?.forEach(fn => fn(...args));
+    return this;
+  }
+  
+  once(event, fn) {
+    const wrapper = (...args) => { this.off(event, wrapper); fn(...args); };
+    wrapper._original = fn;
+    return this.on(event, wrapper);
+  }
+}</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Challenge 7: Implement throttle with leading/trailing</h4>
+<pre><code>function throttle(fn, limit) {
+  let lastTime = 0;
+  let timeoutId;
+  
+  return function(...args) {
+    const now = Date.now();
+    const remaining = limit - (now - lastTime);
+    
+    clearTimeout(timeoutId);
+    
+    if (remaining <= 0) {
+      lastTime = now;
+      fn.apply(this, args);
+    } else {
+      timeoutId = setTimeout(() => {
+        lastTime = Date.now();
+        fn.apply(this, args);
+      }, remaining);
+    }
+  };
+}</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Challenge 8: Implement currying for unlimited arguments</h4>
+<pre><code>// sum(1)(2)(3)() === 6
+function sum(a) {
+  let total = a;
+  function inner(b) {
+    if (b === undefined) return total;
+    total += b;
+    return inner;
+  }
+  inner.valueOf = () => total; // For implicit conversion
+  return inner;
+}
+sum(1)(2)(3)(); // 6
+
+// Generic curry:
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) return fn(...args);
+    return (...more) => curried(...args, ...more);
+  };
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="top-interview">10. Top 50 Interview Questions & Answers</h2>
+
+<div class="interview">
+<h4>🎯 Rapid Fire — Commonly Asked</h4>
+
+<p><span class="difficulty d-easy">Easy</span> <strong>1. What's the difference between == and ===?</strong><br>
+== does type coercion before comparison. === checks value AND type without coercion. Always use === except for null checks (val == null catches both null and undefined).</p>
+
+<p><span class="difficulty d-easy">Easy</span> <strong>2. What are falsy values in JS?</strong><br>
+false, 0, -0, 0n, "", null, undefined, NaN — everything else is truthy (including [], {}, "0").</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>3. Explain closure with an example.</strong><br>
+A closure is a function that remembers variables from its outer scope even after the outer function has returned. <code>function counter() { let count = 0; return () => ++count; }</code> — the returned function "closes over" count.</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>4. What's the difference between var, let, and const?</strong><br>
+var: function-scoped, hoisted (initialized to undefined), can redeclare. let: block-scoped, hoisted (TDZ), can reassign. const: block-scoped, hoisted (TDZ), cannot reassign (but objects/arrays can be mutated).</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>5. What is hoisting?</strong><br>
+Declarations are moved to top of scope during compilation. var declarations initialized to undefined. function declarations fully hoisted (can call before declaration). let/const hoisted but in TDZ until declaration line.</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>6. Explain 'this' keyword.</strong><br>
+'this' depends on HOW a function is called: global call → window/undefined; method → object; new → new instance; call/apply/bind → explicit; arrow → lexical (inherits from enclosing).</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>7. What is event delegation?</strong><br>
+Attach one listener to parent instead of many to children. Uses event bubbling — check e.target to identify which child was clicked. Works for dynamically added elements, uses less memory.</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>8. Difference between null and undefined?</strong><br>
+undefined: variable declared but not assigned, missing function params, missing object properties. null: intentional absence of value, explicitly set. typeof null === "object" (historic bug). typeof undefined === "undefined".</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>9. What is the event loop?</strong><br>
+Mechanism that handles async operations in single-threaded JS. Continuously checks: call stack empty? → drain microtask queue → pick one macrotask → repeat. Enables non-blocking I/O despite single thread.</p>
+
+<p><span class="difficulty d-medium">Medium</span> <strong>10. What's the difference between map, filter, and reduce?</strong><br>
+map: transform each element, returns same-length array. filter: select elements by predicate, returns subset. reduce: accumulate into single value (sum, grouping, flattening).</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>11. Explain prototypal inheritance.</strong><br>
+Objects inherit from other objects via [[Prototype]] chain. When accessing a property, JS walks up the chain until found or null. Constructor.prototype becomes __proto__ of instances created with new.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>12. What's the difference between call, apply, and bind?</strong><br>
+call: invoke immediately with args list. apply: invoke immediately with args array. bind: returns NEW function with 'this' permanently set — doesn't invoke. All set explicit 'this' context.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>13. Explain Promises. How do they differ from callbacks?</strong><br>
+Promise: object representing future value. States: pending→fulfilled/rejected (immutable). Advantages over callbacks: chainable (.then), centralized errors (.catch), composable (Promise.all), no inversion of control, guaranteed single resolution.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>14. What is a memory leak? How do you find and fix them?</strong><br>
+Memory that should be freed but isn't (still referenced). Common: forgotten timers, detached DOM refs, closures holding large scopes, event listeners not removed. Debug with Chrome DevTools Memory tab (heap snapshots, allocation timeline).</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>15. Explain async/await. What happens under the hood?</strong><br>
+Syntactic sugar over Promises + generators. async function always returns Promise. await pauses execution (remainder becomes microtask). Under the hood: similar to yield in a generator consumed by a Promise runner.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>16. What is debouncing and throttling?</strong><br>
+Debounce: execute AFTER user stops triggering for N ms (search input). Throttle: execute at most once per N ms (scroll handler). Both prevent excessive function calls for performance.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>17. Explain the Module pattern.</strong><br>
+IIFE that returns an object exposing public API while keeping variables private via closure. Predecessor to ES modules. Still relevant for understanding encapsulation and Angular service patterns.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>18. What are generators? Use cases?</strong><br>
+Functions that can pause (yield) and resume. Use cases: lazy evaluation, infinite sequences, async flow control (redux-saga), custom iterables, state machines, data streaming.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>19. Explain WeakMap vs Map.</strong><br>
+Map: any key type, strong references, iterable, has size. WeakMap: object keys only, weak references (keys can be GC'd), NOT iterable, no size. Use WeakMap for metadata that shouldn't prevent GC (caching, private data).</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>20. How does JavaScript handle concurrency despite being single-threaded?</strong><br>
+Event loop + Web APIs. Async operations (setTimeout, fetch, I/O) are offloaded to browser/OS threads. When complete, callbacks are queued. Event loop picks them up when call stack is empty. Result: non-blocking despite single thread.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>21. Implement a deep equality check.</strong><br>
+<code>function deepEqual(a, b) { if (a === b) return true; if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false; const keysA = Object.keys(a), keysB = Object.keys(b); if (keysA.length !== keysB.length) return false; return keysA.every(key => deepEqual(a[key], b[key])); }</code></p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>22. What are Proxy and Reflect? Real-world uses?</strong><br>
+Proxy intercepts operations on objects (get, set, delete, has, etc.). Reflect provides matching methods for forwarding. Used in: Vue 3 reactivity, validation layers, logging, observable objects, auto-vivification, negative array indexing.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>23. Explain V8's hidden classes and inline caches.</strong><br>
+V8 creates hidden classes (shapes) for objects with same property structure. Inline caches memoize property lookup results. Monomorphic (1 shape) is fast. Mixing shapes causes megamorphic (slow dictionary lookup). Keep object shapes consistent for performance.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>24. How would you implement a simple reactive system (like Vue/Angular Signals)?</strong><br>
+Track dependencies during read (Proxy get trap adds current effect to dependency set). Notify subscribers during write (Proxy set trap triggers all effects in dependency set). Key: automatic dependency tracking without manual subscription.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>25. What is tail call optimization?</strong><br>
+When the last action of a function is calling another function, the engine can reuse the current stack frame instead of adding a new one. Prevents stack overflow in recursion. Only Safari implements TCO; other engines don't. Use iteration or trampolining as alternatives.</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Output Prediction Questions (Most Commonly Asked)</h4>
+
+<pre><code>// Q26: What's the output?
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0);
+}
+// Answer: 3, 3, 3 (var is function-scoped, all closures share same i)
+// Fix: use let (block-scoped) or IIFE
+
+// Q27: What's the output?
+console.log(typeof typeof 1);
+// Answer: "string" (typeof 1 = "number", typeof "number" = "string")
+
+// Q28: What's the output?
+const a = {};
+const b = { key: "b" };
+const c = { key: "c" };
+a[b] = 123;
+a[c] = 456;
+console.log(a[b]);
+// Answer: 456 (objects as keys are converted to "[object Object]")
+
+// Q29: What's the output?
+function foo() {
+  return
+  { name: "Sid" };
+}
+console.log(foo());
+// Answer: undefined (ASI inserts semicolon after return)
+
+// Q30: What's the output?
+const arr = [1, 2, 3];
+arr[10] = 11;
+console.log(arr.length);
+console.log(arr.filter(x => x === undefined).length);
+// Answer: 11, 0 (sparse array — empty slots, not undefined values!)
+
+// Q31: What's the output?
+console.log(0.1 + 0.2 === 0.3);
+// Answer: false (IEEE 754 floating point: 0.1+0.2 = 0.30000000000000004)
+// Fix: Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON
+
+// Q32: What's the output?
+const x = [1, 2, 3];
+const y = [1, 2, 3];
+console.log(x == y);
+console.log(x === y);
+// Answer: false, false (reference comparison — different objects)
+
+// Q33: What's the output?
+let a = 3;
+let b = new Number(3);
+console.log(a == b);
+console.log(a === b);
+console.log(typeof a, typeof b);
+// Answer: true, false, "number" "object"
+
+// Q34: What's the output?
+function Person(name) { this.name = name; }
+Person.prototype.getName = () => this.name;
+const p = new Person("Sid");
+console.log(p.getName());
+// Answer: undefined (arrow function 'this' = module/window, not instance!)
+
+// Q35: What's the output?
+const promise = new Promise((resolve) => {
+  console.log(1);
+  resolve(2);
+  console.log(3);
+});
+promise.then(console.log);
+console.log(4);
+// Answer: 1, 3, 4, 2 (executor is sync, .then is microtask)</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Scenario-Based Questions</h4>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>Q36: How would you implement infinite scroll?</strong><br>
+IntersectionObserver on sentinel element at bottom. When intersects: fetch next page, append items, move sentinel. Include loading state, error handling, and "no more items" detection. Debounce rapid scrolling.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>Q37: How would you implement a rate limiter in JS?</strong><br>
+Token bucket: <code>class RateLimiter { #tokens; #maxTokens; #refillRate; constructor(max, refillPerSec) { this.#tokens = max; this.#maxTokens = max; setInterval(() => { this.#tokens = Math.min(this.#maxTokens, this.#tokens + 1); }, 1000/refillPerSec); } tryAcquire() { if (this.#tokens > 0) { this.#tokens--; return true; } return false; } }</code></p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>Q38: How do you handle race conditions in frontend?</strong><br>
+1. AbortController (cancel stale requests). 2. Request ID matching (only apply latest). 3. Mutex/lock for critical sections. 4. Debounce rapid inputs. 5. switchMap in RxJS (Angular: cancels previous observable). 6. Optimistic UI with rollback.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>Q39: Design a client-side caching system with TTL, LRU eviction, and cache invalidation.</strong><br>
+Use Map (insertion-ordered). On get: move to end (delete + set). On set: if at capacity, delete first entry (LRU). Store {value, expiresAt}. On get: check expiry, delete if stale. Invalidation: pattern-based keys or tag-based grouping.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>Q40: How would you implement undo/redo in a text editor?</strong><br>
+Command pattern: each action is an object with execute() and undo(). Two stacks: undoStack and redoStack. Execute → push to undo, clear redo. Undo → pop from undo, push to redo, call undo(). Redo → pop from redo, push to undo, call execute().</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Angular-Specific JS Questions</h4>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>Q41: How does Zone.js work?</strong><br>
+Zone.js monkey-patches all async APIs (setTimeout, Promise, addEventListener, fetch, etc.) to notify Angular when async operations complete. This triggers change detection. Angular 17+ signals reduce reliance on Zone.js.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>Q42: How does Angular change detection relate to the event loop?</strong><br>
+Zone.js hooks into the end of microtask queue processing. After each async task completes and microtasks drain, Zone triggers ApplicationRef.tick() → runs change detection from root. OnPush strategy skips components unless inputs change or events fire within them.</p>
+
+<p><span class="difficulty d-hard">Hard</span> <strong>Q43: Why are RxJS Observables preferred over Promises in Angular?</strong><br>
+Observables: lazy (don't execute until subscribed), cancellable (unsubscribe), can emit multiple values over time, composable (operators: map, filter, switchMap, debounceTime), retry/error handling built-in. Promises: eager, non-cancellable, single value only.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>Q44: How would you detect and fix a memory leak in an Angular app?</strong><br>
+Symptoms: growing memory in DevTools. Common causes: unsubscribed Observables (fix: takeUntil + destroy$, or async pipe), event listeners in directives not cleaned in ngOnDestroy, large data cached in services. Debug: Chrome Memory → Heap snapshots → compare → find retained objects.</p>
+
+<p><span class="difficulty d-expert">Expert</span> <strong>Q45: Explain how Angular's DI system uses JavaScript concepts.</strong><br>
+Uses class constructors + metadata (decorators/TypeScript reflect-metadata) to determine dependencies. Hierarchical injector tree mirrors component tree. Providers map tokens to values/factories. At runtime: look up token in injector hierarchy → instantiate with dependencies → cache as singleton (or create per component with component-level providers).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>🚀 Keep Going!</strong> You've completed the core 8 phases. Continue to Phase 9 for 25+ polyfill implementations (FAANG must-haves), Phase 10 for 55+ output prediction questions, and Phase 11 for frontend system design with full working code.
+</div>
+
+<div class="nav-links">
+  <a href="phase7-es6-design-patterns.html">← Phase 7: ES6+ & Design Patterns</a>
+  <a href="phase9-polyfills-machine-coding.html">Phase 9: Polyfills & Machine Coding →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

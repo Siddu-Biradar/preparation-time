@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 7: Observability &amp; Testing</title>
+  <style>
+    :root { --bg: #ffffff; --panel: #f7f9fc; --panel-2: #f1f4fa; --ink: #1a2233; --muted: #5a6678; --line: #e2e7f0; --accent: #0f9d7a; --accent-2: #2a5bd7; --warn: #b26b00; --danger: #c23046; --critical: #7a1d2c; --ok: #1a8f4d; --code-bg: #f5f7fb; --chip: #eef1f8; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; } strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); } .chip.intermediate { background: #fdf1dc; color: var(--warn); } .chip.advanced { background: #fbe1e5; color: var(--danger); } .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; } .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; } .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; } .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); } .callout.tip .tag { color: var(--accent); } .callout.warn .tag { color: var(--warn); } .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; } .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; } .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 7 of 8 — Observability</small></div>
+  <h2>This Phase</h2>
+  <a href="#testing-pyramid">Testing Pyramid</a>
+  <a href="#unit-testing">Unit Testing (Angular)</a>
+  <a href="#integration-testing">Integration Testing</a>
+  <a href="#e2e-testing">E2E Testing</a>
+  <a href="#visual-regression">Visual Regression Testing</a>
+  <a href="#error-tracking">Error Tracking (Sentry)</a>
+  <a href="#memory-leaks">Memory Leak Debugging</a>
+  <a href="#logging">Logging & Analytics</a>
+  <a href="#performance-monitoring">Performance Monitoring (RUM)</a>
+  <a href="#feature-flags">Feature Flags</a>
+  <a href="#cicd">CI/CD for Frontend</a>
+  <a href="#exercises">Hands-On Exercises</a>
+  <a href="#interview-questions">Interview Questions</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html">① Fundamentals</a>
+  <a href="phase2-networking-communication.html">② Networking</a>
+  <a href="phase3-performance-optimization.html">③ Performance</a>
+  <a href="phase4-state-management-data.html">④ State & Data</a>
+  <a href="phase5-security-auth.html">⑤ Security</a>
+  <a href="phase6-scalable-ui-architecture.html">⑥ Scalable UI</a>
+  <a href="phase7-observability-testing.html"><strong>⑦ Observability</strong></a>
+  <a href="phase8-real-world-design-problems.html">⑧ Design Problems</a>
+</aside>
+
+<main>
+<h1>Phase 7: Observability &amp; Testing</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">Ship with confidence. Testing strategies, error tracking, performance monitoring, feature flags — how to maintain quality at scale and know when things break in production.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="testing-pyramid">1. The Testing Pyramid</h2>
+<span class="chip beginner">Beginner</span>
+
+<pre><code>// ═══ TESTING PYRAMID (Bottom-heavy is ideal) ═══
+//
+//              /\
+//             /  \         E2E Tests (Few — 5-10%)
+//            / E2E\        Slow, brittle, expensive
+//           /──────\       Test critical user journeys
+//          /        \
+//         /Integration\    Integration Tests (15-25%)
+//        / (Component) \   Test component + services together
+//       /──────────────\   Medium speed, moderate confidence
+//      /                \
+//     /   Unit Tests     \ Unit Tests (60-80%)
+//    / (Services, Pipes)  \ Fast, isolated, cheap
+//   /──────────────────────\ Test logic in isolation
+//
+// ANTI-PATTERN: Ice cream cone (mostly E2E, few unit tests)
+// → Slow CI, flaky tests, expensive to maintain
+
+// ═══ WHAT TO TEST WHERE ═══
+// Unit Tests: Pure functions, services, pipes, validators, reducers, selectors
+// Integration: Component + template + services (TestBed)
+// E2E: Login flow, checkout, critical business paths
+
+// ═══ TEST CONFIDENCE FORMULA ═══
+// Confidence = How closely tests resemble user behavior
+// Unit: High speed, low confidence per test (but coverage compounds)
+// E2E: Low speed, high confidence per test</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=u6QfIXgjwGQ" target="_blank">Testing Pyramid — Fireship</a><div class="meta">Unit, integration, E2E explained</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=Fha2bVoC8SE" target="_blank">Testing Strategy — Kent C. Dodds</a><div class="meta">Testing trophy approach</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="unit-testing">2. Unit Testing in Angular</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ TESTING A SERVICE ═══
+describe('CartService', () => {
+  let service: CartService;
+  let httpMock: HttpTestingController;
+  
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [CartService]
+    });
+    service = TestBed.inject(CartService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+  
+  afterEach(() => httpMock.verify()); // No outstanding requests
+  
+  it('should add item to cart', () => {
+    const item = { id: '1', name: 'Widget', price: 10, qty: 1 };
+    service.addItem(item);
+    expect(service.items()).toContain(item);
+  });
+  
+  it('should calculate total correctly', () => {
+    service.addItem({ id: '1', name: 'A', price: 10, qty: 2 });
+    service.addItem({ id: '2', name: 'B', price: 5, qty: 1 });
+    expect(service.total()).toBe(25); // 10*2 + 5*1
+  });
+  
+  it('should fetch products from API', () => {
+    const mockProducts = [{ id: '1', name: 'Test' }];
+    
+    service.loadProducts().subscribe(products => {
+      expect(products).toEqual(mockProducts);
+    });
+    
+    const req = httpMock.expectOne('/api/products');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockProducts);
+  });
+});
+
+// ═══ TESTING A PIPE ═══
+describe('FilterPipe', () => {
+  const pipe = new FilterPipe();
+  const items = [
+    { name: 'Angular', type: 'framework' },
+    { name: 'React', type: 'library' },
+    { name: 'Vue', type: 'framework' }
+  ];
+  
+  it('should filter by search term', () => {
+    expect(pipe.transform(items, 'Ang')).toEqual([items[0]]);
+  });
+  
+  it('should return all items for empty search', () => {
+    expect(pipe.transform(items, '')).toEqual(items);
+  });
+  
+  it('should be case-insensitive', () => {
+    expect(pipe.transform(items, 'angular')).toEqual([items[0]]);
+  });
+});
+
+// ═══ TESTING NgRx REDUCER ═══
+describe('Product Reducer', () => {
+  it('should set loading on load action', () => {
+    const state = productReducer(
+      initialState,
+      ProductActions.loadProducts({ category: 'all' })
+    );
+    expect(state.loading).toBe(true);
+    expect(state.error).toBeNull();
+  });
+  
+  it('should set products on success', () => {
+    const products = [{ id: '1', name: 'Test', price: 10 }];
+    const state = productReducer(
+      { ...initialState, loading: true },
+      ProductActions.loadProductsSuccess({ products })
+    );
+    expect(state.products).toEqual(products);
+    expect(state.loading).toBe(false);
+  });
+});</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=CaR-YyTqflA" target="_blank">Angular Unit Testing — Decoded Frontend</a><div class="meta">Jasmine & Karma walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=7r4xVDI2vho" target="_blank">Jest Testing — Fireship</a><div class="meta">Unit testing fundamentals</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="integration-testing">3. Integration Testing (Component Tests)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ COMPONENT INTEGRATION TEST ═══
+// Tests component + template + child components + services together
+
+describe('ProductListComponent', () => {
+  let component: ProductListComponent;
+  let fixture: ComponentFixture&lt;ProductListComponent&gt;;
+  let productService: jasmine.SpyObj&lt;ProductService&gt;;
+  
+  beforeEach(async () => {
+    const spy = jasmine.createSpyObj('ProductService', ['getProducts']);
+    
+    await TestBed.configureTestingModule({
+      imports: [ProductListComponent], // Standalone component
+      providers: [{ provide: ProductService, useValue: spy }]
+    }).compileComponents();
+    
+    productService = TestBed.inject(ProductService) as jasmine.SpyObj&lt;ProductService&gt;;
+    fixture = TestBed.createComponent(ProductListComponent);
+    component = fixture.componentInstance;
+  });
+  
+  it('should display products', () => {
+    const products = [
+      { id: '1', name: 'Widget', price: 29.99 },
+      { id: '2', name: 'Gadget', price: 49.99 }
+    ];
+    productService.getProducts.and.returnValue(of(products));
+    
+    fixture.detectChanges(); // Triggers ngOnInit
+    
+    const cards = fixture.nativeElement.querySelectorAll('.product-card');
+    expect(cards.length).toBe(2);
+    expect(cards[0].textContent).toContain('Widget');
+    expect(cards[0].textContent).toContain('$29.99');
+  });
+  
+  it('should show loading skeleton initially', () => {
+    productService.getProducts.and.returnValue(NEVER); // Never resolves
+    fixture.detectChanges();
+    
+    const skeleton = fixture.nativeElement.querySelector('app-skeleton-card');
+    expect(skeleton).toBeTruthy();
+  });
+  
+  it('should show error state on failure', () => {
+    productService.getProducts.and.returnValue(
+      throwError(() => new Error('Network error'))
+    );
+    fixture.detectChanges();
+    
+    const errorEl = fixture.nativeElement.querySelector('.error-state');
+    expect(errorEl.textContent).toContain('Something went wrong');
+  });
+  
+  it('should emit addToCart event', () => {
+    productService.getProducts.and.returnValue(of([{ id: '1', name: 'Test', price: 10 }]));
+    fixture.detectChanges();
+    
+    spyOn(component, 'onAddToCart');
+    const addBtn = fixture.nativeElement.querySelector('.add-to-cart-btn');
+    addBtn.click();
+    
+    expect(component.onAddToCart).toHaveBeenCalledWith('1');
+  });
+});
+
+// ═══ TESTING WITH Angular Testing Library (Recommended) ═══
+import { render, screen, fireEvent } from '@testing-library/angular';
+
+it('should filter products by search', async () => {
+  await render(ProductListComponent, {
+    providers: [{ provide: ProductService, useValue: mockService }]
+  });
+  
+  const searchInput = screen.getByPlaceholderText('Search products...');
+  fireEvent.input(searchInput, { target: { value: 'Widget' } });
+  
+  expect(screen.getByText('Widget')).toBeInTheDocument();
+  expect(screen.queryByText('Gadget')).not.toBeInTheDocument();
+});</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=VCNrVbOBCfk" target="_blank">Component Testing — Angular</a><div class="meta">TestBed & component harness</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=JKOwJUM4_RM" target="_blank">Testing Library — Kent C. Dodds</a><div class="meta">Testing user interactions</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="e2e-testing">4. E2E Testing (Playwright / Cypress)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ PLAYWRIGHT (Recommended — faster, multi-browser) ═══
+import { test, expect } from '@playwright/test';
+
+test.describe('Checkout Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/products');
+  });
+  
+  test('should complete purchase', async ({ page }) => {
+    // Add product to cart:
+    await page.click('[data-testid="product-card-1"] .add-to-cart');
+    
+    // Verify cart badge:
+    await expect(page.locator('.cart-badge')).toHaveText('1');
+    
+    // Go to checkout:
+    await page.click('[data-testid="cart-icon"]');
+    await page.click('[data-testid="checkout-btn"]');
+    
+    // Fill shipping:
+    await page.fill('[name="address"]', '123 Main St');
+    await page.fill('[name="city"]', 'Mumbai');
+    await page.selectOption('[name="state"]', 'MH');
+    
+    // Place order:
+    await page.click('[data-testid="place-order"]');
+    
+    // Verify success:
+    await expect(page.locator('.order-confirmation')).toBeVisible();
+    await expect(page.locator('.order-id')).toHaveText(/ORD-\d+/);
+  });
+  
+  test('should handle payment failure gracefully', async ({ page }) => {
+    // Mock payment API to fail:
+    await page.route('**/api/payment', route =>
+      route.fulfill({ status: 500, body: JSON.stringify({ error: 'declined' }) })
+    );
+    
+    // ... add item, go to checkout, fill form ...
+    await page.click('[data-testid="place-order"]');
+    
+    // Should show error, NOT redirect to success:
+    await expect(page.locator('.payment-error')).toBeVisible();
+    await expect(page.locator('.payment-error')).toContainText('Payment declined');
+    // Cart should still have items (not cleared):
+    await expect(page.locator('.cart-badge')).toHaveText('1');
+  });
+});
+
+// ═══ PAGE OBJECT MODEL (Scalable E2E) ═══
+class CheckoutPage {
+  constructor(private page: Page) {}
+  
+  async fillShipping(address: ShippingAddress) {
+    await this.page.fill('[name="address"]', address.street);
+    await this.page.fill('[name="city"]', address.city);
+    await this.page.selectOption('[name="state"]', address.state);
+  }
+  
+  async placeOrder() {
+    await this.page.click('[data-testid="place-order"]');
+  }
+  
+  async getOrderId(): Promise&lt;string&gt; {
+    return this.page.locator('.order-id').textContent();
+  }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=JBatFOpxXLM" target="_blank">Playwright Tutorial — Fireship</a><div class="meta">E2E testing in practice</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=vm7MiGs4Fzc" target="_blank">Cypress vs Playwright — Theo</a><div class="meta">Framework comparison</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="visual-regression">5. Visual Regression Testing</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// ═══ WHAT IS VISUAL REGRESSION? ═══
+// Screenshot-based comparison: captures UI snapshots
+// Detects unintended visual changes (CSS regressions, layout shifts)
+
+// Tools: Chromatic (Storybook), Percy (BrowserStack), Playwright screenshots
+
+// ═══ PLAYWRIGHT VISUAL TESTING ═══
+test('product card matches snapshot', async ({ page }) => {
+  await page.goto('/products/1');
+  
+  const card = page.locator('.product-card');
+  await expect(card).toHaveScreenshot('product-card.png', {
+    maxDiffPixelRatio: 0.01  // Allow 1% pixel difference (anti-aliasing)
+  });
+});
+
+// ═══ STORYBOOK + CHROMATIC (Best for component libraries) ═══
+// Every Storybook story automatically becomes a visual test!
+// Chromatic captures screenshots in multiple browsers/viewports
+// PR shows visual diff: "These components changed visually — approve?"
+
+// stories/button.stories.ts:
+export const Primary: Story = { args: { variant: 'primary', label: 'Click me' } };
+export const Loading: Story = { args: { variant: 'primary', loading: true } };
+export const Disabled: Story = { args: { variant: 'primary', disabled: true } };
+// Each becomes a visual test point in Chromatic CI
+
+// ═══ WHEN TO USE ═══
+// ✅ Component libraries (catch CSS regressions)
+// ✅ Design system updates (verify token changes don't break UI)
+// ✅ Critical pages (login, checkout, dashboard)
+// ❌ Highly dynamic content (timestamps, random data)</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=LRU4F_hWjBI" target="_blank">Visual Testing — Chromatic</a><div class="meta">Catching UI regressions</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=MXfZeE9RQDw" target="_blank">Percy Visual Testing — BrowserStack</a><div class="meta">Automated screenshot diffing</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="error-tracking">6. Error Tracking (Production Monitoring)</h2>
+<span class="chip critical">Critical</span>
+
+<pre><code>// ═══ SENTRY INTEGRATION (Industry standard) ═══
+// Install: npm install @sentry/angular-ivy
+
+// app.config.ts:
+import * as Sentry from '@sentry/angular-ivy';
+
+Sentry.init({
+  dsn: 'https://key@sentry.io/project',
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration()  // Session replay on errors
+  ],
+  tracesSampleRate: 0.1,        // 10% of transactions
+  replaysOnErrorSampleRate: 1.0  // 100% of error sessions
+});
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    { provide: ErrorHandler, useValue: Sentry.createErrorHandler({
+        showDialog: false  // Don't show user feedback dialog
+      })
+    },
+    { provide: Sentry.TraceService, deps: [Router] },
+    { provide: APP_INITIALIZER, useFactory: () => () => {}, deps: [Sentry.TraceService], multi: true }
+  ]
+};
+
+// ═══ CUSTOM ERROR CONTEXT ═══
+@Injectable({ providedIn: 'root' })
+export class ErrorTrackingService {
+  setUser(user: User) {
+    Sentry.setUser({ id: user.id, email: user.email });
+  }
+  
+  captureException(error: Error, context?: Record&lt;string, any&gt;) {
+    Sentry.withScope(scope => {
+      if (context) scope.setExtras(context);
+      scope.setTag('feature', context?.['feature'] || 'unknown');
+      Sentry.captureException(error);
+    });
+  }
+  
+  addBreadcrumb(category: string, message: string) {
+    Sentry.addBreadcrumb({ category, message, level: 'info' });
+  }
+}
+
+// Usage:
+try {
+  await this.processPayment(order);
+} catch (error) {
+  this.errorTracking.captureException(error, {
+    feature: 'checkout',
+    orderId: order.id,
+    amount: order.total
+  });
+}
+
+// ═══ SOURCE MAPS FOR PRODUCTION DEBUGGING ═══
+// Upload source maps to Sentry during build:
+// sentry-cli releases files RELEASE upload-sourcemaps ./dist --url-prefix '~/'
+// Then: production error shows ORIGINAL source code location!
+
+// ═══ ALERT RULES ═══
+// Sentry alerts → Slack/PagerDuty when:
+// • Error rate spikes &gt; 5% in 5 minutes
+// • New error type (never seen before)
+// • Error affects &gt; 100 users
+// • P95 response time &gt; 3s</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=FMb0-qJKBjw" target="_blank">Sentry Tutorial — Fireship</a><div class="meta">Error monitoring setup</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=H0XScE08hy8" target="_blank">Production Debugging — Google Chrome</a><div class="meta">Source maps & error tracking</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="memory-leaks">7. Memory Leak Debugging</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: Common Memory Leak Sources in Angular</h3>
+<p>Memory leaks happen when your app holds references to objects that should be garbage-collected. In SPAs, users don't refresh — so leaks accumulate over hours, eventually crashing the tab.</p>
+
+<pre><code>// ═══ TOP 5 MEMORY LEAK SOURCES IN ANGULAR ═══
+//
+// 1. UNSUBSCRIBED OBSERVABLES (RxJS)
+//    - Subscribing in ngOnInit without unsubscribing in ngOnDestroy
+//    - Interval/timer observables that run forever
+//    - WebSocket connections never closed
+//
+// 2. EVENT LISTENERS NOT REMOVED
+//    - window.addEventListener('scroll', ...) without removeEventListener
+//    - Renderer2.listen() without calling the unlisten function
+//
+// 3. DETACHED DOM NODES
+//    - Component removed from DOM but JS still references its elements
+//    - closures capturing DOM references that prevent GC
+//
+// 4. CLOSURES CAPTURING LARGE OBJECTS
+//    - Event handlers closing over entire component instances
+//    - Callbacks in services holding references to destroyed components
+//
+// 5. GROWING DATA STRUCTURES
+//    - Arrays/Maps that grow unbounded (never pruned)
+//    - Cached data without eviction policy
+
+// ═══ FIX PATTERNS ═══
+
+// ❌ LEAK: Subscription never cleaned up
+@Component({ ... })
+export class LeakyComponent implements OnInit {
+  ngOnInit() {
+    this.dataService.stream$.subscribe(data =&gt; {
+      this.items = data; // This closure prevents GC of entire component!
+    });
+  }
+}
+
+// ✅ FIX 1: takeUntilDestroyed (Angular 16+, BEST approach)
+@Component({ ... })
+export class FixedComponent {
+  private destroyRef = inject(DestroyRef);
+  
+  ngOnInit() {
+    this.dataService.stream$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(data =&gt; this.items = data);
+  }
+}
+
+// ✅ FIX 2: Use signals + toSignal (auto-cleanup)
+@Component({ ... })
+export class SignalComponent {
+  items = toSignal(this.dataService.stream$, { initialValue: [] });
+  // toSignal automatically unsubscribes when component is destroyed!
+}
+
+// ✅ FIX 3: async pipe in template (auto-cleanup)
+// &lt;div *ngFor="let item of items$ | async"&gt;{{ item.name }}&lt;/div&gt;
+
+// ❌ LEAK: Event listener never removed
+ngOnInit() {
+  window.addEventListener('resize', this.onResize);
+}
+// ✅ FIX:
+private resizeListener = this.onResize.bind(this);
+ngOnInit() { window.addEventListener('resize', this.resizeListener); }
+ngOnDestroy() { window.removeEventListener('resize', this.resizeListener); }</code></pre>
+
+<h3>DevTools Memory Profiling (Step-by-Step)</h3>
+<pre><code>// ═══ HOW TO FIND MEMORY LEAKS WITH CHROME DEVTOOLS ═══
+//
+// STEP 1: Take baseline heap snapshot
+//   → DevTools → Memory tab → "Take heap snapshot"
+//   → This is your baseline (Snapshot 1)
+//
+// STEP 2: Perform the leaky action
+//   → Navigate to a page, open a modal, scroll through a list
+//   → Navigate AWAY (back to previous page)
+//   → Repeat 3-5 times to accumulate leaks
+//
+// STEP 3: Force garbage collection
+//   → Click the trash can icon (🗑) in DevTools Memory tab
+//   → This ensures only TRULY leaked objects remain
+//
+// STEP 4: Take second snapshot
+//   → Take Snapshot 2
+//
+// STEP 5: Compare snapshots
+//   → Select Snapshot 2 → Change view to "Comparison"
+//   → Compare against Snapshot 1
+//   → Sort by "# Delta" or "Size Delta" (descending)
+//   → Look for: Detached HTMLDivElement, Object, Array growing
+//
+// ═══ WHAT TO LOOK FOR ═══
+// • "Detached" prefix = DOM nodes no longer in page but still referenced
+// • Growing array/object counts between snapshots
+// • Component class names still present after navigation
+// • EventListener objects growing in count
+//
+// ═══ ALLOCATION TIMELINE (Finding WHEN leak happens) ═══
+// → Memory tab → "Allocation instrumentation on timeline"
+// → Start recording → perform actions → stop
+// → Blue bars = memory allocated during that time
+// → Blue bars that DON'T turn gray = LEAKED (not garbage collected)
+// → Click blue bar to see what objects were allocated
+
+// ═══ PERFORMANCE.MEMORY API (Programmatic detection) ═══
+// Monitor memory usage over time:
+setInterval(() =&gt; {
+  if (performance.memory) {
+    const used = performance.memory.usedJSHeapSize / 1024 / 1024;
+    const total = performance.memory.totalJSHeapSize / 1024 / 1024;
+    console.log(`Heap: ${used.toFixed(1)}MB / ${total.toFixed(1)}MB`);
+    
+    // Alert if growing beyond threshold:
+    if (used &gt; 200) {
+      console.warn('MEMORY WARNING: Heap exceeds 200MB!');
+      // Send to monitoring service
+    }
+  }
+}, 30000); // Check every 30s
+
+// ═══ DETACHED DOM NODE DETECTION ═══
+// In DevTools Console:
+// 1. Type: getEventListeners(document) — see ALL listeners
+// 2. Heap snapshot → filter "Detached" → trace retainer path
+// 3. The "Retaining path" shows you EXACTLY what's holding the reference</code></pre>
+
+<h3>Real-World Memory Leak Case Studies</h3>
+<pre><code>// ═══ CASE 1: Router Navigation Leak ═══
+// Problem: Component subscribes to router events, never unsubscribes
+// Each navigation creates new subscription → linear memory growth
+// Fix: takeUntilDestroyed() on ALL router subscriptions
+
+// ═══ CASE 2: Third-Party Library Leak ═══
+// Problem: Chart library (Chart.js) creates canvas context
+// Angular destroys component, but chart instance stays in memory
+// Fix: Call chart.destroy() in ngOnDestroy()
+
+ngOnDestroy() {
+  this.chartInstance?.destroy(); // Releases canvas + internal data
+}
+
+// ═══ CASE 3: Closure Leak in Services ═══
+// Problem: Service stores callbacks from components:
+@Injectable({ providedIn: 'root' })
+export class NotificationService {
+  private listeners: Function[] = []; // GROWS FOREVER!
+  
+  onNotification(cb: Function) {
+    this.listeners.push(cb);
+  }
+}
+// Fix: Return unsubscribe function:
+onNotification(cb: Function): () =&gt; void {
+  this.listeners.push(cb);
+  return () =&gt; { // Return cleanup function
+    this.listeners = this.listeners.filter(l =&gt; l !== cb);
+  };
+}
+
+// ═══ CASE 4: WebSocket Connection Leak ═══
+// Problem: Each route change creates new WebSocket, old one not closed
+// Fix: Manage connection lifecycle in a singleton service with cleanup</code></pre>
+
+<div class="callout gotcha">
+  <span class="tag">Interview Pattern</span>
+  When asked "How do you detect and fix memory leaks?", structure your answer: (1) <strong>Detect</strong>: Chrome DevTools heap snapshots, compare before/after navigation. (2) <strong>Identify</strong>: Look for "Detached" DOM nodes and growing object counts. (3) <strong>Common causes</strong>: unsubscribed observables, event listeners, third-party library cleanup, growing caches. (4) <strong>Angular fixes</strong>: takeUntilDestroyed(), toSignal(), async pipe, ngOnDestroy cleanup.
+</div>
+
+<div class="qa-block">
+  <p class="q">Q: Your Angular SPA gets slower after 30 minutes of use. How do you diagnose and fix it? (Amazon, Google, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> This screams memory leak. Steps: (1) Open DevTools Memory tab → take heap snapshot as baseline. (2) Use the app for 10 min (navigate pages, open/close modals). (3) Force GC → take second snapshot. (4) Compare snapshots — sort by "Size Delta". (5) Look for Detached DOM nodes (component removed but referenced) and growing arrays. (6) Trace retainer path to find the root cause. Common fixes: add takeUntilDestroyed() to all subscriptions, destroy third-party libraries in ngOnDestroy, add LRU eviction to caches, ensure event listeners are removed.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=YDU_3WdfkxA" target="_blank">Memory Leaks — Google Chrome</a><div class="meta">DevTools memory profiler</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=IKJSNiMmNOI" target="_blank">Finding Memory Leaks — Jack Herrington</a><div class="meta">Heap snapshot walkthrough</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="logging">8. Logging &amp; Analytics</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ STRUCTURED FRONTEND LOGGING ═══
+@Injectable({ providedIn: 'root' })
+export class LogService {
+  private readonly LOG_LEVELS = { debug: 0, info: 1, warn: 2, error: 3 };
+  private level = environment.production ? 'warn' : 'debug';
+  
+  info(message: string, data?: any) { this.log('info', message, data); }
+  warn(message: string, data?: any) { this.log('warn', message, data); }
+  error(message: string, data?: any) { this.log('error', message, data); }
+  
+  private log(level: string, message: string, data?: any) {
+    if (this.LOG_LEVELS[level] &lt; this.LOG_LEVELS[this.level]) return;
+    
+    const entry = {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      data,
+      url: window.location.href,
+      userAgent: navigator.userAgent
+    };
+    
+    // In production: send to backend logging service
+    if (environment.production) {
+      this.sendToBackend(entry);
+    } else {
+      console[level](message, data);
+    }
+  }
+  
+  private sendToBackend(entry: any) {
+    // Use beacon for reliability (sends even on page unload):
+    navigator.sendBeacon('/api/logs', JSON.stringify(entry));
+  }
+}
+
+// ═══ ANALYTICS (Event Tracking) ═══
+@Injectable({ providedIn: 'root' })
+export class AnalyticsService {
+  trackEvent(event: string, properties?: Record&lt;string, any&gt;) {
+    // Google Analytics 4:
+    (window as any).gtag('event', event, properties);
+    
+    // Or custom:
+    navigator.sendBeacon('/api/analytics', JSON.stringify({
+      event,
+      properties,
+      timestamp: Date.now(),
+      sessionId: this.sessionId,
+      page: window.location.pathname
+    }));
+  }
+  
+  trackPageView(page: string) {
+    this.trackEvent('page_view', { page_path: page });
+  }
+}
+
+// Auto-track route changes:
+constructor(private router: Router, private analytics: AnalyticsService) {
+  this.router.events.pipe(
+    filter(event => event instanceof NavigationEnd)
+  ).subscribe((event: NavigationEnd) => {
+    this.analytics.trackPageView(event.urlAfterRedirects);
+  });
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=FMb0-qJKBjw" target="_blank">Frontend Logging — Sentry</a><div class="meta">Structured logging patterns</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=kuEI_IMljq0" target="_blank">Analytics Implementation — Google</a><div class="meta">GA4 & custom events</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="performance-monitoring">8. Performance Monitoring (RUM)</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// RUM = Real User Monitoring (actual user performance data)
+// vs Synthetic = Lighthouse/WebPageTest (lab conditions)
+
+// ═══ WEB VITALS COLLECTION ═══
+import { onLCP, onINP, onCLS, onFCP, onTTFB } from 'web-vitals';
+
+@Injectable({ providedIn: 'root' })
+export class PerformanceMonitorService {
+  constructor() {
+    if (environment.production) this.init();
+  }
+  
+  private init() {
+    onLCP(metric => this.report(metric));
+    onINP(metric => this.report(metric));
+    onCLS(metric => this.report(metric));
+    onFCP(metric => this.report(metric));
+    onTTFB(metric => this.report(metric));
+    
+    // Custom metrics:
+    this.observeLongTasks();
+    this.observeResourceTiming();
+  }
+  
+  private report(metric: any) {
+    const body = {
+      name: metric.name,
+      value: metric.value,
+      delta: metric.delta,
+      id: metric.id,
+      page: location.pathname,
+      connection: (navigator as any).connection?.effectiveType,
+      deviceMemory: (navigator as any).deviceMemory,
+      viewport: `${innerWidth}x${innerHeight}`
+    };
+    navigator.sendBeacon('/api/performance', JSON.stringify(body));
+  }
+  
+  private observeLongTasks() {
+    const observer = new PerformanceObserver(list => {
+      for (const entry of list.getEntries()) {
+        if (entry.duration > 100) { // Only report &gt; 100ms
+          this.report({ name: 'long-task', value: entry.duration });
+        }
+      }
+    });
+    observer.observe({ type: 'longtask', buffered: true });
+  }
+  
+  private observeResourceTiming() {
+    const observer = new PerformanceObserver(list => {
+      for (const entry of list.getEntries() as PerformanceResourceTiming[]) {
+        if (entry.duration > 1000) { // Slow resources (&gt; 1s)
+          this.report({
+            name: 'slow-resource',
+            value: entry.duration,
+            resource: entry.name
+          });
+        }
+      }
+    });
+    observer.observe({ type: 'resource', buffered: true });
+  }
+}
+
+// ═══ PERFORMANCE DASHBOARD ═══
+// Metrics to track (per route, per device):
+// • p50, p75, p95 for LCP, INP, CLS
+// • Error rate by route
+// • Bundle sizes over time (from CI)
+// • API response times (from interceptor)
+// • Long task frequency</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Real User Monitoring — web.dev</a><div class="meta">RUM vs synthetic monitoring</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=lfBXrshGpKo" target="_blank">Web Vitals Library — Google Chrome</a><div class="meta">Collecting field data</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="feature-flags">9. Feature Flags</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ WHY FEATURE FLAGS? ═══
+// • Deploy code without releasing features (decouple deploy from release)
+// • Canary releases: enable for 5% of users first
+// • A/B testing: show variant A vs B
+// • Kill switch: instantly disable broken feature
+// • Beta programs: enable for specific user segments
+
+// ═══ ANGULAR FEATURE FLAG SERVICE ═══
+@Injectable({ providedIn: 'root' })
+export class FeatureFlagService {
+  private flags = signal&lt;Record&lt;string, boolean&gt;&gt;({});
+  
+  constructor(private http: HttpClient) {
+    // Fetch flags on app init:
+    this.http.get&lt;Record&lt;string, boolean&gt;&gt;('/api/features')
+      .subscribe(flags => this.flags.set(flags));
+  }
+  
+  isEnabled(flag: string): boolean {
+    return this.flags()[flag] ?? false;
+  }
+  
+  // For templates:
+  enabled = (flag: string) => computed(() => this.flags()[flag] ?? false);
+}
+
+// Structural Directive:
+@Directive({ selector: '[featureFlag]', standalone: true })
+export class FeatureFlagDirective {
+  private ff = inject(FeatureFlagService);
+  private vcr = inject(ViewContainerRef);
+  private templateRef = inject(TemplateRef);
+  
+  @Input() set featureFlag(flag: string) {
+    if (this.ff.isEnabled(flag)) {
+      this.vcr.createEmbeddedView(this.templateRef);
+    } else {
+      this.vcr.clear();
+    }
+  }
+}
+
+// Usage:
+&lt;div *featureFlag="'new-checkout'"&gt;
+  &lt;app-new-checkout /&gt;
+&lt;/div&gt;
+
+// Route guard with feature flag:
+export const featureFlagGuard = (flag: string): CanActivateFn => () => {
+  return inject(FeatureFlagService).isEnabled(flag);
+};
+
+const routes: Routes = [
+  {
+    path: 'beta-dashboard',
+    loadComponent: () => import('./beta-dashboard.component'),
+    canActivate: [featureFlagGuard('beta-dashboard')]
+  }
+];</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=9yL7bgj4G6Y" target="_blank">Feature Flags — Fireship</a><div class="meta">Feature flag fundamentals</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=AJa2B-twtG4" target="_blank">LaunchDarkly Tutorial — LaunchDarkly</a><div class="meta">Progressive rollouts</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="cicd">10. CI/CD for Frontend</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ CI PIPELINE (GitHub Actions example) ═══
+name: Frontend CI
+on: [push, pull_request]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'npm' }
+      - run: npm ci
+      
+      # Parallel quality checks:
+      - run: npm run lint          # ESLint
+      - run: npm run type-check    # TypeScript strict
+      - run: npm run test:ci       # Unit + Integration tests
+      - run: npm run build         # Production build (checks budgets!)
+      
+      # Bundle analysis:
+      - run: npx source-map-explorer dist/main.*.js --json > bundle.json
+      - uses: preactjs/compressed-size-action@v2  # Comment PR with size change
+      
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npx playwright test
+      
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npx @lhci/cli autorun  # Lighthouse CI
+
+// ═══ DEPLOYMENT STRATEGIES ═══
+// 1. Blue-Green: Switch traffic instantly between two environments
+// 2. Canary: Route 5% → 25% → 50% → 100% (roll back if errors spike)
+// 3. Feature Flags: Deploy everything, enable per user segment
+
+// ═══ PREVIEW DEPLOYMENTS (PR Previews) ═══
+// Every PR gets its own URL (Vercel, Netlify, Cloudflare Pages)
+// Designers/PMs review before merge
+// E2E tests run against preview URL</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=u5senBJUkPc" target="_blank">Angular Testing Course — Decoded Frontend</a><div class="meta">Complete testing walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=MS9Ib_uxpSU" target="_blank">Playwright E2E Testing — Fireship</a><div class="meta">Quick Playwright overview</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=j6ow-UemzBc" target="_blank">Feature Flags — DevOps Toolkit</a><div class="meta">Production feature flag patterns</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="exercises">11. Hands-On Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 1: Complete Test Suite for a Feature</h4>
+  <p><strong>Task:</strong> Write full test coverage for a product search feature:</p>
+  <ul>
+    <li>Unit tests: SearchService (debounce, API call, error handling)</li>
+    <li>Integration test: SearchComponent (renders results, shows loading, empty state)</li>
+    <li>E2E test (Playwright): Search → filter → add to cart → verify cart</li>
+    <li>Achieve 80%+ code coverage</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2: Error & Performance Monitoring Setup</h4>
+  <p><strong>Task:</strong> Set up production observability:</p>
+  <ul>
+    <li>Integrate Sentry for error tracking with source maps</li>
+    <li>Add Web Vitals reporting service</li>
+    <li>Create custom performance marks for critical user flows</li>
+    <li>Set up alert rules (error spike, slow LCP)</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3: CI Pipeline with Quality Gates</h4>
+  <p><strong>Task:</strong> Build a GitHub Actions pipeline that:</p>
+  <ul>
+    <li>Runs lint, type-check, unit tests (parallel)</li>
+    <li>Fails on bundle size regression (&gt;10% increase)</li>
+    <li>Runs Lighthouse CI (fails if LCP &gt; 2.5s)</li>
+    <li>Deploys preview URL for each PR</li>
+    <li>Runs E2E tests against preview</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="interview-questions">12. Interview Questions (Previously Asked)</h2>
+
+<div class="qa-block">
+  <p class="q">Q1: What's your testing strategy for a large Angular application? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> Testing pyramid: 70% unit, 20% integration, 10% E2E. Unit: all services, pipes, validators, reducers (fast, isolated). Integration: components with TestBed or Angular Testing Library (template + bindings + child components). E2E: Playwright for critical user journeys (login, checkout, search). Visual regression: Chromatic/Playwright screenshots for component library. Coverage: 80%+ on business logic, not chasing 100%. CI: all tests run on every PR, E2E on staging before deploy.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q2: How do you monitor frontend errors in production? (Amazon, Microsoft, Google)</p>
+  <p class="a"><strong>Answer:</strong> Stack: Sentry for error tracking + Web Vitals for performance. Setup: (1) Global ErrorHandler sends to Sentry with user context. (2) HTTP interceptor catches API errors with request/response details. (3) Source maps uploaded during build for readable stack traces. (4) Session replay on errors for reproduction. (5) Alerts: Slack/PagerDuty on error rate spike, new error types, affected user count. (6) Dashboard: errors by route, by browser, by release. (7) Release tracking: tag deploys to correlate errors with code changes.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q3: How do you implement feature flags? What about cleanup? (Amazon, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> Implementation: (1) Service fetches flags from backend (LaunchDarkly/Unleash/custom). (2) Structural directive *featureFlag="'name'" for template conditional. (3) Route guards for feature-gated routes. (4) Interceptor adds feature context to API calls. Strategies: percentage rollout, user segment targeting, kill switch. Cleanup: critical! (1) Set expiry dates on flags. (2) Automated linting to detect stale flags. (3) After 100% rollout for 2 weeks → remove flag + dead code. (4) Track active flags in dashboard. Tech debt accumulates fast without cleanup.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q4: How would you set up a CI/CD pipeline for a frontend monorepo with 5 apps? (Senior level)</p>
+  <p class="a"><strong>Answer:</strong> Nx monorepo: (1) affected command — only test/build changed apps + their dependents. (2) Distributed caching (Nx Cloud) — skip unchanged tasks across team. (3) Pipeline: lint → type-check → unit test → build → E2E (parallel where possible). (4) Per-app budgets (fail if any app exceeds). (5) PR previews per app (Vercel/Cloudflare). (6) Canary deploys: deploy to 5% first, monitor errors for 30min, then full. (7) Rollback: instant via CDN (point to previous build). (8) Shared library changes trigger all consuming apps.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q5: Explain Real User Monitoring vs Synthetic Monitoring. Which metrics do you track? (Google, Microsoft)</p>
+  <p class="a"><strong>Answer:</strong> Synthetic (Lab): Lighthouse, WebPageTest — controlled conditions, consistent, catches regressions in CI. RUM (Field): actual user data — varying devices, networks, geographies. Track both! Metrics: CWV (LCP, INP, CLS) at p50/p75/p95. Custom: time-to-interactive per route, API response times, long tasks, JS errors. Segment by: device type, connection speed (4G/3G), geography, browser. Dashboard: per-route performance, release comparison. Alerts: p75 LCP exceeds 2.5s for 5 minutes → PagerDuty.</p>
+</div>
+
+<div class="nav-links">
+  <a href="phase6-scalable-ui-architecture.html">← Phase 6: Scalable UI</a>
+  <a href="phase8-real-world-design-problems.html">Phase 8: Design Problems →</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>

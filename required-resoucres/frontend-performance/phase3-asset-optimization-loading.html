@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend Performance — Phase 3: Asset Optimization & Loading Strategies</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #0f6b5f; --accent-soft: #d9efe8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.5; font-size: 11.4pt; }
+    main { max-width: 920px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #152923; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 28px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 18px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #f1ece2; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf7f2 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #13443d; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #bfded5; }
+    .callout { border-left: 4px solid var(--accent); background: #f4fbf8; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 3: Asset Optimization & Loading Strategies</h1>
+  <p class="subtitle">Frontend Performance Mastery — Zero to Hero Series (3 of 6)</p>
+  <div class="pill-row">
+    <span class="pill">Image Optimization</span>
+    <span class="pill">Font Loading</span>
+    <span class="pill">Code Splitting</span>
+    <span class="pill">Tree Shaking</span>
+    <span class="pill">Caching Strategies</span>
+    <span class="pill">Compression</span>
+    <span class="pill">CDN</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#images">Image Optimization (Complete Guide)</a></li>
+    <li><a href="#fonts">Font Loading & Optimization</a></li>
+    <li><a href="#code-splitting">Code Splitting & Lazy Loading</a></li>
+    <li><a href="#tree-shaking">Tree Shaking & Dead Code Elimination</a></li>
+    <li><a href="#bundling">Bundle Optimization & Webpack/esbuild</a></li>
+    <li><a href="#compression">Compression (Gzip, Brotli, Zstd)</a></li>
+    <li><a href="#caching">HTTP Caching Deep Dive</a></li>
+    <li><a href="#cdn">CDN & Edge Computing</a></li>
+    <li><a href="#resource-hints">Resource Hints & Priority</a></li>
+    <li><a href="#third-party">Third-Party Script Management</a></li>
+    <li><a href="#exercise3">Hands-On Exercises</a></li>
+    <li><a href="#interview3">Interview Questions — Phase 3</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="images">1. Image Optimization (Complete Guide)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=F1kYBnY6mwg" target="_blank">Image Optimization for Web — web.dev (Katie Hempenius)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=fp9eU-YSo1I" target="_blank">AVIF, WebP, JPEG — Which Format? — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=2QYpkrX2N48" target="_blank">Responsive Images & srcset — Kevin Powell</a></li>
+  <li><a href="https://www.youtube.com/watch?v=345V2MU3E_w" target="_blank">Angular NgOptimizedImage — Angular (Official)</a></li>
+</ul></details></div>
+
+<p>Images account for <strong>50-75% of total page weight</strong> on most websites. Optimizing images is often the highest-impact, lowest-effort performance improvement.</p>
+
+<h3>Modern Image Formats Comparison</h3>
+<table>
+  <tr><th>Format</th><th>Compression</th><th>Transparency</th><th>Animation</th><th>Browser Support</th><th>Best For</th></tr>
+  <tr><td><strong>JPEG</strong></td><td>Lossy, good</td><td>No</td><td>No</td><td>100%</td><td>Photos (fallback)</td></tr>
+  <tr><td><strong>PNG</strong></td><td>Lossless</td><td>Yes</td><td>No</td><td>100%</td><td>Icons, logos, screenshots</td></tr>
+  <tr><td><strong>WebP</strong></td><td>Lossy/Lossless, 25-35% smaller than JPEG</td><td>Yes</td><td>Yes</td><td>97%</td><td>General purpose (modern default)</td></tr>
+  <tr><td><strong>AVIF</strong></td><td>Lossy/Lossless, 50% smaller than JPEG</td><td>Yes</td><td>Yes</td><td>92%</td><td>Best quality/size ratio</td></tr>
+  <tr><td><strong>SVG</strong></td><td>Vector (infinitely scalable)</td><td>Yes</td><td>Yes (CSS/SMIL)</td><td>100%</td><td>Icons, logos, illustrations</td></tr>
+  <tr><td><strong>JPEG XL</strong></td><td>Best overall, 60% smaller than JPEG</td><td>Yes</td><td>Yes</td><td>Limited (Safari only)</td><td>Future default</td></tr>
+</table>
+
+<h3>Responsive Images — The Complete Pattern</h3>
+<pre>
+&lt;!-- 1. Art Direction: Different images for different viewports --&gt;
+&lt;picture&gt;
+  &lt;!-- AVIF (best compression) --&gt;
+  &lt;source
+    type="image/avif"
+    srcset="hero-400.avif 400w,
+            hero-800.avif 800w,
+            hero-1200.avif 1200w,
+            hero-1600.avif 1600w"
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"&gt;
+
+  &lt;!-- WebP (fallback for no AVIF) --&gt;
+  &lt;source
+    type="image/webp"
+    srcset="hero-400.webp 400w,
+            hero-800.webp 800w,
+            hero-1200.webp 1200w,
+            hero-1600.webp 1600w"
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"&gt;
+
+  &lt;!-- JPEG fallback --&gt;
+  &lt;img
+    src="hero-800.jpg"
+    srcset="hero-400.jpg 400w,
+            hero-800.jpg 800w,
+            hero-1200.jpg 1200w,
+            hero-1600.jpg 1600w"
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+    alt="Hero banner"
+    width="1200"
+    height="600"
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"&gt;
+&lt;/picture&gt;
+
+&lt;!-- 2. Below-fold images: lazy load --&gt;
+&lt;img src="photo.webp"
+     loading="lazy"
+     decoding="async"
+     width="400"
+     height="300"
+     alt="Product photo"&gt;
+</pre>
+
+<h3>Image Loading Attributes Explained</h3>
+<table>
+  <tr><th>Attribute</th><th>Values</th><th>Purpose</th></tr>
+  <tr><td><code>loading</code></td><td><code>eager</code> (default) / <code>lazy</code></td><td>Defer off-screen images until near viewport</td></tr>
+  <tr><td><code>decoding</code></td><td><code>sync</code> / <code>async</code> / <code>auto</code></td><td>Allow async image decoding (don't block main thread)</td></tr>
+  <tr><td><code>fetchpriority</code></td><td><code>high</code> / <code>low</code> / <code>auto</code></td><td>Hint browser about download priority</td></tr>
+  <tr><td><code>width</code>/<code>height</code></td><td>Intrinsic dimensions</td><td>Reserve space, prevent CLS</td></tr>
+</table>
+
+<div class="callout warning">
+  <strong>Critical Rule:</strong> NEVER lazy-load your LCP image. The LCP image should have <code>loading="eager"</code> and <code>fetchpriority="high"</code>. Also preload it: <code>&lt;link rel="preload" as="image" href="hero.webp"&gt;</code>
+</div>
+
+<h3>Image Compression Pipeline</h3>
+<pre>
+# Tools for batch optimization:
+# Sharp (Node.js) — fastest, production-grade
+npm install sharp
+
+// sharp-optimize.js
+const sharp = require('sharp');
+
+async function optimizeImage(input, output) {
+  await sharp(input)
+    .resize(1200, null, { withoutEnlargement: true })
+    .webp({ quality: 80, effort: 6 })
+    .toFile(output + '.webp');
+
+  await sharp(input)
+    .resize(1200, null, { withoutEnlargement: true })
+    .avif({ quality: 65, effort: 6 })
+    .toFile(output + '.avif');
+}
+
+// Angular NgOptimizedImage directive (built-in since Angular 15)
+import { NgOptimizedImage } from '@angular/common';
+
+@Component({
+  imports: [NgOptimizedImage],
+  template: `
+    &lt;img ngSrc="hero.jpg"
+         width="1200"
+         height="600"
+         priority
+         placeholder&gt;
+  `
+})
+// Auto-generates srcset, adds fetchpriority, enforces sizing
+</pre>
+
+<h3>SVG Optimization</h3>
+<pre>
+&lt;!-- Before optimization: 12KB --&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 24 24"
+     style="enable-background:new 0 0 24 24;" xml:space="preserve"&gt;
+  &lt;!-- Illustrator metadata, comments, empty groups --&gt;
+&lt;/svg&gt;
+
+&lt;!-- After SVGO optimization: 800 bytes --&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"&gt;
+  &lt;path d="M12 2L2 7v10l10 5 10-5V7z"/&gt;
+&lt;/svg&gt;
+
+# Tools:
+# SVGO (CLI): npx svgo input.svg -o output.svg
+# SVGOMG (web): https://jakearchibald.github.io/svgomg/
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="fonts">2. Font Loading & Optimization</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=G0cOQ79WBZE" target="_blank">Web Font Optimization — Harry Roberts (CSSConf)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=s-G1m23Emlk" target="_blank">font-display & Font Loading — Jen Simmons (Mozilla)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Z6dMnwlam9A" target="_blank">Self-Hosting Google Fonts — Kevin Powell</a></li>
+</ul></details></div>
+
+<h3>The Font Loading Problem</h3>
+<pre>
+Without optimization:
+1. HTML parsed → discovers @font-face in CSS
+2. CSS must fully load first (render-blocking)
+3. Font file download begins ONLY after CSSOM + render tree
+4. Text invisible until font loads (FOIT — Flash of Invisible Text)
+   OR text shown in fallback then swaps (FOUT — Flash of Unstyled Text)
+
+Timeline:
+|--CSS load--|--Font discovery--|--Font download--|--Text visible--|
+0ms         200ms             250ms             800ms
+             Total delay: 800ms before text is readable!
+</pre>
+
+<h3>font-display Strategies</h3>
+<table>
+  <tr><th>Value</th><th>Behavior</th><th>Use When</th></tr>
+  <tr><td><code>swap</code></td><td>Show fallback immediately, swap when font loads</td><td>Body text, headings (best for performance)</td></tr>
+  <tr><td><code>block</code></td><td>Invisible text for 3s, then fallback</td><td>Icon fonts (prevent wrong glyphs)</td></tr>
+  <tr><td><code>fallback</code></td><td>Invisible 100ms, fallback, swap if loads within 3s</td><td>Balance: less FOUT than swap</td></tr>
+  <tr><td><code>optional</code></td><td>Invisible 100ms, fallback forever (font used on NEXT visit)</td><td>Slow connections, progressive enhancement</td></tr>
+  <tr><td><code>auto</code></td><td>Browser decides (usually = block)</td><td>Never use this</td></tr>
+</table>
+
+<h3>Optimal Font Loading Strategy</h3>
+<pre>
+&lt;head&gt;
+  &lt;!-- 1. Preconnect to font origin --&gt;
+  &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+
+  &lt;!-- 2. Preload critical font files --&gt;
+  &lt;link rel="preload" as="font" type="font/woff2" crossorigin
+        href="/fonts/inter-var-latin.woff2"&gt;
+
+  &lt;!-- 3. Font-face with swap + subset --&gt;
+  &lt;style&gt;
+    @font-face {
+      font-family: 'Inter';
+      src: url('/fonts/inter-var-latin.woff2') format('woff2');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153; /* Latin subset */
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+</pre>
+
+<h3>Reducing CLS from Font Swap</h3>
+<pre>
+/* size-adjust: Match fallback font metrics to web font */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* Adjusted fallback to prevent layout shift */
+@font-face {
+  font-family: 'Inter-fallback';
+  src: local('Arial');
+  size-adjust: 107%;        /* Match web font width */
+  ascent-override: 90%;     /* Match ascender height */
+  descent-override: 22%;    /* Match descender depth */
+  line-gap-override: 0%;    /* Match line gap */
+}
+
+body {
+  font-family: 'Inter', 'Inter-fallback', sans-serif;
+}
+
+/* Tool to generate these values: */
+/* https://screenspan.net/fallback */
+/* Or: npx @next/font (Next.js automatic font optimization) */
+</pre>
+
+<h3>Font Optimization Checklist</h3>
+<ul>
+  <li><strong>Self-host fonts</strong> — Avoid third-party latency (no extra DNS/TCP/TLS)</li>
+  <li><strong>Use WOFF2</strong> — 30% smaller than WOFF, 50% smaller than TTF</li>
+  <li><strong>Subset fonts</strong> — Only include characters you need (Latin, symbols)</li>
+  <li><strong>Variable fonts</strong> — Single file for all weights/styles (vs. 6+ separate files)</li>
+  <li><strong>Preload critical fonts</strong> — Start download before CSS is parsed</li>
+  <li><strong>Use font-display: swap</strong> — Text visible immediately in fallback</li>
+  <li><strong>Limit font families</strong> — Each family = additional download</li>
+  <li><strong>Use system fonts where possible</strong> — Zero download cost</li>
+</ul>
+
+<pre>
+/* System font stack — instant rendering, no download */
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, /* macOS/iOS */
+    'Segoe UI',                        /* Windows */
+    'Roboto',                          /* Android */
+    'Oxygen', 'Ubuntu', 'Cantarell',   /* Linux */
+    'Fira Sans', 'Droid Sans',         /* Other */
+    'Helvetica Neue', sans-serif;      /* Fallback */
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="code-splitting">3. Code Splitting & Lazy Loading</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=JU-ZIuhtHns" target="_blank">Code Splitting in Webpack — Academind</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ntJ-HFScS1E" target="_blank">Angular Lazy Loading Routes — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=S5RaHPsennQ" target="_blank">Angular @defer Blocks — Angular (Official)</a></li>
+</ul></details></div>
+
+<h3>Why Code Splitting Matters</h3>
+<pre>
+Without code splitting:
+  main.js = 2MB (entire app in one bundle)
+  Parse time (mobile): 5 seconds
+  User sees content: NEVER until 2MB downloads + parses + executes
+
+With code splitting:
+  main.js = 200KB (core app shell)
+  dashboard.js = 300KB (loaded on navigation)
+  admin.js = 500KB (loaded only for admin users)
+  Parse time for initial load: 500ms
+  User sees content: within 1-2 seconds
+</pre>
+
+<h3>Types of Code Splitting</h3>
+<table>
+  <tr><th>Strategy</th><th>How</th><th>When It Loads</th></tr>
+  <tr><td><strong>Route-based</strong></td><td>Lazy-loaded routes</td><td>On navigation to that route</td></tr>
+  <tr><td><strong>Component-based</strong></td><td>Dynamic import of components</td><td>When component is needed</td></tr>
+  <tr><td><strong>Library-based</strong></td><td>Separate vendor chunk</td><td>Cached independently, less invalidation</td></tr>
+  <tr><td><strong>Conditional</strong></td><td>Load polyfills only if needed</td><td>Based on feature detection</td></tr>
+  <tr><td><strong>Interaction-based</strong></td><td>Load on user action</td><td>On click, hover, or viewport entry</td></tr>
+</table>
+
+<h3>Angular Lazy Loading (Route-Based)</h3>
+<pre>
+// app-routing.module.ts
+const routes: Routes = [
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./dashboard/dashboard.module')
+      .then(m => m.DashboardModule)
+    // Creates separate chunk: dashboard-dashboard-module.js
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.module')
+      .then(m => m.AdminModule),
+    canActivate: [AdminGuard]
+    // Only downloaded if user navigates to /admin
+  },
+  {
+    path: 'reports',
+    loadComponent: () => import('./reports/reports.component')
+      .then(c => c.ReportsComponent)
+    // Standalone component lazy loading (Angular 14+)
+  }
+];
+
+// Preloading strategies
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    // Load lazy routes in background after initial load
+    preloadingStrategy: PreloadAllModules
+  })]
+})
+
+// Custom preloading (selective)
+@Injectable()
+export class SelectivePreloadStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable&lt;any&gt;): Observable&lt;any&gt; {
+    return route.data?.['preload'] ? load() : of(null);
+  }
+}
+
+// Route with preload flag:
+{ path: 'dashboard', loadChildren: ..., data: { preload: true } }
+</pre>
+
+<h3>Component-Level Lazy Loading (Angular 17+ with @defer)</h3>
+<pre>
+// Angular 17+ @defer blocks — built-in component lazy loading!
+@Component({
+  template: `
+    &lt;!-- Load heavy chart component only when visible --&gt;
+    @defer (on viewport) {
+      &lt;app-analytics-chart [data]="chartData" /&gt;
+    } @placeholder {
+      &lt;div class="chart-skeleton"&gt;Loading chart...&lt;/div&gt;
+    } @loading (minimum 500ms) {
+      &lt;app-spinner /&gt;
+    } @error {
+      &lt;p&gt;Failed to load chart&lt;/p&gt;
+    }
+
+    &lt;!-- Load on interaction --&gt;
+    @defer (on interaction) {
+      &lt;app-comment-section /&gt;
+    } @placeholder {
+      &lt;button&gt;Show Comments&lt;/button&gt;
+    }
+
+    &lt;!-- Load on idle (requestIdleCallback) --&gt;
+    @defer (on idle) {
+      &lt;app-recommendations /&gt;
+    }
+
+    &lt;!-- Load on timer --&gt;
+    @defer (on timer(3s)) {
+      &lt;app-newsletter-popup /&gt;
+    }
+
+    &lt;!-- Prefetch: start downloading before trigger --&gt;
+    @defer (on viewport; prefetch on idle) {
+      &lt;app-heavy-widget /&gt;
+    }
+  `
+})
+</pre>
+
+<h3>Dynamic Import Patterns</h3>
+<pre>
+// Pattern 1: Load library on demand
+async function handleExport() {
+  // xlsx library only loaded when user clicks "Export"
+  const XLSX = await import('xlsx');
+  const workbook = XLSX.utils.book_new();
+  // ...
+}
+
+// Pattern 2: Conditional polyfill loading
+if (!('IntersectionObserver' in window)) {
+  await import('intersection-observer');
+}
+
+// Pattern 3: Load heavy component on hover (anticipation)
+let editorModule = null;
+button.addEventListener('mouseenter', async () => {
+  // Start loading when user hovers (anticipate click)
+  editorModule = await import('./rich-editor/editor.module');
+});
+button.addEventListener('click', () => {
+  // Already loaded by the time user clicks!
+  openEditor(editorModule);
+});
+
+// Pattern 4: Intersection Observer trigger
+const observer = new IntersectionObserver(async (entries) => {
+  if (entries[0].isIntersecting) {
+    const { renderChart } = await import('./chart-library');
+    renderChart(container, data);
+    observer.disconnect();
+  }
+});
+observer.observe(chartContainer);
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="tree-shaking">4. Tree Shaking & Dead Code Elimination</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Ue55Cuw7gik" target="_blank">Tree Shaking Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=J4LfBKaAFWU" target="_blank">Webpack Tree Shaking Deep Dive — Sean Larkin (Webpack core)</a></li>
+</ul></details></div>
+
+<h3>How Tree Shaking Works</h3>
+<pre>
+// Tree shaking = remove unused exports from bundles
+// Requires: ES Modules (import/export), NOT CommonJS (require)
+
+// math-utils.ts — exported utilities
+export function add(a, b) { return a + b; }
+export function subtract(a, b) { return a - b; }
+export function multiply(a, b) { return a * b; }
+export function complexMatrix(m) { /* 500 lines of code */ }
+
+// app.ts — only imports what it needs
+import { add, subtract } from './math-utils';
+// multiply and complexMatrix are TREE-SHAKEN (removed from bundle)!
+
+// WHY CommonJS can't be tree-shaken:
+const utils = require('./math-utils'); // Imports entire module
+utils.add(1, 2); // Bundler can't statically analyze which parts are used
+</pre>
+
+<h3>Tree Shaking Killers (Anti-Patterns)</h3>
+<pre>
+// 1. Side effects prevent tree shaking
+// polyfills.ts
+import 'zone.js';  // Side effect: modifies global scope — can't be removed
+import './global-styles.css'; // Side effect: injects CSS
+
+// 2. Barrel files (index.ts) can prevent tree shaking
+// components/index.ts
+export * from './button';    // If you import ANYTHING from this barrel,
+export * from './modal';     // some bundlers may include EVERYTHING
+export * from './table';
+
+// FIX: Import directly from the source
+import { Button } from './components/button'; // ✓ Tree-shakeable
+import { Button } from './components';         // ✗ May pull in modal + table
+
+// 3. Class properties with side effects
+class MyService {
+  static counter = expensiveInit(); // Side effect in static init
+}
+// Bundler can't remove MyService even if unused
+
+// 4. Object pattern imports
+import * as _ from 'lodash';  // Imports ENTIRE lodash (70KB+)
+_.map([1,2], x => x * 2);
+
+// FIX: Named imports from subpaths
+import map from 'lodash-es/map';  // Only imports map (~2KB)
+</pre>
+
+<h3>Angular-Specific Tree Shaking</h3>
+<pre>
+// angular.json — production build enables tree shaking automatically
+{
+  "configurations": {
+    "production": {
+      "optimization": true,        // Enables tree shaking + minification
+      "buildOptimizer": true,      // Angular-specific tree shaking
+      "aot": true,                 // Ahead-of-time compilation (smaller bundle)
+      "sourceMap": false,          // Removes source maps
+      "extractLicenses": true,
+      "namedChunks": false
+    }
+  }
+}
+
+// Mark library as side-effect-free for better tree shaking
+// package.json of a library:
+{
+  "sideEffects": false,  // Tell bundler: no side effects, tree-shake freely
+  // Or be specific:
+  "sideEffects": ["*.css", "./src/polyfills.ts"]
+}
+
+// Angular's providedIn: 'root' is tree-shakeable!
+@Injectable({ providedIn: 'root' })
+export class UserService { }
+// If no component injects UserService, it's removed from bundle!
+
+// vs. providing in NgModule (NOT tree-shakeable)
+@NgModule({
+  providers: [UserService] // Always included even if unused
+})
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="bundling">5. Bundle Optimization</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=5IG4UmULyoA" target="_blank">Angular Bundle Analysis & Optimization — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=SbMwd_psA8w" target="_blank">Webpack Bundle Analyzer — Jack Herrington</a></li>
+</ul></details></div>
+
+<h3>Angular Build Analysis</h3>
+<pre>
+# Analyze bundle size
+ng build --stats-json
+npx webpack-bundle-analyzer dist/your-app/stats.json
+
+# Or with source-map-explorer
+ng build --source-map
+npx source-map-explorer dist/your-app/main.*.js
+
+# Output example:
+# main.js:         250KB (your code)
+# vendor.js:       180KB (Angular framework + libraries)
+# polyfills.js:    35KB  (zone.js, ES2015+ polyfills)
+# runtime.js:      2KB   (webpack runtime)
+# lazy-module.js:  80KB  (loaded on demand)
+</pre>
+
+<h3>Common Bundle Bloat Sources</h3>
+<table>
+  <tr><th>Library</th><th>Full Size</th><th>What You Need</th><th>Fix</th></tr>
+  <tr><td>Lodash</td><td>70KB</td><td>2-3 functions</td><td>Import from lodash-es/functionName</td></tr>
+  <tr><td>Moment.js</td><td>290KB (with locales)</td><td>Date formatting</td><td>Use date-fns (tree-shakeable) or Temporal API</td></tr>
+  <tr><td>RxJS</td><td>50KB full</td><td>10-15 operators</td><td>Import from 'rxjs/operators' (auto since RxJS 7.2+)</td></tr>
+  <tr><td>Angular Material</td><td>200KB+ full</td><td>5-6 components</td><td>Import individual modules, not entire library</td></tr>
+  <tr><td>Chart.js</td><td>200KB</td><td>1-2 chart types</td><td>Register only needed components</td></tr>
+  <tr><td>Icons (FontAwesome)</td><td>400KB</td><td>20 icons</td><td>Import individual icons, use SVG sprite</td></tr>
+</table>
+
+<h3>Chunk Splitting Strategy</h3>
+<pre>
+// angular.json — custom webpack configuration
+// Using @angular-builders/custom-webpack
+
+// webpack.config.js
+module.exports = {
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        // Vendor chunk (Angular, RxJS) — changes rarely, cache long
+        vendor: {
+          test: /[\\/]node_modules[\\/](@angular|rxjs)[\\/]/,
+          name: 'vendor',
+          chunks: 'all',
+          priority: 20
+        },
+        // Common chunk — shared between lazy modules
+        common: {
+          minChunks: 2,
+          priority: 10,
+          reuseExistingChunk: true
+        },
+        // Heavy libraries in separate chunks
+        charts: {
+          test: /[\\/]node_modules[\\/](chart\.js|d3)[\\/]/,
+          name: 'charts',
+          chunks: 'all',
+          priority: 15
+        }
+      }
+    }
+  }
+};
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="compression">6. Compression (Gzip, Brotli, Zstd)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=0czYmTEfGRU" target="_blank">Brotli vs Gzip Compression — Hussein Nasser</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Mjab_aZsdxw" target="_blank">HTTP Compression Explained — ByteByteGo</a></li>
+</ul></details></div>
+
+<h3>Compression Comparison</h3>
+<table>
+  <tr><th>Algorithm</th><th>Ratio (typical JS)</th><th>Decompression Speed</th><th>Browser Support</th><th>Content-Encoding</th></tr>
+  <tr><td><strong>None</strong></td><td>1x</td><td>N/A</td><td>All</td><td>identity</td></tr>
+  <tr><td><strong>Gzip</strong></td><td>3-5x smaller</td><td>Fast</td><td>99%+</td><td>gzip</td></tr>
+  <tr><td><strong>Brotli</strong></td><td>4-6x smaller (15-25% better than gzip)</td><td>Fast</td><td>97%+</td><td>br</td></tr>
+  <tr><td><strong>Zstandard</strong></td><td>4-6x smaller, faster compression</td><td>Fastest</td><td>Chrome 123+, Firefox</td><td>zstd</td></tr>
+</table>
+
+<h3>Server Configuration</h3>
+<pre>
+# Nginx — enable Brotli (preferred) + Gzip (fallback)
+# Install: nginx-module-brotli
+
+http {
+  # Brotli (static pre-compressed files)
+  brotli_static on;
+
+  # Brotli (dynamic compression)
+  brotli on;
+  brotli_comp_level 6;
+  brotli_types text/plain text/css application/javascript
+               application/json image/svg+xml;
+
+  # Gzip fallback
+  gzip on;
+  gzip_comp_level 6;
+  gzip_types text/plain text/css application/javascript
+             application/json image/svg+xml;
+  gzip_min_length 256;
+}
+
+# Angular CLI: Pre-compress at build time (best performance)
+# angular.json
+{
+  "configurations": {
+    "production": {
+      "outputHashing": "all",
+      // Generate .br and .gz files at build time
+      // Then serve with brotli_static on;
+    }
+  }
+}
+</pre>
+
+<h3>What NOT to Compress</h3>
+<ul>
+  <li>Already compressed formats: JPEG, PNG, WebP, AVIF, MP4, WOFF2, ZIP</li>
+  <li>Very small files (&lt;150 bytes): Compression overhead exceeds savings</li>
+  <li>Binary data that's already compressed</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="caching">7. HTTP Caching Deep Dive</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=HiBDZgTNpXY" target="_blank">HTTP Caching — web.dev (Jake Archibald)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=dGAgxozNWFE" target="_blank">Cache-Control Headers Explained — Hussein Nasser</a></li>
+  <li><a href="https://www.youtube.com/watch?v=qVQjGwm_mmw" target="_blank">ETag & Conditional Requests — ByteByteGo</a></li>
+</ul></details></div>
+
+<h3>Caching Headers Hierarchy</h3>
+<pre>
+Request arrives → Check Cache-Control:
+│
+├── no-store: NEVER cache. Always fetch from server.
+│   Use for: sensitive data, real-time stock prices
+│
+├── no-cache: Cache BUT revalidate every time (still saves bandwidth!)
+│   Use for: HTML pages (check if content changed)
+│
+├── max-age=N: Cache for N seconds without revalidating
+│   Use for: static assets with content hash
+│
+├── s-maxage=N: CDN/proxy cache duration (overrides max-age for shared caches)
+│   Use for: API responses cached at CDN level
+│
+├── immutable: Never revalidate (even on reload button!)
+│   Use for: hashed assets (main.a1b2c3.js)
+│
+├── stale-while-revalidate=N: Serve stale, revalidate in background
+│   Use for: API data that can be slightly outdated
+│
+└── stale-if-error=N: Serve stale if origin is down
+    Use for: critical content during outages
+</pre>
+
+<h3>Optimal Caching Strategy for Angular Apps</h3>
+<pre>
+# index.html — NEVER cache (user must always get latest version)
+Cache-Control: no-cache
+# This ensures users get new deployments immediately
+
+# Hashed assets (main.a1b2c3.js, styles.x4y5z6.css) — cache forever
+Cache-Control: public, max-age=31536000, immutable
+# Hash changes = new URL = new download (cache busting)
+
+# API responses — cache briefly, revalidate
+Cache-Control: private, max-age=0, s-maxage=60, stale-while-revalidate=300
+# CDN caches 60s, serves stale for 5min while revalidating
+
+# Images (without hash) — cache with revalidation
+Cache-Control: public, max-age=86400
+ETag: "abc123"
+# Cache 1 day, then validate with ETag
+
+# Service Worker precached assets — immutable in SW cache
+# (Handled by Angular service worker, not HTTP headers)
+</pre>
+
+<h3>ETag & Conditional Requests</h3>
+<pre>
+# First request:
+GET /api/users HTTP/2
+→ 200 OK
+   ETag: "abc123"
+   Cache-Control: no-cache
+   Content-Length: 50000
+
+# Subsequent request (revalidation):
+GET /api/users HTTP/2
+If-None-Match: "abc123"
+→ 304 Not Modified (no body! saves bandwidth)
+   # Browser uses cached copy
+
+# If content changed:
+→ 200 OK
+   ETag: "def456"
+   # New content sent
+
+# Last-Modified (alternative to ETag):
+Last-Modified: Wed, 21 Oct 2025 07:28:00 GMT
+→ If-Modified-Since: Wed, 21 Oct 2025 07:28:00 GMT
+</pre>
+
+<h3>Service Worker Caching (Angular PWA)</h3>
+<pre>
+// Add Angular Service Worker:
+// ng add @angular/pwa
+
+// ngsw-config.json — caching configuration
+{
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",    // Cache on install
+      "updateMode": "prefetch",     // Update on new version
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",        // Cache on first use
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(svg|cur|jpg|jpeg|png|avif|webp|gif|ico)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-freshness",
+      "urls": ["/api/real-time/**"],
+      "cacheConfig": {
+        "strategy": "freshness",    // Network first, cache fallback
+        "maxSize": 100,
+        "maxAge": "1h",
+        "timeout": "3s"             // If network takes >3s, use cache
+      }
+    },
+    {
+      "name": "api-performance",
+      "urls": ["/api/static/**"],
+      "cacheConfig": {
+        "strategy": "performance",  // Cache first, background refresh
+        "maxSize": 200,
+        "maxAge": "1d"
+      }
+    }
+  ]
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cdn">8. CDN & Edge Computing</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=RI9np1LWzqw" target="_blank">CDN Explained — ByteByteGo</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Bsq5cKkS33I" target="_blank">How CDNs Work — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=yOP5-3_WFus" target="_blank">Edge Computing Explained — Cloudflare</a></li>
+</ul></details></div>
+
+<h3>How CDNs Improve Performance</h3>
+<pre>
+Without CDN (origin in US-East):
+  User in India → US-East: RTT = 200ms
+  TCP handshake: 200ms (1 RTT)
+  TLS handshake: 200ms (1 RTT)
+  Request + Response: 200ms (1 RTT)
+  Total for first byte: 600ms
+
+With CDN (edge in Mumbai):
+  User in India → Mumbai edge: RTT = 20ms
+  TCP handshake: 20ms
+  TLS handshake: 20ms
+  Request + Response: 20ms (cache hit!)
+  Total for first byte: 60ms = 10x improvement!
+</pre>
+
+<h3>CDN Caching Strategy for SPAs</h3>
+<pre>
+# Typical Angular deployment on CDN:
+
+# index.html: Short TTL, always revalidated
+Cache-Control: public, max-age=60, s-maxage=300
+# CDN caches 5min, user gets fresh within 1min
+
+# main.abc123.js: Long TTL (fingerprinted)
+Cache-Control: public, max-age=31536000, immutable
+# CDN caches forever (new hash = new URL on deploy)
+
+# API proxy through CDN:
+# CDN edge → origin only when cache misses
+# Reduces load on origin servers
+
+# Stale-while-revalidate at CDN level:
+Cache-Control: public, max-age=60, stale-while-revalidate=86400
+# Serve stale for 24h while fetching fresh in background
+# User NEVER waits for origin response!
+</pre>
+
+<h3>Edge Computing for SPAs</h3>
+<pre>
+// Cloudflare Workers / Vercel Edge Functions / AWS Lambda@Edge
+
+// Example: Edge-side rendering of critical data
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+
+    if (url.pathname === '/index.html') {
+      // Inject critical data at the edge (no client-side fetch needed!)
+      const userData = await getFromKV('user-config');
+      const html = await getFromCache('index.html');
+
+      return new Response(
+        html.replace('<!--SSR_DATA-->', `
+          &lt;script&gt;window.__DATA__ = ${JSON.stringify(userData)}&lt;/script&gt;
+        `),
+        { headers: { 'Content-Type': 'text/html' } }
+      );
+    }
+
+    return fetch(request); // Pass through to origin
+  }
+};
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="resource-hints">9. Resource Hints & Priority</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=jUQ2ABk1IjY" target="_blank">Resource Hints & fetchpriority — Google I/O</a></li>
+  <li><a href="https://www.youtube.com/watch?v=_mMmR9bSqBE" target="_blank">Preload, Prefetch, Preconnect — Harry Roberts (Smashing)</a></li>
+</ul></details></div>
+
+<h3>Complete Resource Hints Reference</h3>
+<table>
+  <tr><th>Hint</th><th>Action</th><th>Use Case</th><th>Cost</th></tr>
+  <tr><td><code>dns-prefetch</code></td><td>Resolve DNS only</td><td>Third-party domains you'll use later</td><td>Very low (1 DNS query)</td></tr>
+  <tr><td><code>preconnect</code></td><td>DNS + TCP + TLS</td><td>Critical third-party origins (API, CDN, fonts)</td><td>Low (connection setup)</td></tr>
+  <tr><td><code>preload</code></td><td>Download NOW, high priority</td><td>Critical resources discovered late (fonts, hero image)</td><td>High (immediate download)</td></tr>
+  <tr><td><code>prefetch</code></td><td>Download for NEXT navigation, low priority</td><td>Resources for likely next page</td><td>Low (idle bandwidth)</td></tr>
+  <tr><td><code>prerender</code></td><td>Fetch, parse, render entire page</td><td>Highly likely next navigation</td><td>Very high (full page load)</td></tr>
+  <tr><td><code>modulepreload</code></td><td>Download + parse JS module</td><td>Critical JS modules discovered late</td><td>Medium</td></tr>
+</table>
+
+<pre>
+&lt;head&gt;
+  &lt;!-- DNS prefetch for third-party analytics --&gt;
+  &lt;link rel="dns-prefetch" href="//www.google-analytics.com"&gt;
+
+  &lt;!-- Preconnect to critical API --&gt;
+  &lt;link rel="preconnect" href="https://api.kyndryl.com" crossorigin&gt;
+
+  &lt;!-- Preload LCP image --&gt;
+  &lt;link rel="preload" as="image" href="hero.webp" type="image/webp"
+        fetchpriority="high"&gt;
+
+  &lt;!-- Preload critical font --&gt;
+  &lt;link rel="preload" as="font" href="/fonts/inter.woff2"
+        type="font/woff2" crossorigin&gt;
+
+  &lt;!-- Modulepreload for lazy route user will likely visit --&gt;
+  &lt;link rel="modulepreload" href="/dashboard-chunk.js"&gt;
+
+  &lt;!-- Prefetch next page (likely navigation) --&gt;
+  &lt;link rel="prefetch" href="/next-page.html"&gt;
+&lt;/head&gt;
+</pre>
+
+<h3>fetchpriority Attribute</h3>
+<pre>
+&lt;!-- High priority: LCP image, critical resources --&gt;
+&lt;img src="hero.webp" fetchpriority="high"&gt;
+&lt;link rel="stylesheet" href="critical.css" fetchpriority="high"&gt;
+&lt;script src="app.js" fetchpriority="high"&gt;&lt;/script&gt;
+
+&lt;!-- Low priority: Below-fold images, non-critical resources --&gt;
+&lt;img src="footer-logo.webp" fetchpriority="low" loading="lazy"&gt;
+&lt;link rel="stylesheet" href="print.css" media="print" fetchpriority="low"&gt;
+
+&lt;!-- Auto (default): Browser decides --&gt;
+&lt;img src="content-image.webp" fetchpriority="auto"&gt;
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="third-party">10. Third-Party Script Management</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=24q2hIjNFSQ" target="_blank">Third-Party Script Performance — web.dev (Addy Osmani)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ndyMSpOCAMo" target="_blank">Partytown: Third-Party Scripts in Web Workers — Misko Hevery</a></li>
+</ul></details></div>
+
+<h3>The Third-Party Problem</h3>
+<p>Third-party scripts (analytics, ads, chat widgets, A/B testing) are responsible for <strong>57% of JavaScript execution time</strong> on the median page.</p>
+
+<h3>Impact Measurement</h3>
+<pre>
+// Measure third-party impact with Performance Observer
+const observer = new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    if (entry.name.includes('google') ||
+        entry.name.includes('facebook') ||
+        entry.name.includes('hotjar')) {
+      console.log(`Third-party: ${entry.name} took ${entry.duration}ms`);
+    }
+  }
+});
+observer.observe({ type: 'resource', buffered: true });
+
+// Or use Chrome DevTools → Network → filter by third-party domain
+// Check: Total blocking time attributable to third-party scripts
+</pre>
+
+<h3>Loading Strategies for Third-Party Scripts</h3>
+<pre>
+&lt;!-- 1. WORST: Synchronous (blocks everything) --&gt;
+&lt;script src="https://third-party.com/widget.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. BETTER: Async (downloads parallel, executes ASAP) --&gt;
+&lt;script async src="https://third-party.com/analytics.js"&gt;&lt;/script&gt;
+
+&lt;!-- 3. GOOD: Defer (executes after DOM parse) --&gt;
+&lt;script defer src="https://third-party.com/widget.js"&gt;&lt;/script&gt;
+
+&lt;!-- 4. BEST: Load after user interaction (facade pattern) --&gt;
+&lt;script&gt;
+  // Load chat widget only when user clicks chat button
+  document.getElementById('chat-btn').addEventListener('click', () => {
+    const script = document.createElement('script');
+    script.src = 'https://chat-provider.com/widget.js';
+    document.head.appendChild(script);
+  }, { once: true });
+&lt;/script&gt;
+
+&lt;!-- 5. BEST: Load on idle --&gt;
+&lt;script&gt;
+  // Load analytics after everything else is done
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+      loadScript('https://analytics.com/track.js');
+    });
+  } else {
+    setTimeout(() => {
+      loadScript('https://analytics.com/track.js');
+    }, 3000);
+  }
+&lt;/script&gt;
+</pre>
+
+<h3>Facade Pattern (YouTube Embed Example)</h3>
+<pre>
+&lt;!-- BAD: YouTube embed loads 800KB+ immediately --&gt;
+&lt;iframe src="https://youtube.com/embed/..." ...&gt;&lt;/iframe&gt;
+
+&lt;!-- GOOD: Facade — loads real player only on click --&gt;
+&lt;div class="youtube-facade" data-id="VIDEO_ID" onclick="loadYouTube(this)"&gt;
+  &lt;img src="https://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg"
+       loading="lazy" alt="Video thumbnail"&gt;
+  &lt;button class="play-btn" aria-label="Play video"&gt;▶&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function loadYouTube(facade) {
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://youtube.com/embed/${facade.dataset.id}?autoplay=1`;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  facade.replaceWith(iframe);
+}
+&lt;/script&gt;
+
+&lt;!-- Saves: ~800KB JS, 2-3s load time until user wants to watch --&gt;
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="exercise3">11. Hands-On Exercises — Phase 3</h2>
+
+<h3>Exercise 1: Image Optimization Audit</h3>
+<pre>
+Task: Audit and optimize images on any website
+
+1. Open DevTools → Network → filter by "Img"
+2. For each image, check:
+   - Format: Is it WebP/AVIF or old JPEG/PNG?
+   - Size: Is it larger than displayed size? (compare natural vs rendered)
+   - Loading: Is it above or below fold? (should it be lazy-loaded?)
+   - Priority: Is the LCP image loaded with high priority?
+
+3. Calculate potential savings:
+   - Convert a JPEG to WebP: use squoosh.app
+   - Compare file sizes
+   - Resize to actual display dimensions
+
+4. Write the optimal &lt;picture&gt; element for the hero image
+</pre>
+
+<h3>Exercise 2: Bundle Analysis & Code Splitting</h3>
+<pre>
+# For an Angular project:
+ng build --stats-json
+npx webpack-bundle-analyzer dist/your-app/stats.json
+
+Tasks:
+1. Identify the 3 largest dependencies
+2. Check if any can be:
+   - Replaced with smaller alternatives
+   - Lazy-loaded (only used in specific routes)
+   - Tree-shaken (switch from default to named imports)
+3. Implement route-based lazy loading for at least 2 routes
+4. Measure before/after initial bundle size
+</pre>
+
+<h3>Exercise 3: Implement Caching Headers</h3>
+<pre>
+# Create an Express server with optimal caching:
+const express = require('express');
+const app = express();
+
+// TODO: Implement these caching strategies:
+// 1. index.html → no-cache (always revalidate)
+// 2. *.js, *.css with hash → immutable, 1 year
+// 3. /api/config → 5 min cache, stale-while-revalidate 1 hour
+// 4. /api/user → private, no-store (sensitive data)
+// 5. images → 1 day, with ETag
+
+app.use('/assets', express.static('dist/assets', {
+  maxAge: '1y',
+  immutable: true
+}));
+
+app.get('/index.html', (req, res) => {
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile('dist/index.html');
+});
+
+// Complete the implementation...
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview3">12. Interview Questions — Phase 3</h2>
+
+<h3>Beginner Level</h3>
+<ol>
+  <li><strong>Q: What is lazy loading and why is it important?</strong><br>
+    A: Lazy loading defers the loading of non-critical resources until they're needed. For images: only download when near viewport. For code: only download modules when user navigates to that route. It reduces initial page load time, saves bandwidth, and improves Core Web Vitals (especially LCP and TBT).</li>
+
+  <li><strong>Q: What is the difference between WebP and JPEG?</strong><br>
+    A: WebP provides 25-35% smaller file sizes than JPEG at equivalent quality. It supports transparency (like PNG), animation (like GIF), and both lossy and lossless compression. Browser support is 97%+. AVIF is even better (50% smaller) but has less support (92%).</li>
+
+  <li><strong>Q: What is code splitting?</strong><br>
+    A: Code splitting divides your JavaScript bundle into smaller chunks that load on demand. In Angular, route-based lazy loading creates separate chunks per route module. This means users only download code for features they actually use, reducing initial load time significantly.</li>
+
+  <li><strong>Q: Explain Cache-Control: no-cache vs no-store.</strong><br>
+    A: <code>no-cache</code>: Response CAN be cached, but must revalidate with server before use (conditional request with ETag). Saves bandwidth if content hasn't changed (304 Not Modified). <code>no-store</code>: Response must NEVER be stored anywhere. Every request fetches fresh from server. Use for sensitive data (banking, medical records).</li>
+</ol>
+
+<h3>Intermediate Level</h3>
+<ol>
+  <li><strong>Q: How does tree shaking work and what prevents it?</strong><br>
+    A: Tree shaking statically analyzes ES module imports/exports to remove unused code. It works by: (1) Building a dependency graph from import statements, (2) Marking used exports, (3) Removing unmarked (dead) code. Killers: CommonJS require() (not statically analyzable), side effects in modules, barrel files re-exporting everything, dynamic imports with variable paths.</li>
+
+  <li><strong>Q: Explain the optimal caching strategy for a Single Page Application.</strong><br>
+    A: (1) index.html: <code>no-cache</code> (always revalidate — ensures users get new deployments). (2) Hashed assets (main.abc123.js): <code>max-age=31536000, immutable</code> (cache forever, hash changes on update). (3) API responses: <code>private, max-age=0, stale-while-revalidate=300</code> (fresh data, with stale fallback). (4) Static images: <code>max-age=86400</code> with ETag revalidation. This gives instant subsequent loads while ensuring deployments are immediate.</li>
+
+  <li><strong>Q: What is the facade pattern for third-party embeds?</strong><br>
+    A: Instead of loading heavy third-party embeds immediately (YouTube = 800KB, Google Maps = 600KB), show a lightweight "facade" (thumbnail + play button). Load the real embed only when user interacts. This saves hundreds of KBs on initial load and dramatically improves LCP/TBT for pages with embeds.</li>
+
+  <li><strong>Q: How do you determine what to preload vs prefetch vs preconnect?</strong><br>
+    A: <code>preconnect</code>: Critical third-party origins (API server, CDN) — saves DNS+TCP+TLS time. <code>preload</code>: Critical resources discovered late by browser (fonts in CSS, images in CSS, above-fold images). <code>prefetch</code>: Resources for probable next navigation (next page's JS chunk). Rule: preload for current page critical path, prefetch for future pages, preconnect for third-party origins.</li>
+</ol>
+
+<h3>Advanced Level</h3>
+<ol>
+  <li><strong>Q: Explain the 14KB rule and its significance for web performance.</strong><br>
+    A: TCP slow start begins with a congestion window of ~10 packets (~14KB). This means on a new connection, only 14KB can be sent in the first round trip. Significance: (1) Critical CSS + HTML should fit in 14KB for fastest FCP. (2) Inline critical CSS to avoid additional round trips. (3) This is why HTTP/2 server push was valuable — prepush critical resources in the same first flight. (4) Connection reuse (keep-alive) avoids re-entering slow start.</li>
+
+  <li><strong>Q: How would you implement a comprehensive image loading strategy for a large e-commerce site?</strong><br>
+    A: (1) Format: Serve AVIF → WebP → JPEG using <code>&lt;picture&gt;</code> with <code>&lt;source&gt;</code> elements. (2) Sizing: Generate 4-5 sizes per image, use srcset + sizes for responsive selection. (3) Loading: LCP hero image with fetchpriority="high" + preload. Below-fold with loading="lazy". (4) Placeholder: Use LQIP (Low Quality Image Placeholder) or blurhash. (5) CDN: Image CDN (Cloudinary, imgix) for on-the-fly transformation. (6) Angular: Use NgOptimizedImage directive for automatic best practices. (7) Compression: Quality 75-80 for lossy, AVIF quality 60-65.</li>
+
+  <li><strong>Q: Explain stale-while-revalidate and when to use it at CDN level.</strong><br>
+    A: <code>stale-while-revalidate</code> allows the CDN to serve a cached (stale) response immediately while fetching a fresh copy from origin in the background. The user gets instant response (from cache), and the next user gets fresh content. Perfect for: API responses that can tolerate slight staleness (product catalogs, user profiles), frequently accessed pages, high-traffic endpoints where origin can't handle every request. Trade-off: User might see data that's seconds/minutes old.</li>
+
+  <li><strong>Q: Compare Angular's @defer blocks with route-based lazy loading. When to use each?</strong><br>
+    A: Route-based lazy loading: Creates separate chunks per route, loaded on navigation. Best for distinct pages/features. @defer blocks (Angular 17+): Lazy-loads individual components within a page based on triggers (viewport, interaction, idle, timer). Best for: heavy components on a single page (charts, editors, comment sections). Key difference: Route-based is page-level granularity; @defer is component-level. Use both together: lazy routes for pages, @defer for heavy components within those pages.</li>
+</ol>
+
+<div class="nav-links">
+  <a href="phase2-css-js-rendering-performance.html">← Phase 2: CSS & JS Performance</a>
+  <a href="phase4-angular-specific-performance.html">Phase 4: Angular Performance →</a>
+</div>
+
+</main>
+</body>
+</html>

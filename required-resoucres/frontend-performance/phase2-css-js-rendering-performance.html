@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend Performance — Phase 2: CSS, JavaScript & Rendering Performance</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #0f6b5f; --accent-soft: #d9efe8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.5; font-size: 11.4pt; }
+    main { max-width: 920px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #152923; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 28px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 18px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #f1ece2; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf7f2 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #13443d; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #bfded5; }
+    .callout { border-left: 4px solid var(--accent); background: #f4fbf8; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 2: CSS, JavaScript & Rendering Performance</h1>
+  <p class="subtitle">Frontend Performance Mastery — Zero to Hero Series (2 of 6)</p>
+  <div class="pill-row">
+    <span class="pill">CSS Performance</span>
+    <span class="pill">JavaScript Execution</span>
+    <span class="pill">Event Loop</span>
+    <span class="pill">Memory Management</span>
+    <span class="pill">Animation Performance</span>
+    <span class="pill">requestAnimationFrame</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#css-perf">CSS Performance Deep Dive</a></li>
+    <li><a href="#js-engine">JavaScript Engine & Execution</a></li>
+    <li><a href="#event-loop">Event Loop, Microtasks & Rendering</a></li>
+    <li><a href="#memory">Memory Management & Garbage Collection</a></li>
+    <li><a href="#memory-leaks">Common Memory Leaks & Detection</a></li>
+    <li><a href="#animation">Animation Performance & 60fps</a></li>
+    <li><a href="#raf">requestAnimationFrame Deep Dive</a></li>
+    <li><a href="#scroll">Scroll Performance</a></li>
+    <li><a href="#dom-perf">DOM Manipulation Performance</a></li>
+    <li><a href="#workers">Web Workers & Off-Main-Thread</a></li>
+    <li><a href="#exercise2">Hands-On Exercises</a></li>
+    <li><a href="#interview2">Interview Questions — Phase 2</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="css-perf">1. CSS Performance Deep Dive</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=2Rn8an74khk" target="_blank">CSS Performance — Una Kravets & Surma (Chrome Developers)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=nWcexTnvIKg" target="_blank">content-visibility & contain — Jake Archibald & Surma</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IKbpOdo8QPk" target="_blank">Reduce Unused CSS — Web Dev Simplified</a></li>
+</ul></details></div>
+
+<h3>CSS File Optimization</h3>
+
+<h4>1.1 Unused CSS Removal</h4>
+<p>Typical websites ship 60-90% unused CSS. Every byte of unused CSS:</p>
+<ul>
+  <li>Increases download time</li>
+  <li>Increases CSSOM construction time (parser still processes every rule)</li>
+  <li>Delays First Contentful Paint</li>
+</ul>
+
+<pre>
+// Detect unused CSS with DevTools:
+// 1. Open DevTools → More Tools → Coverage
+// 2. Click Record → Reload page
+// 3. Red = unused bytes, Blue = used bytes
+
+// Tools for removing unused CSS:
+// - PurgeCSS (PostCSS plugin) — scans HTML/JS for used selectors
+// - UnCSS — removes unused CSS based on actual rendering
+// - Angular CLI built-in (with component styles, tree-shaking is natural)
+</pre>
+
+<h4>1.2 CSS Minification & Compression</h4>
+<pre>
+/* Before minification: 1.2KB */
+.navigation-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* After minification: 182 bytes (-85%) */
+.navigation-container{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+
+/* After Brotli compression: ~95 bytes (-92% total) */
+</pre>
+
+<h4>1.3 CSS Architecture for Performance</h4>
+<table>
+  <tr><th>Approach</th><th>Performance Impact</th><th>Best For</th></tr>
+  <tr><td><strong>Component-scoped CSS</strong> (Angular default)</td><td>Only loads CSS needed per component; automatic tree-shaking</td><td>Angular apps</td></tr>
+  <tr><td><strong>Utility-first</strong> (Tailwind)</td><td>Tiny production bundle (purged), highly cacheable</td><td>Rapid development</td></tr>
+  <tr><td><strong>CSS Modules</strong></td><td>Scoped, dead-code elimination, small bundles</td><td>Framework-agnostic</td></tr>
+  <tr><td><strong>Global CSS</strong> (BEM/SMACSS)</td><td>Can bloat; hard to tree-shake; selector matching cost</td><td>Legacy projects</td></tr>
+</table>
+
+<h3>CSS Animations vs JavaScript Animations</h3>
+<pre>
+/* CSS Animation — runs on compositor thread (smooth!) */
+.slide-in {
+  animation: slideIn 300ms ease-out forwards;
+}
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+/* CSS Transition — also compositor-friendly */
+.card {
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.card:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+</pre>
+
+<div class="callout">
+  <strong>Rule:</strong> CSS animations using only <code>transform</code> and <code>opacity</code> are promoted to the compositor thread and run at 60fps even when the main thread is busy. JS animations using the Web Animations API can also be compositor-promoted for these properties.
+</div>
+
+<h3>CSS Containment & content-visibility (Advanced)</h3>
+<pre>
+/* contain: tells browser what it can optimize */
+.independent-widget {
+  contain: layout style paint;
+  /* Browser knows:
+     - Layout of this element won't affect rest of page
+     - Styles are scoped (counters, quotes)
+     - Nothing paints outside this box */
+}
+
+/* content-visibility: auto — SKIP rendering for off-screen elements */
+.page-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px; /* Placeholder height for scroll */
+}
+
+/* Performance impact on a page with 20 sections:
+   Without content-visibility: Render all 20 sections (~200ms)
+   With content-visibility: Render only 3 visible sections (~30ms)
+   = 85% reduction in initial rendering time */
+</pre>
+
+<h3>Critical CSS Extraction Strategy</h3>
+<pre>
+/* 1. Identify above-the-fold content */
+/* 2. Extract only the CSS needed for initial viewport */
+/* 3. Inline it in &lt;head&gt; */
+/* 4. Load remaining CSS async */
+
+&lt;head&gt;
+  &lt;!-- Inlined critical CSS (keep under 14KB for first TCP packet) --&gt;
+  &lt;style&gt;
+    /* Reset + header + hero section styles only */
+    * { margin: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; }
+    .header { display: flex; padding: 1rem; background: #1a1a2e; }
+    .hero { min-height: 100vh; display: grid; place-items: center; }
+  &lt;/style&gt;
+
+  &lt;!-- Async load full stylesheet --&gt;
+  &lt;link rel="preload" href="main.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'"&gt;
+&lt;/head&gt;
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="js-engine">2. JavaScript Engine & Execution</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=xckH5s3UuX4" target="_blank">How V8 JavaScript Engine Works — Lydia Hallie (Visual Explanation)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=p-iiEDtpy6I" target="_blank">V8 Hidden Classes & Inline Caches — Mathias Bynens (Google)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=EpMbHCOF5L8" target="_blank">JavaScript Engine Fundamentals — Franziska Hinkelmann (V8 team)</a></li>
+</ul></details></div>
+
+<h3>V8 Engine Pipeline (Chrome/Node.js)</h3>
+<pre>
+Source Code (JavaScript/TypeScript transpiled)
+  │
+  ├── Parser → AST (Abstract Syntax Tree)
+  │     ├── Pre-parser (lazy parsing for unused functions)
+  │     └── Full parser (for immediately invoked code)
+  │
+  ├── Ignition (Interpreter) → Bytecode
+  │     └── Fast startup, slower execution
+  │
+  ├── Sparkplug (Baseline Compiler) → Slightly optimized machine code
+  │     └── Quick compile, modest speedup
+  │
+  ├── Maglev (Mid-tier Compiler) → Better optimized code
+  │     └── Moderate compile time, good performance
+  │
+  └── TurboFan (Optimizing Compiler) → Highly optimized machine code
+        ├── Uses type feedback from Ignition
+        ├── Speculative optimizations (assumes types stay same)
+        └── Deoptimization if assumptions break!
+</pre>
+
+<h4>Why This Matters for Performance</h4>
+<ul>
+  <li><strong>Monomorphic code is fastest</strong>: Functions called with same argument types get optimized</li>
+  <li><strong>Megamorphic code is slowest</strong>: Functions called with many different types cause deoptimization</li>
+  <li><strong>Hidden Classes</strong>: Objects with same property order share hidden class (fast property access)</li>
+  <li><strong>Inline Caches</strong>: Repeated property access at same site gets cached</li>
+</ul>
+
+<pre>
+// GOOD: Monomorphic — always same shape
+function process(point) {
+  return point.x + point.y;
+}
+process({ x: 1, y: 2 });  // Shape A
+process({ x: 3, y: 4 });  // Shape A (same!)
+// V8 creates an inline cache for this shape → FAST
+
+// BAD: Megamorphic — different shapes
+process({ x: 1, y: 2 });        // Shape A
+process({ x: 1, y: 2, z: 3 }); // Shape B
+process({ y: 2, x: 1 });        // Shape C (different order!)
+process({ x: "1", y: "2" });    // Shape D (different types!)
+// V8 gives up on inline caching → SLOW (generic lookup)
+</pre>
+
+<h3>Hidden Classes (Shapes/Maps)</h3>
+<pre>
+// GOOD: Always add properties in the same order
+class Point {
+  constructor(x, y) {
+    this.x = x;  // Hidden class C0 → C1
+    this.y = y;  // Hidden class C1 → C2
+  }
+}
+const p1 = new Point(1, 2); // Shape: {x, y}
+const p2 = new Point(3, 4); // Same shape! Shares hidden class
+
+// BAD: Adding properties in different orders
+const obj1 = {}; obj1.a = 1; obj1.b = 2; // Shape: a→b
+const obj2 = {}; obj2.b = 2; obj2.a = 1; // Shape: b→a (DIFFERENT!)
+// These have different hidden classes → can't share optimized code
+
+// BAD: Adding properties after construction
+const obj3 = { a: 1, b: 2 };
+obj3.c = 3;  // Transitions to new hidden class!
+// Every dynamic property addition = new hidden class = deoptimization risk
+</pre>
+
+<h3>JavaScript Parsing Cost</h3>
+<p>Parsing JS is expensive — roughly <strong>1MB of JS = 100ms parse time on mobile</strong>:</p>
+<table>
+  <tr><th>Bundle Size (gzipped)</th><th>Parse Time (mobile)</th><th>Parse Time (desktop)</th></tr>
+  <tr><td>100KB</td><td>~250ms</td><td>~50ms</td></tr>
+  <tr><td>200KB</td><td>~500ms</td><td>~100ms</td></tr>
+  <tr><td>500KB</td><td>~1.2s</td><td>~250ms</td></tr>
+  <tr><td>1MB</td><td>~2.5s</td><td>~500ms</td></tr>
+</table>
+
+<div class="callout warning">
+  <strong>Real Impact:</strong> A typical Angular app ships 300-500KB (gzipped) of JavaScript. On a mid-range mobile phone (Moto G Power), that's 750ms–1.2s just for parsing, BEFORE any execution. This is why code splitting and lazy loading are critical.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-loop">3. Event Loop, Microtasks & Rendering</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank">What the heck is the event loop? — Philip Roberts (JSConf)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">Jake Archibald: In The Loop — JSConf Asia (MUST WATCH)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=eiC58R16hb8" target="_blank">Microtasks vs Macrotasks — Lydia Hallie (Visual Explanation)</a></li>
+</ul></details></div>
+
+<h3>The Complete Event Loop Cycle</h3>
+<pre>
+┌─────────────────────────────────────────────────┐
+│                  EVENT LOOP                       │
+│                                                   │
+│  1. Pick oldest task from Task Queue              │
+│     (setTimeout, setInterval, I/O, UI events)     │
+│                                                   │
+│  2. Execute task to completion                    │
+│     (cannot be interrupted!)                      │
+│                                                   │
+│  3. Execute ALL microtasks                        │
+│     (Promise.then, queueMicrotask,                │
+│      MutationObserver, async/await continuations)  │
+│     ↳ If microtask adds more microtasks,          │
+│       keep draining until empty!                   │
+│                                                   │
+│  4. If it's time for rendering (~16.6ms):         │
+│     a. Run requestAnimationFrame callbacks        │
+│     b. Style recalculation                        │
+│     c. Layout                                     │
+│     d. Paint                                      │
+│     e. Composite                                  │
+│                                                   │
+│  5. If idle: run requestIdleCallback              │
+│                                                   │
+│  6. Go to step 1                                  │
+└─────────────────────────────────────────────────┘
+</pre>
+
+<h4>Task Queue Priority</h4>
+<table>
+  <tr><th>Queue</th><th>Priority</th><th>Examples</th></tr>
+  <tr><td>Microtasks</td><td>Highest (drains completely)</td><td>Promise.then, queueMicrotask, MutationObserver</td></tr>
+  <tr><td>User Interaction</td><td>High</td><td>click, keydown, input events</td></tr>
+  <tr><td>Animation (rAF)</td><td>Before render</td><td>requestAnimationFrame callbacks</td></tr>
+  <tr><td>Timer</td><td>Normal</td><td>setTimeout, setInterval</td></tr>
+  <tr><td>Idle</td><td>Lowest</td><td>requestIdleCallback</td></tr>
+</table>
+
+<h3>Performance Implications</h3>
+<pre>
+// DANGER: Microtask starvation — blocks rendering
+async function starveMainThread() {
+  for (let i = 0; i &lt; 1000000; i++) {
+    await Promise.resolve(); // Each creates a microtask
+    // Microtasks drain BEFORE rendering!
+    // Page is frozen for this entire loop
+  }
+}
+
+// SOLUTION: Yield to macro-task queue periodically
+async function cooperativeWork() {
+  for (let i = 0; i &lt; 1000000; i++) {
+    doWork(i);
+    if (i % 1000 === 0) {
+      // Yield to main thread — allows rendering + user input
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+  }
+}
+
+// MODERN: scheduler.yield() (Chrome 115+)
+async function modernCooperativeWork() {
+  for (let i = 0; i &lt; 1000000; i++) {
+    doWork(i);
+    if (i % 1000 === 0) {
+      await scheduler.yield(); // Yields but keeps priority
+    }
+  }
+}
+</pre>
+
+<h3>Execution Order Quiz (Interview Favorite!)</h3>
+<pre>
+console.log('1. Script start');
+
+setTimeout(() => console.log('2. setTimeout'), 0);
+
+Promise.resolve().then(() => {
+  console.log('3. Promise 1');
+}).then(() => {
+  console.log('4. Promise 2');
+});
+
+requestAnimationFrame(() => console.log('5. rAF'));
+
+queueMicrotask(() => console.log('6. queueMicrotask'));
+
+console.log('7. Script end');
+
+// Output order:
+// 1. Script start
+// 7. Script end
+// 3. Promise 1       (microtask)
+// 6. queueMicrotask  (microtask)
+// 4. Promise 2       (microtask from .then chain)
+// 5. rAF             (before next paint)
+// 2. setTimeout      (macro task, next iteration)
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="memory">4. Memory Management & Garbage Collection</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=LaxbdIyBkL0" target="_blank">JavaScript Memory Management — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=AeUCN2lPqL8" target="_blank">Garbage Collection in V8 — Peter Marshall (V8 team)</a></li>
+</ul></details></div>
+
+<h3>JavaScript Memory Model</h3>
+<pre>
+┌────────────────────────────────────────────────────┐
+│                    V8 HEAP                          │
+├────────────────────────────────────────────────────┤
+│  Young Generation (New Space) — 1-8MB              │
+│  ├── Semi-space A (active)                         │
+│  └── Semi-space B (inactive/swap)                  │
+│  GC: Scavenge (Minor GC) — fast, frequent          │
+│       Copies surviving objects to other semi-space  │
+├────────────────────────────────────────────────────┤
+│  Old Generation (Old Space) — up to 1.5GB          │
+│  ├── Old Pointer Space (objects with references)   │
+│  └── Old Data Space (objects without references)   │
+│  GC: Mark-Sweep-Compact (Major GC) — slow, rare   │
+│       Marks reachable objects, sweeps unreachable   │
+├────────────────────────────────────────────────────┤
+│  Large Object Space (>256KB objects)               │
+│  Code Space (compiled code)                        │
+│  Map Space (hidden classes)                        │
+└────────────────────────────────────────────────────┘
+</pre>
+
+<h4>GC Impact on Performance</h4>
+<ul>
+  <li><strong>Minor GC (Scavenge)</strong>: 1-10ms, frequent — causes micro-jank</li>
+  <li><strong>Major GC (Mark-Sweep)</strong>: 50-200ms, rare — causes visible jank/freeze</li>
+  <li><strong>Incremental GC</strong>: Splits Major GC into chunks to reduce pauses</li>
+  <li><strong>Concurrent GC</strong>: Runs GC on background thread (V8's Orinoco)</li>
+</ul>
+
+<h3>Reducing GC Pressure</h3>
+<pre>
+// BAD: Creates new object every frame → GC pressure
+function animate() {
+  const position = { x: element.offsetLeft, y: element.offsetTop }; // NEW object!
+  // ... use position ...
+  requestAnimationFrame(animate);
+}
+
+// GOOD: Reuse object (object pooling)
+const position = { x: 0, y: 0 }; // Allocated once
+function animate() {
+  position.x = element.offsetLeft;
+  position.y = element.offsetTop;
+  // ... use position ...
+  requestAnimationFrame(animate);
+}
+
+// BAD: String concatenation in hot path
+function buildMessage(items) {
+  let result = '';
+  for (const item of items) {
+    result += item.name + ', '; // Creates new string each iteration!
+  }
+  return result;
+}
+
+// GOOD: Use array join
+function buildMessage(items) {
+  return items.map(item => item.name).join(', ');
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="memory-leaks">5. Common Memory Leaks & Detection</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=YDU_3WdfkxA" target="_blank">Finding Memory Leaks with Chrome DevTools — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IKD2-MAkXyQ" target="_blank">4 Types of Memory Leaks in JavaScript — Academind</a></li>
+</ul></details></div>
+
+<h3>The 7 Common Memory Leak Patterns</h3>
+
+<h4>1. Forgotten Event Listeners</h4>
+<pre>
+// LEAK: Listener on global/long-lived element references component data
+class MyComponent {
+  constructor() {
+    this.data = new Array(10000).fill('x');
+    // This listener keeps `this` alive even after component is destroyed!
+    window.addEventListener('resize', this.onResize.bind(this));
+  }
+
+  onResize() { /* uses this.data */ }
+
+  // FIX: Remove listener on destroy
+  destroy() {
+    window.removeEventListener('resize', this.boundResize);
+  }
+}
+</pre>
+
+<h4>2. Detached DOM Nodes</h4>
+<pre>
+// LEAK: Reference to removed DOM node keeps it in memory
+let detachedNode;
+function createAndRemove() {
+  const div = document.createElement('div');
+  div.innerHTML = '&lt;p&gt;Large content...&lt;/p&gt;'.repeat(1000);
+  document.body.appendChild(div);
+  document.body.removeChild(div);
+  detachedNode = div; // LEAK! div is removed from DOM but still in memory
+}
+
+// FIX: Null out references
+function createAndRemove() {
+  const div = document.createElement('div');
+  document.body.appendChild(div);
+  document.body.removeChild(div);
+  // Don't store reference to removed element
+}
+</pre>
+
+<h4>3. Closures Holding Large Data</h4>
+<pre>
+// LEAK: Closure captures entire scope including largeData
+function processData() {
+  const largeData = new Array(1000000).fill({});
+  const id = largeData[0].id;
+
+  return function callback() {
+    // Only uses `id` but closure captures entire `largeData`!
+    console.log(id);
+  };
+}
+const leakyCallback = processData(); // largeData is never GC'd
+
+// FIX: Extract only what you need before closure
+function processData() {
+  const largeData = new Array(1000000).fill({});
+  const id = largeData[0].id;
+  // largeData goes out of scope after this function returns
+  return function callback() {
+    console.log(id); // Only captures `id`
+  };
+}
+</pre>
+
+<h4>4. Timers & Intervals</h4>
+<pre>
+// LEAK: setInterval runs forever, holding reference to large object
+const heavyObject = { data: new Array(1000000) };
+setInterval(() => {
+  console.log(heavyObject.data.length); // heavyObject never GC'd
+}, 1000);
+
+// FIX: Clear intervals when done
+const intervalId = setInterval(() => { /* ... */ }, 1000);
+// When component/page is done:
+clearInterval(intervalId);
+</pre>
+
+<h4>5. RxJS Subscriptions (Angular-specific)</h4>
+<pre>
+// LEAK: Subscription never unsubscribed
+@Component({ /* ... */ })
+export class LeakyComponent implements OnInit {
+  ngOnInit() {
+    this.http.get('/api/data').subscribe(data => {
+      this.data = data; // If HTTP completes after destroy, `this` is leaked
+    });
+
+    this.someObservable$.subscribe(value => {
+      // Runs forever if observable never completes
+    });
+  }
+}
+
+// FIX: Multiple patterns
+@Component({ /* ... */ })
+export class SafeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject&lt;void&gt;();
+
+  ngOnInit() {
+    // Pattern 1: takeUntil
+    this.someObservable$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(value => { /* ... */ });
+
+    // Pattern 2: take(1) for one-shot
+    this.http.get('/api/data').pipe(
+      take(1)
+    ).subscribe(data => { this.data = data; });
+
+    // Pattern 3: async pipe in template (auto-unsubscribes)
+    // {{ data$ | async }}
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
+</pre>
+
+<h4>6. WeakRef & FinalizationRegistry (Modern Solutions)</h4>
+<pre>
+// Use WeakRef for caches that shouldn't prevent GC
+class ImageCache {
+  private cache = new Map&lt;string, WeakRef&lt;ImageBitmap&gt;&gt;();
+  private registry = new FinalizationRegistry((key: string) => {
+    // Called when cached object is GC'd
+    this.cache.delete(key);
+  });
+
+  set(key: string, image: ImageBitmap) {
+    this.cache.set(key, new WeakRef(image));
+    this.registry.register(image, key);
+  }
+
+  get(key: string): ImageBitmap | undefined {
+    const ref = this.cache.get(key);
+    return ref?.deref(); // undefined if GC'd
+  }
+}
+</pre>
+
+<h3>Detecting Memory Leaks with DevTools</h3>
+<pre>
+Steps:
+1. Open DevTools → Memory tab
+2. Take Heap Snapshot (baseline)
+3. Perform the action suspected of leaking (navigate, open modal, etc.)
+4. Undo the action (go back, close modal)
+5. Force GC (trash can icon)
+6. Take another Heap Snapshot
+7. Compare snapshots: look for objects that shouldn't exist
+
+Key indicators:
+- Growing heap over time (saw-tooth pattern that trends upward)
+- Detached DOM nodes in snapshot
+- Growing # of event listeners (Performance Monitor panel)
+- Objects surviving in Old Generation that shouldn't
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="animation">6. Animation Performance & 60fps</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=9-6CKCz58A8" target="_blank">High Performance Animations — Paul Lewis & Surma (Chrome)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Tae96ze3xwY" target="_blank">FLIP Animation Technique — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=n1cKlKM3jYI" target="_blank">60fps Rendering — Udacity (Google)</a></li>
+</ul></details></div>
+
+<h3>The Frame Budget</h3>
+<pre>
+60fps = 16.67ms per frame
+120fps = 8.33ms per frame (modern high-refresh displays)
+
+Frame budget breakdown (16.67ms):
+├── JavaScript: ~4ms (execute handlers, compute)
+├── Style calculation: ~2ms
+├── Layout: ~3ms
+├── Paint: ~3ms
+├── Composite: ~1ms
+└── Browser overhead: ~3ms
+    = You get ~10ms for your code!
+</pre>
+
+<h3>The Pixel Pipeline</h3>
+<pre>
+Full pipeline (worst case - layout change):
+  JS → Style → Layout → Paint → Composite
+  [~~~~~~~~~~~~~~~~~16.67ms~~~~~~~~~~~~~~~~~]
+
+Paint-only (color/background change):
+  JS → Style → Paint → Composite
+  [~~~~~~~~~~~~12ms~~~~~~~~~~~~]
+
+Composite-only (transform/opacity):
+  JS → Composite
+  [~~~~4ms~~~~]  ← BEST CASE! Runs on compositor thread
+</pre>
+
+<h3>Achieving 60fps Animations</h3>
+<pre>
+/* GOOD: Compositor-only properties — runs on GPU */
+.animated {
+  /* These NEVER trigger layout or paint */
+  transform: translateX(100px);
+  transform: scale(1.2);
+  transform: rotate(45deg);
+  opacity: 0.5;
+  filter: blur(2px); /* on composited layer */
+}
+
+/* BAD: Triggers layout + paint every frame */
+.animated-bad {
+  left: 100px;     /* Layout! */
+  top: 50px;       /* Layout! */
+  width: 200px;    /* Layout! */
+  height: 100px;   /* Layout! */
+  margin-left: 10px; /* Layout! */
+}
+
+/* Example: Slide animation */
+/* BAD */
+@keyframes slideIn-bad {
+  from { left: -100%; }
+  to { left: 0; }
+}
+
+/* GOOD */
+@keyframes slideIn-good {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+</pre>
+
+<h3>FLIP Animation Technique</h3>
+<p><strong>F</strong>irst, <strong>L</strong>ast, <strong>I</strong>nvert, <strong>P</strong>lay — for layout animations at 60fps:</p>
+<pre>
+function flipAnimate(element, targetRect) {
+  // FIRST: Get initial position
+  const first = element.getBoundingClientRect();
+
+  // LAST: Move element to final position (in DOM/CSS)
+  element.classList.add('final-position');
+  const last = element.getBoundingClientRect();
+
+  // INVERT: Calculate the difference and apply inverse transform
+  const deltaX = first.left - last.left;
+  const deltaY = first.top - last.top;
+  const deltaW = first.width / last.width;
+  const deltaH = first.height / last.height;
+
+  element.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaW}, ${deltaH})`;
+  element.style.transformOrigin = 'top left';
+
+  // PLAY: Animate from inverted position to final (transform → identity)
+  requestAnimationFrame(() => {
+    element.style.transition = 'transform 300ms ease-out';
+    element.style.transform = '';
+  });
+}
+
+// Why this works:
+// - Layout change happens instantly (no animation)
+// - Visual animation uses only transform (compositor-only!)
+// - Result: Layout-like animation at 60fps
+</pre>
+
+<h3>Web Animations API</h3>
+<pre>
+// Modern alternative to CSS animations — more control, same performance
+const animation = element.animate([
+  { transform: 'translateX(0)', opacity: 1 },
+  { transform: 'translateX(100px)', opacity: 0.5 }
+], {
+  duration: 300,
+  easing: 'ease-out',
+  fill: 'forwards',
+  composite: 'accumulate' // Combine with existing animations
+});
+
+// Control
+animation.pause();
+animation.reverse();
+animation.playbackRate = 2; // Double speed
+animation.finished.then(() => console.log('done'));
+
+// Cancel to free resources
+animation.cancel();
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="raf">7. requestAnimationFrame Deep Dive</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=wSEU7ivOnzc" target="_blank">requestAnimationFrame Explained — Steve Griffith</a></li>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">rAF vs setTimeout for Animations — Jake Archibald (In The Loop)</a></li>
+</ul></details></div>
+
+<h3>Why rAF > setTimeout for Animations</h3>
+<pre>
+// BAD: setTimeout — fires regardless of frame timing
+// - Can fire mid-frame → visual glitch
+// - Runs in background tabs → wastes CPU
+// - Not synced with display refresh
+setInterval(() => {
+  element.style.transform = `translateX(${x++}px)`;
+}, 16); // Approximate, not synchronized
+
+// GOOD: requestAnimationFrame
+// - Fires exactly once per frame, before paint
+// - Pauses in background tabs (saves battery)
+// - Synced with display refresh rate (60Hz, 120Hz, etc.)
+function animate() {
+  element.style.transform = `translateX(${x++}px)`;
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+</pre>
+
+<h3>rAF Patterns</h3>
+<pre>
+// Pattern: Delta-time animation (frame-rate independent)
+let lastTime = 0;
+function animate(currentTime) {
+  const deltaTime = currentTime - lastTime;
+  lastTime = currentTime;
+
+  // Move 100px per second regardless of frame rate
+  const speed = 100; // pixels per second
+  position += speed * (deltaTime / 1000);
+
+  element.style.transform = `translateX(${position}px)`;
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+// Pattern: Batching DOM reads/writes with rAF
+function batchedUpdate(elements, newValues) {
+  // Read phase (causes 1 forced layout at most)
+  const measurements = elements.map(el => el.getBoundingClientRect());
+
+  // Write phase (in rAF — before next paint)
+  requestAnimationFrame(() => {
+    elements.forEach((el, i) => {
+      el.style.transform = `translateY(${newValues[i]}px)`;
+    });
+  });
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="scroll">8. Scroll Performance</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=SyVKRnusyWg" target="_blank">Scroll Performance & Passive Listeners — Jake Archibald</a></li>
+  <li><a href="https://www.youtube.com/watch?v=3xfGbRSsNPg" target="_blank">IntersectionObserver — Kevin Powell</a></li>
+</ul></details></div>
+
+<h3>Why Scroll Can Be Janky</h3>
+<ul>
+  <li>Scroll handlers run on main thread (by default)</li>
+  <li>Browser doesn't know if handler will call <code>preventDefault()</code></li>
+  <li>Must wait for handler to finish before scrolling</li>
+  <li>Heavy handlers → scroll jank (missed frames)</li>
+</ul>
+
+<h3>Passive Event Listeners</h3>
+<pre>
+// BAD: Browser must wait for handler (might call preventDefault)
+document.addEventListener('scroll', handleScroll); // Default: passive = false
+document.addEventListener('touchmove', handleTouch); // Same problem
+
+// GOOD: Passive listener — tells browser "I won't prevent default"
+document.addEventListener('scroll', handleScroll, { passive: true });
+document.addEventListener('touchmove', handleTouch, { passive: true });
+// Browser can scroll immediately on compositor thread!
+
+// Note: Chrome now defaults scroll/touch listeners to passive
+// But explicitly setting it is best practice for clarity
+
+// Angular: Template binding
+// &lt;div (scroll)="onScroll($event)"&gt; — NOT passive by default
+// Use HostListener with options or manual addEventListener
+</pre>
+
+<h3>Scroll-linked Effects</h3>
+<pre>
+// BAD: Heavy work on every scroll event (fires 60+ times/sec)
+window.addEventListener('scroll', () => {
+  // Reading scrollTop forces layout
+  const scrolled = document.documentElement.scrollTop;
+  header.style.opacity = 1 - scrolled / 500; // Style change
+  parallax.style.transform = `translateY(${scrolled * 0.5}px)`; // Layout...
+});
+
+// GOOD: Debounced + rAF batched
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      const scrolled = window.scrollY;
+      header.style.opacity = 1 - scrolled / 500;
+      parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+      ticking = false;
+    });
+    ticking = true;
+  }
+}, { passive: true });
+
+// BEST: IntersectionObserver (no scroll handler at all!)
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+observer.observe(element);
+
+// MODERN: CSS Scroll-Driven Animations (Chrome 115+)
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animated-section {
+  animation: fadeIn linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}
+</pre>
+
+<h3>Virtual Scrolling</h3>
+<pre>
+// Problem: Rendering 10,000 rows = 10,000 DOM nodes = SLOW
+// Solution: Only render what's visible in viewport + buffer
+
+// Angular CDK Virtual Scroll
+import { ScrollingModule } from '@angular/cdk/scrolling';
+
+// Template:
+// &lt;cdk-virtual-scroll-viewport itemSize="50" class="list-viewport"&gt;
+//   &lt;div *cdkVirtualFor="let item of items" class="list-item"&gt;
+//     {{ item.name }}
+//   &lt;/div&gt;
+// &lt;/cdk-virtual-scroll-viewport&gt;
+
+// Performance impact:
+// Without virtual scroll: 10,000 DOM nodes, 800ms initial render
+// With virtual scroll: ~20-30 DOM nodes, 5ms initial render
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="dom-perf">9. DOM Manipulation Performance</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=KYP1GjfLfcg" target="_blank">Efficient DOM Manipulation — Steve Griffith</a></li>
+  <li><a href="https://www.youtube.com/watch?v=y17RuWkWdn8" target="_blank">Virtual DOM vs Real DOM — Fireship</a></li>
+</ul></details></div>
+
+<h3>Why DOM is Slow</h3>
+<p>DOM operations cross the <strong>JavaScript → C++ bridge</strong>. Each crossing has overhead:</p>
+<pre>
+JavaScript World (V8)          C++ World (Blink/WebKit)
+┌──────────────┐               ┌──────────────────┐
+│  JS object   │ ←── bridge ──→ │  DOM node (C++)  │
+│  reference   │   (expensive!) │  Style data      │
+└──────────────┘               │  Layout data     │
+                               └──────────────────┘
+
+Each DOM operation:
+1. Cross bridge to C++ (overhead)
+2. Potentially invalidate style/layout
+3. Return to JS
+</pre>
+
+<h3>Efficient DOM Manipulation Patterns</h3>
+<pre>
+// BAD: Multiple DOM operations (multiple bridge crossings + reflows)
+for (let i = 0; i &lt; 1000; i++) {
+  const div = document.createElement('div');
+  div.textContent = `Item ${i}`;
+  container.appendChild(div); // 1000 DOM insertions = 1000 potential reflows
+}
+
+// GOOD: DocumentFragment (single DOM insertion)
+const fragment = document.createDocumentFragment();
+for (let i = 0; i &lt; 1000; i++) {
+  const div = document.createElement('div');
+  div.textContent = `Item ${i}`;
+  fragment.appendChild(div); // Fragment is in-memory, no reflow
+}
+container.appendChild(fragment); // Single reflow!
+
+// GOOD: innerHTML for large batches (even faster)
+const html = Array.from({ length: 1000 },
+  (_, i) => `&lt;div&gt;Item ${i}&lt;/div&gt;`
+).join('');
+container.innerHTML = html; // Single parse + single reflow
+
+// BETTER for Angular: Use trackBy in *ngFor
+// This prevents Angular from destroying/recreating DOM nodes
+@Component({
+  template: `
+    &lt;div *ngFor="let item of items; trackBy: trackById"&gt;
+      {{ item.name }}
+    &lt;/div&gt;
+  `
+})
+export class ListComponent {
+  trackById(index: number, item: Item): number {
+    return item.id; // Angular reuses DOM nodes with same ID
+  }
+}
+</pre>
+
+<h3>Avoiding Forced Reflows (Complete List)</h3>
+<p>These properties/methods force synchronous layout:</p>
+<pre>
+// Element dimensions
+elem.offsetTop / offsetLeft / offsetWidth / offsetHeight
+elem.clientTop / clientLeft / clientWidth / clientHeight
+elem.scrollTop / scrollLeft / scrollWidth / scrollHeight
+
+// Computed styles
+window.getComputedStyle(elem)
+elem.getBoundingClientRect()
+elem.getClientRects()
+
+// Scroll
+elem.scrollTo() / elem.scrollBy() / elem.scrollIntoView()
+
+// Focus
+elem.focus() (triggers scroll + layout)
+
+// Window
+window.scrollX / window.scrollY
+window.innerWidth / window.innerHeight
+
+// Special
+document.scrollingElement
+range.getClientRects() / range.getBoundingClientRect()
+SVGElement.getBBox()
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="workers">10. Web Workers & Off-Main-Thread</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Gcp7triXFjg" target="_blank">Web Workers Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7Rrv9qFMWNM" target="_blank">Using Web Workers in Angular — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=X57mh8tKkgE" target="_blank">Off Main Thread Architecture — Surma (Chrome)</a></li>
+</ul></details></div>
+
+<h3>When to Use Web Workers</h3>
+<ul>
+  <li>Heavy computations (sorting, filtering, data processing)</li>
+  <li>Image manipulation (canvas operations)</li>
+  <li>Encryption/decryption</li>
+  <li>Parsing large JSON/CSV files</li>
+  <li>Complex calculations (physics, pathfinding)</li>
+  <li>Any task taking &gt;50ms (Long Task threshold)</li>
+</ul>
+
+<h3>Dedicated Worker Example</h3>
+<pre>
+// main.ts
+const worker = new Worker(new URL('./heavy-work.worker', import.meta.url));
+
+worker.postMessage({ type: 'SORT', data: largeArray });
+
+worker.onmessage = (event) => {
+  const sorted = event.data;
+  updateUI(sorted); // Back on main thread
+};
+
+// heavy-work.worker.ts
+addEventListener('message', (event) => {
+  if (event.data.type === 'SORT') {
+    const sorted = event.data.data.sort((a, b) => a - b);
+    postMessage(sorted);
+  }
+});
+</pre>
+
+<h3>Angular Web Worker Integration</h3>
+<pre>
+// Generate: ng generate web-worker heavy-calculation
+
+// app.component.ts
+if (typeof Worker !== 'undefined') {
+  const worker = new Worker(new URL('./app.worker', import.meta.url));
+  worker.onmessage = ({ data }) => {
+    this.result = data;
+  };
+  worker.postMessage({ items: this.largeDataset });
+}
+
+// app.worker.ts
+/// &lt;reference lib="webworker" /&gt;
+addEventListener('message', ({ data }) => {
+  // Heavy computation here — doesn't block UI!
+  const result = processLargeDataset(data.items);
+  postMessage(result);
+});
+</pre>
+
+<h3>Transferable Objects (Zero-Copy)</h3>
+<pre>
+// Normal postMessage: COPIES data (slow for large arrays)
+worker.postMessage(largeArrayBuffer); // Copies entire buffer
+
+// Transferable: MOVES ownership (instant, zero-copy)
+worker.postMessage(largeArrayBuffer, [largeArrayBuffer]);
+// largeArrayBuffer is now empty in main thread!
+// Worker owns the memory — no copy needed
+
+// Works with: ArrayBuffer, MessagePort, OffscreenCanvas,
+//             ImageBitmap, ReadableStream, WritableStream
+
+// Example: Processing image data
+const canvas = document.querySelector('canvas');
+const offscreen = canvas.transferControlToOffscreen();
+worker.postMessage({ canvas: offscreen }, [offscreen]);
+// Worker can now paint to canvas without main thread!
+</pre>
+
+<h3>SharedArrayBuffer & Atomics</h3>
+<pre>
+// Shared memory between main thread and workers (no copying!)
+const sharedBuffer = new SharedArrayBuffer(1024);
+const sharedArray = new Int32Array(sharedBuffer);
+
+// Main thread
+worker.postMessage({ buffer: sharedBuffer });
+sharedArray[0] = 42; // Worker can see this immediately!
+
+// Worker
+addEventListener('message', ({ data }) => {
+  const view = new Int32Array(data.buffer);
+  console.log(view[0]); // 42 — shared memory!
+
+  // Atomic operations for thread safety
+  Atomics.add(view, 0, 1);      // Atomic increment
+  Atomics.wait(view, 1, 0);     // Wait until value changes
+  Atomics.notify(view, 1, 1);   // Wake waiting thread
+});
+
+// Note: Requires Cross-Origin-Opener-Policy and
+// Cross-Origin-Embedder-Policy headers
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="exercise2">11. Hands-On Exercises — Phase 2</h2>
+
+<h3>Exercise 1: Fix the Janky Scroll</h3>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    .header { position: fixed; top: 0; left: 0; right: 0; height: 60px;
+              background: #333; transition: all 0.3s; z-index: 100; }
+    .content { padding-top: 60px; }
+    .section { height: 100vh; padding: 40px; }
+    .parallax-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                   background: url('bg.jpg') center/cover; z-index: -1; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="parallax-bg" id="parallax"&gt;&lt;/div&gt;
+  &lt;header class="header" id="header"&gt;&lt;/header&gt;
+  &lt;div class="content"&gt;
+    &lt;div class="section"&gt;Section 1&lt;/div&gt;
+    &lt;div class="section"&gt;Section 2&lt;/div&gt;
+    &lt;div class="section"&gt;Section 3&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    // PROBLEM: This causes scroll jank. Fix it!
+    window.addEventListener('scroll', function() {
+      const scrolled = document.documentElement.scrollTop;
+
+      // Parallax effect
+      document.getElementById('parallax').style.top = -(scrolled * 0.5) + 'px';
+
+      // Header opacity
+      const header = document.getElementById('header');
+      header.style.backgroundColor = `rgba(51, 51, 51, ${Math.min(scrolled/300, 1)})`;
+      header.style.height = Math.max(60 - scrolled * 0.1, 40) + 'px';
+    });
+
+    // TODO: Optimize using:
+    // 1. Passive listeners
+    // 2. requestAnimationFrame
+    // 3. transform instead of top
+    // 4. will-change hints
+    // 5. Avoid reading scrollTop and writing styles in same handler
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h3>Exercise 2: Web Worker for Heavy Computation</h3>
+<pre>
+// Task: Move this expensive sort+filter to a Web Worker
+// Main thread should remain responsive during processing
+
+const data = Array.from({ length: 100000 }, () => ({
+  id: Math.random(),
+  name: Math.random().toString(36).substring(7),
+  score: Math.floor(Math.random() * 1000),
+  timestamp: Date.now() - Math.random() * 86400000
+}));
+
+// This blocks the main thread for ~500ms on mobile
+function processData(items) {
+  return items
+    .filter(item => item.score > 500)
+    .sort((a, b) => b.score - a.score)
+    .map(item => ({
+      ...item,
+      rank: 0, // Calculated below
+      percentile: 0
+    }))
+    .map((item, index, arr) => ({
+      ...item,
+      rank: index + 1,
+      percentile: ((arr.length - index) / arr.length * 100).toFixed(1)
+    }));
+}
+
+// TODO:
+// 1. Create a worker file (data-processor.worker.js)
+// 2. Move processData to the worker
+// 3. Use postMessage to send data to worker
+// 4. Receive processed result from worker
+// 5. Show a loading spinner while processing
+// 6. Measure the difference in main thread blocking
+</pre>
+
+<h3>Exercise 3: Detect and Fix Memory Leaks</h3>
+<pre>
+// This component leaks memory. Find and fix ALL leaks.
+class NotificationManager {
+  constructor() {
+    this.notifications = [];
+    this.listeners = [];
+
+    // Leak 1: Global event listener
+    window.addEventListener('online', this.handleOnline);
+    window.addEventListener('offline', this.handleOffline);
+
+    // Leak 2: Interval never cleared
+    this.pollInterval = setInterval(() => {
+      this.checkForNewNotifications();
+    }, 5000);
+
+    // Leak 3: Growing array never trimmed
+    this.history = [];
+  }
+
+  handleOnline = () => { this.showNotification('Back online!'); }
+  handleOffline = () => { this.showNotification('You are offline'); }
+
+  checkForNewNotifications() {
+    fetch('/api/notifications')
+      .then(r => r.json())
+      .then(data => {
+        this.history.push(...data); // Never trimmed!
+        this.notifications = data;
+      });
+  }
+
+  subscribe(callback) {
+    this.listeners.push(callback);
+    // Leak 4: No way to unsubscribe
+  }
+
+  showNotification(msg) {
+    const el = document.createElement('div');
+    el.className = 'notification';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    // Leak 5: Elements never removed from DOM
+  }
+
+  // TODO: Implement proper cleanup
+  destroy() {
+    // Fix all 5 leaks here
+  }
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview2">12. Interview Questions — Phase 2</h2>
+
+<h3>Beginner Level</h3>
+<ol>
+  <li><strong>Q: What is the event loop?</strong><br>
+    A: The event loop is the mechanism that coordinates JavaScript execution. It continuously: (1) picks a task from the task queue, (2) executes it to completion, (3) drains all microtasks, (4) renders if needed, (5) repeats. JavaScript is single-threaded — the event loop enables async behavior without threads.</li>
+
+  <li><strong>Q: What is the difference between microtasks and macrotasks?</strong><br>
+    A: Macrotasks (setTimeout, setInterval, I/O): One executed per event loop iteration, then rendering can happen. Microtasks (Promise.then, queueMicrotask, MutationObserver): ALL drained after each macrotask, before rendering. This means microtasks can starve rendering if they keep adding more microtasks.</li>
+
+  <li><strong>Q: Why should you use requestAnimationFrame for animations?</strong><br>
+    A: rAF fires exactly once per frame, synchronized with the display refresh rate. It pauses in background tabs (saving battery), guarantees code runs before paint (no visual glitch), and adapts to the display's refresh rate (60Hz, 120Hz). setTimeout(fn, 16) is an approximation that can drift and waste CPU.</li>
+
+  <li><strong>Q: What causes memory leaks in JavaScript?</strong><br>
+    A: Common causes: (1) Forgotten event listeners on global objects, (2) References to detached DOM nodes, (3) Closures capturing large scopes, (4) Uncleared intervals/timeouts, (5) Unsubscribed observables/subscriptions, (6) Global variables, (7) Console.log references in development.</li>
+</ol>
+
+<h3>Intermediate Level</h3>
+<ol>
+  <li><strong>Q: Explain layout thrashing and how to fix it in a real-world scenario.</strong><br>
+    A: Layout thrashing occurs when JS reads a layout property, then writes a style, then reads again — each read forces synchronous layout recalculation. Example: In a list of cards, reading each card's height to set its sibling's height. Fix: (1) Batch reads using getComputedStyle before any writes, (2) Use rAF to separate read/write phases, (3) Use a library like fastdom that queues reads and writes separately.</li>
+
+  <li><strong>Q: How do Web Workers improve performance? What are their limitations?</strong><br>
+    A: Web Workers run JavaScript on a separate thread, preventing heavy computation from blocking the UI. Limitations: (1) No DOM access, (2) Communication via postMessage (serialization cost), (3) No access to window, document, or parent scope, (4) Separate memory space (except SharedArrayBuffer), (5) Additional download cost for worker script. Best for: sorting, data processing, image manipulation, crypto.</li>
+
+  <li><strong>Q: What is the FLIP technique and when would you use it?</strong><br>
+    A: FLIP (First, Last, Invert, Play) enables layout animations at 60fps. You: (1) Record initial position (First), (2) Apply final layout (Last), (3) Calculate difference and apply inverse transform (Invert), (4) Animate transform to identity (Play). This works because the actual layout change happens instantly, and the visual animation uses only compositor-friendly transforms.</li>
+
+  <li><strong>Q: Explain passive event listeners and their performance impact.</strong><br>
+    A: By default, the browser doesn't know if a scroll/touch event handler will call preventDefault(). So it must wait for the handler to finish before scrolling. With <code>{ passive: true }</code>, you promise not to call preventDefault, allowing the browser to scroll immediately on the compositor thread. Impact: Eliminates scroll jank from event listeners. Chrome now defaults scroll/touch to passive, but explicitly setting it is best practice.</li>
+</ol>
+
+<h3>Advanced Level</h3>
+<ol>
+  <li><strong>Q: Explain V8's hidden classes and how they affect performance.</strong><br>
+    A: V8 assigns "hidden classes" (shapes/maps) to objects with the same structure. Objects sharing a hidden class use the same optimized property access code (inline caches). Performance impact: (1) Always initialize properties in the same order, (2) Never add properties dynamically after construction, (3) Don't delete properties (changes hidden class), (4) Keep function arguments consistent in type/shape. Breaking these rules causes "megamorphic" property access — generic, slow dictionary lookup instead of fast fixed-offset access.</li>
+
+  <li><strong>Q: How would you handle rendering a list of 100,000 items performantly?</strong><br>
+    A: (1) Virtual Scrolling (CDK Virtual Scroll in Angular): Only render visible items (~20-30 DOM nodes), recycling as user scrolls. (2) Pagination: Show items in pages of 50-100. (3) Infinite Scroll with recycling: Load more as user scrolls, remove far-away items. (4) Web Worker for filtering/sorting. (5) content-visibility: auto for sections. (6) RequestIdleCallback for progressive rendering. (7) trackBy to prevent DOM recreation on data changes.</li>
+
+  <li><strong>Q: Explain Transferable Objects and when to use them.</strong><br>
+    A: Normal postMessage copies data between threads (structured clone algorithm) — O(n) for large arrays. Transferable Objects (ArrayBuffer, OffscreenCanvas, ImageBitmap) transfer ownership instead of copying — O(1), instant. After transfer, the buffer is neutered in the sender (becomes zero-length). Use when passing large binary data to/from workers: image processing, audio processing, large dataset operations. For shared access without transfer, use SharedArrayBuffer with Atomics.</li>
+
+  <li><strong>Q: What is scheduler.yield() and how does it differ from setTimeout(0)?</strong><br>
+    A: Both yield to the main thread, allowing browser to handle higher-priority work. Differences: (1) setTimeout(0) puts your continuation at the BACK of the task queue (low priority). (2) scheduler.yield() keeps your continuation at the FRONT of the user-visible task queue (maintains priority). (3) setTimeout has a 1-4ms minimum delay. (4) scheduler.yield() is semantically clear about intent. Result: With scheduler.yield(), your code resumes faster while still allowing rendering and user input to happen.</li>
+</ol>
+
+<h3>Scenario-Based Questions</h3>
+<ol>
+  <li><strong>Q: Your Angular app's dashboard is dropping frames during scroll. How do you debug and fix it?</strong><br>
+    A: (1) Record Performance profile → identify long tasks during scroll. (2) Check for non-passive scroll listeners (search codebase). (3) Enable "Paint Flashing" in Rendering panel to see what's repainting. (4) Check for layout thrashing (forced synchronous layouts in flame chart). (5) Look for heavy change detection (use OnPush strategy). (6) Consider content-visibility for off-screen sections. (7) Implement virtual scrolling for long lists. (8) Move heavy computation to requestAnimationFrame or Web Worker.</li>
+
+  <li><strong>Q: Users report your SPA becomes slow after 30+ minutes of use. What's likely happening?</strong><br>
+    A: Memory leak. Investigation: (1) Open Performance Monitor panel — watch JS heap size over time. (2) Take heap snapshots before/after repeated actions. (3) Check for: unsubscribed observables, uncleaned event listeners, detached DOM nodes (DOM leak), growing caches without eviction. (4) Look for growing number of event listeners in Performance Monitor. (5) Use allocation timeline to find what's growing. Common Angular causes: subscriptions without takeUntil, services holding growing arrays, router navigation leaking components.</li>
+</ol>
+
+<div class="nav-links">
+  <a href="phase1-fundamentals-browser-internals.html">← Phase 1: Fundamentals</a>
+  <a href="phase3-asset-optimization-loading.html">Phase 3: Asset Optimization →</a>
+</div>
+
+</main>
+</body>
+</html>

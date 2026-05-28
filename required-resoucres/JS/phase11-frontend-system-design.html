@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 11: Frontend System Design & Architecture</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .system-design { background: #f0f0ff; border: 1px solid #c8c8f0; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .system-design h4 { color: #3d1f6e; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 11: Frontend System Design & Architecture</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (11 of 11)</p>
+  <div class="pill-row">
+    <span class="pill">System Design</span>
+    <span class="pill">Machine Coding</span>
+    <span class="pill">Autocomplete</span>
+    <span class="pill">State Management</span>
+    <span class="pill">Client Router</span>
+    <span class="pill">Virtual DOM</span>
+  </div>
+</div>
+
+<div class="callout warning">
+<strong>⚠️ Why Frontend System Design Matters:</strong> Senior-level interviews at FAANG companies (L5+) include 45-60 minute frontend system design rounds. You're expected to design component architecture, data flow, state management, and performance optimizations — then implement key pieces. This phase gives you complete, working implementations.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#autocomplete">Design: Autocomplete / Typeahead Search</a></li>
+    <li><a href="#infinite-scroll">Design: Infinite Scroll with Virtualization</a></li>
+    <li><a href="#router">Design: Client-Side Router (SPA)</a></li>
+    <li><a href="#state-management">Design: State Management (Mini Redux/Signals)</a></li>
+    <li><a href="#event-bus">Design: Pub/Sub Event Bus with Namespacing</a></li>
+    <li><a href="#api-layer">Design: API Request Layer (Queue, Dedup, Cache)</a></li>
+    <li><a href="#virtual-dom">Design: Virtual DOM & Diffing Algorithm</a></li>
+    <li><a href="#drag-drop">Design: Drag & Drop Kanban Board</a></li>
+    <li><a href="#real-time">Design: Real-Time Collaboration (OT/CRDT Concepts)</a></li>
+    <li><a href="#interview-approach">Frontend System Design Interview Framework</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="autocomplete">1. Design: Autocomplete / Typeahead Search</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=us0qySiUsGU" target="_blank">Autocomplete System Design — Chirag Goel</a></li>
+  <li><a href="https://www.youtube.com/watch?v=sZfB4aFGJQI" target="_blank">Search Autocomplete — Frontend System Design</a></li>
+</ul></details>
+
+<div class="system-design">
+<h4>📐 Requirements</h4>
+<ul>
+<li><strong>Functional:</strong> Show suggestions as user types, keyboard navigation, highlight matching text, select suggestion, recent searches</li>
+<li><strong>Non-Functional:</strong> &lt;100ms response, debounce input, cancel stale requests, cache results, accessible (ARIA), mobile-friendly</li>
+</ul>
+</div>
+
+<h3>Full Implementation</h3>
+<pre><code>class Autocomplete {
+  #input;
+  #dropdown;
+  #cache = new Map();
+  #abortController = null;
+  #selectedIndex = -1;
+  #debounceTimer = null;
+  #recentSearches = [];
+  #options;
+  
+  constructor(inputElement, options = {}) {
+    this.#input = inputElement;
+    this.#options = {
+      fetchSuggestions: options.fetchSuggestions || this.#defaultFetch,
+      debounceMs: options.debounceMs || 300,
+      minChars: options.minChars || 2,
+      maxResults: options.maxResults || 8,
+      maxRecent: options.maxRecent || 5,
+      cacheSize: options.cacheSize || 50,
+      cacheTTL: options.cacheTTL || 60000, // 1 minute
+      onSelect: options.onSelect || (() => {}),
+      highlightMatch: options.highlightMatch ?? true,
+    };
+    
+    this.#createDropdown();
+    this.#bindEvents();
+    this.#setupAccessibility();
+  }
+  
+  #createDropdown() {
+    this.#dropdown = document.createElement("ul");
+    this.#dropdown.className = "autocomplete-dropdown";
+    this.#dropdown.setAttribute("role", "listbox");
+    this.#dropdown.setAttribute("aria-label", "Search suggestions");
+    this.#dropdown.style.cssText = `
+      position: absolute; list-style: none; margin: 0; padding: 0;
+      border: 1px solid #ddd; border-radius: 4px; max-height: 300px;
+      overflow-y: auto; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none; z-index: 1000;
+    `;
+    this.#input.parentNode.style.position = "relative";
+    this.#input.parentNode.appendChild(this.#dropdown);
+  }
+  
+  #setupAccessibility() {
+    this.#input.setAttribute("role", "combobox");
+    this.#input.setAttribute("aria-expanded", "false");
+    this.#input.setAttribute("aria-autocomplete", "list");
+    this.#input.setAttribute("aria-controls", "autocomplete-list");
+    this.#dropdown.id = "autocomplete-list";
+  }
+  
+  #bindEvents() {
+    // Input handler with debounce
+    this.#input.addEventListener("input", (e) => {
+      this.#debounce(() => this.#handleInput(e.target.value));
+    });
+    
+    // Keyboard navigation
+    this.#input.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          this.#navigate(1);
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          this.#navigate(-1);
+          break;
+        case "Enter":
+          e.preventDefault();
+          this.#selectCurrent();
+          break;
+        case "Escape":
+          this.#hide();
+          break;
+      }
+    });
+    
+    // Click outside to close
+    document.addEventListener("click", (e) => {
+      if (!this.#input.contains(e.target) && !this.#dropdown.contains(e.target)) {
+        this.#hide();
+      }
+    });
+    
+    // Show recent on focus (empty input)
+    this.#input.addEventListener("focus", () => {
+      if (!this.#input.value && this.#recentSearches.length) {
+        this.#showRecent();
+      }
+    });
+  }
+  
+  #debounce(fn) {
+    clearTimeout(this.#debounceTimer);
+    this.#debounceTimer = setTimeout(fn, this.#options.debounceMs);
+  }
+  
+  async #handleInput(query) {
+    if (query.length < this.#options.minChars) {
+      this.#hide();
+      return;
+    }
+    
+    // Cancel previous request
+    if (this.#abortController) {
+      this.#abortController.abort();
+    }
+    this.#abortController = new AbortController();
+    
+    // Check cache first
+    const cached = this.#getFromCache(query);
+    if (cached) {
+      this.#render(cached, query);
+      return;
+    }
+    
+    try {
+      const results = await this.#options.fetchSuggestions(
+        query,
+        this.#abortController.signal
+      );
+      
+      // Cache results
+      this.#setCache(query, results);
+      this.#render(results.slice(0, this.#options.maxResults), query);
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Autocomplete fetch error:", error);
+      }
+    }
+  }
+  
+  #render(items, query) {
+    this.#dropdown.innerHTML = "";
+    this.#selectedIndex = -1;
+    
+    if (!items.length) {
+      this.#hide();
+      return;
+    }
+    
+    items.forEach((item, index) => {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option");
+      li.setAttribute("aria-selected", "false");
+      li.style.cssText = "padding: 8px 12px; cursor: pointer;";
+      
+      // Highlight matching text
+      if (this.#options.highlightMatch) {
+        li.innerHTML = this.#highlight(item.label || item, query);
+      } else {
+        li.textContent = item.label || item;
+      }
+      
+      li.addEventListener("click", () => this.#select(item));
+      li.addEventListener("mouseenter", () => {
+        this.#setActive(index);
+      });
+      
+      this.#dropdown.appendChild(li);
+    });
+    
+    this.#show();
+  }
+  
+  #highlight(text, query) {
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+    return text.replace(regex, "<strong>$1</strong>");
+  }
+  
+  #navigate(direction) {
+    const items = this.#dropdown.children;
+    if (!items.length) return;
+    
+    this.#selectedIndex = Math.max(-1,
+      Math.min(items.length - 1, this.#selectedIndex + direction)
+    );
+    
+    this.#setActive(this.#selectedIndex);
+  }
+  
+  #setActive(index) {
+    const items = this.#dropdown.children;
+    [...items].forEach((item, i) => {
+      item.style.background = i === index ? "#f0f0f0" : "white";
+      item.setAttribute("aria-selected", i === index ? "true" : "false");
+    });
+    this.#selectedIndex = index;
+    
+    // Scroll into view
+    if (items[index]) {
+      items[index].scrollIntoView({ block: "nearest" });
+    }
+  }
+  
+  #selectCurrent() {
+    const items = this.#dropdown.children;
+    if (this.#selectedIndex >= 0 && items[this.#selectedIndex]) {
+      const text = items[this.#selectedIndex].textContent;
+      this.#select({ label: text, value: text });
+    }
+  }
+  
+  #select(item) {
+    const value = item.label || item;
+    this.#input.value = value;
+    this.#hide();
+    
+    // Add to recent searches
+    this.#recentSearches = [value, ...this.#recentSearches.filter(s => s !== value)]
+      .slice(0, this.#options.maxRecent);
+    
+    this.#options.onSelect(item);
+  }
+  
+  #showRecent() {
+    const items = this.#recentSearches.map(s => ({ label: `🕐 ${s}`, value: s }));
+    this.#render(items, "");
+  }
+  
+  #show() {
+    this.#dropdown.style.display = "block";
+    this.#input.setAttribute("aria-expanded", "true");
+  }
+  
+  #hide() {
+    this.#dropdown.style.display = "none";
+    this.#input.setAttribute("aria-expanded", "false");
+    this.#selectedIndex = -1;
+  }
+  
+  // ═══ Cache Management ═══
+  #getFromCache(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.time > this.#options.cacheTTL) {
+      this.#cache.delete(key);
+      return null;
+    }
+    return entry.data;
+  }
+  
+  #setCache(key, data) {
+    if (this.#cache.size >= this.#options.cacheSize) {
+      const firstKey = this.#cache.keys().next().value;
+      this.#cache.delete(firstKey);
+    }
+    this.#cache.set(key, { data, time: Date.now() });
+  }
+  
+  // Default fetch implementation
+  async #defaultFetch(query, signal) {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal });
+    return response.json();
+  }
+  
+  // Public API
+  destroy() {
+    this.#dropdown.remove();
+    clearTimeout(this.#debounceTimer);
+    if (this.#abortController) this.#abortController.abort();
+  }
+}
+
+// ═══════ USAGE ═══════
+const search = new Autocomplete(document.getElementById("search-input"), {
+  fetchSuggestions: async (query, signal) => {
+    const res = await fetch(`/api/suggestions?q=${query}`, { signal });
+    const data = await res.json();
+    return data.map(item => ({ label: item.name, value: item.id }));
+  },
+  debounceMs: 250,
+  minChars: 1,
+  onSelect: (item) => console.log("Selected:", item)
+});</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Discussion Points</h4>
+<ul>
+<li><strong>Why debounce?</strong> Prevents API call on every keystroke. 300ms is the sweet spot.</li>
+<li><strong>Why AbortController?</strong> If user types "ja" then "jav" quickly, cancel the "ja" request — we only care about "jav" results.</li>
+<li><strong>Cache strategy?</strong> LRU with TTL. Prefix matching: if "java" is cached, "javas" may be a subset (optimization).</li>
+<li><strong>Accessibility?</strong> ARIA roles (combobox, listbox, option), aria-expanded, aria-selected, keyboard navigation.</li>
+<li><strong>Mobile considerations?</strong> Touch events, viewport positioning, virtual keyboard handling.</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="infinite-scroll">2. Design: Infinite Scroll with Virtualization</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=QlPc4EVdSyc" target="_blank">Infinite Scroll from Scratch — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=wS7mz3VNKjk" target="_blank">Virtual Scrolling — Angular (CDK)</a></li>
+</ul></details>
+
+<pre><code>class InfiniteScroll {
+  #container;
+  #sentinel;
+  #observer;
+  #page = 1;
+  #loading = false;
+  #hasMore = true;
+  #items = [];
+  #options;
+  
+  constructor(container, options = {}) {
+    this.#container = container;
+    this.#options = {
+      fetchItems: options.fetchItems,
+      renderItem: options.renderItem,
+      pageSize: options.pageSize || 20,
+      threshold: options.threshold || 0.5, // How close to bottom to trigger
+      loadingTemplate: options.loadingTemplate || "&lt;p>Loading...&lt;/p>",
+      endTemplate: options.endTemplate || "&lt;p>No more items&lt;/p>",
+      errorTemplate: options.errorTemplate || "&lt;p>Error loading. &lt;button>Retry&lt;/button>&lt;/p>",
+    };
+    
+    this.#createSentinel();
+    this.#setupObserver();
+    this.#loadMore(); // Initial load
+  }
+  
+  #createSentinel() {
+    this.#sentinel = document.createElement("div");
+    this.#sentinel.className = "scroll-sentinel";
+    this.#sentinel.style.height = "1px";
+    this.#container.appendChild(this.#sentinel);
+  }
+  
+  #setupObserver() {
+    this.#observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !this.#loading && this.#hasMore) {
+          this.#loadMore();
+        }
+      },
+      {
+        root: this.#container.scrollHeight > window.innerHeight ? this.#container : null,
+        threshold: this.#options.threshold
+      }
+    );
+    this.#observer.observe(this.#sentinel);
+  }
+  
+  async #loadMore() {
+    if (this.#loading || !this.#hasMore) return;
+    
+    this.#loading = true;
+    this.#showLoading();
+    
+    try {
+      const newItems = await this.#options.fetchItems(this.#page, this.#options.pageSize);
+      
+      if (newItems.length < this.#options.pageSize) {
+        this.#hasMore = false;
+      }
+      
+      this.#items.push(...newItems);
+      this.#renderItems(newItems);
+      this.#page++;
+    } catch (error) {
+      this.#showError(error);
+    } finally {
+      this.#loading = false;
+      this.#hideLoading();
+    }
+  }
+  
+  #renderItems(items) {
+    const fragment = document.createDocumentFragment();
+    
+    items.forEach(item => {
+      const element = this.#options.renderItem(item);
+      fragment.appendChild(element);
+    });
+    
+    // Insert before sentinel
+    this.#container.insertBefore(fragment, this.#sentinel);
+    
+    if (!this.#hasMore) {
+      this.#sentinel.innerHTML = this.#options.endTemplate;
+      this.#observer.disconnect();
+    }
+  }
+  
+  #showLoading() {
+    this.#sentinel.innerHTML = this.#options.loadingTemplate;
+  }
+  
+  #hideLoading() {
+    if (this.#hasMore) this.#sentinel.innerHTML = "";
+  }
+  
+  #showError(error) {
+    this.#sentinel.innerHTML = this.#options.errorTemplate;
+    const retryBtn = this.#sentinel.querySelector("button");
+    if (retryBtn) {
+      retryBtn.addEventListener("click", () => this.#loadMore());
+    }
+  }
+  
+  // Public API
+  reset() {
+    this.#page = 1;
+    this.#items = [];
+    this.#hasMore = true;
+    this.#container.innerHTML = "";
+    this.#container.appendChild(this.#sentinel);
+    this.#observer.observe(this.#sentinel);
+    this.#loadMore();
+  }
+  
+  destroy() {
+    this.#observer.disconnect();
+  }
+}
+
+// ═══════ VIRTUAL SCROLLING (for 10,000+ items) ═══════
+class VirtualList {
+  #container;
+  #totalItems;
+  #itemHeight;
+  #visibleCount;
+  #buffer = 5; // Extra items above/below viewport
+  #scrollTop = 0;
+  #data = [];
+  
+  constructor(container, { itemHeight, data, renderItem }) {
+    this.#container = container;
+    this.#itemHeight = itemHeight;
+    this.#data = data;
+    this.#totalItems = data.length;
+    this.renderItem = renderItem;
+    
+    // Calculate visible items
+    this.#visibleCount = Math.ceil(container.clientHeight / itemHeight);
+    
+    // Set total scroll height
+    container.style.overflow = "auto";
+    container.style.position = "relative";
+    
+    const spacer = document.createElement("div");
+    spacer.style.height = `${this.#totalItems * itemHeight}px`;
+    spacer.style.position = "relative";
+    container.appendChild(spacer);
+    this.spacer = spacer;
+    
+    container.addEventListener("scroll", () => {
+      this.#scrollTop = container.scrollTop;
+      this.#render();
+    });
+    
+    this.#render();
+  }
+  
+  #render() {
+    const startIndex = Math.max(0, Math.floor(this.#scrollTop / this.#itemHeight) - this.#buffer);
+    const endIndex = Math.min(
+      this.#totalItems,
+      startIndex + this.#visibleCount + this.#buffer * 2
+    );
+    
+    // Clear and render only visible items
+    this.spacer.innerHTML = "";
+    
+    for (let i = startIndex; i < endIndex; i++) {
+      const item = this.renderItem(this.#data[i], i);
+      item.style.position = "absolute";
+      item.style.top = `${i * this.#itemHeight}px`;
+      item.style.height = `${this.#itemHeight}px`;
+      item.style.width = "100%";
+      this.spacer.appendChild(item);
+    }
+  }
+  
+  // Update data (e.g., after filter)
+  setData(newData) {
+    this.#data = newData;
+    this.#totalItems = newData.length;
+    this.spacer.style.height = `${this.#totalItems * this.#itemHeight}px`;
+    this.#render();
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="router">3. Design: Client-Side Router (SPA)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ZleShIpv5Qo" target="_blank">Build a Router in Vanilla JS — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=OlusQF-iVy8" target="_blank">SPA Router from Scratch — Traversy Media</a></li>
+</ul></details>
+
+<pre><code>class Router {
+  #routes = [];
+  #currentRoute = null;
+  #beforeHooks = [];
+  #afterHooks = [];
+  #outlet;
+  #mode; // "history" or "hash"
+  #base;
+  
+  constructor(options = {}) {
+    this.#mode = options.mode || "history"; // or "hash"
+    this.#base = options.base || "";
+    this.#outlet = options.outlet || document.getElementById("app");
+    
+    // Listen for navigation
+    if (this.#mode === "history") {
+      window.addEventListener("popstate", () => this.#resolve());
+      // Intercept all link clicks
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest("a[data-link]");
+        if (link) {
+          e.preventDefault();
+          this.navigate(link.getAttribute("href"));
+        }
+      });
+    } else {
+      window.addEventListener("hashchange", () => this.#resolve());
+    }
+  }
+  
+  // Register routes
+  addRoute(path, handler, options = {}) {
+    const paramNames = [];
+    // Convert "/user/:id/post/:postId" to regex
+    const pattern = path.replace(/:([^/]+)/g, (_, name) => {
+      paramNames.push(name);
+      return "([^/]+)";
+    });
+    
+    this.#routes.push({
+      path,
+      pattern: new RegExp(`^${pattern}$`),
+      paramNames,
+      handler,
+      title: options.title,
+      guard: options.guard, // Route guard function
+    });
+    
+    return this; // Chainable
+  }
+  
+  // Navigate programmatically
+  navigate(path, { replace = false } = {}) {
+    const fullPath = this.#base + path;
+    
+    if (this.#mode === "history") {
+      if (replace) {
+        history.replaceState(null, "", fullPath);
+      } else {
+        history.pushState(null, "", fullPath);
+      }
+    } else {
+      window.location.hash = path;
+    }
+    
+    this.#resolve();
+  }
+  
+  // Resolve current URL to route
+  async #resolve() {
+    const path = this.#getPath();
+    
+    for (const route of this.#routes) {
+      const match = path.match(route.pattern);
+      
+      if (match) {
+        // Extract params
+        const params = {};
+        route.paramNames.forEach((name, i) => {
+          params[name] = decodeURIComponent(match[i + 1]);
+        });
+        
+        // Extract query params
+        const query = Object.fromEntries(new URLSearchParams(window.location.search));
+        
+        const context = { path, params, query, route };
+        
+        // Run before hooks (navigation guards)
+        const canProceed = await this.#runGuards(route, context);
+        if (!canProceed) return;
+        
+        // Run route handler
+        this.#currentRoute = route;
+        
+        if (route.title) document.title = route.title;
+        
+        const content = await route.handler(context);
+        
+        if (typeof content === "string") {
+          this.#outlet.innerHTML = content;
+        } else if (content instanceof HTMLElement) {
+          this.#outlet.innerHTML = "";
+          this.#outlet.appendChild(content);
+        }
+        
+        // Run after hooks
+        this.#afterHooks.forEach(hook => hook(context));
+        
+        return;
+      }
+    }
+    
+    // 404 - No route matched
+    this.#outlet.innerHTML = "&lt;h1>404 - Page Not Found&lt;/h1>";
+  }
+  
+  #getPath() {
+    if (this.#mode === "history") {
+      return window.location.pathname.replace(this.#base, "") || "/";
+    }
+    return window.location.hash.slice(1) || "/";
+  }
+  
+  async #runGuards(route, context) {
+    // Global guards
+    for (const hook of this.#beforeHooks) {
+      const result = await hook(context);
+      if (result === false) return false;
+      if (typeof result === "string") {
+        this.navigate(result); // Redirect
+        return false;
+      }
+    }
+    
+    // Route-specific guard
+    if (route.guard) {
+      const result = await route.guard(context);
+      if (result === false) return false;
+      if (typeof result === "string") {
+        this.navigate(result);
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  // Navigation guards
+  beforeEach(hook) { this.#beforeHooks.push(hook); return this; }
+  afterEach(hook) { this.#afterHooks.push(hook); return this; }
+  
+  // Start the router
+  start() {
+    this.#resolve();
+    return this;
+  }
+}
+
+// ═══════ USAGE ═══════
+const router = new Router({ mode: "history" });
+
+const isAuthenticated = () => localStorage.getItem("token");
+
+router
+  .addRoute("/", () => "&lt;h1>Home Page&lt;/h1>", { title: "Home" })
+  .addRoute("/about", () => "&lt;h1>About Us&lt;/h1>", { title: "About" })
+  .addRoute("/user/:id", ({ params }) => `&lt;h1>User ${params.id}&lt;/h1>`)
+  .addRoute("/user/:id/post/:postId", ({ params }) => {
+    return `&lt;h1>User ${params.id} - Post ${params.postId}&lt;/h1>`;
+  })
+  .addRoute("/dashboard", ({ params }) => "&lt;h1>Dashboard&lt;/h1>", {
+    title: "Dashboard",
+    guard: () => isAuthenticated() ? true : "/login"
+  })
+  .addRoute("/login", () => "&lt;h1>Login&lt;/h1>")
+  .beforeEach(({ path }) => {
+    console.log("Navigating to:", path);
+    return true; // Allow navigation
+  })
+  .start();</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="state-management">4. Design: State Management (Mini Redux + Signals)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=3sjMRS1gJys" target="_blank">Build Redux from Scratch — Dan Abramov</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ZKH3DLT4BKw" target="_blank">Signals Explained — Fireship</a></li>
+</ul></details>
+
+<h3>Mini Redux (Store + Reducers + Middleware)</h3>
+<pre><code>class Store {
+  #state;
+  #reducer;
+  #listeners = new Set();
+  #middlewares = [];
+  
+  constructor(reducer, initialState, middlewares = []) {
+    this.#reducer = reducer;
+    this.#state = initialState;
+    this.#middlewares = middlewares;
+  }
+  
+  getState() {
+    return this.#state;
+  }
+  
+  dispatch(action) {
+    // Apply middlewares (like Redux middleware chain)
+    const chain = this.#middlewares.map(mw => mw(this));
+    const finalDispatch = chain.reduceRight(
+      (next, middleware) => middleware(next),
+      (action) => {
+        // Actual dispatch
+        this.#state = this.#reducer(this.#state, action);
+        this.#listeners.forEach(listener => listener(this.#state));
+      }
+    );
+    
+    finalDispatch(action);
+  }
+  
+  subscribe(listener) {
+    this.#listeners.add(listener);
+    // Return unsubscribe function
+    return () => this.#listeners.delete(listener);
+  }
+  
+  // Select a slice of state (with memoization)
+  select(selector) {
+    let lastResult;
+    return {
+      getValue: () => selector(this.#state),
+      subscribe: (listener) => {
+        return this.subscribe((state) => {
+          const newResult = selector(state);
+          if (newResult !== lastResult) {
+            lastResult = newResult;
+            listener(newResult);
+          }
+        });
+      }
+    };
+  }
+}
+
+// Middleware: Logger
+const loggerMiddleware = (store) => (next) => (action) => {
+  console.log("Dispatching:", action.type);
+  next(action);
+  console.log("New state:", store.getState());
+};
+
+// Middleware: Thunk (async actions)
+const thunkMiddleware = (store) => (next) => (action) => {
+  if (typeof action === "function") {
+    return action(store.dispatch, store.getState);
+  }
+  return next(action);
+};
+
+// ═══════ USAGE ═══════
+function counterReducer(state = { count: 0, todos: [] }, action) {
+  switch (action.type) {
+    case "INCREMENT": return { ...state, count: state.count + 1 };
+    case "DECREMENT": return { ...state, count: state.count - 1 };
+    case "ADD_TODO": return { ...state, todos: [...state.todos, action.payload] };
+    default: return state;
+  }
+}
+
+const store = new Store(
+  counterReducer,
+  { count: 0, todos: [] },
+  [loggerMiddleware, thunkMiddleware]
+);
+
+const unsubscribe = store.subscribe(state => console.log("State changed:", state));
+
+store.dispatch({ type: "INCREMENT" });
+store.dispatch({ type: "ADD_TODO", payload: "Learn JS" });
+
+// Async action with thunk:
+store.dispatch(async (dispatch, getState) => {
+  const res = await fetch("/api/todos");
+  const todos = await res.json();
+  dispatch({ type: "SET_TODOS", payload: todos });
+});</code></pre>
+
+<h3>Signals (Reactive Primitives — Angular/Solid/Preact style)</h3>
+<pre><code>// Signal: reactive value that notifies dependents
+let currentEffect = null; // Track which effect is reading
+
+function signal(initialValue) {
+  let value = initialValue;
+  const subscribers = new Set();
+  
+  // Read: track dependency
+  function get() {
+    if (currentEffect) {
+      subscribers.add(currentEffect);
+    }
+    return value;
+  }
+  
+  // Write: notify subscribers
+  function set(newValue) {
+    if (Object.is(value, newValue)) return; // No change
+    value = typeof newValue === "function" ? newValue(value) : newValue;
+    // Notify in microtask (batched)
+    queueMicrotask(() => {
+      subscribers.forEach(fn => fn());
+    });
+  }
+  
+  // Mutate (for objects/arrays)
+  function update(fn) {
+    fn(value);
+    queueMicrotask(() => subscribers.forEach(fn => fn()));
+  }
+  
+  return { get, set, update, subscribe: (fn) => { subscribers.add(fn); return () => subscribers.delete(fn); } };
+}
+
+// Computed: derived signal (like Angular's computed())
+function computed(fn) {
+  const result = signal(undefined);
+  
+  effect(() => {
+    result.set(fn());
+  });
+  
+  return { get: result.get, subscribe: result.subscribe };
+}
+
+// Effect: auto-tracks dependencies and re-runs
+function effect(fn) {
+  function execute() {
+    currentEffect = execute;
+    try {
+      fn();
+    } finally {
+      currentEffect = null;
+    }
+  }
+  execute();
+  return () => { /* cleanup: unsubscribe from all */ };
+}
+
+// ═══════ USAGE (Angular-like) ═══════
+const count = signal(0);
+const doubled = computed(() => count.get() * 2);
+
+effect(() => {
+  console.log(`Count: ${count.get()}, Doubled: ${doubled.get()}`);
+});
+// Logs: "Count: 0, Doubled: 0"
+
+count.set(5);
+// Logs: "Count: 5, Doubled: 10" (auto-tracked!)
+
+count.set(prev => prev + 1);
+// Logs: "Count: 6, Doubled: 12"</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-bus">5. Design: Pub/Sub Event Bus with Namespacing</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=aV1xs2OY9rE" target="_blank">Pub/Sub Pattern in JS — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=nQRXi1SVOow" target="_blank">Event Emitter Implementation — Akshay Saini</a></li>
+</ul></details>
+
+<pre><code>class EventBus {
+  #events = new Map();
+  #history = []; // Event history for replay
+  #maxHistory = 100;
+  
+  // Subscribe to event (supports wildcards: "user.*")
+  on(event, callback, options = {}) {
+    const { once = false, priority = 0 } = options;
+    
+    if (!this.#events.has(event)) {
+      this.#events.set(event, []);
+    }
+    
+    const listener = { callback, once, priority };
+    const listeners = this.#events.get(event);
+    
+    // Insert by priority (higher first)
+    const index = listeners.findIndex(l => l.priority < priority);
+    if (index === -1) listeners.push(listener);
+    else listeners.splice(index, 0, listener);
+    
+    // Return unsubscribe function
+    return () => this.off(event, callback);
+  }
+  
+  // Subscribe once
+  once(event, callback) {
+    return this.on(event, callback, { once: true });
+  }
+  
+  // Unsubscribe
+  off(event, callback) {
+    if (!callback) {
+      // Remove all listeners for this event
+      this.#events.delete(event);
+      return;
+    }
+    
+    const listeners = this.#events.get(event);
+    if (!listeners) return;
+    
+    const index = listeners.findIndex(l => l.callback === callback);
+    if (index > -1) listeners.splice(index, 1);
+  }
+  
+  // Emit event (supports namespaced events: "user.login")
+  emit(event, ...data) {
+    const timestamp = Date.now();
+    
+    // Store in history
+    this.#history.push({ event, data, timestamp });
+    if (this.#history.length > this.#maxHistory) this.#history.shift();
+    
+    // Exact match listeners
+    this.#notifyListeners(event, data);
+    
+    // Wildcard listeners (e.g., "user.*" matches "user.login")
+    for (const [pattern] of this.#events) {
+      if (pattern.includes("*")) {
+        const regex = new RegExp("^" + pattern.replace(/\*/g, "[^.]+") + "$");
+        if (regex.test(event)) {
+          this.#notifyListeners(pattern, data);
+        }
+      }
+    }
+  }
+  
+  #notifyListeners(event, data) {
+    const listeners = this.#events.get(event);
+    if (!listeners) return;
+    
+    const toRemove = [];
+    
+    for (const listener of [...listeners]) {
+      listener.callback(...data);
+      if (listener.once) toRemove.push(listener);
+    }
+    
+    toRemove.forEach(l => {
+      const idx = listeners.indexOf(l);
+      if (idx > -1) listeners.splice(idx, 1);
+    });
+  }
+  
+  // Replay past events (useful for late subscribers)
+  replay(event, callback) {
+    this.#history
+      .filter(h => h.event === event)
+      .forEach(h => callback(...h.data));
+  }
+  
+  // Wait for an event (returns Promise)
+  waitFor(event, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        unsub();
+        reject(new Error(`Timeout waiting for event: ${event}`));
+      }, timeout);
+      
+      const unsub = this.once(event, (...data) => {
+        clearTimeout(timer);
+        resolve(data);
+      });
+    });
+  }
+  
+  // Get all registered events
+  get events() {
+    return [...this.#events.keys()];
+  }
+  
+  // Clear all
+  clear() {
+    this.#events.clear();
+    this.#history = [];
+  }
+}
+
+// ═══════ USAGE ═══════
+const bus = new EventBus();
+
+// Namespace events
+bus.on("user.login", (user) => console.log("User logged in:", user.name));
+bus.on("user.logout", () => console.log("User logged out"));
+bus.on("user.*", (data) => console.log("User event:", data)); // Wildcard!
+
+bus.emit("user.login", { name: "Sid", role: "admin" });
+// Logs: "User logged in: Sid", "User event: {name: 'Sid'...}"
+
+// Async wait for event:
+async function waitForLogin() {
+  const [user] = await bus.waitFor("user.login", 10000);
+  console.log("Finally logged in:", user);
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="api-layer">6. Design: API Request Layer</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ax2LXe26gE4" target="_blank">HTTP Client Design — Frontend System Design</a></li>
+  <li><a href="https://www.youtube.com/watch?v=sZfB4aFGJQI" target="_blank">API Layer Architecture — Frontend Interview</a></li>
+</ul></details>
+
+<pre><code>class ApiClient {
+  #baseURL;
+  #defaultHeaders;
+  #interceptors = { request: [], response: [] };
+  #pendingRequests = new Map(); // Deduplication
+  #cache;
+  #retryConfig;
+  
+  constructor(options = {}) {
+    this.#baseURL = options.baseURL || "";
+    this.#defaultHeaders = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+    this.#cache = new Map();
+    this.#retryConfig = {
+      maxRetries: options.maxRetries || 3,
+      retryDelay: options.retryDelay || 1000,
+      retryOn: options.retryOn || [408, 429, 500, 502, 503, 504],
+    };
+  }
+  
+  // ═══ Interceptors ═══
+  addRequestInterceptor(fn) {
+    this.#interceptors.request.push(fn);
+    return () => {
+      const i = this.#interceptors.request.indexOf(fn);
+      if (i > -1) this.#interceptors.request.splice(i, 1);
+    };
+  }
+  
+  addResponseInterceptor(fn) {
+    this.#interceptors.response.push(fn);
+    return () => {
+      const i = this.#interceptors.response.indexOf(fn);
+      if (i > -1) this.#interceptors.response.splice(i, 1);
+    };
+  }
+  
+  // ═══ Core request method ═══
+  async request(url, options = {}) {
+    let config = {
+      url: this.#baseURL + url,
+      method: options.method || "GET",
+      headers: { ...this.#defaultHeaders, ...options.headers },
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      signal: options.signal,
+      cache: options.cache ?? (options.method === "GET"), // Cache GET by default
+      dedupe: options.dedupe ?? true,
+      retry: options.retry ?? true,
+    };
+    
+    // Apply request interceptors
+    for (const interceptor of this.#interceptors.request) {
+      config = await interceptor(config) || config;
+    }
+    
+    // Deduplication: if same request is in-flight, return existing promise
+    const dedupeKey = `${config.method}:${config.url}:${config.body || ""}`;
+    if (config.dedupe && this.#pendingRequests.has(dedupeKey)) {
+      return this.#pendingRequests.get(dedupeKey);
+    }
+    
+    // Cache check (for GET requests)
+    if (config.cache && config.method === "GET") {
+      const cached = this.#cache.get(config.url);
+      if (cached && Date.now() - cached.timestamp < 30000) { // 30s TTL
+        return cached.data;
+      }
+    }
+    
+    // Make the request (with retry)
+    const requestPromise = this.#fetchWithRetry(config);
+    
+    if (config.dedupe) {
+      this.#pendingRequests.set(dedupeKey, requestPromise);
+      requestPromise.finally(() => this.#pendingRequests.delete(dedupeKey));
+    }
+    
+    return requestPromise;
+  }
+  
+  async #fetchWithRetry(config, attempt = 0) {
+    try {
+      const response = await fetch(config.url, {
+        method: config.method,
+        headers: config.headers,
+        body: config.body,
+        signal: config.signal,
+      });
+      
+      // Retry on specific status codes
+      if (!response.ok && config.retry && 
+          this.#retryConfig.retryOn.includes(response.status) && 
+          attempt < this.#retryConfig.maxRetries) {
+        const delay = this.#retryConfig.retryDelay * Math.pow(2, attempt);
+        await new Promise(r => setTimeout(r, delay));
+        return this.#fetchWithRetry(config, attempt + 1);
+      }
+      
+      if (!response.ok) {
+        throw new ApiError(response.status, response.statusText, await response.text());
+      }
+      
+      let data = await response.json();
+      
+      // Apply response interceptors
+      for (const interceptor of this.#interceptors.response) {
+        data = await interceptor(data, response) || data;
+      }
+      
+      // Cache successful GET responses
+      if (config.cache && config.method === "GET") {
+        this.#cache.set(config.url, { data, timestamp: Date.now() });
+      }
+      
+      return data;
+    } catch (error) {
+      if (error.name === "AbortError") throw error;
+      
+      // Network error retry
+      if (config.retry && attempt < this.#retryConfig.maxRetries && !(error instanceof ApiError)) {
+        const delay = this.#retryConfig.retryDelay * Math.pow(2, attempt);
+        await new Promise(r => setTimeout(r, delay));
+        return this.#fetchWithRetry(config, attempt + 1);
+      }
+      
+      throw error;
+    }
+  }
+  
+  // ═══ Convenience methods ═══
+  get(url, options) { return this.request(url, { ...options, method: "GET" }); }
+  post(url, body, options) { return this.request(url, { ...options, method: "POST", body }); }
+  put(url, body, options) { return this.request(url, { ...options, method: "PUT", body }); }
+  patch(url, body, options) { return this.request(url, { ...options, method: "PATCH", body }); }
+  delete(url, options) { return this.request(url, { ...options, method: "DELETE" }); }
+  
+  // Invalidate cache
+  invalidateCache(urlPattern) {
+    if (!urlPattern) { this.#cache.clear(); return; }
+    for (const [key] of this.#cache) {
+      if (key.includes(urlPattern)) this.#cache.delete(key);
+    }
+  }
+}
+
+class ApiError extends Error {
+  constructor(status, statusText, body) {
+    super(`HTTP ${status}: ${statusText}`);
+    this.status = status;
+    this.statusText = statusText;
+    this.body = body;
+  }
+}
+
+// ═══════ USAGE ═══════
+const api = new ApiClient({
+  baseURL: "https://api.example.com",
+  headers: { "X-API-Key": "abc123" },
+});
+
+// Add auth interceptor
+api.addRequestInterceptor((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers["Authorization"] = `Bearer ${token}`;
+  return config;
+});
+
+// Add error interceptor (refresh token on 401)
+api.addResponseInterceptor(async (data, response) => {
+  if (response?.status === 401) {
+    await refreshToken();
+    // Retry original request...
+  }
+  return data;
+});
+
+// Use:
+const users = await api.get("/users");
+const newUser = await api.post("/users", { name: "Sid", email: "sid@test.com" });</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="virtual-dom">7. Design: Virtual DOM & Diffing Algorithm</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=BYbgopx44vo" target="_blank">Virtual DOM Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=l2Tu0NqH0qU" target="_blank">Build a Virtual DOM from Scratch — Jason Miller (Preact)</a></li>
+</ul></details>
+
+<pre><code>// ═══ VIRTUAL DOM IMPLEMENTATION ═══
+
+// 1. Create virtual node (like React.createElement / h())
+function h(type, props = {}, ...children) {
+  return {
+    type,
+    props: props || {},
+    children: children.flat().map(child =>
+      typeof child === "object" ? child : createTextNode(child)
+    )
+  };
+}
+
+function createTextNode(text) {
+  return { type: "TEXT", props: { nodeValue: String(text) }, children: [] };
+}
+
+// 2. Render virtual node to real DOM
+function render(vNode) {
+  if (vNode.type === "TEXT") {
+    return document.createTextNode(vNode.props.nodeValue);
+  }
+  
+  const element = document.createElement(vNode.type);
+  
+  // Set properties
+  for (const [key, value] of Object.entries(vNode.props)) {
+    setProp(element, key, value);
+  }
+  
+  // Render children
+  vNode.children.forEach(child => {
+    element.appendChild(render(child));
+  });
+  
+  return element;
+}
+
+function setProp(element, key, value) {
+  if (key === "className") {
+    element.setAttribute("class", value);
+  } else if (key.startsWith("on")) {
+    const event = key.slice(2).toLowerCase();
+    element.addEventListener(event, value);
+  } else if (key === "style" && typeof value === "object") {
+    Object.assign(element.style, value);
+  } else if (key !== "key") {
+    element.setAttribute(key, value);
+  }
+}
+
+function removeProp(element, key, value) {
+  if (key.startsWith("on")) {
+    const event = key.slice(2).toLowerCase();
+    element.removeEventListener(event, value);
+  } else {
+    element.removeAttribute(key === "className" ? "class" : key);
+  }
+}
+
+// 3. DIFF algorithm (the core!)
+function diff(oldVNode, newVNode, parent, index = 0) {
+  const existingNode = parent.childNodes[index];
+  
+  // Case 1: New node added
+  if (!oldVNode && newVNode) {
+    parent.appendChild(render(newVNode));
+    return;
+  }
+  
+  // Case 2: Old node removed
+  if (oldVNode && !newVNode) {
+    parent.removeChild(existingNode);
+    return;
+  }
+  
+  // Case 3: Node type changed (replace entirely)
+  if (oldVNode.type !== newVNode.type) {
+    parent.replaceChild(render(newVNode), existingNode);
+    return;
+  }
+  
+  // Case 4: Text node changed
+  if (oldVNode.type === "TEXT") {
+    if (oldVNode.props.nodeValue !== newVNode.props.nodeValue) {
+      existingNode.nodeValue = newVNode.props.nodeValue;
+    }
+    return;
+  }
+  
+  // Case 5: Same type — diff props
+  diffProps(existingNode, oldVNode.props, newVNode.props);
+  
+  // Case 6: Diff children (keyed or unkeyed)
+  diffChildren(existingNode, oldVNode.children, newVNode.children);
+}
+
+function diffProps(element, oldProps, newProps) {
+  // Remove old props not in new
+  for (const key of Object.keys(oldProps)) {
+    if (!(key in newProps)) {
+      removeProp(element, key, oldProps[key]);
+    }
+  }
+  
+  // Set new/changed props
+  for (const [key, value] of Object.entries(newProps)) {
+    if (oldProps[key] !== value) {
+      setProp(element, key, value);
+    }
+  }
+}
+
+function diffChildren(parent, oldChildren, newChildren) {
+  const max = Math.max(oldChildren.length, newChildren.length);
+  
+  // Simple O(n) comparison (no key-based reordering)
+  for (let i = 0; i < max; i++) {
+    diff(oldChildren[i], newChildren[i], parent, i);
+  }
+}
+
+// ═══ MINI COMPONENT SYSTEM ═══
+class Component {
+  #vdom = null;
+  #container = null;
+  
+  constructor(container) {
+    this.#container = container;
+    this.state = {};
+  }
+  
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
+    this.#update();
+  }
+  
+  #update() {
+    const newVdom = this.render();
+    
+    if (this.#vdom) {
+      diff(this.#vdom, newVdom, this.#container, 0);
+    } else {
+      this.#container.appendChild(render(newVdom));
+    }
+    
+    this.#vdom = newVdom;
+  }
+  
+  mount() {
+    this.#update();
+  }
+  
+  render() { throw new Error("Must implement render()"); }
+}
+
+// ═══════ USAGE ═══════
+class Counter extends Component {
+  constructor(el) {
+    super(el);
+    this.state = { count: 0 };
+  }
+  
+  render() {
+    return h("div", { className: "counter" },
+      h("h1", {}, `Count: ${this.state.count}`),
+      h("button", { onClick: () => this.setState({ count: this.state.count + 1 }) }, "+"),
+      h("button", { onClick: () => this.setState({ count: this.state.count - 1 }) }, "-")
+    );
+  }
+}
+
+// const app = new Counter(document.getElementById("app"));
+// app.mount();</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="drag-drop">8. Design: Drag & Drop Kanban Board</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=jfYWwQrtzzY" target="_blank">Drag and Drop in Vanilla JS — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=mRzksq3UX6Q" target="_blank">Kanban Board from Scratch — Traversy Media</a></li>
+</ul></details>
+
+<pre><code>class KanbanBoard {
+  #columns = new Map();
+  #container;
+  #dragState = null;
+  
+  constructor(container, columns = ["Todo", "In Progress", "Done"]) {
+    this.#container = container;
+    columns.forEach(col => this.#columns.set(col, []));
+    this.#render();
+  }
+  
+  addCard(column, card) {
+    if (!this.#columns.has(column)) return;
+    this.#columns.get(column).push({
+      id: card.id || Date.now().toString(36),
+      title: card.title,
+      description: card.description || "",
+      priority: card.priority || "medium",
+    });
+    this.#render();
+  }
+  
+  #render() {
+    this.#container.innerHTML = "";
+    this.#container.style.cssText = "display: flex; gap: 16px; padding: 16px;";
+    
+    for (const [columnName, cards] of this.#columns) {
+      const column = this.#createColumn(columnName, cards);
+      this.#container.appendChild(column);
+    }
+  }
+  
+  #createColumn(name, cards) {
+    const col = document.createElement("div");
+    col.className = "kanban-column";
+    col.dataset.column = name;
+    col.style.cssText = `
+      flex: 1; min-width: 250px; background: #f4f5f7; border-radius: 8px;
+      padding: 12px; min-height: 400px;
+    `;
+    
+    const header = document.createElement("h3");
+    header.textContent = `${name} (${cards.length})`;
+    header.style.cssText = "margin: 0 0 12px; font-size: 14px; color: #5e6c84;";
+    col.appendChild(header);
+    
+    // Drop zone events
+    col.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      col.style.background = "#e3f2fd";
+      
+      // Find insertion point
+      const afterElement = this.#getDragAfterElement(col, e.clientY);
+      const draggingCard = document.querySelector(".dragging");
+      
+      if (draggingCard) {
+        if (afterElement) {
+          col.insertBefore(draggingCard, afterElement);
+        } else {
+          col.appendChild(draggingCard);
+        }
+      }
+    });
+    
+    col.addEventListener("dragleave", () => {
+      col.style.background = "#f4f5f7";
+    });
+    
+    col.addEventListener("drop", (e) => {
+      e.preventDefault();
+      col.style.background = "#f4f5f7";
+      
+      if (this.#dragState) {
+        this.#moveCard(
+          this.#dragState.cardId,
+          this.#dragState.fromColumn,
+          name,
+          this.#getDropIndex(col, e.clientY)
+        );
+      }
+    });
+    
+    // Render cards
+    cards.forEach(card => {
+      col.appendChild(this.#createCard(card, name));
+    });
+    
+    return col;
+  }
+  
+  #createCard(card, columnName) {
+    const el = document.createElement("div");
+    el.className = "kanban-card";
+    el.draggable = true;
+    el.dataset.cardId = card.id;
+    el.style.cssText = `
+      background: white; border-radius: 6px; padding: 10px 12px;
+      margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      cursor: grab; transition: transform 0.1s;
+    `;
+    
+    const priorityColors = { high: "#ff4444", medium: "#ffbb33", low: "#00C851" };
+    const color = priorityColors[card.priority];
+    
+    el.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="font-size:13px;">${card.title}</strong>
+        <span class="priority-dot"></span>
+      </div>
+      ${card.description ? `<p style="font-size:11px;color:#666;margin:4px 0 0;">${card.description}</p>` : ""}
+    `;
+    const dot = el.querySelector(".priority-dot");
+    dot.style.cssText = "width:8px;height:8px;border-radius:50%;background:" + color;
+    
+    // Drag events
+    el.addEventListener("dragstart", (e) => {
+      el.classList.add("dragging");
+      el.style.opacity = "0.5";
+      this.#dragState = { cardId: card.id, fromColumn: columnName };
+      e.dataTransfer.effectAllowed = "move";
+    });
+    
+    el.addEventListener("dragend", () => {
+      el.classList.remove("dragging");
+      el.style.opacity = "1";
+      this.#dragState = null;
+    });
+    
+    return el;
+  }
+  
+  #getDragAfterElement(column, y) {
+    const cards = [...column.querySelectorAll(".kanban-card:not(.dragging)")];
+    
+    return cards.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+      }
+      return closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+  
+  #getDropIndex(column, y) {
+    const cards = [...column.querySelectorAll(".kanban-card:not(.dragging)")];
+    const afterEl = this.#getDragAfterElement(column, y);
+    return afterEl ? cards.indexOf(afterEl) : cards.length;
+  }
+  
+  #moveCard(cardId, fromColumn, toColumn, toIndex) {
+    const fromCards = this.#columns.get(fromColumn);
+    const cardIndex = fromCards.findIndex(c => c.id === cardId);
+    if (cardIndex === -1) return;
+    
+    const [card] = fromCards.splice(cardIndex, 1);
+    const toCards = this.#columns.get(toColumn);
+    toCards.splice(toIndex, 0, card);
+    
+    this.#render();
+  }
+}
+
+// ═══════ USAGE ═══════
+// const board = new KanbanBoard(document.getElementById("board"));
+// board.addCard("Todo", { title: "Learn JS", priority: "high" });
+// board.addCard("In Progress", { title: "Build project", priority: "medium" });</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="real-time">9. Design: Real-Time Collaboration Concepts</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=jIR0Ngov7vo" target="_blank">CRDTs Explained — Martin Kleppmann</a></li>
+  <li><a href="https://www.youtube.com/watch?v=S2Hp_1jqpY8" target="_blank">Operational Transform — System Design</a></li>
+</ul></details>
+
+<div class="system-design">
+<h4>📐 Key Concepts for Interviews</h4>
+<table>
+<tr><th>Approach</th><th>How it Works</th><th>Used By</th></tr>
+<tr><td><strong>OT (Operational Transform)</strong></td><td>Transform concurrent operations to maintain consistency. Server arbitrates order.</td><td>Google Docs</td></tr>
+<tr><td><strong>CRDT (Conflict-free Replicated Data Type)</strong></td><td>Data structure that automatically resolves conflicts without coordination.</td><td>Figma, Notion</td></tr>
+<tr><td><strong>WebSocket</strong></td><td>Full-duplex communication for real-time updates</td><td>All collaborative apps</td></tr>
+</table>
+</div>
+
+<pre><code>// Simple Collaborative Text Editor using OT Concepts
+class CollaborativeEditor {
+  #doc = "";
+  #version = 0;
+  #pendingOps = [];
+  #ws;
+  
+  constructor(websocketUrl) {
+    this.#ws = new WebSocket(websocketUrl);
+    this.#ws.onmessage = (event) => this.#handleRemoteOp(JSON.parse(event.data));
+  }
+  
+  // Local operations
+  insert(position, text) {
+    const op = { type: "insert", position, text, version: this.#version };
+    this.#applyLocal(op);
+    this.#send(op);
+  }
+  
+  delete(position, length) {
+    const op = { type: "delete", position, length, version: this.#version };
+    this.#applyLocal(op);
+    this.#send(op);
+  }
+  
+  #applyLocal(op) {
+    if (op.type === "insert") {
+      this.#doc = this.#doc.slice(0, op.position) + op.text + this.#doc.slice(op.position);
+    } else if (op.type === "delete") {
+      this.#doc = this.#doc.slice(0, op.position) + this.#doc.slice(op.position + op.length);
+    }
+    this.#version++;
+    this.#pendingOps.push(op);
+  }
+  
+  #handleRemoteOp(remoteOp) {
+    // Transform against pending local ops
+    let transformedOp = remoteOp;
+    
+    for (const localOp of this.#pendingOps) {
+      transformedOp = this.#transform(transformedOp, localOp);
+    }
+    
+    // Apply transformed remote op
+    if (transformedOp.type === "insert") {
+      this.#doc = this.#doc.slice(0, transformedOp.position) + 
+                  transformedOp.text + 
+                  this.#doc.slice(transformedOp.position);
+    } else if (transformedOp.type === "delete") {
+      this.#doc = this.#doc.slice(0, transformedOp.position) + 
+                  this.#doc.slice(transformedOp.position + transformedOp.length);
+    }
+    
+    this.#version++;
+  }
+  
+  // OT Transform function — the key algorithm!
+  #transform(opA, opB) {
+    // opA is the remote op, opB is the local op already applied
+    if (opA.type === "insert" && opB.type === "insert") {
+      if (opA.position <= opB.position) return opA;
+      return { ...opA, position: opA.position + opB.text.length };
+    }
+    
+    if (opA.type === "insert" && opB.type === "delete") {
+      if (opA.position <= opB.position) return opA;
+      return { ...opA, position: Math.max(opB.position, opA.position - opB.length) };
+    }
+    
+    if (opA.type === "delete" && opB.type === "insert") {
+      if (opA.position >= opB.position) {
+        return { ...opA, position: opA.position + opB.text.length };
+      }
+      return opA;
+    }
+    
+    if (opA.type === "delete" && opB.type === "delete") {
+      if (opA.position >= opB.position + opB.length) {
+        return { ...opA, position: opA.position - opB.length };
+      }
+      if (opB.position >= opA.position + opA.length) {
+        return opA;
+      }
+      // Overlapping deletes — complex case
+      const start = Math.max(opA.position, opB.position);
+      const end = Math.min(opA.position + opA.length, opB.position + opB.length);
+      return { ...opA, position: Math.min(opA.position, opB.position), length: opA.length - (end - start) };
+    }
+    
+    return opA;
+  }
+  
+  #send(op) {
+    this.#ws.send(JSON.stringify(op));
+  }
+  
+  get text() { return this.#doc; }
+}
+
+// ═══ CRDT: Last-Writer-Wins Register (simplest CRDT) ═══
+class LWWRegister {
+  #value;
+  #timestamp;
+  #nodeId;
+  
+  constructor(nodeId) {
+    this.#nodeId = nodeId;
+    this.#value = null;
+    this.#timestamp = 0;
+  }
+  
+  set(value) {
+    this.#value = value;
+    this.#timestamp = Date.now();
+    return { value, timestamp: this.#timestamp, nodeId: this.#nodeId };
+  }
+  
+  merge(remote) {
+    // Last write wins (tie-break by nodeId)
+    if (remote.timestamp > this.#timestamp || 
+        (remote.timestamp === this.#timestamp && remote.nodeId > this.#nodeId)) {
+      this.#value = remote.value;
+      this.#timestamp = remote.timestamp;
+    }
+  }
+  
+  get value() { return this.#value; }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview-approach">10. Frontend System Design Interview Framework</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=5vyKhm2NTfw" target="_blank">Frontend System Design Interview — Chirag Goel</a></li>
+  <li><a href="https://www.youtube.com/watch?v=sV_4pOGosnU" target="_blank">How to Approach System Design — Gaurav Sen</a></li>
+</ul></details>
+
+<div class="system-design">
+<h4>📐 The 6-Step Framework (use in every interview)</h4>
+<ol>
+<li><strong>Requirements Clarification</strong> (2-3 min)
+  <ul>
+    <li>Functional requirements (what features?)</li>
+    <li>Non-functional requirements (performance, accessibility, offline?)</li>
+    <li>Scale (how many users? data volume?)</li>
+    <li>Platform (desktop? mobile? PWA?)</li>
+  </ul>
+</li>
+<li><strong>Component Architecture</strong> (5 min)
+  <ul>
+    <li>Draw component tree (parent-child relationships)</li>
+    <li>Identify shared state vs local state</li>
+    <li>Define component interfaces (inputs/outputs)</li>
+  </ul>
+</li>
+<li><strong>Data Model & API Design</strong> (5 min)
+  <ul>
+    <li>Define data shapes (TypeScript interfaces)</li>
+    <li>API endpoints (REST/GraphQL)</li>
+    <li>Real-time needs (WebSocket? SSE? Polling?)</li>
+  </ul>
+</li>
+<li><strong>State Management</strong> (5 min)
+  <ul>
+    <li>Client state (UI state, form state)</li>
+    <li>Server state (cached API data)</li>
+    <li>URL state (routing, filters)</li>
+    <li>Choose pattern: signals, store, context</li>
+  </ul>
+</li>
+<li><strong>Performance & Optimization</strong> (5 min)
+  <ul>
+    <li>Lazy loading / code splitting</li>
+    <li>Virtualization (large lists)</li>
+    <li>Caching strategy (HTTP cache, service worker, in-memory)</li>
+    <li>Debounce/throttle for user input</li>
+    <li>Bundle optimization</li>
+  </ul>
+</li>
+<li><strong>Edge Cases & Production Concerns</strong> (5 min)
+  <ul>
+    <li>Error handling (network failure, API errors)</li>
+    <li>Accessibility (ARIA, keyboard nav, screen readers)</li>
+    <li>Security (XSS, CSRF, input sanitization)</li>
+    <li>Offline support / optimistic updates</li>
+    <li>Analytics / monitoring</li>
+    <li>Testing strategy</li>
+  </ul>
+</li>
+</ol>
+</div>
+
+<h3>Common Frontend System Design Questions</h3>
+
+<div class="interview">
+<h4>🎯 Frequently Asked Problems</h4>
+
+<table>
+<tr><th>Problem</th><th>Key Concepts</th><th>Companies</th></tr>
+<tr><td><strong>Design Google Search Autocomplete</strong></td><td>Debounce, trie/prefix tree, caching, ranking</td><td>Google, Amazon</td></tr>
+<tr><td><strong>Design Instagram Feed</strong></td><td>Infinite scroll, image lazy load, virtualization, optimistic likes</td><td>Meta, Instagram</td></tr>
+<tr><td><strong>Design Google Docs</strong></td><td>OT/CRDT, WebSocket, cursor sync, conflict resolution</td><td>Google, Notion</td></tr>
+<tr><td><strong>Design a Chat Application</strong></td><td>WebSocket, message queue, read receipts, typing indicators</td><td>Slack, Meta</td></tr>
+<tr><td><strong>Design Twitter/X Timeline</strong></td><td>Infinite scroll, real-time updates, optimistic actions, polling vs push</td><td>Twitter, Meta</td></tr>
+<tr><td><strong>Design a Design Tool (Figma)</strong></td><td>Canvas API, CRDT, collaboration, undo/redo, layers</td><td>Figma, Adobe</td></tr>
+<tr><td><strong>Design a Video Player</strong></td><td>Adaptive streaming (HLS), buffering, controls, accessibility</td><td>Netflix, YouTube</td></tr>
+<tr><td><strong>Design a Spreadsheet</strong></td><td>Virtual grid, formula parser, dependency graph, cell updates</td><td>Google, Microsoft</td></tr>
+<tr><td><strong>Design an E-commerce Cart</strong></td><td>State persistence, optimistic updates, inventory sync, checkout flow</td><td>Amazon, Flipkart</td></tr>
+<tr><td><strong>Design a Dashboard with Widgets</strong></td><td>Grid layout, drag-resize, lazy loading, real-time data</td><td>Datadog, Grafana</td></tr>
+</table>
+</div>
+
+<h3>Quick Answer Template for Any Problem</h3>
+<pre><code>/* 
+ * INTERVIEW ANSWER STRUCTURE:
+ * 
+ * 1. "Let me clarify requirements..."
+ *    - What's the scale? (1K vs 1M users)
+ *    - Must-have vs nice-to-have features?
+ *    - Browser support constraints?
+ * 
+ * 2. "Here's my high-level architecture..."
+ *    [Draw boxes: Components, Services, API Layer, State]
+ * 
+ * 3. "For state management, I'd use..."
+ *    - Signals/Store for shared state
+ *    - URL params for filterable state
+ *    - Service worker cache for offline
+ * 
+ * 4. "Key optimizations would be..."
+ *    - Code splitting at route level
+ *    - Virtual scrolling for large lists
+ *    - Debounce user input (300ms)
+ *    - HTTP cache with stale-while-revalidate
+ * 
+ * 5. "Edge cases I'd handle..."
+ *    - Network failure → retry with backoff + offline queue
+ *    - Race conditions → AbortController / request dedup
+ *    - Memory leaks → cleanup subscriptions in destroy
+ * 
+ * 6. "For testing..."
+ *    - Unit: pure logic (reducers, utils)
+ *    - Integration: component interactions
+ *    - E2E: critical user paths (Cypress/Playwright)
+ */</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>🎉 Congratulations!</strong> You've completed all 11 phases of JavaScript Mastery. This guide covers:
+<ul>
+<li>Phases 1-8: Core JavaScript concepts & theory</li>
+<li>Phase 9: 25+ polyfill implementations & machine coding</li>
+<li>Phase 10: 55+ output prediction questions</li>
+<li>Phase 11: Frontend system design with full implementations</li>
+</ul>
+<strong>Total: ~12,000+ lines of interview-ready content.</strong> Master this and you'll crack any JavaScript interview.
+</div>
+
+<div class="nav-links">
+  <a href="phase10-output-prediction-tricky.html">← Phase 10: Output Prediction</a>
+  <a href="phase12-javascript-performance-mastery.html">Phase 12: JS Performance →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

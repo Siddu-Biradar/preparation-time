@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Python DSA Cheatsheet — Everything You Need to Crush Interviews</title>
+<style>
+  :root{
+    --bg:#fafbfc; --fg:#1f2328; --muted:#57606a; --border:#d0d7de;
+    --accent:#3776AB; --accent-2:#FFD43B; --accent-dark:#1f4d7a;
+    --code-bg:#0d1117; --code-fg:#e6edf3; --code-cmt:#8b949e; --code-kw:#ff7b72; --code-str:#a5d6ff; --code-num:#79c0ff;
+    --warn-bg:#fff8c5; --warn-bd:#d4a72c;
+    --ok-bg:#dafbe1; --ok-bd:#2da44e;
+    --bad-bg:#ffebe9; --bad-bd:#cf222e;
+    --info-bg:#ddf4ff; --info-bd:#0969da;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+  header.page{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;padding:48px 24px 32px;text-align:center}
+  header.page h1{margin:0 0 8px;font-size:36px}
+  header.page h1 span{background:var(--accent-2);color:#1f4d7a;padding:2px 12px;border-radius:6px}
+  header.page p{margin:0 0 16px;opacity:.92}
+  header.page .nav a{display:inline-block;margin:4px 6px;padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;text-decoration:none;font-size:13px}
+  header.page .nav a:hover,header.page .nav a.active{background:#fff;color:var(--accent-dark)}
+  .container{max-width:1100px;margin:0 auto;padding:24px}
+  h2{color:var(--accent-dark);border-bottom:2px solid var(--accent);padding-bottom:6px;margin-top:40px}
+  h3{color:var(--accent-dark);margin-top:28px}
+  h4{margin:18px 0 6px;color:#1f2328}
+  code{background:#eef2f7;padding:1px 6px;border-radius:4px;font:13px Menlo,Consolas,monospace;color:#1f4d7a}
+  pre{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:8px;overflow-x:auto;font:13px Menlo,Consolas,monospace;line-height:1.55}
+  pre .c{color:var(--code-cmt);font-style:italic}
+  pre .k{color:var(--code-kw)}
+  pre .s{color:var(--code-str)}
+  pre .n{color:var(--code-num)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:top}
+  th{background:#f6f8fa;color:var(--accent-dark);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  td code{white-space:nowrap}
+  .pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.3px}
+  .pill.ok{background:#dcfce7;color:#14532d}
+  .pill.warn{background:#fef3c7;color:#78350f}
+  .pill.bad{background:#fee2e2;color:#7f1d1d}
+  .pill.info{background:#dbeafe;color:#1e3a8a}
+  .callout{border-left:4px solid var(--info-bd);background:var(--info-bg);padding:10px 14px;margin:14px 0;border-radius:0 6px 6px 0}
+  .callout.warn{border-color:var(--warn-bd);background:var(--warn-bg)}
+  .callout.bad{border-color:var(--bad-bd);background:var(--bad-bg)}
+  .callout.ok{border-color:var(--ok-bd);background:var(--ok-bg)}
+  .toc{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 22px;margin:18px 0 28px}
+  .toc h3{margin:0 0 8px}
+  .toc ol{column-count:2;column-gap:24px;margin:0;padding-left:22px}
+  @media (max-width:700px){.toc ol{column-count:1}}
+  .toc a{color:var(--accent-dark);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:800px){.two-col{grid-template-columns:1fr}}
+  .mini{border:1px solid var(--border);background:#fff;border-radius:8px;padding:12px 16px}
+  .mini h4{margin:0 0 8px;color:var(--accent-dark);font-size:14px}
+  details{background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 14px;margin:8px 0}
+  details summary{cursor:pointer;font-weight:600;color:var(--accent-dark)}
+  footer{text-align:center;color:var(--muted);padding:32px;font-size:13px}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Python <span>DSA</span> Cheatsheet</h1>
+  <p>Every Python-specific trick, syntax, and idiom you need to crush coding interviews &amp; LeetCode.</p>
+  <div class="nav">
+    <a href="python-roadmap.html">← Roadmap</a>
+    <a class="active" href="python-dsa-cheatsheet.html">DSA Cheatsheet</a>
+    <a href="python-theory-deepdive.html">Theory Deep-dive</a>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h3>📚 Table of Contents</h3>
+  <ol>
+    <li><a href="#why">Why Python for DSA? (vs Java/C++/Go)</a></li>
+    <li><a href="#io">Fast I/O &amp; Boilerplate</a></li>
+    <li><a href="#syntax">Python Syntax Power-ups</a></li>
+    <li><a href="#nums">Numbers, Math &amp; Bit Tricks</a></li>
+    <li><a href="#strings">Strings — Tricks &amp; Pitfalls</a></li>
+    <li><a href="#lists">Lists — the Swiss Army Knife</a></li>
+    <li><a href="#dict-set">Dict, Set, Counter, defaultdict</a></li>
+    <li><a href="#sort">Sorting &amp; Custom Keys</a></li>
+    <li><a href="#stack-queue">Stack, Queue, Deque, Heap</a></li>
+    <li><a href="#linked">Linked Lists in Python</a></li>
+    <li><a href="#trees">Trees &amp; Recursion</a></li>
+    <li><a href="#graphs">Graphs (BFS / DFS / Dijkstra / UF)</a></li>
+    <li><a href="#dp">Dynamic Programming Templates</a></li>
+    <li><a href="#twoptr">Two Pointers / Sliding Window / Binary Search</a></li>
+    <li><a href="#bitmask">Bitmask DP &amp; Tricks</a></li>
+    <li><a href="#trie">Trie / Segment Tree / BIT</a></li>
+    <li><a href="#interval">Intervals &amp; Sweepline</a></li>
+    <li><a href="#math-algos">Number Theory &amp; Combinatorics</a></li>
+    <li><a href="#complexity">Complexity Cheat &amp; Limits</a></li>
+    <li><a href="#gotchas">Top 20 Python Gotchas in Interviews</a></li>
+    <li><a href="#templates">Copy-paste Templates Library</a></li>
+  </ol>
+</div>
+
+<!-- ============ WHY PYTHON ============ -->
+<h2 id="why">1. Why Python for DSA?</h2>
+
+<table>
+  <thead><tr><th>Feature</th><th>Python</th><th>Java / C++ / Go</th></tr></thead>
+  <tbody>
+    <tr><td>Syntax brevity</td><td>50–70% fewer lines</td><td>Verbose</td></tr>
+    <tr><td>Built-in data structs</td><td><code>list, dict, set, deque, heapq, Counter, OrderedDict, SortedList</code></td><td>Need imports/manual</td></tr>
+    <tr><td>Big integers</td><td>Native (arbitrary precision)</td><td>Need <code>BigInteger</code> / overflow risk</td></tr>
+    <tr><td>Slicing</td><td><code>arr[i:j], arr[::-1]</code> ⭐</td><td>Manual loops</td></tr>
+    <tr><td>Tuples as keys</td><td>Native — perfect for memo</td><td>Awkward</td></tr>
+    <tr><td>Speed</td><td>~10–50× slower</td><td>Fast</td></tr>
+    <tr><td>Recursion limit</td><td>1000 default — bump with <code>sys.setrecursionlimit</code></td><td>Stack-bound</td></tr>
+  </tbody>
+</table>
+
+<div class="callout warn">
+  <b>Verdict:</b> Use Python for interviews unless company explicitly requires Java/C++. Watch TLE on heavy loops &gt; 10⁷ ops — switch to PyPy on Codeforces if allowed.
+</div>
+
+<!-- ============ FAST I/O ============ -->
+<h2 id="io">2. Fast I/O &amp; Boilerplate</h2>
+
+<h4>LeetCode (function-style) — no I/O needed</h4>
+<pre><span class="k">class</span> Solution:
+    <span class="k">def</span> twoSum(self, nums: list[int], target: int) -&gt; list[int]:
+        seen = {}
+        <span class="k">for</span> i, x <span class="k">in</span> enumerate(nums):
+            <span class="k">if</span> target - x <span class="k">in</span> seen:
+                <span class="k">return</span> [seen[target - x], i]
+            seen[x] = i</pre>
+
+<h4>Competitive (Codeforces / stdin) — fast template</h4>
+<pre><span class="k">import</span> sys, threading
+<span class="k">from</span> sys <span class="k">import</span> setrecursionlimit
+input = sys.stdin.readline       <span class="c"># 10× faster than built-in input()</span>
+print = sys.stdout.write         <span class="c"># buffered writes</span>
+
+<span class="k">def</span> solve():
+    n = int(input())
+    a = list(map(int, input().split()))
+    print(f<span class="s">"{sum(a)}\n"</span>)
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    setrecursionlimit(10**6)
+    <span class="c"># threading.Thread(target=solve).start()  # for deep recursion</span>
+    solve()</pre>
+
+<div class="callout">
+  <b>Read everything at once</b> for huge inputs:
+  <pre>data = sys.stdin.buffer.read().split()
+idx = 0
+<span class="k">def</span> nxt():
+    <span class="k">global</span> idx; v = data[idx]; idx += 1; <span class="k">return</span> v</pre>
+</div>
+
+<!-- ============ SYNTAX ============ -->
+<h2 id="syntax">3. Python Syntax Power-ups</h2>
+
+<div class="two-col">
+  <div class="mini">
+    <h4>Walrus <code>:=</code> (3.8+)</h4>
+    <pre><span class="k">while</span> (chunk := f.read(1024)):
+    process(chunk)</pre>
+  </div>
+  <div class="mini">
+    <h4>Unpacking</h4>
+    <pre>a, *mid, b = [1,2,3,4,5]
+<span class="c"># a=1, mid=[2,3,4], b=5</span>
+x, y = y, x   <span class="c"># swap</span></pre>
+  </div>
+  <div class="mini">
+    <h4>Comprehensions</h4>
+    <pre>squares = [x*x <span class="k">for</span> x <span class="k">in</span> r <span class="k">if</span> x%2==0]
+grid = [[0]*n <span class="k">for</span> _ <span class="k">in</span> range(m)]   <span class="c"># ⭐ NOT [[0]*n]*m</span>
+seen = {x <span class="k">for</span> x <span class="k">in</span> arr}
+freq = {c: arr.count(c) <span class="k">for</span> c <span class="k">in</span> set(arr)}</pre>
+  </div>
+  <div class="mini">
+    <h4>Conditional expression</h4>
+    <pre>val = a <span class="k">if</span> cond <span class="k">else</span> b
+sign = -1 <span class="k">if</span> x &lt; 0 <span class="k">else</span> 1</pre>
+  </div>
+  <div class="mini">
+    <h4>enumerate + zip</h4>
+    <pre><span class="k">for</span> i, (a, b) <span class="k">in</span> enumerate(zip(A, B)):
+    ...
+<span class="c"># transpose</span>
+T = list(zip(*matrix))</pre>
+  </div>
+  <div class="mini">
+    <h4>any / all</h4>
+    <pre><span class="k">if</span> all(x &gt; 0 <span class="k">for</span> x <span class="k">in</span> arr): ...
+<span class="k">if</span> any(c == <span class="s">'x'</span> <span class="k">for</span> c <span class="k">in</span> s): ...</pre>
+  </div>
+</div>
+
+<div class="callout bad">
+  <b>⚠ Mutable default args trap:</b>
+  <pre><span class="k">def</span> bad(x, acc=[]):   <span class="c"># shared across calls!</span>
+    acc.append(x); <span class="k">return</span> acc
+<span class="k">def</span> good(x, acc=<span class="k">None</span>):
+    <span class="k">if</span> acc <span class="k">is</span> <span class="k">None</span>: acc = []
+    acc.append(x); <span class="k">return</span> acc</pre>
+</div>
+
+<!-- ============ NUMBERS ============ -->
+<h2 id="nums">4. Numbers, Math &amp; Bit Tricks</h2>
+
+<table>
+  <thead><tr><th>Operation</th><th>Python</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Integer division</td><td><code>a // b</code></td><td>Floor toward −∞ (different from C/Java!)</td></tr>
+    <tr><td>Modulo</td><td><code>a % b</code></td><td>Sign follows divisor: <code>(-7) % 3 == 2</code> ⭐</td></tr>
+    <tr><td>Power / mod-pow</td><td><code>pow(a, b, m)</code></td><td>Fast modular exponentiation, built-in</td></tr>
+    <tr><td>Square root int</td><td><code>math.isqrt(n)</code></td><td>Exact, no float error</td></tr>
+    <tr><td>GCD / LCM</td><td><code>math.gcd(a,b)</code>, <code>math.lcm(*xs)</code></td><td>3.9+</td></tr>
+    <tr><td>Combinations</td><td><code>math.comb(n,k)</code>, <code>math.perm(n,k)</code></td><td>3.8+</td></tr>
+    <tr><td>Infinity</td><td><code>math.inf</code>, <code>-math.inf</code>, <code>float('inf')</code></td><td>Comparable with ints</td></tr>
+    <tr><td>Max int</td><td>None — unbounded ⭐</td><td>No overflow ever</td></tr>
+    <tr><td>Divmod</td><td><code>q, r = divmod(a, b)</code></td><td>One call, two results</td></tr>
+  </tbody>
+</table>
+
+<h4>Bit manipulation</h4>
+<pre><span class="c"># set / clear / toggle / test bit i</span>
+x |  (1 &lt;&lt; i)
+x &amp; ~(1 &lt;&lt; i)
+x ^  (1 &lt;&lt; i)
+(x &gt;&gt; i) &amp; 1
+
+<span class="c"># pop count (number of 1-bits)</span>
+bin(x).count(<span class="s">'1'</span>)
+x.bit_count()           <span class="c"># 3.10+ ⭐ fast</span>
+x.bit_length()          <span class="c"># floor(log2)+1</span>
+
+<span class="c"># lowest set bit</span>
+lo = x &amp; -x
+
+<span class="c"># iterate all subsets of mask</span>
+sub = mask
+<span class="k">while</span> sub:
+    use(sub); sub = (sub - 1) &amp; mask</pre>
+
+<!-- ============ STRINGS ============ -->
+<h2 id="strings">5. Strings — Tricks &amp; Pitfalls</h2>
+
+<div class="callout bad">
+  <b>⚠ Strings are immutable.</b> <code>s += c</code> in a loop = <b>O(n²)</b>. Build a <code>list</code> and <code>"".join(parts)</code>.
+</div>
+
+<table>
+  <thead><tr><th>Need</th><th>Python</th></tr></thead>
+  <tbody>
+    <tr><td>Reverse</td><td><code>s[::-1]</code></td></tr>
+    <tr><td>Char freq</td><td><code>Counter(s)</code></td></tr>
+    <tr><td>Is digit / alpha / alnum</td><td><code>c.isdigit() / .isalpha() / .isalnum()</code></td></tr>
+    <tr><td>To lower / upper</td><td><code>s.lower() / s.upper() / s.casefold()</code></td></tr>
+    <tr><td>Find substr</td><td><code>s.find(t)</code> → −1 if absent; <code>s.index(t)</code> raises</td></tr>
+    <tr><td>Replace</td><td><code>s.replace(a, b, count)</code></td></tr>
+    <tr><td>Split / join</td><td><code>s.split(sep)</code> / <code>sep.join(list)</code></td></tr>
+    <tr><td>Strip</td><td><code>s.strip() / .lstrip() / .rstrip()</code></td></tr>
+    <tr><td>Char ↔ code</td><td><code>ord('a')</code> = 97; <code>chr(97)</code> = 'a'</td></tr>
+    <tr><td>Anagram check</td><td><code>sorted(a) == sorted(b)</code> or <code>Counter(a) == Counter(b)</code></td></tr>
+    <tr><td>Palindrome</td><td><code>s == s[::-1]</code></td></tr>
+    <tr><td>Rolling hash key</td><td><code>tuple(sorted(s))</code> or freq tuple of 26 ints</td></tr>
+    <tr><td>f-string</td><td><code>f"{name=}, {x:.2f}"</code></td></tr>
+  </tbody>
+</table>
+
+<h4>String → list of ints (a–z)</h4>
+<pre>idx = [ord(c) - ord(<span class="s">'a'</span>) <span class="k">for</span> c <span class="k">in</span> s]</pre>
+
+<h4>KMP failure function (template)</h4>
+<pre><span class="k">def</span> kmp_fail(p):
+    f = [0]*len(p); k = 0
+    <span class="k">for</span> i <span class="k">in</span> range(1, len(p)):
+        <span class="k">while</span> k &gt; 0 <span class="k">and</span> p[k] != p[i]: k = f[k-1]
+        <span class="k">if</span> p[k] == p[i]: k += 1
+        f[i] = k
+    <span class="k">return</span> f</pre>
+
+<!-- ============ LISTS ============ -->
+<h2 id="lists">6. Lists — the Swiss Army Knife</h2>
+
+<table>
+  <thead><tr><th>Op</th><th>Code</th><th>Time</th></tr></thead>
+  <tbody>
+    <tr><td>Index / set</td><td><code>a[i]</code> / <code>a[i] = v</code></td><td>O(1)</td></tr>
+    <tr><td>Append / pop end</td><td><code>a.append(x)</code> / <code>a.pop()</code></td><td>O(1) amortized</td></tr>
+    <tr><td>Pop / insert front</td><td><code>a.pop(0)</code> / <code>a.insert(0, x)</code></td><td><span class="pill bad">O(n)</span> use deque</td></tr>
+    <tr><td>Slice</td><td><code>a[i:j]</code> / <code>a[::-1]</code></td><td>O(j−i)</td></tr>
+    <tr><td>Membership</td><td><code>x in a</code></td><td>O(n) — use set</td></tr>
+    <tr><td>Sort</td><td><code>a.sort()</code> / <code>sorted(a)</code></td><td>O(n log n) Timsort</td></tr>
+    <tr><td>Reverse in place</td><td><code>a.reverse()</code></td><td>O(n)</td></tr>
+    <tr><td>Extend</td><td><code>a.extend(b)</code> or <code>a += b</code></td><td>O(len b)</td></tr>
+    <tr><td>Index of</td><td><code>a.index(x)</code></td><td>O(n) raises if missing</td></tr>
+    <tr><td>Count</td><td><code>a.count(x)</code></td><td>O(n)</td></tr>
+    <tr><td>Min / max / sum</td><td><code>min(a) max(a) sum(a)</code></td><td>O(n)</td></tr>
+  </tbody>
+</table>
+
+<div class="two-col">
+  <div class="mini">
+    <h4>2-D init (CRITICAL)</h4>
+    <pre><span class="c"># ✅ correct</span>
+g = [[0]*n <span class="k">for</span> _ <span class="k">in</span> range(m)]
+<span class="c"># ❌ all rows share same list</span>
+g = [[0]*n]*m</pre>
+  </div>
+  <div class="mini">
+    <h4>Prefix sum</h4>
+    <pre><span class="k">from</span> itertools <span class="k">import</span> accumulate
+ps = list(accumulate(a, initial=0))
+<span class="c"># sum a[i:j] = ps[j] - ps[i]</span></pre>
+  </div>
+  <div class="mini">
+    <h4>itertools gold</h4>
+    <pre><span class="k">from</span> itertools <span class="k">import</span> *
+permutations(a, k); combinations(a, k)
+combinations_with_replacement(a, k)
+product(a, b); product(a, repeat=3)
+pairwise(a)        <span class="c"># 3.10+ (a[0],a[1]),(a[1],a[2])...</span>
+groupby(sorted(a))
+chain.from_iterable(rows)</pre>
+  </div>
+  <div class="mini">
+    <h4>functools gold</h4>
+    <pre><span class="k">from</span> functools <span class="k">import</span> *
+@cache                          <span class="c"># 3.9+ unbounded memo ⭐</span>
+@lru_cache(maxsize=<span class="k">None</span>)
+reduce(<span class="k">lambda</span> a,b: a^b, nums, 0)
+cmp_to_key(cmp)                 <span class="c"># custom 3-way comparator</span></pre>
+  </div>
+</div>
+
+<!-- ============ DICT/SET ============ -->
+<h2 id="dict-set">7. Dict, Set, Counter, defaultdict</h2>
+
+<table>
+  <thead><tr><th>Op</th><th>dict</th><th>set</th></tr></thead>
+  <tbody>
+    <tr><td>Lookup / insert / delete</td><td>O(1) avg</td><td>O(1) avg</td></tr>
+    <tr><td>Iterate</td><td>insertion order ⭐ (3.7+)</td><td>arbitrary</td></tr>
+    <tr><td>Keys must be</td><td>hashable (immutable)</td><td>hashable</td></tr>
+  </tbody>
+</table>
+
+<pre><span class="k">from</span> collections <span class="k">import</span> defaultdict, Counter, OrderedDict, ChainMap
+
+<span class="c"># defaultdict: auto-init missing keys</span>
+adj = defaultdict(list)
+adj[u].append(v)               <span class="c"># no KeyError</span>
+grp = defaultdict(int)
+<span class="k">for</span> x <span class="k">in</span> a: grp[x] += 1
+
+<span class="c"># Counter: freq map + arithmetic</span>
+c = Counter(<span class="s">"banana"</span>)        <span class="c"># {'a':3,'n':2,'b':1}</span>
+c.most_common(2)               <span class="c"># [('a',3),('n',2)]</span>
+c1 + c2; c1 - c2; c1 &amp; c2; c1 | c2
+
+<span class="c"># dict tricks</span>
+d = {<span class="s">"a"</span>: 1}
+d.get(k, default)              <span class="c"># no KeyError</span>
+d.setdefault(k, []).append(v)  <span class="c"># build groups</span>
+{**d1, **d2}                   <span class="c"># merge (3.5+)</span>
+d1 | d2                        <span class="c"># merge (3.9+) ⭐</span>
+
+<span class="c"># tuple keys = perfect for memo / 2-D</span>
+memo = {}
+<span class="k">def</span> dp(i, j, k):
+    <span class="k">if</span> (i,j,k) <span class="k">in</span> memo: <span class="k">return</span> memo[i,j,k]
+    ...
+
+<span class="c"># set ops</span>
+A &amp; B    <span class="c"># intersection</span>
+A | B    <span class="c"># union</span>
+A - B    <span class="c"># difference</span>
+A ^ B    <span class="c"># symmetric diff</span>
+A &lt;= B   <span class="c"># subset</span>
+frozenset(...)   <span class="c"># hashable, can be a dict key</span></pre>
+
+<div class="callout warn">
+  <b>Hash flooding / TLE:</b> Adversarial inputs on Codeforces can hit Python's hash. Use <code>tuple(sorted(...))</code> keys or randomize: <code>seed = random.randrange(1&lt;&lt;30)</code> and XOR keys.
+</div>
+
+<!-- ============ SORT ============ -->
+<h2 id="sort">8. Sorting &amp; Custom Keys</h2>
+
+<pre><span class="c"># by key</span>
+arr.sort(key=<span class="k">lambda</span> x: (x[0], -x[1]))      <span class="c"># asc, then desc</span>
+sorted(arr, key=<span class="k">lambda</span> p: p.x)
+sorted(arr, reverse=<span class="k">True</span>)
+
+<span class="c"># multi-field stable sort: sort by least-significant first</span>
+arr.sort(key=<span class="k">lambda</span> x: x.name)
+arr.sort(key=<span class="k">lambda</span> x: x.age)            <span class="c"># final primary key</span>
+
+<span class="c"># cmp-to-key for tricky orders (e.g. "largest number")</span>
+<span class="k">from</span> functools <span class="k">import</span> cmp_to_key
+nums = sorted(map(str, nums),
+              key=cmp_to_key(<span class="k">lambda</span> a,b: (b+a &gt; a+b) - (b+a &lt; a+b)))</pre>
+
+<div class="callout">
+  <b>Negate trick</b>: Python <code>heapq</code> is min-heap only. Push <code>-x</code> for max-heap; for max-heap of tuples push <code>(-priority, item)</code>.
+</div>
+
+<!-- ============ STACK/QUEUE/HEAP ============ -->
+<h2 id="stack-queue">9. Stack, Queue, Deque, Heap</h2>
+
+<div class="two-col">
+  <div class="mini">
+    <h4>Stack — just a list</h4>
+    <pre>stk = []
+stk.append(x)        <span class="c"># push</span>
+top = stk[-1]
+v = stk.pop()        <span class="c"># O(1)</span></pre>
+  </div>
+  <div class="mini">
+    <h4>Queue / Deque — <code>collections.deque</code></h4>
+    <pre><span class="k">from</span> collections <span class="k">import</span> deque
+q = deque()
+q.append(x); q.appendleft(x)
+q.pop();     q.popleft()      <span class="c"># O(1) both ends ⭐</span>
+q.rotate(k)                   <span class="c"># right by k</span></pre>
+  </div>
+</div>
+
+<h4>Heap (priority queue) — <code>heapq</code></h4>
+<pre><span class="k">import</span> heapq
+h = []
+heapq.heappush(h, (priority, item))
+priority, item = heapq.heappop(h)        <span class="c"># smallest</span>
+heapq.heapify(arr)                       <span class="c"># O(n) in place</span>
+heapq.nlargest(k, a, key=<span class="k">lambda</span> x: x.score)
+heapq.nsmallest(k, a)
+heapq.heappushpop(h, x)                  <span class="c"># push then pop, faster</span>
+
+<span class="c"># Max-heap via negation</span>
+heapq.heappush(h, -x); -heapq.heappop(h)
+
+<span class="c"># Stable / tie-breaker: include index</span>
+heapq.heappush(h, (priority, idx, item))</pre>
+
+<h4>Sorted container (rare but useful) — <code>sortedcontainers</code> (LeetCode supports it)</h4>
+<pre><span class="k">from</span> sortedcontainers <span class="k">import</span> SortedList, SortedDict, SortedSet
+sl = SortedList()
+sl.add(x); sl.remove(x)
+idx = sl.bisect_left(x)
+kth = sl[k]                  <span class="c"># O(log n) order-statistic ⭐</span></pre>
+
+<!-- ============ LINKED LIST ============ -->
+<h2 id="linked">10. Linked Lists</h2>
+
+<pre><span class="k">class</span> ListNode:
+    <span class="k">def</span> __init__(self, val=0, next=<span class="k">None</span>):
+        self.val, self.next = val, next
+
+<span class="c"># Reverse</span>
+<span class="k">def</span> reverse(head):
+    prev = <span class="k">None</span>
+    <span class="k">while</span> head:
+        nxt = head.next
+        head.next = prev
+        prev, head = head, nxt
+    <span class="k">return</span> prev
+
+<span class="c"># Floyd cycle detection</span>
+slow = fast = head
+<span class="k">while</span> fast <span class="k">and</span> fast.next:
+    slow, fast = slow.next, fast.next.next
+    <span class="k">if</span> slow <span class="k">is</span> fast: <span class="k">return</span> <span class="k">True</span>
+
+<span class="c"># Dummy head pattern (insert/delete uniformly)</span>
+dummy = ListNode(0, head)
+prev = dummy
+<span class="k">while</span> prev.next:
+    <span class="k">if</span> prev.next.val == target:
+        prev.next = prev.next.next
+    <span class="k">else</span>:
+        prev = prev.next
+<span class="k">return</span> dummy.next</pre>
+
+<!-- ============ TREES ============ -->
+<h2 id="trees">11. Trees &amp; Recursion</h2>
+
+<pre><span class="k">class</span> TreeNode:
+    <span class="k">def</span> __init__(self, val=0, left=<span class="k">None</span>, right=<span class="k">None</span>):
+        self.val, self.left, self.right = val, left, right
+
+<span class="c"># DFS recursive (inorder)</span>
+<span class="k">def</span> inorder(n, out):
+    <span class="k">if</span> <span class="k">not</span> n: <span class="k">return</span>
+    inorder(n.left, out); out.append(n.val); inorder(n.right, out)
+
+<span class="c"># DFS iterative (inorder)</span>
+<span class="k">def</span> inorder_iter(root):
+    out, stk, cur = [], [], root
+    <span class="k">while</span> cur <span class="k">or</span> stk:
+        <span class="k">while</span> cur:
+            stk.append(cur); cur = cur.left
+        cur = stk.pop(); out.append(cur.val); cur = cur.right
+    <span class="k">return</span> out
+
+<span class="c"># BFS / level-order</span>
+<span class="k">from</span> collections <span class="k">import</span> deque
+<span class="k">def</span> bfs(root):
+    <span class="k">if</span> <span class="k">not</span> root: <span class="k">return</span> []
+    q, out = deque([root]), []
+    <span class="k">while</span> q:
+        level = []
+        <span class="k">for</span> _ <span class="k">in</span> range(len(q)):
+            n = q.popleft(); level.append(n.val)
+            <span class="k">if</span> n.left:  q.append(n.left)
+            <span class="k">if</span> n.right: q.append(n.right)
+        out.append(level)
+    <span class="k">return</span> out
+
+<span class="c"># Lowest common ancestor (binary tree)</span>
+<span class="k">def</span> lca(root, p, q):
+    <span class="k">if</span> <span class="k">not</span> root <span class="k">or</span> root <span class="k">is</span> p <span class="k">or</span> root <span class="k">is</span> q: <span class="k">return</span> root
+    L = lca(root.left, p, q); R = lca(root.right, p, q)
+    <span class="k">return</span> root <span class="k">if</span> L <span class="k">and</span> R <span class="k">else</span> L <span class="k">or</span> R</pre>
+
+<div class="callout warn">
+  <b>Recursion limit:</b> Default = 1000. For deep trees / DP:
+  <pre><span class="k">import</span> sys; sys.setrecursionlimit(10**6)
+<span class="c"># For very deep recursion run inside a thread with bigger stack:</span>
+<span class="k">import</span> threading
+threading.stack_size(2**27)
+threading.Thread(target=solve).start()</pre>
+</div>
+
+<!-- ============ GRAPHS ============ -->
+<h2 id="graphs">12. Graphs</h2>
+
+<pre><span class="c"># Adjacency list</span>
+<span class="k">from</span> collections <span class="k">import</span> defaultdict
+g = defaultdict(list)
+<span class="k">for</span> u, v, w <span class="k">in</span> edges:
+    g[u].append((v, w)); g[v].append((u, w))   <span class="c"># undirected</span>
+
+<span class="c"># BFS shortest path (unweighted)</span>
+<span class="k">def</span> bfs(src, n):
+    dist = [-1]*n; dist[src] = 0
+    q = deque([src])
+    <span class="k">while</span> q:
+        u = q.popleft()
+        <span class="k">for</span> v, _ <span class="k">in</span> g[u]:
+            <span class="k">if</span> dist[v] == -1:
+                dist[v] = dist[u] + 1
+                q.append(v)
+    <span class="k">return</span> dist
+
+<span class="c"># DFS iterative (avoid recursion limit)</span>
+<span class="k">def</span> dfs(src):
+    seen = {src}; stk = [src]
+    <span class="k">while</span> stk:
+        u = stk.pop()
+        <span class="k">for</span> v, _ <span class="k">in</span> g[u]:
+            <span class="k">if</span> v <span class="k">not</span> <span class="k">in</span> seen:
+                seen.add(v); stk.append(v)
+
+<span class="c"># Dijkstra (non-negative weights)</span>
+<span class="k">import</span> heapq
+<span class="k">def</span> dijkstra(src, n):
+    INF = float(<span class="s">'inf'</span>)
+    dist = [INF]*n; dist[src] = 0
+    h = [(0, src)]
+    <span class="k">while</span> h:
+        d, u = heapq.heappop(h)
+        <span class="k">if</span> d &gt; dist[u]: <span class="k">continue</span>
+        <span class="k">for</span> v, w <span class="k">in</span> g[u]:
+            nd = d + w
+            <span class="k">if</span> nd &lt; dist[v]:
+                dist[v] = nd; heapq.heappush(h, (nd, v))
+    <span class="k">return</span> dist
+
+<span class="c"># Topological sort (Kahn's)</span>
+<span class="k">def</span> topo(n):
+    indeg = [0]*n
+    <span class="k">for</span> u <span class="k">in</span> range(n):
+        <span class="k">for</span> v, _ <span class="k">in</span> g[u]: indeg[v] += 1
+    q = deque(i <span class="k">for</span> i <span class="k">in</span> range(n) <span class="k">if</span> indeg[i] == 0)
+    order = []
+    <span class="k">while</span> q:
+        u = q.popleft(); order.append(u)
+        <span class="k">for</span> v, _ <span class="k">in</span> g[u]:
+            indeg[v] -= 1
+            <span class="k">if</span> indeg[v] == 0: q.append(v)
+    <span class="k">return</span> order <span class="k">if</span> len(order) == n <span class="k">else</span> []   <span class="c"># [] if cycle</span>
+
+<span class="c"># Union-Find (DSU) with path compression + union-by-rank</span>
+<span class="k">class</span> DSU:
+    <span class="k">def</span> __init__(self, n):
+        self.p = list(range(n)); self.r = [0]*n
+    <span class="k">def</span> find(self, x):
+        <span class="k">while</span> self.p[x] != x:
+            self.p[x] = self.p[self.p[x]]; x = self.p[x]
+        <span class="k">return</span> x
+    <span class="k">def</span> union(self, a, b):
+        a, b = self.find(a), self.find(b)
+        <span class="k">if</span> a == b: <span class="k">return</span> <span class="k">False</span>
+        <span class="k">if</span> self.r[a] &lt; self.r[b]: a, b = b, a
+        self.p[b] = a
+        <span class="k">if</span> self.r[a] == self.r[b]: self.r[a] += 1
+        <span class="k">return</span> <span class="k">True</span></pre>
+
+<!-- ============ DP ============ -->
+<h2 id="dp">13. Dynamic Programming Templates</h2>
+
+<h4>Top-down memoization (cleanest)</h4>
+<pre><span class="k">from</span> functools <span class="k">import</span> cache
+
+<span class="k">class</span> Solution:
+    <span class="k">def</span> rob(self, nums):
+        @cache
+        <span class="k">def</span> dp(i):
+            <span class="k">if</span> i &gt;= len(nums): <span class="k">return</span> 0
+            <span class="k">return</span> max(dp(i+1), nums[i] + dp(i+2))
+        <span class="k">return</span> dp(0)</pre>
+
+<div class="callout warn">
+  <b>⚠ <code>@cache</code> on instance methods leaks!</b> Use a free <code>def dp(...)</code> inside the method, or <code>functools.cache</code> after wrapping <code>self</code> as needed.
+</div>
+
+<h4>Bottom-up 1-D &amp; 2-D</h4>
+<pre><span class="c"># LIS O(n log n)</span>
+<span class="k">import</span> bisect
+<span class="k">def</span> lis(a):
+    tails = []
+    <span class="k">for</span> x <span class="k">in</span> a:
+        i = bisect.bisect_left(tails, x)
+        <span class="k">if</span> i == len(tails): tails.append(x)
+        <span class="k">else</span>: tails[i] = x
+    <span class="k">return</span> len(tails)
+
+<span class="c"># 0/1 knapsack</span>
+<span class="k">def</span> knap(W, w, v):
+    dp = [0]*(W+1)
+    <span class="k">for</span> i <span class="k">in</span> range(len(w)):
+        <span class="k">for</span> c <span class="k">in</span> range(W, w[i]-1, -1):     <span class="c"># reverse!</span>
+            dp[c] = max(dp[c], dp[c-w[i]] + v[i])
+    <span class="k">return</span> dp[W]
+
+<span class="c"># Edit distance</span>
+<span class="k">def</span> edit(a, b):
+    m, n = len(a), len(b)
+    dp = [[0]*(n+1) <span class="k">for</span> _ <span class="k">in</span> range(m+1)]
+    <span class="k">for</span> i <span class="k">in</span> range(m+1): dp[i][0] = i
+    <span class="k">for</span> j <span class="k">in</span> range(n+1): dp[0][j] = j
+    <span class="k">for</span> i <span class="k">in</span> range(1, m+1):
+        <span class="k">for</span> j <span class="k">in</span> range(1, n+1):
+            <span class="k">if</span> a[i-1] == b[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            <span class="k">else</span>:
+                dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+    <span class="k">return</span> dp[m][n]</pre>
+
+<!-- ============ TWO PTR / SLIDING / BSEARCH ============ -->
+<h2 id="twoptr">14. Two Pointers / Sliding Window / Binary Search</h2>
+
+<h4>Sliding window — variable size (longest subarray with sum ≤ K)</h4>
+<pre><span class="k">def</span> longest(nums, K):
+    l = s = best = 0
+    <span class="k">for</span> r, x <span class="k">in</span> enumerate(nums):
+        s += x
+        <span class="k">while</span> s &gt; K:
+            s -= nums[l]; l += 1
+        best = max(best, r - l + 1)
+    <span class="k">return</span> best</pre>
+
+<h4>Binary search — <code>bisect</code> module</h4>
+<pre><span class="k">import</span> bisect
+i = bisect.bisect_left(a, x)     <span class="c"># first index where a[i] &gt;= x</span>
+i = bisect.bisect_right(a, x)    <span class="c"># first index where a[i] &gt;  x</span>
+bisect.insort(a, x)              <span class="c"># O(n), insert keeping sorted</span>
+
+<span class="c"># Manual binary search on answer (parametric)</span>
+<span class="k">def</span> can(t): ...                  <span class="c"># monotone predicate</span>
+lo, hi = 0, 10**18
+<span class="k">while</span> lo &lt; hi:
+    mid = (lo + hi) // 2
+    <span class="k">if</span> can(mid): hi = mid
+    <span class="k">else</span>:        lo = mid + 1
+<span class="k">return</span> lo</pre>
+
+<!-- ============ BITMASK ============ -->
+<h2 id="bitmask">15. Bitmask DP &amp; Tricks</h2>
+<pre><span class="c"># Travelling Salesman (n ≤ 20)</span>
+INF = float(<span class="s">'inf'</span>); n = len(dist)
+dp = [[INF]*n <span class="k">for</span> _ <span class="k">in</span> range(1&lt;&lt;n)]
+dp[1][0] = 0                          <span class="c"># start at city 0</span>
+<span class="k">for</span> mask <span class="k">in</span> range(1, 1&lt;&lt;n):
+    <span class="k">for</span> u <span class="k">in</span> range(n):
+        <span class="k">if</span> <span class="k">not</span> (mask &gt;&gt; u) &amp; 1: <span class="k">continue</span>
+        <span class="k">for</span> v <span class="k">in</span> range(n):
+            <span class="k">if</span> (mask &gt;&gt; v) &amp; 1: <span class="k">continue</span>
+            nm = mask | (1 &lt;&lt; v)
+            dp[nm][v] = min(dp[nm][v], dp[mask][u] + dist[u][v])
+ans = min(dp[(1&lt;&lt;n)-1][v] + dist[v][0] <span class="k">for</span> v <span class="k">in</span> range(1, n))</pre>
+
+<!-- ============ TRIE / SEGTREE ============ -->
+<h2 id="trie">16. Trie / Segment Tree / BIT</h2>
+
+<h4>Trie</h4>
+<pre><span class="k">class</span> Trie:
+    <span class="k">def</span> __init__(self): self.root = {}
+    <span class="k">def</span> insert(self, w):
+        n = self.root
+        <span class="k">for</span> c <span class="k">in</span> w: n = n.setdefault(c, {})
+        n[<span class="s">'$'</span>] = <span class="k">True</span>
+    <span class="k">def</span> search(self, w):
+        n = self.root
+        <span class="k">for</span> c <span class="k">in</span> w:
+            <span class="k">if</span> c <span class="k">not</span> <span class="k">in</span> n: <span class="k">return</span> <span class="k">False</span>
+            n = n[c]
+        <span class="k">return</span> <span class="s">'$'</span> <span class="k">in</span> n</pre>
+
+<h4>Fenwick tree (BIT) — point update + prefix sum</h4>
+<pre><span class="k">class</span> BIT:
+    <span class="k">def</span> __init__(self, n): self.n=n; self.t=[0]*(n+1)
+    <span class="k">def</span> update(self, i, v):
+        i += 1
+        <span class="k">while</span> i &lt;= self.n: self.t[i] += v; i += i &amp; -i
+    <span class="k">def</span> query(self, i):
+        i += 1; s = 0
+        <span class="k">while</span> i &gt; 0: s += self.t[i]; i -= i &amp; -i
+        <span class="k">return</span> s</pre>
+
+<!-- ============ INTERVALS ============ -->
+<h2 id="interval">17. Intervals &amp; Sweepline</h2>
+<pre><span class="c"># Merge overlapping</span>
+<span class="k">def</span> merge(iv):
+    iv.sort()
+    out = [iv[0]]
+    <span class="k">for</span> s, e <span class="k">in</span> iv[1:]:
+        <span class="k">if</span> s &lt;= out[-1][1]: out[-1][1] = max(out[-1][1], e)
+        <span class="k">else</span>: out.append([s, e])
+    <span class="k">return</span> out
+
+<span class="c"># Meeting rooms II — sweepline / heap</span>
+<span class="k">def</span> rooms(iv):
+    iv.sort()
+    h = []
+    <span class="k">for</span> s, e <span class="k">in</span> iv:
+        <span class="k">if</span> h <span class="k">and</span> h[0] &lt;= s: heapq.heappop(h)
+        heapq.heappush(h, e)
+    <span class="k">return</span> len(h)</pre>
+
+<!-- ============ MATH ============ -->
+<h2 id="math-algos">18. Number Theory &amp; Combinatorics</h2>
+<pre><span class="c"># Sieve of Eratosthenes</span>
+<span class="k">def</span> sieve(n):
+    p = [<span class="k">True</span>]*(n+1); p[:2] = [<span class="k">False</span>]*2
+    <span class="k">for</span> i <span class="k">in</span> range(2, int(n**.5)+1):
+        <span class="k">if</span> p[i]:
+            <span class="k">for</span> j <span class="k">in</span> range(i*i, n+1, i): p[j] = <span class="k">False</span>
+    <span class="k">return</span> [i <span class="k">for</span> i, ok <span class="k">in</span> enumerate(p) <span class="k">if</span> ok]
+
+<span class="c"># Modular inverse (prime mod)</span>
+inv = pow(a, MOD-2, MOD)            <span class="c"># Fermat little theorem</span>
+
+<span class="c"># nCr mod prime — precompute factorials</span>
+fact = [1]*(N+1)
+<span class="k">for</span> i <span class="k">in</span> range(1, N+1): fact[i] = fact[i-1]*i % MOD
+inv_fact = [1]*(N+1); inv_fact[N] = pow(fact[N], MOD-2, MOD)
+<span class="k">for</span> i <span class="k">in</span> range(N, 0, -1): inv_fact[i-1] = inv_fact[i]*i % MOD
+<span class="k">def</span> C(n, k): <span class="k">return</span> fact[n]*inv_fact[k]%MOD*inv_fact[n-k]%MOD <span class="k">if</span> 0&lt;=k&lt;=n <span class="k">else</span> 0</pre>
+
+<!-- ============ COMPLEXITY ============ -->
+<h2 id="complexity">19. Complexity Cheat &amp; Limits</h2>
+<table>
+  <thead><tr><th>n</th><th>Allowed complexity (Python ~10⁷ ops/sec)</th></tr></thead>
+  <tbody>
+    <tr><td>≤ 10</td><td>O(n!)</td></tr>
+    <tr><td>≤ 20</td><td>O(2ⁿ · n) — bitmask DP</td></tr>
+    <tr><td>≤ 100</td><td>O(n⁴)</td></tr>
+    <tr><td>≤ 500</td><td>O(n³)</td></tr>
+    <tr><td>≤ 5 000</td><td>O(n² log n)</td></tr>
+    <tr><td>≤ 10⁵</td><td>O(n log n) ⭐ sweet spot</td></tr>
+    <tr><td>≤ 10⁶</td><td>O(n) — beware constants</td></tr>
+    <tr><td>≤ 10⁸</td><td>O(log n) / O(1)</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ GOTCHAS ============ -->
+<h2 id="gotchas">20. Top 20 Python Gotchas in Interviews</h2>
+<ol>
+  <li><b>Mutable default arg</b> — <code>def f(a=[])</code> shares state across calls.</li>
+  <li><b><code>[[0]*n]*m</code></b> creates m references to one row. Use list comp.</li>
+  <li><b>Integer division</b> floors toward −∞: <code>-7 // 2 == -4</code> (not −3).</li>
+  <li><b>Modulo sign</b> follows divisor: <code>(-7) % 3 == 2</code>.</li>
+  <li><b>String concat in loop</b> = O(n²). Use <code>"".join(parts)</code>.</li>
+  <li><b><code>list.pop(0)</code></b> = O(n). Use <code>deque.popleft()</code>.</li>
+  <li><b><code>x in list</code></b> = O(n). Convert to set for membership.</li>
+  <li><b>Recursion limit 1000</b> — bump it; iteratively for n &gt; 10⁴.</li>
+  <li><b><code>copy()</code> is shallow</b>. Nested? Use <code>copy.deepcopy</code> or list comprehension.</li>
+  <li><b>Sets / dicts of mutable</b> — <code>list</code>/<code>dict</code> not hashable; use <code>tuple</code>/<code>frozenset</code>.</li>
+  <li><b>Float equality</b> — never <code>==</code>; use <code>math.isclose</code>.</li>
+  <li><b>0.1 + 0.2 ≠ 0.3</b> — convert to int (mult 10ⁿ) or use <code>Decimal</code>.</li>
+  <li><b><code>range(n)</code> doesn't materialize</b> — fine; but <code>list(range(n))</code> allocates.</li>
+  <li><b>Variable capture in lambdas inside loops</b>: <code>fns = [lambda: i for i in range(3)]</code> — all return 2. Default-arg trick: <code>lambda i=i: i</code>.</li>
+  <li><b><code>and</code>/<code>or</code> short-circuit and return values</b>, not bools: <code>0 or 'x' == 'x'</code>.</li>
+  <li><b><code>is</code> vs <code>==</code></b> — only use <code>is</code> for <code>None</code>, <code>True</code>, <code>False</code>.</li>
+  <li><b>Iterating &amp; mutating</b> a list/dict throws / skips. Copy: <code>for k in list(d): ...</code>.</li>
+  <li><b>Generator exhausted once</b> — re-create or convert with <code>list()</code>.</li>
+  <li><b><code>sort()</code> returns None</b>; <code>sorted()</code> returns list.</li>
+  <li><b><code>True == 1</code> &amp; <code>False == 0</code></b>; <code>True + True == 2</code>. Sometimes useful, often a bug.</li>
+</ol>
+
+<!-- ============ TEMPLATES ============ -->
+<h2 id="templates">21. Copy-paste Templates Library</h2>
+
+<details>
+  <summary>Sliding window — fixed size k</summary>
+<pre>s = sum(a[:k]); best = s
+<span class="k">for</span> i <span class="k">in</span> range(k, len(a)):
+    s += a[i] - a[i-k]
+    best = max(best, s)</pre>
+</details>
+
+<details>
+  <summary>Backtracking template</summary>
+<pre><span class="k">def</span> backtrack(path, choices):
+    <span class="k">if</span> goal(path):
+        out.append(path[:]); <span class="k">return</span>
+    <span class="k">for</span> c <span class="k">in</span> choices:
+        <span class="k">if</span> <span class="k">not</span> valid(c, path): <span class="k">continue</span>
+        path.append(c)
+        backtrack(path, next_choices(c))
+        path.pop()</pre>
+</details>
+
+<details>
+  <summary>Monotonic stack — next greater element</summary>
+<pre><span class="k">def</span> nge(a):
+    res = [-1]*len(a); stk = []
+    <span class="k">for</span> i, x <span class="k">in</span> enumerate(a):
+        <span class="k">while</span> stk <span class="k">and</span> a[stk[-1]] &lt; x:
+            res[stk.pop()] = x
+        stk.append(i)
+    <span class="k">return</span> res</pre>
+</details>
+
+<details>
+  <summary>Matrix DFS / island count</summary>
+<pre>DIRS = [(1,0),(-1,0),(0,1),(0,-1)]
+<span class="k">def</span> islands(g):
+    m, n = len(g), len(g[0]); cnt = 0
+    <span class="k">def</span> dfs(i, j):
+        <span class="k">if</span> <span class="k">not</span> (0&lt;=i&lt;m <span class="k">and</span> 0&lt;=j&lt;n) <span class="k">or</span> g[i][j] != <span class="s">'1'</span>: <span class="k">return</span>
+        g[i][j] = <span class="s">'0'</span>
+        <span class="k">for</span> di,dj <span class="k">in</span> DIRS: dfs(i+di, j+dj)
+    <span class="k">for</span> i <span class="k">in</span> range(m):
+        <span class="k">for</span> j <span class="k">in</span> range(n):
+            <span class="k">if</span> g[i][j] == <span class="s">'1'</span>: cnt += 1; dfs(i, j)
+    <span class="k">return</span> cnt</pre>
+</details>
+
+<details>
+  <summary>Parametric BS — minimum capacity to ship</summary>
+<pre><span class="k">def</span> can_ship(cap, weights, days):
+    d, cur = 1, 0
+    <span class="k">for</span> w <span class="k">in</span> weights:
+        <span class="k">if</span> cur + w &gt; cap: d += 1; cur = 0
+        cur += w
+    <span class="k">return</span> d &lt;= days
+
+lo, hi = max(weights), sum(weights)
+<span class="k">while</span> lo &lt; hi:
+    mid = (lo+hi)//2
+    <span class="k">if</span> can_ship(mid, weights, days): hi = mid
+    <span class="k">else</span>: lo = mid + 1</pre>
+</details>
+
+</div><!-- /.container -->
+<footer>Python DSA Cheatsheet — pair with <a href="python-theory-deepdive.html">Theory Deep-dive</a> &amp; <a href="python-roadmap.html">Roadmap</a>.</footer>
+</body>
+</html>

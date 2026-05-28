@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 4: Prototypes, Classes & OOP</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 4: Prototypes, Classes & OOP</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (4 of 8)</p>
+  <div class="pill-row">
+    <span class="pill">Prototype Chain</span>
+    <span class="pill">Inheritance</span>
+    <span class="pill">ES6 Classes</span>
+    <span class="pill">Private Fields</span>
+    <span class="pill">Mixins</span>
+    <span class="pill">Composition</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#prototype-chain">Prototype Chain & __proto__</a></li>
+    <li><a href="#prototypal-inheritance">Prototypal Inheritance</a></li>
+    <li><a href="#constructor-functions">Constructor Functions & new Keyword</a></li>
+    <li><a href="#es6-classes">ES6 Classes (Complete)</a></li>
+    <li><a href="#inheritance-classes">Class Inheritance (extends, super)</a></li>
+    <li><a href="#private-fields">Private Fields & Methods (#)</a></li>
+    <li><a href="#static">Static Members</a></li>
+    <li><a href="#symbol-iterator">Symbol, Iterator & Generator</a></li>
+    <li><a href="#proxy-reflect">Proxy & Reflect</a></li>
+    <li><a href="#composition">Composition vs Inheritance & Mixins</a></li>
+    <li><a href="#solid">SOLID Principles in JavaScript</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="prototype-chain">1. Prototype Chain & __proto__</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=wstwjQ1yqWQ" target="_blank">Prototypes in JS — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=XskMWBXNbp0" target="_blank">Prototype Chain — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=1UTqFAjYx1k" target="_blank">Prototypal Inheritance — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p>JavaScript uses <strong>prototypal inheritance</strong> — objects can inherit from other objects. Every object has an internal <code>[[Prototype]]</code> link (accessible via <code>__proto__</code> or <code>Object.getPrototypeOf()</code>) that points to another object.</p>
+
+<pre><code>// Every object has a prototype chain
+const obj = { name: "Sid" };
+
+// obj → Object.prototype → null
+obj.__proto__ === Object.prototype;    // true
+Object.prototype.__proto__ === null;    // true (end of chain)
+
+// Property lookup follows the chain:
+obj.toString(); // Found on Object.prototype (inherited!)
+obj.hasOwnProperty("name"); // Found on Object.prototype
+
+// Visualizing the chain:
+/*
+obj { name: "Sid" }
+  ↓ [[Prototype]]
+Object.prototype { toString, hasOwnProperty, valueOf, ... }
+  ↓ [[Prototype]]
+null (end of chain)
+*/
+
+// Arrays have an extra link:
+const arr = [1, 2, 3];
+// arr → Array.prototype → Object.prototype → null
+arr.__proto__ === Array.prototype;           // true
+Array.prototype.__proto__ === Object.prototype; // true
+// That's why arrays have both array methods AND object methods
+
+// Functions too:
+function fn() {}
+// fn → Function.prototype → Object.prototype → null
+fn.__proto__ === Function.prototype;          // true
+fn.call;  // inherited from Function.prototype</code></pre>
+
+<h4>prototype vs __proto__ vs [[Prototype]]</h4>
+<pre><code>// [[Prototype]] — internal slot (the actual link) — not directly accessible
+// __proto__     — getter/setter to access [[Prototype]] (legacy, avoid)
+// .prototype    — property on FUNCTIONS only (used when calling with 'new')
+
+function Dog(name) {
+  this.name = name;
+}
+Dog.prototype.bark = function() { return "Woof!"; };
+
+const rex = new Dog("Rex");
+
+// rex.__proto__ === Dog.prototype (the LINK)
+// Dog.prototype is the TEMPLATE for instances
+// Dog.prototype.constructor === Dog (back-reference)
+
+rex.bark();     // "Woof!" — found on Dog.prototype
+rex.toString(); // "[object Object]" — found on Object.prototype
+
+// Modern ways to work with prototypes:
+Object.getPrototypeOf(rex);           // Dog.prototype
+Object.setPrototypeOf(obj, proto);    // Set prototype (expensive!)
+Object.create(proto);                 // Create with specified prototype</code></pre>
+
+<h4>Property Shadowing</h4>
+<pre><code>function Animal(name) { this.name = name; }
+Animal.prototype.speak = function() { return `${this.name} speaks`; };
+
+const cat = new Animal("Cat");
+cat.speak(); // "Cat speaks" (from prototype)
+
+// Shadowing: own property hides prototype property
+cat.speak = function() { return `${this.name} meows`; };
+cat.speak(); // "Cat meows" (own property found first)
+
+// Delete own property → prototype property visible again
+delete cat.speak;
+cat.speak(); // "Cat speaks" (back to prototype)
+
+// hasOwnProperty distinguishes own vs inherited
+cat.hasOwnProperty("name");  // true (own)
+cat.hasOwnProperty("speak"); // false (inherited, after delete)</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Explain the prototype chain with a diagram for arrays.</p>
+<p><strong>Answer:</strong> <code>[1,2,3]</code> → <code>Array.prototype</code> (has push, pop, map, filter) → <code>Object.prototype</code> (has toString, hasOwnProperty) → <code>null</code>. When you call <code>[].map()</code>, JS doesn't find 'map' on the array instance, goes to Array.prototype, finds it there. That's why arrays have both array methods and object methods.</p>
+
+<p><span class="difficulty d-expert">Expert</span> What is the difference between .prototype and .__proto__?</p>
+<p><strong>Answer:</strong> <code>.prototype</code> is a property on constructor functions — it's the object that will become the __proto__ of instances created with <code>new</code>. <code>.__proto__</code> (or [[Prototype]]) is the internal link that every object has pointing to its prototype. <code>new Foo()</code> → the new object's <code>__proto__</code> is set to <code>Foo.prototype</code>.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="prototypal-inheritance">2. Prototypal Inheritance</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=wSVAGX2RxCU" target="_blank">Prototypal Inheritance — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7oNWNlMrkpc" target="_blank">Inheritance Patterns — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Pattern 1: Object.create (most idiomatic prototypal inheritance)
+const animal = {
+  init(name) { this.name = name; return this; },
+  speak() { return `${this.name} makes noise`; }
+};
+
+const dog = Object.create(animal);
+dog.bark = function() { return `${this.name} barks`; };
+
+const rex = Object.create(dog).init("Rex");
+rex.speak(); // "Rex makes noise" (from animal)
+rex.bark();  // "Rex barks" (from dog)
+
+// Chain: rex → dog → animal → Object.prototype → null
+
+// Pattern 2: Constructor function inheritance (pre-ES6)
+function Shape(color) {
+  this.color = color;
+}
+Shape.prototype.describe = function() {
+  return `A ${this.color} shape`;
+};
+
+function Circle(color, radius) {
+  Shape.call(this, color);  // Call parent constructor
+  this.radius = radius;
+}
+// Set up prototype chain:
+Circle.prototype = Object.create(Shape.prototype);
+Circle.prototype.constructor = Circle; // Fix constructor reference
+
+Circle.prototype.area = function() {
+  return Math.PI * this.radius ** 2;
+};
+
+const c = new Circle("red", 5);
+c.describe(); // "A red shape" (inherited)
+c.area();     // 78.54 (own)
+c instanceof Circle; // true
+c instanceof Shape;  // true</code></pre>
+
+<h4>How instanceof Works</h4>
+<pre><code>// instanceof checks if prototype appears ANYWHERE in the chain
+// obj instanceof Constructor
+// Checks: obj.__proto__.__proto__... === Constructor.prototype?
+
+function Foo() {}
+const f = new Foo();
+
+f instanceof Foo;    // true (f.__proto__ === Foo.prototype)
+f instanceof Object; // true (Foo.prototype.__proto__ === Object.prototype)
+
+// Can be fooled:
+Foo.prototype = {}; // Replace prototype
+f instanceof Foo;   // false! (f still links to OLD prototype)
+
+// Symbol.hasInstance — customize instanceof behavior
+class EvenNumber {
+  static [Symbol.hasInstance](num) {
+    return typeof num === "number" && num % 2 === 0;
+  }
+}
+4 instanceof EvenNumber; // true!
+3 instanceof EvenNumber; // false!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="constructor-functions">3. Constructor Functions & new Keyword</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=23AOrSN-wmI" target="_blank">new Keyword Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Y3zzCY62NYc" target="_blank">Constructors — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// What 'new' does (4 steps):
+function Person(name, age) {
+  // 1. Creates empty object: {}
+  // 2. Sets __proto__ to Person.prototype
+  // 3. Binds 'this' to the new object
+  this.name = name;
+  this.age = age;
+  // 4. Returns 'this' (implicitly, unless explicit return of object)
+}
+
+// Equivalent manual implementation:
+function myNew(Constructor, ...args) {
+  // 1. Create object with constructor's prototype
+  const obj = Object.create(Constructor.prototype);
+  // 2. Call constructor with new object as 'this'
+  const result = Constructor.apply(obj, args);
+  // 3. If constructor returns an object, use that instead
+  return result instanceof Object ? result : obj;
+}
+
+const p = myNew(Person, "Sid", 25);
+// Same as: const p = new Person("Sid", 25);
+
+// Return value override:
+function Strange() {
+  this.name = "expected";
+  return { name: "surprise" }; // Explicit object return overrides!
+}
+new Strange().name; // "surprise" (not "expected")
+
+function Normal() {
+  this.name = "expected";
+  return 42; // Primitive return is IGNORED
+}
+new Normal().name; // "expected"</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 1:</strong> Implement your own <code>new</code> operator:</p>
+<pre><code>function customNew(constructor, ...args) {
+  const instance = Object.create(constructor.prototype);
+  const result = constructor.apply(instance, args);
+  return (typeof result === "object" && result !== null) ? result : instance;
+}
+
+function Car(brand) { this.brand = brand; }
+Car.prototype.info = function() { return this.brand; };
+
+const car = customNew(Car, "Tesla");
+console.log(car.info());          // "Tesla"
+console.log(car instanceof Car);  // true</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> What are the 4 steps that happen when you use 'new'?</p>
+<p><strong>Answer:</strong> (1) Empty object created, (2) Object's [[Prototype]] set to Constructor.prototype, (3) Constructor called with 'this' = new object, (4) If constructor returns a non-primitive, that's used; otherwise the new object is returned. This is why returning an object from a constructor overrides the default behavior.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="es6-classes">4. ES6 Classes (Complete)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=2ZphE5HcQPQ" target="_blank">JavaScript Classes — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=5AWRivBk0Gw" target="_blank">Classes Deep Dive — Academind</a></li>
+  <li><a href="https://www.youtube.com/watch?v=bq_jZY6j2M0" target="_blank">OOP in JavaScript — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p>Classes are <strong>syntactic sugar</strong> over constructor functions and prototypes. They don't introduce a new OOP model — same prototype chain underneath.</p>
+
+<pre><code>class User {
+  // Class fields (public instance properties)
+  role = "user";          // Initialized per instance
+  createdAt = new Date();
+  
+  // Constructor
+  constructor(name, email) {
+    this.name = name;
+    this.email = email;
+  }
+  
+  // Instance methods (added to User.prototype)
+  greet() {
+    return `Hi, I'm ${this.name} (${this.role})`;
+  }
+  
+  // Getter
+  get displayName() {
+    return `${this.name} <${this.email}>`;
+  }
+  
+  // Setter
+  set displayName(value) {
+    [this.name, this.email] = value.split(" ");
+  }
+  
+  // Computed method name
+  [Symbol.toPrimitive](hint) {
+    return hint === "string" ? this.name : this.email.length;
+  }
+}
+
+const u = new User("Sid", "sid@x.com");
+u.greet();       // "Hi, I'm Sid (user)"
+u.displayName;   // "Sid <sid@x.com>"
+`${u}`;          // "Sid" (Symbol.toPrimitive, string hint)
+
+// Classes vs Constructor Functions:
+typeof User;                    // "function" (it IS a function!)
+User.prototype.greet;           // [Function] (methods on prototype)
+Object.getOwnPropertyNames(User.prototype); // ["constructor", "greet", "displayName"]
+
+// BUT classes have restrictions:
+// 1. Must be called with 'new' (User() → TypeError)
+// 2. Methods are non-enumerable
+// 3. Always in strict mode
+// 4. Not hoisted (TDZ like let)
+// 5. Cannot re-declare in same scope</code></pre>
+
+<h4>Class Expressions</h4>
+<pre><code>// Named class expression
+const Animal = class AnimalClass {
+  constructor(name) { this.name = name; }
+  // AnimalClass only accessible inside class body
+};
+// AnimalClass; // ReferenceError
+
+// Anonymous class expression
+const Shape = class {
+  constructor(sides) { this.sides = sides; }
+};</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="inheritance-classes">5. Class Inheritance (extends, super)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=RBLIm5LMrmc" target="_blank">Class Inheritance — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=MfxBfRD0FVU" target="_blank">extends & super — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>class Animal {
+  constructor(name, sound) {
+    this.name = name;
+    this.sound = sound;
+  }
+  speak() { return `${this.name} says ${this.sound}`; }
+  toString() { return `[Animal: ${this.name}]`; }
+}
+
+class Dog extends Animal {
+  breed;
+  
+  constructor(name, breed) {
+    super(name, "Woof");  // MUST call super() before using 'this'
+    this.breed = breed;
+  }
+  
+  // Override parent method
+  speak() {
+    const parentResult = super.speak(); // Call parent version
+    return `${parentResult}! (${this.breed})`;
+  }
+  
+  fetch(item) { return `${this.name} fetches ${item}`; }
+}
+
+const dog = new Dog("Rex", "Labrador");
+dog.speak();  // "Rex says Woof! (Labrador)"
+dog.fetch("ball"); // "Rex fetches ball"
+dog instanceof Dog;    // true
+dog instanceof Animal; // true
+
+// super in static methods
+class Parent {
+  static create() { return new this(); }
+}
+class Child extends Parent {
+  static create() {
+    console.log("Creating child");
+    return super.create(); // Calls Parent.create with Child as 'this'
+  }
+}
+
+// Extending built-in classes
+class PowerArray extends Array {
+  // Custom array with extra methods
+  first() { return this[0]; }
+  last() { return this[this.length - 1]; }
+  isEmpty() { return this.length === 0; }
+}
+const arr = PowerArray.from([1, 2, 3, 4, 5]);
+arr.first();  // 1
+arr.last();   // 5
+arr.filter(x => x > 2); // PowerArray [3, 4, 5] (preserves type!)
+
+// Abstract class pattern (no actual abstract keyword in JS)
+class AbstractShape {
+  constructor() {
+    if (new.target === AbstractShape) {
+      throw new Error("Cannot instantiate AbstractShape directly");
+    }
+  }
+  area() { throw new Error("area() must be implemented"); }
+  perimeter() { throw new Error("perimeter() must be implemented"); }
+}
+
+class Rectangle extends AbstractShape {
+  constructor(w, h) { super(); this.w = w; this.h = h; }
+  area() { return this.w * this.h; }
+  perimeter() { return 2 * (this.w + this.h); }
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What happens if you don't call super() in a derived class constructor?</p>
+<p><strong>Answer:</strong> ReferenceError: Must call super constructor before accessing 'this'. In derived classes, 'this' is not available until super() is called because the parent constructor is responsible for initializing the object. If no constructor is defined, an implicit one calls super(...args) automatically.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How would you create an abstract class in JavaScript?</p>
+<p><strong>Answer:</strong> Use <code>new.target</code> in constructor: <code>if (new.target === AbstractClass) throw new Error("Cannot instantiate")</code>. For abstract methods: define methods that throw errors, forcing subclasses to override. TypeScript has actual 'abstract' keyword, but pure JS needs these patterns.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="private-fields">6. Private Fields & Methods (#)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=TbkWuAr6fiY" target="_blank">Private Class Fields — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=sB4YlGHwQJA" target="_blank">Private Fields Deep Dive — Steve Griffith</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>class BankAccount {
+  // Private fields (true privacy — not accessible outside)
+  #balance;
+  #pin;
+  #transactionHistory = [];
+  
+  constructor(owner, initialBalance, pin) {
+    this.owner = owner;        // Public
+    this.#balance = initialBalance;
+    this.#pin = pin;
+  }
+  
+  // Private method
+  #validatePin(pin) {
+    return pin === this.#pin;
+  }
+  
+  #recordTransaction(type, amount) {
+    this.#transactionHistory.push({ type, amount, date: new Date() });
+  }
+  
+  // Public methods (API)
+  deposit(amount) {
+    if (amount <= 0) throw new RangeError("Amount must be positive");
+    this.#balance += amount;
+    this.#recordTransaction("deposit", amount);
+    return this.#balance;
+  }
+  
+  withdraw(amount, pin) {
+    if (!this.#validatePin(pin)) throw new Error("Invalid PIN");
+    if (amount > this.#balance) throw new Error("Insufficient funds");
+    this.#balance -= amount;
+    this.#recordTransaction("withdrawal", amount);
+    return this.#balance;
+  }
+  
+  get balance() { return this.#balance; }
+  
+  // Private static
+  static #instances = 0;
+  static getInstanceCount() { return BankAccount.#instances; }
+}
+
+const account = new BankAccount("Sid", 1000, "1234");
+account.deposit(500);         // 1500
+account.withdraw(200, "1234"); // 1300
+account.balance;              // 1300
+// account.#balance;          // SyntaxError: Private field
+// account.#validatePin;      // SyntaxError
+
+// Private fields ARE truly private:
+Object.keys(account);         // ["owner"] — no private fields!
+JSON.stringify(account);      // '{"owner":"Sid"}' — excluded
+
+// Checking for private field existence
+class Color {
+  #value;
+  constructor(value) { this.#value = value; }
+  
+  static isColor(obj) {
+    // 'in' operator works with private fields (ES2022)
+    return #value in obj;
+  }
+}
+Color.isColor(new Color("red")); // true
+Color.isColor({});               // false
+
+// Pre-ES2022 privacy patterns (still used in some codebases):
+// 1. Closure (WeakMap)
+const _balance = new WeakMap();
+class Account {
+  constructor(balance) { _balance.set(this, balance); }
+  getBalance() { return _balance.get(this); }
+}
+
+// 2. Symbol keys
+const _secret = Symbol("secret");
+class Vault {
+  constructor() { this[_secret] = "hidden"; }
+}</code></pre>
+
+<div class="callout">
+<strong>Angular/TypeScript Note:</strong> TypeScript has <code>private</code>, <code>protected</code>, <code>public</code> keywords but these are compile-time only (erased in JS output). ES2022 <code>#private</code> fields provide RUNTIME privacy. Use # for true encapsulation, TS modifiers for development-time safety.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="static">7. Static Members</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=MBqS1kYzwTc" target="_blank">Static Methods — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>class MathUtils {
+  // Static method — called on CLASS, not instances
+  static add(a, b) { return a + b; }
+  static multiply(a, b) { return a * b; }
+  
+  // Static field
+  static PI = 3.14159;
+  static #instanceCount = 0;
+  
+  // Static block (ES2022) — initialization logic
+  static {
+    console.log("MathUtils class loaded");
+    // Complex static initialization
+  }
+  
+  constructor() {
+    MathUtils.#instanceCount++;
+  }
+  
+  static getCount() { return MathUtils.#instanceCount; }
+}
+
+MathUtils.add(2, 3);    // 5 (called on class)
+MathUtils.PI;           // 3.14159
+// new MathUtils().add; // undefined (not on instances!)
+
+// Common static patterns:
+class User {
+  static #cache = new Map();
+  
+  // Factory method
+  static create(name) {
+    return new User(name);
+  }
+  
+  // Singleton
+  static #instance;
+  static getInstance() {
+    if (!User.#instance) User.#instance = new User("default");
+    return User.#instance;
+  }
+  
+  // Cache pattern
+  static async findById(id) {
+    if (User.#cache.has(id)) return User.#cache.get(id);
+    const user = await fetch(`/api/users/${id}`).then(r => r.json());
+    User.#cache.set(id, user);
+    return user;
+  }
+  
+  constructor(name) { this.name = name; }
+}
+
+// Static inheritance
+class Animal {
+  static type = "Animal";
+  static create(name) { return new this(name); } // 'this' = calling class
+}
+class Dog extends Animal {
+  static type = "Dog";
+}
+Dog.create("Rex");   // Dog instance (this = Dog)
+Dog.type;            // "Dog" (static inherited and overridden)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="symbol-iterator">8. Symbol, Iterator & Generator</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=4mf_yNLlgic" target="_blank">Symbols Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=W4brAobC2Hc" target="_blank">Iterators & Generators — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ategZqxHkz4" target="_blank">Generators Deep Dive — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Symbol</h4>
+<pre><code>// Symbol: unique, immutable primitive
+const id = Symbol("user-id");
+const id2 = Symbol("user-id");
+id === id2; // false! Always unique
+
+// Primary use: unique property keys (avoid collisions)
+const PRIORITY = Symbol("priority");
+const task = { [PRIORITY]: "high", name: "Deploy" };
+task[PRIORITY]; // "high"
+Object.keys(task); // ["name"] — symbols excluded!
+
+// Well-known Symbols (customize language behavior):
+// Symbol.iterator — makes object iterable (for...of)
+// Symbol.toPrimitive — customize type conversion
+// Symbol.hasInstance — customize instanceof
+// Symbol.species — constructor for derived objects
+// Symbol.toStringTag — customize Object.prototype.toString
+
+// Global Symbol registry
+const shared = Symbol.for("app.config"); // Creates/retrieves from registry
+const same = Symbol.for("app.config");
+shared === same; // true! (shared across the app)
+Symbol.keyFor(shared); // "app.config"</code></pre>
+
+<h4>Iterator Protocol</h4>
+<pre><code>// Iterable: object with [Symbol.iterator]() method
+// Iterator: object with next() method returning { value, done }
+
+// Custom iterable
+class Range {
+  constructor(start, end, step = 1) {
+    this.start = start;
+    this.end = end;
+    this.step = step;
+  }
+  
+  [Symbol.iterator]() {
+    let current = this.start;
+    const end = this.end;
+    const step = this.step;
+    
+    return {
+      next() {
+        if (current <= end) {
+          const value = current;
+          current += step;
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+}
+
+const range = new Range(1, 10, 2);
+for (const n of range) console.log(n); // 1, 3, 5, 7, 9
+[...range]; // [1, 3, 5, 7, 9] (spread works!)
+
+// Making any object iterable
+const team = {
+  members: ["Sid", "Ram", "Ali"],
+  [Symbol.iterator]() {
+    let idx = 0;
+    return {
+      next: () => idx < this.members.length
+        ? { value: this.members[idx++], done: false }
+        : { done: true }
+    };
+  }
+};
+for (const member of team) console.log(member);</code></pre>
+
+<h4>Generator Functions</h4>
+<pre><code>// Generator: function that can pause and resume execution
+function* numberGenerator() {
+  yield 1;      // Pauses here, returns { value: 1, done: false }
+  yield 2;      // Pauses here
+  yield 3;      // Pauses here
+  return "end"; // { value: "end", done: true }
+}
+
+const gen = numberGenerator();
+gen.next(); // { value: 1, done: false }
+gen.next(); // { value: 2, done: false }
+gen.next(); // { value: 3, done: false }
+gen.next(); // { value: "end", done: true }
+gen.next(); // { value: undefined, done: true }
+
+// Generators are iterable
+for (const n of numberGenerator()) console.log(n); // 1, 2, 3 (not "end")
+
+// Infinite sequence
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+const fib = fibonacci();
+fib.next().value; // 0
+fib.next().value; // 1
+fib.next().value; // 1
+fib.next().value; // 2
+
+// Take first N from infinite generator
+function* take(n, iterable) {
+  let count = 0;
+  for (const item of iterable) {
+    if (count >= n) return;
+    yield item;
+    count++;
+  }
+}
+[...take(10, fibonacci())]; // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+
+// yield* — delegate to another generator
+function* concat(...iterables) {
+  for (const iterable of iterables) {
+    yield* iterable;
+  }
+}
+[...concat([1, 2], [3, 4])]; // [1, 2, 3, 4]
+
+// Two-way communication via next(value) and yield
+function* conversation() {
+  const name = yield "What is your name?";
+  const age = yield `Hello ${name}! How old are you?`;
+  return `${name} is ${age} years old`;
+}
+const chat = conversation();
+chat.next();          // { value: "What is your name?" }
+chat.next("Sid");     // { value: "Hello Sid! How old are you?" }
+chat.next(25);        // { value: "Sid is 25 years old", done: true }</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Implement a custom iterable that generates fibonacci numbers.</p>
+<p><strong>Answer:</strong> <code>const fib = { [Symbol.iterator]() { let [a,b] = [0,1]; return { next() { const value = a; [a,b] = [b,a+b]; return { value, done: false }; } }; } };</code> Use with for...of or spread with take().</p>
+
+<p><span class="difficulty d-expert">Expert</span> How are generators used in async flow control?</p>
+<p><strong>Answer:</strong> Before async/await, generators simulated async with libraries like co/redux-saga. yield pauses execution, the runner calls .next() with resolved values: <code>function* fetchUser() { const user = yield fetch('/user'); const posts = yield fetch('/posts/'+user.id); }</code>. The runner consumes the generator, awaiting each yielded promise. async/await is essentially syntactic sugar over this pattern.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="proxy-reflect">9. Proxy & Reflect</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=KJ2dUfR1UBc" target="_blank">Proxy & Reflect — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=gZ4MCb2WBGI" target="_blank">JavaScript Proxy Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=v5MzIFDpbQw" target="_blank">Proxy Deep Dive — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Proxy: intercept and customize object operations
+// new Proxy(target, handler)
+
+const handler = {
+  // get trap — intercept property access
+  get(target, prop, receiver) {
+    console.log(`Getting ${prop}`);
+    return prop in target ? target[prop] : `Property ${prop} not found`;
+  },
+  
+  // set trap — intercept assignment
+  set(target, prop, value, receiver) {
+    if (prop === "age" && (typeof value !== "number" || value < 0)) {
+      throw new TypeError("Age must be a positive number");
+    }
+    target[prop] = value;
+    return true; // Must return true for success
+  },
+  
+  // has trap — intercept 'in' operator
+  has(target, prop) {
+    return prop in target && !prop.startsWith("_");
+  },
+  
+  // deleteProperty trap
+  deleteProperty(target, prop) {
+    if (prop.startsWith("_")) {
+      throw new Error("Cannot delete private properties");
+    }
+    delete target[prop];
+    return true;
+  }
+};
+
+const user = new Proxy({ name: "Sid", _id: 1 }, handler);
+user.name;          // "Getting name" → "Sid"
+user.unknown;       // "Getting unknown" → "Property unknown not found"
+user.age = 25;      // OK
+user.age = -1;      // TypeError
+"name" in user;     // true
+"_id" in user;      // false (hidden by has trap)
+
+// Practical: Reactive/Observable objects (Vue 3 pattern)
+function reactive(obj) {
+  return new Proxy(obj, {
+    set(target, key, value) {
+      const oldValue = target[key];
+      target[key] = value;
+      if (oldValue !== value) {
+        console.log(`[Reactive] ${key} changed: ${oldValue} → ${value}`);
+        // Trigger re-render or notify subscribers
+      }
+      return true;
+    }
+  });
+}
+
+const state = reactive({ count: 0 });
+state.count = 1; // "[Reactive] count changed: 0 → 1"
+
+// Practical: Auto-vivification (auto-create nested objects)
+function autovivify() {
+  return new Proxy({}, {
+    get(target, key) {
+      if (!(key in target)) target[key] = autovivify();
+      return target[key];
+    }
+  });
+}
+const data = autovivify();
+data.a.b.c.d = "deep"; // No errors! Each level auto-created
+
+// Reflect — mirror of Proxy traps (same set of operations)
+// Always use Reflect inside Proxy handlers for correct behavior
+const logged = new Proxy(obj, {
+  get(target, prop, receiver) {
+    console.log(`Access: ${prop}`);
+    return Reflect.get(target, prop, receiver); // Proper forwarding
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Set: ${prop} = ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+});</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> How is Proxy used in JavaScript frameworks for reactivity?</p>
+<p><strong>Answer:</strong> Vue 3 wraps state in a Proxy to intercept get (track dependencies) and set (trigger updates). When a property is read during render, it's tracked as a dependency. When it's written, all dependent effects/components are re-notified. This replaces Vue 2's Object.defineProperty approach (which couldn't detect property addition/deletion). Angular's Signals use a similar concept with a custom implementation.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="composition">10. Composition vs Inheritance & Mixins</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=wfMtDGfHWpA" target="_blank">Composition over Inheritance — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=nnwD5Lwwqdo" target="_blank">Mixins in JavaScript — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=fbpXQ0e8Mck" target="_blank">Factory Functions — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Problem with deep inheritance: Gorilla-Banana problem
+// "You wanted a banana, got a gorilla holding the banana and the entire jungle"
+
+// COMPOSITION: build objects from smaller, focused pieces
+
+// Pattern 1: Object composition with factory functions
+const canWalk = (state) => ({
+  walk: () => `${state.name} is walking`
+});
+const canSwim = (state) => ({
+  swim: () => `${state.name} is swimming`
+});
+const canFly = (state) => ({
+  fly: () => `${state.name} is flying`
+});
+
+function createDuck(name) {
+  const state = { name };
+  return Object.assign(
+    { name },
+    canWalk(state),
+    canSwim(state),
+    canFly(state)
+  );
+}
+
+const duck = createDuck("Donald");
+duck.walk(); // "Donald is walking"
+duck.swim(); // "Donald is swimming"
+duck.fly();  // "Donald is flying"
+
+// Pattern 2: Mixins with classes
+const Serializable = (Base) => class extends Base {
+  serialize() { return JSON.stringify(this); }
+  static deserialize(json) { return Object.assign(new this(), JSON.parse(json)); }
+};
+
+const Validatable = (Base) => class extends Base {
+  validate() {
+    for (const [key, value] of Object.entries(this)) {
+      if (value === null || value === undefined) {
+        throw new Error(`${key} is required`);
+      }
+    }
+    return true;
+  }
+};
+
+const Timestamped = (Base) => class extends Base {
+  constructor(...args) {
+    super(...args);
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+  touch() { this.updatedAt = new Date(); }
+};
+
+// Apply mixins:
+class BaseModel {}
+class User extends Timestamped(Validatable(Serializable(BaseModel))) {
+  constructor(name, email) {
+    super();
+    this.name = name;
+    this.email = email;
+  }
+}
+
+const user = new User("Sid", "sid@x.com");
+user.serialize();    // '{"name":"Sid","email":"sid@x.com","createdAt":"..."}'
+user.validate();     // true
+user.createdAt;      // Date
+
+// Pattern 3: Strategy Pattern (composition over inheritance)
+class PaymentProcessor {
+  constructor(strategy) {
+    this.strategy = strategy;
+  }
+  pay(amount) {
+    return this.strategy.process(amount);
+  }
+}
+
+const creditCard = { process: (amt) => `Charged $${amt} to card` };
+const paypal = { process: (amt) => `PayPal payment of $${amt}` };
+const crypto = { process: (amt) => `Crypto transfer of $${amt}` };
+
+new PaymentProcessor(creditCard).pay(100); // "Charged $100 to card"
+new PaymentProcessor(paypal).pay(50);      // "PayPal payment of $50"</code></pre>
+
+<div class="callout">
+<strong>Angular Pattern:</strong> Angular heavily uses composition: services injected into components (not inherited), pipes composed in templates, and directives mixed into elements. Prefer services + DI over deep class hierarchies.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="solid">11. SOLID Principles in JavaScript</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=UQqY3_6Epbg" target="_blank">SOLID Principles — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=MSq_DCRxOxw" target="_blank">SOLID in JavaScript — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// S — Single Responsibility Principle
+// A class/function should have one reason to change
+
+// ❌ Bad: Does too much
+class UserManager {
+  createUser(data) { /* creates user */ }
+  sendEmail(user) { /* sends email */ }
+  generateReport(users) { /* creates PDF */ }
+}
+
+// ✅ Good: Each class has one job
+class UserService { createUser(data) { /* ... */ } }
+class EmailService { send(to, template) { /* ... */ } }
+class ReportGenerator { generate(data) { /* ... */ } }
+
+// O — Open/Closed Principle
+// Open for extension, closed for modification
+
+// ❌ Bad: Must modify switch for new shapes
+function area(shape) {
+  switch(shape.type) {
+    case "circle": return Math.PI * shape.r ** 2;
+    case "rect": return shape.w * shape.h;
+    // Need to add case for every new shape!
+  }
+}
+
+// ✅ Good: Add new shapes without modifying existing code
+class Shape { area() { throw new Error("implement me"); } }
+class Circle extends Shape { constructor(r) { super(); this.r = r; } area() { return Math.PI * this.r ** 2; } }
+class Rectangle extends Shape { constructor(w, h) { super(); this.w = w; this.h = h; } area() { return this.w * this.h; } }
+
+// L — Liskov Substitution Principle
+// Subtypes must be substitutable for base types
+
+// ❌ Bad: Square violates Rectangle contract
+class Rect { setWidth(w) { this.w = w; } setHeight(h) { this.h = h; } }
+class Square extends Rect { setWidth(w) { this.w = w; this.h = w; } } // Breaks!
+
+// I — Interface Segregation Principle
+// Don't force clients to depend on interfaces they don't use
+// In JS/TS: Keep interfaces/contracts small and focused
+
+// D — Dependency Inversion Principle
+// Depend on abstractions, not concretions
+
+// ❌ Bad: Directly depends on specific implementation
+class UserService {
+  constructor() { this.db = new MySQLDatabase(); } // Tight coupling!
+}
+
+// ✅ Good: Depend on interface/abstraction (Angular DI pattern!)
+class UserService {
+  constructor(database) { this.db = database; } // Accept any DB
+}
+// Angular: constructor(private db: DatabaseService) { }</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> Explain the difference between composition and inheritance. When do you use each?</p>
+<p><strong>Answer:</strong> Inheritance creates "is-a" relationships (Dog is-a Animal). Composition creates "has-a" relationships (Car has-an Engine). Prefer composition when: behavior can be shared across unrelated classes, you need to combine multiple behaviors, or the relationship is about capabilities. Use inheritance for genuine type hierarchies. "Favor composition over inheritance" — Gang of Four.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="nav-links">
+  <a href="phase3-objects-arrays-deep-dive.html">← Phase 3: Objects & Arrays</a>
+  <a href="phase5-async-event-loop.html">Phase 5: Async & Event Loop →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

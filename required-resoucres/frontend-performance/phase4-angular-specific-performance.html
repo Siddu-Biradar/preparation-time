@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend Performance — Phase 4: Angular-Specific Performance</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #0f6b5f; --accent-soft: #d9efe8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.5; font-size: 11.4pt; }
+    main { max-width: 920px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #152923; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 28px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 18px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #f1ece2; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf7f2 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #13443d; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #bfded5; }
+    .callout { border-left: 4px solid var(--accent); background: #f4fbf8; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 4: Angular-Specific Performance</h1>
+  <p class="subtitle">Frontend Performance Mastery — Zero to Hero Series (4 of 6)</p>
+  <div class="pill-row">
+    <span class="pill">Change Detection</span>
+    <span class="pill">OnPush Strategy</span>
+    <span class="pill">Signals</span>
+    <span class="pill">Zone.js</span>
+    <span class="pill">RxJS Optimization</span>
+    <span class="pill">Template Performance</span>
+    <span class="pill">SSR/SSG</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#cd">Change Detection — Complete Deep Dive</a></li>
+    <li><a href="#onpush">OnPush Strategy & Immutability</a></li>
+    <li><a href="#signals">Angular Signals (Fine-Grained Reactivity)</a></li>
+    <li><a href="#zonejs">Zone.js — How It Works & Performance Impact</a></li>
+    <li><a href="#zoneless">Zoneless Angular (The Future)</a></li>
+    <li><a href="#rxjs">RxJS Performance Patterns</a></li>
+    <li><a href="#template">Template Performance Optimization</a></li>
+    <li><a href="#ngfor">*ngFor & trackBy Deep Dive</a></li>
+    <li><a href="#pipes">Pure Pipes vs Impure Pipes</a></li>
+    <li><a href="#lazy">Lazy Loading & Preloading Strategies</a></li>
+    <li><a href="#ssr">SSR, SSG & Hydration</a></li>
+    <li><a href="#bundle">Angular Bundle Optimization</a></li>
+    <li><a href="#profiler">Angular DevTools & Profiling</a></li>
+    <li><a href="#exercise4">Hands-On Exercises</a></li>
+    <li><a href="#interview4">Interview Questions — Phase 4</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cd">1. Change Detection — Complete Deep Dive</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=RD_a5l7VJzY" target="_blank">Angular Change Detection Explained — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=kfCFYLGtCnY" target="_blank">Change Detection Deep Dive — Angular (Official)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=G8aYQ3rFwzI" target="_blank">Zone.js & Change Detection — Maxim Koretskyi (AngularConnect)</a></li>
+</ul></details></div>
+
+<h3>What is Change Detection?</h3>
+<p>Change Detection (CD) is Angular's mechanism to synchronize the component's <strong>data model</strong> with the <strong>DOM</strong>. When data changes, Angular must figure out WHAT changed and update the DOM accordingly.</p>
+
+<h3>How Default Change Detection Works</h3>
+<pre>
+Component Tree:
+       AppComponent
+       /     |     \
+    Nav    Dashboard  Footer
+          /    |    \
+       Card  Chart  Table
+
+Default Strategy (CheckAlways):
+- Angular checks EVERY component from root to leaves
+- On EVERY event (click, HTTP response, timer, Promise resolve)
+- Checks EVERY binding: {{ expression }}, [property], (event)
+- Compares old value vs new value for each binding
+- If different → update DOM
+
+For a tree with 100 components, each with 10 bindings:
+= 1000 dirty checks per change detection cycle!
+</pre>
+
+<h3>What Triggers Change Detection</h3>
+<table>
+  <tr><th>Trigger</th><th>Example</th><th>CD Runs?</th></tr>
+  <tr><td>DOM Events</td><td>click, input, keyup, scroll, mousemove</td><td>Yes (full tree)</td></tr>
+  <tr><td>HTTP responses</td><td>HttpClient.get().subscribe()</td><td>Yes (full tree)</td></tr>
+  <tr><td>setTimeout/setInterval</td><td>setTimeout(() => {}, 1000)</td><td>Yes (full tree)</td></tr>
+  <tr><td>Promise resolution</td><td>fetch().then()</td><td>Yes (full tree)</td></tr>
+  <tr><td>WebSocket messages</td><td>socket.onmessage</td><td>Yes (full tree)</td></tr>
+  <tr><td>requestAnimationFrame</td><td>rAF callback</td><td>Yes (if patched by Zone.js)</td></tr>
+  <tr><td>Manual markForCheck()</td><td>this.cdr.markForCheck()</td><td>Marks path to root</td></tr>
+  <tr><td>Async pipe</td><td>{{ data$ | async }}</td><td>Calls markForCheck()</td></tr>
+</table>
+
+<h3>Change Detection Process (Step by Step)</h3>
+<pre>
+// For each component (top-down):
+1. Update child component @Input bindings
+2. Call ngOnChanges() (if inputs changed)
+3. Call ngOnInit() (first time only)
+4. Call ngDoCheck()
+5. Call ngAfterContentInit() (first time only)
+6. Call ngAfterContentChecked()
+7. Update DOM bindings (interpolation, property bindings)
+8. Run change detection on child components (recursive)
+9. Call ngAfterViewInit() (first time only)
+10. Call ngAfterViewChecked()
+
+// The "checking" part:
+// Angular evaluates each template expression and compares with previous value
+// If different → update DOM node
+// This comparison is FAST (===) but multiplied by thousands of bindings = expensive
+</pre>
+
+<div class="callout warning">
+  <strong>Performance Killer:</strong> Functions/getters in templates get called on EVERY change detection cycle!
+<pre>
+// BAD: Called 10+ times per second on any interaction
+&lt;div&gt;{{ getFullName() }}&lt;/div&gt;
+&lt;div *ngIf="isAdmin()"&gt;Admin Panel&lt;/div&gt;
+&lt;div [class.active]="calculateActive()"&gt;&lt;/div&gt;
+
+// GOOD: Pre-computed values or pipes
+fullName = `${this.firstName} ${this.lastName}`;
+isAdmin = this.user.role === 'admin';
+// Or use pure pipes for transformation
+</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="onpush">2. OnPush Strategy & Immutability</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=oRzp3YTaVeQ" target="_blank">OnPush Change Detection — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=PzjIUgra9RI" target="_blank">OnPush Strategy Deep Dive — Angular University</a></li>
+</ul></details></div>
+
+<h3>How OnPush Changes the Game</h3>
+<pre>
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // ...
+})
+export class DashboardComponent { }
+
+// OnPush tells Angular: "Only check this component when:"
+// 1. An @Input reference changes (strict === comparison)
+// 2. An event fires FROM this component or its children
+// 3. async pipe receives a new value
+// 4. markForCheck() or detectChanges() is called manually
+// 5. A signal used in the template changes (Angular 16+)
+
+// DOES NOT trigger CD for OnPush:
+// - Parent running CD (unless inputs changed)
+// - setTimeout/setInterval inside the component
+// - HTTP responses (unless using async pipe)
+// - Property mutations (obj.name = 'new') — reference same!
+</pre>
+
+<h3>OnPush + Immutability Pattern</h3>
+<pre>
+// BAD: Mutating objects — OnPush won't detect this!
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `&lt;div&gt;{{ user.name }}&lt;/div&gt;`
+})
+export class UserCardComponent {
+  @Input() user: User;
+}
+
+// Parent:
+this.user.name = 'New Name'; // MUTATION! Same reference!
+// OnPush won't trigger → DOM shows old name!
+
+// GOOD: New reference — OnPush detects this
+this.user = { ...this.user, name: 'New Name' }; // New object!
+// OnPush sees new reference → triggers CD → DOM updates
+
+// GOOD for arrays:
+this.items = [...this.items, newItem];           // Add
+this.items = this.items.filter(i => i.id !== id); // Remove
+this.items = this.items.map(i =>                  // Update
+  i.id === id ? { ...i, name: 'New' } : i
+);
+</pre>
+
+<h3>When to Use markForCheck() vs detectChanges()</h3>
+<pre>
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class NotificationComponent implements OnInit {
+  notifications: Notification[] = [];
+
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private ws: WebSocketService
+  ) {}
+
+  ngOnInit() {
+    // WebSocket messages don't trigger CD in OnPush
+    this.ws.messages$.subscribe(msg => {
+      this.notifications.push(msg);
+      this.cdr.markForCheck();  // Marks this component + ancestors dirty
+      // CD will run on next cycle (batched with other changes)
+    });
+
+    // Alternative: detectChanges() — runs CD immediately (sync)
+    // Use sparingly! Can cause performance issues if called too often
+    this.ws.messages$.subscribe(msg => {
+      this.notifications = [...this.notifications, msg];
+      this.cdr.detectChanges(); // Immediate sync CD — use with caution
+    });
+  }
+}
+
+// BEST PATTERN: Use async pipe (auto markForCheck + auto unsubscribe)
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    &lt;div *ngFor="let n of notifications$ | async"&gt;
+      {{ n.message }}
+    &lt;/div&gt;
+  `
+})
+export class NotificationComponent {
+  notifications$ = this.ws.messages$.pipe(
+    scan((acc, msg) => [...acc, msg], [])
+  );
+}
+</pre>
+
+<h3>OnPush Checklist for Maximum Performance</h3>
+<ul>
+  <li>Make ALL components OnPush (default → opt-out for complex cases)</li>
+  <li>Use immutable data patterns (spread operator, Object.assign)</li>
+  <li>Use async pipe for all Observable subscriptions</li>
+  <li>Avoid function calls in templates — use pure pipes or pre-computed properties</li>
+  <li>Use trackBy for all *ngFor loops</li>
+  <li>Use signals for fine-grained reactivity (Angular 16+)</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="signals">3. Angular Signals (Fine-Grained Reactivity)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=oqYQG7QMdzw" target="_blank">Angular Signals Complete Guide — Angular (Official)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=6W6gycuhiN0" target="_blank">Signals Deep Dive — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=iA6iyoantuo" target="_blank">Signals vs RxJS — Joshua Morony</a></li>
+</ul></details></div>
+
+<h3>What Are Signals?</h3>
+<p>Signals are Angular's new reactive primitive (Angular 16+) that provide <strong>fine-grained reactivity</strong> — only the parts of the template that depend on a changed signal get re-rendered.</p>
+
+<pre>
+// Traditional: Change detection checks ALL bindings
+@Component({
+  template: `
+    &lt;h1&gt;{{ title }}&lt;/h1&gt;         &lt;!-- Checked even if only count changes --&gt;
+    &lt;p&gt;Count: {{ count }}&lt;/p&gt;    &lt;!-- Checked even if only title changes --&gt;
+    &lt;p&gt;{{ heavyComputation() }}&lt;/p&gt; &lt;!-- Called on every CD! --&gt;
+  `
+})
+
+// Signals: Only affected bindings update
+@Component({
+  template: `
+    &lt;h1&gt;{{ title() }}&lt;/h1&gt;       &lt;!-- Only updates when title signal changes --&gt;
+    &lt;p&gt;Count: {{ count() }}&lt;/p&gt;  &lt;!-- Only updates when count signal changes --&gt;
+    &lt;p&gt;{{ doubled() }}&lt;/p&gt;       &lt;!-- Only recomputes when count changes --&gt;
+  `
+})
+export class CounterComponent {
+  title = signal('My Counter');
+  count = signal(0);
+  doubled = computed(() => this.count() * 2); // Lazy, cached!
+
+  increment() {
+    this.count.update(c => c + 1);
+    // Only bindings reading count() or doubled() re-render
+    // title() binding is UNTOUCHED
+  }
+}
+</pre>
+
+<h3>Signal APIs</h3>
+<pre>
+import { signal, computed, effect } from '@angular/core';
+
+// WritableSignal — readable and writable
+const name = signal('Angular');
+name();              // Read: 'Angular'
+name.set('Signals'); // Replace value
+name.update(n => n + '!'); // Update based on current value
+
+// Computed Signal — derived, lazy, cached
+const fullName = computed(() => `${firstName()} ${lastName()}`);
+// Only recomputes when firstName or lastName changes
+// Memoized: reading multiple times returns cached result
+
+// Effect — side effect when dependencies change
+effect(() => {
+  console.log(`Name changed to: ${name()}`);
+  // Automatically tracks which signals are read
+  // Re-runs only when those signals change
+});
+
+// Signal-based inputs (Angular 17.1+)
+@Component({
+  template: `&lt;p&gt;Hello {{ name() }}&lt;/p&gt;`
+})
+export class GreetComponent {
+  name = input&lt;string&gt;();           // Required input
+  title = input('Default');          // Optional with default
+  count = input.required&lt;number&gt;(); // Required input
+
+  // Computed from input signal
+  greeting = computed(() => `Hello, ${this.name()}!`);
+}
+
+// Model signals (two-way binding, Angular 17.2+)
+@Component({
+  template: `&lt;input [value]="query()" (input)="query.set($event.target.value)"&gt;`
+})
+export class SearchComponent {
+  query = model(''); // Two-way bindable signal
+}
+</pre>
+
+<h3>Signals vs Observables — When to Use Which</h3>
+<table>
+  <tr><th>Use Case</th><th>Signals</th><th>Observables (RxJS)</th></tr>
+  <tr><td>Synchronous state</td><td>✓ Perfect</td><td>Overkill</td></tr>
+  <tr><td>Template bindings</td><td>✓ Fine-grained updates</td><td>Works (with async pipe)</td></tr>
+  <tr><td>Derived values</td><td>✓ computed()</td><td>combineLatest + map</td></tr>
+  <tr><td>HTTP requests</td><td>Use with toSignal()</td><td>✓ Native fit</td></tr>
+  <tr><td>Complex async flows</td><td>Limited</td><td>✓ switchMap, debounce, retry</td></tr>
+  <tr><td>Event streams</td><td>Limited</td><td>✓ Built for this</td></tr>
+  <tr><td>Multicasting</td><td>Built-in (signals are multicast)</td><td>Requires share/shareReplay</td></tr>
+</table>
+
+<pre>
+// Converting between Signals and Observables
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+
+// Observable → Signal
+const users$ = this.http.get&lt;User[]&gt;('/api/users');
+const users = toSignal(users$, { initialValue: [] });
+
+// Signal → Observable (for RxJS pipelines)
+const searchTerm = signal('');
+const searchTerm$ = toObservable(this.searchTerm);
+const results$ = searchTerm$.pipe(
+  debounceTime(300),
+  switchMap(term => this.http.get(`/api/search?q=${term}`))
+);
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="zonejs">4. Zone.js — How It Works & Performance Impact</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=3IqtmUscE_U" target="_blank">Zone.js Explained — Angular (Official, Minko Gechev)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=G8aYQ3rFwzI" target="_blank">Zone.js Internals — Maxim Koretskyi</a></li>
+</ul></details></div>
+
+<h3>What Zone.js Does</h3>
+<p>Zone.js is a library that <strong>monkey-patches all asynchronous APIs</strong> (setTimeout, Promise, addEventListener, etc.) to track when async operations complete, allowing Angular to know when to trigger change detection.</p>
+
+<pre>
+// Zone.js patches these (and more):
+// Browser APIs:
+setTimeout / setInterval / clearTimeout / clearInterval
+requestAnimationFrame / cancelAnimationFrame
+Promise.prototype.then / catch / finally
+XMLHttpRequest.prototype.open / send
+fetch()
+addEventListener / removeEventListener
+MutationObserver
+IntersectionObserver
+WebSocket
+geolocation.getCurrentPosition
+
+// What happens when you click a button:
+1. User clicks button
+2. Zone.js intercepts the click event (patched addEventListener)
+3. Your handler runs: this.count++
+4. Zone.js detects: "async task completed in Angular zone"
+5. Zone.js notifies Angular: "something happened!"
+6. Angular triggers change detection from root
+7. Entire component tree is checked (default strategy)
+</pre>
+
+<h3>Performance Cost of Zone.js</h3>
+<ul>
+  <li><strong>Bundle size</strong>: ~35KB (gzipped) added to polyfills</li>
+  <li><strong>Monkey-patching overhead</strong>: Every async API call has wrapper function cost</li>
+  <li><strong>Unnecessary CD triggers</strong>: mousemove, scroll, requestAnimationFrame all trigger CD</li>
+  <li><strong>Third-party library conflicts</strong>: Some libraries don't work well with patched APIs</li>
+</ul>
+
+<h3>Running Code Outside Angular Zone</h3>
+<pre>
+import { NgZone } from '@angular/core';
+
+@Component({ /* ... */ })
+export class MapComponent {
+  constructor(private ngZone: NgZone) {}
+
+  initMap() {
+    // Run OUTSIDE zone — no change detection triggered!
+    this.ngZone.runOutsideAngular(() => {
+      // These won't trigger CD:
+      this.map = new google.maps.Map(/*...*/);
+
+      // Mouse move on map won't trigger CD (60+ events/sec saved!)
+      this.map.addListener('mousemove', (e) => {
+        this.updateCursor(e); // Pure DOM manipulation, no Angular needed
+      });
+
+      // Animation loop won't trigger CD
+      const animate = () => {
+        this.updateParticles();
+        requestAnimationFrame(animate);
+      };
+      requestAnimationFrame(animate);
+    });
+
+    // When you DO need to update Angular bindings:
+    this.map.addListener('click', (e) => {
+      this.ngZone.run(() => {
+        // Back in Angular zone — triggers CD
+        this.selectedLocation = e.latLng;
+      });
+    });
+  }
+}
+</pre>
+
+<h3>Common Zone.js Performance Traps</h3>
+<pre>
+// TRAP 1: setInterval in component — triggers CD every interval
+@Component({/*...*/})
+export class ClockComponent implements OnInit, OnDestroy {
+  time = '';
+  private intervalId: any;
+
+  // BAD: Triggers CD every second
+  ngOnInit() {
+    this.intervalId = setInterval(() => {
+      this.time = new Date().toLocaleTimeString();
+    }, 1000);
+  }
+
+  // BETTER: Run outside zone, manually trigger CD
+  ngOnInit() {
+    this.ngZone.runOutsideAngular(() => {
+      this.intervalId = setInterval(() => {
+        this.time = new Date().toLocaleTimeString();
+        this.cdr.detectChanges(); // Only update this component
+      }, 1000);
+    });
+  }
+
+  ngOnDestroy() { clearInterval(this.intervalId); }
+}
+
+// TRAP 2: Scroll listeners triggering CD
+// BAD: Every scroll event triggers full CD
+@HostListener('window:scroll')
+onScroll() { this.scrollY = window.scrollY; }
+
+// GOOD: Outside zone + manual detection
+constructor(private ngZone: NgZone, private cdr: ChangeDetectorRef) {
+  this.ngZone.runOutsideAngular(() => {
+    window.addEventListener('scroll', () => {
+      this.scrollY = window.scrollY;
+      // Only trigger CD when crossing thresholds
+      if (this.shouldUpdate()) {
+        this.cdr.detectChanges();
+      }
+    }, { passive: true });
+  });
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="zoneless">5. Zoneless Angular (The Future)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=VGc3ORIEB3k" target="_blank">Zoneless Angular — Angular (Official, Alex Rickabaugh)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Uf5fFb4cVvo" target="_blank">Going Zoneless with Signals — Decoded Frontend</a></li>
+</ul></details></div>
+
+<h3>Why Zoneless?</h3>
+<pre>
+// Angular 18+ experimental: provideExperimentalZonelessChangeDetection()
+// Angular 19+: stable zoneless support
+
+// Benefits:
+// 1. Remove 35KB of zone.js from bundle
+// 2. No unnecessary CD triggers (scroll, mousemove, timers)
+// 3. Better performance with signals (fine-grained updates)
+// 4. Better compatibility with third-party libraries
+// 5. Simpler mental model (explicit reactivity)
+
+// bootstrap.ts
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideExperimentalZonelessChangeDetection()
+    // No zone.js import needed in polyfills!
+  ]
+});
+</pre>
+
+<h3>Zoneless Change Detection Model</h3>
+<pre>
+// In zoneless mode, CD is triggered by:
+// 1. Signal changes (in template)
+// 2. Async pipe (Observable emissions)
+// 3. markForCheck() manual call
+// 4. Component events (output emissions)
+
+// NOT triggered by (unlike zone-based):
+// setTimeout, setInterval
+// Raw Promise.then()
+// fetch() responses
+// addEventListener callbacks
+// requestAnimationFrame
+
+@Component({
+  template: `
+    &lt;h1&gt;{{ title() }}&lt;/h1&gt;
+    &lt;button (click)="increment()"&gt;Count: {{ count() }}&lt;/button&gt;
+  `
+})
+export class ZonelessComponent {
+  title = signal('Zoneless Angular');
+  count = signal(0);
+
+  increment() {
+    this.count.update(c => c + 1); // Signal change → automatic CD
+  }
+
+  ngOnInit() {
+    // This WON'T trigger CD in zoneless!
+    setTimeout(() => {
+      this.count.set(99); // Signal change → WILL trigger CD
+      // But raw property assignment won't:
+      // this.title = 'new'; // Won't work without signal!
+    }, 1000);
+  }
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rxjs">6. RxJS Performance Patterns</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ewcoEYS85Li" target="_blank">RxJS Performance Tips — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=PhggNGsSQyg" target="_blank">RxJS Best Practices in Angular — Angular University</a></li>
+  <li><a href="https://www.youtube.com/watch?v=12fReOYS8cE" target="_blank">switchMap vs mergeMap vs concatMap — Joshua Morony</a></li>
+</ul></details></div>
+
+<h3>Subscription Management (Memory Leaks Prevention)</h3>
+<pre>
+// Pattern 1: takeUntilDestroyed (Angular 16+ — BEST)
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+@Component({/*...*/})
+export class MyComponent {
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit() {
+    this.dataService.getData().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(data => { /* ... */ });
+  }
+}
+
+// Pattern 2: takeUntil with Subject (pre-Angular 16)
+private destroy$ = new Subject&lt;void&gt;();
+ngOnInit() {
+  this.data$.pipe(takeUntil(this.destroy$)).subscribe(/*...*/);
+}
+ngOnDestroy() {
+  this.destroy$.next();
+  this.destroy$.complete();
+}
+
+// Pattern 3: async pipe (auto-unsubscribes, triggers markForCheck)
+@Component({
+  template: `{{ data$ | async }}`
+})
+
+// Pattern 4: toSignal (Angular 16+ — no subscription management needed)
+data = toSignal(this.dataService.getData(), { initialValue: null });
+</pre>
+
+<h3>Avoiding Excessive Emissions</h3>
+<pre>
+// PROBLEM: Search input fires on every keystroke
+searchControl = new FormControl('');
+
+// BAD: API call on every keystroke
+this.searchControl.valueChanges.subscribe(term => {
+  this.http.get(`/api/search?q=${term}`).subscribe(/*...*/);
+  // 10 keystrokes = 10 HTTP requests!
+});
+
+// GOOD: Debounce + distinct + switchMap
+results$ = this.searchControl.valueChanges.pipe(
+  debounceTime(300),           // Wait 300ms after last keystroke
+  distinctUntilChanged(),      // Skip if value hasn't changed
+  filter(term => term.length >= 2), // Minimum length
+  switchMap(term =>            // Cancel previous request
+    this.http.get(`/api/search?q=${term}`).pipe(
+      catchError(() => of([]))  // Handle errors gracefully
+    )
+  ),
+  shareReplay(1)               // Share result with multiple subscribers
+);
+</pre>
+
+<h3>shareReplay vs share — Multicasting</h3>
+<pre>
+// Without sharing: Each subscriber triggers a new HTTP request!
+const data$ = this.http.get('/api/data'); // Cold observable
+data$.subscribe(d => this.component1 = d); // HTTP request 1
+data$.subscribe(d => this.component2 = d); // HTTP request 2 (duplicate!)
+
+// With shareReplay: Single HTTP request, result shared
+const data$ = this.http.get('/api/data').pipe(
+  shareReplay({ bufferSize: 1, refCount: true })
+  // bufferSize: 1 = replay last value to new subscribers
+  // refCount: true = unsubscribe from source when no subscribers
+);
+data$.subscribe(d => this.component1 = d); // HTTP request
+data$.subscribe(d => this.component2 = d); // Gets cached value, no request!
+
+// IMPORTANT: refCount: true prevents memory leaks
+// Without it, the source stays subscribed forever
+</pre>
+
+<h3>Efficient Data Transformation</h3>
+<pre>
+// BAD: Multiple subscriptions + manual state management
+ngOnInit() {
+  this.userService.getUser().subscribe(user => {
+    this.user = user;
+    this.fullName = `${user.first} ${user.last}`;
+    this.isAdmin = user.roles.includes('admin');
+    this.avatar = this.getAvatarUrl(user);
+  });
+}
+
+// GOOD: Derived observables + async pipe (no manual subscribe)
+user$ = this.userService.getUser().pipe(shareReplay(1));
+fullName$ = this.user$.pipe(map(u => `${u.first} ${u.last}`));
+isAdmin$ = this.user$.pipe(map(u => u.roles.includes('admin')));
+avatar$ = this.user$.pipe(map(u => this.getAvatarUrl(u)));
+
+// Template: {{ fullName$ | async }}, *ngIf="isAdmin$ | async"
+
+// BEST (Angular 16+): Signals
+user = toSignal(this.userService.getUser());
+fullName = computed(() => {
+  const u = this.user();
+  return u ? `${u.first} ${u.last}` : '';
+});
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="template">7. Template Performance Optimization</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=I6ZvpdRM1eQ" target="_blank">Angular Template Performance — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=isb5MrjyFl0" target="_blank">Angular Performance Optimization Tips — Fireship</a></li>
+</ul></details></div>
+
+<h3>Avoid Function Calls in Templates</h3>
+<pre>
+// BAD: Function called on every CD cycle (potentially 20+ times/sec)
+@Component({
+  template: `
+    &lt;div&gt;{{ getFormattedDate(item.date) }}&lt;/div&gt;
+    &lt;div [class.active]="isActive(item)"&gt;&lt;/div&gt;
+    &lt;div *ngIf="hasPermission('admin')"&gt;...&lt;/div&gt;
+  `
+})
+export class ItemComponent {
+  getFormattedDate(date: Date): string {
+    return new Intl.DateTimeFormat('en-US').format(date); // EXPENSIVE!
+  }
+}
+
+// GOOD: Use pure pipes (cached by Angular)
+@Pipe({ name: 'formatDate', pure: true })
+export class FormatDatePipe implements PipeTransform {
+  transform(date: Date, format?: string): string {
+    return new Intl.DateTimeFormat('en-US').format(date);
+  }
+  // Pure pipe: Only recalculates when input REFERENCE changes
+  // Called once, result cached until input changes
+}
+// Template: {{ item.date | formatDate }}
+
+// GOOD: Pre-compute in component
+ngOnInit() {
+  this.formattedDate = this.formatDate(this.item.date);
+  this.isActive = this.item.status === 'active';
+}
+
+// BEST: Signals (Angular 16+)
+formattedDate = computed(() =>
+  new Intl.DateTimeFormat('en-US').format(this.item().date)
+);
+</pre>
+
+<h3>NgIf vs NgSwitch vs NgClass Performance</h3>
+<pre>
+// *ngIf: Completely removes/recreates DOM — use for large sections
+// [hidden]: Keeps in DOM, just hides — use for frequent toggles
+
+// LARGE SECTION (rare toggle): Use *ngIf — saves DOM nodes
+&lt;app-admin-panel *ngIf="isAdmin"&gt;&lt;/app-admin-panel&gt;
+// When false: component destroyed, no memory, no CD
+
+// FREQUENT TOGGLE (tabs): Use [hidden] — avoids recreation cost
+&lt;div [hidden]="activeTab !== 'profile'"&gt;...heavy content...&lt;/div&gt;
+&lt;div [hidden]="activeTab !== 'settings'"&gt;...heavy content...&lt;/div&gt;
+// Stays in DOM, avoids reconstruction but uses memory
+
+// @if (Angular 17+ control flow — better performance than *ngIf)
+@if (isAdmin) {
+  &lt;app-admin-panel /&gt;
+} @else {
+  &lt;p&gt;Access denied&lt;/p&gt;
+}
+// Compiles to more efficient instructions than structural directives
+</pre>
+
+<h3>Angular 17+ Control Flow (Built-in Performance)</h3>
+<pre>
+// New control flow syntax is faster than structural directives because:
+// 1. No extra DOM wrappers (ng-template, ng-container)
+// 2. Optimized change detection (tracks dependencies)
+// 3. Better type narrowing
+// 4. Built-in trackBy equivalent
+
+// @for with track (required!) — replaces *ngFor + trackBy
+@for (item of items; track item.id) {
+  &lt;app-item-card [item]="item" /&gt;
+} @empty {
+  &lt;p&gt;No items found&lt;/p&gt;
+}
+
+// @switch — replaces ngSwitch
+@switch (status) {
+  @case ('loading') { &lt;app-spinner /&gt; }
+  @case ('error') { &lt;app-error [msg]="errorMsg" /&gt; }
+  @case ('success') { &lt;app-content [data]="data" /&gt; }
+  @default { &lt;p&gt;Unknown state&lt;/p&gt; }
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="ngfor">8. *ngFor & trackBy Deep Dive</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=VzPl93_Ftps" target="_blank">trackBy Explained — Angular University</a></li>
+  <li><a href="https://www.youtube.com/watch?v=aN0PgaqK4IM" target="_blank">Angular @for with track — Decoded Frontend</a></li>
+</ul></details></div>
+
+<h3>Why trackBy is Critical</h3>
+<pre>
+// WITHOUT trackBy:
+// When items array changes, Angular:
+// 1. Destroys ALL existing DOM nodes
+// 2. Creates ALL new DOM nodes
+// Even if only 1 item was added/changed!
+
+// With 100 items + complex components:
+// Update 1 item → destroy 100 + create 100 components = SLOW
+
+// WITH trackBy:
+// Angular uses the tracking value to identify which items:
+// - Were added (create only new ones)
+// - Were removed (destroy only those)
+// - Were moved (reorder DOM nodes)
+// - Were unchanged (keep existing DOM nodes!)
+
+@Component({
+  template: `
+    &lt;!-- Old syntax --&gt;
+    &lt;div *ngFor="let item of items; trackBy: trackById"&gt;
+      &lt;app-complex-card [data]="item"&gt;&lt;/app-complex-card&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Angular 17+ syntax --&gt;
+    @for (item of items; track item.id) {
+      &lt;app-complex-card [data]="item" /&gt;
+    }
+  `
+})
+export class ListComponent {
+  trackById(index: number, item: Item): number {
+    return item.id; // Unique, stable identifier
+  }
+}
+</pre>
+
+<h3>trackBy Best Practices</h3>
+<pre>
+// GOOD: Track by unique ID
+trackById = (i: number, item: Item) => item.id;
+
+// OK: Track by index (when items don't have IDs, but order is stable)
+trackByIndex = (i: number) => i;
+// WARNING: Don't use trackByIndex if items can be reordered/inserted!
+
+// BAD: Track by object reference (equivalent to no trackBy)
+trackByRef = (i: number, item: Item) => item; // Creates new ref each time!
+
+// BAD: Track by compound value
+trackByMultiple = (i: number, item: Item) => `${item.id}-${item.name}`;
+// If name changes, Angular thinks it's a new item → destroys + recreates
+
+// Performance comparison (1000 items, update 1):
+// No trackBy:    ~150ms (destroys all, recreates all)
+// trackBy: id:   ~2ms   (updates only 1 DOM node)
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="pipes">9. Pure Pipes vs Impure Pipes</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=nt3YLPyB-ow" target="_blank">Pure vs Impure Pipes — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=oMjTmSjWNcg" target="_blank">Angular Pipes Performance — Angular University</a></li>
+</ul></details></div>
+
+<h3>Pure Pipes (Default — Performance Optimized)</h3>
+<pre>
+@Pipe({ name: 'filter', pure: true }) // DEFAULT
+export class FilterPipe implements PipeTransform {
+  transform(items: Item[], searchTerm: string): Item[] {
+    return items.filter(item =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+}
+
+// Pure pipe behavior:
+// - Called ONLY when input REFERENCE changes (===)
+// - Memoized: same input → same output (cached)
+// - NOT called on every CD cycle
+// - PERFECT for OnPush components
+
+// Usage: {{ items | filter:searchTerm }}
+// Only recalculates when items array reference OR searchTerm changes
+</pre>
+
+<h3>Impure Pipes (Use with Extreme Caution)</h3>
+<pre>
+@Pipe({ name: 'filter', pure: false }) // IMPURE!
+export class ImpureFilterPipe implements PipeTransform {
+  transform(items: Item[], searchTerm: string): Item[] {
+    return items.filter(item =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+}
+
+// Impure pipe behavior:
+// - Called on EVERY change detection cycle
+// - Even when inputs haven't changed!
+// - Can react to array mutations (push, splice)
+// - 99% of the time you DON'T need this
+
+// WHEN to use impure: (almost never)
+// - async pipe is impure (it's special-cased by Angular)
+// - Pipe depends on external state that changes frequently
+// - Pipe operates on mutable data structures (bad practice anyway)
+</pre>
+
+<div class="callout">
+  <strong>Performance Rule:</strong> If you need an impure pipe because your array is mutated, fix the data flow instead. Use immutable patterns (spread, map, filter) and pure pipes. 100 impure pipes = 100 function calls per CD cycle!
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="lazy">10. Lazy Loading & Preloading Strategies</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ntJ-HFScS1E" target="_blank">Angular Lazy Loading Complete Guide — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=S5RaHPsennQ" target="_blank">Angular @defer Blocks — Angular (Official)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=AyfKr6h5aCk" target="_blank">Preloading Strategies — Angular University</a></li>
+</ul></details></div>
+
+<h3>Angular Preloading Strategies Comparison</h3>
+<table>
+  <tr><th>Strategy</th><th>Behavior</th><th>Use When</th></tr>
+  <tr><td><code>NoPreloading</code> (default)</td><td>Load chunks only on navigation</td><td>Mobile-first, bandwidth-sensitive</td></tr>
+  <tr><td><code>PreloadAllModules</code></td><td>Load all lazy chunks after initial load</td><td>Desktop apps, fast networks</td></tr>
+  <tr><td><code>Custom (QuicklinkStrategy)</code></td><td>Preload only visible links</td><td>Best balance of speed/bandwidth</td></tr>
+  <tr><td><code>Custom (NetworkAware)</code></td><td>Preload based on connection speed</td><td>Progressive enhancement</td></tr>
+</table>
+
+<pre>
+// Network-aware preloading strategy
+@Injectable()
+export class NetworkAwarePreloadStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable&lt;any&gt;): Observable&lt;any&gt; {
+    // Check network conditions
+    const conn = (navigator as any).connection;
+
+    if (conn) {
+      // Don't preload on slow connections
+      if (conn.saveData) return of(null);           // Data saver mode
+      if (conn.effectiveType === '2g') return of(null); // Too slow
+      if (conn.effectiveType === '3g') {
+        // Only preload high-priority routes on 3G
+        return route.data?.['priority'] === 'high' ? load() : of(null);
+      }
+    }
+
+    // 4G or WiFi: preload everything
+    return load();
+  }
+}
+
+// Viewport-based preloading (like quicklink)
+@Injectable()
+export class ViewportPreloadStrategy implements PreloadingStrategy {
+  private preloadQueue = new Map&lt;string, () => Observable&lt;any&gt;&gt;();
+  private observer: IntersectionObserver;
+
+  constructor() {
+    this.observer = new IntersectionObserver((entries) => {
+      entries.filter(e => e.isIntersecting).forEach(entry => {
+        const path = (entry.target as HTMLAnchorElement).pathname;
+        const loader = this.preloadQueue.get(path);
+        if (loader) {
+          loader().subscribe();
+          this.preloadQueue.delete(path);
+        }
+      });
+    });
+
+    // Observe all router links
+    document.querySelectorAll('a[routerLink]').forEach(link => {
+      this.observer.observe(link);
+    });
+  }
+
+  preload(route: Route, load: () => Observable&lt;any&gt;): Observable&lt;any&gt; {
+    this.preloadQueue.set('/' + route.path, load);
+    return of(null);
+  }
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="ssr">11. SSR, SSG & Hydration</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=EqjZ-jBP8HY" target="_blank">Angular SSR (Server-Side Rendering) — Angular (Official)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=tFEn1dPBLdo" target="_blank">Angular Hydration Explained — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=VcMH6Rz3UEI" target="_blank">SSR vs SSG vs CSR — Fireship</a></li>
+</ul></details></div>
+
+<h3>Angular Universal / Angular SSR (v17+)</h3>
+<pre>
+// Angular 17+ uses @angular/ssr (replaces Universal)
+// ng add @angular/ssr
+
+// How SSR improves performance:
+// 1. Server renders HTML → sends complete page to browser
+// 2. User sees content immediately (no JS required for first paint!)
+// 3. LCP drastically improves (content in initial HTML)
+// 4. SEO: Search engines see full content
+// 5. Browser downloads JS in background → hydrates
+
+// Timeline comparison:
+// CSR (Client-Side Rendering):
+// |--download JS--|--parse--|--execute--|--render--|--interactive--|
+// 0ms            500ms     800ms      1500ms     2000ms
+// User sees NOTHING until 1500ms!
+
+// SSR:
+// |--server render--|--HTML arrives--|--hydrate--|--interactive--|
+// 0ms              200ms           500ms       1200ms
+// User sees CONTENT at 200ms!
+</pre>
+
+<h3>Hydration (Angular 16+)</h3>
+<pre>
+// Hydration = attaching event listeners to server-rendered HTML
+// WITHOUT destroying and re-creating DOM!
+
+// Old approach (Angular Universal pre-v16):
+// 1. Server renders HTML → user sees page
+// 2. Client JS loads → DESTROYS server HTML → recreates everything
+// 3. Flicker! Double rendering! Slow!
+
+// New approach (Angular 16+ with hydration):
+// 1. Server renders HTML with hydration annotations
+// 2. Client JS loads → finds existing DOM nodes → attaches listeners
+// 3. No flicker! No re-rendering! Fast!
+
+// Enable hydration:
+// app.config.ts
+import { provideClientHydration } from '@angular/platform-browser';
+
+export const appConfig = {
+  providers: [
+    provideClientHydration()
+  ]
+};
+
+// Incremental Hydration (Angular 18+):
+// Hydrate components only when they become visible or interactive
+import { provideClientHydration, withIncrementalHydration } from '@angular/platform-browser';
+
+export const appConfig = {
+  providers: [
+    provideClientHydration(withIncrementalHydration())
+  ]
+};
+
+// Template:
+@defer (hydrate on viewport) {
+  &lt;app-comments /&gt;  &lt;!-- Only hydrates when user scrolls to it --&gt;
+}
+</pre>
+
+<h3>Static Site Generation (SSG / Prerendering)</h3>
+<pre>
+// angular.json — prerender specific routes at build time
+{
+  "architect": {
+    "prerender": {
+      "options": {
+        "routes": [
+          "/",
+          "/about",
+          "/products",
+          "/products/1",
+          "/products/2"
+        ]
+        // Or use routesFile for dynamic route discovery
+      }
+    }
+  }
+}
+
+// When to use SSG vs SSR:
+// SSG: Content doesn't change per-request (blog, docs, marketing)
+//      → HTML generated at BUILD time, served from CDN (fastest!)
+// SSR: Content is dynamic per-user (dashboard, personalized)
+//      → HTML generated at REQUEST time on server
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="bundle">12. Angular Bundle Optimization</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=5IG4UmULyoA" target="_blank">Reduce Angular Bundle Size — Decoded Frontend</a></li>
+  <li><a href="https://www.youtube.com/watch?v=B1ox-3jqkI8" target="_blank">Angular Build Optimization — Angular (Official)</a></li>
+</ul></details></div>
+
+<h3>Angular Build Optimization Flags</h3>
+<pre>
+// angular.json production configuration
+{
+  "configurations": {
+    "production": {
+      "optimization": {
+        "scripts": true,     // Minify JS
+        "styles": {
+          "minify": true,    // Minify CSS
+          "inlineCritical": true  // Inline critical CSS in HTML
+        },
+        "fonts": {
+          "inline": true     // Inline font CSS from Google Fonts
+        }
+      },
+      "outputHashing": "all",    // Cache-busting hashes
+      "sourceMap": false,         // No source maps in prod
+      "namedChunks": false,       // Smaller chunk names
+      "aot": true,                // Ahead-of-time compilation
+      "buildOptimizer": true,     // Angular-specific optimizations
+      "budgets": [
+        {
+          "type": "initial",
+          "maximumWarning": "500kb",  // Warn if > 500KB
+          "maximumError": "1mb"       // Error if > 1MB
+        },
+        {
+          "type": "anyComponentStyle",
+          "maximumWarning": "4kb"     // Warn if component CSS > 4KB
+        }
+      ]
+    }
+  }
+}
+</pre>
+
+<h3>Bundle Budget Strategy</h3>
+<pre>
+// Set strict budgets to catch regressions:
+"budgets": [
+  {
+    "type": "initial",          // Main + polyfills + vendor
+    "maximumWarning": "400kb",  // Alert in CI
+    "maximumError": "600kb"     // FAIL the build!
+  },
+  {
+    "type": "anyScript",        // Any individual JS chunk
+    "maximumWarning": "150kb",
+    "maximumError": "300kb"
+  },
+  {
+    "type": "anyComponentStyle",
+    "maximumWarning": "4kb",
+    "maximumError": "8kb"
+  }
+]
+
+// CI pipeline integration:
+// ng build --configuration=production
+// If budget exceeded → build FAILS → PR blocked!
+// This prevents accidental dependency bloat
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="profiler">13. Angular DevTools & Profiling</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=bavWOHZM6zE" target="_blank">Angular DevTools Profiler — Angular (Official)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=sHkc2MC7bHY" target="_blank">Profiling Angular Apps — Decoded Frontend</a></li>
+</ul></details></div>
+
+<h3>Angular DevTools (Chrome Extension)</h3>
+<pre>
+// Install: Chrome Web Store → "Angular DevTools"
+
+// Component Explorer:
+// - View component tree
+// - Inspect @Input/@Output values
+// - See change detection status
+// - View component metadata
+
+// Profiler:
+// 1. Open Angular DevTools → Profiler tab
+// 2. Click "Start recording"
+// 3. Perform the slow action
+// 4. Click "Stop"
+// 5. Analyze:
+//    - Which components ran CD? (highlighted)
+//    - How long did each CD cycle take?
+//    - Which component took the longest?
+//    - How many CD cycles occurred?
+
+// Key metrics to look for:
+// - CD cycle time > 16ms = missed frame (jank)
+// - Components running CD when they shouldn't (missing OnPush)
+// - Excessive CD cycles (Zone.js over-triggering)
+</pre>
+
+<h3>Performance Profiling Workflow</h3>
+<pre>
+// Step 1: Enable production mode for accurate profiling
+// (Development mode has extra checks that slow things down)
+// In main.ts:
+import { enableProdMode } from '@angular/core';
+enableProdMode();
+
+// Step 2: Profile with Chrome DevTools
+// Performance tab → Record → Reproduce issue → Stop
+// Look for:
+// - Yellow blocks (Script) in flame chart = JS execution
+// - Purple blocks = Style/Layout
+// - Green blocks = Paint/Composite
+// - "Run CD" markers = Angular Change Detection
+
+// Step 3: Use Angular-specific profiling
+// In browser console:
+ng.profiler.timeChangeDetection(); // Time CD cycles
+// Output: "ran 500 change detection cycles. Average: 0.79 ms"
+
+// If average > 3ms: You have a problem!
+// If > 10ms: You're definitely dropping frames
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="exercise4">14. Hands-On Exercises — Phase 4</h2>
+
+<h3>Exercise 1: Convert Default CD to OnPush</h3>
+<pre>
+// Task: Convert this component to OnPush and fix all issues
+
+@Component({
+  selector: 'app-user-list',
+  template: `
+    &lt;div class="search"&gt;
+      &lt;input (input)="onSearch($event)"&gt;
+    &lt;/div&gt;
+    &lt;div *ngFor="let user of getFilteredUsers()"&gt;
+      &lt;span&gt;{{ user.name }}&lt;/span&gt;
+      &lt;span&gt;{{ getAge(user.birthDate) }}&lt;/span&gt;
+      &lt;span [class.active]="isOnline(user)"&gt;●&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;p&gt;Total: {{ getFilteredUsers().length }}&lt;/p&gt;
+  `
+})
+export class UserListComponent {
+  users: User[] = [];
+  searchTerm = '';
+
+  constructor(private userService: UserService) {
+    this.userService.getUsers().subscribe(users => {
+      this.users = users;
+    });
+  }
+
+  onSearch(event: Event) {
+    this.searchTerm = (event.target as HTMLInputElement).value;
+  }
+
+  getFilteredUsers(): User[] {
+    return this.users.filter(u =>
+      u.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  getAge(birthDate: Date): number {
+    return Math.floor((Date.now() - birthDate.getTime()) / 31557600000);
+  }
+
+  isOnline(user: User): boolean {
+    return user.lastSeen > Date.now() - 300000;
+  }
+}
+
+// TODO:
+// 1. Add ChangeDetectionStrategy.OnPush
+// 2. Replace function calls in template with pipes or computed values
+// 3. Use async pipe or signals for data
+// 4. Ensure search still works with immutable patterns
+// 5. Add trackBy to *ngFor
+// 6. Measure CD cycles before and after (Angular DevTools Profiler)
+</pre>
+
+<h3>Exercise 2: Implement Virtual Scrolling</h3>
+<pre>
+// Task: Replace a slow list with CDK virtual scroll
+
+// Current (SLOW — 5000 DOM nodes):
+@Component({
+  template: `
+    &lt;div class="list-container" style="height: 600px; overflow-y: auto;"&gt;
+      &lt;div *ngFor="let item of items" class="list-item"&gt;
+        &lt;img [src]="item.avatar" width="40" height="40"&gt;
+        &lt;div class="details"&gt;
+          &lt;h4&gt;{{ item.name }}&lt;/h4&gt;
+          &lt;p&gt;{{ item.description }}&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  `
+})
+export class BigListComponent {
+  items: Item[] = []; // 5000 items!
+
+  ngOnInit() {
+    this.items = this.generateItems(5000);
+  }
+}
+
+// TODO:
+// 1. Install @angular/cdk (ng add @angular/cdk)
+// 2. Import ScrollingModule
+// 3. Replace with cdk-virtual-scroll-viewport
+// 4. Use *cdkVirtualFor
+// 5. Set itemSize (height of each item)
+// 6. Compare DOM node count before/after (DevTools Elements panel)
+// 7. Compare scroll performance (DevTools Performance tab)
+</pre>
+
+<h3>Exercise 3: Optimize Change Detection with Signals</h3>
+<pre>
+// Task: Refactor this Observable-heavy component to use Signals
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    &lt;div *ngIf="loading$ | async"&gt;Loading...&lt;/div&gt;
+    &lt;div *ngIf="error$ | async as error"&gt;{{ error }}&lt;/div&gt;
+    &lt;div *ngIf="(data$ | async) as data"&gt;
+      &lt;h2&gt;{{ data.title }}&lt;/h2&gt;
+      &lt;p&gt;Items: {{ (filteredItems$ | async)?.length }}&lt;/p&gt;
+      &lt;div *ngFor="let item of filteredItems$ | async; trackBy: trackById"&gt;
+        {{ item.name }}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  `
+})
+export class DataComponent implements OnInit {
+  loading$ = new BehaviorSubject(false);
+  error$ = new BehaviorSubject&lt;string | null&gt;(null);
+  data$ = new BehaviorSubject&lt;Data | null&gt;(null);
+  filter$ = new BehaviorSubject('');
+
+  filteredItems$ = combineLatest([this.data$, this.filter$]).pipe(
+    map(([data, filter]) =>
+      data?.items.filter(i => i.name.includes(filter)) ?? []
+    )
+  );
+
+  ngOnInit() {
+    this.loading$.next(true);
+    this.dataService.getData().pipe(
+      finalize(() => this.loading$.next(false))
+    ).subscribe({
+      next: data => this.data$.next(data),
+      error: err => this.error$.next(err.message)
+    });
+  }
+}
+
+// TODO: Refactor using:
+// - signal() for loading, error, data, filter
+// - computed() for filteredItems
+// - toSignal() for HTTP call
+// - Remove all BehaviorSubjects
+// - Remove all async pipes
+// - Template reads signals directly: {{ loading() }}, @if, @for
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview4">15. Interview Questions — Phase 4</h2>
+
+<h3>Beginner Level</h3>
+<ol>
+  <li><strong>Q: What is Change Detection in Angular?</strong><br>
+    A: Change Detection is the mechanism Angular uses to synchronize component data with the DOM. By default, when an async event occurs (click, HTTP response, timer), Angular checks every component from root to leaves, evaluating template bindings and updating the DOM where values have changed.</li>
+
+  <li><strong>Q: What is the difference between Default and OnPush change detection?</strong><br>
+    A: Default (CheckAlways): Angular checks the component on EVERY CD cycle, regardless of whether its data changed. OnPush: Angular ONLY checks when: (1) @Input reference changes, (2) event originates from this component, (3) async pipe emits, (4) markForCheck() called, (5) signal changes. OnPush can eliminate 90%+ of unnecessary checks.</li>
+
+  <li><strong>Q: What is trackBy in *ngFor and why is it important?</strong><br>
+    A: trackBy provides Angular a way to identify items in a list by a unique key (like ID). Without it, when the array changes, Angular destroys and recreates ALL DOM nodes. With trackBy, Angular only creates/destroys nodes for items that were actually added/removed. Critical for lists with frequent updates or complex item templates.</li>
+
+  <li><strong>Q: Why should you avoid function calls in Angular templates?</strong><br>
+    A: Functions in templates are called on EVERY change detection cycle (potentially 20+ times per second). Each call performs computation and returns a value that Angular compares. Use pure pipes (cached, called only on input change) or pre-computed properties instead.</li>
+</ol>
+
+<h3>Intermediate Level</h3>
+<ol>
+  <li><strong>Q: Explain Zone.js and its performance implications.</strong><br>
+    A: Zone.js monkey-patches all async APIs (setTimeout, Promise, addEventListener, etc.) to detect when async operations complete, triggering Angular's change detection. Performance impact: (1) 35KB bundle size addition, (2) Every async operation triggers full CD tree walk, (3) mousemove/scroll events cause unnecessary CD cycles, (4) Third-party code can trigger unneeded CD. Mitigation: runOutsideAngular() for operations that don't need CD, OnPush strategy, and the future zoneless approach with signals.</li>
+
+  <li><strong>Q: How do Angular Signals improve performance over the traditional approach?</strong><br>
+    A: Signals provide fine-grained reactivity: (1) Only template bindings that READ a changed signal update (not the entire component tree). (2) computed() values are lazy and memoized — only recalculate when dependencies change. (3) No Zone.js needed — signals notify Angular directly about changes. (4) No need for async pipe boilerplate. (5) Better than OnPush because updates are binding-level granular, not component-level.</li>
+
+  <li><strong>Q: Explain the difference between markForCheck() and detectChanges().</strong><br>
+    A: <code>markForCheck()</code>: Marks the component and ALL its ancestors as dirty. Change detection will include them in the NEXT cycle. It's batched and safe to call multiple times. <code>detectChanges()</code>: Runs change detection IMMEDIATELY and synchronously on this component and its children. Can cause performance issues if called too frequently. Use markForCheck() 99% of the time; detectChanges() only when you need immediate synchronous update.</li>
+
+  <li><strong>Q: How do you implement lazy loading in Angular and what are the performance benefits?</strong><br>
+    A: Route-based: <code>loadChildren: () => import('./module').then(m => m.Module)</code> or <code>loadComponent</code>. Component-based (Angular 17+): <code>@defer (on viewport) { &lt;component /&gt; }</code>. Benefits: (1) Smaller initial bundle (faster TTFB, parse, execute), (2) Only load code when needed, (3) Parallel chunk loading with preloading strategies. The initial bundle can shrink from 2MB to 200KB, making the app load 10x faster on mobile.</li>
+</ol>
+
+<h3>Advanced Level</h3>
+<ol>
+  <li><strong>Q: Explain Angular's hydration process and its performance impact.</strong><br>
+    A: Pre-hydration: Server HTML is destroyed and recreated by client (flicker, double-rendering). With hydration (Angular 16+): Client JS finds existing server-rendered DOM nodes, attaches event listeners and Angular internals WITHOUT destroying/recreating them. This eliminates the flash/flicker, reduces LCP (content visible from server HTML), and avoids expensive DOM recreation. Incremental hydration (v18+) further optimizes by only hydrating components when they enter viewport or receive interaction.</li>
+
+  <li><strong>Q: How would you implement a zoneless Angular application and what changes are needed?</strong><br>
+    A: (1) Use <code>provideExperimentalZonelessChangeDetection()</code> in bootstrap. (2) Remove zone.js from polyfills. (3) Convert all reactive state to signals. (4) Replace manual subscriptions with toSignal(). (5) Use async pipe or computed() for derived state. (6) Ensure all user-facing state changes go through signals (setTimeout won't trigger CD!). (7) For third-party libs that mutate state outside signals, use effect() or manual markForCheck(). Benefits: -35KB bundle, no unnecessary CD cycles, predictable reactivity model.</li>
+
+  <li><strong>Q: Design a performance strategy for an Angular app with 200+ components and complex data grids.</strong><br>
+    A: (1) OnPush everywhere + immutable data patterns. (2) Virtual scrolling for large grids (CDK). (3) trackBy on all *ngFor. (4) Lazy load route modules + @defer for heavy components. (5) Web Workers for data processing/sorting. (6) Signal-based state management for fine-grained updates. (7) runOutsideAngular for animations/scroll handlers. (8) Pure pipes for all transformations. (9) content-visibility: auto for off-screen sections. (10) Bundle budgets in CI to prevent regression. (11) SSR for initial load performance. (12) Preloading strategy based on network conditions.</li>
+
+  <li><strong>Q: Explain the complete lifecycle of an Angular change detection cycle with OnPush.</strong><br>
+    A: (1) Async event occurs (captured by Zone.js or signal change). (2) ApplicationRef.tick() is called. (3) Starting from root, Angular walks the component tree. (4) For each component: if Default strategy → always check. If OnPush → check ONLY if marked dirty. (5) "Checking" means: evaluate each template expression, compare with previous value (dirty checking). (6) If value changed → update the DOM binding. (7) After checking a component, recursively check children. (8) For OnPush children that aren't dirty → SKIP entire subtree (massive savings!). (9) After the full walk, the view is up to date. (10) In dev mode, Angular runs a second CD cycle to detect ExpressionChangedAfterItHasBeenCheckedError.</li>
+</ol>
+
+<h3>Scenario-Based Questions</h3>
+<ol>
+  <li><strong>Q: Your Angular dashboard loads 3 seconds on mobile. How do you cut it to under 1 second?</strong><br>
+    A: (1) Analyze bundle (source-map-explorer): identify largest chunks. (2) Lazy-load non-critical routes. (3) Use @defer for below-fold widgets (charts, tables). (4) Implement SSR for instant first paint. (5) Preload critical data in route resolver. (6) Optimize images (NgOptimizedImage, WebP, lazy-load). (7) Inline critical CSS. (8) Remove unused dependencies (lodash → lodash-es specific imports). (9) Enable Brotli compression. (10) Use CDN for static assets. Target: Initial bundle < 200KB gzipped.</li>
+
+  <li><strong>Q: Users report your Angular data table becomes laggy after sorting/filtering 10,000 rows.</strong><br>
+    A: (1) Implement virtual scrolling (only render visible rows ~30). (2) Move sorting/filtering to Web Worker (off main thread). (3) Debounce filter input (300ms). (4) Use OnPush + trackBy. (5) Don't use functions in template cells (pre-compute or use pipes). (6) Consider server-side pagination/sorting for truly large datasets. (7) Use content-visibility: auto for non-visible rows. (8) Profile with Angular DevTools to identify specific bottleneck (CD cycles, DOM operations, or computation).</li>
+</ol>
+
+<div class="nav-links">
+  <a href="phase3-asset-optimization-loading.html">← Phase 3: Asset Optimization</a>
+  <a href="phase5-advanced-monitoring.html">Phase 5: Advanced & Monitoring →</a>
+</div>
+
+</main>
+</body>
+</html>

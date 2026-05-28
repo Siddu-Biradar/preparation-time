@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Python Theory Deep-dive — Theory + Hands-on + Q&amp;A</title>
+<style>
+  :root{
+    --bg:#fafbfc; --fg:#1f2328; --muted:#57606a; --border:#d0d7de;
+    --accent:#3776AB; --accent-2:#FFD43B; --accent-dark:#1f4d7a;
+    --code-bg:#0d1117; --code-fg:#e6edf3; --code-cmt:#8b949e; --code-kw:#ff7b72; --code-str:#a5d6ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.65 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+  header.page{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;padding:48px 24px 32px;text-align:center}
+  header.page h1{margin:0 0 8px;font-size:34px}
+  header.page h1 span{background:var(--accent-2);color:#1f4d7a;padding:2px 12px;border-radius:6px}
+  header.page p{margin:0 0 16px;opacity:.92;max-width:760px;margin-left:auto;margin-right:auto}
+  header.page .nav a{display:inline-block;margin:4px 6px;padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;text-decoration:none;font-size:13px}
+  header.page .nav a:hover,header.page .nav a.active{background:#fff;color:var(--accent-dark)}
+  .container{max-width:1100px;margin:0 auto;padding:24px}
+  h2{color:var(--accent-dark);border-bottom:2px solid var(--accent);padding-bottom:6px;margin-top:48px;font-size:26px}
+  h3{color:var(--accent-dark);margin-top:34px;font-size:20px}
+  h4{margin:18px 0 6px;color:#1f2328;font-size:15px}
+  code{background:#eef2f7;padding:1px 6px;border-radius:4px;font:13px Menlo,Consolas,monospace;color:#1f4d7a}
+  pre{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:8px;overflow-x:auto;font:13px Menlo,Consolas,monospace;line-height:1.55}
+  pre .c{color:var(--code-cmt);font-style:italic}
+  pre .k{color:var(--code-kw)}
+  pre .s{color:var(--code-str)}
+  details.topic{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:14px 0;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  details.topic[open]{box-shadow:0 2px 8px rgba(55,118,171,.12)}
+  details.topic > summary{cursor:pointer;font-weight:700;color:var(--accent-dark);font-size:17px;list-style:none}
+  details.topic > summary::-webkit-details-marker{display:none}
+  details.topic > summary::before{content:"▸ ";color:var(--accent);margin-right:4px;display:inline-block;transition:transform .15s}
+  details.topic[open] > summary::before{transform:rotate(90deg)}
+  .toc{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 22px;margin:18px 0 28px}
+  .toc h3{margin:0 0 8px}
+  .toc ol{column-count:2;column-gap:24px;margin:0;padding-left:22px}
+  @media (max-width:700px){.toc ol{column-count:1}}
+  .toc a{color:var(--accent-dark);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .qa{background:#f6f8fa;border-left:3px solid var(--accent);padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0}
+  .qa b.q{color:var(--accent-dark)}
+  .pro,.con{padding:10px 14px;border-radius:6px;margin:6px 0}
+  .pro{background:#dafbe1;border-left:3px solid #2da44e}
+  .con{background:#ffebe9;border-left:3px solid #cf222e}
+  .vs-table{width:100%;border-collapse:collapse;margin:10px 0;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .vs-table th,.vs-table td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:top}
+  .vs-table th{background:#f6f8fa;color:var(--accent-dark)}
+  .pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600}
+  .pill.use{background:#dcfce7;color:#14532d}
+  .pill.dont{background:#fee2e2;color:#7f1d1d}
+  .callout{border-left:4px solid #0969da;background:#ddf4ff;padding:10px 14px;margin:14px 0;border-radius:0 6px 6px 0}
+  .callout.warn{border-color:#d4a72c;background:#fff8c5}
+  footer{text-align:center;color:var(--muted);padding:32px;font-size:13px}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Python <span>Theory Deep-dive</span></h1>
+  <p>Click any topic — get <b>theory</b>, <b>hands-on code</b>, and a <b>When / Why / Why-not / How</b> Q&amp;A. Pair with the roadmap for full coverage.</p>
+  <div class="nav">
+    <a href="python-roadmap.html">← Roadmap</a>
+    <a href="python-dsa-cheatsheet.html">DSA Cheatsheet</a>
+    <a class="active" href="python-theory-deepdive.html">Theory Deep-dive</a>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h3>📚 Topics</h3>
+  <ol>
+    <li><a href="#oop">Classes &amp; OOP basics</a></li>
+    <li><a href="#inheritance">Inheritance, MRO &amp; <code>super()</code></a></li>
+    <li><a href="#dunder">Dunder methods &amp; data model</a></li>
+    <li><a href="#dataclass">Dataclasses vs NamedTuple vs Pydantic</a></li>
+    <li><a href="#decorators">Decorators</a></li>
+    <li><a href="#generators">Generators &amp; iterators</a></li>
+    <li><a href="#contextmgr">Context managers (<code>with</code>)</a></li>
+    <li><a href="#typing">Type hints &amp; <code>typing</code> module</a></li>
+    <li><a href="#descriptors">Descriptors &amp; <code>__slots__</code></a></li>
+    <li><a href="#metaclasses">Metaclasses</a></li>
+    <li><a href="#gil">The GIL — what it is &amp; isn't</a></li>
+    <li><a href="#asyncio">asyncio — event loop, coroutines, tasks</a></li>
+    <li><a href="#memory">Memory model: refs, GC, copy semantics</a></li>
+    <li><a href="#exceptions">Exceptions &amp; EAFP vs LBYL</a></li>
+    <li><a href="#closures">Closures &amp; late binding</a></li>
+  </ol>
+</div>
+
+<h2>Object-Oriented Python</h2>
+
+<!-- ====== OOP BASICS ====== -->
+<details class="topic" id="oop" open>
+  <summary>1. Classes &amp; OOP basics</summary>
+
+  <h4>Theory</h4>
+  <p>A class is a blueprint that bundles <b>state</b> (attributes) with <b>behavior</b> (methods). In Python <i>everything is an object</i> — even classes themselves (instances of <code>type</code>). Three method flavors:</p>
+  <ul>
+    <li><b>Instance method</b> — first arg <code>self</code>; sees instance state.</li>
+    <li><b>Class method</b> — <code>@classmethod</code>, first arg <code>cls</code>; alternative constructors.</li>
+    <li><b>Static method</b> — <code>@staticmethod</code>; no implicit first arg; namespace grouping.</li>
+  </ul>
+
+  <h4>Hands-on</h4>
+<pre><span class="k">class</span> Account:
+    bank = <span class="s">"HDFC"</span>                       <span class="c"># class attribute (shared)</span>
+
+    <span class="k">def</span> __init__(self, owner, balance=0):
+        self.owner = owner                <span class="c"># instance attribute</span>
+        self._balance = balance           <span class="c"># single-underscore = "internal"</span>
+
+    <span class="k">def</span> deposit(self, amt):               <span class="c"># instance method</span>
+        <span class="k">if</span> amt &lt;= 0: <span class="k">raise</span> ValueError(<span class="s">"positive"</span>)
+        self._balance += amt
+
+    @classmethod
+    <span class="k">def</span> from_dict(cls, d):                <span class="c"># alt constructor</span>
+        <span class="k">return</span> cls(d[<span class="s">"owner"</span>], d.get(<span class="s">"balance"</span>, 0))
+
+    @staticmethod
+    <span class="k">def</span> validate_pan(pan: str) -&gt; bool:   <span class="c"># utility, no self/cls</span>
+        <span class="k">return</span> len(pan) == 10 <span class="k">and</span> pan.isalnum()
+
+    @property
+    <span class="k">def</span> balance(self):                    <span class="c"># getter</span>
+        <span class="k">return</span> self._balance
+
+    @balance.setter
+    <span class="k">def</span> balance(self, v):
+        <span class="k">if</span> v &lt; 0: <span class="k">raise</span> ValueError
+        self._balance = v</pre>
+
+  <h4>When / Why / Why-not / How</h4>
+  <div class="qa"><b class="q">Q: When should I create a class instead of a function or dict?</b><br>
+  When data + behavior cluster together AND lifecycle / invariants matter (e.g., balance can never go negative). For pure data with no logic prefer <code>dataclass</code> or <code>NamedTuple</code>; for one-off transforms a function is better.</div>
+
+  <div class="qa"><b class="q">Q: Why use <code>@property</code> instead of a public attribute?</b><br>
+  To <b>start simple</b> (public attr) and <b>upgrade later</b> without breaking callers — add validation/computation behind the same access syntax. Don't add <code>@property</code> pre-emptively; YAGNI.</div>
+
+  <div class="qa"><b class="q">Q: Why-not subclass everything?</b><br>
+  Inheritance creates tight coupling. Prefer <b>composition</b> (hold a reference to a helper) when you only need behavior reuse, not "is-a" semantics. Reserve inheritance for true polymorphism.</div>
+
+  <div class="qa"><b class="q">Q: How do private attrs work?</b><br>
+  Python has no real private. Conventions: <code>_x</code> = "internal, don't touch", <code>__x</code> = name-mangled to <code>_ClassName__x</code> (collision avoidance, not security). Don't fight the language — use <code>_</code> and trust callers.</div>
+
+  <table class="vs-table">
+    <thead><tr><th>Style</th><th>Use</th><th>Don't use</th></tr></thead>
+    <tbody>
+      <tr><td>Plain class</td><td>State + complex behavior, invariants</td><td>Pure data records</td></tr>
+      <tr><td><code>@dataclass</code></td><td>Data records, configs</td><td>Heavy custom <code>__init__</code></td></tr>
+      <tr><td><code>NamedTuple</code></td><td>Immutable record, hashable</td><td>Need mutability or methods</td></tr>
+      <tr><td><code>dict</code></td><td>Truly dynamic shape</td><td>Schema is known &amp; stable</td></tr>
+    </tbody>
+  </table>
+</details>
+
+<!-- ====== INHERITANCE / MRO ====== -->
+<details class="topic" id="inheritance">
+  <summary>2. Inheritance, MRO &amp; <code>super()</code></summary>
+
+  <h4>Theory</h4>
+  <p>Python supports multiple inheritance. <b>MRO</b> (Method Resolution Order) decides which parent method is called and is computed by the <b>C3 linearization</b> algorithm. Always use <code>super().method()</code> — never name parents directly — so cooperative multiple inheritance works.</p>
+
+  <h4>Hands-on — the diamond</h4>
+<pre><span class="k">class</span> A:
+    <span class="k">def</span> hi(self): print(<span class="s">"A"</span>); super().hi()
+<span class="k">class</span> B(A):
+    <span class="k">def</span> hi(self): print(<span class="s">"B"</span>); super().hi()
+<span class="k">class</span> C(A):
+    <span class="k">def</span> hi(self): print(<span class="s">"C"</span>); super().hi()
+<span class="k">class</span> D(B, C):
+    <span class="k">def</span> hi(self): print(<span class="s">"D"</span>); super().hi()
+<span class="k">class</span> Root:
+    <span class="k">def</span> hi(self): print(<span class="s">"Root"</span>)
+<span class="c"># Add Root at the end</span>
+<span class="k">class</span> A(Root):
+    <span class="k">def</span> hi(self): print(<span class="s">"A"</span>); super().hi()
+
+D().hi()                  <span class="c"># D B C A Root</span>
+print(D.__mro__)          <span class="c"># [D, B, C, A, Root, object]</span></pre>
+
+  <h4>Mixins (the right way to combine behavior)</h4>
+<pre><span class="k">class</span> JSONMixin:
+    <span class="k">def</span> to_json(self):
+        <span class="k">import</span> json
+        <span class="k">return</span> json.dumps(self.__dict__)
+
+<span class="k">class</span> TimestampMixin:
+    <span class="k">def</span> __init__(self, *a, **kw):
+        <span class="k">from</span> datetime <span class="k">import</span> datetime
+        self.created_at = datetime.utcnow()
+        super().__init__(*a, **kw)         <span class="c"># cooperative!</span>
+
+<span class="k">class</span> User(TimestampMixin, JSONMixin):
+    <span class="k">def</span> __init__(self, name): self.name = name
+    <span class="k">def</span> __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self.name = a[0] <span class="k">if</span> a <span class="k">else</span> kw[<span class="s">"name"</span>]</pre>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When should I use multiple inheritance?</b><br>
+  Almost only for <b>mixins</b> — small, orthogonal, stateless behaviors (logging, serialization, comparability). Avoid mixing two "real" base classes.</div>
+
+  <div class="qa"><b class="q">Q: Why <code>super().__init__(*a, **kw)</code> in mixins?</b><br>
+  So calls flow through the entire MRO. If a mixin <code>__init__</code> doesn't call super, classes after it never initialize.</div>
+
+  <div class="qa"><b class="q">Q: Why-not deep inheritance trees?</b><br>
+  Behavior gets spread across N classes — debugging means walking <code>__mro__</code>. Rule of thumb: max 2 levels + mixins. Anything deeper → reach for composition or strategy pattern.</div>
+
+  <div class="qa"><b class="q">Q: How do abstract base classes help?</b><br>
+  <code>abc.ABC</code> + <code>@abstractmethod</code> prevents instantiation until all abstracts are implemented — great for plugin/strategy interfaces. Or use <code>typing.Protocol</code> (structural / "duck typing with type checking").</div>
+
+  <table class="vs-table">
+    <thead><tr><th>Need</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>Strict interface, runtime check</td><td><code>abc.ABC</code> + <code>@abstractmethod</code></td></tr>
+      <tr><td>Structural / duck-typed interface</td><td><code>typing.Protocol</code> (PEP 544)</td></tr>
+      <tr><td>Add cross-cutting feature</td><td>Mixin + <code>super()</code></td></tr>
+      <tr><td>Reuse with no "is-a"</td><td>Composition (hold attribute)</td></tr>
+    </tbody>
+  </table>
+</details>
+
+<!-- ====== DUNDER ====== -->
+<details class="topic" id="dunder">
+  <summary>3. Dunder methods &amp; the data model</summary>
+
+  <h4>Theory</h4>
+  <p>Dunder ("double-underscore") methods plug your class into Python's built-in operators and protocols. Instead of <code>obj.equals(other)</code> you implement <code>__eq__</code> and use <code>==</code>. This is what "Pythonic" really means.</p>
+
+  <h4>Hands-on — Vector with full protocol</h4>
+<pre><span class="k">class</span> Vec:
+    __slots__ = (<span class="s">"x"</span>, <span class="s">"y"</span>)             <span class="c"># save memory + speed</span>
+    <span class="k">def</span> __init__(self, x, y): self.x, self.y = x, y
+    <span class="k">def</span> __repr__(self):  <span class="k">return</span> f<span class="s">"Vec({self.x},{self.y})"</span>   <span class="c"># debug</span>
+    <span class="k">def</span> __str__(self):   <span class="k">return</span> f<span class="s">"({self.x}, {self.y})"</span>      <span class="c"># user</span>
+    <span class="k">def</span> __eq__(self, o): <span class="k">return</span> isinstance(o, Vec) <span class="k">and</span> (self.x, self.y) == (o.x, o.y)
+    <span class="k">def</span> __hash__(self): <span class="k">return</span> hash((self.x, self.y))            <span class="c"># needed for sets/dict keys</span>
+    <span class="k">def</span> __lt__(self, o): <span class="k">return</span> (self.x**2+self.y**2) &lt; (o.x**2+o.y**2)
+    <span class="k">def</span> __add__(self, o): <span class="k">return</span> Vec(self.x+o.x, self.y+o.y)
+    <span class="k">def</span> __mul__(self, k): <span class="k">return</span> Vec(self.x*k, self.y*k)         <span class="c"># Vec * 3</span>
+    <span class="k">def</span> __rmul__(self, k): <span class="k">return</span> self * k                       <span class="c"># 3 * Vec</span>
+    <span class="k">def</span> __iter__(self):   <span class="k">return</span> iter((self.x, self.y))         <span class="c"># tuple unpack</span>
+    <span class="k">def</span> __len__(self):    <span class="k">return</span> 2
+    <span class="k">def</span> __bool__(self):   <span class="k">return</span> self.x != 0 <span class="k">or</span> self.y != 0   <span class="c"># truthiness</span></pre>
+
+  <h4>Most-used dunders by category</h4>
+  <table class="vs-table">
+    <thead><tr><th>Group</th><th>Dunders</th><th>Triggers</th></tr></thead>
+    <tbody>
+      <tr><td>Init/destroy</td><td><code>__init__ __new__ __del__</code></td><td>Creation, GC</td></tr>
+      <tr><td>String</td><td><code>__repr__ __str__ __format__</code></td><td><code>repr() str() f"{x:..}"</code></td></tr>
+      <tr><td>Equality/order</td><td><code>__eq__ __hash__ __lt__ __le__</code></td><td><code>==, &lt;</code>, set/dict</td></tr>
+      <tr><td>Numeric</td><td><code>__add__ __sub__ __mul__ __radd__ __iadd__</code></td><td><code>+, +=</code></td></tr>
+      <tr><td>Container</td><td><code>__getitem__ __setitem__ __len__ __contains__</code></td><td><code>x[i], len, in</code></td></tr>
+      <tr><td>Iter</td><td><code>__iter__ __next__</code></td><td><code>for x in</code></td></tr>
+      <tr><td>Context</td><td><code>__enter__ __exit__</code></td><td><code>with</code></td></tr>
+      <tr><td>Callable</td><td><code>__call__</code></td><td><code>obj()</code></td></tr>
+      <tr><td>Attribute</td><td><code>__getattr__ __setattr__ __delattr__ __getattribute__</code></td><td><code>obj.x</code></td></tr>
+    </tbody>
+  </table>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When override <code>__repr__</code>?</b><br>
+  <b>Always</b> on domain classes. <code>__repr__</code> shows in tracebacks, debuggers, REPL — saves hours of debugging. <code>__str__</code> is optional (falls back to repr).</div>
+  <div class="qa"><b class="q">Q: Why must I add <code>__hash__</code> when I define <code>__eq__</code>?</b><br>
+  Defining <code>__eq__</code> auto-sets <code>__hash__ = None</code> → instance becomes unhashable. If equality is by value, hash must agree: <code>hash((self.x, self.y))</code>.</div>
+  <div class="qa"><b class="q">Q: Why-not override <code>__getattribute__</code>?</b><br>
+  It runs on <b>every</b> attribute access, easy to recurse infinitely or 50× slow your class. Prefer <code>__getattr__</code> (only called when normal lookup fails).</div>
+</details>
+
+<!-- ====== DATACLASSES ====== -->
+<details class="topic" id="dataclass">
+  <summary>4. Dataclasses vs NamedTuple vs Pydantic vs attrs</summary>
+
+  <h4>Hands-on</h4>
+<pre><span class="k">from</span> dataclasses <span class="k">import</span> dataclass, field, asdict
+<span class="k">from</span> typing <span class="k">import</span> ClassVar
+
+@dataclass(frozen=<span class="k">True</span>, slots=<span class="k">True</span>)        <span class="c"># 3.10+ slots=True</span>
+<span class="k">class</span> Point:
+    x: float
+    y: float
+    z: float = 0.0
+    tags: list[str] = field(default_factory=list)   <span class="c"># NEVER bare []</span>
+    PI: ClassVar[float] = 3.14159
+
+p = Point(1.0, 2.0, tags=[<span class="s">"a"</span>])
+<span class="c"># p.x = 9   # FrozenInstanceError</span>
+asdict(p)                  <span class="c"># {'x':1.0,...}</span></pre>
+
+<pre><span class="k">from</span> typing <span class="k">import</span> NamedTuple
+<span class="k">class</span> RGB(NamedTuple):
+    r: int; g: int; b: int = 0
+RGB(255, 128).r            <span class="c"># tuple-like + named access</span></pre>
+
+<pre><span class="k">from</span> pydantic <span class="k">import</span> BaseModel, Field, EmailStr
+<span class="k">class</span> User(BaseModel):
+    id: int
+    email: EmailStr
+    age: int = Field(ge=0, le=150)
+User.model_validate({<span class="s">"id"</span>: <span class="s">"1"</span>, <span class="s">"email"</span>: <span class="s">"a@b.com"</span>, <span class="s">"age"</span>: 30})  <span class="c"># coerces "1"->1 ⭐</span></pre>
+
+  <h4>When / Why / Why-not</h4>
+  <table class="vs-table">
+    <thead><tr><th>Choice</th><th>Use when</th><th>Avoid when</th></tr></thead>
+    <tbody>
+      <tr><td><code>@dataclass</code></td><td>Internal data record, mutable, no I/O validation needed</td><td>Parsing untrusted input</td></tr>
+      <tr><td><code>@dataclass(frozen=True)</code></td><td>Need hashability, value-object semantics</td><td>Need to mutate after construction</td></tr>
+      <tr><td><code>NamedTuple</code></td><td>Tiny immutable record, want tuple unpacking</td><td>Need defaults for many fields, methods</td></tr>
+      <tr><td><b>Pydantic v2</b></td><td>API request/response, parsing untrusted JSON, env config</td><td>Hot path with millions of small objects (overhead)</td></tr>
+      <tr><td><b>attrs</b></td><td>Pre-3.7 codebases or need converter/validator features</td><td>New code — dataclass usually enough</td></tr>
+    </tbody>
+  </table>
+  <div class="qa"><b class="q">Q: Why <code>field(default_factory=list)</code> instead of <code>= []</code>?</b><br>
+  Same reason as mutable default args — every instance would share the same list. <code>default_factory</code> calls a fresh factory per instance.</div>
+  <div class="qa"><b class="q">Q: Why pick Pydantic over dataclass for FastAPI?</b><br>
+  Pydantic does <b>parse-don't-validate</b>: it coerces &amp; validates at the boundary, gives JSON schema for free, and integrates with FastAPI's docs. Dataclasses are static — no input validation.</div>
+</details>
+
+<!-- ====== DECORATORS ====== -->
+<details class="topic" id="decorators">
+  <summary>5. Decorators</summary>
+
+  <h4>Theory</h4>
+  <p>A decorator is a callable that takes a function (or class) and returns a replacement. <code>@deco</code> above <code>def f</code> is sugar for <code>f = deco(f)</code>. They give you cross-cutting concerns (logging, caching, auth, retry) without touching business code.</p>
+
+  <h4>Hands-on — three levels</h4>
+<pre><span class="k">import</span> functools, time
+
+<span class="c"># Level 1: simple decorator</span>
+<span class="k">def</span> log(fn):
+    @functools.wraps(fn)                        <span class="c"># preserves __name__/__doc__ ⭐</span>
+    <span class="k">def</span> wrapper(*a, **kw):
+        print(f<span class="s">"call {fn.__name__}"</span>)
+        <span class="k">return</span> fn(*a, **kw)
+    <span class="k">return</span> wrapper
+
+<span class="c"># Level 2: decorator with args</span>
+<span class="k">def</span> retry(times=3, exc=Exception):
+    <span class="k">def</span> deco(fn):
+        @functools.wraps(fn)
+        <span class="k">def</span> wrapper(*a, **kw):
+            <span class="k">for</span> i <span class="k">in</span> range(times):
+                <span class="k">try</span>: <span class="k">return</span> fn(*a, **kw)
+                <span class="k">except</span> exc:
+                    <span class="k">if</span> i == times - 1: <span class="k">raise</span>
+                    time.sleep(2**i)
+        <span class="k">return</span> wrapper
+    <span class="k">return</span> deco
+
+@retry(times=5, exc=ConnectionError)
+<span class="k">def</span> fetch(url): ...
+
+<span class="c"># Level 3: class-based decorator (keeps state)</span>
+<span class="k">class</span> Counter:
+    <span class="k">def</span> __init__(self, fn):
+        functools.update_wrapper(self, fn)
+        self.fn = fn; self.count = 0
+    <span class="k">def</span> __call__(self, *a, **kw):
+        self.count += 1
+        <span class="k">return</span> self.fn(*a, **kw)
+
+@Counter
+<span class="k">def</span> hello(): print(<span class="s">"hi"</span>)
+hello(); hello(); print(hello.count)            <span class="c"># 2</span></pre>
+
+  <h4>Stdlib decorators every dev should know</h4>
+  <table class="vs-table">
+    <thead><tr><th>Decorator</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>@functools.cache</code> / <code>@lru_cache</code></td><td>Memoization (pure functions only!)</td></tr>
+      <tr><td><code>@functools.wraps(fn)</code></td><td>Preserve metadata when writing decorators</td></tr>
+      <tr><td><code>@functools.cached_property</code></td><td>Compute once per instance, store in <code>__dict__</code></td></tr>
+      <tr><td><code>@functools.singledispatch</code></td><td>Dispatch on first arg type (poor-man's overload)</td></tr>
+      <tr><td><code>@property / @classmethod / @staticmethod</code></td><td>Built-in</td></tr>
+      <tr><td><code>@contextlib.contextmanager</code></td><td>Build CM from generator</td></tr>
+      <tr><td><code>@dataclasses.dataclass</code></td><td>Synth init/repr/eq</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When use a decorator vs a regular function call?</b><br>
+  Use a decorator when behavior must wrap <b>every call</b> of a function transparently (auth, timing, retry). For one-off "do X then call Y", just call directly.</div>
+  <div class="qa"><b class="q">Q: Why-not <code>@cache</code> on instance methods?</b><br>
+  It captures <code>self</code> in the cache key — preventing instance GC = memory leak. Use <code>@cached_property</code>, or move logic to module-level pure function.</div>
+  <div class="qa"><b class="q">Q: How do I stack multiple decorators?</b><br>
+  Bottom up: <code>@a / @b / def f</code> = <code>a(b(f))</code>. Order matters: e.g. <code>@cache @log</code> caches the log call (bad); <code>@log @cache</code> logs each cache hit/miss.</div>
+  <div class="qa"><b class="q">Q: Why <code>@functools.wraps</code>?</b><br>
+  Without it, <code>fn.__name__</code> becomes <code>"wrapper"</code>, breaks Sphinx docs, FastAPI route names, mocks, profilers. Always wrap your wrappers.</div>
+</details>
+
+<!-- ====== GENERATORS ====== -->
+<details class="topic" id="generators">
+  <summary>6. Generators &amp; iterators</summary>
+
+  <h4>Theory</h4>
+  <p>An <b>iterator</b> is any object with <code>__iter__</code> (returns self) and <code>__next__</code> (returns next item or raises <code>StopIteration</code>). A <b>generator function</b> uses <code>yield</code> — Python builds the iterator for you, with state preserved between calls. Generators are <b>lazy</b>: nothing runs until you ask for the next value.</p>
+
+  <h4>Hands-on</h4>
+<pre><span class="c"># Generator function</span>
+<span class="k">def</span> countdown(n):
+    <span class="k">while</span> n &gt; 0:
+        <span class="k">yield</span> n           <span class="c"># pauses, returns n; resumes here next call</span>
+        n -= 1
+
+<span class="k">for</span> x <span class="k">in</span> countdown(3): print(x)     <span class="c"># 3 2 1</span>
+
+<span class="c"># Generator expression — like list comp but parens, lazy</span>
+even_sq = (x*x <span class="k">for</span> x <span class="k">in</span> range(10**9) <span class="k">if</span> x%2==0)
+sum(even_sq)                            <span class="c"># streams, no huge list</span>
+
+<span class="c"># Pipeline: read big file lazily</span>
+<span class="k">def</span> lines(path):
+    <span class="k">with</span> open(path) <span class="k">as</span> f:
+        <span class="k">for</span> line <span class="k">in</span> f: <span class="k">yield</span> line.rstrip()
+<span class="k">def</span> errors(it):
+    <span class="k">for</span> ln <span class="k">in</span> it:
+        <span class="k">if</span> <span class="s">"ERROR"</span> <span class="k">in</span> ln: <span class="k">yield</span> ln
+n_err = sum(1 <span class="k">for</span> _ <span class="k">in</span> errors(lines(<span class="s">"app.log"</span>)))    <span class="c"># O(1) memory</span>
+
+<span class="c"># yield from — delegate to sub-generator</span>
+<span class="k">def</span> flatten(xs):
+    <span class="k">for</span> x <span class="k">in</span> xs:
+        <span class="k">if</span> isinstance(x, list): <span class="k">yield from</span> flatten(x)
+        <span class="k">else</span>: <span class="k">yield</span> x
+
+<span class="c"># Generator as coroutine — send/throw/close</span>
+<span class="k">def</span> averager():
+    total, count = 0, 0
+    <span class="k">while</span> <span class="k">True</span>:
+        x = <span class="k">yield</span> (total / count <span class="k">if</span> count <span class="k">else</span> 0)
+        total += x; count += 1
+g = averager(); next(g)
+print(g.send(10), g.send(20))            <span class="c"># 10.0  15.0</span></pre>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When use a generator vs a list?</b><br>
+  Generator when: data is <b>large/streamed</b>, you'll iterate <b>once</b>, or you want a <b>pipeline</b>. List when: you need <code>len()</code>, indexing, multiple passes, or random access.</div>
+  <div class="qa"><b class="q">Q: Why-not generators everywhere?</b><br>
+  They're <b>single-use</b> (exhausted after one iteration), can't be pickled easily, harder to debug, and you lose <code>len()</code>. If a list of 10K items is fine, just build the list.</div>
+  <div class="qa"><b class="q">Q: How does <code>yield from</code> differ from a <code>for + yield</code> loop?</b><br>
+  <code>yield from</code> also forwards <code>send()</code>, <code>throw()</code>, <code>close()</code>, and the sub-generator's <code>return</code> value (via <code>StopIteration.value</code>). It's the basis for old-style coroutines.</div>
+  <div class="qa"><b class="q">Q: How do I peek without consuming?</b><br>
+  Use <code>itertools.tee(it, 2)</code>, or wrap in a helper that buffers one item. Don't try to <code>next</code> + push back.</div>
+</details>
+
+<!-- ====== CONTEXT MANAGERS ====== -->
+<details class="topic" id="contextmgr">
+  <summary>7. Context managers (<code>with</code>)</summary>
+
+  <h4>Theory</h4>
+  <p>A context manager guarantees setup/teardown around a block — even on exceptions. Two protocols: class-based (<code>__enter__</code>/<code>__exit__</code>) or generator-based via <code>@contextmanager</code>.</p>
+
+  <h4>Hands-on</h4>
+<pre><span class="c"># Class-based</span>
+<span class="k">class</span> Timer:
+    <span class="k">def</span> __enter__(self):
+        <span class="k">import</span> time; self.t0 = time.perf_counter(); <span class="k">return</span> self
+    <span class="k">def</span> __exit__(self, exc_type, exc, tb):
+        <span class="k">import</span> time; self.elapsed = time.perf_counter() - self.t0
+        <span class="c"># return True to suppress exception, falsy to propagate</span>
+
+<span class="k">with</span> Timer() <span class="k">as</span> t:
+    do_work()
+print(t.elapsed)
+
+<span class="c"># Generator-based — usually simpler</span>
+<span class="k">from</span> contextlib <span class="k">import</span> contextmanager
+
+@contextmanager
+<span class="k">def</span> tempenv(**kw):
+    <span class="k">import</span> os
+    old = {k: os.environ.get(k) <span class="k">for</span> k <span class="k">in</span> kw}
+    os.environ.update({k: str(v) <span class="k">for</span> k, v <span class="k">in</span> kw.items()})
+    <span class="k">try</span>:
+        <span class="k">yield</span>
+    <span class="k">finally</span>:
+        <span class="k">for</span> k, v <span class="k">in</span> old.items():
+            <span class="k">if</span> v <span class="k">is</span> <span class="k">None</span>: os.environ.pop(k, <span class="k">None</span>)
+            <span class="k">else</span>: os.environ[k] = v
+
+<span class="k">with</span> tempenv(DEBUG=<span class="s">"1"</span>):
+    run_tests()
+
+<span class="c"># Multiple resources — chain them</span>
+<span class="k">from</span> contextlib <span class="k">import</span> ExitStack
+<span class="k">with</span> ExitStack() <span class="k">as</span> stack:
+    files = [stack.enter_context(open(p)) <span class="k">for</span> p <span class="k">in</span> paths]
+    process(files)         <span class="c"># all closed even if any fail</span></pre>
+
+  <h4>Stdlib goodies</h4>
+  <ul>
+    <li><code>contextlib.suppress(OSError)</code> — silence specific exceptions cleanly.</li>
+    <li><code>contextlib.closing(obj)</code> — ensures <code>obj.close()</code> for non-CM objects.</li>
+    <li><code>contextlib.nullcontext()</code> — no-op CM, useful as default param.</li>
+    <li><code>contextlib.asynccontextmanager</code> — async version (FastAPI lifespan).</li>
+  </ul>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When write a CM vs try/finally?</b><br>
+  CM when the setup/teardown is <b>reusable</b> across many call-sites. One-off cleanup → just use <code>try/finally</code>.</div>
+  <div class="qa"><b class="q">Q: Why return a non-self value from <code>__enter__</code>?</b><br>
+  <code>with X() as y</code> binds <code>y</code> to whatever <code>__enter__</code> returns. <code>open()</code> returns the file; a DB connection might return a cursor. Choose the most useful object.</div>
+  <div class="qa"><b class="q">Q: Why-not swallow exceptions in <code>__exit__</code> by default?</b><br>
+  Returning truthy from <code>__exit__</code> hides errors silently — terrible debugging. Only do it deliberately (e.g. <code>suppress</code>).</div>
+</details>
+
+<!-- ====== TYPING ====== -->
+<details class="topic" id="typing">
+  <summary>8. Type hints &amp; the <code>typing</code> module</summary>
+
+  <h4>Theory</h4>
+  <p>Type hints (PEP 484) are <b>not</b> enforced at runtime — they're metadata for static checkers (<b>mypy</b>, <b>pyright</b>), IDEs, and Pydantic. Modern Python (3.10+) lets you write <code>list[int]</code> and <code>X | None</code> directly without importing.</p>
+
+  <h4>Hands-on</h4>
+<pre><span class="k">from</span> typing <span class="k">import</span> Protocol, Iterable, Callable, TypeVar, ParamSpec, Literal, Final, Annotated, NewType
+
+<span class="c"># Modern (3.10+) — no need to import List/Dict/Optional</span>
+<span class="k">def</span> top(items: list[int], k: int = 5) -&gt; list[int]:
+    <span class="k">return</span> sorted(items, reverse=<span class="k">True</span>)[:k]
+
+UserId = NewType(<span class="s">"UserId"</span>, int)             <span class="c"># distinct from raw int at type level</span>
+<span class="k">def</span> get(uid: UserId) -&gt; <span class="s">"User"</span>: ...
+
+<span class="c"># Generics</span>
+T = TypeVar(<span class="s">"T"</span>)
+<span class="k">def</span> first(xs: Iterable[T]) -&gt; T | <span class="k">None</span>:
+    <span class="k">for</span> x <span class="k">in</span> xs: <span class="k">return</span> x
+    <span class="k">return</span> <span class="k">None</span>
+
+<span class="c"># Structural typing — duck typing checked statically</span>
+<span class="k">class</span> SupportsClose(Protocol):
+    <span class="k">def</span> close(self) -&gt; <span class="k">None</span>: ...
+
+<span class="k">def</span> shut(x: SupportsClose) -&gt; <span class="k">None</span>: x.close()
+
+<span class="c"># Literal types — exhaustive switching</span>
+Mode = Literal[<span class="s">"r"</span>, <span class="s">"w"</span>, <span class="s">"a"</span>]
+<span class="k">def</span> open_log(mode: Mode): ...
+
+<span class="c"># Annotated for metadata (Pydantic / FastAPI use this heavily)</span>
+Age = Annotated[int, <span class="s">"0..150"</span>]
+
+<span class="c"># Decorators that preserve sig (3.10+)</span>
+P = ParamSpec(<span class="s">"P"</span>); R = TypeVar(<span class="s">"R"</span>)
+<span class="k">def</span> log(fn: Callable[P, R]) -&gt; Callable[P, R]:
+    <span class="k">def</span> wrap(*a: P.args, **kw: P.kwargs) -&gt; R:
+        <span class="k">return</span> fn(*a, **kw)
+    <span class="k">return</span> wrap</pre>
+
+  <h4>Tooling — <code>mypy --strict</code></h4>
+  <pre>pip install mypy
+mypy --strict src/
+<span class="c"># Catches: missing return type, untyped def, no implicit Optional, ...</span></pre>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When add type hints?</b><br>
+  Always on <b>public APIs</b> (function signatures, dataclass fields, module-level constants). Internal local variables only when inference fails or for clarity.</div>
+  <div class="qa"><b class="q">Q: Why-not <code>Any</code> everywhere?</b><br>
+  <code>Any</code> turns off checking at that point — viral. Prefer <code>object</code> (no operations allowed without narrowing) or a real <code>Protocol</code>.</div>
+  <div class="qa"><b class="q">Q: When use <code>Protocol</code> vs <code>ABC</code>?</b><br>
+  <code>Protocol</code> = structural ("has these methods"), <b>no inheritance needed</b> — best for cross-cutting interfaces (e.g. anything with <code>close()</code>). <code>ABC</code> = nominal, must subclass; gives runtime <code>isinstance</code> checks.</div>
+  <div class="qa"><b class="q">Q: How do I check at runtime?</b><br>
+  Hints aren't enforced. For runtime validation use <b>Pydantic</b>, <b>typeguard</b>, or <code>beartype</code>.</div>
+</details>
+
+<!-- ====== DESCRIPTORS / SLOTS ====== -->
+<details class="topic" id="descriptors">
+  <summary>9. Descriptors &amp; <code>__slots__</code></summary>
+
+  <h4>Theory</h4>
+  <p>A <b>descriptor</b> is any object defining <code>__get__</code>, <code>__set__</code>, or <code>__delete__</code>. They power <code>property</code>, <code>classmethod</code>, <code>staticmethod</code>, and ORM fields. <b>__slots__</b> tells Python "instances will only have these attributes" → drops the per-instance <code>__dict__</code>, saving ~40-50% memory and speeding attribute access.</p>
+
+  <h4>Hands-on — validated descriptor</h4>
+<pre><span class="k">class</span> Positive:
+    <span class="k">def</span> __set_name__(self, owner, name):    <span class="c"># 3.6+ auto-binds attr name</span>
+        self.name = <span class="s">"_"</span> + name
+    <span class="k">def</span> __get__(self, obj, objtype=<span class="k">None</span>):
+        <span class="k">return</span> getattr(obj, self.name)
+    <span class="k">def</span> __set__(self, obj, value):
+        <span class="k">if</span> value &lt;= 0: <span class="k">raise</span> ValueError(f<span class="s">"{self.name} must be &gt; 0"</span>)
+        setattr(obj, self.name, value)
+
+<span class="k">class</span> Order:
+    qty   = Positive()
+    price = Positive()
+    <span class="k">def</span> __init__(self, qty, price): self.qty, self.price = qty, price
+
+Order(2, 9.99)              <span class="c"># ok</span>
+<span class="c"># Order(0, 5)               # ValueError</span></pre>
+
+  <h4>__slots__</h4>
+<pre><span class="k">class</span> Point:
+    __slots__ = (<span class="s">"x"</span>, <span class="s">"y"</span>)
+    <span class="k">def</span> __init__(self, x, y): self.x, self.y = x, y
+
+p = Point(1, 2)
+<span class="c"># p.z = 3   # AttributeError ⭐</span>
+<span class="c"># sys.getsizeof(p) is ~50% smaller than dict-based</span></pre>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When write a custom descriptor?</b><br>
+  When the same validation/computation must apply to many attributes across classes (ORM fields, units of measure, range-checked values). Otherwise <code>@property</code> is enough.</div>
+  <div class="qa"><b class="q">Q: When use <code>__slots__</code>?</b><br>
+  When you create <b>millions</b> of small instances (game entities, parsed records, geometric points). Skip in normal app code — adds friction.</div>
+  <div class="qa"><b class="q">Q: Why-not <code>__slots__</code>?</b><br>
+  Breaks dynamic attr addition, <code>__dict__</code>-based introspection, multiple inheritance with non-slot bases, and <code>weakref</code> unless <code>"__weakref__"</code> in slots. Profile before adopting.</div>
+</details>
+
+<!-- ====== METACLASSES ====== -->
+<details class="topic" id="metaclasses">
+  <summary>10. Metaclasses</summary>
+
+  <h4>Theory</h4>
+  <p>Classes are instances of <b>metaclasses</b>. Default = <code>type</code>. A metaclass customizes <b>class creation</b> — registering subclasses, enforcing structure, generating attrs (Django Models, SQLAlchemy declarative). 99% of code never needs them; modern alternatives (<code>__init_subclass__</code>, <code>__set_name__</code>, decorators) cover most cases more simply.</p>
+
+  <h4>Hands-on</h4>
+<pre><span class="c"># Plugin auto-registry — modern way (no metaclass)</span>
+<span class="k">class</span> Plugin:
+    registry = {}
+    <span class="k">def</span> __init_subclass__(cls, **kw):           <span class="c"># 3.6+ ⭐ replaces most metaclass uses</span>
+        super().__init_subclass__(**kw)
+        Plugin.registry[cls.__name__] = cls
+
+<span class="k">class</span> CSVPlugin(Plugin): ...
+<span class="k">class</span> JSONPlugin(Plugin): ...
+print(Plugin.registry)                          <span class="c"># {'CSVPlugin': ..., 'JSONPlugin': ...}</span>
+
+<span class="c"># If you really need a metaclass:</span>
+<span class="k">class</span> Singleton(type):
+    _instances = {}
+    <span class="k">def</span> __call__(cls, *a, **kw):
+        <span class="k">if</span> cls <span class="k">not</span> <span class="k">in</span> cls._instances:
+            cls._instances[cls] = super().__call__(*a, **kw)
+        <span class="k">return</span> cls._instances[cls]
+
+<span class="k">class</span> Config(metaclass=Singleton):
+    <span class="k">def</span> __init__(self): self.values = {}
+Config() <span class="k">is</span> Config()                          <span class="c"># True</span></pre>
+
+  <h4>Q&amp;A</h4>
+  <div class="qa"><b class="q">Q: When use a metaclass?</b><br>
+  Building a framework where users declaratively define classes that need transformation (Django ORM, SQLAlchemy, Pydantic v1, ABC). Application code: almost never.</div>
+  <div class="qa"><b class="q">Q: Why-not metaclass for plugin registry?</b><br>
+  <code>__init_subclass__</code> covers it with way less complexity. Reserve metaclasses for actually changing the class object's <i>structure</i>.</div>
+  <div class="qa"><b class="q">Q: How do <code>__init_subclass__</code>, <code>__set_name__</code>, decorators, and metaclasses compare?</b><br>
+  <table class="vs-table">
+    <thead><tr><th>Tool</th><th>Hooks into</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td>Class decorator</td><td>Class object after creation</td><td>Synth methods (dataclass), register</td></tr>
+      <tr><td><code>__init_subclass__</code></td><td>Subclass creation</td><td>Auto-registry, validation</td></tr>
+      <tr><td><code>__set_name__</code></td><td>Descriptor named binding</td><td>Self-aware descriptors</td></tr>
+      <tr><td>Metaclass</td><td>Class creation itself</td><td>Restructure namespace, framework magic</td></tr>
+    </tbody>
+  </table>
+  </div>
+</details>

@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 6: Scalable UI Architecture</title>
+  <style>
+    :root { --bg: #ffffff; --panel: #f7f9fc; --panel-2: #f1f4fa; --ink: #1a2233; --muted: #5a6678; --line: #e2e7f0; --accent: #0f9d7a; --accent-2: #2a5bd7; --warn: #b26b00; --danger: #c23046; --critical: #7a1d2c; --ok: #1a8f4d; --code-bg: #f5f7fb; --chip: #eef1f8; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; } strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); } .chip.intermediate { background: #fdf1dc; color: var(--warn); } .chip.advanced { background: #fbe1e5; color: var(--danger); } .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; } .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; } .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; } .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); } .callout.tip .tag { color: var(--accent); } .callout.warn .tag { color: var(--warn); } .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; } .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; } .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 6 of 8 — Scalable UI</small></div>
+  <h2>This Phase</h2>
+  <a href="#design-systems">Design Systems</a>
+  <a href="#component-api">Component API Design</a>
+  <a href="#theming">Theming & CSS Architecture</a>
+  <a href="#responsive">Responsive Design at Scale</a>
+  <a href="#i18n">Internationalization (i18n)</a>
+  <a href="#a11y">Accessibility (WCAG)</a>
+  <a href="#angular-cdk">Angular CDK Patterns</a>
+  <a href="#web-components">Web Components & Shadow DOM</a>
+  <a href="#observers">Intersection & Resize Observer</a>
+  <a href="#error-handling-ui">Error Handling UI Patterns</a>
+  <a href="#loading-states">Loading & Skeleton States</a>
+  <a href="#exercises">Hands-On Exercises</a>
+  <a href="#interview-questions">Interview Questions</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html">① Fundamentals</a>
+  <a href="phase2-networking-communication.html">② Networking</a>
+  <a href="phase3-performance-optimization.html">③ Performance</a>
+  <a href="phase4-state-management-data.html">④ State & Data</a>
+  <a href="phase5-security-auth.html">⑤ Security</a>
+  <a href="phase6-scalable-ui-architecture.html"><strong>⑥ Scalable UI</strong></a>
+  <a href="phase7-observability-testing.html">⑦ Observability</a>
+  <a href="phase8-real-world-design-problems.html">⑧ Design Problems</a>
+</aside>
+
+<main>
+<h1>Phase 6: Scalable UI Architecture</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">Building UI that scales across teams, features, and users. Design systems, accessibility, internationalization, theming — architecture decisions that matter at enterprise scale.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="design-systems">1. Design Systems</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: What is a Design System?</h3>
+<p>A <strong>Design System</strong> is a collection of reusable components, design tokens, guidelines, and patterns that ensure visual/behavioral consistency across an entire product suite.</p>
+
+<pre><code>// ═══ DESIGN SYSTEM LAYERS ═══
+┌─────────────────────────────────────────────────────────────┐
+│  PRINCIPLES & GUIDELINES (Design philosophy, tone, voice)   │
+├─────────────────────────────────────────────────────────────┤
+│  DESIGN TOKENS (Colors, spacing, typography, shadows)       │
+│  → CSS variables, JSON config consumed by all components    │
+├─────────────────────────────────────────────────────────────┤
+│  FOUNDATION (Grid, layout, breakpoints, iconography)        │
+├─────────────────────────────────────────────────────────────┤
+│  ATOMS (Button, Input, Badge, Chip, Avatar)                 │
+├─────────────────────────────────────────────────────────────┤
+│  MOLECULES (Search bar, Card, Form field, Nav item)         │
+├─────────────────────────────────────────────────────────────┤
+│  ORGANISMS (Header, Sidebar, Data table, Modal)             │
+├─────────────────────────────────────────────────────────────┤
+│  TEMPLATES (Page layouts, Dashboard grid, Form page)        │
+├─────────────────────────────────────────────────────────────┤
+│  PAGES (Actual app screens using all above)                 │
+└─────────────────────────────────────────────────────────────┘
+
+// ═══ DESIGN TOKENS (Single source of truth for design values) ═══
+// tokens.json (platform-agnostic):
+{
+  "color": {
+    "primary": { "50": "#e8f5e9", "500": "#4caf50", "900": "#1b5e20" },
+    "neutral": { "100": "#f5f5f5", "500": "#9e9e9e", "900": "#212121" },
+    "semantic": {
+      "success": "#2e7d32",
+      "warning": "#ed6c02",
+      "error": "#d32f2f",
+      "info": "#0288d1"
+    }
+  },
+  "spacing": { "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "32px" },
+  "radius": { "sm": "4px", "md": "8px", "lg": "16px", "full": "9999px" },
+  "typography": {
+    "heading-1": { "fontSize": "32px", "lineHeight": "40px", "fontWeight": "700" },
+    "body": { "fontSize": "14px", "lineHeight": "22px", "fontWeight": "400" }
+  },
+  "shadow": {
+    "sm": "0 1px 2px rgba(0,0,0,0.05)",
+    "md": "0 4px 6px rgba(0,0,0,0.1)",
+    "lg": "0 10px 15px rgba(0,0,0,0.1)"
+  }
+}
+
+// Consumed as CSS custom properties:
+:root {
+  --color-primary-500: #4caf50;
+  --spacing-md: 16px;
+  --radius-md: 8px;
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+}</code></pre>
+
+<h3>Angular Component Library Structure</h3>
+<pre><code>// Nx monorepo structure for shared component library:
+libs/
+  ui/                          // Shared UI library
+    src/
+      lib/
+        button/
+          button.component.ts
+          button.component.html
+          button.component.scss
+          button.component.spec.ts
+          button.stories.ts     // Storybook
+        input/
+        modal/
+        data-table/
+      tokens/
+        _variables.scss
+        tokens.ts
+      index.ts                  // Public API (barrel file)
+  
+  // Usage in apps:
+  import { ButtonComponent } from '@myorg/ui';
+
+// ═══ COMPONENT VARIANTS (Scalable API) ═══
+@Component({
+  selector: 'ui-button',
+  standalone: true,
+  template: `
+    &lt;button
+      [class]="'btn btn--' + variant() + ' btn--' + size()"
+      [disabled]="disabled() || loading()"
+      [attr.aria-busy]="loading()"
+    &gt;
+      @if (loading()) { &lt;ui-spinner size="sm" /&gt; }
+      &lt;ng-content /&gt;
+    &lt;/button&gt;
+  `
+})
+export class ButtonComponent {
+  variant = input&lt;'primary' | 'secondary' | 'ghost' | 'danger'&gt;('primary');
+  size = input&lt;'sm' | 'md' | 'lg'&gt;('md');
+  disabled = input(false);
+  loading = input(false);
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=Dtd40cHQQlk" target="_blank">Design Systems — Fireship</a><div class="meta">Building a design system</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=BySFuXgG-ow" target="_blank">Storybook Tutorial — Chromatic</a><div class="meta">Component documentation</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="component-api">2. Component API Design</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ PRINCIPLES OF GOOD COMPONENT APIs ═══
+
+// 1. SINGLE RESPONSIBILITY: One component = one job
+// BAD: &lt;user-profile-card-with-edit-modal /&gt;
+// GOOD: &lt;user-card /&gt; + &lt;edit-profile-modal /&gt;
+
+// 2. CLEAR INPUTS/OUTPUTS:
+@Component({ selector: 'ui-select' })
+export class SelectComponent&lt;T&gt; {
+  // Inputs: what parent provides
+  options = input.required&lt;SelectOption&lt;T&gt;[]&gt;();
+  value = input&lt;T | null&gt;(null);
+  placeholder = input('Select...');
+  disabled = input(false);
+  searchable = input(false);
+  multiple = input(false);
+  
+  // Outputs: what parent listens to
+  valueChange = output&lt;T&gt;();
+  searchChange = output&lt;string&gt;();
+  opened = output&lt;void&gt;();
+  closed = output&lt;void&gt;();
+}
+
+// 3. CONTENT PROJECTION for flexibility:
+@Component({
+  selector: 'ui-card',
+  template: `
+    &lt;div class="card"&gt;
+      &lt;div class="card-header"&gt;
+        &lt;ng-content select="[card-title]" /&gt;
+        &lt;ng-content select="[card-actions]" /&gt;
+      &lt;/div&gt;
+      &lt;div class="card-body"&gt;
+        &lt;ng-content /&gt;
+      &lt;/div&gt;
+      &lt;div class="card-footer"&gt;
+        &lt;ng-content select="[card-footer]" /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  `
+})
+export class CardComponent {}
+
+// Usage:
+&lt;ui-card&gt;
+  &lt;h3 card-title&gt;Order #123&lt;/h3&gt;
+  &lt;button card-actions&gt;Edit&lt;/button&gt;
+  &lt;p&gt;Card body content here...&lt;/p&gt;
+  &lt;span card-footer&gt;Last updated: 5m ago&lt;/span&gt;
+&lt;/ui-card&gt;
+
+// 4. SMART vs DUMB COMPONENTS:
+// DUMB (Presentational): Only @Input/@Output, no services, reusable
+// SMART (Container): Injects services, manages state, orchestrates
+
+// DUMB:
+@Component({ selector: 'product-card' })
+export class ProductCardComponent {
+  product = input.required&lt;Product&gt;();
+  addToCart = output&lt;string&gt;();  // Emits product ID
+}
+
+// SMART:
+@Component({ template: `
+  @for (p of products(); track p.id) {
+    &lt;product-card [product]="p" (addToCart)="onAddToCart($event)" /&gt;
+  }
+`})
+export class ProductListComponent {
+  private store = inject(ProductStore);
+  products = this.store.filteredProducts;
+  onAddToCart(id: string) { this.store.addToCart(id); }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=vPRdY87_SH0" target="_blank">Component API Design — Jack Herrington</a><div class="meta">Props, slots, composition</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=LFxOGKbv_Qo" target="_blank">Angular Component Patterns — Decoded Frontend</a><div class="meta">Smart vs presentational</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="theming">3. Theming &amp; CSS Architecture</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ CSS CUSTOM PROPERTIES FOR THEMING ═══
+// Define themes at :root level:
+:root {
+  --bg: #ffffff;
+  --surface: #f7f9fc;
+  --text-primary: #1a2233;
+  --text-secondary: #5a6678;
+  --border: #e2e7f0;
+  --accent: #2a5bd7;
+}
+
+[data-theme="dark"] {
+  --bg: #0f1419;
+  --surface: #1c2430;
+  --text-primary: #e7e9ea;
+  --text-secondary: #8b98a5;
+  --border: #2f3336;
+  --accent: #4a9eff;
+}
+
+// ═══ ANGULAR THEME SERVICE ═══
+@Injectable({ providedIn: 'root' })
+export class ThemeService {
+  private theme = signal&lt;'light' | 'dark'&gt;(
+    (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+  );
+  
+  readonly currentTheme = this.theme.asReadonly();
+  
+  constructor() {
+    // Apply on init:
+    effect(() => {
+      document.documentElement.setAttribute('data-theme', this.theme());
+      localStorage.setItem('theme', this.theme());
+    });
+    
+    // Respect system preference:
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    if (!localStorage.getItem('theme') && prefersDark.matches) {
+      this.theme.set('dark');
+    }
+  }
+  
+  toggle() { this.theme.update(t => t === 'light' ? 'dark' : 'light'); }
+}
+
+// ═══ CSS ARCHITECTURE APPROACHES ═══
+// 1. BEM (Block-Element-Modifier):
+.card {}             // Block
+.card__title {}      // Element
+.card--featured {}   // Modifier
+
+// 2. Angular ViewEncapsulation (default: Emulated):
+@Component({
+  encapsulation: ViewEncapsulation.Emulated  // Scoped styles (default)
+  // Emulated: Angular adds _ngcontent attributes for scoping
+  // None: Global styles (use sparingly — resets, utilities)
+  // ShadowDom: True shadow DOM (strictest isolation)
+})
+
+// 3. CSS Layers (Modern — ordering specificity):
+@layer base, components, utilities;
+@layer base { body { margin: 0; } }
+@layer components { .btn { padding: 8px 16px; } }
+@layer utilities { .mt-4 { margin-top: 16px; } }
+// Utilities always win (last layer), regardless of selector specificity!</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=5y3FxJMRmJQ" target="_blank">CSS Variables Theming — Kevin Powell</a><div class="meta">Dark mode with custom properties</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=CQuTF-bkOgc" target="_blank">CSS Architecture at Scale — Theo</a><div class="meta">BEM vs CSS-in-JS vs Tailwind</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="responsive">4. Responsive Design at Scale</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ MODERN RESPONSIVE TECHNIQUES ═══
+
+// 1. CONTAINER QUERIES (Component-level responsiveness):
+// Respond to PARENT container size, not viewport!
+.card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+@container card (min-width: 400px) {
+  .card { display: grid; grid-template-columns: 200px 1fr; }
+}
+@container card (max-width: 399px) {
+  .card { display: block; }
+}
+// Same component adapts based on WHERE it's placed, not screen size!
+
+// 2. FLUID TYPOGRAPHY (no breakpoints needed):
+h1 { font-size: clamp(1.5rem, 4vw, 3rem); }
+// Minimum: 1.5rem, Scales: 4vw, Maximum: 3rem
+
+// 3. RESPONSIVE GRID (auto-fit):
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+// Automatically adjusts columns based on available space!
+
+// 4. LOGICAL PROPERTIES (RTL support built-in):
+.element {
+  margin-inline-start: 16px;  // margin-left in LTR, margin-right in RTL
+  padding-block: 8px;         // padding-top + padding-bottom
+  border-inline-end: 1px solid var(--border);
+}
+
+// ═══ BREAKPOINT SERVICE (Angular) ═══
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+
+@Injectable({ providedIn: 'root' })
+export class LayoutService {
+  private breakpoints = inject(BreakpointObserver);
+  
+  isMobile$ = this.breakpoints.observe([Breakpoints.Handset])
+    .pipe(map(result => result.matches));
+  
+  isTablet$ = this.breakpoints.observe([Breakpoints.Tablet])
+    .pipe(map(result => result.matches));
+    
+  isDesktop$ = this.breakpoints.observe([Breakpoints.Web])
+    .pipe(map(result => result.matches));
+  
+  // Custom breakpoints:
+  columns$ = this.breakpoints.observe([
+    '(min-width: 1200px)',
+    '(min-width: 768px)',
+  ]).pipe(
+    map(result => {
+      if (result.breakpoints['(min-width: 1200px)']) return 3;
+      if (result.breakpoints['(min-width: 768px)']) return 2;
+      return 1;
+    })
+  );
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=0ohtVzCSHqs" target="_blank">Responsive Design — Kevin Powell</a><div class="meta">Modern responsive techniques</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=2rlWBZ17Wes" target="_blank">Container Queries — Kevin Powell</a><div class="meta">Component-level responsiveness</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="i18n">5. Internationalization (i18n)</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// ═══ ANGULAR i18n (Built-in — Compile-time) ═══
+// Mark text for translation:
+&lt;h1 i18n="page title|Main heading for products page"&gt;Our Products&lt;/h1&gt;
+&lt;p i18n="@@product-count"&gt;{{ count }} items found&lt;/p&gt;
+
+// Pluralization:
+&lt;span i18n&gt;
+  {count, plural,
+    =0 {No items}
+    =1 {1 item}
+    other {{{count}} items}
+  }
+&lt;/span&gt;
+
+// Extract translations:
+ng extract-i18n --output-path src/locale
+
+// Generates messages.xlf → translate → build per locale:
+// angular.json:
+"i18n": {
+  "sourceLocale": "en-US",
+  "locales": {
+    "hi": "src/locale/messages.hi.xlf",
+    "ta": "src/locale/messages.ta.xlf"
+  }
+}
+// Separate builds: ng build --localize (generates /en/, /hi/, /ta/ bundles)
+
+// ═══ RUNTIME i18n (Transloco — more flexible) ═══
+// Install: npm install @jsverse/transloco
+// Translation files:
+// assets/i18n/en.json: { "hello": "Hello, {{name}}!", "products.count": "{{count}} products" }
+// assets/i18n/hi.json: { "hello": "नमस्ते, {{name}}!", "products.count": "{{count}} उत्पाद" }
+
+// Usage:
+@Component({
+  template: `
+    &lt;h1&gt;{{ 'hello' | transloco: { name: userName } }}&lt;/h1&gt;
+    &lt;p&gt;{{ 'products.count' | transloco: { count: total } }}&lt;/p&gt;
+    
+    &lt;!-- Or structural directive: --&gt;
+    &lt;ng-container *transloco="let t"&gt;
+      &lt;h1&gt;{{ t('hello', { name: userName }) }}&lt;/h1&gt;
+    &lt;/ng-container&gt;
+  `
+})
+
+// ═══ RTL SUPPORT ═══
+// Angular + dir attribute:
+&lt;html [dir]="isRtl ? 'rtl' : 'ltr'" [lang]="currentLang"&gt;
+// Use CSS logical properties (margin-inline-start instead of margin-left)
+// Mirrors layout automatically for Arabic, Hebrew, Urdu</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=KNGH-V6RkEM" target="_blank">Angular i18n — Joshua Morony</a><div class="meta">Internationalization in Angular</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=SA_9i4TtxLo" target="_blank">i18n Best Practices — Locize</a><div class="meta">Translation workflows</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="a11y">6. Accessibility (WCAG 2.1)</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: WCAG Principles (POUR)</h3>
+<table>
+  <tr><th>Principle</th><th>Meaning</th><th>Examples</th></tr>
+  <tr><td><strong>Perceivable</strong></td><td>Users can perceive content</td><td>Alt text, captions, sufficient contrast</td></tr>
+  <tr><td><strong>Operable</strong></td><td>UI is navigable/usable</td><td>Keyboard access, focus management, no seizure triggers</td></tr>
+  <tr><td><strong>Understandable</strong></td><td>Content & UI are clear</td><td>Error messages, consistent navigation, predictable behavior</td></tr>
+  <tr><td><strong>Robust</strong></td><td>Works across technologies</td><td>Valid HTML, ARIA when needed, works with screen readers</td></tr>
+</table>
+
+<pre><code>// ═══ KEY ACCESSIBILITY PATTERNS ═══
+
+// 1. SEMANTIC HTML (First line of defense):
+// BAD:
+&lt;div class="button" onclick="submit()"&gt;Submit&lt;/div&gt;
+// GOOD:
+&lt;button type="submit"&gt;Submit&lt;/button&gt;
+// Button gives you: keyboard (Enter/Space), focus, role, disabled state FREE!
+
+// 2. ARIA ATTRIBUTES (When semantic HTML isn't enough):
+// Live regions (dynamic updates announced by screen reader):
+&lt;div aria-live="polite" aria-atomic="true"&gt;
+  {{ statusMessage }}  &lt;!-- Screen reader announces changes --&gt;
+&lt;/div&gt;
+
+// Custom components:
+&lt;div role="tablist"&gt;
+  &lt;button role="tab" [attr.aria-selected]="activeTab === 0"
+          [attr.aria-controls]="'panel-0'" (click)="selectTab(0)"&gt;
+    Tab 1
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;div role="tabpanel" id="panel-0" [attr.aria-labelledby]="'tab-0'"&gt;
+  Content for Tab 1
+&lt;/div&gt;
+
+// 3. FOCUS MANAGEMENT:
+// After modal opens → focus first focusable element
+// After modal closes → return focus to trigger
+// Skip links:
+&lt;a href="#main-content" class="skip-link"&gt;Skip to main content&lt;/a&gt;
+
+// Angular CDK Focus Trap (for modals/dialogs):
+import { A11yModule } from '@angular/cdk/a11y';
+
+&lt;div cdkTrapFocus [cdkTrapFocusAutoCapture]="true"&gt;
+  &lt;!-- Focus is trapped inside this element --&gt;
+  &lt;input placeholder="Search..." /&gt;
+  &lt;button&gt;Close&lt;/button&gt;
+&lt;/div&gt;
+
+// 4. KEYBOARD NAVIGATION:
+@HostListener('keydown', ['$event'])
+onKeyDown(event: KeyboardEvent) {
+  switch (event.key) {
+    case 'ArrowDown': this.focusNext(); event.preventDefault(); break;
+    case 'ArrowUp': this.focusPrev(); event.preventDefault(); break;
+    case 'Enter':
+    case ' ': this.select(); event.preventDefault(); break;
+    case 'Escape': this.close(); break;
+  }
+}
+
+// 5. COLOR CONTRAST:
+// WCAG AA: 4.5:1 for normal text, 3:1 for large text
+// WCAG AAA: 7:1 for normal text
+// Tool: Chrome DevTools → Accessibility pane → Contrast ratio
+
+// 6. ANGULAR CDK LiveAnnouncer:
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+
+constructor(private announcer: LiveAnnouncer) {}
+
+onItemDeleted() {
+  this.announcer.announce('Item deleted successfully', 'polite');
+  // Screen reader speaks this message!
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=HtTyRajRuyY" target="_blank">Web Accessibility — Google Chrome</a><div class="meta">A11y fundamentals</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=g9Qff0b-lHk" target="_blank">ARIA Deep Dive — Rob Dodson</a><div class="meta">Roles, states, properties</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="angular-cdk">7. Angular CDK Patterns</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// Angular CDK = Unstyled behavior primitives (build your own UI library)
+// No Material styles — just the LOGIC for complex UI patterns
+
+// ═══ OVERLAY (Modals, Tooltips, Dropdowns) ═══
+import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+
+@Injectable()
+export class ModalService {
+  constructor(private overlay: Overlay) {}
+  
+  open&lt;T&gt;(component: Type&lt;T&gt;, config?: Partial&lt;OverlayConfig&gt;) {
+    const overlayRef = this.overlay.create({
+      hasBackdrop: true,
+      positionStrategy: this.overlay.position()
+        .global().centerHorizontally().centerVertically(),
+      ...config
+    });
+    
+    const portal = new ComponentPortal(component);
+    const componentRef = overlayRef.attach(portal);
+    
+    // Close on backdrop click:
+    overlayRef.backdropClick().subscribe(() => overlayRef.dispose());
+    
+    return { overlayRef, componentRef };
+  }
+}
+
+// ═══ DRAG & DROP ═══
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+
+&lt;div cdkDropList (cdkDropListDropped)="drop($event)"&gt;
+  @for (item of items; track item.id) {
+    &lt;div cdkDrag&gt;{{ item.name }}&lt;/div&gt;
+  }
+&lt;/div&gt;
+
+drop(event: CdkDragDrop&lt;string[]&gt;) {
+  moveItemInArray(this.items, event.previousIndex, event.currentIndex);
+}
+
+// ═══ CLIPBOARD ═══
+import { Clipboard } from '@angular/cdk/clipboard';
+
+constructor(private clipboard: Clipboard) {}
+copyCode(text: string) {
+  this.clipboard.copy(text);
+  this.announcer.announce('Copied to clipboard');
+}</code></pre>
+
+constructor(private clipboard: Clipboard) {}
+copyCode(text: string) {
+  this.clipboard.copy(text);
+  this.announcer.announce('Copied to clipboard');
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=2q9PiIgrHko" target="_blank">Angular CDK — Angular</a><div class="meta">CDK components walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=wdDGPY0cJmI" target="_blank">Overlay & Portal — Decoded Frontend</a><div class="meta">CDK overlay tutorial</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="web-components">8. Web Components &amp; Shadow DOM</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: What are Web Components?</h3>
+<p>Web Components are browser-native APIs for creating reusable, encapsulated custom elements. They work in ANY framework (Angular, React, Vue, vanilla JS) — making them ideal for <strong>cross-team shared components</strong>.</p>
+
+<pre><code>// ═══ WEB COMPONENTS = 3 Specifications ═══
+//
+// 1. CUSTOM ELEMENTS — Define your own HTML tags
+// 2. SHADOW DOM — Encapsulated styles + DOM (can't leak in or out)
+// 3. HTML TEMPLATES — &lt;template&gt; + &lt;slot&gt; for composability
+//
+// ═══ Creating a Custom Element ═══
+class MyButton extends HTMLElement {
+  constructor() {
+    super();
+    // Attach Shadow DOM (encapsulated!)
+    const shadow = this.attachShadow({ mode: 'open' });
+    
+    shadow.innerHTML = `
+      &lt;style&gt;
+        /* These styles CANNOT leak outside this component */
+        /* External styles CANNOT affect this component */
+        button {
+          background: var(--btn-bg, #0f9d7a);  /* CSS vars CAN penetrate! */
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+        button:hover { opacity: 0.9; }
+      &lt;/style&gt;
+      &lt;button&gt;
+        &lt;slot&gt;Default text&lt;/slot&gt;  &lt;!-- Content projection --&gt;
+      &lt;/button&gt;
+    `;
+  }
+
+  // Lifecycle callbacks (like Angular's lifecycle hooks):
+  connectedCallback() { /* mounted to DOM */ }
+  disconnectedCallback() { /* removed from DOM */ }
+  attributeChangedCallback(name, old, val) { /* attribute updated */ }
+  
+  static get observedAttributes() { return ['disabled', 'variant']; }
+}
+
+// Register the custom element:
+customElements.define('my-button', MyButton);
+// Usage: &lt;my-button variant="primary"&gt;Click me&lt;/my-button&gt;</code></pre>
+
+<h3>Shadow DOM: Encapsulation Benefits &amp; Gotchas</h3>
+<pre><code>// ═══ SHADOW DOM ENCAPSULATION ═══
+//
+// BENEFITS:
+// ✅ Styles don't leak OUT (your component doesn't break page CSS)
+// ✅ Styles don't leak IN (page CSS doesn't break your component)
+// ✅ DOM is hidden (querySelector from outside can't reach shadow DOM)
+// ✅ Perfect for: design system widgets shared across teams/frameworks
+//
+// GOTCHAS (Interview gold!):
+// ❌ Global styles DON'T penetrate Shadow DOM
+//    → font-family from body won't apply inside shadow!
+//    → Solution: Use CSS Custom Properties (they DO inherit into shadow)
+//
+// ❌ Form participation is broken
+//    → &lt;input&gt; inside shadow DOM doesn't participate in parent &lt;form&gt;
+//    → Solution: ElementInternals API (modern) or event forwarding
+//
+// ❌ Accessibility can break
+//    → aria-labelledby can't reference elements across shadow boundary
+//    → Solution: Use aria-label (string) or slot elements
+//
+// ❌ Event retargeting
+//    → Events from shadow DOM get retargeted to host element
+//    → event.target = &lt;my-button&gt; (not the internal &lt;button&gt;)
+//
+// ═══ ANGULAR + Shadow DOM ═══
+@Component({
+  selector: 'app-card',
+  encapsulation: ViewEncapsulation.ShadowDom,  // Uses real Shadow DOM!
+  template: `
+    &lt;div class="card"&gt;
+      &lt;ng-content /&gt;
+    &lt;/div&gt;
+  `,
+  styles: [`
+    .card { border: 1px solid var(--card-border, #e2e7f0); }
+    /* These styles are truly encapsulated */
+  `]
+})
+export class CardComponent {}
+
+// ═══ ANGULAR VIEW ENCAPSULATION MODES ═══
+// Emulated (DEFAULT): Adds _ngcontent attributes for scoping (not real shadow)
+// ShadowDom: Uses native Shadow DOM (real encapsulation)
+// None: No encapsulation (styles are global!)
+//
+// When to use ShadowDom: Shared library components used across apps
+// When to use Emulated: Regular app components (simpler debugging)</code></pre>
+
+<h3>Angular Elements (Web Components from Angular)</h3>
+<pre><code>// ═══ ANGULAR ELEMENTS — Ship Angular components as Web Components ═══
+// Use case: Build in Angular, consume in React/Vue/vanilla HTML
+
+// 1. Create component normally:
+@Component({
+  selector: 'app-date-picker',
+  standalone: true,
+  template: `&lt;input type="date" (change)="onChange($event)"&gt;`,
+})
+export class DatePickerComponent {
+  @Input() value: string = '';
+  @Output() dateChange = new EventEmitter&lt;string&gt;();
+  onChange(e: Event) {
+    this.dateChange.emit((e.target as HTMLInputElement).value);
+  }
+}
+
+// 2. Register as custom element:
+import { createCustomElement } from '@angular/elements';
+
+@NgModule({ ... })
+export class AppModule {
+  constructor(private injector: Injector) {
+    const datePickerEl = createCustomElement(DatePickerComponent, { injector });
+    customElements.define('company-date-picker', datePickerEl);
+  }
+  ngDoBootstrap() {} // No bootstrap component
+}
+
+// 3. Use ANYWHERE (even non-Angular apps):
+// &lt;company-date-picker value="2024-01-01"&gt;&lt;/company-date-picker&gt;
+// &lt;script src="date-picker-element.js"&gt;&lt;/script&gt;
+
+// ═══ WHEN TO USE ANGULAR ELEMENTS ═══
+// ✅ Micro-frontends: embed Angular widget in React/Vue host
+// ✅ CMS: provide interactive widgets for non-technical content editors
+// ✅ Legacy: gradually migrate jQuery app → Angular components
+// ❌ Full Angular apps: just use Angular normally (overhead not worth it)</code></pre>
+
+<div class="callout warn">
+  <span class="tag">Interview Answer Pattern</span>
+  "Web Components are great for <strong>cross-framework shared components</strong> (design system used by Angular + React teams). However, for within-framework use, native Angular components are better because: they have full DI access, better change detection integration, and simpler testing. Shadow DOM's style encapsulation is powerful but breaks design token inheritance unless you use CSS Custom Properties for everything."
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=PCWaFLy3VUo" target="_blank">Web Components — Fireship</a><div class="meta">Web Components in 100 seconds</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=K5i9zMzVlzM" target="_blank">Shadow DOM Explained — Google Chrome</a><div class="meta">Encapsulation & styling</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="observers">9. Intersection Observer &amp; Resize Observer</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Intersection Observer — Visibility Detection</h3>
+<p>Fires a callback when an element enters/exits the viewport (or any ancestor). Replaced scroll event listeners for lazy loading, infinite scroll, and analytics.</p>
+
+<pre><code>// ═══ INTERSECTION OBSERVER — Core API ═══
+const observer = new IntersectionObserver(
+  (entries) =&gt; {
+    entries.forEach(entry =&gt; {
+      if (entry.isIntersecting) {
+        console.log('Element visible!', entry.target);
+        console.log('Visible ratio:', entry.intersectionRatio); // 0.0 to 1.0
+      }
+    });
+  },
+  {
+    root: null,            // Viewport (null = browser viewport)
+    rootMargin: '100px',   // Trigger 100px BEFORE element enters viewport
+    threshold: [0, 0.25, 0.5, 0.75, 1.0]  // Fire at these visibility %
+  }
+);
+
+observer.observe(document.querySelector('.lazy-section'));
+// Don't forget: observer.unobserve(element) or observer.disconnect()
+
+// ═══ ANGULAR DIRECTIVE: Lazy Load on Viewport ═══
+@Directive({ selector: '[appLazyLoad]', standalone: true })
+export class LazyLoadDirective implements OnInit, OnDestroy {
+  private el = inject(ElementRef);
+  private observer!: IntersectionObserver;
+  
+  appLazyLoad = output&lt;void&gt;(); // Emits when element enters viewport
+
+  ngOnInit() {
+    this.observer = new IntersectionObserver(
+      ([entry]) =&gt; {
+        if (entry.isIntersecting) {
+          this.appLazyLoad.emit();
+          this.observer.unobserve(this.el.nativeElement); // Only fire once
+        }
+      },
+      { rootMargin: '200px' } // Preload 200px before visible
+    );
+    this.observer.observe(this.el.nativeElement);
+  }
+
+  ngOnDestroy() { this.observer.disconnect(); }
+}
+
+// Usage:
+// &lt;div (appLazyLoad)="loadComments()"&gt;
+//   @if (commentsLoaded) { &lt;app-comments /&gt; }
+// &lt;/div&gt;
+
+// ═══ USE CASES ═══
+// • Lazy loading images (loading="lazy" uses IO internally!)
+// • Infinite scroll (observe sentinel element at bottom)
+// • Analytics: track which sections users actually see
+// • Pause videos when not visible (save bandwidth)
+// • Animate-on-scroll (add CSS class when visible)
+// • @defer (on viewport) — Angular uses IO internally!
+
+// ═══ GOTCHAS ═══
+// • rootMargin only works with root: null or scrollable ancestor
+// • threshold: 1.0 won't fire if element is larger than viewport
+// • Callback fires ASYNCHRONOUSLY (not immediately on scroll)
+// • Multiple thresholds = callback fires at EACH threshold crossing
+// • Observe many elements with ONE observer (not one observer per element!)</code></pre>
+
+<h3>Resize Observer — Element Size Changes</h3>
+<pre><code>// ═══ RESIZE OBSERVER — Detect element size changes ═══
+// Unlike window.resize which only fires for viewport resize,
+// ResizeObserver fires when ANY element's size changes
+// (e.g., sidebar collapse, content load, container query alternative)
+
+const resizeObserver = new ResizeObserver((entries) =&gt; {
+  entries.forEach(entry =&gt; {
+    const { width, height } = entry.contentRect;
+    console.log(`Element resized: ${width}x${height}`);
+    
+    // entry.borderBoxSize — includes padding + border
+    // entry.contentBoxSize — content area only
+    // entry.devicePixelContentBoxSize — in device pixels (canvas!)
+  });
+});
+
+resizeObserver.observe(document.querySelector('.container'));
+
+// ═══ ANGULAR: Responsive Component with ResizeObserver ═══
+@Directive({ selector: '[appElementSize]', standalone: true })
+export class ElementSizeDirective implements OnInit, OnDestroy {
+  private el = inject(ElementRef);
+  private observer!: ResizeObserver;
+  
+  elementWidth = output&lt;number&gt;();
+  sizeClass = output&lt;'sm' | 'md' | 'lg'&gt;();
+
+  ngOnInit() {
+    this.observer = new ResizeObserver(([entry]) =&gt; {
+      const width = entry.contentRect.width;
+      this.elementWidth.emit(width);
+      
+      // Component-level responsive (like container queries!)
+      if (width &lt; 400) this.sizeClass.emit('sm');
+      else if (width &lt; 800) this.sizeClass.emit('md');
+      else this.sizeClass.emit('lg');
+    });
+    this.observer.observe(this.el.nativeElement);
+  }
+
+  ngOnDestroy() { this.observer.disconnect(); }
+}
+
+// Usage: switch component layout based on its OWN width (not viewport):
+// &lt;div appElementSize (sizeClass)="layout = $event"&gt;
+//   @switch (layout) {
+//     @case ('sm') { &lt;card-compact /&gt; }
+//     @case ('md') { &lt;card-medium /&gt; }
+//     @case ('lg') { &lt;card-full /&gt; }
+//   }
+// &lt;/div&gt;
+
+// ═══ USE CASES ═══
+// • Canvas resize (recalculate drawing dimensions)
+// • Chart libraries (redraw chart on container resize)
+// • Responsive components (adapt layout to container, not viewport)
+// • Detect sidebar collapse/expand
+// • Virtual scroll: recalculate visible items on container resize
+// • Auto-resize textarea to content
+
+// ═══ PERFORMANCE NOTE ═══
+// ResizeObserver callbacks are called AFTER layout but BEFORE paint
+// This means reads inside the callback are "free" (no forced layout)
+// But WRITES will trigger another layout pass — batch them with rAF!
+resizeObserver = new ResizeObserver(entries =&gt; {
+  // ✅ Read entry.contentRect (free — already calculated)
+  const width = entries[0].contentRect.width;
+  
+  // ✅ Batch DOM writes in rAF:
+  requestAnimationFrame(() =&gt; {
+    element.style.fontSize = width &gt; 600 ? '16px' : '14px';
+  });
+});</code></pre>
+
+<div class="callout tip">
+  <span class="tag">Observer vs Polling</span>
+  <strong>Never</strong> use scroll/resize event listeners + getBoundingClientRect() polling. Observers are: (1) More performant (browser optimizes internally), (2) Don't cause layout thrashing, (3) Battery-friendly (no constant JS execution), (4) Automatically handle dynamic DOM changes.
+</div>
+
+<div class="qa-block">
+  <p class="q">Q: How would you implement "infinite scroll" in Angular? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> Place a sentinel &lt;div&gt; at the bottom of the list. Use IntersectionObserver with rootMargin: '200px' to detect when it's about to enter viewport. When triggered, call loadMore() which fetches next page (cursor-based pagination) and appends to the signal array. Use CDK VirtualScroll for rendering performance if the list grows to 1000+ items. Cleanup: unobserve on destroy. Alternative: CDK ScrollDispatcher provides scroll events, but IO is more performant for this pattern.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=T8EYosX4NOo" target="_blank">Intersection Observer — Kevin Powell</a><div class="meta">Lazy loading & animations</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=z3_BoOqEknQ" target="_blank">Resize Observer — Google Chrome</a><div class="meta">Element-level resize detection</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="error-handling-ui">10. Error Handling UI Patterns</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ ERROR BOUNDARY (Global Error Handler) ═══
+@Injectable()
+export class GlobalErrorHandler implements ErrorHandler {
+  private errorService = inject(ErrorTrackingService);
+  private snackbar = inject(MatSnackBar);
+  
+  handleError(error: any) {
+    // 1. Log to error tracking (Sentry):
+    this.errorService.capture(error);
+    
+    // 2. Show user-friendly message:
+    if (error instanceof HttpErrorResponse) {
+      this.handleHttpError(error);
+    } else {
+      this.snackbar.open('Something went wrong. Please try again.', 'Dismiss');
+    }
+    
+    // 3. Don't re-throw (prevents white screen):
+    console.error(error);
+  }
+  
+  private handleHttpError(error: HttpErrorResponse) {
+    const messages: Record&lt;number, string&gt; = {
+      0: 'No internet connection',
+      403: 'You don\'t have permission to do that',
+      404: 'The requested resource was not found',
+      429: 'Too many requests. Please wait.',
+      500: 'Server error. We\'re working on it.',
+      503: 'Service temporarily unavailable'
+    };
+    this.snackbar.open(messages[error.status] || 'Request failed', 'Dismiss');
+  }
+}
+
+// Register: providers: [{ provide: ErrorHandler, useClass: GlobalErrorHandler }]
+
+// ═══ COMPONENT-LEVEL ERROR STATES ═══
+@Component({
+  template: `
+    @if (loading()) {
+      &lt;app-skeleton-card [count]="6" /&gt;
+    } @else if (error()) {
+      &lt;app-error-state
+        [message]="error()!"
+        [retryable]="true"
+        (retry)="loadProducts()"
+      /&gt;
+    } @else if (products().length === 0) {
+      &lt;app-empty-state
+        icon="shopping_bag"
+        title="No products found"
+        description="Try adjusting your filters"
+      /&gt;
+    } @else {
+      @for (product of products(); track product.id) {
+        &lt;app-product-card [product]="product" /&gt;
+      }
+    }
+  `
+})</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=_FuDMEgIy7I" target="_blank">Error Boundaries Pattern — Jack Herrington</a><div class="meta">Graceful error handling in UI</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=JvIAH76VlQQ" target="_blank">Error States UX — DesignCourse</a><div class="meta">Designing error experiences</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="loading-states">9. Loading &amp; Skeleton States</h2>
+<span class="chip beginner">Beginner</span>
+
+<pre><code>// ═══ SKELETON SCREENS (Better than spinners!) ═══
+// Show content SHAPE while loading → reduces perceived load time
+// Users feel the page is "almost ready" vs staring at a spinner
+
+@Component({
+  selector: 'app-skeleton-card',
+  template: `
+    @for (i of skeletonArray(); track i) {
+      &lt;div class="skeleton-card"&gt;
+        &lt;div class="skeleton skeleton--image"&gt;&lt;/div&gt;
+        &lt;div class="skeleton skeleton--title"&gt;&lt;/div&gt;
+        &lt;div class="skeleton skeleton--text"&gt;&lt;/div&gt;
+        &lt;div class="skeleton skeleton--text skeleton--short"&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    }
+  `,
+  styles: [`
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+    .skeleton--image { height: 200px; margin-bottom: 12px; }
+    .skeleton--title { height: 20px; width: 70%; margin-bottom: 8px; }
+    .skeleton--text { height: 14px; margin-bottom: 6px; }
+    .skeleton--short { width: 40%; }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  `]
+})
+export class SkeletonCardComponent {
+  count = input(3);
+  skeletonArray = computed(() => Array.from({ length: this.count() }, (_, i) => i));
+}
+
+// ═══ PROGRESSIVE LOADING ═══
+// Load low-res → high-res (like Medium.com image loading):
+@Component({
+  template: `
+    &lt;div class="progressive-image" [class.loaded]="loaded"&gt;
+      &lt;img [src]="thumbSrc" class="thumb" aria-hidden="true" /&gt;
+      &lt;img [src]="fullSrc" (load)="loaded = true" class="full" [alt]="alt" /&gt;
+    &lt;/div&gt;
+  `,
+  styles: [`
+    .progressive-image { position: relative; overflow: hidden; }
+    .thumb { filter: blur(20px); transform: scale(1.1); }
+    .full { position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s; }
+    .loaded .full { opacity: 1; }
+  `]
+})</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=Owkb9hP2jVg" target="_blank">Design Systems — Theo/t3</a><div class="meta">Practical design system architecture</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=qr0FHkvq29o" target="_blank">Angular CDK Deep Dive — Angular Team</a><div class="meta">Official CDK patterns</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=z8xUCzToff8" target="_blank">Web Accessibility — Google Chrome Developers</a><div class="meta">A11y fundamentals</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="exercises">10. Hands-On Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 1: Build a Theme Switcher with Design Tokens</h4>
+  <p><strong>Task:</strong> Create a complete theming system:</p>
+  <ul>
+    <li>Define tokens in CSS variables (colors, spacing, radius, shadows)</li>
+    <li>Light + Dark + High-Contrast themes</li>
+    <li>Angular service with system preference detection</li>
+    <li>Smooth transition between themes (CSS transition)</li>
+    <li>Persist preference in localStorage</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2: Accessible Data Table</h4>
+  <p><strong>Task:</strong> Build a fully accessible data table:</p>
+  <ul>
+    <li>Sortable columns (aria-sort, screen reader announcements)</li>
+    <li>Keyboard navigation (arrow keys between cells)</li>
+    <li>Pagination with aria-live updates</li>
+    <li>Row selection (checkbox, Shift+click for range)</li>
+    <li>Pass axe-core audit with 0 violations</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3: Responsive Dashboard Layout</h4>
+  <p><strong>Task:</strong> Create a responsive dashboard that:</p>
+  <ul>
+    <li>Uses CSS Grid with container queries</li>
+    <li>Widgets rearrange based on container size (not viewport)</li>
+    <li>Supports drag-and-drop reordering (CDK Drag)</li>
+    <li>Persists layout preference per user</li>
+    <li>Works with keyboard (reorder with arrow keys)</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="interview-questions">11. Interview Questions (Previously Asked)</h2>
+
+<div class="qa-block">
+  <p class="q">Q1: How would you design a component library/design system for a large org? (All senior interviews)</p>
+  <p class="a"><strong>Answer:</strong> Architecture: (1) Monorepo (Nx) with shared UI library. (2) Design tokens (JSON → CSS vars) as single source of truth. (3) Atomic Design: atoms → molecules → organisms → templates. (4) Storybook for documentation + visual testing. (5) Chromatic for visual regression CI. (6) Semantic versioning with changelog. (7) Tree-shakable (standalone components). (8) Accessibility baked in (all components meet WCAG AA). (9) Theme-able via CSS custom properties. (10) Published to private npm registry. Governance: Design system team owns library, product teams contribute via PR.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q2: How do you ensure accessibility in a large Angular application? (Amazon, Microsoft, Google)</p>
+  <p class="a"><strong>Answer:</strong> Multi-layer approach: (1) Semantic HTML first (buttons, headings, landmarks). (2) Angular CDK a11y utilities (FocusTrap, LiveAnnouncer, ListKeyManager). (3) ARIA attributes for custom widgets. (4) Keyboard navigation for all interactive elements. (5) Focus management (modal trap, return on close). (6) Color contrast (4.5:1 minimum). (7) Testing: axe-core in unit tests, screen reader manual testing (VoiceOver/NVDA). (8) CI: axe-linter, pa11y-ci. (9) Skip links. (10) Reduced motion: prefers-reduced-motion media query.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q3: Explain container queries vs media queries. When to use each? (Google, Meta)</p>
+  <p class="a"><strong>Answer:</strong> Media queries respond to VIEWPORT size — good for page layout (sidebar collapses on mobile). Container queries respond to PARENT container size — good for reusable components (card shows horizontal/vertical layout based on where it's placed). Use media queries for: overall page layout, hiding/showing sections. Use container queries for: component-level responsiveness, cards that work in sidebar AND main content, widgets in flexible grid. Container queries make components truly portable across different contexts.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q4: How would you implement dark mode in a production Angular app? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> (1) Define all colors as CSS custom properties (design tokens). (2) [data-theme="dark"] selector overrides variables. (3) Angular service: signal-based, reads system preference (prefers-color-scheme), allows user override, persists to localStorage. (4) Effect applies data-theme attribute to document. (5) Images: provide dark variants or use CSS filter. (6) Third-party widgets: CSS mix-blend-mode or filter invert. (7) Transitions: use color-scheme CSS property for native scrollbar/form styling. (8) Test: verify contrast ratios in both themes.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q5: How do you handle internationalization for a global app supporting 20+ languages? (Amazon, Microsoft)</p>
+  <p class="a"><strong>Answer:</strong> Strategy: (1) Angular built-in i18n for compile-time (best performance, separate builds per locale). OR Transloco for runtime switching (better DX, larger bundle). (2) ICU message format for plurals/gender. (3) Date/number formatting: Angular pipes with locale (DatePipe, DecimalPipe). (4) RTL: CSS logical properties + [dir] attribute. (5) Translation workflow: extract → send to translators → import. (6) Lazy-load translations per route. (7) Content expansion: design for 40% text expansion (German/Finnish). (8) Testing: pseudo-localization to catch hardcoded strings.</p>
+</div>
+
+<div class="nav-links">
+  <a href="phase5-security-auth.html">← Phase 5: Security</a>
+  <a href="phase7-observability-testing.html">Phase 7: Observability →</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>

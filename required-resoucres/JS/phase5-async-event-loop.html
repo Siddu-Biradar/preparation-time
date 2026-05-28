@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 5: Asynchronous JavaScript & Event Loop</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 5: Asynchronous JavaScript & Event Loop</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (5 of 8)</p>
+  <div class="pill-row">
+    <span class="pill">Event Loop</span>
+    <span class="pill">Microtasks vs Macrotasks</span>
+    <span class="pill">Promises</span>
+    <span class="pill">async/await</span>
+    <span class="pill">Concurrency Patterns</span>
+    <span class="pill">Error Handling</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#event-loop">Event Loop (Complete Deep Dive)</a></li>
+    <li><a href="#microtask-macrotask">Microtask vs Macrotask Queue</a></li>
+    <li><a href="#timers">setTimeout, setInterval, requestAnimationFrame</a></li>
+    <li><a href="#callbacks">Callbacks & Callback Hell</a></li>
+    <li><a href="#promises">Promises (Complete Mastery)</a></li>
+    <li><a href="#promise-methods">Promise Static Methods (all, allSettled, race, any)</a></li>
+    <li><a href="#async-await">async/await (Complete)</a></li>
+    <li><a href="#error-handling">Async Error Handling Patterns</a></li>
+    <li><a href="#concurrency">Concurrency Patterns & Real-World Scenarios</a></li>
+    <li><a href="#abort">AbortController & Cancellation</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-loop">1. Event Loop (Complete Deep Dive)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank">What the heck is the event loop? — Philip Roberts (JSConf)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">In The Loop — Jake Archibald (JSConf Asia)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=eiC58R16hb8" target="_blank">Event Loop Visualized — Lydia Hallie</a></li>
+  <li><a href="https://www.youtube.com/watch?v=8zKuNo4ay8E" target="_blank">Event Loop — Namaste JavaScript (Akshay Saini)</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p>JavaScript is <strong>single-threaded</strong> — it has ONE call stack. But it handles asynchronous operations through the <strong>Event Loop</strong>, which coordinates between the call stack, Web APIs, and callback queues.</p>
+
+<pre><code>/*
+┌───────────────────────────────────────────────────────────────────┐
+│                      BROWSER ENVIRONMENT                          │
+├───────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌───────────────┐    ┌────────────────────────────────────────┐  │
+│  │  CALL STACK   │    │           WEB APIs                     │  │
+│  │               │    │    (provided by browser, NOT JS)       │  │
+│  │  [function3]  │    │                                        │  │
+│  │  [function2]  │───→│    • setTimeout/setInterval            │  │
+│  │  [function1]  │    │    • fetch / XMLHttpRequest            │  │
+│  │  [global]     │    │    • DOM events (click, scroll)        │  │
+│  └───────────────┘    │    • geolocation                       │  │
+│         ↑             │    • Web Workers                       │  │
+│         │             └──────────────────┬─────────────────────┘  │
+│         │                                │                        │
+│         │                                ↓                        │
+│  ┌──────┴─────────────────────────────────────────────────────┐   │
+│  │                      EVENT LOOP                            │   │
+│  │  Continuously checks: Is call stack empty?                 │   │
+│  │  If yes → move next callback from queue to stack           │   │
+│  └────────────────────────────────────────────────────────────┘   │
+│         ↑                                ↑                        │
+│         │                                │                        │
+│  ┌──────┴──────────────┐  ┌──────────────┴─────────────────────┐  │
+│  │  MICROTASK QUEUE    │  │  MACROTASK (CALLBACK) QUEUE        │  │
+│  │  (higher priority)  │  │  (lower priority)                  │  │
+│  │                     │  │                                    │  │
+│  │  • Promise.then     │  │  • setTimeout callback             │  │
+│  │  • queueMicrotask   │  │  • setInterval callback            │  │
+│  │  • MutationObs      │  │  • I/O callbacks                   │  │
+│  │  • process.nextTick │  │  • UI rendering                    │  │
+│  └─────────────────────┘  │  • requestAnimationFrame           │  │
+│                            │  • MessageChannel                 │  │
+│                            └───────────────────────────────────┘  │
+└───────────────────────────────────────────────────────────────────┘
+*/</code></pre>
+
+<h4>Event Loop Algorithm (Precise)</h4>
+<ol>
+  <li>Execute synchronous code on the call stack until it's empty</li>
+  <li>Check <strong>Microtask Queue</strong> — execute ALL microtasks (drain completely)</li>
+  <li>If it's time to render (typically every ~16.6ms = 60fps):
+    <ul>
+      <li>Run requestAnimationFrame callbacks</li>
+      <li>Perform Style → Layout → Paint</li>
+    </ul>
+  </li>
+  <li>Pick ONE macrotask from the Macrotask Queue and execute it</li>
+  <li>Go to step 2 (check microtasks again)</li>
+</ol>
+
+<pre><code>// Classic event loop demonstration:
+console.log("1: Sync");
+
+setTimeout(() => console.log("2: Macrotask"), 0);
+
+Promise.resolve().then(() => console.log("3: Microtask"));
+
+queueMicrotask(() => console.log("4: Microtask 2"));
+
+console.log("5: Sync");
+
+// Output ORDER:
+// "1: Sync"      — synchronous
+// "5: Sync"      — synchronous
+// "3: Microtask" — microtask queue (higher priority)
+// "4: Microtask 2" — microtask queue
+// "2: Macrotask" — macrotask queue (lowest priority)</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Explain the event loop. Why does setTimeout(fn, 0) not execute immediately?</p>
+<p><strong>Answer:</strong> Even with 0ms delay, setTimeout places the callback in the Macrotask Queue. The event loop first completes all synchronous code, then drains ALL microtasks, then picks ONE macrotask. So setTimeout(fn, 0) means "execute after the current stack and microtasks are clear" — not "immediately." Minimum delay is typically ~4ms due to browser clamping.</p>
+
+<p><span class="difficulty d-expert">Expert</span> What is the output order and WHY?</p>
+<pre><code>setTimeout(() => console.log("A"), 0);
+Promise.resolve().then(() => {
+  console.log("B");
+  setTimeout(() => console.log("C"), 0);
+  Promise.resolve().then(() => console.log("D"));
+});
+Promise.resolve().then(() => console.log("E"));
+console.log("F");</code></pre>
+<p><strong>Answer:</strong> F, B, E, D, A, C. Sync first (F). Microtasks drain completely: B (schedules C macrotask and D microtask), E, then D (newly added microtask also drained). Then macrotasks: A (was first in queue), then C.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="microtask-macrotask">2. Microtask vs Macrotask Queue</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Lum0R6Ng6R8" target="_blank">Microtasks vs Macrotasks — Lydia Hallie</a></li>
+  <li><a href="https://www.youtube.com/watch?v=RLDLauwl4xU" target="_blank">Task Queue Deep Dive — Akshay Saini</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<table>
+<tr><th>Microtasks (higher priority)</th><th>Macrotasks (lower priority)</th></tr>
+<tr><td>Promise .then/.catch/.finally</td><td>setTimeout / setInterval</td></tr>
+<tr><td>queueMicrotask()</td><td>setImmediate (Node.js)</td></tr>
+<tr><td>MutationObserver</td><td>requestAnimationFrame</td></tr>
+<tr><td>process.nextTick (Node.js)</td><td>I/O operations</td></tr>
+<tr><td>await (after resolved)</td><td>UI rendering</td></tr>
+<tr><td></td><td>MessageChannel / postMessage</td></tr>
+</table>
+
+<div class="callout warning">
+<strong>Key Difference:</strong> After EACH macrotask, ALL pending microtasks are drained. Microtasks can starve macrotasks! If a microtask schedules more microtasks recursively, the macrotask queue (and rendering) gets blocked forever.
+</div>
+
+<pre><code>// Microtask starvation example (DON'T DO THIS):
+function recurse() {
+  Promise.resolve().then(recurse); // Infinite microtask loop
+}
+recurse(); // Page freezes! Rendering never happens!
+
+// vs. Macrotask recursion (yields to browser):
+function recurse() {
+  setTimeout(recurse, 0); // Yields between each call — browser can render
+}
+
+// queueMicrotask — explicit microtask scheduling
+queueMicrotask(() => {
+  console.log("Microtask via queueMicrotask");
+});
+
+// Practical difference:
+button.addEventListener("click", () => {
+  // This runs as a macrotask (event callback)
+  Promise.resolve().then(() => {
+    // This microtask runs BEFORE next macrotask/render
+    element.style.color = "red";
+  });
+});
+
+// requestAnimationFrame — BEFORE repaint
+requestAnimationFrame(() => {
+  // Runs right before the browser paints next frame
+  // Best for visual updates, animations
+  element.style.transform = `translateX(${x}px)`;
+});</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 1:</strong> Predict the exact output order:</p>
+<pre><code>async function async1() {
+  console.log("async1 start");
+  await async2();
+  console.log("async1 end");
+}
+async function async2() {
+  console.log("async2");
+}
+console.log("script start");
+setTimeout(() => console.log("setTimeout"), 0);
+async1();
+new Promise(resolve => {
+  console.log("promise1");
+  resolve();
+}).then(() => console.log("promise2"));
+console.log("script end");</code></pre>
+<p><strong>Answer:</strong> "script start" → "async1 start" → "async2" → "promise1" → "script end" → "async1 end" → "promise2" → "setTimeout"</p>
+<p><em>Explanation: sync runs first. await pauses async1 (remainder becomes microtask). Promise executor is sync. Then microtasks: async1's continuation, promise2. Finally macrotask: setTimeout.</em></p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="timers">3. setTimeout, setInterval, requestAnimationFrame</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=kOcFZV3c75I" target="_blank">setTimeout vs setInterval — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=MCi6AZMkxcU" target="_blank">requestAnimationFrame — Jake Archibald</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// setTimeout — execute ONCE after delay
+const timerId = setTimeout(() => console.log("delayed"), 1000);
+clearTimeout(timerId); // Cancel before execution
+
+// IMPORTANT: delay is MINIMUM, not guaranteed
+setTimeout(() => console.log("hello"), 100);
+// If call stack is busy for 500ms, callback runs at ~500ms, not 100ms
+
+// Nested setTimeout (preferred over setInterval for precise intervals)
+function poll() {
+  fetch("/api/status").then(data => {
+    updateUI(data);
+    setTimeout(poll, 5000); // Schedule AFTER previous completes
+  });
+}
+
+// setInterval — execute REPEATEDLY at interval
+const intervalId = setInterval(() => {
+  console.log(new Date().toLocaleTimeString());
+}, 1000);
+clearInterval(intervalId);
+
+// ⚠️ setInterval problems:
+// 1. Callbacks can stack up if execution takes longer than interval
+// 2. Timer drift (not perfectly accurate)
+// 3. Continues even if tab is background (throttled to 1/sec)
+
+// requestAnimationFrame — sync with display refresh (60fps = ~16.6ms)
+let animationId;
+function animate(timestamp) {
+  // timestamp = high-resolution time (performance.now())
+  element.style.transform = `translateX(${timestamp / 10}px)`;
+  animationId = requestAnimationFrame(animate); // Loop
+}
+animationId = requestAnimationFrame(animate);
+cancelAnimationFrame(animationId); // Stop animation
+
+// rAF advantages over setTimeout for animations:
+// 1. Synced with display refresh (no jank)
+// 2. Automatically pauses when tab is hidden (saves battery)
+// 3. Browser can optimize (batch with other animations)
+// 4. High-resolution timestamp parameter
+
+// Timer minimum delays:
+// - Active tab: ~4ms minimum (HTML spec)
+// - Background tab: ~1000ms (browser throttles)
+// - Nested setTimeout (5+ levels deep): forced 4ms minimum</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="callbacks">4. Callbacks & Callback Hell</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=QSqc6MMS6Fk" target="_blank">Callbacks — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Kpn2ajSa92c" target="_blank">Callback Hell — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Callback: function passed as argument to be called later
+function fetchData(url, onSuccess, onError) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", url);
+  xhr.onload = () => onSuccess(JSON.parse(xhr.response));
+  xhr.onerror = () => onError(new Error("Network failure"));
+  xhr.send();
+}
+
+// Callback Hell / Pyramid of Doom:
+getUser(userId, (user) => {
+  getOrders(user.id, (orders) => {
+    getOrderDetails(orders[0].id, (details) => {
+      getShipping(details.shippingId, (shipping) => {
+        updateUI(shipping);
+        // Error handling is nearly impossible here
+      }, handleError);
+    }, handleError);
+  }, handleError);
+}, handleError);
+
+// Problems with callbacks:
+// 1. Inversion of Control — you hand control to the callback host
+// 2. No standard error handling (no try/catch)
+// 3. Deep nesting reduces readability
+// 4. Hard to compose or sequence
+// 5. No cancellation mechanism
+// 6. Can be called multiple times (or never) — no guarantees
+
+// Solutions to callback hell:
+// 1. Named functions (reduce nesting)
+// 2. Promises (standardized, chainable)
+// 3. async/await (readable, synchronous-looking)
+// 4. RxJS Observables (Angular's preferred approach)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promises">5. Promises (Complete Mastery)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ap-6PPAuK1Y" target="_blank">Promises — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=DHvZLI7Db8E" target="_blank">JavaScript Promises — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=RvYYCGs45L4" target="_blank">Promises In Depth — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Xs1EMmBLpn4" target="_blank">Advanced Promises — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p>A <strong>Promise</strong> is an object representing the eventual completion (or failure) of an asynchronous operation. It provides a standard interface for handling async results.</p>
+
+<h4>Promise States</h4>
+<pre><code>// A Promise is in one of three states:
+// 1. PENDING — initial state, not yet settled
+// 2. FULFILLED (resolved) — operation completed successfully
+// 3. REJECTED — operation failed
+
+// Once settled (fulfilled or rejected), a Promise is IMMUTABLE — cannot change state again.
+
+// Creating Promises:
+const promise = new Promise((resolve, reject) => {
+  // Executor function runs SYNCHRONOUSLY
+  console.log("Executor runs immediately!"); // This is SYNC!
+  
+  // Async operation:
+  setTimeout(() => {
+    const success = Math.random() > 0.5;
+    if (success) {
+      resolve("Data loaded"); // Fulfills the promise
+    } else {
+      reject(new Error("Failed")); // Rejects the promise
+    }
+  }, 1000);
+});
+
+// Consuming Promises:
+promise
+  .then(value => {
+    console.log("Success:", value);
+    return value.toUpperCase(); // Return value becomes next promise's value
+  })
+  .then(upper => {
+    console.log("Chained:", upper);
+  })
+  .catch(error => {
+    console.error("Error:", error.message);
+  })
+  .finally(() => {
+    console.log("Always runs — cleanup");
+    // finally doesn't receive value, doesn't modify the chain
+  });</code></pre>
+
+<h4>Promise Chaining (Detailed)</h4>
+<pre><code>// EVERY .then() returns a NEW Promise
+// Whatever you return from .then() becomes the resolved value of that new Promise
+// If you return a Promise, the chain WAITS for it
+
+fetch("/api/users/1")
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json(); // Returns a Promise! Chain waits for it.
+  })
+  .then(user => {
+    console.log(user.name);
+    return fetch(`/api/posts?userId=${user.id}`); // Another Promise
+  })
+  .then(response => response.json())
+  .then(posts => {
+    console.log(`${posts.length} posts found`);
+  })
+  .catch(error => {
+    // Catches ANY error in the entire chain above
+    console.error("Something failed:", error.message);
+  });
+
+// Chain behavior rules:
+// 1. Return a value → next .then receives it
+// 2. Return a Promise → chain waits, next .then receives resolved value
+// 3. Throw an error → skips to next .catch
+// 4. Return nothing → next .then receives undefined
+// 5. .catch returns a value → chain RESUMES (not still in error state)
+
+Promise.resolve("start")
+  .then(v => { throw new Error("oops"); })
+  .then(v => console.log("skipped"))         // Skipped!
+  .catch(e => {
+    console.log("caught:", e.message);       // "caught: oops"
+    return "recovered";                       // Recovery!
+  })
+  .then(v => console.log("resumed:", v));    // "resumed: recovered"</code></pre>
+
+<h4>Creating Pre-Resolved/Rejected Promises</h4>
+<pre><code>// Already resolved
+Promise.resolve(42);             // Promise { 42 }
+Promise.resolve(otherPromise);   // Returns otherPromise itself (if it's a thenable)
+
+// Already rejected
+Promise.reject(new Error("fail")); // Promise { <rejected> Error: fail }
+
+// Thenable conversion (duck typing)
+const thenable = {
+  then(resolve) { resolve(42); }
+};
+Promise.resolve(thenable).then(v => console.log(v)); // 42</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 2:</strong> Implement a <code>delay(ms)</code> utility:</p>
+<pre><code>function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Usage:
+delay(2000).then(() => console.log("2 seconds passed"));
+
+// With async/await:
+async function sequential() {
+  console.log("Start");
+  await delay(1000);
+  console.log("1s");
+  await delay(1000);
+  console.log("2s");
+}</code></pre>
+
+<p><strong>Exercise 3:</strong> Implement a <code>timeout(promise, ms)</code> that rejects if promise takes too long:</p>
+<pre><code>function timeout(promise, ms) {
+  const timer = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timer]);
+}
+
+// Usage:
+timeout(fetch("/slow-api"), 5000)
+  .then(res => res.json())
+  .catch(err => console.log(err.message)); // "Timeout after 5000ms"</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What are the three states of a Promise? Can a Promise go from rejected to fulfilled?</p>
+<p><strong>Answer:</strong> Pending, Fulfilled, Rejected. No — once settled (fulfilled or rejected), a Promise is immutable. It cannot transition between fulfilled and rejected. Calling resolve after reject (or vice versa) is silently ignored.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What's the difference between these two?<br><code>promise.then(handleSuccess, handleError)</code> vs <code>promise.then(handleSuccess).catch(handleError)</code></p>
+<p><strong>Answer:</strong> With two-arg .then: handleError only catches rejection from the ORIGINAL promise, NOT errors thrown in handleSuccess. With .catch: it catches both original rejection AND errors thrown in the preceding .then. Generally prefer .catch at the end for comprehensive error handling.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promise-methods">6. Promise Static Methods</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=_wgMr8vAkrc" target="_blank">Promise.all, race, allSettled — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=TnhCX0KkPqs" target="_blank">Promise Combinators — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>const p1 = fetch("/api/users").then(r => r.json());
+const p2 = fetch("/api/posts").then(r => r.json());
+const p3 = fetch("/api/comments").then(r => r.json());
+
+// Promise.all — waits for ALL to fulfill, or FAILS FAST on first rejection
+try {
+  const [users, posts, comments] = await Promise.all([p1, p2, p3]);
+  // All three succeeded — results in order
+} catch (error) {
+  // If ANY one rejects, immediately rejects with that error
+  // Other pending promises are NOT cancelled (still run, just ignored)
+}
+
+// Promise.allSettled — waits for ALL to settle (never rejects)
+const results = await Promise.allSettled([p1, p2, p3]);
+// Returns: [
+//   { status: "fulfilled", value: [...users] },
+//   { status: "rejected", reason: Error("...") },
+//   { status: "fulfilled", value: [...comments] }
+// ]
+// Use when you want results regardless of individual failures
+
+// Promise.race — resolves/rejects with the FIRST settled promise
+const fastest = await Promise.race([
+  fetch("/api/server1"),
+  fetch("/api/server2"),
+  new Promise((_, reject) => setTimeout(() => reject("timeout"), 5000))
+]);
+// First to settle (either fulfill or reject) wins
+
+// Promise.any (ES2021) — resolves with FIRST fulfilled (ignores rejections)
+try {
+  const first = await Promise.any([
+    fetch("/mirror1"),  // fails
+    fetch("/mirror2"),  // fails
+    fetch("/mirror3"),  // succeeds!
+  ]);
+  // first = result from mirror3
+} catch (error) {
+  // AggregateError: All promises were rejected
+  console.log(error.errors); // Array of all rejection reasons
+}
+
+// Promise.withResolvers (ES2024)
+const { promise, resolve, reject } = Promise.withResolvers();
+// Useful when you need to resolve/reject from outside the executor
+setTimeout(() => resolve("done"), 1000);
+await promise; // "done"</code></pre>
+
+<table>
+<tr><th>Method</th><th>Resolves when</th><th>Rejects when</th><th>Use case</th></tr>
+<tr><td>Promise.all</td><td>ALL fulfilled</td><td>ANY rejects (fail-fast)</td><td>Parallel independent requests (all needed)</td></tr>
+<tr><td>Promise.allSettled</td><td>ALL settled</td><td>Never rejects</td><td>Fire & forget, partial results OK</td></tr>
+<tr><td>Promise.race</td><td>First settles</td><td>First settles (if rejection)</td><td>Timeout pattern, fastest mirror</td></tr>
+<tr><td>Promise.any</td><td>First fulfills</td><td>ALL reject (AggregateError)</td><td>Redundancy, fallback servers</td></tr>
+</table>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 4:</strong> Implement Promise.all polyfill:</p>
+<pre><code>function promiseAll(promises) {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    let completed = 0;
+    const total = promises.length;
+    
+    if (total === 0) return resolve([]);
+    
+    promises.forEach((promise, index) => {
+      Promise.resolve(promise) // Handle non-promise values
+        .then(value => {
+          results[index] = value; // Maintain order
+          completed++;
+          if (completed === total) resolve(results);
+        })
+        .catch(reject); // First rejection rejects the whole thing
+    });
+  });
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="async-await">7. async/await (Complete)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=V_Kr9OSfDeU" target="_blank">async/await — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=vn3tm0quoqE" target="_blank">async/await — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=6nv3qy3oNkc" target="_blank">async/await — Namaste JavaScript</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// async function ALWAYS returns a Promise
+async function greet() {
+  return "Hello"; // Equivalent to: return Promise.resolve("Hello")
+}
+greet().then(console.log); // "Hello"
+
+// await PAUSES execution until Promise settles
+async function fetchUser(id) {
+  const response = await fetch(`/api/users/${id}`); // Pauses here
+  // Code below runs only after fetch resolves
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const user = await response.json(); // Pauses again
+  return user;
+}
+
+// What happens with await (under the hood):
+async function example() {
+  console.log("A");     // Sync
+  await delay(1000);    // Pauses — remainder becomes microtask
+  console.log("B");     // Runs as microtask after 1s
+}
+// Equivalent to:
+function example() {
+  console.log("A");
+  return delay(1000).then(() => {
+    console.log("B");
+  });
+}
+
+// Top-level await (ES2022 — only in modules)
+const config = await fetch("/config.json").then(r => r.json());
+export { config };
+
+// Sequential vs Parallel
+async function sequential() {
+  const user = await fetchUser(1);       // Wait 1s
+  const posts = await fetchPosts(user.id); // Wait 1s more
+  // Total: ~2s (one after another)
+}
+
+async function parallel() {
+  const [user, posts] = await Promise.all([
+    fetchUser(1),
+    fetchPosts(1)
+  ]);
+  // Total: ~1s (both at the same time)
+}
+
+// Start parallel, await later
+async function startEarly() {
+  const userPromise = fetchUser(1);    // Start immediately
+  const postsPromise = fetchPosts(1);  // Start immediately
+  
+  // Do other work here...
+  
+  const user = await userPromise;      // Await when needed
+  const posts = await postsPromise;
+}
+
+// await in loops
+async function processSequentially(urls) {
+  const results = [];
+  for (const url of urls) {
+    const data = await fetch(url).then(r => r.json()); // One at a time
+    results.push(data);
+  }
+  return results;
+}
+
+async function processInParallel(urls) {
+  return Promise.all(urls.map(url => fetch(url).then(r => r.json())));
+}
+
+// ⚠️ forEach does NOT work with await!
+urls.forEach(async (url) => {
+  await fetch(url); // This does NOT wait — forEach ignores the returned Promise
+});
+// Use for...of instead!</code></pre>
+
+<div class="callout warning">
+<strong>Common Mistake:</strong> Using <code>forEach</code> with async/await. forEach doesn't await the returned promises — it fires all iterations immediately. Use <code>for...of</code> for sequential, or <code>Promise.all(arr.map(...))</code> for parallel.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="error-handling">8. Async Error Handling Patterns</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=DwQJ_NPQWWo" target="_blank">Async Error Handling — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Psr0j0zEBVs" target="_blank">Error Handling Patterns — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Pattern 1: try/catch with async/await (most common)
+async function fetchData() {
+  try {
+    const response = await fetch("/api/data");
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") {
+      console.log("Request was cancelled");
+    } else if (error instanceof TypeError) {
+      console.log("Network error — are you offline?");
+    } else {
+      console.error("Unexpected:", error.message);
+    }
+    return null; // Graceful fallback
+  }
+}
+
+// Pattern 2: Go-style [error, result] tuple
+async function tryCatch(promise) {
+  try {
+    const result = await promise;
+    return [null, result];
+  } catch (error) {
+    return [error, null];
+  }
+}
+
+// Usage:
+const [error, user] = await tryCatch(fetchUser(1));
+if (error) {
+  console.log("Failed:", error.message);
+} else {
+  console.log("User:", user);
+}
+
+// Pattern 3: .catch() on individual promises (selective handling)
+async function loadDashboard() {
+  const user = await fetchUser(1); // Let this throw if it fails
+  const posts = await fetchPosts(1).catch(() => []); // Fallback to empty
+  const notifications = await fetchNotifications().catch(() => []); // Fallback
+  
+  return { user, posts, notifications };
+}
+
+// Pattern 4: Retry with exponential backoff
+async function fetchWithRetry(url, maxRetries = 3) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      if (attempt === maxRetries) throw error;
+      const delay = Math.min(1000 * 2 ** attempt, 10000); // 1s, 2s, 4s...
+      console.log(`Retry ${attempt + 1} in ${delay}ms...`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+}
+
+// Pattern 5: Global unhandled rejection handler
+window.addEventListener("unhandledrejection", (event) => {
+  console.error("Unhandled promise rejection:", event.reason);
+  event.preventDefault(); // Prevent default error logging
+  // Report to error tracking service
+});</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Implement a retry function with exponential backoff.</p>
+<p><strong>Answer:</strong> Loop with try/catch, delay doubles each attempt: <code>async function retry(fn, retries = 3) { for (let i = 0; i <= retries; i++) { try { return await fn(); } catch (e) { if (i === retries) throw e; await new Promise(r => setTimeout(r, 1000 * 2**i)); } } }</code></p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="concurrency">9. Concurrency Patterns & Real-World Scenarios</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=QO4NXhWo_NM" target="_blank">Concurrency Patterns — Jake Archibald</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Qg1SvpIau6U" target="_blank">Async Patterns — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Pattern 1: Throttled parallel execution (limit concurrency)
+async function parallelLimit(tasks, limit) {
+  const results = [];
+  const executing = new Set();
+  
+  for (const [index, task] of tasks.entries()) {
+    const promise = task().then(result => {
+      executing.delete(promise);
+      results[index] = result;
+    });
+    executing.add(promise);
+    
+    if (executing.size >= limit) {
+      await Promise.race(executing); // Wait for one to finish
+    }
+  }
+  
+  await Promise.all(executing); // Wait for remaining
+  return results;
+}
+
+// Usage: process 100 URLs but max 5 at a time
+const urls = Array.from({length: 100}, (_, i) => `/api/item/${i}`);
+const tasks = urls.map(url => () => fetch(url).then(r => r.json()));
+const results = await parallelLimit(tasks, 5);
+
+// Pattern 2: Sequential with early exit
+async function findFirst(urls, predicate) {
+  for (const url of urls) {
+    const data = await fetch(url).then(r => r.json());
+    if (predicate(data)) return data; // Early exit!
+  }
+  return null;
+}
+
+// Pattern 3: Parallel with timeout
+async function fetchWithTimeout(urls, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  
+  try {
+    const results = await Promise.all(
+      urls.map(url => fetch(url, { signal: controller.signal }).then(r => r.json()))
+    );
+    return results;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// Pattern 4: Debounced async (search autocomplete)
+function debounceAsync(fn, delay) {
+  let timeoutId;
+  let abortController;
+  
+  return async function(...args) {
+    // Cancel previous
+    if (abortController) abortController.abort();
+    clearTimeout(timeoutId);
+    
+    abortController = new AbortController();
+    const signal = abortController.signal;
+    
+    await new Promise(resolve => { timeoutId = setTimeout(resolve, delay); });
+    
+    if (signal.aborted) return;
+    return fn(...args);
+  };
+}
+
+// Pattern 5: Mutex / Lock (prevent race conditions)
+class Mutex {
+  #queue = [];
+  #locked = false;
+  
+  async acquire() {
+    if (this.#locked) {
+      await new Promise(resolve => this.#queue.push(resolve));
+    }
+    this.#locked = true;
+  }
+  
+  release() {
+    if (this.#queue.length > 0) {
+      const next = this.#queue.shift();
+      next(); // Wake up next waiter
+    } else {
+      this.#locked = false;
+    }
+  }
+}
+
+const mutex = new Mutex();
+async function criticalSection() {
+  await mutex.acquire();
+  try {
+    // Only one execution at a time
+    await updateDatabase();
+  } finally {
+    mutex.release();
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="abort">10. AbortController & Cancellation</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=LjsMNYcP4nM" target="_blank">AbortController — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4yS1gMGmMTg" target="_blank">Cancelling Fetch Requests — Google Chrome Developers</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// AbortController — standard way to cancel async operations
+const controller = new AbortController();
+const { signal } = controller;
+
+// Cancel fetch requests
+fetch("/api/large-data", { signal })
+  .then(r => r.json())
+  .catch(err => {
+    if (err.name === "AbortError") {
+      console.log("Request cancelled by user");
+    }
+  });
+
+// Cancel after 5 seconds:
+setTimeout(() => controller.abort(), 5000);
+
+// Or cancel on user action:
+cancelButton.onclick = () => controller.abort();
+
+// AbortSignal.timeout (ES2022 — built-in timeout!)
+fetch("/api/data", { signal: AbortSignal.timeout(5000) })
+  .catch(err => {
+    if (err.name === "TimeoutError") console.log("Timed out!");
+  });
+
+// AbortSignal.any (ES2024 — combine signals)
+const userAbort = new AbortController();
+const combined = AbortSignal.any([
+  userAbort.signal,
+  AbortSignal.timeout(10000)
+]);
+fetch("/api/data", { signal: combined });
+
+// Using with event listeners (cleanup!)
+const controller2 = new AbortController();
+element.addEventListener("click", handler, { signal: controller2.signal });
+element.addEventListener("keydown", handler2, { signal: controller2.signal });
+// Remove ALL listeners at once:
+controller2.abort(); // Removes both click and keydown!
+
+// Angular pattern: cleanup in ngOnDestroy
+class MyComponent {
+  private abortController = new AbortController();
+  
+  ngOnInit() {
+    fetch("/api/data", { signal: this.abortController.signal })
+      .then(data => this.updateView(data));
+  }
+  
+  ngOnDestroy() {
+    this.abortController.abort(); // Cancel all pending operations
+  }
+}</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 5:</strong> Implement a cancellable <code>sleep</code> function:</p>
+<pre><code>function cancellableSleep(ms) {
+  const controller = new AbortController();
+  
+  const promise = new Promise((resolve, reject) => {
+    const timerId = setTimeout(resolve, ms);
+    
+    controller.signal.addEventListener("abort", () => {
+      clearTimeout(timerId);
+      reject(new DOMException("Sleep cancelled", "AbortError"));
+    });
+  });
+  
+  return { promise, cancel: () => controller.abort() };
+}
+
+const { promise, cancel } = cancellableSleep(5000);
+setTimeout(cancel, 2000); // Cancel after 2s
+await promise; // Throws AbortError after 2s</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How do you cancel a fetch request?</p>
+<p><strong>Answer:</strong> Use AbortController: create controller, pass its signal to fetch options, call controller.abort() to cancel. The fetch promise rejects with AbortError. For timeout: use AbortSignal.timeout(ms). In Angular, prefer RxJS takeUntil or HttpClient which uses AbortController internally.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How would you implement a request deduplication system — if the same URL is fetched while a previous request is still pending, return the same Promise?</p>
+<p><strong>Answer:</strong> Use a Map to cache in-flight promises: <code>const pending = new Map(); function dedupeFetch(url) { if (pending.has(url)) return pending.get(url); const promise = fetch(url).then(r => r.json()).finally(() => pending.delete(url)); pending.set(url, promise); return promise; }</code></p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="nav-links">
+  <a href="phase4-prototypes-classes-oop.html">← Phase 4: Prototypes & OOP</a>
+  <a href="phase6-dom-events-browser-apis.html">Phase 6: DOM & Browser APIs →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

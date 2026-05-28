@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 4: State Management &amp; Data</title>
+  <style>
+    :root { --bg: #ffffff; --panel: #f7f9fc; --panel-2: #f1f4fa; --ink: #1a2233; --muted: #5a6678; --line: #e2e7f0; --accent: #0f9d7a; --accent-2: #2a5bd7; --warn: #b26b00; --danger: #c23046; --critical: #7a1d2c; --ok: #1a8f4d; --code-bg: #f5f7fb; --chip: #eef1f8; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; } strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); } .chip.intermediate { background: #fdf1dc; color: var(--warn); } .chip.advanced { background: #fbe1e5; color: var(--danger); } .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; } .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; } .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; } .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); } .callout.tip .tag { color: var(--accent); } .callout.warn .tag { color: var(--warn); } .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; } .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; } .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 4 of 8 — State & Data</small></div>
+  <h2>This Phase</h2>
+  <a href="#state-categories">State Categories</a>
+  <a href="#signals">Angular Signals</a>
+  <a href="#ngrx">NgRx (Redux Pattern)</a>
+  <a href="#component-store">ComponentStore</a>
+  <a href="#rxjs-patterns">RxJS State Patterns</a>
+  <a href="#data-normalization">Data Normalization</a>
+  <a href="#optimistic-ui">Optimistic UI Updates</a>
+  <a href="#form-state">Form State Management</a>
+  <a href="#url-state">URL as State</a>
+  <a href="#client-storage">Client-Side Storage</a>
+  <a href="#exercises">Hands-On Exercises</a>
+  <a href="#interview-questions">Interview Questions</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html">① Fundamentals</a>
+  <a href="phase2-networking-communication.html">② Networking</a>
+  <a href="phase3-performance-optimization.html">③ Performance</a>
+  <a href="phase4-state-management-data.html"><strong>④ State & Data</strong></a>
+  <a href="phase5-security-auth.html">⑤ Security</a>
+  <a href="phase6-scalable-ui-architecture.html">⑥ Scalable UI</a>
+  <a href="phase7-observability-testing.html">⑦ Observability</a>
+  <a href="phase8-real-world-design-problems.html">⑧ Design Problems</a>
+</aside>
+
+<main>
+<h1>Phase 4: State Management &amp; Data</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">How to organize, share, and persist data across your app. Signals, NgRx, RxJS patterns, optimistic UI — know WHEN to use each approach and WHY.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="state-categories">1. Understanding State Categories</h2>
+<span class="chip beginner">Beginner</span>
+
+<h3>Theory: Types of State in Frontend Apps</h3>
+<pre><code>// Every piece of data in your app falls into one of these categories:
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         FRONTEND STATE MAP                              │
+├───────────────────┬─────────────────────────────────────────────────────┤
+│ SERVER STATE      │ Data that lives on backend, cached on client        │
+│                   │ Examples: user profile, products, orders            │
+│                   │ Tools: HTTP service + cache, NgRx Entity            │
+├───────────────────┼─────────────────────────────────────────────────────┤
+│ CLIENT STATE      │ UI-only data that doesn't exist on server           │
+│                   │ Examples: sidebar open/closed, selected tab, theme  │
+│                   │ Tools: Signals, Component state, localStorage       │
+├───────────────────┼─────────────────────────────────────────────────────┤
+│ FORM STATE        │ In-progress form data before submission             │
+│                   │ Examples: draft email, checkout form, filters       │
+│                   │ Tools: Reactive Forms, FormGroup                    │
+├───────────────────┼─────────────────────────────────────────────────────┤
+│ URL STATE         │ State encoded in the URL (shareable, bookmarkable)  │
+│                   │ Examples: search query, pagination, filters, route  │
+│                   │ Tools: Router, queryParams, ActivatedRoute          │
+├───────────────────┼─────────────────────────────────────────────────────┤
+│ SESSION STATE     │ Temporary state for current session                 │
+│                   │ Examples: auth token, shopping cart, wizard progress│
+│                   │ Tools: sessionStorage, in-memory service            │
+└───────────────────┴─────────────────────────────────────────────────────┘</code></pre>
+
+<h3>State Management Decision Matrix</h3>
+<table>
+  <tr><th>Scenario</th><th>Recommended Approach</th><th>Why</th></tr>
+  <tr><td>Component-local UI state</td><td>Signals / class fields</td><td>Simple, no overhead, component-scoped</td></tr>
+  <tr><td>Shared across 2-3 components</td><td>Service with Signals</td><td>Lightweight, injectable, tree-shakable</td></tr>
+  <tr><td>Complex domain (many entities)</td><td>NgRx Store</td><td>Predictable, time-travel debug, effects for side effects</td></tr>
+  <tr><td>Feature-scoped store</td><td>ComponentStore / SignalStore</td><td>Lightweight, no global registry</td></tr>
+  <tr><td>Server data caching</td><td>HTTP cache / SWR pattern</td><td>Cache invalidation, loading states, retries</td></tr>
+  <tr><td>Form state</td><td>ReactiveFormsModule</td><td>Validation, dirty tracking, nested groups</td></tr>
+  <tr><td>URL-persisted state</td><td>Router queryParams</td><td>Shareable, back/forward navigation works</td></tr>
+</table>
+
+<div class="callout warn">
+  <span class="tag">Common Interview Mistake</span>
+  Don't say "We use NgRx for everything." Interviewers want to hear that you pick the <strong>right tool for the right state type</strong>. Global store for global state, local signals for local state, URL for shareable state.
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=eVfw4pRDUIY" target="_blank">State Management Explained — Fireship</a><div class="meta">Overview of state patterns</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=oFIVJBPenBk" target="_blank">Frontend State Categories — Jack Herrington</a><div class="meta">Server, UI, URL, Form state</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="signals">2. Angular Signals (Modern State)</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: What Are Signals?</h3>
+<p><strong>Signals</strong> (Angular 16+) are reactive primitives that hold a value and notify consumers when that value changes. They enable fine-grained reactivity without Zone.js.</p>
+
+<pre><code>// ═══ BASIC SIGNALS ═══
+import { signal, computed, effect } from '@angular/core';
+
+// Writable Signal — holds and updates a value:
+const count = signal(0);           // Create
+console.log(count());              // Read: 0
+count.set(5);                      // Write (replace)
+count.update(c => c + 1);         // Write (derive from previous)
+
+// Computed Signal — derived, memoized, read-only:
+const double = computed(() => count() * 2);
+// Only recalculates when count() changes (memoized!)
+// If count = 5, double() = 10 always (cached until count changes)
+
+// Effect — side effect that runs when dependencies change:
+effect(() => {
+  console.log(`Count changed to: ${count()}`);
+  // Automatically tracks which signals are read inside!
+  // Re-runs whenever count() changes
+});
+
+// ═══ SIGNALS IN COMPONENTS (Angular 17+) ═══
+@Component({
+  template: `
+    &lt;h1&gt;{{ title() }}&lt;/h1&gt;
+    &lt;p&gt;Items: {{ items().length }}&lt;/p&gt;
+    &lt;p&gt;Total: {{ total() }}&lt;/p&gt;
+    
+    @for (item of filteredItems(); track item.id) {
+      &lt;app-item [item]="item" /&gt;
+    }
+  `
+})
+export class CartComponent {
+  // Signal-based inputs (Angular 17.1+):
+  title = input.required&lt;string&gt;();
+  
+  // Internal state:
+  items = signal&lt;CartItem[]&gt;([]);
+  filter = signal('');
+  
+  // Computed (auto-updates when items or filter change):
+  filteredItems = computed(() => 
+    this.items().filter(i => i.name.includes(this.filter()))
+  );
+  total = computed(() => 
+    this.items().reduce((sum, i) => sum + i.price * i.qty, 0)
+  );
+  
+  addItem(item: CartItem) {
+    this.items.update(items => [...items, item]);
+  }
+  
+  removeItem(id: string) {
+    this.items.update(items => items.filter(i => i.id !== id));
+  }
+}
+
+// ═══ SHARED STATE WITH SIGNAL SERVICE ═══
+@Injectable({ providedIn: 'root' })
+export class ThemeService {
+  private _theme = signal&lt;'light' | 'dark'&gt;('light');
+  
+  // Expose read-only signal:
+  readonly theme = this._theme.asReadonly();
+  readonly isDark = computed(() => this._theme() === 'dark');
+  
+  toggle() {
+    this._theme.update(t => t === 'light' ? 'dark' : 'light');
+  }
+}</code></pre>
+
+<h3>NgRx SignalStore (Angular 17+)</h3>
+<pre><code>// Feature-scoped, type-safe store built on Signals:
+import { signalStore, withState, withComputed, withMethods, patchState } from '@ngrx/signals';
+import { withEntities, addEntity, removeEntity } from '@ngrx/signals/entities';
+
+type TodosState = { filter: 'all' | 'active' | 'completed'; loading: boolean };
+
+export const TodosStore = signalStore(
+  { providedIn: 'root' },
+  withState&lt;TodosState&gt;({ filter: 'all', loading: false }),
+  withEntities&lt;Todo&gt;(),  // Adds entities(), ids(), entityMap()
+  withComputed((store) => ({
+    filteredTodos: computed(() => {
+      const todos = store.entities();
+      switch (store.filter()) {
+        case 'active': return todos.filter(t => !t.completed);
+        case 'completed': return todos.filter(t => t.completed);
+        default: return todos;
+      }
+    }),
+    completedCount: computed(() => store.entities().filter(t => t.completed).length)
+  })),
+  withMethods((store, http = inject(HttpClient)) => ({
+    setFilter(filter: 'all' | 'active' | 'completed') {
+      patchState(store, { filter });
+    },
+    async loadTodos() {
+      patchState(store, { loading: true });
+      const todos = await firstValueFrom(http.get&lt;Todo[]&gt;('/api/todos'));
+      patchState(store, setAllEntities(todos), { loading: false });
+    },
+    addTodo(todo: Todo) {
+      patchState(store, addEntity(todo));
+    },
+    removeTodo(id: string) {
+      patchState(store, removeEntity(id));
+    }
+  }))
+);
+
+// Usage in component:
+@Component({
+  providers: [TodosStore],  // or use providedIn: 'root'
+  template: `
+    @if (store.loading()) { &lt;app-spinner /&gt; }
+    @for (todo of store.filteredTodos(); track todo.id) {
+      &lt;app-todo-item [todo]="todo" (delete)="store.removeTodo(todo.id)" /&gt;
+    }
+    &lt;p&gt;Completed: {{ store.completedCount() }}&lt;/p&gt;
+  `
+})
+export class TodosComponent {
+  readonly store = inject(TodosStore);
+  
+  ngOnInit() { this.store.loadTodos(); }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=6W6gycuhiN0" target="_blank">Angular Signals — Joshua Morony</a><div class="meta">Signals tutorial from scratch</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=4FkFZWUJdGc" target="_blank">Signals Deep Dive — Angular</a><div class="meta">Official Angular signals guide</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="ngrx">3. NgRx Store (Redux Pattern)</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: When to Use NgRx</h3>
+<div class="callout tip">
+  <span class="tag">Use NgRx When</span>
+  <ul>
+    <li>Multiple components share the same data (global cart, user session, notifications)</li>
+    <li>Complex data flows with many side effects (API calls, WebSocket events)</li>
+    <li>Need time-travel debugging, action logging, state snapshots</li>
+    <li>Team wants strict, predictable architecture (enterprise apps)</li>
+  </ul>
+</div>
+
+<pre><code>// ═══ NgRx Architecture ═══
+//
+// ┌──────────┐    dispatch     ┌──────────┐    pure function   ┌───────────┐
+// │Component │ ──────────────→ │  Action  │ ─────────────────→ │  Reducer  │
+// │          │                 {type,data}│                    │ (state,a) │
+// └──────────┘                 └──────────┘                    └─────┬─────┘
+//       ↑                                                            │
+//       │ select                                                     ↓ new state
+//       │                                                     ┌───────────┐
+//       └──────────────────── Selector ←──────────────────────│   Store   │
+//                              (memoized query)               └───────────┘
+//                                                                    ↑
+//                              ┌──────────┐  side effects     ┌─────┴─────┐
+//                              │  Effect  │ ←─────────────────│  Actions$ │
+//                              │(API call)│                   └───────────┘
+//                              └──────────┘
+
+// ═══ ACTIONS ═══
+// actions/product.actions.ts
+export const ProductActions = createActionGroup({
+  source: 'Product',
+  events: {
+    'Load Products': props&lt;{ category: string }&gt;(),
+    'Load Products Success': props&lt;{ products: Product[] }&gt;(),
+    'Load Products Failure': props&lt;{ error: string }&gt;(),
+    'Add To Cart': props&lt;{ productId: string; qty: number }&gt;(),
+  }
+});
+
+// ═══ REDUCER ═══
+// reducers/product.reducer.ts
+export interface ProductState {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: ProductState = { products: [], loading: false, error: null };
+
+export const productReducer = createReducer(
+  initialState,
+  on(ProductActions.loadProducts, (state) => ({ ...state, loading: true, error: null })),
+  on(ProductActions.loadProductsSuccess, (state, { products }) => ({
+    ...state, products, loading: false
+  })),
+  on(ProductActions.loadProductsFailure, (state, { error }) => ({
+    ...state, error, loading: false
+  }))
+);
+
+// ═══ SELECTORS (Memoized queries) ═══
+export const selectProductState = createFeatureSelector&lt;ProductState&gt;('products');
+export const selectAllProducts = createSelector(selectProductState, s => s.products);
+export const selectLoading = createSelector(selectProductState, s => s.loading);
+export const selectProductsByCategory = (category: string) =>
+  createSelector(selectAllProducts, products => products.filter(p => p.category === category));
+
+// ═══ EFFECTS (Side effects — API calls) ═══
+@Injectable()
+export class ProductEffects {
+  private actions$ = inject(Actions);
+  private http = inject(HttpClient);
+
+  loadProducts$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ProductActions.loadProducts),
+      switchMap(({ category }) =>
+        this.http.get&lt;Product[]&gt;(`/api/products?category=${category}`).pipe(
+          map(products => ProductActions.loadProductsSuccess({ products })),
+          catchError(error => of(ProductActions.loadProductsFailure({ error: error.message })))
+        )
+      )
+    )
+  );
+}
+
+// ═══ COMPONENT ═══
+@Component({
+  template: `
+    @if (loading$ | async) { &lt;app-spinner /&gt; }
+    @for (product of products$ | async; track product.id) {
+      &lt;app-product-card [product]="product" (addToCart)="addToCart($event)" /&gt;
+    }
+  `
+})
+export class ProductListComponent {
+  private store = inject(Store);
+  products$ = this.store.select(selectAllProducts);
+  loading$ = this.store.select(selectLoading);
+  
+  ngOnInit() {
+    this.store.dispatch(ProductActions.loadProducts({ category: 'electronics' }));
+  }
+  
+  addToCart(productId: string) {
+    this.store.dispatch(ProductActions.addToCart({ productId, qty: 1 }));
+  }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=N7m54bAFBRQ" target="_blank">NgRx Explained — Decoded Frontend</a><div class="meta">Redux pattern in Angular</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=JbB5P0Rg2FQ" target="_blank">NgRx Best Practices — Angular</a><div class="meta">Store, effects, selectors</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="component-store">4. ComponentStore (Lightweight Local Store)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ComponentStore = local store for a SINGLE feature/component
+// No global registry, no actions, no effects boilerplate
+// Perfect for: search with filters, wizard steps, feature-specific state
+
+@Injectable()
+export class SearchStore extends ComponentStore&lt;SearchState&gt; {
+  constructor(private http: HttpClient) {
+    super({ query: '', results: [], loading: false, page: 1 });
+  }
+
+  // Selectors:
+  readonly results$ = this.select(s => s.results);
+  readonly loading$ = this.select(s => s.loading);
+  readonly vm$ = this.select(s => ({
+    results: s.results,
+    loading: s.loading,
+    hasMore: s.results.length &gt;= 20
+  }));
+
+  // Updaters (synchronous state changes):
+  readonly setQuery = this.updater((state, query: string) => ({
+    ...state, query, page: 1
+  }));
+
+  // Effects (async operations):
+  readonly search = this.effect&lt;string&gt;(query$ =>
+    query$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => this.patchState({ loading: true })),
+      switchMap(query =>
+        this.http.get&lt;Product[]&gt;(`/api/search?q=${query}`).pipe(
+          tapResponse(
+            results => this.patchState({ results, loading: false }),
+            error => this.patchState({ loading: false })
+          )
+        )
+      )
+    )
+  );
+}
+
+// Component:
+@Component({
+  providers: [SearchStore],  // Scoped to component lifetime!
+  template: `
+    &lt;input (input)="onSearch($event)" /&gt;
+    &lt;ng-container *ngIf="store.vm$ | async as vm"&gt;
+      &lt;app-spinner *ngIf="vm.loading" /&gt;
+      &lt;app-results [items]="vm.results" /&gt;
+    &lt;/ng-container&gt;
+  `
+})
+export class SearchComponent {
+  store = inject(SearchStore);
+  onSearch(event: Event) {
+    this.store.search((event.target as HTMLInputElement).value);
+  }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=BnrZ-dvJqgI" target="_blank">ComponentStore — Brandon Roberts</a><div class="meta">NgRx ComponentStore tutorial</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=GNMHMouFQAo" target="_blank">Local State with ComponentStore — Angular</a><div class="meta">When to use ComponentStore vs Store</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="rxjs-patterns">5. RxJS State Patterns</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ BehaviorSubject Service (Simple shared state) ═══
+@Injectable({ providedIn: 'root' })
+export class CartService {
+  private items$ = new BehaviorSubject&lt;CartItem[]&gt;([]);
+  
+  // Public observables (read-only):
+  readonly cart$ = this.items$.asObservable();
+  readonly itemCount$ = this.cart$.pipe(map(items => items.length));
+  readonly total$ = this.cart$.pipe(
+    map(items => items.reduce((sum, i) => sum + i.price * i.qty, 0))
+  );
+  
+  addItem(item: CartItem) {
+    const current = this.items$.getValue();
+    const existing = current.find(i => i.id === item.id);
+    if (existing) {
+      this.items$.next(current.map(i => 
+        i.id === item.id ? { ...i, qty: i.qty + 1 } : i
+      ));
+    } else {
+      this.items$.next([...current, { ...item, qty: 1 }]);
+    }
+  }
+  
+  removeItem(id: string) {
+    this.items$.next(this.items$.getValue().filter(i => i.id !== id));
+  }
+}
+
+// ═══ SCAN PATTERN (Event sourcing style) ═══
+interface CartEvent {
+  type: 'add' | 'remove' | 'clear' | 'updateQty';
+  payload?: any;
+}
+
+@Injectable({ providedIn: 'root' })
+export class CartEventService {
+  private events$ = new Subject&lt;CartEvent&gt;();
+  
+  readonly cart$ = this.events$.pipe(
+    scan((state: CartItem[], event: CartEvent) => {
+      switch (event.type) {
+        case 'add': return [...state, event.payload];
+        case 'remove': return state.filter(i => i.id !== event.payload);
+        case 'updateQty': return state.map(i => 
+          i.id === event.payload.id ? { ...i, qty: event.payload.qty } : i
+        );
+        case 'clear': return [];
+      }
+    }, []),
+    shareReplay(1)
+  );
+  
+  dispatch(event: CartEvent) { this.events$.next(event); }
+}
+
+// ═══ combineLatest for DERIVED STATE ═══
+// When you need state that depends on multiple sources:
+readonly vm$ = combineLatest([
+  this.products$,
+  this.filters$,
+  this.sort$
+]).pipe(
+  map(([products, filters, sort]) => ({
+    products: this.applyFilters(products, filters, sort),
+    activeFilters: Object.keys(filters).filter(k => filters[k]),
+    total: products.length
+  })),
+  shareReplay(1)
+);</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ewcoEYS85Co" target="_blank">RxJS Top Patterns — Decoded Frontend</a><div class="meta">switchMap, concatMap, exhaustMap</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=tkFPxMXMBIo" target="_blank">RxJS State Management — Joshua Morony</a><div class="meta">BehaviorSubject patterns</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="data-normalization">6. Data Normalization</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// ═══ PROBLEM: Nested/duplicated data ═══
+// API returns:
+{
+  posts: [
+    { id: 1, title: "...", author: { id: 5, name: "Alice" }, comments: [...] },
+    { id: 2, title: "...", author: { id: 5, name: "Alice" }, comments: [...] }
+  ]
+}
+// "Alice" is duplicated! If her name changes, update in 50 places?
+
+// ═══ SOLUTION: Normalize (flat structure with IDs) ═══
+// Normalized state:
+{
+  entities: {
+    posts: {
+      1: { id: 1, title: "...", authorId: 5, commentIds: [10, 11] },
+      2: { id: 2, title: "...", authorId: 5, commentIds: [12] }
+    },
+    users: {
+      5: { id: 5, name: "Alice" }
+    },
+    comments: {
+      10: { id: 10, text: "...", authorId: 5 },
+      11: { id: 11, text: "...", authorId: 7 },
+      12: { id: 12, text: "...", authorId: 5 }
+    }
+  },
+  ids: {
+    posts: [1, 2],
+    users: [5, 7],
+    comments: [10, 11, 12]
+  }
+}
+// Now "Alice" exists in ONE place. Update once → reflected everywhere!
+
+// ═══ NgRx Entity (Built-in normalization) ═══
+import { EntityState, createEntityAdapter } from '@ngrx/entity';
+
+interface ProductState extends EntityState&lt;Product&gt; {
+  selectedId: string | null;
+  loading: boolean;
+}
+
+const adapter = createEntityAdapter&lt;Product&gt;({
+  selectId: product => product.id,
+  sortComparer: (a, b) => a.name.localeCompare(b.name)
+});
+
+const initialState: ProductState = adapter.getInitialState({
+  selectedId: null,
+  loading: false
+});
+
+// Reducer with adapter methods:
+export const productReducer = createReducer(
+  initialState,
+  on(ProductActions.loadSuccess, (state, { products }) =>
+    adapter.setAll(products, { ...state, loading: false })
+  ),
+  on(ProductActions.addOne, (state, { product }) =>
+    adapter.addOne(product, state)
+  ),
+  on(ProductActions.updateOne, (state, { id, changes }) =>
+    adapter.updateOne({ id, changes }, state)
+  ),
+  on(ProductActions.removeOne, (state, { id }) =>
+    adapter.removeOne(id, state)
+  )
+);
+
+// Selectors (adapter provides built-in):
+const { selectAll, selectEntities, selectIds, selectTotal } = adapter.getSelectors();
+export const selectAllProducts = createSelector(selectProductState, selectAll);
+export const selectProductById = (id: string) =>
+  createSelector(selectProductState, state => state.entities[id]);</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=GFQaEYEc8_8" target="_blank">Data Normalization — ByteByteGo</a><div class="meta">Why normalize frontend state</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=VECGKFdu6OE" target="_blank">Normalizing State Shape — Redux</a><div class="meta">Entity adapter pattern</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="optimistic-ui">7. Optimistic UI Updates</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// ═══ THEORY ═══
+// PESSIMISTIC: Click → Loading... → Wait for server → Show result
+// OPTIMISTIC:  Click → Show result immediately → Sync with server in background
+//              If server fails → ROLLBACK to previous state
+
+// User PERCEIVES instant response! (Like, favorite, delete, reorder)
+
+// ═══ IMPLEMENTATION ═══
+@Injectable()
+export class OptimisticTodoService {
+  private todos = signal&lt;Todo[]&gt;([]);
+  readonly todos$ = this.todos.asReadonly();
+  
+  // Optimistic Delete:
+  async deleteTodo(id: string) {
+    // 1. Save current state for rollback:
+    const previousTodos = this.todos();
+    
+    // 2. Optimistically remove immediately:
+    this.todos.update(todos => todos.filter(t => t.id !== id));
+    
+    try {
+      // 3. Sync with server:
+      await firstValueFrom(this.http.delete(`/api/todos/${id}`));
+    } catch (error) {
+      // 4. ROLLBACK on failure:
+      this.todos.set(previousTodos);
+      this.snackbar.open('Failed to delete. Please try again.', 'Dismiss');
+    }
+  }
+  
+  // Optimistic Add:
+  async addTodo(text: string) {
+    const tempId = `temp-${Date.now()}`;
+    const optimisticTodo = { id: tempId, text, completed: false, pending: true };
+    
+    // Show immediately with pending indicator:
+    this.todos.update(todos => [...todos, optimisticTodo]);
+    
+    try {
+      const savedTodo = await firstValueFrom(
+        this.http.post&lt;Todo&gt;('/api/todos', { text })
+      );
+      // Replace temp with real:
+      this.todos.update(todos => todos.map(t => t.id === tempId ? savedTodo : t));
+    } catch {
+      // Remove optimistic entry:
+      this.todos.update(todos => todos.filter(t => t.id !== tempId));
+      this.snackbar.open('Failed to add todo.', 'Retry');
+    }
+  }
+}
+
+// ═══ NgRx Optimistic Pattern ═══
+// 1. Reducer handles action immediately (optimistic)
+// 2. Effect calls API
+// 3. On failure: dispatch rollback action
+loadProducts$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ProductActions.deleteProduct),
+    mergeMap(({ id, previousState }) =>
+      this.http.delete(`/api/products/${id}`).pipe(
+        map(() => ProductActions.deleteProductSuccess({ id })),
+        catchError(() => of(ProductActions.deleteProductRollback({ previousState })))
+      )
+    )
+  )
+);</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=EdR2BPWpfoQ" target="_blank">Optimistic UI — Fireship</a><div class="meta">Optimistic updates explained</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=dUXTxFAl9bE" target="_blank">Optimistic Updates — Jack Herrington</a><div class="meta">Rollback on failure patterns</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="form-state">8. Form State Management</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ REACTIVE FORMS — Complex state management for forms ═══
+@Component({
+  template: `
+    &lt;form [formGroup]="form" (ngSubmit)="onSubmit()"&gt;
+      &lt;input formControlName="email" /&gt;
+      @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+        &lt;span class="error"&gt;Invalid email&lt;/span&gt;
+      }
+      
+      &lt;div formArrayName="addresses"&gt;
+        @for (addr of addresses.controls; track $index) {
+          &lt;div [formGroupName]="$index"&gt;
+            &lt;input formControlName="street" /&gt;
+            &lt;input formControlName="city" /&gt;
+          &lt;/div&gt;
+        }
+      &lt;/div&gt;
+      
+      &lt;button [disabled]="form.invalid || form.pristine"&gt;Save&lt;/button&gt;
+    &lt;/form&gt;
+  `
+})
+export class ProfileFormComponent {
+  private fb = inject(FormBuilder);
+  
+  form = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    addresses: this.fb.array([this.createAddress()])
+  });
+  
+  get addresses() { return this.form.get('addresses') as FormArray; }
+  
+  createAddress() {
+    return this.fb.group({
+      street: ['', Validators.required],
+      city: ['', Validators.required]
+    });
+  }
+  
+  addAddress() { this.addresses.push(this.createAddress()); }
+}
+
+// ═══ FORM AUTO-SAVE (Draft persistence) ═══
+@Injectable({ providedIn: 'root' })
+export class FormPersistService {
+  save(key: string, formValue: any) {
+    sessionStorage.setItem(`form_${key}`, JSON.stringify(formValue));
+  }
+  
+  restore(key: string): any | null {
+    const saved = sessionStorage.getItem(`form_${key}`);
+    return saved ? JSON.parse(saved) : null;
+  }
+  
+  clear(key: string) { sessionStorage.removeItem(`form_${key}`); }
+}
+
+// In component:
+ngOnInit() {
+  const saved = this.formPersist.restore('checkout');
+  if (saved) this.form.patchValue(saved);
+  
+  // Auto-save on changes (debounced):
+  this.form.valueChanges.pipe(
+    debounceTime(1000),
+    takeUntilDestroyed()
+  ).subscribe(value => this.formPersist.save('checkout', value));
+}
+
+onSubmit() {
+  this.formPersist.clear('checkout'); // Clear draft on successful submit
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=0k7-oFfvsHU" target="_blank">Angular Reactive Forms — Decoded Frontend</a><div class="meta">FormBuilder deep dive</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=R77w-ejLAjI" target="_blank">Form State Management — Joshua Morony</a><div class="meta">Signals + forms pattern</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="url-state">9. URL as State (Router State)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ WHY USE URL FOR STATE? ═══
+// 1. Shareable — copy URL and send to colleague
+// 2. Bookmarkable — save filtered view
+// 3. Back/Forward works — browser history integration
+// 4. SEO — search engines can crawl different states
+
+// ═══ Query Params for Filters ═══
+// URL: /products?category=electronics&sort=price&page=2&q=laptop
+@Component({
+  template: `
+    &lt;input [value]="query()" (input)="updateQuery($event)" /&gt;
+    &lt;select (change)="updateSort($event)"&gt;...&lt;/select&gt;
+  `
+})
+export class ProductsComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  
+  // Read params reactively:
+  query = toSignal(this.route.queryParamMap.pipe(
+    map(params => params.get('q') || '')
+  ));
+  
+  category = toSignal(this.route.queryParamMap.pipe(
+    map(params => params.get('category') || 'all')
+  ));
+  
+  // Update URL (without reloading component):
+  updateQuery(event: Event) {
+    const q = (event.target as HTMLInputElement).value;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q, page: 1 },  // Reset page on new search
+      queryParamsHandling: 'merge'   // Keep other params
+    });
+  }
+  
+  updateSort(event: Event) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { sort: (event.target as HTMLSelectElement).value },
+      queryParamsHandling: 'merge'
+    });
+  }
+}
+
+// ═══ Route params for entity identification ═══
+// URL: /products/123/reviews
+const routes: Routes = [
+  { path: 'products/:id', component: ProductDetailComponent },
+  { path: 'products/:id/reviews', component: ReviewsComponent }
+];
+
+// In component:
+productId = toSignal(this.route.paramMap.pipe(map(p => p.get('id')!)));
+product = toSignal(
+  toObservable(this.productId).pipe(
+    switchMap(id => this.productService.getById(id))
+  )
+);</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ukpgxEemXsk" target="_blank">URL State Management — Theo</a><div class="meta">Router as state manager</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=d4p0JnzLzOE" target="_blank">Query Params as State — Angular</a><div class="meta">Router state in Angular</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="client-storage">10. Client-Side Storage</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<table>
+  <tr><th>Storage</th><th>Capacity</th><th>Persistence</th><th>Access</th><th>Use Case</th></tr>
+  <tr><td>localStorage</td><td>~5-10MB</td><td>Forever (until cleared)</td><td>Sync, string only</td><td>User prefs, theme, token</td></tr>
+  <tr><td>sessionStorage</td><td>~5-10MB</td><td>Tab session</td><td>Sync, string only</td><td>Form drafts, wizard state</td></tr>
+  <tr><td>IndexedDB</td><td>~Unlimited</td><td>Forever</td><td>Async, structured data</td><td>Offline data, large datasets</td></tr>
+  <tr><td>Cookies</td><td>~4KB</td><td>Configurable</td><td>Sent with requests</td><td>Auth (httpOnly), tracking</td></tr>
+  <tr><td>Cache API</td><td>~Unlimited</td><td>Forever</td><td>Async, Request/Response</td><td>Service Worker caching</td></tr>
+</table>
+
+<pre><code>// ═══ IndexedDB for Complex Data (via idb library) ═══
+import { openDB } from 'idb';
+
+@Injectable({ providedIn: 'root' })
+export class OfflineStorageService {
+  private dbPromise = openDB('myApp', 1, {
+    upgrade(db) {
+      db.createObjectStore('products', { keyPath: 'id' });
+      db.createObjectStore('cart', { keyPath: 'id' });
+      const syncStore = db.createObjectStore('syncQueue', { autoIncrement: true });
+      syncStore.createIndex('timestamp', 'timestamp');
+    }
+  });
+  
+  async saveProducts(products: Product[]) {
+    const db = await this.dbPromise;
+    const tx = db.transaction('products', 'readwrite');
+    await Promise.all(products.map(p => tx.store.put(p)));
+    await tx.done;
+  }
+  
+  async getProducts(): Promise&lt;Product[]&gt; {
+    const db = await this.dbPromise;
+    return db.getAll('products');
+  }
+  
+  // Queue operations for sync when online:
+  async queueForSync(operation: { method: string; url: string; body?: any }) {
+    const db = await this.dbPromise;
+    await db.add('syncQueue', { ...operation, timestamp: Date.now() });
+  }
+  
+  async processSyncQueue() {
+    const db = await this.dbPromise;
+    const items = await db.getAll('syncQueue');
+    for (const item of items) {
+      try {
+        await fetch(item.url, { method: item.method, body: JSON.stringify(item.body) });
+        await db.delete('syncQueue', item.id);
+      } catch { break; } // Stop if still offline
+    }
+  }
+}</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=aKU2Un6f7Fo" target="_blank">Angular Signals Deep Dive — Joshua Morony</a><div class="meta">Best Signals tutorial for Angular devs</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=f97ICOaekNU" target="_blank">NgRx Crash Course — Decoded Frontend</a><div class="meta">Full NgRx walkthrough</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=MrfSVuyP3PM" target="_blank">SignalStore — Alex Okrushko (NgRx team)</a><div class="meta">Official NgRx SignalStore guide</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="exercises">11. Hands-On Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 1: Build a Shopping Cart with Signals</h4>
+  <p><strong>Task:</strong> Create a full cart service using Angular Signals:</p>
+  <ul>
+    <li>Add/remove items, update quantities</li>
+    <li>Computed: total price, item count, discount applied</li>
+    <li>Persist to localStorage (restore on page reload)</li>
+    <li>Optimistic delete with rollback on API failure</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2: NgRx Feature Store for Products</h4>
+  <p><strong>Task:</strong> Implement complete NgRx feature:</p>
+  <ul>
+    <li>Actions: Load, CRUD operations, filter</li>
+    <li>Reducer: EntityAdapter with normalized state</li>
+    <li>Effects: API calls with retry and error handling</li>
+    <li>Selectors: filtered products, category counts, selected product</li>
+    <li>Component with OnPush, async pipe, trackBy</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3: URL-Driven Search Page</h4>
+  <p><strong>Task:</strong> Build a product search page where:</p>
+  <ul>
+    <li>All filters (category, price range, sort, page) are in URL query params</li>
+    <li>Page is fully shareable (copy URL → exact same view)</li>
+    <li>Browser back/forward navigates through search history</li>
+    <li>Debounced text search updates URL</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="interview-questions">12. Interview Questions (Previously Asked)</h2>
+
+<div class="qa-block">
+  <p class="q">Q1: When would you use NgRx vs a simple service with BehaviorSubject? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> BehaviorSubject service: 2-5 components sharing state, simple data flows, no side effects. NgRx: complex domain with many entities, multiple components dispatching actions, side effects (API, WebSocket), need action logging/debugging, team of 5+ developers needing conventions. Middle ground: ComponentStore for feature-scoped complexity without global overhead. Modern Angular: SignalStore for most cases (simpler API, Signal integration). Rule: start simple (Signals), grow to NgRx only when you feel pain.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q2: How do you implement optimistic UI updates? What about conflict resolution? (Amazon, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> Optimistic: (1) Save previous state. (2) Apply change immediately in UI. (3) Send to server in background. (4) On failure: rollback + notify user. Conflict resolution: (a) Last-write-wins: simplest, server timestamp decides. (b) Version field (ETag/optimistic locking): reject if version mismatch, show conflict UI. (c) Operational Transform: for collaborative editing (complex). (d) CRDTs: conflict-free replicated data types for offline-first. Shopping cart example: server is source of truth, client merges on reconnect.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q3: Explain data normalization in frontend state. Why is it important? (Google, Microsoft)</p>
+  <p class="a"><strong>Answer:</strong> Normalization = storing entities in flat maps (by ID) instead of nested structures. Benefits: (1) Single source of truth — update user name in one place, reflected everywhere. (2) O(1) lookups by ID. (3) Avoids data duplication (same user in 50 posts). (4) Easier updates (no deep cloning nested objects). (5) Efficient selectors (memoized). NgRx Entity provides this out of the box. Trade-off: denormalization for read-heavy views (selector joins data). Similar to database normal forms.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q4: How would you handle offline-first architecture in a frontend app? (Swiggy, PhonePe)</p>
+  <p class="a"><strong>Answer:</strong> Architecture: (1) IndexedDB as local database (structured, large capacity). (2) Service Worker for network interception (serve cached responses). (3) Background Sync API for queuing mutations while offline. (4) Sync engine: on reconnect, send queued operations in order. (5) Conflict resolution strategy (timestamp-based or server-wins). (6) UI indicators: online/offline badge, "syncing..." status, "last synced: 5m ago". (7) Optimistic UI: always show local state, mark unsynced items. Example: Todo app that works offline, syncs when back.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q5: What are Angular Signals and how do they differ from RxJS Observables? (Angular-focused companies)</p>
+  <p class="a"><strong>Answer:</strong> Signals: synchronous, always have a current value, pull-based (read when needed), automatically tracked dependencies, no subscription management, fine-grained template updates. Observables: async streams, push-based, require subscribe/unsubscribe, powerful operators (debounce, merge, switchMap), handle events over time. Use Signals for: synchronous state, template bindings, computed values. Use RxJS for: HTTP calls, event streams, time-based operations, complex async coordination. They coexist: toSignal()/toObservable() bridge them.</p>
+</div>
+
+<div class="nav-links">
+  <a href="phase3-performance-optimization.html">← Phase 3: Performance</a>
+  <a href="phase5-security-auth.html">Phase 5: Security →</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>

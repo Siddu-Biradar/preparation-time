@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend Performance — Phase 6: Interview Masterclass & Complete Exercises</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #0f6b5f; --accent-soft: #d9efe8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.5; font-size: 11.4pt; }
+    main { max-width: 920px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #152923; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 28px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 18px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #f1ece2; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf7f2 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #13443d; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #bfded5; }
+    .callout { border-left: 4px solid var(--accent); background: #f4fbf8; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .q-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 10px 0; background: #fefdfb; }
+    .q-card h4 { color: var(--accent); margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9pt; font-weight: 600; margin-left: 8px; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #d1c4e9; color: #311b92; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 6: Interview Masterclass & Complete Exercises</h1>
+  <p class="subtitle">Frontend Performance Mastery — Zero to Hero Series (6 of 6)</p>
+  <div class="pill-row">
+    <span class="pill">Top 60 Questions</span>
+    <span class="pill">System Design</span>
+    <span class="pill">Scenario-Based</span>
+    <span class="pill">Coding Challenges</span>
+    <span class="pill">Quick Reference</span>
+    <span class="pill">Cheat Sheet</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#rapid-fire">Rapid-Fire Questions (Top 30)</a></li>
+    <li><a href="#scenario">Scenario-Based Questions (Top 15)</a></li>
+    <li><a href="#system-design">System Design: Performance (Top 10)</a></li>
+    <li><a href="#coding">Coding Challenges (5 Problems)</a></li>
+    <li><a href="#tricky">Tricky Gotcha Questions (10)</a></li>
+    <li><a href="#checklist">Complete Performance Audit Checklist</a></li>
+    <li><a href="#cheatsheet">Quick Reference Cheat Sheet</a></li>
+    <li><a href="#study-plan">7-Day Interview Prep Plan</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rapid-fire">1. Rapid-Fire Interview Questions (Top 30)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials — Interview Prep</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Web Performance Interview Questions — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=0fONene3OIA" target="_blank">Frontend Performance Fundamentals — Todd Gardner (Frontend Masters)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=5fLW5Q5ODiE" target="_blank">Performance Panel Walkthrough — Chrome DevTools</a></li>
+</ul></details></div>
+
+<p>These are the most commonly asked frontend performance questions across companies like Google, Microsoft, Amazon, Flipkart, and product-based companies.</p>
+
+<div class="q-card">
+  <h4>Q1: What are Core Web Vitals? <span class="difficulty d-easy">Easy</span></h4>
+  <p><strong>A:</strong> Three Google metrics measuring user experience: LCP (Largest Contentful Paint ≤2.5s — loading speed), INP (Interaction to Next Paint ≤200ms — responsiveness), CLS (Cumulative Layout Shift ≤0.1 — visual stability). They directly affect SEO rankings.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q2: Difference between reflow, repaint, and composite? <span class="difficulty d-easy">Easy</span></h4>
+  <p><strong>A:</strong> Reflow (Layout): Recalculates element geometry (expensive). Repaint: Fills visual pixels without geometry change. Composite: Draws pre-painted layers together (cheapest, GPU). Changing <code>width</code> → all three. Changing <code>color</code> → repaint + composite. Changing <code>transform</code> → composite only.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q3: How do you achieve 60fps animations? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Only animate <code>transform</code> and <code>opacity</code> — these run on the compositor thread without touching the main thread. Avoid animating <code>width</code>, <code>height</code>, <code>top</code>, <code>left</code> (trigger reflow). Use <code>will-change</code> to promote layers. Use requestAnimationFrame for JS animations. Budget: 10ms of JS per frame (16.67ms total for 60fps).</p>
+</div>
+
+<div class="q-card">
+  <h4>Q4: What is the Critical Rendering Path and how do you optimize it? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> CRP: HTML → DOM → CSSOM → Render Tree → Layout → Paint → Composite. Optimize: (1) Minimize critical resources (defer non-critical CSS/JS), (2) Reduce critical bytes (minify, compress), (3) Shorten critical path length (inline critical CSS in first 14KB), (4) Use <code>defer</code>/<code>async</code> for scripts, (5) Preload LCP resources.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q5: Explain Angular Change Detection and OnPush strategy. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Default CD checks every component on every async event. OnPush only checks when: @Input reference changes, event from the component, async pipe emits, or markForCheck() called. Combined with immutable data patterns, OnPush can skip 90%+ of unnecessary checks. Use with trackBy, pure pipes, and signals for maximum performance.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q6: What is tree shaking and what prevents it? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Tree shaking removes unused exports from bundles using static analysis of ES module imports. Prevented by: (1) CommonJS require() (not statically analyzable), (2) Side effects in modules, (3) Barrel files re-exporting everything, (4) Dynamic imports with variable paths. Fix: Use ES modules, mark packages as sideEffects: false, import from specific paths.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q7: Explain lazy loading strategies in Angular. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Route-based: <code>loadChildren</code>/<code>loadComponent</code> creates separate chunks loaded on navigation. Component-based (Angular 17+): <code>@defer</code> blocks with triggers (viewport, interaction, idle, timer). Preloading: PreloadAllModules (background load after initial), custom strategies (network-aware, viewport-based). Benefits: Reduces initial bundle from MBs to KBs, faster TTI.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q8: How does HTTP/2 improve performance over HTTP/1.1? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> (1) Multiplexing: Multiple requests on single TCP connection (vs 6 parallel connections). (2) Header compression (HPACK): 85-90% smaller headers. (3) Stream prioritization. (4) Binary framing (more efficient parsing). Limitation: TCP head-of-line blocking. Solved by HTTP/3 (QUIC/UDP) which has per-stream flow control.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q9: What causes memory leaks in Angular applications? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> (1) Unsubscribed RxJS subscriptions (use takeUntilDestroyed/takeUntil). (2) Event listeners on global objects (window, document) not removed in ngOnDestroy. (3) setInterval/setTimeout not cleared. (4) Detached DOM nodes (elements removed from DOM but referenced in JS). (5) Closures capturing large scopes. (6) Growing caches/arrays without eviction. Fix: Use async pipe, takeUntilDestroyed, proper cleanup in ngOnDestroy.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q10: Explain the event loop and its performance implications. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Event loop: Pick task → Execute → Drain ALL microtasks → Render (if needed) → Repeat. Performance implication: Long tasks (&gt;50ms) block rendering and user input. Microtasks drain completely before rendering (can starve UI). Fix: Break long tasks with <code>scheduler.yield()</code> or <code>setTimeout(0)</code>. Keep each task under 50ms for responsive UI.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q11: What is layout thrashing and how do you prevent it? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Layout thrashing: Reading layout properties (offsetWidth, getBoundingClientRect) then writing styles in a loop. Each read forces synchronous layout recalculation. Fix: Batch all reads first, then all writes. Or use requestAnimationFrame to separate read/write phases. Libraries like fastdom automate this pattern.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q12: Explain Angular Signals and their performance benefits. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Signals provide fine-grained reactivity: only template bindings that read a changed signal update (not entire component). computed() is lazy + memoized — only recalculates when dependencies change. Enables zoneless Angular (removes 35KB zone.js, eliminates unnecessary CD triggers). Better than OnPush because updates are binding-level, not component-level.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q13: How does the browser preload scanner work? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>A:</strong> When the HTML parser is blocked (by synchronous JS), a secondary "preload scanner" looks ahead in the HTML source for resource URLs (img, link, script src). It initiates downloads in parallel while the parser waits. This means resources are discovered and fetched earlier. Anti-pattern: dynamically injecting resources via JS bypasses the preload scanner — those resources are invisible until JS executes.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q14: Explain content-visibility: auto and its performance impact. <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>A:</strong> <code>content-visibility: auto</code> tells the browser to skip rendering (style, layout, paint) of off-screen elements until they're near the viewport. It's built-in virtualization. Combined with <code>contain-intrinsic-size</code> (maintains scroll height), it can reduce initial rendering time by 50-85% for long pages. The browser still creates DOM but skips the rendering pipeline for off-screen sections.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q15: What is the 14KB rule and why does it matter? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>A:</strong> TCP slow start begins with a congestion window of ~10 packets (~14KB). On a new connection, only 14KB can be sent in the first round trip. So: (1) Critical CSS + HTML should fit in 14KB for fastest FCP. (2) Inline critical CSS avoids additional round trips. (3) This is why HTTP/2 server push was valuable. (4) Connection reuse avoids re-entering slow start.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q16: How do you optimize images for web performance? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> (1) Modern formats: AVIF (50% smaller than JPEG) → WebP → JPEG fallback using &lt;picture&gt;. (2) Responsive: srcset + sizes for multiple resolutions. (3) Lazy loading: loading="lazy" for below-fold. (4) Priority: fetchpriority="high" for LCP image + preload. (5) Dimensions: Always set width/height to prevent CLS. (6) Compression: Quality 75-80% for lossy. (7) Angular: NgOptimizedImage directive for automatic best practices.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q17: Explain caching strategies for a Single Page Application. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> (1) index.html: <code>no-cache</code> (always revalidate for fresh deployments). (2) Hashed assets (main.abc123.js): <code>max-age=31536000, immutable</code> (cache forever, hash changes on deploy). (3) API: <code>private, stale-while-revalidate</code>. (4) Service Worker: Cache app shell for instant repeat visits. Key insight: The HTML must not be cached so users get new hashed asset references on each deploy.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q18: What is Zone.js and its performance impact? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>A:</strong> Zone.js monkey-patches ALL async APIs (setTimeout, Promise, addEventListener) to detect when async operations complete, triggering Angular's change detection. Impact: 35KB bundle addition, every async event triggers full CD tree walk, mousemove/scroll cause unnecessary CD. Fix: <code>runOutsideAngular()</code> for non-Angular operations, OnPush strategy, and future zoneless approach with signals.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q19: How do Web Workers improve performance? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Web Workers run JavaScript on a separate thread, preventing heavy computation from blocking UI. Best for: sorting large datasets, image processing, crypto, data parsing. Limitations: No DOM access, communication via postMessage (serialization cost). Optimization: Use Transferable Objects for zero-copy transfer of ArrayBuffers. In Angular: <code>ng generate web-worker</code>.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q20: Explain virtual scrolling and when to use it. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> Virtual scrolling renders only visible items in a list (+ small buffer), recycling DOM nodes as user scrolls. Instead of 10,000 DOM nodes, only 20-30 exist at any time. When to use: Lists with 100+ items, complex item templates, or any scenario where full DOM rendering causes jank. Angular CDK: <code>&lt;cdk-virtual-scroll-viewport&gt;</code> with <code>*cdkVirtualFor</code>.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q21: What is INP and how does it differ from FID? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>A:</strong> FID measured only the input delay of the FIRST interaction. INP measures the FULL latency (input delay + processing time + presentation delay) of ALL interactions, reporting the 98th percentile worst. INP is better because: (1) Covers all interactions not just first, (2) Includes processing + render time, (3) Reflects real session experience. Replaced FID as Core Web Vital in March 2024.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q22: Explain the FLIP animation technique. <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>A:</strong> FLIP (First, Last, Invert, Play): Record initial position → Apply final layout → Calculate difference → Animate inverse transform to identity. Layout change happens instantly (no animation), visual animation uses only compositor-friendly transforms. Result: Layout-like animations at 60fps because only transform is animated (compositor thread). Used by Angular animations and Material CDK.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q23: How does Angular hydration work? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>A:</strong> Pre-hydration: Client destroys server HTML and recreates (flicker). With hydration (Angular 16+): Client finds existing server-rendered DOM nodes, attaches event listeners WITHOUT re-creating DOM. Eliminates double-rendering, no flicker, maintains LCP element. Incremental hydration (v18+): Only hydrate components on viewport entry or interaction, leaving static sections as pure HTML with zero JS.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q24: What is stale-while-revalidate and when to use it? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> <code>stale-while-revalidate</code>: Serve cached response immediately (instant!), fetch fresh copy in background for next request. User sees cached content instantly; next user gets fresh content. Perfect for: API data that can be slightly stale, CDN-cached pages, frequently accessed resources. Trade-off: User may see seconds/minutes-old data.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q25: Explain pure pipes vs impure pipes in Angular. <span class="difficulty d-easy">Easy</span></h4>
+  <p><strong>A:</strong> Pure pipes (default): Called ONLY when input reference changes. Memoized — same input returns cached result. Impure pipes: Called on EVERY change detection cycle. Use pure pipes 99% of the time. The async pipe is a special impure pipe. If you need impure behavior, fix your data flow (use immutable patterns) instead.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q26: What are resource hints and how do they differ? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> <code>dns-prefetch</code>: Resolve DNS (cheapest). <code>preconnect</code>: DNS + TCP + TLS (full connection). <code>preload</code>: Download NOW for current page, high priority. <code>prefetch</code>: Download for NEXT page, low priority. <code>modulepreload</code>: Download + parse JS module. Use preconnect for critical third-party origins, preload for late-discovered resources (fonts, hero image).</p>
+</div>
+
+<div class="q-card">
+  <h4>Q27: How do you reduce CLS (Cumulative Layout Shift)? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> (1) Always set image dimensions (width/height or aspect-ratio CSS). (2) Reserve space for ads/embeds with min-height. (3) Use font-display: swap + size-adjust for web fonts. (4) Skeleton screens for dynamic content. (5) Inline critical CSS. (6) Avoid injecting content above existing content. (7) Use contain-intrinsic-size with content-visibility.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q28: Explain passive event listeners. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>A:</strong> By default, browser must wait for scroll/touch handlers to finish (they might call preventDefault). With <code>{ passive: true }</code>, you promise not to call preventDefault, allowing the browser to scroll on compositor thread immediately. Eliminates scroll jank from event listeners. Chrome defaults scroll/touch to passive, but explicit is best practice.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q29: What is V8's hidden class optimization? <span class="difficulty d-expert">Expert</span></h4>
+  <p><strong>A:</strong> V8 assigns "hidden classes" (shapes/maps) to objects with same structure. Same hidden class = fast property access via inline caches (O(1) fixed offset). Breaking rules causes megamorphic (dictionary lookup, slow): (1) Adding properties in different order, (2) Dynamically adding properties, (3) Deleting properties, (4) Mixing types in same function arguments.</p>
+</div>
+
+<div class="q-card">
+  <h4>Q30: How does scheduler.yield() differ from setTimeout(0)? <span class="difficulty d-expert">Expert</span></h4>
+  <p><strong>A:</strong> Both yield to main thread for rendering/input. <code>setTimeout(0)</code> puts continuation at the BACK of task queue (low priority, 1-4ms minimum delay). <code>scheduler.yield()</code> maintains your task's priority at the FRONT of the user-visible queue — resumes faster while still allowing rendering. Semantically clearer about intent. Better for breaking long tasks without losing responsiveness.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="scenario">2. Scenario-Based Questions (Top 15)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials — Debugging & Optimization</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">Reading Performance Traces — Paul Irish (Chrome)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4bZvq3nodf4" target="_blank">Performance Debugging in Production — Addy Osmani</a></li>
+  <li><a href="https://www.youtube.com/watch?v=YDU_3WdfkxA" target="_blank">Fixing Memory Leaks — Google Chrome Developers</a></li>
+</ul></details></div>
+
+<div class="q-card">
+  <h4>S1: Your Angular app takes 5 seconds to load on mobile. How do you fix it? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer approach:</strong></p>
+  <ol>
+    <li><strong>Diagnose:</strong> Run Lighthouse with mobile throttling + analyze bundle (source-map-explorer)</li>
+    <li><strong>Initial load:</strong> Lazy-load all non-critical routes. Use @defer for below-fold. Target &lt;200KB initial bundle.</li>
+    <li><strong>Network:</strong> Enable Brotli compression. Use CDN. Preconnect to API origin. Preload LCP image.</li>
+    <li><strong>Rendering:</strong> SSR for instant FCP. Inline critical CSS. Defer non-critical CSS.</li>
+    <li><strong>Assets:</strong> WebP/AVIF images. Lazy-load below-fold images. Self-host fonts with font-display: swap.</li>
+    <li><strong>JS:</strong> Remove unused dependencies. Switch to tree-shakeable alternatives. Code-split heavy libraries.</li>
+    <li><strong>Measure:</strong> RUM monitoring to validate improvement in field. Target: FCP &lt;1.8s, LCP &lt;2.5s.</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S2: Users report the dashboard becomes laggy after 30 minutes. What's happening? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer:</strong> Memory leak. Investigation steps:</p>
+  <ol>
+    <li>Open Performance Monitor — watch JS heap size trend over time (saw-tooth trending up = leak)</li>
+    <li>Take heap snapshots before/after repeated actions → compare</li>
+    <li>Look for: growing event listener count, detached DOM nodes, growing arrays</li>
+    <li>Common Angular causes: Subscriptions without unsubscribe, services holding growing arrays, router navigation leaking components, intervals/timeouts not cleared</li>
+    <li>Fix: Use takeUntilDestroyed(), async pipe, clear intervals in ngOnDestroy, limit cache sizes</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S3: A data table with 50,000 rows is extremely slow to scroll. Fix it. <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><strong>Virtual scrolling</strong> (CDK): Only render ~30 visible rows, recycle DOM on scroll</li>
+    <li><strong>Server-side pagination</strong>: Fetch only 50-100 rows at a time from backend</li>
+    <li><strong>Web Worker</strong>: Move sorting/filtering to worker thread</li>
+    <li><strong>OnPush + trackBy</strong>: Prevent unnecessary re-renders</li>
+    <li><strong>Debounce filters</strong>: Don't recompute on every keystroke (300ms debounce)</li>
+    <li><strong>Memoize</strong>: Cache filtered/sorted results (signal computed())</li>
+    <li><strong>Progressive rendering</strong>: Show first 20 rows immediately, load rest in background</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S4: Your LCP is 4.5 seconds. The LCP element is a hero image. How do you fix it? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><code>&lt;link rel="preload" as="image" href="hero.webp" fetchpriority="high"&gt;</code></li>
+    <li>Remove <code>loading="lazy"</code> from hero image (above-fold should be eager)</li>
+    <li>Serve optimal format: AVIF → WebP → JPEG with &lt;picture&gt;</li>
+    <li>Serve right size (srcset) — don't send 4K to mobile</li>
+    <li>Optimize TTFB: CDN, Edge SSR, Early Hints (103)</li>
+    <li>Eliminate render-blocking CSS before hero image (inline critical CSS)</li>
+    <li>Don't lazy-load or defer-load any resource the hero image depends on</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S5: Third-party scripts (analytics, chat widget, A/B testing) are adding 2 seconds to your page load. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><strong>Audit impact</strong>: Chrome DevTools → Coverage tab to see actual usage</li>
+    <li><strong>Defer non-critical</strong>: Load analytics on requestIdleCallback or after 3s timeout</li>
+    <li><strong>Facade pattern</strong>: Chat widget shows static button, loads real widget on click</li>
+    <li><strong>Self-host if possible</strong>: Eliminates DNS/TCP/TLS to third-party</li>
+    <li><strong>Use Web Workers</strong>: Partytown (run third-party scripts in worker)</li>
+    <li><strong>Reduce scripts</strong>: Remove unused ones, combine where possible</li>
+    <li><strong>Set resource hints</strong>: <code>&lt;link rel="preconnect"&gt;</code> for critical third-parties</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S6: Your Angular app has CLS of 0.35 (poor). Identify and fix the causes. <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><strong>Debug</strong>: DevTools → Rendering panel → Layout Shift Regions (blue highlights)</li>
+    <li><strong>Images</strong>: Add width/height or aspect-ratio to all images</li>
+    <li><strong>Fonts</strong>: font-display: swap + size-adjust fallback metrics</li>
+    <li><strong>Dynamic content</strong>: Reserve space with skeleton screens (min-height)</li>
+    <li><strong>Ads/embeds</strong>: Fixed container dimensions before ad loads</li>
+    <li><strong>Late CSS</strong>: Inline critical CSS to avoid FOUC</li>
+    <li><strong>Angular animations</strong>: Use :enter/:leave with fixed dimensions</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S7: After deploying a new version, Core Web Vitals regressed. How do you investigate? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li>Compare bundle sizes with previous build (source-map-explorer)</li>
+    <li>Check RUM data segmented by page — which pages regressed?</li>
+    <li>Check Chrome UX Report (CrUX) for field data confirmation</li>
+    <li>Run Lighthouse on affected pages with same conditions</li>
+    <li>Git diff the deployment — identify new dependencies, large assets, changed configs</li>
+    <li>Profile with DevTools Performance panel — compare flame charts</li>
+    <li>Check for: new render-blocking resources, removed caching headers, added synchronous scripts, larger images, removed lazy loading</li>
+    <li>Rollback if severe; fix forward if minor</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S8: Your Angular app's INP is 450ms. Users complain buttons feel "sluggish." <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><strong>Profile interactions</strong>: DevTools → Performance → record while interacting</li>
+    <li><strong>Identify bottleneck</strong>: Is it input delay (long tasks blocking), processing time (handler too slow), or presentation delay (DOM update too expensive)?</li>
+    <li><strong>Input delay fix</strong>: Break long tasks with yield(), reduce third-party scripts</li>
+    <li><strong>Processing fix</strong>: Debounce handlers, move computation to Web Worker, simplify logic</li>
+    <li><strong>Presentation fix</strong>: Reduce DOM size, use virtual scroll, OnPush + signals, CSS containment</li>
+    <li><strong>Angular-specific</strong>: Ensure OnPush everywhere, check if Zone.js is over-triggering CD, use NgZone.runOutsideAngular for non-essential handlers</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S9: You need to display a chart with 1 million data points. How? <span class="difficulty d-expert">Expert</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><strong>Data reduction</strong>: Downsample server-side (LTTB algorithm) — 1M points → 1000 visible points</li>
+    <li><strong>Canvas/WebGL</strong>: Use Canvas2D or WebGL for rendering (not SVG/DOM for &gt;10K points)</li>
+    <li><strong>Web Worker</strong>: Process/downsample data off main thread</li>
+    <li><strong>Level of Detail (LOD)</strong>: Show aggregated data when zoomed out, detailed when zoomed in</li>
+    <li><strong>Streaming</strong>: Load data in chunks, render progressively</li>
+    <li><strong>GPU acceleration</strong>: Use WebGL-based charting (deck.gl, GPU.js)</li>
+    <li><strong>OffscreenCanvas</strong>: Render chart in Web Worker using OffscreenCanvas</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S10: A colleague added a 300KB library for one utility function. How do you handle this? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li>Identify if tree-shakeable: Can you import just the function? (lodash-es vs lodash)</li>
+    <li>Check if the function is simple enough to implement in 10-20 lines (avoid the dependency)</li>
+    <li>Look for smaller alternatives (date-fns vs moment.js, just-debounce vs lodash)</li>
+    <li>If the library IS needed: lazy-load it (dynamic import on demand)</li>
+    <li>Set up bundle budgets to catch this in CI in the future</li>
+    <li>Document in PR review guidelines: "No new dependencies &gt;20KB without architecture review"</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S11: Your app needs to work offline for field workers with poor connectivity. <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer:</strong> Angular PWA strategy:</p>
+  <ol>
+    <li><code>ng add @angular/pwa</code> — sets up service worker</li>
+    <li>App shell cached with "installMode: prefetch" (always available offline)</li>
+    <li>API data cached with "strategy: freshness, timeout: 3s" (try network, fallback to cache)</li>
+    <li>Background sync: Queue form submissions when offline, send when back online</li>
+    <li>IndexedDB for large local data storage (structured data &gt; cache API)</li>
+    <li>UI indicators: Show online/offline status, sync status, last-updated timestamps</li>
+    <li>Conflict resolution: Timestamp-based or version-vector for concurrent offline edits</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S12: How would you optimize an Angular app for users in India on 3G connections? <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><strong>CDN edge in India</strong>: Mumbai/Hyderabad PoPs (reduce RTT from 200ms to 20ms)</li>
+    <li><strong>Adaptive loading</strong>: Detect effectiveType → serve lite experience on 3G</li>
+    <li><strong>Aggressive compression</strong>: Brotli level 11 (static), save every byte</li>
+    <li><strong>Critical CSS inline</strong>: Content visible in first 14KB TCP window</li>
+    <li><strong>Image optimization</strong>: AVIF (50% smaller), responsive sizes, lazy-load</li>
+    <li><strong>Minimal initial JS</strong>: Target &lt;100KB initial bundle (500ms parse on mobile)</li>
+    <li><strong>Service Worker</strong>: Cache everything for repeat visits (instant)</li>
+    <li><strong>Save-data header</strong>: Respect client hints, skip non-essential resources</li>
+    <li><strong>HTTP/3</strong>: 0-RTT resume, no HoL blocking (critical for lossy mobile)</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S13: Your micro-frontend architecture has 5 Angular apps on one page. Performance is terrible. <span class="difficulty d-expert">Expert</span></h4>
+  <p><strong>Answer:</strong></p>
+  <ol>
+    <li><strong>Shared dependencies</strong>: Single Angular runtime shared via Module Federation</li>
+    <li><strong>Lazy mount</strong>: Only bootstrap visible micro-frontends, others on viewport/interaction</li>
+    <li><strong>Communication</strong>: Use CustomEvents or shared signal store (not full framework communication)</li>
+    <li><strong>Single zone.js</strong>: Share one Zone.js instance, or go zoneless with signals</li>
+    <li><strong>CSS isolation</strong>: Shadow DOM or scoped styles to prevent style conflicts/recalculation</li>
+    <li><strong>Common chunk extraction</strong>: Webpack Module Federation shared scope</li>
+    <li><strong>Loading strategy</strong>: Route-based loading, only 1-2 micro-frontends active at a time</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S14: Your e-commerce product page Lighthouse score is 35. Turn it into 90+. <span class="difficulty d-hard">Hard</span></h4>
+  <p><strong>Answer (systematic approach):</strong></p>
+  <ol>
+    <li><strong>Audit</strong>: Run Lighthouse, note top 5 issues. Usually: large images, render-blocking resources, unused JS/CSS, no compression, no caching.</li>
+    <li><strong>Quick wins (35→60)</strong>: Enable Brotli compression, add image dimensions, defer non-critical JS, set proper cache headers.</li>
+    <li><strong>Medium effort (60→80)</strong>: Convert images to WebP/AVIF with srcset, lazy-load below-fold, inline critical CSS, code-split routes, add preload for LCP.</li>
+    <li><strong>Advanced (80→90+)</strong>: SSR/SSG for product pages, remove unused CSS (PurgeCSS), self-host fonts, implement resource hints, facade pattern for embeds, CDN with edge caching.</li>
+    <li><strong>Maintain</strong>: Bundle budgets in CI, Lighthouse CI checks, RUM monitoring.</li>
+  </ol>
+</div>
+
+<div class="q-card">
+  <h4>S15: How do you convince management to invest in performance work? <span class="difficulty d-medium">Medium</span></h4>
+  <p><strong>Answer (business framing):</strong></p>
+  <ul>
+    <li><strong>Revenue data</strong>: "Amazon found every 100ms of latency costs 1% in sales"</li>
+    <li><strong>SEO impact</strong>: "Core Web Vitals directly affect search ranking. Our poor scores cost us X% visibility"</li>
+    <li><strong>Conversion data</strong>: "Our bounce rate is 40% on mobile. Industry benchmark for our load time suggests 15% can be recovered"</li>
+    <li><strong>Competition</strong>: "Competitor X loads in 1.5s, we load in 4.5s"</li>
+    <li><strong>Cost savings</strong>: "Smaller bundles = less CDN bandwidth = lower infrastructure cost"</li>
+    <li><strong>Concrete plan</strong>: Present specific improvements with estimated impact and timeline</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="system-design">3. System Design: Performance</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials — System Design</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=RI9np1LWzqw" target="_blank">Frontend System Design — ByteByteGo</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Bsq5cKkS33I" target="_blank">CDN Architecture Design — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=gNIvKAt91wE" target="_blank">Frontend System Design Interview — Gaurav Sen</a></li>
+</ul></details></div>
+
+<div class="q-card">
+  <h4>SD1: Design a performance monitoring and alerting system for a large-scale Angular app. <span class="difficulty d-expert">Expert</span></h4>
+  <pre>
+Architecture:
+1. Collection Layer:
+   - web-vitals SDK in app → sendBeacon to ingestion
+   - Custom marks/measures for business metrics
+   - Error tracking (Sentry) correlated with perf data
+
+2. Ingestion:
+   - Edge function validates, enriches (region, page category, device tier)
+   - Writes to streaming pipeline (Kafka/Kinesis)
+
+3. Storage:
+   - Time-series DB (InfluxDB) for aggregated metrics
+   - S3/BigQuery for raw events (analysis, debugging)
+
+4. Processing:
+   - Real-time: Streaming aggregation (p50, p75, p95 per page/hour)
+   - Batch: Daily/weekly reports, anomaly detection
+
+5. Visualization:
+   - Dashboard: CWV by page, by device, by geography
+   - Trends: Compare week-over-week
+   - Regression detection: Correlate with deploys
+
+6. Alerting:
+   - p75 LCP > 3s for 30 min → PagerDuty
+   - p75 INP > 300ms → Slack notification
+   - Bundle size increase > 10% → Block PR
+
+7. Context:
+   - Link metrics to: deployments, feature flags, A/B tests
+   - Segment by: page, device type, connection, geo, browser
+  </pre>
+</div>
+
+<div class="q-card">
+  <h4>SD2: Design a CDN strategy for a global Angular application serving 50 countries. <span class="difficulty d-expert">Expert</span></h4>
+  <pre>
+Architecture:
+1. Multi-CDN setup (Cloudflare + Akamai) for redundancy and coverage
+
+2. Static assets:
+   - Hash-based URLs → Cache-Control: immutable, max-age=1yr
+   - Deployed to all edge locations simultaneously
+   - Purge on deploy (only index.html)
+
+3. Dynamic content (API):
+   - Edge caching with stale-while-revalidate
+   - Regional API servers (US, EU, APAC) for lower TTFB
+   - GraphQL with edge-level caching per query
+
+4. SSR at edge:
+   - Cloudflare Workers / Lambda@Edge for server rendering
+   - Cache rendered HTML per route (with TTL)
+   - Personalization at edge (inject user data)
+
+5. Image CDN:
+   - On-the-fly optimization (Cloudinary/imgix)
+   - Auto-format (AVIF/WebP) based on Accept header
+   - Auto-resize based on viewport (Client Hints)
+
+6. Failover:
+   - Primary CDN down → automatic failover to secondary
+   - Origin down → serve stale with stale-if-error=86400
+   - Full offline → Service Worker cached version
+
+7. Performance by region:
+   - Monitor p75 TTFB per region
+   - If p75 > 200ms → add edge location or move origin closer
+  </pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="coding">4. Coding Challenges</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials — Coding Patterns</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cjIswDCKgu0" target="_blank">Implement Debounce & Throttle — Akshay Saini (Namaste JavaScript)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=wBGPZf8S6Xc" target="_blank">Virtual Scroll Implementation — Jack Herrington</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Gcp7triXFjg" target="_blank">Web Worker Patterns — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=LeMbQAIQPms" target="_blank">LRU Cache Implementation — NeetCode</a></li>
+</ul></details></div>
+
+<h3>Challenge 1: Implement debounce with cancel and flush</h3>
+<pre>
+// Implement a debounce function that:
+// 1. Delays execution by `wait` ms
+// 2. Resets timer on each call
+// 3. Has .cancel() to abort pending call
+// 4. Has .flush() to execute immediately
+// 5. Returns the result of the last invocation
+
+function debounce(fn, wait) {
+  let timer = null;
+  let lastArgs = null;
+  let lastResult = undefined;
+
+  function debounced(...args) {
+    lastArgs = args;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      lastResult = fn.apply(this, lastArgs);
+      timer = null;
+      lastArgs = null;
+    }, wait);
+    return lastResult;
+  }
+
+  debounced.cancel = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+      lastArgs = null;
+    }
+  };
+
+  debounced.flush = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+      lastResult = fn.apply(null, lastArgs);
+      lastArgs = null;
+    }
+    return lastResult;
+  };
+
+  return debounced;
+}
+
+// Test:
+const debouncedSearch = debounce((query) => console.log('Searching:', query), 300);
+debouncedSearch('h');
+debouncedSearch('he');
+debouncedSearch('hel');
+debouncedSearch('hello'); // Only this executes (after 300ms)
+</pre>
+
+<h3>Challenge 2: Implement requestIdleCallback polyfill</h3>
+<pre>
+// Implement a polyfill for requestIdleCallback
+// that schedules work during idle periods
+
+function requestIdleCallbackPolyfill(callback, options = {}) {
+  const timeout = options.timeout || Infinity;
+  const start = Date.now();
+
+  return setTimeout(() => {
+    const deadline = {
+      didTimeout: Date.now() - start >= timeout,
+      timeRemaining: () => Math.max(0, 50 - (Date.now() - start))
+    };
+    callback(deadline);
+  }, 1); // Schedule as macro task (after current frame)
+}
+
+// Usage: Perform non-critical work without blocking
+function processInBackground(items) {
+  let index = 0;
+
+  function doWork(deadline) {
+    while (index &lt; items.length && deadline.timeRemaining() > 0) {
+      processItem(items[index]);
+      index++;
+    }
+
+    if (index &lt; items.length) {
+      requestIdleCallback(doWork);
+    }
+  }
+
+  requestIdleCallback(doWork);
+}
+</pre>
+
+<h3>Challenge 3: Implement virtual scroll (simplified)</h3>
+<pre>
+// Implement a basic virtual scroll that:
+// 1. Only renders visible items
+// 2. Maintains correct scroll height
+// 3. Updates on scroll
+
+class VirtualScroll {
+  constructor(container, items, itemHeight, renderItem) {
+    this.container = container;
+    this.items = items;
+    this.itemHeight = itemHeight;
+    this.renderItem = renderItem;
+    this.buffer = 5; // Extra items above/below viewport
+
+    this.totalHeight = items.length * itemHeight;
+    this.visibleCount = Math.ceil(container.clientHeight / itemHeight);
+
+    this.setup();
+    this.render();
+  }
+
+  setup() {
+    // Create scroll container
+    this.content = document.createElement('div');
+    this.content.style.height = this.totalHeight + 'px';
+    this.content.style.position = 'relative';
+    this.container.appendChild(this.content);
+
+    // Listen to scroll (passive!)
+    this.container.style.overflow = 'auto';
+    let ticking = false;
+    this.container.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          this.render();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
+  render() {
+    const scrollTop = this.container.scrollTop;
+    const startIndex = Math.max(0, Math.floor(scrollTop / this.itemHeight) - this.buffer);
+    const endIndex = Math.min(
+      this.items.length,
+      startIndex + this.visibleCount + this.buffer * 2
+    );
+
+    // Clear and re-render visible items
+    this.content.innerHTML = '';
+    for (let i = startIndex; i &lt; endIndex; i++) {
+      const el = this.renderItem(this.items[i], i);
+      el.style.position = 'absolute';
+      el.style.top = (i * this.itemHeight) + 'px';
+      el.style.height = this.itemHeight + 'px';
+      el.style.width = '100%';
+      this.content.appendChild(el);
+    }
+  }
+}
+
+// Usage:
+const vs = new VirtualScroll(
+  document.getElementById('list'),
+  Array.from({ length: 100000 }, (_, i) => ({ id: i, name: `Item ${i}` })),
+  50,
+  (item) => {
+    const div = document.createElement('div');
+    div.textContent = item.name;
+    return div;
+  }
+);
+</pre>
+
+<h3>Challenge 4: Implement LRU Cache for API responses</h3>
+<pre>
+// Implement an LRU (Least Recently Used) cache that:
+// 1. Has max capacity
+// 2. Returns cached response if available and not expired
+// 3. Evicts least-recently-used entries when full
+// 4. Supports TTL per entry
+
+class LRUCache {
+  constructor(maxSize = 100, defaultTTL = 60000) {
+    this.maxSize = maxSize;
+    this.defaultTTL = defaultTTL;
+    this.cache = new Map(); // Map maintains insertion order
+  }
+
+  get(key) {
+    if (!this.cache.has(key)) return null;
+
+    const entry = this.cache.get(key);
+
+    // Check expiration
+    if (Date.now() > entry.expiry) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    // Move to end (most recently used)
+    this.cache.delete(key);
+    this.cache.set(key, entry);
+    return entry.value;
+  }
+
+  set(key, value, ttl = this.defaultTTL) {
+    // Delete if exists (to reset position)
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    }
+
+    // Evict LRU if at capacity
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey); // Oldest = first in Map
+    }
+
+    this.cache.set(key, {
+      value,
+      expiry: Date.now() + ttl
+    });
+  }
+
+  has(key) {
+    return this.get(key) !== null;
+  }
+
+  clear() {
+    this.cache.clear();
+  }
+
+  get size() {
+    return this.cache.size;
+  }
+}
+
+// Usage with HTTP interceptor:
+const apiCache = new LRUCache(50, 30000); // 50 entries, 30s TTL
+
+async function cachedFetch(url, options = {}) {
+  const cacheKey = `${options.method || 'GET'}:${url}`;
+
+  const cached = apiCache.get(cacheKey);
+  if (cached) return cached;
+
+  const response = await fetch(url, options);
+  const data = await response.json();
+
+  apiCache.set(cacheKey, data);
+  return data;
+}
+</pre>
+
+<h3>Challenge 5: Implement task scheduler with priority and yielding</h3>
+<pre>
+// Implement a scheduler that:
+// 1. Manages tasks with priorities (high, normal, low)
+// 2. Yields to main thread between tasks
+// 3. Processes high-priority tasks first
+// 4. Stays within frame budget (5ms per chunk)
+
+class TaskScheduler {
+  constructor() {
+    this.queues = {
+      high: [],
+      normal: [],
+      low: []
+    };
+    this.isRunning = false;
+  }
+
+  schedule(task, priority = 'normal') {
+    this.queues[priority].push(task);
+    if (!this.isRunning) this.run();
+  }
+
+  async run() {
+    this.isRunning = true;
+
+    while (this.hasTasks()) {
+      const task = this.getNextTask();
+      if (!task) break;
+
+      const start = performance.now();
+      await task();
+      const elapsed = performance.now() - start;
+
+      // If we used more than 5ms, yield to main thread
+      if (elapsed > 5) {
+        await this.yieldToMain();
+      }
+    }
+
+    this.isRunning = false;
+  }
+
+  getNextTask() {
+    if (this.queues.high.length) return this.queues.high.shift();
+    if (this.queues.normal.length) return this.queues.normal.shift();
+    if (this.queues.low.length) return this.queues.low.shift();
+    return null;
+  }
+
+  hasTasks() {
+    return this.queues.high.length +
+           this.queues.normal.length +
+           this.queues.low.length > 0;
+  }
+
+  yieldToMain() {
+    return new Promise(resolve => {
+      if ('scheduler' in globalThis && 'yield' in scheduler) {
+        scheduler.yield().then(resolve);
+      } else {
+        setTimeout(resolve, 0);
+      }
+    });
+  }
+}
+
+// Usage:
+const scheduler = new TaskScheduler();
+
+// High priority: user interaction response
+scheduler.schedule(() => updateUI(), 'high');
+
+// Normal: data processing
+scheduler.schedule(() => processData(chunk), 'normal');
+
+// Low: analytics, pre-fetching
+scheduler.schedule(() => sendAnalytics(), 'low');
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="tricky">5. Tricky Gotcha Questions</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials — Common Gotchas</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">Jake Archibald: In The Loop — Event Loop & Rendering (JSConf)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=recvCaQRbGs" target="_blank">Performance Gotchas — Steve Souders</a></li>
+</ul></details></div>
+
+<div class="q-card">
+  <h4>G1: Does display: none prevent image download?</h4>
+  <p><strong>A:</strong> NO! The image still downloads. <code>display: none</code> only removes from render tree (no layout/paint), but the browser fetches the resource. To prevent: use <code>loading="lazy"</code> (only downloads near viewport), or conditionally inject the <code>&lt;img&gt;</code> via JS/Angular *ngIf.</p>
+</div>
+
+<div class="q-card">
+  <h4>G2: Does moving &lt;link rel="stylesheet"&gt; to body bottom help?</h4>
+  <p><strong>A:</strong> NO! CSS is ALWAYS render-blocking regardless of position. The browser won't paint anything until ALL CSS is parsed. Worse — CSS at bottom can cause Flash of Unstyled Content (FOUC) in some browsers. Always keep CSS in &lt;head&gt;. Instead: inline critical CSS and async-load the rest.</p>
+</div>
+
+<div class="q-card">
+  <h4>G3: Is localStorage synchronous?</h4>
+  <p><strong>A:</strong> YES! localStorage.getItem() and setItem() are synchronous and block the main thread. They also involve disk I/O. On slow devices, this can take 5-50ms. Never use localStorage in hot paths (event handlers, loops, render functions). For performance-critical caching, use IndexedDB (async) or in-memory Maps.</p>
+</div>
+
+<div class="q-card">
+  <h4>G4: Does async/await make code truly asynchronous?</h4>
+  <p><strong>A:</strong> The awaited Promise is async, but the code AFTER await runs as a microtask. Microtasks run BEFORE rendering! So 10 sequential awaits of CPU-heavy work still block the UI because microtasks drain completely before the browser can paint. To truly yield: <code>await new Promise(resolve => setTimeout(resolve, 0))</code> or <code>await scheduler.yield()</code>.</p>
+</div>
+
+<div class="q-card">
+  <h4>G5: Does will-change always improve performance?</h4>
+  <p><strong>A:</strong> NO! will-change promotes elements to their own compositor layer = more GPU memory. Too many layers = "layer explosion" = worse performance (especially on mobile with limited VRAM). Apply only to elements you're about to animate, and remove after animation completes. Never apply <code>will-change: transform</code> to all elements.</p>
+</div>
+
+<div class="q-card">
+  <h4>G6: Is HTTP/2 always faster than HTTP/1.1?</h4>
+  <p><strong>A:</strong> Usually yes, but NOT always. HTTP/2 over TCP still has head-of-line blocking at the TCP level. A single lost packet blocks ALL streams. On very lossy connections (3G mobile), multiple HTTP/1.1 connections can sometimes outperform single HTTP/2 connection because packet loss only blocks one connection. HTTP/3 (QUIC) fixes this.</p>
+</div>
+
+<div class="q-card">
+  <h4>G7: Does preloading everything make the page faster?</h4>
+  <p><strong>A:</strong> NO! Preloading too many resources creates bandwidth contention. High-priority preloaded resources compete with each other and with the HTML document itself. Only preload 2-3 critical resources (LCP image, critical font, key API call). Overuse actually slows down the most critical resources. Chrome DevTools will warn about excessive preloads.</p>
+</div>
+
+<div class="q-card">
+  <h4>G8: Is server-side rendering always better for performance?</h4>
+  <p><strong>A:</strong> NO! SSR improves FCP/LCP (user sees content faster) but can WORSEN TTI (page looks ready but isn't interactive until hydration completes). If your page is highly interactive (dashboard, editor), SSR adds complexity and server cost without much benefit. Use SSR for content-heavy pages (blogs, e-commerce products, marketing). Use CSR for app-like dashboards.</p>
+</div>
+
+<div class="q-card">
+  <h4>G9: Does minification significantly reduce file size?</h4>
+  <p><strong>A:</strong> After compression (Brotli/Gzip), the difference between minified and unminified is small (5-10%). Compression algorithms already eliminate repetition. However, minification still matters for: (1) Reducing parse time (fewer bytes to parse), (2) Reducing uncompressed size for Service Worker caches, (3) Small savings that add up. But don't obsess — compression does the heavy lifting.</p>
+</div>
+
+<div class="q-card">
+  <h4>G10: Can JavaScript affect CSSOM construction?</h4>
+  <p><strong>A:</strong> YES! If a &lt;script&gt; appears after a &lt;link rel="stylesheet"&gt;, the browser waits for CSS to download before executing the script (because JS might query computed styles via getComputedStyle). This creates a dependency chain: CSS blocks JS → JS blocks DOM parsing. Solution: Use defer/async or move scripts before stylesheets if they don't depend on styles.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="checklist">6. Complete Performance Audit Checklist</h2>
+
+<h3>Pre-Launch Checklist</h3>
+<table>
+  <tr><th>Category</th><th>Check</th><th>Tool</th></tr>
+  <tr><td rowspan="5"><strong>Loading</strong></td><td>Initial bundle &lt; 200KB (gzipped)</td><td>source-map-explorer</td></tr>
+  <tr><td>All routes lazy-loaded</td><td>angular.json routes, webpack analyzer</td></tr>
+  <tr><td>Brotli/Gzip compression enabled</td><td>Network tab, curl -H "Accept-Encoding: br"</td></tr>
+  <tr><td>Critical CSS inlined</td><td>View source, Lighthouse</td></tr>
+  <tr><td>No render-blocking resources</td><td>Lighthouse, Coverage tab</td></tr>
+
+  <tr><td rowspan="5"><strong>Images</strong></td><td>Modern formats (WebP/AVIF)</td><td>Network tab filter:img</td></tr>
+  <tr><td>Responsive srcset defined</td><td>HTML source inspection</td></tr>
+  <tr><td>Lazy-loading on below-fold images</td><td>HTML source, Lighthouse</td></tr>
+  <tr><td>LCP image preloaded with high priority</td><td>Network tab, Lighthouse</td></tr>
+  <tr><td>All images have width/height</td><td>Lighthouse CLS audit</td></tr>
+
+  <tr><td rowspan="5"><strong>JavaScript</strong></td><td>No unused JS &gt; 20KB</td><td>Coverage tab</td></tr>
+  <tr><td>Tree-shaking working (no full lodash etc.)</td><td>Bundle analyzer</td></tr>
+  <tr><td>No Long Tasks &gt; 100ms</td><td>Performance tab, Long Tasks observer</td></tr>
+  <tr><td>Third-party scripts deferred/async</td><td>Network tab, Lighthouse</td></tr>
+  <tr><td>Web Workers for heavy computation</td><td>Code review</td></tr>
+
+  <tr><td rowspan="5"><strong>Angular</strong></td><td>OnPush on all components</td><td>Code review, Angular DevTools</td></tr>
+  <tr><td>trackBy on all *ngFor / track in @for</td><td>Code review</td></tr>
+  <tr><td>No function calls in templates</td><td>Code review, lint rule</td></tr>
+  <tr><td>Subscriptions properly cleaned up</td><td>Memory tab, code review</td></tr>
+  <tr><td>@defer for below-fold heavy components</td><td>Code review</td></tr>
+
+  <tr><td rowspan="5"><strong>Network</strong></td><td>HTTP/2 or HTTP/3 enabled</td><td>Network tab Protocol column</td></tr>
+  <tr><td>Proper caching headers set</td><td>Network tab, curl</td></tr>
+  <tr><td>CDN for static assets</td><td>DNS lookup, response headers</td></tr>
+  <tr><td>Preconnect to critical origins</td><td>HTML source</td></tr>
+  <tr><td>Resource hints for probable navigation</td><td>HTML source</td></tr>
+
+  <tr><td rowspan="4"><strong>Metrics</strong></td><td>LCP ≤ 2.5s</td><td>Lighthouse, CrUX, web-vitals</td></tr>
+  <tr><td>INP ≤ 200ms</td><td>web-vitals, CrUX</td></tr>
+  <tr><td>CLS ≤ 0.1</td><td>Lighthouse, web-vitals</td></tr>
+  <tr><td>TBT ≤ 200ms</td><td>Lighthouse</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cheatsheet">7. Quick Reference Cheat Sheet</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials — Quick Reviews</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Core Web Vitals Quick Overview — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Dkx5ydvtpCA" target="_blank">All Rendering Patterns in 12 Minutes — Fireship</a></li>
+</ul></details></div>
+
+<h3>Properties by Rendering Cost</h3>
+<pre>
+COMPOSITE ONLY (cheapest — GPU, no main thread):
+  transform, opacity, filter (on promoted layer)
+
+PAINT + COMPOSITE (medium):
+  color, background, border-color, border-style, border-radius,
+  outline, visibility, box-shadow, text-decoration
+
+LAYOUT + PAINT + COMPOSITE (expensive):
+  width, height, margin, padding, border-width,
+  position, top, left, right, bottom,
+  display, float, font-size, line-height, overflow
+</pre>
+
+<h3>Resource Loading Priority</h3>
+<pre>
+&lt;!-- CRITICAL (load first) --&gt;
+&lt;link rel="preload" as="style" href="critical.css"&gt;
+&lt;link rel="preload" as="font" href="main.woff2" crossorigin&gt;
+&lt;link rel="preload" as="image" href="hero.webp" fetchpriority="high"&gt;
+&lt;link rel="preconnect" href="https://api.example.com"&gt;
+
+&lt;!-- NORMAL --&gt;
+&lt;link rel="stylesheet" href="main.css"&gt;
+&lt;script defer src="app.js"&gt;&lt;/script&gt;
+
+&lt;!-- LOW PRIORITY --&gt;
+&lt;script async src="analytics.js"&gt;&lt;/script&gt;
+&lt;link rel="prefetch" href="next-page.js"&gt;
+&lt;img loading="lazy" src="below-fold.webp"&gt;
+</pre>
+
+<h3>Angular Performance Patterns</h3>
+<pre>
+// ALWAYS:
+@Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+@for (item of items; track item.id) { }
+{{ value$ | async }}
+Pure pipes for transformations
+takeUntilDestroyed() for subscriptions
+@defer (on viewport) { &lt;heavy-component /&gt; }
+
+// NEVER:
+{{ getComputedValue() }}  // Function call in template
+*ngFor without trackBy
+Impure pipes (unless absolutely necessary)
+setInterval without clearInterval
+Subscribe without unsubscribe
+Default change detection on leaf components
+</pre>
+
+<h3>Core Web Vitals Thresholds</h3>
+<pre>
+         GOOD        NEEDS IMPROVEMENT    POOR
+LCP:    ≤ 2.5s      2.5s – 4.0s         &gt; 4.0s
+INP:    ≤ 200ms     200ms – 500ms        &gt; 500ms
+CLS:    ≤ 0.1       0.1 – 0.25          &gt; 0.25
+FCP:    ≤ 1.8s      1.8s – 3.0s         &gt; 3.0s
+TTFB:   ≤ 800ms     800ms – 1800ms      &gt; 1800ms
+TBT:    ≤ 200ms     200ms – 600ms       &gt; 600ms
+</pre>
+
+<h3>HTTP Caching Quick Reference</h3>
+<pre>
+Cache-Control: no-store             → Never cache (sensitive data)
+Cache-Control: no-cache             → Cache but always revalidate
+Cache-Control: max-age=31536000     → Cache 1 year
+Cache-Control: immutable            → Never revalidate (hashed files)
+Cache-Control: stale-while-revalidate=300  → Serve stale 5min while refreshing
+Cache-Control: private              → Only browser can cache (not CDN)
+Cache-Control: public               → CDN can cache too
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="study-plan">8. 7-Day Interview Prep Plan</h2>
+
+<table>
+  <tr><th>Day</th><th>Focus</th><th>Action</th></tr>
+  <tr><td><strong>Day 1</strong></td><td>Fundamentals</td><td>Read Phase 1. Practice explaining CRP, browser rendering, Core Web Vitals out loud. Use Chrome DevTools Performance panel on 3 websites.</td></tr>
+  <tr><td><strong>Day 2</strong></td><td>CSS & JS Performance</td><td>Read Phase 2. Do Exercise 1 (fix janky scroll). Understand event loop order quiz. Practice explaining reflow/repaint/composite.</td></tr>
+  <tr><td><strong>Day 3</strong></td><td>Asset Optimization</td><td>Read Phase 3. Audit a real website's images (DevTools Network). Understand caching headers. Practice explaining tree shaking.</td></tr>
+  <tr><td><strong>Day 4</strong></td><td>Angular Deep Dive</td><td>Read Phase 4. Convert a component to OnPush. Explain change detection flow. Practice signals vs observables explanation.</td></tr>
+  <tr><td><strong>Day 5</strong></td><td>Advanced Topics</td><td>Read Phase 5. Set up web-vitals measurement. Understand rendering patterns. Practice explaining SSR vs CSR trade-offs.</td></tr>
+  <tr><td><strong>Day 6</strong></td><td>Interview Practice</td><td>Go through ALL questions in Phase 6. Time yourself (2 min per answer). Practice scenario questions with structured approach. Do coding challenges.</td></tr>
+  <tr><td><strong>Day 7</strong></td><td>Review & Gaps</td><td>Review cheat sheet. Re-read any weak areas. Do mock interview with a friend. Focus on: articulating trade-offs, showing depth when probed, connecting concepts.</td></tr>
+</table>
+
+<div class="callout">
+  <strong>Interview Tips:</strong>
+  <ul>
+    <li><strong>Structure answers</strong>: Problem → Cause → Solution → Trade-offs</li>
+    <li><strong>Show metrics awareness</strong>: Always mention how you'd MEASURE improvement</li>
+    <li><strong>Depth on demand</strong>: Start high-level, go deeper when asked</li>
+    <li><strong>Real examples</strong>: "In my project at Kyndryl, I reduced LCP from 4.5s to 1.8s by..."</li>
+    <li><strong>Trade-offs</strong>: Show you understand nothing is free ("SSR improves FCP but adds server cost")</li>
+    <li><strong>Angular-specific depth</strong>: They'll probe deeper on Angular — know CD internals, signals, zoneless</li>
+  </ul>
+</div>
+
+<div class="nav-links">
+  <a href="phase5-advanced-monitoring.html">← Phase 5: Advanced & Monitoring</a>
+  <a href="phase1-fundamentals-browser-internals.html">Start Over: Phase 1 →</a>
+</div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend System Design — Phase 3: Performance &amp; Optimization</title>
+  <style>
+    :root { --bg: #ffffff; --panel: #f7f9fc; --panel-2: #f1f4fa; --ink: #1a2233; --muted: #5a6678; --line: #e2e7f0; --accent: #0f9d7a; --accent-2: #2a5bd7; --warn: #b26b00; --danger: #c23046; --critical: #7a1d2c; --ok: #1a8f4d; --code-bg: #f5f7fb; --chip: #eef1f8; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 12px; }
+    body { margin: 0; font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f7f9fc; border-right: 1px solid var(--line); padding: 22px 18px; }
+    aside h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    aside a { display: block; padding: 6px 10px; border-radius: 8px; color: #33425c; text-decoration: none; font-size: 13.5px; }
+    aside a:hover { background: var(--chip); color: var(--accent-2); }
+    .brand { font-weight: 700; font-size: 17px; color: var(--accent-2); margin-bottom: 4px; }
+    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px; }
+    main { padding: 36px 48px 80px; max-width: 1100px; }
+    h1 { font-size: 32px; margin: 0 0 6px; color: #0f2a4a; }
+    h2 { margin-top: 46px; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 8px; color: #0f2a4a; }
+    h3 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h4 { margin-top: 18px; font-size: 14px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.06em; }
+    p, li { color: #2c3648; } strong { color: #0f2a4a; }
+    code { font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, monospace; background: #f1f4fa; padding: 2px 6px; border-radius: 5px; font-size: 13px; color: #b4420f; border: 1px solid #e2e7f0; }
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; border: 0; padding: 0; color: #1a2233; }
+    .chip { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .chip.beginner { background: #e2f5ea; color: var(--ok); } .chip.intermediate { background: #fdf1dc; color: var(--warn); } .chip.advanced { background: #fbe1e5; color: var(--danger); } .chip.critical { background: #f3d3d9; color: var(--critical); }
+    .callout { border-radius: 10px; padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); background: var(--panel); }
+    .callout.gotcha { border-left: 4px solid var(--danger); background: #fdf1f3; } .callout.tip { border-left: 4px solid var(--accent); background: #e8f7f1; } .callout.warn { border-left: 4px solid var(--warn); background: #fdf5e8; } .callout.qa { border-left: 4px solid var(--accent-2); background: #eaf0fc; }
+    .callout .tag { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .callout.gotcha .tag { color: var(--danger); } .callout.tip .tag { color: var(--accent); } .callout.warn .tag { color: var(--warn); } .callout.qa .tag { color: var(--accent-2); }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #eef1f8; color: #0f2a4a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .qa-block { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .qa-block .q { color: var(--accent-2); font-weight: 600; margin-bottom: 6px; } .qa-block .a { color: #2c3648; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 14px 0 24px; }
+    .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .video-card a { color: var(--danger); text-decoration: none; font-weight: 600; font-size: 14px; } .video-card a:hover { text-decoration: underline; }
+    .video-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">Frontend System Design<small>Phase 3 of 8 — Performance</small></div>
+  <h2>This Phase</h2>
+  <a href="#core-web-vitals">Core Web Vitals</a>
+  <a href="#rendering-performance">Rendering Performance</a>
+  <a href="#javascript-performance">JavaScript Performance</a>
+  <a href="#bundle-optimization">Bundle Optimization</a>
+  <a href="#image-optimization">Image & Media Optimization</a>
+  <a href="#lazy-loading">Lazy Loading & Code Splitting</a>
+  <a href="#virtual-scrolling">Virtual Scrolling</a>
+  <a href="#angular-cd">Angular Change Detection</a>
+  <a href="#web-workers">Web Workers</a>
+  <a href="#animation-performance">Animation Performance</a>
+  <a href="#rendering-internals">Browser Rendering Internals</a>
+  <a href="#image-deep-dive">Image Optimization Deep Dive</a>
+  <a href="#performance-budgets">Performance Budgets</a>
+  <a href="#measurement">Measuring Performance</a>
+  <a href="#exercises">Hands-On Exercises</a>
+  <a href="#interview-questions">Interview Questions</a>
+  <h2>All Phases</h2>
+  <a href="phase1-fundamentals-architecture.html">① Fundamentals</a>
+  <a href="phase2-networking-communication.html">② Networking</a>
+  <a href="phase3-performance-optimization.html"><strong>③ Performance</strong></a>
+  <a href="phase4-state-management-data.html">④ State & Data</a>
+  <a href="phase5-security-auth.html">⑤ Security</a>
+  <a href="phase6-scalable-ui-architecture.html">⑥ Scalable UI</a>
+  <a href="phase7-observability-testing.html">⑦ Observability</a>
+  <a href="phase8-real-world-design-problems.html">⑧ Design Problems</a>
+</aside>
+
+<main>
+<h1>Phase 3: Performance &amp; Optimization</h1>
+<p style="color:var(--muted);font-size:16px;margin-bottom:24px;">Performance is the #1 differentiator in frontend interviews. Know the metrics, know the tools, know how to fix real problems in Angular applications at scale.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="core-web-vitals">1. Core Web Vitals (CWV)</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: What Google Measures</h3>
+<p>Core Web Vitals are Google's standardized metrics for user experience. They directly impact SEO ranking and are the common language for performance discussions in interviews.</p>
+
+<table>
+  <tr><th>Metric</th><th>Full Name</th><th>Measures</th><th>Good</th><th>Needs Work</th><th>Poor</th></tr>
+  <tr><td><strong>LCP</strong></td><td>Largest Contentful Paint</td><td>Loading speed (when main content appears)</td><td>≤ 2.5s</td><td>2.5-4s</td><td>&gt; 4s</td></tr>
+  <tr><td><strong>INP</strong></td><td>Interaction to Next Paint</td><td>Responsiveness (delay between user input and visual update)</td><td>≤ 200ms</td><td>200-500ms</td><td>&gt; 500ms</td></tr>
+  <tr><td><strong>CLS</strong></td><td>Cumulative Layout Shift</td><td>Visual stability (unexpected movement of content)</td><td>≤ 0.1</td><td>0.1-0.25</td><td>&gt; 0.25</td></tr>
+</table>
+
+<pre><code>// ═══ LCP — What counts as "largest contentful paint"? ═══
+// - &lt;img&gt; elements
+// - &lt;video&gt; poster images
+// - Background images via url()
+// - Block-level text elements (&lt;h1&gt;, &lt;p&gt;, etc.)
+// LCP is the LAST such element to render above the fold
+
+// Common LCP killers:
+// 1. Large hero images not optimized
+// 2. Render-blocking CSS/JS in &lt;head&gt;
+// 3. Web fonts causing invisible text (FOIT)
+// 4. Server response time (slow TTFB)
+// 5. Client-side rendering (JS must execute first)
+
+// ═══ INP — Interaction to Next Paint ═══
+// Measures the WORST interaction latency across the page session
+// Includes: click, tap, keypress (NOT scroll, hover)
+// Breakdown: Input Delay + Processing Time + Presentation Delay
+//
+// Input Delay: Time between user click and handler starting
+//   → Caused by: long tasks blocking main thread
+// Processing Time: How long the event handler takes
+//   → Caused by: expensive computation in handler
+// Presentation Delay: Time from handler finish to next paint
+//   → Caused by: complex layout/paint triggered by handler
+
+// ═══ CLS — Cumulative Layout Shift ═══
+// Measures visual instability — elements moving unexpectedly
+// Layout shift score = impact fraction × distance fraction
+//
+// Common CLS killers:
+// 1. Images without width/height (browser doesn't know size until loaded)
+// 2. Ads/embeds injected without reserved space
+// 3. Web fonts causing reflow (different metrics than fallback)
+// 4. Dynamic content injected above existing content
+// 5. Late-loading CSS that rearranges layout</code></pre>
+
+<h3>How to Fix Each CWV</h3>
+<pre><code>// ═══ FIX LCP ═══
+// 1. Preload LCP image:
+&lt;link rel="preload" as="image" href="/hero.webp" fetchpriority="high"&gt;
+
+// 2. Use SSR/SSG for immediate content (no JS dependency)
+// 3. Optimize server response time (TTFB &lt; 800ms)
+// 4. Inline critical CSS (above-the-fold styles)
+// 5. Use responsive images with srcset:
+&lt;img srcset="hero-400.webp 400w, hero-800.webp 800w, hero-1200.webp 1200w"
+     sizes="(max-width: 600px) 400px, (max-width: 1000px) 800px, 1200px"
+     src="hero-800.webp" alt="Hero" fetchpriority="high" /&gt;
+
+// ═══ FIX INP ═══
+// 1. Break long tasks (yield to main thread):
+async function processLargeList(items) {
+  for (let i = 0; i &lt; items.length; i++) {
+    processItem(items[i]);
+    if (i % 100 === 0) {
+      await scheduler.yield();  // Let browser handle user input
+    }
+  }
+}
+
+// 2. Move expensive work to Web Worker
+// 3. Use requestIdleCallback for non-urgent work
+// 4. Debounce/throttle frequent event handlers
+// 5. Use CSS containment to limit paint scope
+
+// ═══ FIX CLS ═══
+// 1. Always set explicit dimensions:
+&lt;img width="800" height="600" src="..." alt="..."&gt;
+// Or use aspect-ratio:
+img { aspect-ratio: 4/3; width: 100%; }
+
+// 2. Reserve space for dynamic content:
+.ad-slot { min-height: 250px; }
+
+// 3. Use font-display: optional (no layout shift):
+@font-face {
+  font-family: 'MyFont';
+  src: url('/font.woff2') format('woff2');
+  font-display: optional;  // Uses fallback if font loads late
+}
+
+// 4. Use transform for animations (not top/left/width/height):
+.modal { transform: translateY(100%); } // No layout shift!</code></pre>
+
+<h3>YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Core Web Vitals — Google Chrome Developers</a><div class="meta">Official explanation by Google</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=5fLW5Q5ODiE" target="_blank">Optimize LCP — web.dev</a><div class="meta">Step-by-step LCP fixing</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=wC4dS2bHMIg" target="_blank">INP Explained — Annie Sullivan (Chrome team)</a><div class="meta">Deep dive into new responsiveness metric</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="rendering-performance">2. Rendering Performance (Browser Pipeline)</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: The Rendering Pipeline</h3>
+<pre><code>// Browser rendering pipeline (every frame):
+// ┌───────────┐   ┌───────────┐   ┌────────┐   ┌───────┐   ┌───────────┐
+// │ JavaScript│ → │   Style   │ → │ Layout │ → │ Paint │ → │ Composite │
+// │           │   │  (CSS)    │   │        │   │       │   │           │
+// └───────────┘   └───────────┘   └────────┘   └───────┘   └───────────┘
+//    ~4ms             ~2ms           ~2ms        ~2ms          ~1ms
+//
+// Total budget per frame at 60fps: 16.67ms (1000/60)
+// Actual available: ~10ms (browser overhead)
+//
+// KEY INSIGHT: If you only change COMPOSITE properties (transform, opacity),
+// browser skips Layout and Paint entirely! (GPU accelerated)
+
+// ═══ LAYOUT THRASHING (Forced Reflow) ═══
+// PROBLEM: Interleaving reads and writes forces browser to recalculate layout
+
+// BAD — Forces layout recalculation on every iteration:
+elements.forEach(el => {
+  const height = el.offsetHeight;        // READ (triggers layout)
+  el.style.height = height * 2 + 'px';  // WRITE (invalidates layout)
+  // Next read triggers ANOTHER layout!
+});
+
+// GOOD — Batch reads, then batch writes:
+const heights = elements.map(el => el.offsetHeight); // All READS first
+elements.forEach((el, i) => {
+  el.style.height = heights[i] * 2 + 'px';          // All WRITES
+});
+// Only ONE layout recalculation!</code></pre>
+
+<h3>CSS Properties & Their Pipeline Cost</h3>
+<table>
+  <tr><th>Triggers</th><th>Properties</th><th>Cost</th><th>Use When</th></tr>
+  <tr><td>Layout + Paint + Composite</td><td>width, height, margin, padding, top, left, font-size</td><td>🔴 Most expensive</td><td>Only if necessary, never in animations</td></tr>
+  <tr><td>Paint + Composite</td><td>color, background, box-shadow, border-radius</td><td>🟡 Moderate</td><td>OK for state changes, avoid in 60fps animations</td></tr>
+  <tr><td>Composite only</td><td>transform, opacity, filter (GPU)</td><td>🟢 Cheapest</td><td>ALWAYS use for animations!</td></tr>
+</table>
+
+<pre><code>// ═══ will-change (Promote to compositor layer) ═══
+// Tells browser to optimize element for future animation
+.card-will-animate {
+  will-change: transform;  // Browser creates GPU layer ahead of time
+}
+// WARNING: Don't overuse! Each layer = GPU memory
+// Apply just before animation, remove after
+
+// ═══ contain (Isolation for rendering) ═══
+.widget {
+  contain: layout style paint;  // OR: contain: content;
+  // Tells browser: changes inside this element
+  // do NOT affect anything outside it
+  // Browser can skip recalculating ancestors!
+}
+// Use for: independent widgets, cards, chat messages</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=PkOBnYxqj3k" target="_blank">Browser Rendering — Google Chrome</a><div class="meta">Inside the rendering pipeline</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=thNyy5JZo8s" target="_blank">60fps Rendering — Paul Irish</a><div class="meta">Layout, paint, composite layers</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="javascript-performance">3. JavaScript Performance</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: Long Tasks &amp; Main Thread</h3>
+<pre><code>// A "Long Task" = any task taking &gt; 50ms on the main thread
+// During a long task: NO user interaction is processed! (page feels frozen)
+
+// ═══ BREAKING LONG TASKS ═══
+
+// Method 1: setTimeout (yields to main thread)
+function processLargeArray(items) {
+  let index = 0;
+  function chunk() {
+    const end = Math.min(index + 100, items.length);
+    while (index &lt; end) {
+      processItem(items[index++]);
+    }
+    if (index &lt; items.length) {
+      setTimeout(chunk, 0);  // Yield, then resume
+    }
+  }
+  chunk();
+}
+
+// Method 2: requestIdleCallback (runs during idle time)
+function backgroundWork(deadline) {
+  while (deadline.timeRemaining() &gt; 0 && tasks.length > 0) {
+    performTask(tasks.shift());
+  }
+  if (tasks.length > 0) {
+    requestIdleCallback(backgroundWork);
+  }
+}
+requestIdleCallback(backgroundWork);
+
+// Method 3: scheduler.yield() (modern — Chrome 129+)
+async function processItems(items) {
+  for (const item of items) {
+    doWork(item);
+    await scheduler.yield();  // Lets higher-priority work run
+  }
+}
+
+// ═══ DEBOUNCE vs THROTTLE ═══
+// Debounce: Wait until user STOPS doing action (search input)
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+// Throttle: Execute at most once per interval (scroll, resize)
+function throttle(fn, limit) {
+  let inThrottle = false;
+  return (...args) => {
+    if (!inThrottle) {
+      fn(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}</code></pre>
+
+<h3>Memory Management</h3>
+<pre><code>// ═══ COMMON MEMORY LEAKS IN ANGULAR ═══
+
+// 1. Unsubscribed Observables:
+// BAD:
+ngOnInit() {
+  this.service.getData().subscribe(data => this.data = data);
+  // If component is destroyed, subscription still runs!
+}
+
+// GOOD — Options:
+// a) takeUntilDestroyed (Angular 16+):
+data$ = this.service.getData().pipe(takeUntilDestroyed());
+
+// b) async pipe (auto-unsubscribes):
+// template: {{ data$ | async }}
+
+// c) DestroyRef:
+constructor(private destroyRef: DestroyRef) {
+  this.service.getData().pipe(
+    takeUntilDestroyed(this.destroyRef)
+  ).subscribe(data => this.data = data);
+}
+
+// 2. Event listeners not removed:
+ngOnInit() {
+  this.handler = () => { /* ... */ };
+  window.addEventListener('resize', this.handler);
+}
+ngOnDestroy() {
+  window.removeEventListener('resize', this.handler);  // MUST clean up!
+}
+
+// 3. Closures holding large data:
+function createHandler(largeDataSet) {
+  // 'largeDataSet' is captured in closure — never GC'd while handler exists!
+  return () => console.log(largeDataSet.length);
+}
+// Fix: Only capture what you need, or set to null when done
+
+// 4. Detached DOM nodes:
+let cachedElement = document.querySelector('.modal');
+document.body.removeChild(cachedElement);
+// cachedElement still holds reference! DOM node can't be GC'd
+cachedElement = null;  // Fix: release reference</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ZKH3DLT4BKw" target="_blank">JavaScript Performance — Lydia Hallie</a><div class="meta">V8 optimizations explained</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=IKJSNiMmNOI" target="_blank">Memory Leaks in JS — Jack Herrington</a><div class="meta">Detecting & fixing leaks</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="bundle-optimization">4. Bundle Optimization</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: What Makes Bundles Large?</h3>
+<pre><code>// Angular production build output:
+// main.js      — App code + framework (~200-500KB)
+// polyfills.js — Browser compatibility (~30KB)
+// runtime.js   — Webpack/esbuild runtime (~2KB)
+// styles.css   — Global styles
+// lazy-*.js    — Lazy-loaded route chunks
+
+// TOP BUNDLE SIZE KILLERS:
+// 1. Lodash (full import: 72KB) vs lodash-es (tree-shakable)
+// 2. Moment.js (300KB with locales!) → use date-fns (5KB per function)
+// 3. RxJS operators (import specific, not 'rxjs')
+// 4. Material/PrimeNG full imports vs individual components
+// 5. Unneeded polyfills (zone.js = 40KB, might not need all)
+
+// ═══ ANALYZE BUNDLE ═══
+ng build --stats-json
+npx webpack-bundle-analyzer dist/my-app/stats.json
+
+// OR with source-map-explorer:
+ng build --source-map
+npx source-map-explorer dist/my-app/main.*.js</code></pre>
+
+<h3>Optimization Techniques</h3>
+<pre><code>// 1. TREE SHAKING (Dead Code Elimination):
+// BAD:
+import * as _ from 'lodash';     // Imports ALL of lodash (72KB)
+_.debounce(fn, 300);
+
+// GOOD:
+import { debounce } from 'lodash-es';  // Only debounce function (~1KB)
+
+// 2. LAZY LOADING ROUTES:
+const routes: Routes = [
+  {
+    path: 'reports',
+    loadComponent: () => import('./reports/reports.component')
+      .then(m => m.ReportsComponent)
+    // Only downloaded when user navigates to /reports
+  }
+];
+
+// 3. DEFER BLOCKS (Angular 17+):
+@Component({
+  template: `
+    @defer (on viewport) {
+      &lt;app-heavy-chart /&gt;  &lt;!-- Separate chunk, loaded when visible --&gt;
+    } @placeholder {
+      &lt;div style="height:400px"&gt;&lt;/div&gt;  &lt;!-- Reserve space (no CLS!) --&gt;
+    }
+  `
+})
+
+// 4. DIFFERENTIAL LOADING (Angular handles automatically):
+// Modern browsers get ES2020+ (smaller, native async/await)
+// Old browsers get ES5 (larger, with polyfills)
+
+// 5. COMPRESSION:
+// Brotli (20-30% smaller than gzip for text):
+// nginx config:
+// brotli on;
+// brotli_types text/html text/css application/javascript;
+
+// 6. ANGULAR BUDGETS (fail build if too large):
+"budgets": [
+  { "type": "initial", "maximumWarning": "300kB", "maximumError": "500kB" },
+  { "type": "anyComponentStyle", "maximumWarning": "4kB" }
+]</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=_z-P7mLYCZ0" target="_blank">Bundle Size Optimization — Theo</a><div class="meta">Tree shaking & code splitting</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=kwUfeWe7DCw" target="_blank">Reduce Bundle Size — Jack Herrington</a><div class="meta">Practical optimization tips</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="image-optimization">5. Image &amp; Media Optimization</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Theory: Image Formats</h3>
+<table>
+  <tr><th>Format</th><th>Use Case</th><th>Size</th><th>Browser Support</th></tr>
+  <tr><td>WebP</td><td>General replacement for JPEG/PNG</td><td>25-35% smaller than JPEG</td><td>97%+ browsers</td></tr>
+  <tr><td>AVIF</td><td>Next-gen (best compression)</td><td>50% smaller than JPEG</td><td>90%+ browsers</td></tr>
+  <tr><td>JPEG</td><td>Photos (fallback)</td><td>Baseline</td><td>100%</td></tr>
+  <tr><td>PNG</td><td>Transparency, screenshots</td><td>Larger than JPEG</td><td>100%</td></tr>
+  <tr><td>SVG</td><td>Icons, logos, illustrations</td><td>Tiny (vector)</td><td>100%</td></tr>
+</table>
+
+<pre><code>// ═══ RESPONSIVE IMAGES ═══
+&lt;picture&gt;
+  &lt;source srcset="hero.avif" type="image/avif" /&gt;
+  &lt;source srcset="hero.webp" type="image/webp" /&gt;
+  &lt;img src="hero.jpg" alt="Hero" width="1200" height="600"
+       loading="lazy" decoding="async" /&gt;
+&lt;/picture&gt;
+
+// ═══ NgOptimizedImage (Angular 15+) ═══
+import { NgOptimizedImage } from '@angular/common';
+
+@Component({
+  imports: [NgOptimizedImage],
+  template: `
+    &lt;!-- LCP image (above-fold) — priority: no lazy loading --&gt;
+    &lt;img ngSrc="hero.jpg" width="1200" height="600" priority /&gt;
+    
+    &lt;!-- Below-fold — lazy loaded by default --&gt;
+    &lt;img ngSrc="product.jpg" width="400" height="300"
+         placeholder  /&gt;
+         &lt;!-- placeholder shows blurred low-res while loading --&gt;
+  `
+})
+
+// NgOptimizedImage automatically:
+// ✅ Sets fetchpriority="high" for priority images
+// ✅ Adds loading="lazy" for non-priority
+// ✅ Warns if LCP image missing priority attribute
+// ✅ Generates srcset for responsive sizing
+// ✅ Preconnects to image CDN
+
+// ═══ IMAGE CDN (Cloudinary, Imgix) ═══
+// Transform images on the fly via URL params:
+// https://res.cloudinary.com/demo/image/upload/w_400,h_300,c_fill,f_auto,q_auto/hero.jpg
+// f_auto → auto-detect best format (AVIF → WebP → JPEG)
+// q_auto → automatic quality optimization
+// w_400  → resize to 400px width</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=YJGCZCaIZkQ" target="_blank">Image Optimization — web.dev</a><div class="meta">Modern image formats & loading</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=2QYpkrX2N48" target="_blank">Responsive Images — Kevin Powell</a><div class="meta">srcset, sizes, art direction</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="lazy-loading">6. Lazy Loading &amp; Code Splitting</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<h3>Angular Lazy Loading Strategies</h3>
+<pre><code>// ═══ ROUTE-LEVEL (Most impactful) ═══
+const routes: Routes = [
+  { path: '', component: HomeComponent },  // In main bundle
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./dashboard/dashboard.component')
+      .then(c => c.DashboardComponent),
+    // Created: chunk-dashboard-HASH.js (~50KB instead of in main bundle)
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.routes')
+      .then(r => r.ADMIN_ROUTES),
+    canMatch: [() => inject(AuthService).isAdmin()]
+    // Only loads if user is admin!
+  }
+];
+
+// ═══ COMPONENT-LEVEL (@defer — Angular 17+) ═══
+@Component({
+  template: `
+    &lt;!-- Load when element enters viewport --&gt;
+    @defer (on viewport) {
+      &lt;app-reviews [productId]="id" /&gt;
+    } @loading (after 100ms; minimum 200ms) {
+      &lt;app-skeleton-loader /&gt;
+    } @placeholder (minimum 50ms) {
+      &lt;div style="height: 300px"&gt;&lt;/div&gt;
+    } @error {
+      &lt;p&gt;Failed to load reviews&lt;/p&gt;
+    }
+
+    &lt;!-- Load on user interaction --&gt;
+    @defer (on interaction) {
+      &lt;app-comment-editor /&gt;
+    } @placeholder {
+      &lt;button&gt;Write a comment...&lt;/button&gt;
+    }
+
+    &lt;!-- Load when browser is idle --&gt;
+    @defer (on idle) {
+      &lt;app-recommendations /&gt;
+    }
+
+    &lt;!-- Load after delay --&gt;
+    @defer (on timer(3s)) {
+      &lt;app-chat-widget /&gt;
+    }
+
+    &lt;!-- Conditional (prefetch early, render on condition) --&gt;
+    @defer (when isLoggedIn; prefetch on idle) {
+      &lt;app-user-dashboard /&gt;
+    }
+  `
+})
+
+// ═══ PRELOADING STRATEGIES ═══
+// Preload lazy modules in background AFTER initial load:
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules  // Download all lazy chunks
+    // OR: Custom strategy — only preload visible links:
+  })]
+})
+
+// Custom preloading (preload on hover):
+@Injectable({ providedIn: 'root' })
+export class OnDemandPreloadStrategy implements PreloadingStrategy {
+  private preloadSubject = new Subject&lt;string&gt;();
+  
+  preload(route: Route, load: () => Observable&lt;any&gt;) {
+    return this.preloadSubject.pipe(
+      filter(path => route.path === path),
+      take(1),
+      switchMap(() => load())
+    );
+  }
+  
+  startPreload(path: string) { this.preloadSubject.next(path); }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=iILfP5pHEBo" target="_blank">Lazy Loading in Angular — Decoded Frontend</a><div class="meta">Route-based code splitting</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=kwUfeWe7DCw" target="_blank">Dynamic Imports — Jack Herrington</a><div class="meta">Lazy modules & components</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="virtual-scrolling">7. Virtual Scrolling (Large Lists)</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: Why Virtual Scrolling?</h3>
+<p>Rendering 10,000 DOM elements causes: huge memory consumption, slow initial render, janky scroll. <strong>Virtual scrolling</strong> only renders the visible items (~20-50) and recycles DOM nodes as user scrolls.</p>
+
+<pre><code>// ═══ Angular CDK Virtual Scroll ═══
+import { ScrollingModule } from '@angular/cdk/scrolling';
+
+@Component({
+  imports: [ScrollingModule],
+  template: `
+    &lt;cdk-virtual-scroll-viewport itemSize="50" class="list-viewport"&gt;
+      &lt;div *cdkVirtualFor="let item of items; trackBy: trackById" class="item"&gt;
+        {{ item.name }}
+      &lt;/div&gt;
+    &lt;/cdk-virtual-scroll-viewport&gt;
+  `,
+  styles: [`
+    .list-viewport { height: 500px; }
+    .item { height: 50px; }  /* Must match itemSize */
+  `]
+})
+export class VirtualListComponent {
+  items = Array.from({ length: 100000 }, (_, i) => ({ id: i, name: `Item ${i}` }));
+  trackById = (index: number, item: any) => item.id;
+}
+
+// For VARIABLE height items:
+// Use experimental autosize or custom VirtualScrollStrategy
+
+// ═══ Infinite Scroll + Virtual Scroll ═══
+@Component({
+  template: `
+    &lt;cdk-virtual-scroll-viewport itemSize="80" (scrolledIndexChange)="onScroll($event)"&gt;
+      &lt;app-product-card *cdkVirtualFor="let product of products" [product]="product" /&gt;
+    &lt;/cdk-virtual-scroll-viewport&gt;
+  `
+})
+export class InfiniteScrollComponent {
+  products: Product[] = [];
+  private page = 1;
+  private loading = false;
+  
+  onScroll(index: number) {
+    // Load more when near the end
+    if (index > this.products.length - 20 && !this.loading) {
+      this.loading = true;
+      this.productService.getProducts(++this.page).subscribe(more => {
+        this.products = [...this.products, ...more];
+        this.loading = false;
+      });
+    }
+  }
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=2q9PiIgrHko" target="_blank">Virtual Scrolling — Angular CDK</a><div class="meta">CDK virtual scroll implementation</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=FN2bvoGUiRE" target="_blank">Rendering 10,000 Items — Fireship</a><div class="meta">Virtual scroll performance demo</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="angular-cd">8. Angular Change Detection Optimization</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: How Angular Change Detection Works</h3>
+<pre><code>// Angular uses Zone.js to patch ALL async APIs:
+// setTimeout, addEventListener, fetch, Promise.then, etc.
+// After ANY async operation completes → Zone.js triggers change detection
+
+// DEFAULT strategy: Check EVERY component top-to-bottom
+// Component tree: A → B → C → D (all checked even if no changes!)
+
+// ═══ OPTIMIZATION 1: OnPush Strategy ═══
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+  // Only checks this component when:
+  // 1. @Input() reference changes (new object, not mutation!)
+  // 2. Event handler fires IN this component
+  // 3. Async pipe receives new value
+  // 4. Manual markForCheck() called
+})
+
+// ═══ OPTIMIZATION 2: Signals (Angular 16+) ═══
+@Component({
+  template: `
+    &lt;h1&gt;{{ title() }}&lt;/h1&gt;       &lt;!-- Signal read --&gt;
+    &lt;p&gt;Count: {{ count() }}&lt;/p&gt;
+    &lt;p&gt;Double: {{ double() }}&lt;/p&gt; &lt;!-- Computed signal --&gt;
+  `
+})
+export class CounterComponent {
+  title = input.required&lt;string&gt;();     // Signal-based input
+  count = signal(0);                     // Writable signal
+  double = computed(() => this.count() * 2); // Derived (memoized)
+  
+  increment() { this.count.update(c => c + 1); }
+}
+// Signals enable FINE-GRAINED reactivity:
+// Only the specific template binding is updated, not the whole component!
+// No Zone.js dependency → future: zoneless Angular
+
+// ═══ OPTIMIZATION 3: trackBy ═══
+// Without trackBy: *ngFor destroys and recreates ALL DOM on any change
+// With trackBy: Angular reuses existing DOM elements
+
+// BAD:
+&lt;div *ngFor="let item of items"&gt;{{ item.name }}&lt;/div&gt;
+
+// GOOD:
+&lt;div *ngFor="let item of items; trackBy: trackById"&gt;{{ item.name }}&lt;/div&gt;
+trackById = (_: number, item: Item) => item.id;
+
+// ═══ OPTIMIZATION 4: Pure Pipes (Memoized) ═══
+@Pipe({ name: 'filter', pure: true })  // pure is default
+export class FilterPipe implements PipeTransform {
+  transform(items: Item[], searchTerm: string) {
+    return items.filter(i => i.name.includes(searchTerm));
+  }
+  // Only re-executes when input REFERENCE changes (not on every CD cycle)
+}
+
+// ═══ OPTIMIZATION 5: runOutsideAngular ═══
+constructor(private ngZone: NgZone) {}
+
+ngOnInit() {
+  // Animation/timer that doesn't need CD:
+  this.ngZone.runOutsideAngular(() => {
+    this.animationFrame = requestAnimationFrame(this.animate.bind(this));
+    // This won't trigger change detection!
+  });
+}</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=FO3Wvq7uCbA" target="_blank">Change Detection — Decoded Frontend</a><div class="meta">Zone.js & OnPush strategy</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=6lejFqrLaPA" target="_blank">Signals & Change Detection — Angular</a><div class="meta">Zoneless Angular with signals</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="web-workers">9. Web Workers for CPU-Intensive Tasks</h2>
+<span class="chip advanced">Advanced</span>
+
+<pre><code>// Web Workers run JavaScript on a SEPARATE thread
+// Main thread stays responsive for user interactions!
+
+// ═══ Angular Web Worker (CLI generated) ═══
+// ng generate web-worker heavy-computation
+
+// heavy-computation.worker.ts:
+addEventListener('message', ({ data }) => {
+  const result = performExpensiveCalculation(data);
+  postMessage(result);
+});
+
+function performExpensiveCalculation(data: number[]) {
+  // CPU-intensive: sorting 1M items, image processing, crypto, etc.
+  return data.sort((a, b) => a - b);
+}
+
+// Component using the worker:
+@Component({ /* ... */ })
+export class DataComponent {
+  private worker: Worker;
+  
+  constructor() {
+    if (typeof Worker !== 'undefined') {
+      this.worker = new Worker(
+        new URL('./heavy-computation.worker', import.meta.url)
+      );
+      this.worker.onmessage = ({ data }) => {
+        this.sortedData = data;  // Received from worker thread
+      };
+    }
+  }
+  
+  sortLargeDataset(data: number[]) {
+    this.worker.postMessage(data);
+    // Main thread is FREE while worker processes!
+  }
+}
+
+// ═══ USE CASES FOR WEB WORKERS ═══
+// ✅ Sorting/filtering large datasets (10K+ items)
+// ✅ Image/video processing (canvas operations)
+// ✅ Encryption/decryption
+// ✅ Complex calculations (financial modeling, analytics)
+// ✅ Markdown/code parsing
+// ❌ DOM manipulation (workers can't access DOM)
+// ❌ Simple operations (overhead not worth it)</code></pre>
+
+// ❌ DOM manipulation (workers can't access DOM)
+// ❌ Simple operations (overhead not worth it)</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=Gcp7UVDYhtQ" target="_blank">Web Workers — Fireship</a><div class="meta">100-second Web Worker overview</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=4KCcYZZNG7c" target="_blank">Comlink Web Workers — Surma</a><div class="meta">Making workers easy with Comlink</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="animation-performance">10. Animation Performance (rAF &amp; FLIP)</h2>
+<span class="chip advanced">Advanced</span>
+
+<h3>Theory: Why Animations Jank</h3>
+<p>Browser renders at <strong>60fps</strong> (16.67ms per frame). If your animation work takes longer than 16ms, frames are dropped → jank (stuttering). The key is to only animate properties that the GPU can handle WITHOUT triggering layout/paint.</p>
+
+<pre><code>// ═══ THE RENDERING COST OF CSS PROPERTIES ═══
+// 
+// CHEAP (Compositor-only, GPU handles it):
+//   transform: translate(), scale(), rotate()
+//   opacity
+//   → These NEVER trigger Layout or Paint. ~0ms cost.
+//
+// MODERATE (Triggers Paint, not Layout):
+//   color, background-color, box-shadow, border-radius
+//   → Repaints affected pixels. Avoid on large elements.
+//
+// EXPENSIVE (Triggers Layout → Paint → Composite):
+//   width, height, top, left, margin, padding, font-size
+//   → Recalculates ALL element positions. NEVER animate these!
+//
+// ═══ RULE: Only animate transform and opacity ═══</code></pre>
+
+<h3>requestAnimationFrame (rAF)</h3>
+<pre><code>// ═══ requestAnimationFrame — Sync with browser's render cycle ═══
+// DON'T: setInterval(() => moveElement(), 16) ← not synced, drops frames
+// DO: requestAnimationFrame ← called right before next paint
+
+function smoothScroll(element: HTMLElement, target: number) {
+  const start = element.scrollTop;
+  const distance = target - start;
+  const duration = 300; // ms
+  let startTime: number;
+
+  function step(timestamp: number) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Easing function (ease-out cubic)
+    const eased = 1 - Math.pow(1 - progress, 3);
+    
+    element.scrollTop = start + distance * eased;
+    
+    if (progress < 1) {
+      requestAnimationFrame(step); // Schedule next frame
+    }
+  }
+  
+  requestAnimationFrame(step);
+}
+
+// ═══ Angular: Run animations OUTSIDE NgZone ═══
+// rAF fires 60 times/second — you don't want change detection each time!
+@Component({ ... })
+export class AnimatedComponent {
+  private ngZone = inject(NgZone);
+  private animationId: number;
+
+  startAnimation() {
+    this.ngZone.runOutsideAngular(() => { // ← Critical!
+      const animate = () => {
+        // Update positions, transforms, etc.
+        this.animationId = requestAnimationFrame(animate);
+      };
+      this.animationId = requestAnimationFrame(animate);
+    });
+  }
+
+  stopAnimation() {
+    cancelAnimationFrame(this.animationId);
+  }
+}</code></pre>
+
+<h3>FLIP Technique (First, Last, Invert, Play)</h3>
+<pre><code>// ═══ FLIP — Animate layout changes smoothly ═══
+// Problem: You can't animate 'width' or 'top' smoothly (triggers layout)
+// Solution: FLIP — calculate the change, then animate with transform
+
+// F = First:  Record element's initial position/size
+// L = Last:   Apply the DOM change (element jumps to new position)
+// I = Invert: Use transform to VISUALLY put it back at First position
+// P = Play:   Remove the transform with a transition → smooth animation!
+
+function flipAnimate(element: HTMLElement, callback: () => void) {
+  // F — FIRST: Record current position
+  const first = element.getBoundingClientRect();
+  
+  // L — LAST: Apply DOM change (element jumps instantly)
+  callback(); // e.g., reorder list, expand card, etc.
+  
+  // L — Record new position
+  const last = element.getBoundingClientRect();
+  
+  // I — INVERT: Calculate difference and apply inverse transform
+  const deltaX = first.left - last.left;
+  const deltaY = first.top - last.top;
+  const deltaW = first.width / last.width;
+  const deltaH = first.height / last.height;
+  
+  element.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaW}, ${deltaH})`;
+  element.style.transformOrigin = 'top left';
+  
+  // P — PLAY: Remove transform with animation
+  requestAnimationFrame(() => {
+    element.style.transition = 'transform 300ms ease-out';
+    element.style.transform = '';
+    
+    element.addEventListener('transitionend', () => {
+      element.style.transition = '';
+      element.style.transformOrigin = '';
+    }, { once: true });
+  });
+}
+
+// ═══ REAL USE CASES FOR FLIP ═══
+// • Reordering a list (items slide to new positions)
+// • Expanding a card to fullscreen (shared element transition)
+// • Moving elements between containers
+// • Angular CDK Drag&Drop uses FLIP internally!
+
+// ═══ Web Animations API (Modern Alternative) ═══
+element.animate([
+  { transform: 'translateY(0)', opacity: 1 },
+  { transform: 'translateY(-20px)', opacity: 0 }
+], {
+  duration: 300,
+  easing: 'ease-out',
+  fill: 'forwards'  // Keep final state
+});
+
+// Benefits over CSS transitions:
+// • Programmatic control (pause, reverse, cancel, onfinish)
+// • Can animate between computed values
+// • Better performance profiling in DevTools
+// • Composable (multiple animations on same element)</code></pre>
+
+<div class="callout gotcha">
+  <span class="tag">Performance Trap</span>
+  <strong>will-change</strong> creates a new GPU compositing layer. Each layer uses GPU memory. On mobile, creating 50+ layers can cause OOM crashes. Use <code>will-change</code> ONLY just before the animation starts, and remove it after the animation ends. Never set it permanently in CSS for dozens of elements.
+</div>
+
+<div class="callout tip">
+  <span class="tag">Debugging Jank</span>
+  Chrome DevTools → Performance tab → Record → look for red triangles (dropped frames). Enable "Rendering" → check "Paint flashing" (green rectangles show what's being repainted). If your animation causes green flashing, you're triggering paint. Switch to transform/opacity.
+</div>
+
+<div class="qa-block">
+  <p class="q">Q: An element animates from one position to another but stutters. How do you debug and fix it? (Google, Meta)</p>
+  <p class="a"><strong>Answer:</strong> (1) Open DevTools Performance tab, record the animation. (2) Look at Main thread — if frames exceed 16ms, identify what's causing it. (3) Check if animating layout-triggering properties (top, left, width) — switch to transform: translate(). (4) Enable "Paint flashing" — if element causes repaint, add will-change: transform before animation, remove after. (5) If JS-driven, ensure using requestAnimationFrame (not setInterval) and running outside NgZone. (6) For complex layout transitions, use FLIP technique: measure → apply change → invert with transform → animate removal.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=8sAaAl8CpeY" target="_blank">FLIP Animation — Google Chrome</a><div class="meta">FLIP technique for 60fps animations</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=zBRqnSiq_VM" target="_blank">requestAnimationFrame — Steve Griffith</a><div class="meta">rAF loop explained</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="rendering-internals">11. Browser Rendering Engine Internals</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: The Complete Rendering Pipeline</h3>
+<p>Understanding what happens between receiving HTML and pixels on screen is what separates senior engineers from everyone else.</p>
+
+<pre><code>// ═══ FULL CRITICAL RENDERING PATH (Detailed) ═══
+//
+// 1. PARSE HTML → DOM Tree
+//    • Tokenizer breaks HTML into tokens (start tag, text, end tag)
+//    • Tree builder constructs DOM tree from tokens
+//    • BLOCKED BY: &lt;script&gt; without async/defer (parser-blocking)
+//    • Speculative parsing: browser pre-scans for resources to fetch
+//
+// 2. PARSE CSS → CSSOM Tree
+//    • Parses all stylesheets (inline, external, user agent)
+//    • Resolves cascade: specificity → origin → order
+//    • RENDER-BLOCKING: No painting until ALL CSS is parsed
+//    • That's why Critical CSS should be inlined in &lt;head&gt;
+//
+// 3. COMBINE → Render Tree
+//    • DOM + CSSOM = Render Tree (only visible elements)
+//    • display: none elements are NOT in render tree
+//    • visibility: hidden IS in render tree (takes space)
+//    • ::before, ::after pseudo-elements ARE in render tree
+//
+// 4. LAYOUT (Reflow)
+//    • Calculates exact position and size of every element
+//    • Box model: content + padding + border + margin
+//    • Starts from root, cascades down (parent affects children)
+//    • EXPENSIVE: Changing one element can affect many others
+//    • Layout thrashing: read → write → read → write (forced sync layout)
+//
+// 5. PAINT
+//    • Converts render tree to pixels (rasterization)
+//    • Draws: text, colors, borders, shadows, images
+//    • Paint order: background → border → children → outline
+//    • Creates PAINT RECORDS (instruction list for each layer)
+//
+// 6. COMPOSITE
+//    • Combines painted layers in correct order (z-index, stacking)
+//    • GPU-accelerated: each layer is a texture
+//    • Properties that create new layers:
+//      • will-change: transform/opacity
+//      • position: fixed
+//      • transform: translateZ(0) (hack — avoid)
+//      • &lt;video&gt;, &lt;canvas&gt;, CSS animations
+//    • Compositor thread: runs INDEPENDENTLY of main thread!
+//      That's why transform/opacity animations never jank
+
+// ═══ VISUAL PIPELINE ═══
+// 
+//  HTML → DOM ─┐
+//              ├→ Render Tree → Layout → Paint → Composite → PIXELS
+//  CSS → CSSOM┘
+//
+// Changing 'width':     Layout → Paint → Composite (EXPENSIVE)
+// Changing 'color':     Paint → Composite (MODERATE)
+// Changing 'transform': Composite ONLY (CHEAP — GPU only!)</code></pre>
+
+<h3>Layout Thrashing &amp; Forced Synchronous Layout</h3>
+<pre><code>// ═══ LAYOUT THRASHING — The #1 performance killer in DOM manipulation ═══
+//
+// BAD: Interleaving reads and writes forces browser to recalculate layout
+// EACH read after a write triggers a "forced synchronous layout"
+
+// ❌ BAD — Forces layout recalculation N times:
+const items = document.querySelectorAll('.item');
+items.forEach(item => {
+  const height = item.offsetHeight;        // READ (forces layout!)
+  item.style.height = height * 2 + 'px';   // WRITE (invalidates layout)
+  // Next iteration's READ will force ANOTHER layout calculation
+});
+
+// ✅ GOOD — Batch reads, then batch writes:
+const items = document.querySelectorAll('.item');
+// Phase 1: Read ALL values
+const heights = Array.from(items).map(item => item.offsetHeight);
+// Phase 2: Write ALL values
+items.forEach((item, i) => {
+  item.style.height = heights[i] * 2 + 'px';
+});
+// Only ONE layout recalculation!
+
+// ═══ Properties that trigger FORCED LAYOUT when read: ═══
+// offsetTop, offsetLeft, offsetWidth, offsetHeight
+// scrollTop, scrollLeft, scrollWidth, scrollHeight
+// clientTop, clientLeft, clientWidth, clientHeight
+// getComputedStyle(), getBoundingClientRect()
+// innerText (requires layout to determine text)
+
+// ═══ CSS CONTAINMENT — Limit layout recalculation scope ═══
+.widget {
+  contain: layout;    // Layout changes inside don't affect outside
+  contain: paint;     // Painting is clipped to element boundary
+  contain: size;      // Element's size isn't affected by children
+  contain: strict;    // All of the above (maximum isolation)
+  content-visibility: auto; // Skip rendering off-screen content entirely
+}
+// content-visibility: auto → browser skips layout+paint for off-screen
+// Can save 100-400ms on pages with lots of below-fold content!</code></pre>
+
+<h3>Stacking Contexts &amp; Compositing Layers</h3>
+<pre><code>// ═══ STACKING CONTEXT — When z-index creates new layers ═══
+// A new stacking context is created by:
+// • position: relative/absolute/fixed + z-index (not auto)
+// • opacity < 1
+// • transform (any value except none)
+// • filter (any value except none)
+// • will-change: transform, opacity
+// • mix-blend-mode, isolation: isolate
+//
+// PROBLEM: Elements in a stacking context can NEVER appear
+// between layers of a different stacking context.
+// This is why z-index: 99999 sometimes doesn't work!
+
+// ═══ GPU COMPOSITING LAYERS — Memory considerations ═══
+// Each compositing layer = GPU texture = MEMORY
+// 
+// Check layers: DevTools → More Tools → Layers
+// You'll see each GPU layer, its memory cost, and why it was created
+//
+// PROBLEM: "Layer explosion" — too many layers on mobile:
+// • Each 1000x1000px layer @ 4 bytes/pixel = 4MB GPU memory
+// • Mobile GPUs have limited memory (256-512MB shared)
+// • 50 unnecessary layers = potential OOM crash
+//
+// SOLUTION:
+// 1. Use will-change sparingly (only during animation)
+// 2. Avoid position: fixed on many elements
+// 3. Use DevTools Layers panel to audit
+// 4. Prefer one scrollable container over many fixed layers</code></pre>
+
+<div class="callout warn">
+  <span class="tag">Interview Must-Know</span>
+  <strong>"What happens when you change the width of a div?"</strong><br>
+  Answer: Triggers Layout (recalculates all affected element positions) → Paint (repaint affected areas) → Composite. If many elements are affected, this can take 50-100ms, causing visible jank. <strong>Solution:</strong> Animate <code>transform: scaleX()</code> instead — compositor-only, ~0ms, GPU-handled.
+</div>
+
+<div class="qa-block">
+  <p class="q">Q: Explain the critical rendering path. How would you optimize it for a content-heavy page? (Google, Amazon, Meta)</p>
+  <p class="a"><strong>Answer:</strong> CRP: HTML parsing→DOM, CSS parsing→CSSOM, merge→Render Tree, Layout, Paint, Composite. Optimizations: (1) Inline critical CSS (~14KB above-fold styles) in &lt;head&gt; to avoid render-blocking stylesheet fetch. (2) Async/defer non-critical JS (parser-blocking scripts delay DOM construction). (3) Preload LCP resource (image/font) with fetchpriority=high. (4) Use font-display: swap (avoid invisible text during font load). (5) Reduce DOM depth (layout calculation is O(n) on DOM nodes). (6) Use content-visibility: auto for below-fold sections (browser skips layout/paint). (7) Speculative preloading with &lt;link rel="preload"&gt; for critical resources.</p>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=SmE4OwHztCc" target="_blank">How Browsers Render — Google Chrome</a><div class="meta">DOM, CSSOM, render tree</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=ZKH3DLT4BKw" target="_blank">Inside V8 Engine — Lydia Hallie</a><div class="meta">Parsing & compilation pipeline</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="image-deep-dive">12. Image Optimization Deep Dive</h2>
+<span class="chip critical">Critical</span>
+
+<h3>Theory: Images = 50% of Page Weight</h3>
+<p>On average, images account for ~50% of a webpage's total bytes. Optimizing images is often the <strong>highest-impact, lowest-effort</strong> performance win.</p>
+
+<table>
+  <tr><th>Format</th><th>Best For</th><th>Compression</th><th>Browser Support</th><th>Savings vs JPEG</th></tr>
+  <tr><td><strong>AVIF</strong></td><td>Photos, illustrations</td><td>Best (lossy + lossless)</td><td>Chrome, Firefox, Safari 16+</td><td>50-70% smaller</td></tr>
+  <tr><td><strong>WebP</strong></td><td>Photos, transparency</td><td>Good (lossy + lossless)</td><td>All modern browsers</td><td>25-35% smaller</td></tr>
+  <tr><td><strong>JPEG</strong></td><td>Photos (fallback)</td><td>Good (lossy only)</td><td>Universal</td><td>Baseline</td></tr>
+  <tr><td><strong>PNG</strong></td><td>Icons, transparency, sharp edges</td><td>Lossless</td><td>Universal</td><td>N/A (use SVG)</td></tr>
+  <tr><td><strong>SVG</strong></td><td>Icons, logos, illustrations</td><td>Vector (infinite scale)</td><td>Universal</td><td>Tiny file size</td></tr>
+</table>
+
+<pre><code>&lt;!-- ═══ RESPONSIVE IMAGES with Art Direction ═══ --&gt;
+&lt;!-- &lt;picture&gt; element: serve different IMAGES for different screens --&gt;
+&lt;!-- Art Direction = completely different crop/composition, not just resize --&gt;
+
+&lt;picture&gt;
+  &lt;!-- Mobile: cropped close-up (art direction) --&gt;
+  &lt;source media="(max-width: 768px)" 
+          srcset="hero-mobile.avif" type="image/avif"&gt;
+  &lt;source media="(max-width: 768px)" 
+          srcset="hero-mobile.webp" type="image/webp"&gt;
+  
+  &lt;!-- Desktop: wide landscape shot --&gt;
+  &lt;source media="(min-width: 769px)" 
+          srcset="hero-desktop.avif" type="image/avif"&gt;
+  &lt;source media="(min-width: 769px)" 
+          srcset="hero-desktop.webp" type="image/webp"&gt;
+  
+  &lt;!-- Fallback --&gt;
+  &lt;img src="hero-desktop.jpg" alt="Hero banner"
+       width="1200" height="600"
+       fetchpriority="high"&gt;
+&lt;/picture&gt;
+
+&lt;!-- ═══ srcset + sizes — Same image, different resolutions ═══ --&gt;
+&lt;img 
+  srcset="product-300w.avif 300w,
+          product-600w.avif 600w,
+          product-1200w.avif 1200w"
+  sizes="(max-width: 768px) 100vw,
+         (max-width: 1200px) 50vw,
+         600px"
+  src="product-600w.jpg"
+  alt="Product photo"
+  loading="lazy"
+  decoding="async"
+  width="600" height="400"&gt;
+
+&lt;!-- ═══ Angular NgOptimizedImage ═══ --&gt;
+&lt;!-- Automatically: lazy loads, adds srcset, sets fetchpriority for LCP --&gt;
+&lt;img ngSrc="product.jpg" width="400" height="300" priority /&gt;
+&lt;!-- priority = fetchpriority="high" + preload link + no lazy loading --&gt;
+&lt;!-- Without priority: automatically adds loading="lazy" --&gt;</code></pre>
+
+<h3>LQIP (Low-Quality Image Placeholder) Techniques</h3>
+<pre><code>// ═══ LQIP STRATEGIES (What to show while image loads) ═══
+
+// 1. BLUR-UP (Medium, Facebook approach):
+//    → Load a tiny (20px) version, blur it, show at full size
+//    → When real image loads, crossfade
+//    Pros: Looks like the actual image. Cons: Extra request.
+
+// 2. DOMINANT COLOR (Google Images approach):
+//    → Extract dominant color at build time
+//    → Show colored rectangle as placeholder
+//    Pros: No extra request. Cons: Less informative.
+//    Implementation: background-color from image metadata
+
+// 3. BLURHASH (Wolt, Notion approach):
+//    → Server generates ~30 character hash representing blurred image
+//    → Client decodes hash to tiny blurred image via canvas
+//    Pros: Very small payload (~30 bytes). Cons: Decode cost (1-2ms).
+//    Library: blurhash (npm)
+
+// 4. SVG TRACE (Gatsby approach):
+//    → Generate SVG outline of image at build time
+//    → Inline SVG as placeholder
+//    Pros: Sharp, looks artistic. Cons: Larger placeholder.
+
+// 5. SKELETON (Twitter/LinkedIn approach):
+//    → Gray animated pulsing rectangle
+//    Pros: Simplest, no per-image work. Cons: Generic.
+
+// ═══ Angular LQIP with NgOptimizedImage ═══
+@Component({
+  template: `
+    &lt;img ngSrc="product.jpg" 
+         width="400" height="300"
+         placeholder
+         placeholderSrc="data:image/jpeg;base64,/9j/4AA..."
+    /&gt;
+  `
+})
+// placeholder attribute enables Angular's built-in LQIP
+// Can also use custom placeholderSrc (base64 tiny image)</code></pre>
+
+<h3>Image CDN Architecture</h3>
+<pre><code>// ═══ IMAGE CDN (On-the-fly transformation) ═══
+// Instead of pre-generating 20 sizes × 3 formats = 60 files per image:
+// Use an Image CDN that transforms on-the-fly + caches at edge
+
+// Cloudinary example:
+// https://res.cloudinary.com/demo/image/upload/
+//   w_400,h_300,c_fill,   ← Resize + crop
+//   f_auto,               ← Auto-detect best format (AVIF/WebP/JPEG)
+//   q_auto,               ← Auto quality (perceptual optimization)
+//   dpr_2.0               ← 2x for retina displays
+//   /products/shoe.jpg
+
+// Imgix example:
+// https://mysite.imgix.net/products/shoe.jpg?w=400&h=300&fit=crop&auto=format,compress
+
+// Angular Integration:
+@Component({
+  template: `&lt;img [ngSrc]="'products/shoe.jpg'" 
+                  ngSrcset="300w, 600w, 1200w"
+                  width="400" height="300" /&gt;`,
+  providers: [
+    { provide: IMAGE_LOADER, useValue: (config: ImageLoaderConfig) => {
+      return `https://res.cloudinary.com/myapp/image/upload/w_${config.width},f_auto,q_auto/${config.src}`;
+    }}
+  ]
+})
+
+// ═══ CDN COMPARISON ═══
+// Cloudinary:  Full-featured, generous free tier, great Angular SDK
+// Imgix:       Fast, focused on images, URL-based API
+// Fastly IO:   Part of Fastly CDN, tight integration if already using Fastly
+// Cloudflare:  Cheapest, good enough, part of Cloudflare ecosystem
+// Vercel/Next: Built-in for Next.js (not relevant for Angular)</code></pre>
+
+<div class="callout tip">
+  <span class="tag">Quick Wins Checklist</span>
+  <ul>
+    <li>Use <code>NgOptimizedImage</code> for ALL images (adds lazy, srcset, priority automatically)</li>
+    <li>Add <code>width</code> and <code>height</code> to ALL img tags (prevents CLS)</li>
+    <li>Use <code>fetchpriority="high"</code> for LCP image, <code>loading="lazy"</code> for rest</li>
+    <li>Serve AVIF with WebP fallback (saves 50%+ bandwidth)</li>
+    <li>Use Image CDN for on-the-fly resizing (no manual asset generation)</li>
+  </ul>
+</div>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=F1kYBnY6mwg" target="_blank">AVIF & WebP — Jake Archibald</a><div class="meta">Next-gen image format comparison</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=YJGCZCaIZkQ" target="_blank">Image CDN Strategies — web.dev</a><div class="meta">Auto-optimization pipelines</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="performance-budgets">13. Performance Budgets</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// Performance budgets = maximum thresholds that fail the build if exceeded
+// Enforced in CI/CD — prevents performance regression!
+
+// ═══ Angular Budget Configuration ═══
+// angular.json:
+"budgets": [
+  {
+    "type": "initial",           // Main bundle (loaded on first visit)
+    "maximumWarning": "300kB",   // Yellow alert
+    "maximumError": "500kB"      // Build FAILS
+  },
+  {
+    "type": "anyComponentStyle",
+    "maximumWarning": "4kB",     // Per-component CSS
+    "maximumError": "8kB"
+  },
+  {
+    "type": "anyScript",
+    "maximumWarning": "150kB"    // Any lazy chunk
+  }
+]
+
+// ═══ Lighthouse CI Performance Budget ═══
+// lighthouserc.json:
+{
+  "assertions": {
+    "first-contentful-paint": ["warn", { "maxNumericValue": 2000 }],
+    "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+    "interactive": ["error", { "maxNumericValue": 3500 }],
+    "total-blocking-time": ["warn", { "maxNumericValue": 200 }],
+    "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }]
+  }
+}
+
+// ═══ Bundle Size Budget Tracking (over time) ═══
+// Tools: bundlesize, size-limit, Lighthouse CI
+// CI command: npx size-limit --json | compare with baseline</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=yqejmZrtmNg" target="_blank">Performance Budgets — Google Chrome</a><div class="meta">Setting & enforcing budgets</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=4RmpXY5x3Bg" target="_blank">Lighthouse CI — Addy Osmani</a><div class="meta">Automated performance checks</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="measurement">11. Measuring Performance</h2>
+<span class="chip intermediate">Intermediate</span>
+
+<pre><code>// ═══ LAB vs FIELD DATA ═══
+// Lab: Lighthouse, DevTools (controlled, reproducible, synthetic)
+// Field: Real User Monitoring (actual users, varying conditions)
+// BOTH are needed! Lab finds issues, Field confirms impact.
+
+// ═══ TOOLS ═══
+// Lab: Lighthouse, WebPageTest, DevTools Performance tab
+// Field: Chrome UX Report (CrUX), Google Search Console, RUM tools
+
+// ═══ Performance API (Programmatic Measurement) ═══
+// Measure custom timings:
+performance.mark('component-init-start');
+// ... component initialization ...
+performance.mark('component-init-end');
+performance.measure('component-init', 'component-init-start', 'component-init-end');
+
+const entries = performance.getEntriesByName('component-init');
+console.log(`Init took: ${entries[0].duration}ms`);
+
+// ═══ Web Vitals Library (Field data collection) ═══
+import { onLCP, onINP, onCLS } from 'web-vitals';
+
+onLCP(metric => sendToAnalytics('LCP', metric));
+onINP(metric => sendToAnalytics('INP', metric));
+onCLS(metric => sendToAnalytics('CLS', metric));
+
+function sendToAnalytics(name, metric) {
+  fetch('/api/metrics', {
+    method: 'POST',
+    body: JSON.stringify({
+      name,
+      value: metric.value,
+      delta: metric.delta,
+      id: metric.id,
+      page: location.pathname,
+      connection: navigator.connection?.effectiveType
+    }),
+    keepalive: true  // Sends even if page is unloading
+  });
+}
+
+// ═══ Angular-specific Performance Profiling ═══
+// Enable Angular DevTools profiler:
+// 1. Install Angular DevTools Chrome extension
+// 2. Open DevTools → Angular tab → Profiler
+// 3. Record interaction → see change detection cycles, component render times
+// 4. Identify: which components re-render unnecessarily?</code></pre>
+
+
+<h3>🎬 YouTube Resources</h3>
+<div class="video-grid">
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=HFRVuVJPOFo" target="_blank">Chrome DevTools Performance — Google</a><div class="meta">Profiling runtime performance</div></div>
+  <div class="video-card"><a href="https://www.youtube.com/watch?v=NoRYn6gOtVo" target="_blank">Lighthouse Deep Dive — Google Chrome</a><div class="meta">Understanding Lighthouse scores</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="exercises">12. Hands-On Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 1: Lighthouse Audit & Fix</h4>
+  <p>Run Lighthouse on your Angular app and fix ALL performance issues to achieve score &gt; 90:</p>
+  <ul>
+    <li>Identify and fix LCP element (preload, optimize)</li>
+    <li>Fix CLS (add dimensions to images, reserve space)</li>
+    <li>Reduce unused JavaScript (lazy load routes)</li>
+    <li>Add resource hints (preconnect, prefetch)</li>
+    <li>Enable text compression (verify gzip/brotli)</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2: Virtual Scroll + Infinite Load</h4>
+  <p>Build a product listing that handles 100K items smoothly:</p>
+  <ul>
+    <li>CDK Virtual Scroll for rendering</li>
+    <li>Intersection Observer for infinite loading</li>
+    <li>Skeleton loading states</li>
+    <li>Performance: maintain 60fps scroll</li>
+  </ul>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3: Bundle Analysis & Optimization</h4>
+  <p>Take an Angular project and reduce initial bundle by 40%:</p>
+  <ul>
+    <li>Run source-map-explorer to identify large deps</li>
+    <li>Replace lodash → lodash-es (or native methods)</li>
+    <li>Lazy load all non-critical routes</li>
+    <li>Use @defer for below-fold components</li>
+    <li>Set up budgets that fail CI if size regresses</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="interview-questions">13. Interview Questions (Previously Asked)</h2>
+
+<div class="qa-block">
+  <p class="q">Q1: What are Core Web Vitals? How would you improve LCP for an Angular e-commerce app? (Google, Amazon, Flipkart)</p>
+  <p class="a"><strong>Answer:</strong> CWV are Google's metrics: LCP (loading), INP (interactivity), CLS (stability). For LCP: (1) SSR the product page (immediate HTML). (2) Preload hero image with fetchpriority="high". (3) Inline critical CSS. (4) Use NgOptimizedImage with priority flag. (5) Reduce TTFB with CDN + edge caching. (6) Eliminate render-blocking JS (defer non-critical). Target: LCP ≤ 2.5s on 4G mobile.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q2: Your Angular app's main bundle is 2MB. How do you reduce it? (All companies)</p>
+  <p class="a"><strong>Answer:</strong> (1) Run source-map-explorer to find culprits. (2) Lazy load ALL routes except landing. (3) Replace moment.js with date-fns or Angular's DatePipe. (4) Use tree-shakable providers (providedIn: 'root'). (5) Switch to standalone components (better tree-shaking). (6) Import specific Angular Material modules, not entire library. (7) Use @defer for heavy below-fold components. (8) Set budgets (300KB initial warning, 500KB error). (9) Verify production mode enabled. (10) Consider dropping Zone.js with Signals.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q3: Explain Angular's change detection. How does OnPush work? When would you use Signals? (All Angular interviews)</p>
+  <p class="a"><strong>Answer:</strong> Default CD: Zone.js patches async APIs → after any async, checks ALL components top-down. OnPush: Only checks when @Input ref changes, events fire inside, or async pipe emits. Signals (16+): fine-grained reactivity — only updates specific template bindings, no Zone.js needed. Use Signals for: new projects, performance-critical components, when migrating away from Zone.js. OnPush is sufficient for most apps with immutable data patterns.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q4: How would you handle a list of 50,000 items without freezing the UI? (Microsoft, Google)</p>
+  <p class="a"><strong>Answer:</strong> (1) Virtual scrolling (CDK ScrollingModule) — only render visible ~30 items. (2) trackBy for DOM reuse. (3) OnPush on list items. (4) Pagination or infinite scroll (cursor-based API). (5) If filtering/sorting is expensive → Web Worker. (6) Debounce search/filter inputs. (7) Use signals for filter state. Never render all 50K items — even with virtual scroll, pre-calculate heights.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q5: What is layout thrashing? Give an example and how to fix it. (Google, Meta)</p>
+  <p class="a"><strong>Answer:</strong> Layout thrashing = repeatedly reading layout properties then writing styles in a loop, forcing browser to recalculate layout on every iteration. Example: reading offsetHeight then setting height in forEach. Fix: batch all reads first, then batch all writes. Or use requestAnimationFrame to separate read/write phases. Tools: DevTools Performance panel shows "Forced reflow" warnings in purple. Also use CSS contain: layout to isolate components.</p>
+</div>
+
+<div class="qa-block">
+  <p class="q">Q6: Design a performance monitoring system for a large Angular app. (Senior level — Amazon, Microsoft)</p>
+  <p class="a"><strong>Answer:</strong> Architecture: (1) Web Vitals library collects CWV + custom metrics. (2) Performance Observer API tracks long tasks, resource timing. (3) Angular-specific: monitor CD cycles, component render time via profiler API. (4) Send to analytics backend (beacon API for page unload). (5) Dashboard with percentiles (p50, p75, p95) per route. (6) Alerts when p75 LCP exceeds budget. (7) CI integration: Lighthouse CI fails PR if regression. (8) Synthetic monitoring: scheduled Lighthouse runs. (9) RUM segmentation: by device, connection type, geography.</p>
+</div>
+
+<div class="nav-links">
+  <a href="phase2-networking-communication.html">← Phase 2: Networking</a>
+  <a href="phase4-state-management-data.html">Phase 4: State & Data →</a>
+</div>
+
+</main>
+</div>
+<script src="fsd-notes-inline.js"></script>
+</body>
+</html>
