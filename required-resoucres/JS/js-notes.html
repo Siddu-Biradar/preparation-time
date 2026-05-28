@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Mastery — Section Notes</title>
+<style>
+:root {
+  --bg: #f4f1ea;
+  --paper: #fffdf8;
+  --ink: #1d1d1b;
+  --muted: #5c584f;
+  --line: #d8d0c3;
+  --accent: #1a5276;
+  --accent-soft: #d6eaf8;
+  --accent-hover: #154360;
+  --success: #1b7340;
+  --success-soft: #d4edda;
+  --warning: #7a3a12;
+  --warning-soft: #f7e7dd;
+  --danger: #721c24;
+  --danger-soft: #f8d7da;
+  --code-bg: #f3efe7;
+  --shadow: 0 2px 8px rgba(26,37,48,0.06);
+  --radius: 10px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+.page-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Header */
+.hero {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.hero h1 {
+  font-size: 26px;
+  margin: 0 0 6px;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.hero p {
+  color: var(--muted);
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+.hero .stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+.hero .stat {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1px solid #b3d4e8;
+}
+
+/* Server status */
+.server-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.server-status.connected { background: var(--success-soft); color: var(--success); }
+.server-status.disconnected { background: var(--danger-soft); color: var(--danger); }
+.server-status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Phase card */
+.phase-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.phase-header {
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s;
+  user-select: none;
+}
+.phase-header:hover { background: #f9f7f3; }
+.phase-header .phase-num {
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.phase-header .phase-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a2530;
+  flex: 1;
+}
+.phase-header .phase-count {
+  font-size: 12px;
+  color: var(--muted);
+  background: #f3efe7;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.phase-header .chevron {
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.phase-card.open .chevron { transform: rotate(90deg); }
+.phase-body {
+  display: none;
+  padding: 0 20px 16px;
+  border-top: 1px solid var(--line);
+}
+.phase-card.open .phase-body { display: block; }
+
+/* Section item */
+.section-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  gap: 10px;
+  background: #faf8f4;
+}
+.section-header .sec-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.section-header .sec-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2530;
+  flex: 1;
+}
+.section-header .sec-link {
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(26,82,118,0.3);
+  flex-shrink: 0;
+}
+.section-header .sec-link:hover { border-bottom-style: solid; }
+.section-header .btn-notes-toggle {
+  border: none;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.section-header .btn-notes-toggle:hover { background: #bfe0f5; transform: scale(1.03); }
+.section-header .btn-notes-toggle.active { background: var(--accent); color: #fff; }
+.section-header .btn-notes-toggle.has-notes { background: var(--success-soft); color: var(--success); border: 1px solid #b7e4c7; }
+
+/* Notes area */
+.notes-area {
+  display: none;
+  border-top: 1px solid var(--line);
+  padding: 12px 14px;
+  background: #fefdfb;
+}
+.notes-area.open { display: block; }
+
+/* Toolbar */
+.notes-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  background: #f3efe7;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.notes-toolbar button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--ink);
+  transition: background 0.1s;
+}
+.notes-toolbar button:hover { background: #e8e2d6; }
+.notes-toolbar .separator {
+  width: 1px;
+  height: 18px;
+  background: var(--line);
+  margin: 0 4px;
+}
+.notes-toolbar label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-right: 2px;
+}
+.notes-toolbar .color-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--line);
+  padding: 0;
+}
+
+/* Editor */
+.notes-editor {
+  min-height: 100px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13.5px;
+  line-height: 1.6;
+  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.notes-editor:focus { border-color: var(--accent); }
+.notes-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #b8b0a0;
+  font-style: italic;
+}
+
+/* Footer */
+.notes-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.notes-footer .save-status {
+  font-size: 12px;
+  flex: 1;
+}
+.notes-footer button {
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.notes-footer .btn-save { background: var(--success-soft); color: var(--success); }
+.notes-footer .btn-save:hover { background: #b7e4c7; }
+.notes-footer .btn-clear { background: var(--danger-soft); color: var(--danger); }
+.notes-footer .btn-clear:hover { background: #f5c6cb; }
+
+/* Progress bar */
+.progress-bar {
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .page-wrapper { padding: 12px; }
+  .hero { padding: 18px 16px; }
+  .phase-header { padding: 12px 14px; }
+  .section-header { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<div class="hero">
+  <h1>📒 JavaScript Mastery — Section Notes</h1>
+  <p>Personal notes for each section across all 13 phases. Click any section to open its note editor. Notes auto-save and persist to file.</p>
+  <div class="stats">
+    <span class="stat" id="stat-phases">13 Phases</span>
+    <span class="stat" id="stat-sections">0 Sections</span>
+    <span class="stat" id="stat-notes">0 Notes Written</span>
+    <span class="server-status disconnected" id="server-status">localStorage only</span>
+  </div>
+  <div class="progress-bar"><div class="fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div id="phases-container"></div>
+
+</div>
+
+<script>
+// ===== DATA: All 13 phases and their sections =====
+const PHASES = [
+  {
+    num: 1, title: "Foundations & How JavaScript Works",
+    file: "phase1-foundations-how-js-works.html",
+    sections: [
+      { id: "history", title: "History of JavaScript & ECMAScript" },
+      { id: "how-js-works", title: "How JavaScript Works Under the Hood" },
+      { id: "execution-context", title: "Execution Context & Call Stack" },
+      { id: "variables", title: "Variables: var, let, const" },
+      { id: "data-types", title: "Data Types (Primitives & Objects)" },
+      { id: "type-coercion", title: "Type Coercion & Type Conversion" },
+      { id: "operators", title: "Operators (All Categories)" },
+      { id: "control-flow", title: "Control Flow (Conditions & Loops)" },
+      { id: "error-handling", title: "Error Handling (try/catch/finally)" },
+      { id: "strict-mode", title: "Strict Mode" }
+    ]
+  },
+  {
+    num: 2, title: "Functions, Scope & Closures",
+    file: "phase2-functions-scope-closures.html",
+    sections: [
+      { id: "function-types", title: "Function Declarations, Expressions & Arrow Functions" },
+      { id: "params", title: "Parameters, Arguments & Rest/Spread" },
+      { id: "scope", title: "Scope (Global, Function, Block, Lexical)" },
+      { id: "hoisting", title: "Hoisting Deep Dive" },
+      { id: "closures", title: "Closures (Complete Mastery)" },
+      { id: "iife", title: "IIFE (Immediately Invoked Function Expressions)" },
+      { id: "hof", title: "Higher-Order Functions & Callbacks" },
+      { id: "this", title: "The 'this' Keyword (All Rules)" },
+      { id: "call-apply-bind", title: "call(), apply(), bind()" },
+      { id: "currying", title: "Currying & Partial Application" },
+      { id: "recursion", title: "Recursion & Tail Call Optimization" }
+    ]
+  },
+  {
+    num: 3, title: "Objects & Arrays Deep Dive",
+    file: "phase3-objects-arrays-deep-dive.html",
+    sections: [
+      { id: "object-creation", title: "Object Creation Patterns" },
+      { id: "property-access", title: "Property Access, Computed Keys & Shorthand" },
+      { id: "descriptors", title: "Property Descriptors & Object.defineProperty" },
+      { id: "object-methods", title: "Object Static Methods" },
+      { id: "destructuring", title: "Destructuring (Objects & Arrays)" },
+      { id: "spread-rest-objects", title: "Spread/Rest with Objects" },
+      { id: "array-methods", title: "Array Methods Complete Reference" },
+      { id: "iteration", title: "Iterating Objects & Arrays" },
+      { id: "copy", title: "Shallow Copy vs Deep Copy" },
+      { id: "json", title: "JSON (parse, stringify, reviver, replacer)" },
+      { id: "immutability", title: "Immutability Patterns" }
+    ]
+  },
+  {
+    num: 4, title: "Prototypes, Classes & OOP",
+    file: "phase4-prototypes-classes-oop.html",
+    sections: [
+      { id: "prototype-chain", title: "Prototype Chain & __proto__" },
+      { id: "prototypal-inheritance", title: "Prototypal Inheritance" },
+      { id: "constructor-functions", title: "Constructor Functions & new Keyword" },
+      { id: "es6-classes", title: "ES6 Classes (Complete)" },
+      { id: "inheritance-classes", title: "Class Inheritance (extends, super)" },
+      { id: "private-fields", title: "Private Fields & Methods (#)" },
+      { id: "static", title: "Static Members" },
+      { id: "symbol-iterator", title: "Symbol, Iterator & Generator" },
+      { id: "proxy-reflect", title: "Proxy & Reflect" },
+      { id: "composition", title: "Composition vs Inheritance & Mixins" },
+      { id: "solid", title: "SOLID Principles in JavaScript" }
+    ]
+  },
+  {
+    num: 5, title: "Async & Event Loop",
+    file: "phase5-async-event-loop.html",
+    sections: [
+      { id: "event-loop", title: "Event Loop (Complete Deep Dive)" },
+      { id: "microtask-macrotask", title: "Microtask vs Macrotask Queue" },
+      { id: "timers", title: "setTimeout, setInterval, requestAnimationFrame" },
+      { id: "callbacks", title: "Callbacks & Callback Hell" },
+      { id: "promises", title: "Promises (Complete Mastery)" },
+      { id: "promise-methods", title: "Promise Static Methods" },
+      { id: "async-await", title: "async/await (Complete)" },
+      { id: "error-handling", title: "Async Error Handling Patterns" },
+      { id: "concurrency", title: "Concurrency Patterns & Real-World Scenarios" },
+      { id: "abort", title: "AbortController & Cancellation" }
+    ]
+  },
+  {
+    num: 6, title: "DOM, Events & Browser APIs",
+    file: "phase6-dom-events-browser-apis.html",
+    sections: [
+      { id: "dom-tree", title: "DOM Tree & Node Types" },
+      { id: "selectors", title: "Selecting & Traversing Elements" },
+      { id: "manipulation", title: "DOM Manipulation & Performance" },
+      { id: "events", title: "Event Model (Capturing, Bubbling, Delegation)" },
+      { id: "custom-events", title: "Custom Events & Event Emitter" },
+      { id: "forms", title: "Form Handling & Validation" },
+      { id: "intersection", title: "IntersectionObserver & MutationObserver" },
+      { id: "storage", title: "Web Storage, Cookies & IndexedDB" },
+      { id: "fetch-api", title: "Fetch API & Network" },
+      { id: "workers", title: "Web Workers & Service Workers" }
+    ]
+  },
+  {
+    num: 7, title: "ES6+ & Design Patterns",
+    file: "phase7-es6-design-patterns.html",
+    sections: [
+      { id: "modules", title: "ES Modules (import/export)" },
+      { id: "map-set", title: "Map, Set, WeakMap, WeakSet" },
+      { id: "weakref", title: "WeakRef & FinalizationRegistry" },
+      { id: "optional-chaining", title: "Optional Chaining, Nullish Coalescing & Latest Syntax" },
+      { id: "regex", title: "Regular Expressions (Advanced)" },
+      { id: "singleton-factory", title: "Singleton, Factory & Builder Patterns" },
+      { id: "observer-pubsub", title: "Observer, Pub/Sub & Mediator" },
+      { id: "strategy-command", title: "Strategy, Command & Chain of Responsibility" },
+      { id: "functional", title: "Functional Patterns (Curry, Compose, Monad)" },
+      { id: "module-patterns", title: "Module Pattern & Revealing Module" },
+      { id: "generators", title: "Generators & Iterators (Interview Deep-Dive)" },
+      { id: "proxy", title: "Proxy & Metaprogramming Patterns" }
+    ]
+  },
+  {
+    num: 8, title: "Advanced Interview Masterclass",
+    file: "phase8-advanced-interview-masterclass.html",
+    sections: [
+      { id: "memory", title: "Memory Management & Garbage Collection" },
+      { id: "performance", title: "Performance Optimization" },
+      { id: "security", title: "Security (XSS, CSRF, CSP)" },
+      { id: "typescript", title: "TypeScript Essentials for Angular Devs" },
+      { id: "testing", title: "Testing (Unit, Integration, E2E)" },
+      { id: "error-patterns", title: "Error Handling Architecture" },
+      { id: "metaprogramming", title: "Metaprogramming & Reflect" },
+      { id: "engine", title: "V8 Engine Internals & Optimization" },
+      { id: "coding-challenges", title: "Coding Challenges (Frequently Asked)" },
+      { id: "top-interview", title: "Top 50 Interview Questions & Answers" }
+    ]
+  },
+  {
+    num: 9, title: "Polyfills & Machine Coding",
+    file: "phase9-polyfills-machine-coding.html",
+    sections: [
+      { id: "array-polyfills", title: "Array Method Polyfills" },
+      { id: "function-polyfills", title: "Function Polyfills (call, apply, bind)" },
+      { id: "object-polyfills", title: "Object Polyfills" },
+      { id: "promise-scratch", title: "Promise from Scratch (Full Implementation)" },
+      { id: "promise-combinators", title: "Promise.all, allSettled, race, any Polyfills" },
+      { id: "utility-polyfills", title: "Utility Polyfills (new, instanceof, typeof, deepEqual)" },
+      { id: "advanced-polyfills", title: "Advanced Polyfills (memoize, pipe, compose, once, groupBy)" },
+      { id: "dom-polyfills", title: "DOM & Timer Polyfills" },
+      { id: "machine-coding", title: "Machine Coding: JSON.stringify from Scratch" },
+      { id: "machine-scheduler", title: "Machine Coding: Async Task Scheduler" },
+      { id: "machine-retry", title: "Machine Coding: Retry with Backoff & Circuit Breaker" },
+      { id: "machine-lru", title: "Machine Coding: LRU Cache with TTL" }
+    ]
+  },
+  {
+    num: 10, title: "Output Prediction & Tricky Questions",
+    file: "phase10-output-prediction-tricky.html",
+    sections: [
+      { id: "event-loop-output", title: "Event Loop & Async Output Questions" },
+      { id: "this-output", title: "'this' Keyword Traps" },
+      { id: "closure-output", title: "Closure & Scope Gotchas" },
+      { id: "coercion-output", title: "Type Coercion & Equality" },
+      { id: "hoisting-output", title: "Hoisting & TDZ" },
+      { id: "prototype-output", title: "Prototypes & Classes" },
+      { id: "misc-output", title: "Miscellaneous Tricky Questions" },
+      { id: "modern-js", title: "Modern JS & Error Handling (Critical Interview Gaps)" },
+      { id: "bonus-must-know", title: "Bonus Must-Know Traps (High Interview Frequency)" }
+    ]
+  },
+  {
+    num: 11, title: "Frontend System Design",
+    file: "phase11-frontend-system-design.html",
+    sections: [
+      { id: "autocomplete", title: "Design: Autocomplete / Typeahead Search" },
+      { id: "infinite-scroll", title: "Design: Infinite Scroll with Virtualization" },
+      { id: "router", title: "Design: Client-Side Router (SPA)" },
+      { id: "state-management", title: "Design: State Management (Mini Redux + Signals)" },
+      { id: "event-bus", title: "Design: Pub/Sub Event Bus with Namespacing" },
+      { id: "api-layer", title: "Design: API Request Layer" },
+      { id: "virtual-dom", title: "Design: Virtual DOM & Diffing Algorithm" },
+      { id: "drag-drop", title: "Design: Drag & Drop Kanban Board" },
+      { id: "real-time", title: "Design: Real-Time Collaboration Concepts" },
+      { id: "interview-approach", title: "Frontend System Design Interview Framework" }
+    ]
+  },
+  {
+    num: 12, title: "JavaScript Performance Mastery",
+    file: "phase12-javascript-performance-mastery.html",
+    sections: [
+      { id: "v8-engine", title: "V8 Engine Internals & Optimization Pipeline" },
+      { id: "memory", title: "Memory Management & Garbage Collection" },
+      { id: "memory-leaks", title: "Memory Leaks: Detection & Prevention" },
+      { id: "event-loop-perf", title: "Event Loop Performance & Main Thread" },
+      { id: "rendering", title: "Rendering Pipeline & Layout Thrashing" },
+      { id: "data-structures", title: "Data Structure Performance & Big-O in JS" },
+      { id: "string-perf", title: "String & RegExp Performance" },
+      { id: "async-perf", title: "Async Performance Patterns" },
+      { id: "web-workers", title: "Web Workers & Off-Main-Thread" },
+      { id: "performance-api", title: "Performance API & Measurement" },
+      { id: "bundle-perf", title: "Bundle & Load Performance" },
+      { id: "profiling", title: "Chrome DevTools Profiling Masterclass" }
+    ]
+  },
+  {
+    num: 13, title: "Real Interview Questions",
+    file: "phase13-real-interview-questions.html",
+    sections: [
+      { id: "google", title: "Google Frontend Questions" },
+      { id: "meta", title: "Meta/Facebook Frontend Questions" },
+      { id: "amazon", title: "Amazon Frontend Questions" },
+      { id: "microsoft", title: "Microsoft Frontend Questions" },
+      { id: "flipkart", title: "Flipkart/Walmart Frontend Questions" },
+      { id: "atlassian", title: "Atlassian / Uber / Other Top Companies" },
+      { id: "polyfills", title: "Must-Know Polyfills (All Companies)" },
+      { id: "machine-coding", title: "Machine Coding Round (All Companies)" },
+      { id: "indian-fintech", title: "Indian Fintech & Startups (Razorpay, PhonePe, Groww, Swiggy)" },
+      { id: "theory-rapid", title: "Theory Rapid-Fire Questions (All Companies)" }
+    ]
+  }
+];
+
+// ===== NOTES SYSTEM =====
+const NOTES_PREFIX = 'js-notes-';
+const NOTES_API = 'http://localhost:5502/api/notes';
+let serverAvailable = false;
+let fileNotes = {};
+const dirtyEditors = new Set();
+
+// Generate unique slug: phase1-history
+function slug(phaseNum, sectionId) {
+  return `phase${phaseNum}-${sectionId}`;
+}
+
+// Check server
+async function checkServer() {
+  try {
+    const res = await fetch(NOTES_API, { method: 'GET', signal: AbortSignal.timeout(1000) });
+    if (res.ok) {
+      serverAvailable = true;
+      fileNotes = await res.json();
+      document.getElementById('server-status').className = 'server-status connected';
+      document.getElementById('server-status').textContent = 'Server connected';
+      return true;
+    }
+  } catch(e) {}
+  serverAvailable = false;
+  document.getElementById('server-status').className = 'server-status disconnected';
+  document.getElementById('server-status').textContent = 'localStorage only';
+  return false;
+}
+
+// Save to server
+async function saveToServer(noteSlug, content) {
+  if (!serverAvailable) return;
+  try {
+    await fetch(NOTES_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: noteSlug, content })
+    });
+  } catch(e) {}
+}
+
+// Delete from server
+async function deleteFromServer(noteSlug) {
+  if (!serverAvailable) return;
+  try {
+    await fetch(NOTES_API + '/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: noteSlug })
+    });
+  } catch(e) {}
+}
+
+// Get note content (server > localStorage)
+function getNoteContent(noteSlug) {
+  return fileNotes[noteSlug] || localStorage.getItem(NOTES_PREFIX + noteSlug) || '';
+}
+
+// Toggle notes panel
+function toggleNotes(noteSlug) {
+  const area = document.getElementById('notes-' + noteSlug);
+  const btn = document.querySelector(`[data-slug="${noteSlug}"]`);
+  const editor = document.getElementById('editor-' + noteSlug);
+
+  if (area.classList.contains('open')) {
+    if (dirtyEditors.has(noteSlug)) saveNotesQuiet(noteSlug);
+    area.classList.remove('open');
+    btn.classList.remove('active');
+  } else {
+    area.classList.add('open');
+    btn.classList.add('active');
+    const saved = getNoteContent(noteSlug);
+    if (saved && !editor.innerHTML.trim()) editor.innerHTML = saved;
+    editor.focus();
+  }
+}
+
+// Quiet save
+function saveNotesQuiet(noteSlug) {
+  const editor = document.getElementById('editor-' + noteSlug);
+  if (!editor) return;
+  const content = editor.innerHTML;
+  if (content && content.trim() && content !== '<br>') {
+    localStorage.setItem(NOTES_PREFIX + noteSlug, content);
+    if (dirtyEditors.has(noteSlug)) saveToServer(noteSlug, content);
+  }
+  dirtyEditors.delete(noteSlug);
+}
+
+// Explicit save with UI feedback
+function saveNotes(noteSlug) {
+  const editor = document.getElementById('editor-' + noteSlug);
+  const statusEl = document.getElementById('status-' + noteSlug);
+  const content = editor.innerHTML;
+  localStorage.setItem(NOTES_PREFIX + noteSlug, content);
+  saveToServer(noteSlug, content);
+  dirtyEditors.delete(noteSlug);
+  statusEl.textContent = '✓ Saved!';
+  statusEl.style.color = 'var(--success)';
+  setTimeout(() => { statusEl.textContent = ''; }, 2000);
+  updateStats();
+  updateNoteIndicator(noteSlug);
+}
+
+// Clear notes
+function clearNotes(noteSlug) {
+  if (!confirm('Clear notes for this section?')) return;
+  const editor = document.getElementById('editor-' + noteSlug);
+  editor.innerHTML = '';
+  localStorage.removeItem(NOTES_PREFIX + noteSlug);
+  delete fileNotes[noteSlug];
+  deleteFromServer(noteSlug);
+  dirtyEditors.delete(noteSlug);
+  const statusEl = document.getElementById('status-' + noteSlug);
+  statusEl.textContent = '🗑️ Cleared';
+  statusEl.style.color = 'var(--danger)';
+  setTimeout(() => { statusEl.textContent = ''; }, 2000);
+  updateStats();
+  updateNoteIndicator(noteSlug);
+}
+
+// Auto-save
+const autoSaveTimers = {};
+function autoSaveNotes(noteSlug) {
+  dirtyEditors.add(noteSlug);
+  clearTimeout(autoSaveTimers[noteSlug]);
+  const statusEl = document.getElementById('status-' + noteSlug);
+  statusEl.textContent = 'typing...';
+  statusEl.style.color = 'var(--muted)';
+  autoSaveTimers[noteSlug] = setTimeout(() => {
+    saveNotes(noteSlug);
+  }, 800);
+}
+
+// Save all dirty on page close
+function saveAllDirty() {
+  if (dirtyEditors.size === 0) return;
+  const dirtyNotes = {};
+  dirtyEditors.forEach(noteSlug => {
+    const editor = document.getElementById('editor-' + noteSlug);
+    if (editor) {
+      const content = editor.innerHTML;
+      if (content && content.trim() && content !== '<br>') {
+        localStorage.setItem(NOTES_PREFIX + noteSlug, content);
+        dirtyNotes[noteSlug] = content;
+      }
+    }
+  });
+  if (serverAvailable && Object.keys(dirtyNotes).length > 0) {
+    const blob = new Blob([JSON.stringify(dirtyNotes)], { type: 'application/json' });
+    navigator.sendBeacon(NOTES_API + '/bulk', blob);
+  }
+  dirtyEditors.clear();
+}
+
+// Rich text
+function formatText(command) {
+  document.execCommand(command, false, null);
+}
+function applyColor(noteSlug, color) {
+  const editor = document.getElementById('editor-' + noteSlug);
+  editor.focus();
+  document.execCommand('foreColor', false, color);
+  dirtyEditors.add(noteSlug);
+  setTimeout(() => saveNotesQuiet(noteSlug), 100);
+}
+function applyHighlight(noteSlug, color) {
+  const editor = document.getElementById('editor-' + noteSlug);
+  editor.focus();
+  document.execCommand('hiliteColor', false, color);
+  dirtyEditors.add(noteSlug);
+  setTimeout(() => saveNotesQuiet(noteSlug), 100);
+}
+function removeFormat(noteSlug) {
+  const editor = document.getElementById('editor-' + noteSlug);
+  editor.focus();
+  document.execCommand('removeFormat', false, null);
+  dirtyEditors.add(noteSlug);
+  setTimeout(() => saveNotesQuiet(noteSlug), 100);
+}
+
+// Update note indicator on button
+function updateNoteIndicator(noteSlug) {
+  const btn = document.querySelector(`[data-slug="${noteSlug}"]`);
+  if (!btn) return;
+  const content = getNoteContent(noteSlug);
+  if (content && content.trim() && content !== '<br>') {
+    btn.classList.add('has-notes');
+  } else {
+    btn.classList.remove('has-notes');
+  }
+}
+
+// Update stats
+function updateStats() {
+  let totalSections = 0;
+  let notesWritten = 0;
+  PHASES.forEach(phase => {
+    phase.sections.forEach(sec => {
+      totalSections++;
+      const s = slug(phase.num, sec.id);
+      const content = getNoteContent(s);
+      if (content && content.trim() && content !== '<br>') notesWritten++;
+    });
+  });
+  document.getElementById('stat-sections').textContent = totalSections + ' Sections';
+  document.getElementById('stat-notes').textContent = notesWritten + ' Notes Written';
+  const pct = totalSections > 0 ? Math.round((notesWritten / totalSections) * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// Toggle phase open/close
+function togglePhase(phaseNum) {
+  const card = document.getElementById('phase-card-' + phaseNum);
+  card.classList.toggle('open');
+}
+
+// ===== RENDER =====
+function render() {
+  const container = document.getElementById('phases-container');
+  let html = '';
+
+  PHASES.forEach(phase => {
+    html += `<div class="phase-card" id="phase-card-${phase.num}">`;
+    html += `<div class="phase-header" onclick="togglePhase(${phase.num})">`;
+    html += `<span class="phase-num">Phase ${phase.num}</span>`;
+    html += `<span class="phase-title">${phase.title}</span>`;
+    html += `<span class="phase-count">${phase.sections.length} sections</span>`;
+    html += `<span class="chevron">▶</span>`;
+    html += `</div>`;
+    html += `<div class="phase-body">`;
+
+    phase.sections.forEach((sec, idx) => {
+      const s = slug(phase.num, sec.id);
+      html += `<div class="section-item">`;
+      html += `<div class="section-header">`;
+      html += `<span class="sec-num">${idx + 1}</span>`;
+      html += `<span class="sec-title">${sec.title}</span>`;
+      html += `<a class="sec-link" href="${phase.file}#${sec.id}" target="_blank">Open →</a>`;
+      html += `<button class="btn-notes-toggle" data-slug="${s}" onclick="toggleNotes('${s}')">📝 Notes</button>`;
+      html += `</div>`;
+      // Notes area
+      html += `<div class="notes-area" id="notes-${s}">`;
+      // Toolbar
+      html += `<div class="notes-toolbar">`;
+      html += `<button onclick="formatText('bold')" title="Bold"><b>B</b></button>`;
+      html += `<button onclick="formatText('italic')" title="Italic"><i>I</i></button>`;
+      html += `<button onclick="formatText('underline')" title="Underline"><u>U</u></button>`;
+      html += `<span class="separator"></span>`;
+      html += `<label>Text:</label>`;
+      html += `<button class="color-btn" style="background:#e74c3c" onclick="applyColor('${s}','#e74c3c')" title="Red"></button>`;
+      html += `<button class="color-btn" style="background:#27ae60" onclick="applyColor('${s}','#27ae60')" title="Green"></button>`;
+      html += `<button class="color-btn" style="background:#2980b9" onclick="applyColor('${s}','#2980b9')" title="Blue"></button>`;
+      html += `<button class="color-btn" style="background:#8e44ad" onclick="applyColor('${s}','#8e44ad')" title="Purple"></button>`;
+      html += `<span class="separator"></span>`;
+      html += `<label>Highlight:</label>`;
+      html += `<button class="color-btn" style="background:#fff176" onclick="applyHighlight('${s}','#fff176')" title="Yellow"></button>`;
+      html += `<button class="color-btn" style="background:#aed581" onclick="applyHighlight('${s}','#aed581')" title="Green"></button>`;
+      html += `<button class="color-btn" style="background:#81d4fa" onclick="applyHighlight('${s}','#81d4fa')" title="Blue"></button>`;
+      html += `<span class="separator"></span>`;
+      html += `<button onclick="removeFormat('${s}')" title="Remove formatting">✖</button>`;
+      html += `</div>`;
+      // Editor
+      html += `<div class="notes-editor" id="editor-${s}" contenteditable="true" data-placeholder="Add your notes for: ${sec.title}..." oninput="autoSaveNotes('${s}')"></div>`;
+      // Footer
+      html += `<div class="notes-footer">`;
+      html += `<span class="save-status" id="status-${s}"></span>`;
+      html += `<button class="btn-save" onclick="saveNotes('${s}')">💾 Save</button>`;
+      html += `<button class="btn-clear" onclick="clearNotes('${s}')">🗑️ Clear</button>`;
+      html += `</div>`;
+      html += `</div>`; // notes-area
+      html += `</div>`; // section-item
+    });
+
+    html += `</div>`; // phase-body
+    html += `</div>`; // phase-card
+  });
+
+  container.innerHTML = html;
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', async () => {
+  render();
+  await checkServer();
+
+  // Load saved notes into editors and mark buttons
+  PHASES.forEach(phase => {
+    phase.sections.forEach(sec => {
+      const s = slug(phase.num, sec.id);
+      const content = getNoteContent(s);
+      if (content) {
+        const editor = document.getElementById('editor-' + s);
+        if (editor) editor.innerHTML = content;
+        updateNoteIndicator(s);
+      }
+    });
+  });
+
+  updateStats();
+
+  // Open Phase 1 by default
+  togglePhase(1);
+});
+
+// Save on close
+window.addEventListener('beforeunload', () => saveAllDirty());
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveAllDirty();
+});
+window.addEventListener('pagehide', () => saveAllDirty());
+</script>
+
+</body>
+</html>

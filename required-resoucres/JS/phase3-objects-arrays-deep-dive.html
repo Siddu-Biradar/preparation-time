@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 3: Objects & Arrays Deep Dive</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 3: Objects & Arrays Deep Dive</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (3 of 8)</p>
+  <div class="pill-row">
+    <span class="pill">Object Creation</span>
+    <span class="pill">Property Descriptors</span>
+    <span class="pill">Destructuring</span>
+    <span class="pill">Array Methods</span>
+    <span class="pill">Immutability</span>
+    <span class="pill">Shallow vs Deep Copy</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#object-creation">Object Creation Patterns</a></li>
+    <li><a href="#property-access">Property Access, Computed Keys & Shorthand</a></li>
+    <li><a href="#descriptors">Property Descriptors & Object.defineProperty</a></li>
+    <li><a href="#object-methods">Object Static Methods (keys, values, entries, assign, freeze)</a></li>
+    <li><a href="#destructuring">Destructuring (Objects & Arrays)</a></li>
+    <li><a href="#spread-rest-objects">Spread/Rest with Objects</a></li>
+    <li><a href="#array-methods">Array Methods Complete Reference</a></li>
+    <li><a href="#iteration">Iterating Objects & Arrays</a></li>
+    <li><a href="#copy">Shallow Copy vs Deep Copy</a></li>
+    <li><a href="#json">JSON (parse, stringify, reviver, replacer)</a></li>
+    <li><a href="#immutability">Immutability Patterns</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="object-creation">1. Object Creation Patterns</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=PFmuCDHHpwk" target="_blank">Objects in JavaScript — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=rHB3gYFFlhk" target="_blank">JavaScript Objects Crash Course — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4uVwGw317QM" target="_blank">Object Creation Patterns — Steve Griffith</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// 1. Object Literal (most common)
+const person = {
+  name: "Sid",
+  age: 25,
+  greet() { return `Hi, I'm ${this.name}`; }
+};
+
+// 2. Object Constructor (rarely used)
+const obj = new Object();
+obj.name = "Sid";
+
+// 3. Object.create() — specify prototype directly
+const proto = {
+  greet() { return `Hi, I'm ${this.name}`; }
+};
+const person2 = Object.create(proto);
+person2.name = "Ram";
+person2.greet(); // "Hi, I'm Ram" (inherited from proto)
+
+// Object.create(null) — no prototype (truly empty)
+const dict = Object.create(null);
+dict.toString; // undefined (no inherited methods!)
+// Useful for pure dictionaries without prototype pollution
+
+// 4. Constructor Function (pre-ES6)
+function Car(brand, model) {
+  this.brand = brand;
+  this.model = model;
+}
+Car.prototype.info = function() { return `${this.brand} ${this.model}`; };
+const car = new Car("Tesla", "Model 3");
+
+// 5. Class (ES6) — syntactic sugar over prototype
+class Animal {
+  constructor(name) { this.name = name; }
+  speak() { return `${this.name} makes noise`; }
+}
+const dog = new Animal("Rex");
+
+// 6. Factory Function (no 'new' needed)
+function createUser(name, role) {
+  return {
+    name,
+    role,
+    greet() { return `${name} (${role})`; }
+  };
+}
+const user = createUser("Sid", "dev");</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is the difference between Object.create(null) and {}?</p>
+<p><strong>Answer:</strong> <code>{}</code> creates an object with Object.prototype (has toString, hasOwnProperty, etc.). <code>Object.create(null)</code> creates a truly empty object with NO prototype — no inherited methods, no __proto__. Used for pure hash maps where you don't want prototype pollution (<code>"toString" in {}</code> is true, but <code>"toString" in Object.create(null)</code> is false).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="property-access">2. Property Access, Computed Keys & Shorthand</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=_qxCYtWm0tw" target="_blank">Object Properties Deep Dive — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=BRN_UoUajuQ" target="_blank">ES6 Object Shorthand — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Dot notation vs Bracket notation
+const obj = { name: "Sid", "full-name": "Sid R", 123: "number key" };
+obj.name;           // "Sid" (dot: simple identifiers only)
+obj["full-name"];   // "Sid R" (bracket: any string/expression)
+obj[123];           // "number key"
+obj["1" + "23"];    // "number key" (computed)
+
+// Dynamic property access
+const key = "name";
+obj[key];           // "Sid"
+obj.key;            // undefined (looks for literal 'key' property)
+
+// Computed Property Names (ES6)
+const field = "email";
+const user = {
+  name: "Sid",
+  [field]: "sid@example.com",      // "email": "sid@example.com"
+  [`${field}Verified`]: true,       // "emailVerified": true
+  [Symbol("id")]: 42                // Symbol key
+};
+
+// Property Shorthand (ES6)
+const name = "Sid", age = 25;
+const person = { name, age }; // Same as { name: name, age: age }
+
+// Method Shorthand (ES6)
+const calc = {
+  add(a, b) { return a + b; },      // Same as add: function(a, b) {...}
+  get total() { return this._total; }, // Getter
+  set total(v) { this._total = v; }   // Setter
+};
+
+// Optional Chaining (?.) with property access
+const data = { user: { address: { city: "BLR" } } };
+data?.user?.address?.city;     // "BLR"
+data?.user?.phone?.number;     // undefined (no error!)
+data?.getUser?.();             // undefined (safe method call)
+data?.items?.[0];              // undefined (safe index access)
+
+// Nullish check with assignment
+const config = {};
+config.timeout ??= 3000;      // Sets to 3000 only if null/undefined
+
+// in operator (checks existence including prototype)
+"name" in user;               // true
+"toString" in user;           // true (inherited!)
+
+// hasOwnProperty (own properties only)
+user.hasOwnProperty("name");  // true
+user.hasOwnProperty("toString"); // false
+
+// Object.hasOwn (ES2022 — recommended)
+Object.hasOwn(user, "name");  // true (safer than hasOwnProperty)</code></pre>
+
+<h4>Getters and Setters</h4>
+<pre><code>const person = {
+  _firstName: "Sid",
+  _lastName: "R",
+  
+  get fullName() {
+    return `${this._firstName} ${this._lastName}`;
+  },
+  
+  set fullName(value) {
+    const parts = value.split(" ");
+    this._firstName = parts[0];
+    this._lastName = parts[1] || "";
+  }
+};
+
+person.fullName;           // "Sid R" (calls getter)
+person.fullName = "Ram K"; // Calls setter
+person._firstName;         // "Ram"
+
+// Class getter/setter (Angular-relevant)
+class Temperature {
+  #celsius; // Private field
+  
+  constructor(celsius) { this.#celsius = celsius; }
+  
+  get fahrenheit() { return this.#celsius * 9/5 + 32; }
+  set fahrenheit(f) { this.#celsius = (f - 32) * 5/9; }
+  
+  get celsius() { return this.#celsius; }
+  set celsius(c) {
+    if (c < -273.15) throw new RangeError("Below absolute zero");
+    this.#celsius = c;
+  }
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> When would you use bracket notation over dot notation?</p>
+<p><strong>Answer:</strong> (1) Dynamic/variable keys, (2) Keys with special characters or spaces, (3) Numeric keys, (4) Symbol keys, (5) Computed expressions. Dot notation only works with valid identifier names.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="descriptors">3. Property Descriptors & Object.defineProperty</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=LD1tQEWsjz4" target="_blank">Property Descriptors — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=8RxRkXjJMiI" target="_blank">Object.defineProperty — Steve Griffith</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Every property has a descriptor with flags:
+const obj = { name: "Sid" };
+Object.getOwnPropertyDescriptor(obj, "name");
+// { value: "Sid", writable: true, enumerable: true, configurable: true }
+
+// Data Descriptor flags:
+// - value: the property value
+// - writable: can value be changed? (default: true)
+// - enumerable: shows in for...in / Object.keys? (default: true)
+// - configurable: can descriptor be modified or property deleted? (default: true)
+
+// Accessor Descriptor flags:
+// - get: getter function
+// - set: setter function
+// - enumerable, configurable (same as above)
+// NOTE: Can't have both value/writable AND get/set on same property
+
+// Object.defineProperty — fine-grained control
+const user = {};
+Object.defineProperty(user, "id", {
+  value: 42,
+  writable: false,      // Can't change
+  enumerable: false,    // Won't show in loops
+  configurable: false   // Can't delete or redefine
+});
+user.id = 99;          // Silently fails (strict mode: TypeError)
+delete user.id;        // false (can't delete)
+Object.keys(user);     // [] (not enumerable)
+user.id;              // 42
+
+// Object.defineProperties — multiple at once
+Object.defineProperties(user, {
+  name: { value: "Sid", writable: true, enumerable: true, configurable: true },
+  role: { value: "dev", writable: false, enumerable: true, configurable: false }
+});
+
+// Practical: Making truly constant properties
+const API_CONFIG = {};
+Object.defineProperty(API_CONFIG, "BASE_URL", {
+  value: "https://api.example.com",
+  writable: false,
+  configurable: false
+});
+
+// Practical: Hidden properties (non-enumerable)
+const data = { visible: 1 };
+Object.defineProperty(data, "_internal", {
+  value: "secret",
+  enumerable: false
+});
+Object.keys(data);        // ["visible"] — _internal hidden
+JSON.stringify(data);     // '{"visible":1}' — _internal excluded
+data._internal;           // "secret" — still accessible if you know the name</code></pre>
+
+<h4>Object Immutability Levels</h4>
+<pre><code>// Level 1: Object.preventExtensions — no new properties
+const obj1 = { a: 1 };
+Object.preventExtensions(obj1);
+obj1.b = 2;        // Fails silently (strict: TypeError)
+obj1.a = 10;       // ✅ Can still modify existing
+delete obj1.a;     // ✅ Can still delete
+Object.isExtensible(obj1); // false
+
+// Level 2: Object.seal — no new props, no delete, no reconfigure
+const obj2 = { a: 1 };
+Object.seal(obj2);
+obj2.b = 2;        // Fails (can't add)
+delete obj2.a;     // Fails (can't delete)
+obj2.a = 10;       // ✅ Can still modify VALUES
+Object.isSealed(obj2); // true
+
+// Level 3: Object.freeze — completely immutable (SHALLOW!)
+const obj3 = { a: 1, nested: { b: 2 } };
+Object.freeze(obj3);
+obj3.a = 10;           // Fails
+obj3.c = 3;            // Fails
+delete obj3.a;         // Fails
+obj3.nested.b = 99;    // ✅ Works! Freeze is SHALLOW!
+Object.isFrozen(obj3); // true</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Explain property descriptors and the difference between preventExtensions, seal, and freeze.</p>
+<p><strong>Answer:</strong> Every property has: value, writable, enumerable, configurable flags. preventExtensions: can't add new properties (existing ones are modifiable/deletable). seal: can't add or delete properties, can't reconfigure, but CAN modify values. freeze: can't add, delete, modify, or reconfigure — fully immutable. All three are SHALLOW — nested objects are still mutable.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How would you implement a reactive property (like Angular Signals / Vue reactivity)?</p>
+<p><strong>Answer:</strong> Use Object.defineProperty with getter/setter: <code>Object.defineProperty(obj, key, { get() { track(key); return value; }, set(newVal) { value = newVal; trigger(key); } });</code> Or use Proxy (more powerful). Vue 2 used defineProperty, Vue 3 and Angular Signals use Proxy/custom implementations.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="object-methods">4. Object Static Methods</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=VdGkAEfKJss" target="_blank">Object Methods — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=3bfmHBz0BvY" target="_blank">Object.keys/values/entries — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>const user = { name: "Sid", age: 25, role: "dev" };
+
+// Object.keys() — array of own enumerable string keys
+Object.keys(user);    // ["name", "age", "role"]
+
+// Object.values() — array of own enumerable values
+Object.values(user);  // ["Sid", 25, "dev"]
+
+// Object.entries() — array of [key, value] pairs
+Object.entries(user); // [["name","Sid"], ["age",25], ["role","dev"]]
+
+// Object.fromEntries() — reverse of entries (ES2019)
+const entries = [["a", 1], ["b", 2]];
+Object.fromEntries(entries); // { a: 1, b: 2 }
+// Great with Map: Object.fromEntries(new Map([["a",1]]))
+
+// Object.assign() — copy/merge objects (SHALLOW)
+const target = { a: 1 };
+const source = { b: 2, c: 3 };
+Object.assign(target, source); // target is now { a: 1, b: 2, c: 3 }
+// Returns target. Mutates target! source is unchanged.
+// For non-mutating merge: Object.assign({}, obj1, obj2)
+// Modern alternative: { ...obj1, ...obj2 }
+
+// Object.is() — strict equality with special cases
+Object.is(NaN, NaN);   // true (=== gives false!)
+Object.is(+0, -0);     // false (=== gives true!)
+Object.is(1, 1);       // true
+
+// Object.hasOwn(obj, key) — ES2022 (replaces hasOwnProperty)
+Object.hasOwn(user, "name");      // true
+Object.hasOwn(user, "toString");  // false
+
+// Object.getOwnPropertyNames() — all own props (including non-enumerable)
+const obj = Object.create({}, {
+  visible: { value: 1, enumerable: true },
+  hidden: { value: 2, enumerable: false }
+});
+Object.keys(obj);                    // ["visible"]
+Object.getOwnPropertyNames(obj);    // ["visible", "hidden"]
+
+// Object.getOwnPropertySymbols() — symbol keys only
+const sym = Symbol("id");
+const data = { [sym]: 42, name: "test" };
+Object.getOwnPropertySymbols(data); // [Symbol(id)]
+
+// Object.getPrototypeOf() / Object.setPrototypeOf()
+Object.getPrototypeOf([]); // Array.prototype
+
+// Object.groupBy() — ES2024
+const items = [
+  { name: "apple", type: "fruit" },
+  { name: "carrot", type: "veggie" },
+  { name: "banana", type: "fruit" }
+];
+Object.groupBy(items, item => item.type);
+// { fruit: [{...}, {...}], veggie: [{...}] }</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 1:</strong> Implement a function that deep-merges two objects:</p>
+<pre><code>function deepMerge(target, source) {
+  const result = { ...target };
+  for (const key of Object.keys(source)) {
+    if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
+      result[key] = deepMerge(result[key] || {}, source[key]);
+    } else {
+      result[key] = source[key];
+    }
+  }
+  return result;
+}
+
+const a = { x: 1, nested: { y: 2, z: 3 } };
+const b = { x: 10, nested: { y: 20, w: 4 } };
+deepMerge(a, b); // { x: 10, nested: { y: 20, z: 3, w: 4 } }</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="destructuring">5. Destructuring (Objects & Arrays)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=UgEaJBz3bjY" target="_blank">Destructuring — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=NIq3qLaHCIs" target="_blank">Destructuring Deep Dive — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=cUWFED5HL7Q" target="_blank">Advanced Destructuring — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// OBJECT DESTRUCTURING
+const user = { name: "Sid", age: 25, role: "dev", city: "BLR" };
+
+// Basic
+const { name, age } = user;  // name="Sid", age=25
+
+// Rename variables
+const { name: userName, age: userAge } = user;  // userName="Sid"
+
+// Default values
+const { name, country = "India" } = user; // country="India" (doesn't exist)
+
+// Rest pattern
+const { name, ...rest } = user; // rest = { age: 25, role: "dev", city: "BLR" }
+
+// Nested destructuring
+const response = { data: { users: [{ id: 1, name: "Sid" }] } };
+const { data: { users: [{ name: firstName }] } } = response;
+// firstName = "Sid"
+
+// Computed property names
+const key = "name";
+const { [key]: value } = user; // value = "Sid"
+
+// Function parameter destructuring (very common in Angular)
+function createUser({ name, role = "user", isActive = true }) {
+  return { name, role, isActive };
+}
+createUser({ name: "Sid", role: "admin" });
+
+// ARRAY DESTRUCTURING
+const colors = ["red", "green", "blue", "yellow"];
+
+// Basic
+const [first, second] = colors; // first="red", second="green"
+
+// Skip elements
+const [, , third] = colors; // third="blue"
+
+// Rest
+const [head, ...tail] = colors; // head="red", tail=["green","blue","yellow"]
+
+// Default values
+const [a = 1, b = 2, c = 3] = [10]; // a=10, b=2, c=3
+
+// Swap variables (no temp needed!)
+let x = 1, y = 2;
+[x, y] = [y, x]; // x=2, y=1
+
+// Nested array destructuring
+const matrix = [[1, 2], [3, 4]];
+const [[a1, a2], [b1, b2]] = matrix;
+
+// Mixed (object in array)
+const [, { name }] = [{ id: 1 }, { id: 2, name: "Sid" }];
+// name = "Sid"
+
+// Destructuring with iteration
+const map = new Map([["a", 1], ["b", 2]]);
+for (const [key, value] of map) {
+  console.log(key, value);
+}</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 2:</strong> Extract nested data from this API response:</p>
+<pre><code>const apiResponse = {
+  status: 200,
+  data: {
+    user: { id: 1, profile: { avatar: "url", settings: { theme: "dark" } } },
+    meta: { page: 1, total: 100 }
+  }
+};
+
+// Extract: theme, page, userId (rename id), avatar (with default)
+const {
+  data: {
+    user: { id: userId, profile: { avatar = "default.png", settings: { theme } } },
+    meta: { page }
+  }
+} = apiResponse;
+// userId=1, avatar="url", theme="dark", page=1</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How do you swap two variables without a temp variable?</p>
+<p><strong>Answer:</strong> Array destructuring: <code>[a, b] = [b, a]</code>. This creates a temporary array [b, a] and destructures it into a and b. Also works with XOR for numbers: <code>a ^= b; b ^= a; a ^= b;</code></p>
+
+<p><span class="difficulty d-hard">Hard</span> What's the output? <code>const {a: {b}} = {a: null};</code></p>
+<p><strong>Answer:</strong> TypeError: Cannot destructure property 'b' of null. When destructuring nested, if the parent is null/undefined, it throws. Always use defaults: <code>const {a: {b} = {}} = {a: null};</code> — but this still fails because null is not undefined! Fix: <code>const {a = {}} = {a: null};</code> also fails. You need optional chaining or manual checks for null.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="spread-rest-objects">6. Spread/Rest with Objects</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=iLx4ma8ZqvQ" target="_blank">Spread & Rest — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=hdI2bqOjy3c" target="_blank">Spread Operator — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Object Spread (ES2018)
+const defaults = { theme: "light", lang: "en", notifications: true };
+const userPrefs = { theme: "dark", lang: "hi" };
+
+// Merge (later properties override earlier ones)
+const config = { ...defaults, ...userPrefs };
+// { theme: "dark", lang: "hi", notifications: true }
+
+// Immutable update (common in state management)
+const state = { user: { name: "Sid" }, count: 0 };
+const newState = { ...state, count: state.count + 1 };
+// Original state unchanged!
+
+// Removing properties (rest + spread)
+const { password, ...safeUser } = { name: "Sid", email: "s@x.com", password: "123" };
+// safeUser = { name: "Sid", email: "s@x.com" } — no password!
+
+// Conditional spread
+const isAdmin = true;
+const user = {
+  name: "Sid",
+  ...(isAdmin && { role: "admin", permissions: ["all"] })
+};
+// If isAdmin false: spread of 'false' is no-op
+
+// Spread does SHALLOW copy
+const original = { a: 1, nested: { b: 2 } };
+const copy = { ...original };
+copy.nested.b = 99;
+console.log(original.nested.b); // 99! (shared reference)
+
+// Array spread patterns
+const arr1 = [1, 2, 3];
+const arr2 = [4, 5, 6];
+const merged = [...arr1, ...arr2];         // [1,2,3,4,5,6]
+const withInsert = [...arr1.slice(0, 1), 99, ...arr1.slice(1)]; // [1,99,2,3]
+const unique = [...new Set([1,1,2,2,3])];  // [1,2,3]</code></pre>
+
+<div class="callout">
+<strong>Angular Pattern:</strong> In NgRx/state management, spread is essential for immutable updates: <code>return { ...state, loading: true }</code>. For arrays: <code>return [...state.items, newItem]</code>. Never mutate state directly — always create new references for change detection.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="array-methods">7. Array Methods Complete Reference</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=R8rmfD9Y5-c" target="_blank">Array Methods — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=rRgD1yVwIvE" target="_blank">map, filter, reduce — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7W4pQQ20nJg" target="_blank">JavaScript Array Methods — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=zdp0zrpKzIE" target="_blank">Reduce — Akshay Saini (Namaste JavaScript)</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Mutating Methods (modify original array)</h4>
+<pre><code>const arr = [1, 2, 3, 4, 5];
+
+// Adding/Removing
+arr.push(6);        // [1,2,3,4,5,6] — add to end, returns new length
+arr.pop();          // [1,2,3,4,5] — remove from end, returns removed element
+arr.unshift(0);     // [0,1,2,3,4,5] — add to beginning
+arr.shift();        // [1,2,3,4,5] — remove from beginning
+arr.splice(2, 1);   // [1,2,4,5] — remove 1 element at index 2, returns [3]
+arr.splice(2, 0, 3);// [1,2,3,4,5] — insert 3 at index 2
+
+// Ordering
+arr.sort();         // Sorts IN PLACE (lexicographic by default!)
+[10, 2, 30].sort(); // [10, 2, 30] → [10, 2, 30] WRONG!
+[10, 2, 30].sort((a, b) => a - b); // [2, 10, 30] — numeric sort
+arr.reverse();      // Reverses in place
+
+// fill & copyWithin
+[1,2,3,4].fill(0);          // [0,0,0,0]
+[1,2,3,4].fill(0, 1, 3);   // [1,0,0,4]
+[1,2,3,4,5].copyWithin(0, 3); // [4,5,3,4,5]</code></pre>
+
+<h4>Non-Mutating Methods (return new array/value)</h4>
+<pre><code>const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// TRANSFORMATION
+nums.map(n => n * 2);           // [2,4,6,8,10,12,14,16,18,20]
+nums.filter(n => n % 2 === 0);  // [2,4,6,8,10]
+nums.reduce((acc, n) => acc + n, 0); // 55
+nums.reduceRight((acc, n) => `${acc}-${n}`); // "10-9-8-...-1"
+nums.flat(Infinity);            // Flatten nested arrays
+nums.flatMap(n => [n, n*2]);    // [1,2,2,4,3,6,...] (map then flat(1))
+
+// SEARCHING
+nums.find(n => n > 5);          // 6 (first match)
+nums.findIndex(n => n > 5);     // 5 (index of first match)
+nums.findLast(n => n < 5);      // 4 (ES2023 — last match)
+nums.findLastIndex(n => n < 5); // 3 (ES2023)
+nums.indexOf(5);                // 4 (index of value)
+nums.lastIndexOf(5);            // 4
+nums.includes(5);               // true (ES7)
+
+// TESTING
+nums.every(n => n > 0);         // true (all pass)
+nums.some(n => n > 5);          // true (at least one passes)
+
+// SLICING
+nums.slice(2, 5);               // [3,4,5] (non-mutating extract)
+nums.concat([11, 12]);          // [1,...,10,11,12]
+
+// JOINING
+nums.join(", ");                // "1, 2, 3, ..., 10"
+
+// ITERATION
+nums.forEach((val, idx) => {}); // No return value (side effects only)
+
+// ES2023: Change Array by Copy (returns NEW array)
+nums.toSorted((a, b) => b - a);  // Sorted copy, original unchanged
+nums.toReversed();                // Reversed copy
+nums.toSpliced(2, 1);           // Spliced copy
+nums.with(0, 99);               // [99,2,3,...] copy with replacement
+
+// Array.from — creates array from iterable/array-like
+Array.from("hello");             // ["h","e","l","l","o"]
+Array.from({length: 5}, (_, i) => i); // [0,1,2,3,4]
+Array.from(document.querySelectorAll("div")); // NodeList → Array
+
+// Array.of — creates array from arguments
+Array.of(1, 2, 3);              // [1, 2, 3] (vs Array(3) = [,,])</code></pre>
+
+<h4>reduce() Deep Dive (Most Powerful Method)</h4>
+<pre><code>// reduce signature: arr.reduce((accumulator, current, index, array) => {}, initialValue)
+
+// Sum
+[1,2,3,4].reduce((sum, n) => sum + n, 0); // 10
+
+// Flatten
+[[1,2],[3,4],[5]].reduce((flat, arr) => [...flat, ...arr], []); // [1,2,3,4,5]
+
+// Group by
+const people = [{name:"Sid",dept:"eng"},{name:"Ram",dept:"eng"},{name:"Ali",dept:"hr"}];
+people.reduce((groups, person) => {
+  const key = person.dept;
+  groups[key] = groups[key] || [];
+  groups[key].push(person);
+  return groups;
+}, {}); // { eng: [...], hr: [...] }
+
+// Count occurrences
+["a","b","a","c","b","a"].reduce((counts, item) => {
+  counts[item] = (counts[item] || 0) + 1;
+  return counts;
+}, {}); // { a: 3, b: 2, c: 1 }
+
+// Pipe/Compose functions
+const pipe = (...fns) => (x) => fns.reduce((acc, fn) => fn(acc), x);
+
+// Implement map with reduce
+const myMap = (arr, fn) => arr.reduce((acc, val, i) => [...acc, fn(val, i)], []);
+
+// Implement filter with reduce
+const myFilter = (arr, fn) => arr.reduce((acc, val, i) => fn(val, i) ? [...acc, val] : acc, []);</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 3:</strong> Implement these using reduce:</p>
+<pre><code>// a) Count word frequency in a sentence
+function wordFrequency(sentence) {
+  return sentence.toLowerCase().split(/\s+/).reduce((freq, word) => {
+    freq[word] = (freq[word] || 0) + 1;
+    return freq;
+  }, {});
+}
+
+// b) Chunk array into groups of n
+function chunk(arr, size) {
+  return arr.reduce((chunks, item, index) => {
+    const chunkIndex = Math.floor(index / size);
+    if (!chunks[chunkIndex]) chunks[chunkIndex] = [];
+    chunks[chunkIndex].push(item);
+    return chunks;
+  }, []);
+}
+chunk([1,2,3,4,5,6,7], 3); // [[1,2,3],[4,5,6],[7]]</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is the difference between map and forEach?</p>
+<p><strong>Answer:</strong> map returns a new array with transformed elements (pure, chainable). forEach returns undefined (for side effects only, not chainable). map doesn't mutate the original. forEach is for when you don't need the return value (logging, DOM updates).</p>
+
+<p><span class="difficulty d-hard">Hard</span> Implement Array.prototype.flat() without using flat().</p>
+<p><strong>Answer:</strong> <code>function flat(arr, depth = 1) { return depth > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flat(val, depth - 1) : val), []) : arr.slice(); }</code></p>
+
+<p><span class="difficulty d-hard">Hard</span> What's the difference between sort() and toSorted()?</p>
+<p><strong>Answer:</strong> sort() mutates the original array in-place and returns it. toSorted() (ES2023) returns a NEW sorted array without modifying the original. Same applies to reverse/toReversed, splice/toSpliced. The "to" prefix methods are immutable alternatives — important for Angular change detection and state management.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="iteration">8. Iterating Objects & Arrays</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Kn06785pkJg" target="_blank">for...in vs for...of — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=a3KHBqH7njs" target="_blank">Object Iteration Methods — Steve Griffith</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>const user = { name: "Sid", age: 25, role: "dev" };
+const arr = [10, 20, 30];
+
+// Object iteration patterns:
+// 1. Object.keys + forEach/for...of
+Object.keys(user).forEach(key => console.log(key, user[key]));
+
+// 2. Object.entries (most flexible)
+for (const [key, value] of Object.entries(user)) {
+  console.log(`${key}: ${value}`);
+}
+
+// 3. for...in (includes inherited — use with caution)
+for (const key in user) {
+  if (Object.hasOwn(user, key)) { // Filter inherited
+    console.log(key);
+  }
+}
+
+// Array iteration patterns:
+// 1. for...of (values)
+for (const value of arr) console.log(value);
+
+// 2. for...of with entries (index + value)
+for (const [index, value] of arr.entries()) console.log(index, value);
+
+// 3. forEach (callback)
+arr.forEach((value, index, array) => console.log(value));
+
+// 4. Classic for (when you need index control)
+for (let i = arr.length - 1; i >= 0; i--) console.log(arr[i]);
+
+// Performance comparison (large arrays):
+// for loop > for...of > forEach > for...in (for arrays)
+// Difference is negligible for most cases</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="copy">9. Shallow Copy vs Deep Copy</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=4Ej0LwjCDZQ" target="_blank">Deep vs Shallow Copy — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=duyshh9Fs1U" target="_blank">Cloning Objects in JS — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// SHALLOW COPY — copies top-level properties only
+// Nested objects still share references!
+const original = { a: 1, nested: { b: 2 }, arr: [1, 2] };
+
+// Shallow copy methods:
+const copy1 = { ...original };            // Spread
+const copy2 = Object.assign({}, original); // Object.assign
+const copy3 = Array.from(original.arr);   // For arrays
+const copy4 = original.arr.slice();       // For arrays
+const copy5 = [...original.arr];          // Array spread
+
+// Proving it's shallow:
+copy1.nested.b = 99;
+console.log(original.nested.b); // 99! Shared reference!
+
+// DEEP COPY methods:
+
+// 1. structuredClone (Modern — ES2022, best option)
+const deep1 = structuredClone(original);
+deep1.nested.b = 99;
+console.log(original.nested.b); // 2 (independent copy!)
+// Handles: circular refs, Date, RegExp, Map, Set, ArrayBuffer
+// Cannot handle: functions, DOM nodes, Error objects, Symbol keys
+
+// 2. JSON.parse(JSON.stringify()) — old method with limitations
+const deep2 = JSON.parse(JSON.stringify(original));
+// ❌ Loses: functions, undefined, Symbol, Infinity, NaN, Date (→ string)
+// ❌ Fails: circular references (TypeError)
+// ✅ Works for: plain data objects (API responses)
+
+// 3. Recursive deep clone (manual — handles everything)
+function deepClone(obj, seen = new WeakMap()) {
+  if (obj === null || typeof obj !== "object") return obj;
+  if (seen.has(obj)) return seen.get(obj); // Handle circular refs
+  
+  if (obj instanceof Date) return new Date(obj);
+  if (obj instanceof RegExp) return new RegExp(obj.source, obj.flags);
+  if (obj instanceof Map) {
+    const map = new Map();
+    seen.set(obj, map);
+    obj.forEach((v, k) => map.set(deepClone(k, seen), deepClone(v, seen)));
+    return map;
+  }
+  if (obj instanceof Set) {
+    const set = new Set();
+    seen.set(obj, set);
+    obj.forEach(v => set.add(deepClone(v, seen)));
+    return set;
+  }
+  
+  const clone = Array.isArray(obj) ? [] : {};
+  seen.set(obj, clone);
+  for (const key of Reflect.ownKeys(obj)) { // Includes symbols
+    clone[key] = deepClone(obj[key], seen);
+  }
+  return clone;
+}</code></pre>
+
+<table>
+<tr><th>Method</th><th>Shallow</th><th>Deep</th><th>Circular Refs</th><th>Functions</th><th>Date/Regex</th></tr>
+<tr><td>Spread {...obj}</td><td>✅</td><td>❌</td><td>N/A</td><td>✅</td><td>❌ (ref copy)</td></tr>
+<tr><td>Object.assign</td><td>✅</td><td>❌</td><td>N/A</td><td>✅</td><td>❌ (ref copy)</td></tr>
+<tr><td>JSON parse/stringify</td><td>✅</td><td>✅</td><td>❌ (throws)</td><td>❌ (lost)</td><td>❌ (stringified)</td></tr>
+<tr><td>structuredClone</td><td>✅</td><td>✅</td><td>✅</td><td>❌ (throws)</td><td>✅</td></tr>
+<tr><td>Custom recursive</td><td>✅</td><td>✅</td><td>✅ (WeakMap)</td><td>✅</td><td>✅</td></tr>
+</table>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Implement a deep clone function that handles circular references.</p>
+<p><strong>Answer:</strong> Use a WeakMap to track already-cloned objects: <code>function deepClone(obj, seen = new WeakMap()) { if (typeof obj !== "object" || obj === null) return obj; if (seen.has(obj)) return seen.get(obj); const clone = Array.isArray(obj) ? [] : {}; seen.set(obj, clone); for (const key in obj) { if (Object.hasOwn(obj, key)) clone[key] = deepClone(obj[key], seen); } return clone; }</code></p>
+
+<p><span class="difficulty d-medium">Medium</span> What is structuredClone and what are its limitations?</p>
+<p><strong>Answer:</strong> structuredClone (2022) creates a true deep copy, handling circular references, Date, Map, Set, ArrayBuffer. Limitations: can't clone functions, DOM nodes, property descriptors, prototype chain, or getter/setter. For most API data cloning, it's the best built-in option.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="json">10. JSON (parse, stringify, reviver, replacer)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=wI1CWzNtE-M" target="_blank">JSON Crash Course — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=GpOO5iKzOmY" target="_blank">JSON Deep Dive — Steve Griffith</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// JSON.stringify(value, replacer?, space?)
+const obj = { name: "Sid", age: 25, active: true };
+
+JSON.stringify(obj);              // '{"name":"Sid","age":25,"active":true}'
+JSON.stringify(obj, null, 2);     // Pretty-printed with 2-space indent
+
+// What gets LOST in stringify:
+JSON.stringify({
+  fn: function() {},    // ❌ Removed
+  undef: undefined,     // ❌ Removed
+  sym: Symbol("x"),     // ❌ Removed
+  inf: Infinity,        // null
+  nan: NaN,             // null
+  date: new Date(),     // String (ISO format)
+  regex: /test/gi,      // {} (empty object)
+  map: new Map(),       // {} (empty object)
+  bigint: 10n           // ❌ TypeError!
+});
+
+// Replacer function (filter/transform during stringify)
+const data = { name: "Sid", password: "secret", role: "admin" };
+const safe = JSON.stringify(data, (key, value) => {
+  if (key === "password") return undefined; // Remove sensitive fields
+  return value;
+});
+// '{"name":"Sid","role":"admin"}'
+
+// Replacer as array (whitelist)
+JSON.stringify(data, ["name", "role"]); // '{"name":"Sid","role":"admin"}'
+
+// toJSON method (custom serialization)
+class User {
+  constructor(name, password) {
+    this.name = name;
+    this.password = password;
+  }
+  toJSON() {
+    return { name: this.name }; // Exclude password
+  }
+}
+JSON.stringify(new User("Sid", "123")); // '{"name":"Sid"}'
+
+// JSON.parse(text, reviver?)
+const json = '{"name":"Sid","date":"2024-01-15T10:30:00.000Z"}';
+const parsed = JSON.parse(json, (key, value) => {
+  // Reviver: transform during parsing
+  if (key === "date") return new Date(value); // Convert string back to Date
+  return value;
+});
+parsed.date instanceof Date; // true!</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What types of values are lost when using JSON.stringify?</p>
+<p><strong>Answer:</strong> Functions, undefined, Symbols are completely removed. Infinity and NaN become null. Dates become ISO strings. RegExp, Map, Set become empty objects. BigInt throws TypeError. Circular references throw. Non-enumerable properties are excluded.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="immutability">11. Immutability Patterns</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=4LzcQyZ9JOU" target="_blank">Immutability in JavaScript — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=dZ9C7EI2xm4" target="_blank">Immutable Data Patterns — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// WHY IMMUTABILITY? (Critical for Angular/NgRx)
+// 1. Predictable state changes (no hidden mutations)
+// 2. Angular Change Detection relies on reference checks
+// 3. Time-travel debugging (undo/redo)
+// 4. Safer concurrent code
+// 5. Pure functions need immutable inputs
+
+// Pattern 1: Immutable Object Updates
+const state = { user: { name: "Sid", age: 25 }, items: [1, 2, 3] };
+
+// Update nested property
+const newState = {
+  ...state,
+  user: { ...state.user, age: 26 }
+};
+
+// Pattern 2: Immutable Array Operations
+const items = [1, 2, 3, 4, 5];
+
+// Add
+const added = [...items, 6];                    // append
+const prepended = [0, ...items];               // prepend
+const inserted = [...items.slice(0, 2), 99, ...items.slice(2)]; // insert at index
+
+// Remove
+const removed = items.filter((_, i) => i !== 2);  // remove at index 2
+const withoutValue = items.filter(x => x !== 3);  // remove by value
+
+// Update
+const updated = items.map((val, i) => i === 2 ? 99 : val); // update at index
+
+// ES2023 immutable alternatives
+const sorted = items.toSorted((a, b) => b - a);
+const reversed = items.toReversed();
+const spliced = items.toSpliced(1, 1, 99);   // [1, 99, 3, 4, 5]
+const replaced = items.with(0, 99);          // [99, 2, 3, 4, 5]
+
+// Pattern 3: Object.freeze + deep freeze
+function deepFreeze(obj) {
+  Object.freeze(obj);
+  Object.getOwnPropertyNames(obj).forEach(prop => {
+    if (obj[prop] !== null && typeof obj[prop] === "object" && !Object.isFrozen(obj[prop])) {
+      deepFreeze(obj[prop]);
+    }
+  });
+  return obj;
+}
+
+// Pattern 4: Using Records and Tuples (Stage 2 Proposal)
+// const record = #{ name: "Sid", age: 25 };  // Immutable object
+// const tuple = #[1, 2, 3];                   // Immutable array
+// record === #{ name: "Sid", age: 25 };       // true! Value comparison!</code></pre>
+
+<div class="callout">
+<strong>Angular Tip:</strong> Angular's OnPush change detection only re-renders when @Input references change. Always return new objects/arrays from services and state management. <code>this.items = [...this.items, newItem]</code> triggers change detection. <code>this.items.push(newItem)</code> does NOT.</p>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 4:</strong> Implement an immutable state updater:</p>
+<pre><code>// Given nested state, update deeply without mutation
+function updateNestedState(state, path, value) {
+  const keys = path.split(".");
+  if (keys.length === 1) return { ...state, [keys[0]]: value };
+  return {
+    ...state,
+    [keys[0]]: updateNestedState(state[keys[0]] || {}, keys.slice(1).join("."), value)
+  };
+}
+
+const state = { user: { profile: { name: "Sid", settings: { theme: "dark" } } } };
+const newState = updateNestedState(state, "user.profile.settings.theme", "light");
+// Original unchanged, newState has theme: "light"</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="nav-links">
+  <a href="phase2-functions-scope-closures.html">← Phase 2: Functions & Closures</a>
+  <a href="phase4-prototypes-classes-oop.html">Phase 4: Prototypes & OOP →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

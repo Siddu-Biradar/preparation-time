@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 9: Polyfills & Machine Coding Round</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 9: Polyfills & Machine Coding Round</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (9 of 11)</p>
+  <div class="pill-row">
+    <span class="pill">25+ Polyfills</span>
+    <span class="pill">Machine Coding</span>
+    <span class="pill">Promise From Scratch</span>
+    <span class="pill">Array Methods</span>
+    <span class="pill">FAANG Ready</span>
+  </div>
+</div>
+
+<div class="callout warning">
+<strong>⚠️ Why This Phase Matters:</strong> 80% of JavaScript interviews at top companies (Google, Amazon, Microsoft, Flipkart, Atlassian) include at least 2-3 polyfill implementations. Machine coding rounds give you 45-60 minutes to build something from scratch. Master every implementation here.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#array-polyfills">Array Method Polyfills (map, filter, reduce, find, flat, forEach)</a></li>
+    <li><a href="#function-polyfills">Function Polyfills (call, apply, bind)</a></li>
+    <li><a href="#object-polyfills">Object Polyfills (create, assign, keys, entries, freeze)</a></li>
+    <li><a href="#promise-scratch">Promise from Scratch (Full Implementation)</a></li>
+    <li><a href="#promise-combinators">Promise.all, allSettled, race, any Polyfills</a></li>
+    <li><a href="#utility-polyfills">Utility Polyfills (new, instanceof, typeof, deepEqual)</a></li>
+    <li><a href="#advanced-polyfills">Advanced Polyfills (memoize, pipe, compose, once, groupBy)</a></li>
+    <li><a href="#dom-polyfills">DOM & Timer Polyfills (setInterval, clearAllTimers, classList)</a></li>
+    <li><a href="#machine-coding">Machine Coding: JSON.stringify from Scratch</a></li>
+    <li><a href="#machine-scheduler">Machine Coding: Async Task Scheduler</a></li>
+    <li><a href="#machine-retry">Machine Coding: Retry with Backoff & Circuit Breaker</a></li>
+    <li><a href="#machine-lru">Machine Coding: LRU Cache with TTL</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="array-polyfills">1. Array Method Polyfills</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=zdp0zrpKzIE" target="_blank">Polyfills of map, filter, reduce — Akshay Saini (Namaste JS)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=vDJpGenyHaA" target="_blank">Polyfills in JavaScript — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=MY0UBGX2FtA" target="_blank">JavaScript Interview Questions — Roadside Coder</a></li>
+</ul></details>
+
+<h3>Array.prototype.map</h3>
+<pre><code>// Polyfill for Array.prototype.map
+Array.prototype.myMap = function(callback, thisArg) {
+  if (this == null) throw new TypeError("Cannot read properties of null/undefined");
+  if (typeof callback !== "function") throw new TypeError(callback + " is not a function");
+  
+  const result = new Array(this.length);
+  for (let i = 0; i < this.length; i++) {
+    // Skip holes in sparse arrays (like native map does)
+    if (i in this) {
+      result[i] = callback.call(thisArg, this[i], i, this);
+    }
+  }
+  return result;
+};
+
+// Test:
+[1, 2, 3].myMap(x => x * 2); // [2, 4, 6]
+[1, , 3].myMap(x => x * 2);  // [2, empty, 6] — handles sparse arrays!</code></pre>
+
+<h3>Array.prototype.filter</h3>
+<pre><code>Array.prototype.myFilter = function(callback, thisArg) {
+  if (this == null) throw new TypeError("Cannot read properties of null/undefined");
+  if (typeof callback !== "function") throw new TypeError(callback + " is not a function");
+  
+  const result = [];
+  for (let i = 0; i < this.length; i++) {
+    if (i in this) {
+      if (callback.call(thisArg, this[i], i, this)) {
+        result.push(this[i]);
+      }
+    }
+  }
+  return result;
+};
+
+// Test:
+[1, 2, 3, 4, 5].myFilter(x => x % 2 === 0); // [2, 4]</code></pre>
+
+<h3>Array.prototype.reduce</h3>
+<pre><code>Array.prototype.myReduce = function(callback, initialValue) {
+  if (this == null) throw new TypeError("Cannot read properties of null/undefined");
+  if (typeof callback !== "function") throw new TypeError(callback + " is not a function");
+  
+  const arr = this;
+  const len = arr.length;
+  let accumulator;
+  let startIndex;
+  
+  if (arguments.length >= 2) {
+    // initialValue provided
+    accumulator = initialValue;
+    startIndex = 0;
+  } else {
+    // No initialValue — use first element
+    if (len === 0) throw new TypeError("Reduce of empty array with no initial value");
+    
+    // Find first non-hole index
+    let found = false;
+    for (let i = 0; i < len; i++) {
+      if (i in arr) {
+        accumulator = arr[i];
+        startIndex = i + 1;
+        found = true;
+        break;
+      }
+    }
+    if (!found) throw new TypeError("Reduce of empty array with no initial value");
+  }
+  
+  for (let i = startIndex; i < len; i++) {
+    if (i in arr) {
+      accumulator = callback(accumulator, arr[i], i, arr);
+    }
+  }
+  
+  return accumulator;
+};
+
+// Tests:
+[1, 2, 3].myReduce((acc, val) => acc + val, 0); // 6
+[1, 2, 3].myReduce((acc, val) => acc + val);    // 6 (no initial value)
+// [].myReduce((a, b) => a + b); // TypeError!</code></pre>
+
+<h3>Array.prototype.find & findIndex</h3>
+<pre><code>Array.prototype.myFind = function(callback, thisArg) {
+  if (typeof callback !== "function") throw new TypeError(callback + " is not a function");
+  
+  for (let i = 0; i < this.length; i++) {
+    if (callback.call(thisArg, this[i], i, this)) {
+      return this[i];
+    }
+  }
+  return undefined;
+};
+
+Array.prototype.myFindIndex = function(callback, thisArg) {
+  if (typeof callback !== "function") throw new TypeError(callback + " is not a function");
+  
+  for (let i = 0; i < this.length; i++) {
+    if (callback.call(thisArg, this[i], i, this)) {
+      return i;
+    }
+  }
+  return -1;
+};</code></pre>
+
+<h3>Array.prototype.flat</h3>
+<pre><code>Array.prototype.myFlat = function(depth = 1) {
+  if (depth < 0) return this.slice();
+  
+  return this.reduce((acc, item) => {
+    if (Array.isArray(item) && depth > 0) {
+      acc.push(...item.myFlat(depth - 1));
+    } else {
+      acc.push(item);
+    }
+    return acc;
+  }, []);
+};
+
+// Iterative approach (no recursion — better for deep nesting):
+Array.prototype.myFlatIterative = function(depth = 1) {
+  let result = [...this];
+  
+  for (let d = 0; d < depth; d++) {
+    const temp = [];
+    let hasNestedArray = false;
+    
+    for (const item of result) {
+      if (Array.isArray(item)) {
+        temp.push(...item);
+        hasNestedArray = true;
+      } else {
+        temp.push(item);
+      }
+    }
+    
+    result = temp;
+    if (!hasNestedArray) break; // No more arrays to flatten
+  }
+  
+  return result;
+};
+
+// Tests:
+[1, [2, [3, [4]]]].myFlat();    // [1, 2, [3, [4]]]
+[1, [2, [3, [4]]]].myFlat(2);   // [1, 2, 3, [4]]
+[1, [2, [3, [4]]]].myFlat(Infinity); // [1, 2, 3, 4]</code></pre>
+
+<h3>Array.prototype.flatMap</h3>
+<pre><code>Array.prototype.myFlatMap = function(callback, thisArg) {
+  return this.myMap(callback, thisArg).myFlat(1);
+};
+
+// Test:
+[1, 2, 3].myFlatMap(x => [x, x * 2]); // [1, 2, 2, 4, 3, 6]
+["hello world", "foo bar"].myFlatMap(s => s.split(" ")); // ["hello", "world", "foo", "bar"]</code></pre>
+
+<h3>Array.prototype.forEach</h3>
+<pre><code>Array.prototype.myForEach = function(callback, thisArg) {
+  if (typeof callback !== "function") throw new TypeError(callback + " is not a function");
+  
+  for (let i = 0; i < this.length; i++) {
+    if (i in this) {
+      callback.call(thisArg, this[i], i, this);
+    }
+  }
+  // Returns undefined (forEach never returns a value)
+};
+
+// Key interview point: forEach CANNOT be broken out of (use for...of or every/some instead)</code></pre>
+
+<h3>Array.prototype.every & some</h3>
+<pre><code>Array.prototype.myEvery = function(callback, thisArg) {
+  for (let i = 0; i < this.length; i++) {
+    if (i in this && !callback.call(thisArg, this[i], i, this)) {
+      return false; // Short-circuits on first false
+    }
+  }
+  return true;
+};
+
+Array.prototype.mySome = function(callback, thisArg) {
+  for (let i = 0; i < this.length; i++) {
+    if (i in this && callback.call(thisArg, this[i], i, this)) {
+      return true; // Short-circuits on first true
+    }
+  }
+  return false;
+};</code></pre>
+
+<h3>Array.from</h3>
+<pre><code>Array.myFrom = function(arrayLike, mapFn, thisArg) {
+  if (arrayLike == null) throw new TypeError("Cannot convert undefined or null to object");
+  
+  const items = Object(arrayLike);
+  const len = Math.floor(Number(items.length)) || 0;
+  const result = new Array(len);
+  
+  for (let i = 0; i < len; i++) {
+    const value = items[i];
+    result[i] = mapFn ? mapFn.call(thisArg, value, i) : value;
+  }
+  
+  return result;
+};
+
+// Tests:
+Array.myFrom("hello");           // ["h", "e", "l", "l", "o"]
+Array.myFrom({0: "a", 1: "b", length: 2}); // ["a", "b"]
+Array.myFrom([1,2,3], x => x*2); // [2, 4, 6]</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="function-polyfills">2. Function Polyfills (call, apply, bind)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=VkmUOktYDAU" target="_blank">Polyfill for call, apply, bind — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ke_y6z0xRpk" target="_blank">call, apply, bind Polyfills — Chirag Goel</a></li>
+</ul></details>
+
+<h3>Function.prototype.call</h3>
+<pre><code>Function.prototype.myCall = function(context, ...args) {
+  // Handle null/undefined → globalThis (window in browser)
+  context = context != null ? Object(context) : globalThis;
+  
+  // Use Symbol to avoid property collision
+  const fnKey = Symbol("fn");
+  context[fnKey] = this; // 'this' is the function being called
+  
+  const result = context[fnKey](...args);
+  delete context[fnKey];
+  
+  return result;
+};
+
+// Test:
+function greet(greeting, punctuation) {
+  return `${greeting}, ${this.name}${punctuation}`;
+}
+greet.myCall({ name: "Sid" }, "Hello", "!"); // "Hello, Sid!"</code></pre>
+
+<h3>Function.prototype.apply</h3>
+<pre><code>Function.prototype.myApply = function(context, argsArray) {
+  context = context != null ? Object(context) : globalThis;
+  
+  // Validate argsArray
+  if (argsArray != null && !Array.isArray(argsArray) && typeof argsArray[Symbol.iterator] !== "function") {
+    throw new TypeError("CreateListFromArrayLike called on non-object");
+  }
+  
+  const fnKey = Symbol("fn");
+  context[fnKey] = this;
+  
+  const result = argsArray ? context[fnKey](...argsArray) : context[fnKey]();
+  delete context[fnKey];
+  
+  return result;
+};
+
+// Test:
+Math.max.myApply(null, [1, 5, 3, 9, 2]); // 9</code></pre>
+
+<h3>Function.prototype.bind</h3>
+<pre><code>Function.prototype.myBind = function(context, ...boundArgs) {
+  if (typeof this !== "function") {
+    throw new TypeError("Bind must be called on a function");
+  }
+  
+  const originalFn = this;
+  context = context != null ? Object(context) : globalThis;
+  
+  // Bound function
+  function boundFunction(...callArgs) {
+    // Handle 'new' keyword — if called with new, ignore bound context
+    const isNewCall = this instanceof boundFunction;
+    
+    return originalFn.apply(
+      isNewCall ? this : context,
+      [...boundArgs, ...callArgs]
+    );
+  }
+  
+  // Preserve prototype chain (for new keyword support)
+  if (originalFn.prototype) {
+    boundFunction.prototype = Object.create(originalFn.prototype);
+  }
+  
+  return boundFunction;
+};
+
+// Tests:
+const obj = { name: "Sid" };
+function sayName(greeting) { return `${greeting} ${this.name}`; }
+
+const bound = sayName.myBind(obj, "Hi");
+bound(); // "Hi Sid"
+
+// Works with new:
+function Person(name, age) { this.name = name; this.age = age; }
+const BoundPerson = Person.myBind(null, "Sid");
+const p = new BoundPerson(25);
+p.name; // "Sid"
+p.age;  // 25</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="object-polyfills">3. Object Polyfills</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=MACDGu96wrA" target="_blank">Object.create Polyfill — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=USKB6gTfVIA" target="_blank">Object Methods Deep Dive — Codevolution</a></li>
+</ul></details>
+
+<h3>Object.create</h3>
+<pre><code>Object.myCreate = function(proto, propertiesObject) {
+  if (proto !== null && typeof proto !== "object" && typeof proto !== "function") {
+    throw new TypeError("Object prototype may only be an Object or null");
+  }
+  
+  // Create a constructor function
+  function F() {}
+  F.prototype = proto;
+  
+  const obj = new F();
+  
+  // Handle null prototype
+  if (proto === null) {
+    Object.setPrototypeOf(obj, null);
+  }
+  
+  // Define additional properties if provided
+  if (propertiesObject !== undefined) {
+    Object.defineProperties(obj, propertiesObject);
+  }
+  
+  return obj;
+};
+
+// Test:
+const parent = { greet() { return `Hello, ${this.name}`; } };
+const child = Object.myCreate(parent);
+child.name = "Sid";
+child.greet(); // "Hello, Sid"
+Object.getPrototypeOf(child) === parent; // true</code></pre>
+
+<h3>Object.assign</h3>
+<pre><code>Object.myAssign = function(target, ...sources) {
+  if (target == null) throw new TypeError("Cannot convert undefined or null to object");
+  
+  const result = Object(target);
+  
+  for (const source of sources) {
+    if (source == null) continue; // Skip null/undefined sources
+    
+    // Copy own enumerable string-keyed properties
+    for (const key of Object.keys(source)) {
+      result[key] = source[key];
+    }
+    
+    // Also copy own enumerable symbol-keyed properties
+    for (const sym of Object.getOwnPropertySymbols(source)) {
+      if (Object.getOwnPropertyDescriptor(source, sym).enumerable) {
+        result[sym] = source[sym];
+      }
+    }
+  }
+  
+  return result;
+};
+
+// Test:
+Object.myAssign({}, { a: 1 }, { b: 2 }, { a: 3 }); // { a: 3, b: 2 }</code></pre>
+
+<h3>Object.keys / values / entries</h3>
+<pre><code>Object.myKeys = function(obj) {
+  if (obj == null) throw new TypeError("Cannot convert undefined or null to object");
+  obj = Object(obj);
+  const keys = [];
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      keys.push(key);
+    }
+  }
+  return keys;
+};
+
+Object.myValues = function(obj) {
+  return Object.myKeys(obj).map(key => obj[key]);
+};
+
+Object.myEntries = function(obj) {
+  return Object.myKeys(obj).map(key => [key, obj[key]]);
+};
+
+Object.myFromEntries = function(iterable) {
+  const obj = {};
+  for (const [key, value] of iterable) {
+    obj[key] = value;
+  }
+  return obj;
+};</code></pre>
+
+<h3>Object.freeze (Deep)</h3>
+<pre><code>// Shallow freeze (native behavior):
+Object.myFreeze = function(obj) {
+  if (typeof obj !== "object" || obj === null) return obj;
+  
+  Object.getOwnPropertyNames(obj).forEach(name => {
+    Object.defineProperty(obj, name, { writable: false, configurable: false });
+  });
+  Object.preventExtensions(obj);
+  return obj;
+};
+
+// Deep freeze (interview favorite!):
+function deepFreeze(obj) {
+  if (typeof obj !== "object" || obj === null || Object.isFrozen(obj)) return obj;
+  
+  Object.freeze(obj);
+  
+  Object.getOwnPropertyNames(obj).forEach(name => {
+    const value = obj[name];
+    if (typeof value === "object" && value !== null) {
+      deepFreeze(value);
+    }
+  });
+  
+  return obj;
+}
+
+const frozen = deepFreeze({ a: { b: { c: 1 } } });
+frozen.a.b.c = 99; // Silently fails (or throws in strict mode)
+console.log(frozen.a.b.c); // 1</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promise-scratch">4. Promise from Scratch (Full Implementation)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Xs1EMmBLpn4" target="_blank">Promises from Scratch — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=1l4wHWQCCIc" target="_blank">Build a Promise from Scratch — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4GpwM8FmVgQ" target="_blank">Custom Promise Implementation — Chirag Goel</a></li>
+</ul></details>
+
+<div class="callout warning">
+<strong>⚠️ Most Asked at FAANG:</strong> "Implement Promise from scratch" is the #1 most-asked machine coding question at Google, Amazon, and Microsoft for senior frontend roles. You MUST be able to write this in 30 minutes.
+</div>
+
+<pre><code>class MyPromise {
+  #state = "pending";    // "pending" | "fulfilled" | "rejected"
+  #value = undefined;    // Resolved value or rejection reason
+  #handlers = [];        // Array of { onFulfilled, onRejected, resolve, reject }
+  
+  constructor(executor) {
+    if (typeof executor !== "function") {
+      throw new TypeError("Promise resolver is not a function");
+    }
+    
+    try {
+      executor(this.#resolve.bind(this), this.#reject.bind(this));
+    } catch (error) {
+      this.#reject(error);
+    }
+  }
+  
+  #resolve(value) {
+    // Resolution can only happen once
+    if (this.#state !== "pending") return;
+    
+    // If resolved with a thenable/promise, unwrap it
+    if (value !== null && (typeof value === "object" || typeof value === "function")) {
+      const then = value?.then;
+      if (typeof then === "function") {
+        try {
+          then.call(value, this.#resolve.bind(this), this.#reject.bind(this));
+        } catch (e) {
+          this.#reject(e);
+        }
+        return;
+      }
+    }
+    
+    this.#state = "fulfilled";
+    this.#value = value;
+    this.#executeHandlers();
+  }
+  
+  #reject(reason) {
+    if (this.#state !== "pending") return;
+    
+    this.#state = "rejected";
+    this.#value = reason;
+    this.#executeHandlers();
+  }
+  
+  #executeHandlers() {
+    // Execute asynchronously (microtask)
+    queueMicrotask(() => {
+      while (this.#handlers.length) {
+        const { onFulfilled, onRejected, resolve, reject } = this.#handlers.shift();
+        
+        try {
+          if (this.#state === "fulfilled") {
+            if (typeof onFulfilled === "function") {
+              resolve(onFulfilled(this.#value));
+            } else {
+              resolve(this.#value); // Pass-through
+            }
+          } else if (this.#state === "rejected") {
+            if (typeof onRejected === "function") {
+              resolve(onRejected(this.#value)); // catch returns resolved promise
+            } else {
+              reject(this.#value); // Pass-through rejection
+            }
+          }
+        } catch (error) {
+          reject(error);
+        }
+      }
+    });
+  }
+  
+  then(onFulfilled, onRejected) {
+    // .then() ALWAYS returns a new Promise (chaining!)
+    return new MyPromise((resolve, reject) => {
+      this.#handlers.push({ onFulfilled, onRejected, resolve, reject });
+      
+      // If already settled, execute immediately
+      if (this.#state !== "pending") {
+        this.#executeHandlers();
+      }
+    });
+  }
+  
+  catch(onRejected) {
+    return this.then(null, onRejected);
+  }
+  
+  finally(onFinally) {
+    return this.then(
+      value => MyPromise.resolve(onFinally()).then(() => value),
+      reason => MyPromise.resolve(onFinally()).then(() => { throw reason; })
+    );
+  }
+  
+  // Static methods
+  static resolve(value) {
+    if (value instanceof MyPromise) return value;
+    return new MyPromise(resolve => resolve(value));
+  }
+  
+  static reject(reason) {
+    return new MyPromise((_, reject) => reject(reason));
+  }
+}
+
+// ═══════ VERIFICATION ═══════
+const p = new MyPromise((resolve) => {
+  setTimeout(() => resolve("hello"), 100);
+});
+
+p.then(val => val + " world")
+ .then(val => console.log(val)) // "hello world"
+ .catch(err => console.error(err));
+
+// Chaining:
+MyPromise.resolve(1)
+  .then(x => x + 1)
+  .then(x => { throw new Error("oops"); })
+  .catch(e => console.log(e.message)) // "oops"
+  .finally(() => console.log("done")); // "done"</code></pre>
+
+<div class="callout">
+<strong>💡 Key Points Interviewers Look For:</strong>
+<ul>
+  <li>State can only transition ONCE (pending → fulfilled OR pending → rejected)</li>
+  <li>.then() returns a NEW promise (enables chaining)</li>
+  <li>Handlers execute as microtasks (asynchronously)</li>
+  <li>If resolved with a thenable, it must be unwrapped recursively</li>
+  <li>.catch() is just .then(null, onRejected)</li>
+  <li>.finally() preserves the value/reason — it's transparent</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promise-combinators">5. Promise.all, allSettled, race, any Polyfills</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=vDJpGenyHaA" target="_blank">Promise Polyfills — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=DlTVnS4lMBQ" target="_blank">Promise.all from Scratch — Roadside Coder</a></li>
+</ul></details>
+
+<h3>Promise.all</h3>
+<pre><code>MyPromise.all = function(promises) {
+  return new MyPromise((resolve, reject) => {
+    const results = [];
+    let pending = 0;
+    
+    const iterable = [...promises]; // Handle any iterable
+    
+    if (iterable.length === 0) {
+      resolve(results);
+      return;
+    }
+    
+    iterable.forEach((promise, index) => {
+      pending++;
+      MyPromise.resolve(promise).then(
+        value => {
+          results[index] = value; // Maintain order!
+          pending--;
+          if (pending === 0) resolve(results);
+        },
+        reason => reject(reason) // Reject on FIRST failure
+      );
+    });
+  });
+};
+
+// Test:
+MyPromise.all([
+  MyPromise.resolve(1),
+  MyPromise.resolve(2),
+  MyPromise.resolve(3)
+]).then(console.log); // [1, 2, 3]</code></pre>
+
+<h3>Promise.allSettled</h3>
+<pre><code>MyPromise.allSettled = function(promises) {
+  return new MyPromise((resolve) => {
+    const results = [];
+    let remaining = 0;
+    
+    const iterable = [...promises];
+    
+    if (iterable.length === 0) {
+      resolve(results);
+      return;
+    }
+    
+    iterable.forEach((promise, index) => {
+      remaining++;
+      MyPromise.resolve(promise).then(
+        value => {
+          results[index] = { status: "fulfilled", value };
+          remaining--;
+          if (remaining === 0) resolve(results);
+        },
+        reason => {
+          results[index] = { status: "rejected", reason };
+          remaining--;
+          if (remaining === 0) resolve(results);
+        }
+      );
+    });
+  });
+};
+
+// NEVER rejects! Always resolves with all statuses.</code></pre>
+
+<h3>Promise.race</h3>
+<pre><code>MyPromise.race = function(promises) {
+  return new MyPromise((resolve, reject) => {
+    const iterable = [...promises];
+    
+    // Note: if empty iterable, promise stays pending forever (per spec)
+    iterable.forEach(promise => {
+      MyPromise.resolve(promise).then(resolve, reject);
+      // First one to settle wins — others are ignored
+    });
+  });
+};</code></pre>
+
+<h3>Promise.any</h3>
+<pre><code>MyPromise.any = function(promises) {
+  return new MyPromise((resolve, reject) => {
+    const errors = [];
+    let remaining = 0;
+    
+    const iterable = [...promises];
+    
+    if (iterable.length === 0) {
+      reject(new AggregateError([], "All promises were rejected"));
+      return;
+    }
+    
+    iterable.forEach((promise, index) => {
+      remaining++;
+      MyPromise.resolve(promise).then(
+        resolve, // First success wins!
+        error => {
+          errors[index] = error;
+          remaining--;
+          if (remaining === 0) {
+            reject(new AggregateError(errors, "All promises were rejected"));
+          }
+        }
+      );
+    });
+  });
+};
+
+// Opposite of Promise.all:
+// .all → rejects on first failure
+// .any → resolves on first success</code></pre>
+
+<div class="callout">
+<strong>💡 Interview Comparison Table:</strong>
+<table>
+<tr><th>Method</th><th>Resolves When</th><th>Rejects When</th><th>Use Case</th></tr>
+<tr><td>Promise.all</td><td>ALL fulfill</td><td>ANY rejects</td><td>Load all dependencies</td></tr>
+<tr><td>Promise.allSettled</td><td>ALL settle</td><td>Never</td><td>Batch operations (report results)</td></tr>
+<tr><td>Promise.race</td><td>FIRST settles (any)</td><td>FIRST settles (reject)</td><td>Timeout racing</td></tr>
+<tr><td>Promise.any</td><td>FIRST fulfills</td><td>ALL reject</td><td>Fastest mirror/CDN</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="utility-polyfills">6. Utility Polyfills (new, instanceof, typeof, deepEqual)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=MY0UBGX2FtA" target="_blank">JS Interview Coding Challenges — Roadside Coder</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Z6Eg4B3Rfbs" target="_blank">How 'new' keyword works — Akshay Saini</a></li>
+</ul></details>
+
+<h3>Implement 'new' keyword</h3>
+<pre><code>function myNew(Constructor, ...args) {
+  // 1. Create a new object with Constructor's prototype
+  const obj = Object.create(Constructor.prototype);
+  
+  // 2. Call the constructor with the new object as 'this'
+  const result = Constructor.apply(obj, args);
+  
+  // 3. If constructor returns an object, use that; otherwise use obj
+  return (result !== null && typeof result === "object") ? result : obj;
+}
+
+// Test:
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+Person.prototype.greet = function() { return `Hi, I'm ${this.name}`; };
+
+const p = myNew(Person, "Sid", 25);
+p.greet(); // "Hi, I'm Sid"
+p instanceof Person; // true</code></pre>
+
+<h3>Implement 'instanceof'</h3>
+<pre><code>function myInstanceOf(obj, Constructor) {
+  if (obj === null || (typeof obj !== "object" && typeof obj !== "function")) {
+    return false;
+  }
+  
+  let proto = Object.getPrototypeOf(obj);
+  const target = Constructor.prototype;
+  
+  while (proto !== null) {
+    if (proto === target) return true;
+    proto = Object.getPrototypeOf(proto);
+  }
+  
+  return false;
+}
+
+// Test:
+myInstanceOf([], Array);   // true
+myInstanceOf([], Object);  // true (Array extends Object)
+myInstanceOf({}, Array);   // false
+myInstanceOf(null, Object); // false</code></pre>
+
+<h3>Deep Equality Check</h3>
+<pre><code>function deepEqual(a, b, seen = new WeakMap()) {
+  // Primitive comparison
+  if (a === b) return true;
+  
+  // NaN check (NaN !== NaN, but should be equal)
+  if (Number.isNaN(a) && Number.isNaN(b)) return true;
+  
+  // Type check
+  if (typeof a !== "object" || typeof b !== "object") return false;
+  if (a === null || b === null) return false;
+  
+  // Circular reference check
+  if (seen.has(a)) return seen.get(a) === b;
+  seen.set(a, b);
+  
+  // Date comparison
+  if (a instanceof Date && b instanceof Date) {
+    return a.getTime() === b.getTime();
+  }
+  
+  // RegExp comparison
+  if (a instanceof RegExp && b instanceof RegExp) {
+    return a.source === b.source && a.flags === b.flags;
+  }
+  
+  // Array/Object comparison
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  
+  if (keysA.length !== keysB.length) return false;
+  
+  return keysA.every(key => 
+    Object.prototype.hasOwnProperty.call(b, key) && deepEqual(a[key], b[key], seen)
+  );
+}
+
+// Tests:
+deepEqual({ a: { b: [1, 2] }}, { a: { b: [1, 2] }}); // true
+deepEqual({ a: 1 }, { a: "1" }); // false
+deepEqual(NaN, NaN); // true
+deepEqual(new Date("2024-01-01"), new Date("2024-01-01")); // true</code></pre>
+
+<h3>Implement typeof (accurate version)</h3>
+<pre><code>// The problem: typeof null === "object" (historic bug)
+// Accurate type checking:
+function typeOf(value) {
+  if (value === null) return "null";
+  if (value === undefined) return "undefined";
+  if (typeof value === "function") return "function";
+  
+  // Use Object.prototype.toString for accurate type
+  const type = Object.prototype.toString.call(value);
+  // "[object Array]" → "array"
+  return type.slice(8, -1).toLowerCase();
+}
+
+// Tests:
+typeOf(null);        // "null"
+typeOf([]);          // "array"
+typeOf({});          // "object"
+typeOf(new Map());   // "map"
+typeOf(new Set());   // "set"
+typeOf(new Date());  // "date"
+typeOf(/regex/);     // "regexp"
+typeOf(42);          // "number"
+typeOf(42n);         // "bigint"
+typeOf(Symbol());    // "symbol"</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="advanced-polyfills">7. Advanced Polyfills (memoize, pipe, compose, once, groupBy)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=lh5QND_6Id4" target="_blank">Memoization in JS — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4anAwXYqLG8" target="_blank">Function Composition — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Memoize (with configurable cache)</h3>
+<pre><code>// Basic memoize:
+function memoize(fn) {
+  const cache = new Map();
+  
+  return function(...args) {
+    const key = JSON.stringify(args);
+    
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+// Advanced memoize with custom key resolver & cache limit (LRU):
+function memoizeAdvanced(fn, { maxSize = 100, keyResolver = JSON.stringify } = {}) {
+  const cache = new Map();
+  
+  function memoized(...args) {
+    const key = keyResolver(args);
+    
+    if (cache.has(key)) {
+      // Move to end (most recently used)
+      const value = cache.get(key);
+      cache.delete(key);
+      cache.set(key, value);
+      return value;
+    }
+    
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    
+    // Evict oldest if over limit
+    if (cache.size > maxSize) {
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+    
+    return result;
+  }
+  
+  memoized.cache = cache;
+  memoized.clear = () => cache.clear();
+  return memoized;
+}
+
+// Test:
+const expensiveCalc = memoize((n) => {
+  console.log("Computing...");
+  return n * n;
+});
+expensiveCalc(5); // logs "Computing...", returns 25
+expensiveCalc(5); // no log, returns 25 (cached!)</code></pre>
+
+<h3>Pipe & Compose</h3>
+<pre><code>// pipe: left-to-right function composition
+function pipe(...fns) {
+  return function(initialValue) {
+    return fns.reduce((acc, fn) => fn(acc), initialValue);
+  };
+}
+
+// compose: right-to-left (mathematical composition)
+function compose(...fns) {
+  return function(initialValue) {
+    return fns.reduceRight((acc, fn) => fn(acc), initialValue);
+  };
+}
+
+// Async pipe (for functions that return promises):
+function pipeAsync(...fns) {
+  return function(initialValue) {
+    return fns.reduce(
+      (acc, fn) => Promise.resolve(acc).then(fn),
+      initialValue
+    );
+  };
+}
+
+// Test:
+const double = x => x * 2;
+const addOne = x => x + 1;
+const square = x => x * x;
+
+pipe(double, addOne, square)(3);    // square(addOne(double(3))) = square(7) = 49
+compose(square, addOne, double)(3); // square(addOne(double(3))) = 49 (same!)</code></pre>
+
+<h3>Once (execute only once)</h3>
+<pre><code>function once(fn) {
+  let called = false;
+  let result;
+  
+  return function(...args) {
+    if (!called) {
+      called = true;
+      result = fn.apply(this, args);
+    }
+    return result;
+  };
+}
+
+// Test:
+const initialize = once(() => {
+  console.log("Initializing...");
+  return { ready: true };
+});
+
+initialize(); // logs "Initializing...", returns { ready: true }
+initialize(); // no log, returns { ready: true } (same reference)
+initialize(); // no log, returns { ready: true }</code></pre>
+
+<h3>groupBy</h3>
+<pre><code>// Object.groupBy polyfill (ES2024):
+function groupBy(array, keyFn) {
+  return array.reduce((groups, item, index) => {
+    const key = typeof keyFn === "function" ? keyFn(item, index) : item[keyFn];
+    (groups[key] ??= []).push(item);
+    return groups;
+  }, Object.create(null)); // null prototype — no inherited properties
+}
+
+// Test:
+const people = [
+  { name: "Alice", age: 25 },
+  { name: "Bob", age: 30 },
+  { name: "Charlie", age: 25 },
+  { name: "Diana", age: 30 }
+];
+
+groupBy(people, person => person.age);
+// { 25: [{name:"Alice"...}, {name:"Charlie"...}], 30: [{name:"Bob"...}, {name:"Diana"...}] }</code></pre>
+
+<h3>Debounce & Throttle (Production-Grade)</h3>
+<pre><code>// Full debounce (Lodash-compatible):
+function debounce(fn, wait, { leading = false, trailing = true, maxWait } = {}) {
+  let timeoutId, lastCallTime, lastInvokeTime = 0, result;
+  
+  function invoke(time) {
+    lastInvokeTime = time;
+    result = fn.apply(this, arguments);
+    return result;
+  }
+  
+  function shouldInvoke(time) {
+    const timeSinceLastCall = time - (lastCallTime || 0);
+    const timeSinceLastInvoke = time - lastInvokeTime;
+    
+    return (lastCallTime === undefined) ||
+           (timeSinceLastCall >= wait) ||
+           (maxWait !== undefined && timeSinceLastInvoke >= maxWait);
+  }
+  
+  function debounced(...args) {
+    const time = Date.now();
+    const isInvoking = shouldInvoke(time);
+    
+    lastCallTime = time;
+    
+    if (isInvoking && leading && !timeoutId) {
+      result = fn.apply(this, args);
+      lastInvokeTime = time;
+    }
+    
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      timeoutId = null;
+      if (trailing) {
+        result = fn.apply(this, args);
+        lastInvokeTime = Date.now();
+      }
+    }, wait);
+    
+    return result;
+  }
+  
+  debounced.cancel = () => { clearTimeout(timeoutId); timeoutId = null; };
+  debounced.flush = () => { if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; } };
+  
+  return debounced;
+}
+
+// Full throttle:
+function throttle(fn, limit, { leading = true, trailing = true } = {}) {
+  let lastTime = 0, timeoutId, lastArgs, lastContext;
+  
+  function invoke() {
+    lastTime = leading ? Date.now() : 0;
+    timeoutId = null;
+    fn.apply(lastContext, lastArgs);
+    lastArgs = lastContext = null;
+  }
+  
+  return function(...args) {
+    const now = Date.now();
+    if (!lastTime && !leading) lastTime = now;
+    
+    const remaining = limit - (now - lastTime);
+    lastArgs = args;
+    lastContext = this;
+    
+    if (remaining <= 0 || remaining > limit) {
+      if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+      lastTime = now;
+      fn.apply(this, args);
+    } else if (!timeoutId && trailing) {
+      timeoutId = setTimeout(invoke, remaining);
+    }
+  };
+}</code></pre>
+
+<h3>String.prototype.trim Polyfill</h3>
+<pre><code>String.prototype.myTrim = function() {
+  return this.replace(/^\s+|\s+$/g, "");
+};
+
+String.prototype.myTrimStart = function() {
+  return this.replace(/^\s+/, "");
+};
+
+String.prototype.myTrimEnd = function() {
+  return this.replace(/\s+$/, "");
+};</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="dom-polyfills">8. DOM & Timer Polyfills</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=_1SzmGe4Ps0" target="_blank">setInterval using setTimeout — Frontend Interview</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4xsvn6VUwEo" target="_blank">DOM Polyfills — Piyush Garg</a></li>
+</ul></details>
+
+<h3>setInterval using setTimeout</h3>
+<pre><code>function mySetInterval(callback, delay, ...args) {
+  let timerId;
+  let cancelled = false;
+  
+  function repeat() {
+    if (cancelled) return;
+    callback(...args);
+    timerId = setTimeout(repeat, delay);
+  }
+  
+  timerId = setTimeout(repeat, delay);
+  
+  // Return a way to clear it
+  return {
+    clear() {
+      cancelled = true;
+      clearTimeout(timerId);
+    }
+  };
+}
+
+// Why this is better than native setInterval:
+// - Native setInterval doesn't account for callback execution time
+// - If callback takes 50ms and interval is 100ms, native fires every 100ms 
+//   (only 50ms gap between callbacks)
+// - This version waits full delay AFTER callback completes</code></pre>
+
+<h3>setTimeout using requestAnimationFrame</h3>
+<pre><code>function mySetTimeout(callback, delay) {
+  const start = performance.now();
+  let rafId;
+  
+  function check(currentTime) {
+    if (currentTime - start >= delay) {
+      callback();
+    } else {
+      rafId = requestAnimationFrame(check);
+    }
+  }
+  
+  rafId = requestAnimationFrame(check);
+  
+  return { clear: () => cancelAnimationFrame(rafId) };
+}</code></pre>
+
+<h3>document.querySelectorAll (simplified)</h3>
+<pre><code>// Simplified recursive DOM selector (interview context):
+function querySelectorAll(root, selector) {
+  const results = [];
+  
+  function walk(node) {
+    if (node.nodeType !== 1) return; // Element nodes only
+    
+    if (node.matches(selector)) {
+      results.push(node);
+    }
+    
+    for (const child of node.children) {
+      walk(child);
+    }
+  }
+  
+  for (const child of root.children) {
+    walk(child);
+  }
+  
+  return results;
+}</code></pre>
+
+<h3>Event Target (addEventListener/removeEventListener)</h3>
+<pre><code>class MyEventTarget {
+  #listeners = new Map();
+  
+  addEventListener(type, callback, options = {}) {
+    if (!this.#listeners.has(type)) {
+      this.#listeners.set(type, []);
+    }
+    
+    const listener = { callback, once: options.once || false };
+    this.#listeners.get(type).push(listener);
+  }
+  
+  removeEventListener(type, callback) {
+    const listeners = this.#listeners.get(type);
+    if (!listeners) return;
+    
+    this.#listeners.set(
+      type,
+      listeners.filter(l => l.callback !== callback)
+    );
+  }
+  
+  dispatchEvent(event) {
+    const type = event.type || event;
+    const listeners = this.#listeners.get(type);
+    if (!listeners) return;
+    
+    const toRemove = [];
+    
+    for (const listener of [...listeners]) {
+      listener.callback(event);
+      if (listener.once) toRemove.push(listener);
+    }
+    
+    // Remove once listeners
+    toRemove.forEach(l => {
+      const idx = listeners.indexOf(l);
+      if (idx > -1) listeners.splice(idx, 1);
+    });
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="machine-coding">9. Machine Coding: JSON.stringify from Scratch</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=0k3TiBAc9BM" target="_blank">Implement JSON.stringify — Frontend Interview</a></li>
+  <li><a href="https://www.youtube.com/watch?v=gSMdCnxvjXI" target="_blank">JSON Polyfill Complete — Tech Dose</a></li>
+</ul></details>
+
+<pre><code>function myJSONStringify(value, replacer, space) {
+  const indent = typeof space === "number" ? " ".repeat(space) : (space || "");
+  
+  function stringify(val, depth, key) {
+    // Apply replacer if provided
+    if (typeof replacer === "function") {
+      val = replacer(key, val);
+    }
+    
+    // Handle primitives
+    if (val === null) return "null";
+    if (val === undefined || typeof val === "function" || typeof val === "symbol") {
+      return undefined; // Omitted from objects, becomes null in arrays
+    }
+    if (typeof val === "boolean") return String(val);
+    if (typeof val === "number") {
+      if (!isFinite(val)) return "null"; // Infinity, -Infinity, NaN → null
+      return String(val);
+    }
+    if (typeof val === "string") return `"${escapeString(val)}"`;
+    if (typeof val === "bigint") throw new TypeError("BigInt value can't be serialized in JSON");
+    
+    // Handle toJSON method
+    if (val !== null && typeof val === "object" && typeof val.toJSON === "function") {
+      return stringify(val.toJSON(key), depth, key);
+    }
+    
+    // Handle Date
+    if (val instanceof Date) {
+      return `"${val.toISOString()}"`;
+    }
+    
+    // Handle Array
+    if (Array.isArray(val)) {
+      if (val.length === 0) return "[]";
+      
+      const items = val.map((item, i) => {
+        const str = stringify(item, depth + 1, String(i));
+        return str === undefined ? "null" : str; // undefined → null in arrays
+      });
+      
+      if (!indent) return `[${items.join(",")}]`;
+      
+      const currentIndent = indent.repeat(depth + 1);
+      const closingIndent = indent.repeat(depth);
+      return `[\n${items.map(i => currentIndent + i).join(",\n")}\n${closingIndent}]`;
+    }
+    
+    // Handle Object
+    if (typeof val === "object") {
+      let keys = Object.keys(val);
+      
+      // Array replacer acts as allowlist
+      if (Array.isArray(replacer)) {
+        keys = keys.filter(k => replacer.includes(k));
+      }
+      
+      const pairs = [];
+      for (const k of keys) {
+        const str = stringify(val[k], depth + 1, k);
+        if (str !== undefined) { // Skip undefined values
+          pairs.push(`"${escapeString(k)}":${indent ? " " : ""}${str}`);
+        }
+      }
+      
+      if (pairs.length === 0) return "{}";
+      
+      if (!indent) return `{${pairs.join(",")}}`;
+      
+      const currentIndent = indent.repeat(depth + 1);
+      const closingIndent = indent.repeat(depth);
+      return `{\n${pairs.map(p => currentIndent + p).join(",\n")}\n${closingIndent}}`;
+    }
+    
+    return undefined;
+  }
+  
+  function escapeString(str) {
+    return str
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "\\n")
+      .replace(/\r/g, "\\r")
+      .replace(/\t/g, "\\t")
+      .replace(/[\b]/g, "\\b")
+      .replace(/\f/g, "\\f");
+  }
+  
+  const result = stringify(value, 0, "");
+  return result === undefined ? undefined : result;
+}
+
+// Tests:
+myJSONStringify({ a: 1, b: "hello", c: null, d: undefined }); 
+// '{"a":1,"b":"hello","c":null}' (d omitted!)
+
+myJSONStringify([1, undefined, null, "test"]);
+// '[1,null,null,"test"]' (undefined → null in arrays!)
+
+myJSONStringify({ a: 1 }, null, 2);
+// Pretty-printed with 2-space indent</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="machine-scheduler">10. Machine Coding: Async Task Scheduler</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=nByBY_1Fkjo" target="_blank">Async Task Queue — Frontend Engineer</a></li>
+  <li><a href="https://www.youtube.com/watch?v=0k3TiBAc9BM" target="_blank">Concurrency Control — JS Interview</a></li>
+</ul></details>
+
+<pre><code>// Async Task Scheduler with concurrency limit
+// Asked at: Amazon, Google, Uber, Atlassian
+class TaskScheduler {
+  #concurrency;
+  #running = 0;
+  #queue = [];
+  #results = new Map();
+  #taskId = 0;
+  
+  constructor(concurrency = 3) {
+    this.#concurrency = concurrency;
+  }
+  
+  // Add a task (returns a promise that resolves with the task result)
+  add(task, priority = 0) {
+    const id = ++this.#taskId;
+    
+    return new Promise((resolve, reject) => {
+      const wrappedTask = { id, task, priority, resolve, reject };
+      
+      // Insert in priority order (higher priority first)
+      const insertIndex = this.#queue.findIndex(t => t.priority < priority);
+      if (insertIndex === -1) {
+        this.#queue.push(wrappedTask);
+      } else {
+        this.#queue.splice(insertIndex, 0, wrappedTask);
+      }
+      
+      this.#run();
+    });
+  }
+  
+  #run() {
+    while (this.#running < this.#concurrency && this.#queue.length > 0) {
+      const { task, resolve, reject, id } = this.#queue.shift();
+      this.#running++;
+      
+      Promise.resolve(task())
+        .then(result => {
+          this.#results.set(id, { status: "fulfilled", value: result });
+          resolve(result);
+        })
+        .catch(error => {
+          this.#results.set(id, { status: "rejected", reason: error });
+          reject(error);
+        })
+        .finally(() => {
+          this.#running--;
+          this.#run(); // Pick next task
+        });
+    }
+  }
+  
+  get pending() { return this.#queue.length; }
+  get active() { return this.#running; }
+  
+  // Wait for all current tasks to complete
+  async drain() {
+    while (this.#running > 0 || this.#queue.length > 0) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+  }
+}
+
+// ═══════ USAGE ═══════
+const scheduler = new TaskScheduler(2); // Max 2 concurrent
+
+const delay = (ms, val) => () => new Promise(r => setTimeout(() => r(val), ms));
+
+// Add 5 tasks but only 2 run at a time:
+scheduler.add(delay(1000, "A")).then(v => console.log(v)); // After 1s: "A"
+scheduler.add(delay(500, "B")).then(v => console.log(v));  // After 0.5s: "B"
+scheduler.add(delay(800, "C")).then(v => console.log(v));  // Waits for B, then 0.8s: "C"
+scheduler.add(delay(200, "D"), 10).then(v => console.log(v)); // HIGH PRIORITY!
+scheduler.add(delay(300, "E")).then(v => console.log(v));
+
+// Output order: B, D (high priority), A, C, E</code></pre>
+
+<h3>Simpler Version (for 30-min interviews)</h3>
+<pre><code>// If they just ask "implement parallel execution with limit":
+async function parallelLimit(tasks, limit) {
+  const results = [];
+  const executing = new Set();
+  
+  for (const [index, task] of tasks.entries()) {
+    const promise = Promise.resolve(task()).then(result => {
+      executing.delete(promise);
+      results[index] = result;
+    });
+    executing.add(promise);
+    
+    if (executing.size >= limit) {
+      await Promise.race(executing);
+    }
+  }
+  
+  await Promise.all(executing);
+  return results;
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="machine-retry">11. Machine Coding: Retry with Backoff & Circuit Breaker</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=jKATIMjIzIo" target="_blank">Retry Pattern — System Design Interview</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ADHcBxEXvFA" target="_blank">Circuit Breaker Pattern — Hussein Nasser</a></li>
+</ul></details>
+
+<h3>Retry with Exponential Backoff</h3>
+<pre><code>async function retryWithBackoff(fn, options = {}) {
+  const {
+    maxRetries = 3,
+    baseDelay = 1000,
+    maxDelay = 30000,
+    backoffFactor = 2,
+    jitter = true,         // Add randomness to prevent thundering herd
+    retryOn = () => true,  // Predicate: should we retry this error?
+    onRetry = () => {},    // Callback before each retry
+  } = options;
+  
+  let lastError;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn(attempt);
+    } catch (error) {
+      lastError = error;
+      
+      if (attempt === maxRetries || !retryOn(error, attempt)) {
+        throw error;
+      }
+      
+      // Calculate delay with exponential backoff
+      let delay = Math.min(baseDelay * backoffFactor ** attempt, maxDelay);
+      
+      // Add jitter (±25%) to prevent all clients retrying simultaneously
+      if (jitter) {
+        delay = delay * (0.75 + Math.random() * 0.5);
+      }
+      
+      onRetry({ attempt, delay, error });
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError;
+}
+
+// Usage:
+const data = await retryWithBackoff(
+  async (attempt) => {
+    console.log(`Attempt ${attempt + 1}...`);
+    const res = await fetch("/api/unstable-endpoint");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  },
+  {
+    maxRetries: 5,
+    baseDelay: 1000,
+    retryOn: (error) => {
+      // Only retry on network errors or 5xx
+      return error.message.includes("5") || error.name === "TypeError";
+    },
+    onRetry: ({ attempt, delay }) => {
+      console.log(`Retrying in ${Math.round(delay)}ms...`);
+    }
+  }
+);</code></pre>
+
+<h3>Circuit Breaker Pattern</h3>
+<pre><code>// Prevents cascading failures by stopping requests to a failing service
+class CircuitBreaker {
+  #state = "CLOSED";      // CLOSED → requests pass through
+  #failureCount = 0;      // OPEN → requests immediately rejected
+  #successCount = 0;      // HALF_OPEN → limited requests pass through
+  #lastFailureTime = null;
+  #options;
+  
+  constructor(fn, options = {}) {
+    this.fn = fn;
+    this.#options = {
+      failureThreshold: options.failureThreshold || 5,
+      successThreshold: options.successThreshold || 3,
+      timeout: options.timeout || 30000, // Time before trying again
+      ...options
+    };
+  }
+  
+  get state() { return this.#state; }
+  
+  async call(...args) {
+    if (this.#state === "OPEN") {
+      // Check if timeout has elapsed → transition to HALF_OPEN
+      if (Date.now() - this.#lastFailureTime >= this.#options.timeout) {
+        this.#state = "HALF_OPEN";
+        this.#successCount = 0;
+      } else {
+        throw new Error(`Circuit breaker is OPEN. Service unavailable.`);
+      }
+    }
+    
+    try {
+      const result = await this.fn(...args);
+      this.#onSuccess();
+      return result;
+    } catch (error) {
+      this.#onFailure();
+      throw error;
+    }
+  }
+  
+  #onSuccess() {
+    if (this.#state === "HALF_OPEN") {
+      this.#successCount++;
+      if (this.#successCount >= this.#options.successThreshold) {
+        this.#state = "CLOSED"; // Recovery!
+        this.#failureCount = 0;
+      }
+    } else {
+      this.#failureCount = 0;
+    }
+  }
+  
+  #onFailure() {
+    this.#failureCount++;
+    this.#lastFailureTime = Date.now();
+    
+    if (this.#failureCount >= this.#options.failureThreshold) {
+      this.#state = "OPEN"; // Trip the circuit!
+    }
+  }
+  
+  reset() {
+    this.#state = "CLOSED";
+    this.#failureCount = 0;
+    this.#successCount = 0;
+  }
+}
+
+// Usage:
+const apiBreaker = new CircuitBreaker(
+  (url) => fetch(url).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
+  { failureThreshold: 3, timeout: 10000 }
+);
+
+try {
+  const data = await apiBreaker.call("/api/data");
+} catch (e) {
+  if (e.message.includes("Circuit breaker")) {
+    // Show cached data or fallback UI
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="machine-lru">12. Machine Coding: LRU Cache with TTL</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=7ABFKPK2hD4" target="_blank">LRU Cache Implementation — NeetCode</a></li>
+  <li><a href="https://www.youtube.com/watch?v=S6IfqDXWa10" target="_blank">LRU Cache JS — AlgoExpert</a></li>
+</ul></details>
+
+<pre><code>// LRU Cache with TTL, max size, and event hooks
+class LRUCache {
+  #capacity;
+  #cache = new Map(); // Map maintains insertion order
+  #ttl;
+  
+  constructor(capacity = 100, ttl = Infinity) {
+    this.#capacity = capacity;
+    this.#ttl = ttl;
+  }
+  
+  get(key) {
+    if (!this.#cache.has(key)) return undefined;
+    
+    const entry = this.#cache.get(key);
+    
+    // Check TTL
+    if (this.#isExpired(entry)) {
+      this.#cache.delete(key);
+      return undefined;
+    }
+    
+    // Move to end (most recently used)
+    this.#cache.delete(key);
+    this.#cache.set(key, entry);
+    
+    return entry.value;
+  }
+  
+  set(key, value, ttl) {
+    // Delete existing to update position
+    if (this.#cache.has(key)) {
+      this.#cache.delete(key);
+    }
+    
+    // Evict least recently used if at capacity
+    if (this.#cache.size >= this.#capacity) {
+      const lruKey = this.#cache.keys().next().value; // First = oldest
+      this.#cache.delete(lruKey);
+    }
+    
+    this.#cache.set(key, {
+      value,
+      createdAt: Date.now(),
+      ttl: ttl || this.#ttl
+    });
+    
+    return this;
+  }
+  
+  has(key) {
+    if (!this.#cache.has(key)) return false;
+    if (this.#isExpired(this.#cache.get(key))) {
+      this.#cache.delete(key);
+      return false;
+    }
+    return true;
+  }
+  
+  delete(key) {
+    return this.#cache.delete(key);
+  }
+  
+  clear() {
+    this.#cache.clear();
+  }
+  
+  get size() {
+    // Purge expired entries and return actual size
+    this.#purgeExpired();
+    return this.#cache.size;
+  }
+  
+  #isExpired(entry) {
+    if (entry.ttl === Infinity) return false;
+    return Date.now() - entry.createdAt > entry.ttl;
+  }
+  
+  #purgeExpired() {
+    for (const [key, entry] of this.#cache) {
+      if (this.#isExpired(entry)) this.#cache.delete(key);
+    }
+  }
+  
+  // Get all valid entries (useful for persistence)
+  entries() {
+    this.#purgeExpired();
+    return [...this.#cache.entries()].map(([key, entry]) => [key, entry.value]);
+  }
+}
+
+// ═══════ USAGE ═══════
+const cache = new LRUCache(3, 5000); // capacity 3, TTL 5 seconds
+
+cache.set("a", 1);
+cache.set("b", 2);
+cache.set("c", 3);
+cache.get("a");     // 1 — moves "a" to most-recent
+cache.set("d", 4);  // Evicts "b" (least recently used)
+cache.get("b");     // undefined (evicted!)
+cache.get("a");     // 1 (still there, was recently accessed)
+
+// With custom TTL per entry:
+cache.set("temp", "data", 1000); // Expires in 1 second</code></pre>
+
+<div class="callout">
+<strong>💡 Interview Follow-ups:</strong>
+<ul>
+  <li>How would you make this thread-safe? (Web Workers + SharedArrayBuffer)</li>
+  <li>How would you persist across page reloads? (serialize to localStorage/IndexedDB)</li>
+  <li>How would you implement cache invalidation patterns? (tag-based: group keys by tag, invalidate all at once)</li>
+  <li>How would you add LFU (Least Frequently Used) eviction? (track access count per key)</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="interview">
+<h4>🎯 Phase 9 Summary — Key Polyfill Interview Tips</h4>
+<ul>
+<li><strong>Always handle edge cases:</strong> null/undefined this, empty arrays, sparse arrays</li>
+<li><strong>Use Symbol for temp properties</strong> (in call/apply polyfills) to avoid collisions</li>
+<li><strong>Promise implementation:</strong> Must handle thenables, microtask scheduling, single resolution</li>
+<li><strong>Know which methods mutate vs return new:</strong> splice mutates; slice/map/filter return new</li>
+<li><strong>Discuss time/space complexity</strong> of your implementations</li>
+<li><strong>Mention production concerns:</strong> memory leaks in memoize (need cache limit), throttle trailing edge</li>
+</ul>
+</div>
+
+<div class="nav-links">
+  <a href="phase8-advanced-interview-masterclass.html">← Phase 8: Advanced Masterclass</a>
+  <a href="phase10-output-prediction-tricky.html">Phase 10: Output Prediction →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

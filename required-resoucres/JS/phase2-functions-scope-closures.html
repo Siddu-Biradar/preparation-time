@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 2: Functions, Scope & Closures</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 2: Functions, Scope & Closures</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (2 of 8)</p>
+  <div class="pill-row">
+    <span class="pill">Function Types</span>
+    <span class="pill">Scope Chain</span>
+    <span class="pill">Hoisting</span>
+    <span class="pill">Closures</span>
+    <span class="pill">this Keyword</span>
+    <span class="pill">call/apply/bind</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#function-types">Function Declarations, Expressions & Arrow Functions</a></li>
+    <li><a href="#params">Parameters, Arguments & Rest/Spread</a></li>
+    <li><a href="#scope">Scope (Global, Function, Block, Lexical)</a></li>
+    <li><a href="#hoisting">Hoisting Deep Dive</a></li>
+    <li><a href="#closures">Closures (Complete Mastery)</a></li>
+    <li><a href="#iife">IIFE (Immediately Invoked Function Expressions)</a></li>
+    <li><a href="#hof">Higher-Order Functions & Callbacks</a></li>
+    <li><a href="#this">The 'this' Keyword (All Rules)</a></li>
+    <li><a href="#call-apply-bind">call(), apply(), bind()</a></li>
+    <li><a href="#currying">Currying & Partial Application</a></li>
+    <li><a href="#recursion">Recursion & Tail Call Optimization</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="function-types">1. Function Declarations, Expressions & Arrow Functions</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=SHINoHxvTso" target="_blank">Functions in JS — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=gigtS_5KOqo" target="_blank">Arrow Functions — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=iLWTnMzWtj4" target="_blank">Function Expressions vs Declarations — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Function Declaration (Statement)</h4>
+<pre><code>// Fully hoisted — can be called BEFORE declaration
+greet("Sid"); // Works!
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+// Characteristics:
+// - Hoisted completely (both name and body)
+// - Creates its own 'this' binding
+// - Has 'arguments' object
+// - Can be named (useful for recursion)
+// - Has .name property: greet.name === "greet"</code></pre>
+
+<h4>Function Expression</h4>
+<pre><code>// NOT hoisted — variable is hoisted but as undefined
+// greet("Sid"); // TypeError: greet is not a function
+
+const greet = function(name) {
+  return `Hello, ${name}!`;
+};
+
+// Named Function Expression (NFE) — name only accessible inside
+const factorial = function fact(n) {
+  return n <= 1 ? 1 : n * fact(n - 1); // 'fact' available inside
+};
+// fact(5); // ReferenceError — not accessible outside
+factorial.name; // "fact" (not "factorial")</code></pre>
+
+<h4>Arrow Functions (ES6)</h4>
+<pre><code>// Concise syntax
+const add = (a, b) => a + b;       // implicit return (expression)
+const square = x => x * x;         // single param: no parentheses needed
+const getRandom = () => Math.random(); // no params: () required
+const getObj = () => ({ key: "value" }); // return object: wrap in ()
+
+// Block body (explicit return needed)
+const greet = (name) => {
+  const message = `Hello, ${name}!`;
+  return message;
+};
+
+// KEY DIFFERENCES from regular functions:
+// 1. NO own 'this' — inherits from enclosing lexical scope
+// 2. NO 'arguments' object (use ...rest instead)
+// 3. Cannot be used as constructor (no 'new')
+// 4. NO 'prototype' property
+// 5. Cannot be used as generator (no yield)
+// 6. No own 'super' binding
+
+// 'this' difference example:
+const obj = {
+  name: "Sid",
+  regularMethod: function() {
+    console.log(this.name); // "Sid" — this = obj
+    setTimeout(function() {
+      console.log(this.name); // undefined — this = window!
+    }, 100);
+  },
+  arrowMethod: function() {
+    console.log(this.name); // "Sid"
+    setTimeout(() => {
+      console.log(this.name); // "Sid" — arrow inherits 'this'!
+    }, 100);
+  }
+};</code></pre>
+
+<h4>Comparison Table</h4>
+<table>
+<tr><th>Feature</th><th>Declaration</th><th>Expression</th><th>Arrow</th></tr>
+<tr><td>Hoisted</td><td>✅ Fully</td><td>❌ Only var name</td><td>❌ Only var name</td></tr>
+<tr><td>Own this</td><td>✅</td><td>✅</td><td>❌ (lexical)</td></tr>
+<tr><td>arguments</td><td>✅</td><td>✅</td><td>❌</td></tr>
+<tr><td>new keyword</td><td>✅</td><td>✅</td><td>❌</td></tr>
+<tr><td>prototype</td><td>✅</td><td>✅</td><td>❌</td></tr>
+<tr><td>Syntax</td><td>function name(){}</td><td>const x = function(){}</td><td>const x = () => {}</td></tr>
+</table>
+
+<div class="callout warning">
+<strong>Angular Note:</strong> In Angular components, always use arrow functions for callbacks (setTimeout, subscribe, etc.) to preserve component's <code>this</code>. But define class methods as regular methods (TypeScript handles <code>this</code> via the class context).
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What are the differences between arrow functions and regular functions?</p>
+<p><strong>Answer:</strong> Arrow functions: (1) no own 'this' (lexical), (2) no 'arguments' object, (3) can't be constructors, (4) no prototype, (5) can't be generators. They're best for callbacks and short operations; not for object methods or constructors.</p>
+
+<p><span class="difficulty d-hard">Hard</span> When should you NOT use arrow functions?</p>
+<p><strong>Answer:</strong> (1) Object methods that need 'this', (2) Event handlers that need 'this' to be the element, (3) Prototype methods, (4) Constructors, (5) Functions that need 'arguments' object, (6) Dynamic context functions used with call/apply/bind (won't work — arrow's this can't be overridden).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="params">2. Parameters, Arguments & Rest/Spread</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=iLx4ma8ZqvQ" target="_blank">Rest & Spread Operators — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=NIq3qLaHCIs" target="_blank">Default Parameters — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Default Parameters (ES6)</h4>
+<pre><code>// Old way (ES5)
+function greet(name) {
+  name = name || "World"; // Bug: "" would also use default!
+}
+
+// Modern way (ES6)
+function greet(name = "World") {
+  return `Hello, ${name}!`;
+}
+greet();         // "Hello, World!"
+greet("Sid");    // "Hello, Sid!"
+greet(undefined); // "Hello, World!" (undefined triggers default)
+greet(null);     // "Hello, null!" (null does NOT trigger default)
+greet("");       // "Hello, !" (empty string does NOT trigger default)
+
+// Default can use previous params
+function createUser(name, role = "user", id = `${name}_${Date.now()}`) {
+  return { name, role, id };
+}
+
+// Default with destructuring
+function config({ host = "localhost", port = 3000 } = {}) {
+  return `${host}:${port}`;
+}
+config();                    // "localhost:3000"
+config({ port: 8080 });     // "localhost:8080"</code></pre>
+
+<h4>arguments Object</h4>
+<pre><code>// 'arguments' is array-LIKE (not a real array)
+function sum() {
+  console.log(arguments);        // { 0: 1, 1: 2, 2: 3, length: 3 }
+  console.log(arguments.length); // 3
+  // No array methods! (no map, filter, reduce)
+  
+  // Convert to real array:
+  const args = Array.from(arguments);
+  // or: const args = [...arguments];
+  // or: const args = Array.prototype.slice.call(arguments);
+  
+  return args.reduce((sum, n) => sum + n, 0);
+}
+sum(1, 2, 3); // 6
+
+// ⚠️ arguments is NOT available in arrow functions
+const arrowSum = () => {
+  console.log(arguments); // ReferenceError (or refers to outer scope's arguments)
+};</code></pre>
+
+<h4>Rest Parameters (...rest)</h4>
+<pre><code>// Modern replacement for arguments — gives REAL array
+function sum(...numbers) {
+  return numbers.reduce((total, n) => total + n, 0);
+}
+sum(1, 2, 3, 4); // 10
+
+// Must be LAST parameter
+function logActivity(action, ...details) {
+  console.log(`Action: ${action}`);
+  console.log(`Details: ${details.join(", ")}`);
+}
+logActivity("click", "button", "header", "nav");
+
+// Destructuring with rest
+function first([head, ...tail]) {
+  return { head, tail };
+}
+first([1, 2, 3, 4]); // { head: 1, tail: [2, 3, 4] }</code></pre>
+
+<h4>Spread Operator (...spread)</h4>
+<pre><code>// Spread in function calls
+const nums = [3, 1, 4, 1, 5];
+Math.max(...nums); // 5 (same as Math.max(3,1,4,1,5))
+
+// Spread in arrays (shallow copy)
+const original = [1, 2, 3];
+const copy = [...original];       // new array
+const combined = [...original, 4, 5]; // [1,2,3,4,5]
+const merged = [...arr1, ...arr2];
+
+// Spread in objects (shallow copy)
+const user = { name: "Sid", age: 25 };
+const updated = { ...user, age: 26 }; // override age
+const full = { ...user, role: "dev" }; // add property
+
+// ⚠️ Spread is SHALLOW — nested objects still share reference
+const nested = { a: 1, b: { c: 2 } };
+const clone = { ...nested };
+clone.b.c = 99;
+console.log(nested.b.c); // 99 — shared reference!</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is the difference between rest and spread?</p>
+<p><strong>Answer:</strong> Same syntax (...) but opposite purposes. Rest COLLECTS multiple elements into an array (function params, destructuring). Spread EXPANDS an iterable into individual elements (function calls, array/object literals). Rest is always at receiving side, Spread at giving side.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What happens if you pass undefined vs null for a default parameter?</p>
+<p><strong>Answer:</strong> undefined triggers the default value. null does NOT — it's treated as an intentional value. This is because default params check <code>argument === undefined</code>.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="scope">3. Scope (Global, Function, Block, Lexical)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=uH-tVP8MUs8" target="_blank">Scope & Scope Chain — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=_E96W6ivHng" target="_blank">JS Scope Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=dRAGbx8GCzs" target="_blank">Lexical Scope — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Types of Scope</h4>
+<pre><code>// 1. GLOBAL SCOPE — accessible everywhere
+var globalVar = "I'm global";     // window.globalVar (var only)
+let globalLet = "I'm global too"; // NOT on window
+// Variables declared without keyword (sloppy mode) are global
+
+// 2. FUNCTION SCOPE — accessible within the function
+function myFunc() {
+  var funcScoped = "only here";
+  let alsoHere = "only here too";
+  // Both accessible within this function and nested functions
+}
+// funcScoped — ReferenceError outside
+
+// 3. BLOCK SCOPE — {} creates scope for let/const (NOT var)
+{
+  var x = 1;   // LEAKS out! (function-scoped)
+  let y = 2;   // Block-scoped
+  const z = 3; // Block-scoped
+}
+console.log(x); // 1
+// console.log(y); // ReferenceError
+// console.log(z); // ReferenceError
+
+// if, for, while, switch all create block scopes for let/const
+if (true) {
+  let blockVar = "trapped";
+}
+// blockVar — ReferenceError
+
+// 4. MODULE SCOPE — each ES module has its own scope
+// Variables in a module are NOT global (unlike script tags)</code></pre>
+
+<h4>Lexical Scope (Static Scope)</h4>
+<pre><code>// Scope is determined by WHERE code is WRITTEN, not where it's called
+function outer() {
+  let secret = "lexical!";
+  
+  function inner() {
+    console.log(secret); // Can access — inner is WRITTEN inside outer
+  }
+  
+  return inner;
+}
+
+const fn = outer();
+fn(); // "lexical!" — still has access! (this is closure)
+
+// Scope Chain: inner → outer → global
+// Engine looks up the chain until it finds the variable or reaches global</code></pre>
+
+<h4>Scope Chain Visualization</h4>
+<pre><code>let a = "global";
+
+function first() {
+  let b = "first";
+  
+  function second() {
+    let c = "second";
+    
+    function third() {
+      let d = "third";
+      console.log(a); // "global" — found in global scope
+      console.log(b); // "first" — found in first's scope
+      console.log(c); // "second" — found in second's scope
+      console.log(d); // "third" — found in own scope
+    }
+    third();
+  }
+  second();
+}
+first();
+
+/*
+Scope Chain for third():
+  third's scope { d } 
+    → second's scope { c }
+      → first's scope { b }
+        → global scope { a }
+*/</code></pre>
+
+<h4>Variable Shadowing</h4>
+<pre><code>let x = 10;
+
+function shadow() {
+  let x = 20; // Shadows outer x
+  console.log(x); // 20
+  
+  if (true) {
+    let x = 30; // Shadows function x
+    console.log(x); // 30
+  }
+  
+  console.log(x); // 20 (block x is gone)
+}
+
+shadow();
+console.log(x); // 10 (global x unchanged)
+
+// ILLEGAL shadowing: let cannot be shadowed by var in same scope
+let y = 10;
+{
+  var y = 20; // SyntaxError! var would escape block and conflict
+}</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 1:</strong> Predict the output:</p>
+<pre><code>function test() {
+  console.log(a); // ?
+  console.log(b); // ?
+  var a = 1;
+  let b = 2;
+}
+test();
+
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log("var:", i), 0);
+}
+for (let j = 0; j < 3; j++) {
+  setTimeout(() => console.log("let:", j), 0);
+}</code></pre>
+<p><strong>Answer:</strong> undefined, ReferenceError (TDZ). var loop: 3,3,3. let loop: 0,1,2.</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is lexical scope?</p>
+<p><strong>Answer:</strong> Lexical (static) scope means a function's scope is determined by where it's defined in the source code, not where it's called. Inner functions can access variables from outer functions because the scope chain is established at write-time. This is the foundation of closures.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How does the scope chain resolution work?</p>
+<p><strong>Answer:</strong> When a variable is accessed, the engine first checks the current scope's Environment Record. If not found, it follows the [[OuterEnv]] reference to the parent scope, continuing up the chain until reaching global scope. If still not found → ReferenceError. This chain is created at function definition time (lexically).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="hoisting">4. Hoisting Deep Dive</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Fnlnw8uY6jo" target="_blank">Hoisting in JavaScript — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=EvfRXyKa_GI" target="_blank">Hoisting Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ppMlvGMT2qE" target="_blank">Hoisting, TDZ & Scope — Lydia Hallie</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p><strong>Hoisting</strong> is JavaScript's behavior of moving declarations to the top of their scope during the creation phase. It's not actually "moving" — it's the engine registering identifiers during the creation phase before executing code.</p>
+
+<h4>What Gets Hoisted and How</h4>
+<pre><code>// 1. var — hoisted with initialization to 'undefined'
+console.log(x); // undefined
+var x = 5;
+// Behaves as if:
+// var x = undefined;  (creation phase)
+// console.log(x);     (execution phase)
+// x = 5;             (execution phase)
+
+// 2. let/const — hoisted but UNINITIALIZED (TDZ)
+// console.log(y); // ReferenceError: Cannot access 'y' before initialization
+let y = 10;
+// They ARE hoisted (engine knows about them), just not initialized
+
+// 3. Function Declaration — FULLY hoisted (name + body)
+sayHello(); // "Hello!" — works before declaration!
+function sayHello() {
+  console.log("Hello!");
+}
+
+// 4. Function Expression — only variable is hoisted
+// greet(); // TypeError: greet is not a function
+var greet = function() { console.log("Hi"); };
+// With var: greet = undefined initially
+// With let/const: TDZ error
+
+// 5. Class — hoisted but NOT initialized (like let/const)
+// new Dog(); // ReferenceError
+class Dog {
+  bark() { console.log("Woof"); }
+}
+
+// 6. import — hoisted to the top (entire module loaded first)
+// This is why you can use imports before they appear in code</code></pre>
+
+<h4>Hoisting Priority (within same scope)</h4>
+<pre><code>// Function declarations are hoisted ABOVE var declarations
+console.log(typeof foo); // "function" (not "undefined")
+var foo = "hello";
+function foo() { return "world"; }
+// After hoisting:
+// function foo() {...}  ← function wins
+// var foo;             ← var ignored (already declared)
+// console.log(typeof foo); → "function"
+// foo = "hello";       ← reassignment</code></pre>
+
+<h4>Tricky Hoisting Scenarios</h4>
+<pre><code>// Scenario 1: Function inside block (non-strict mode behavior varies!)
+// In strict mode / modules: function declarations are block-scoped
+console.log(foo); // undefined (in non-strict) or ReferenceError (strict)
+if (true) {
+  function foo() { return 1; }
+}
+
+// Scenario 2: Hoisting in loops
+for (var i = 0; i < 3; i++) {
+  // var i is hoisted to function/global scope
+}
+console.log(i); // 3 (accessible!)
+
+// Scenario 3: Multiple declarations
+var a = 1;
+var a = 2; // Re-declaration is fine for var
+console.log(a); // 2
+
+// Scenario 4: Function expression with var
+console.log(bar); // undefined
+console.log(bar()); // TypeError: bar is not a function
+var bar = function() { return "bar"; };</code></pre>
+
+<div class="callout">
+<strong>Mental Model:</strong> Don't think of code as "moving." Think of two passes: Pass 1 (creation) registers all identifiers in memory. Pass 2 (execution) runs code line by line. var gets undefined in Pass 1. let/const get "uninitialized" in Pass 1. function declarations get their full body in Pass 1.
+</div>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 2:</strong> Predict the output (very common interview question):</p>
+<pre><code>var a = 1;
+function b() {
+  a = 10;
+  return;
+  function a() {}
+}
+b();
+console.log(a); // ?</code></pre>
+<p><strong>Answer:</strong> 1. Inside b(), <code>function a(){}</code> is hoisted, creating a LOCAL 'a'. Then <code>a = 10</code> modifies the local 'a', not the global one. Global 'a' remains 1.</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> What is the output of: <code>var a = 1; function b() { a = 10; return; function a() {} } b(); console.log(a);</code></p>
+<p><strong>Answer:</strong> Output is 1. function a() {} inside b() is hoisted, creating a local variable 'a' in b's scope. The assignment a = 10 modifies this local 'a', not the global one. The global a remains 1.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Are let and const hoisted? Explain with proof.</p>
+<p><strong>Answer:</strong> Yes! Proof: <code>let x = 'outer'; { console.log(x); let x = 'inner'; }</code> gives ReferenceError (not 'outer'). If let wasn't hoisted, it would print 'outer' from the outer scope. The error proves the engine KNOWS about the inner x (it's hoisted) but won't let you access it until initialization (TDZ).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="closures">5. Closures (Complete Mastery)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=qikxEIxsXco" target="_blank">Closures — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=3a0I8ICR1Vg" target="_blank">Closures Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=vKJpN5FAeF4" target="_blank">Closures — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=aHrvi2ECN_8" target="_blank">Practical Closures — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p><strong>Definition:</strong> A closure is a function that remembers and has access to variables from its <strong>lexical scope</strong> (where it was defined), even when executing outside that scope.</p>
+
+<p>Every function in JavaScript creates a closure. The function maintains a reference to its outer environment (not a copy of variables — the live reference).</p>
+
+<h4>Basic Closure</h4>
+<pre><code>function outer() {
+  let count = 0; // This variable is "closed over"
+  
+  function inner() {
+    count++; // Accesses outer's variable
+    return count;
+  }
+  
+  return inner; // Return the function (not the result)
+}
+
+const counter = outer(); // outer() executes and returns inner
+console.log(counter()); // 1
+console.log(counter()); // 2
+console.log(counter()); // 3
+// 'count' persists between calls because inner has a closure over it!
+// outer's execution context is gone, but count lives on via closure.</code></pre>
+
+<h4>Closure Mental Model</h4>
+<pre><code>/*
+When outer() returns inner(), the inner function is "bundled" with 
+its lexical environment (a reference to outer's scope).
+
+This bundle (function + environment) IS the closure.
+
+┌─────────────────────────────────┐
+│ Closure (returned from outer)   │
+│  ┌────────────────────────────┐ │
+│  │ Function: inner()          │ │
+│  └────────────────────────────┘ │
+│  ┌────────────────────────────┐ │
+│  │ Environment:               │ │
+│  │  { count: 0 }              │ │
+│  │  (reference to             │ │
+│  │   outer's scope)           │ │
+│  └────────────────────────────┘ │
+└─────────────────────────────────┘
+*/</code></pre>
+
+<h4>Practical Closure Patterns</h4>
+<pre><code>// 1. DATA PRIVACY / ENCAPSULATION
+function createBankAccount(initialBalance) {
+  let balance = initialBalance; // Private variable
+  
+  return {
+    deposit(amount) {
+      if (amount > 0) balance += amount;
+      return balance;
+    },
+    withdraw(amount) {
+      if (amount > 0 && amount <= balance) balance -= amount;
+      return balance;
+    },
+    getBalance() {
+      return balance;
+    }
+  };
+}
+
+const account = createBankAccount(1000);
+account.deposit(500);     // 1500
+account.withdraw(200);    // 1300
+account.getBalance();     // 1300
+// account.balance → undefined! Truly private!
+
+// 2. FUNCTION FACTORIES
+function multiplier(factor) {
+  return (number) => number * factor;
+}
+const double = multiplier(2);
+const triple = multiplier(3);
+double(5);  // 10
+triple(5);  // 15
+
+// 3. MEMOIZATION
+function memoize(fn) {
+  const cache = {}; // Closed over
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (key in cache) {
+      console.log("From cache");
+      return cache[key];
+    }
+    const result = fn(...args);
+    cache[key] = result;
+    return result;
+  };
+}
+
+const expensiveCalc = memoize((n) => {
+  console.log("Computing...");
+  return n * n;
+});
+expensiveCalc(5); // "Computing..." → 25
+expensiveCalc(5); // "From cache" → 25
+
+// 4. EVENT HANDLERS (Angular-relevant)
+function setupClickCounter(buttonId) {
+  let clicks = 0; // Private to this setup
+  document.getElementById(buttonId).addEventListener('click', () => {
+    clicks++;
+    console.log(`Button clicked ${clicks} times`);
+  });
+}
+
+// 5. MODULE PATTERN (pre-ES6 modules)
+const Calculator = (function() {
+  let history = []; // Private
+  
+  return {
+    add(a, b) { 
+      const result = a + b;
+      history.push(`${a}+${b}=${result}`);
+      return result;
+    },
+    getHistory() { return [...history]; }
+  };
+})();</code></pre>
+
+<h4>Common Closure Pitfalls</h4>
+<pre><code>// PITFALL 1: Loop with var (CLASSIC interview question)
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100);
+}
+// Output: 3, 3, 3 (all share same 'i' which is 3 after loop)
+
+// FIX 1: Use let (creates new binding per iteration)
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100);
+}
+// Output: 0, 1, 2
+
+// FIX 2: IIFE (creates new scope per iteration)
+for (var i = 0; i < 3; i++) {
+  (function(j) {
+    setTimeout(() => console.log(j), 100);
+  })(i);
+}
+// Output: 0, 1, 2
+
+// FIX 3: setTimeout 3rd argument
+for (var i = 0; i < 3; i++) {
+  setTimeout((j) => console.log(j), 100, i);
+}
+
+// PITFALL 2: Closures hold references, not values
+function buggy() {
+  let result = [];
+  for (var i = 0; i < 3; i++) {
+    result.push(function() { return i; });
+  }
+  return result;
+}
+const fns = buggy();
+fns[0](); // 3 (not 0!)
+fns[1](); // 3 (not 1!)
+fns[2](); // 3 (not 2!)
+// All functions close over the SAME 'i' variable
+
+// PITFALL 3: Memory leaks
+function createLeak() {
+  const hugeData = new Array(1000000).fill("*");
+  return function() {
+    // Even if we don't USE hugeData, it's still in the closure!
+    console.log("I exist");
+  };
+}
+// hugeData can't be garbage collected while the returned function lives</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 3:</strong> Implement a <code>once(fn)</code> function — the returned function only executes fn once:</p>
+<pre><code>function once(fn) {
+  let called = false;
+  let result;
+  return function(...args) {
+    if (!called) {
+      called = true;
+      result = fn(...args);
+    }
+    return result;
+  };
+}
+
+const initialize = once(() => {
+  console.log("Initializing...");
+  return { status: "ready" };
+});
+initialize(); // "Initializing..." → { status: "ready" }
+initialize(); // → { status: "ready" } (no log, returns cached)</code></pre>
+
+<p><strong>Exercise 4:</strong> Implement a <code>createCounter()</code> with increment, decrement, reset, and getValue:</p>
+<pre><code>function createCounter(initial = 0) {
+  let count = initial;
+  return {
+    increment: () => ++count,
+    decrement: () => --count,
+    reset: () => (count = initial),
+    getValue: () => count
+  };
+}</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is a closure? Give a practical example.</p>
+<p><strong>Answer:</strong> A closure is a function bundled with its lexical environment — it retains access to outer scope variables even after the outer function has returned. Practical: data privacy (module pattern), function factories (multiplier), memoization, event handlers that need persistent state.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Explain the classic for-loop setTimeout problem and 3 solutions.</p>
+<p><strong>Answer:</strong> With var, all iterations share one 'i' variable. By the time callbacks run, loop is done and i equals the final value. Solutions: (1) let — creates new binding per iteration, (2) IIFE — creates new scope capturing current i, (3) setTimeout's third argument — passes current i as callback param.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How can closures cause memory leaks?</p>
+<p><strong>Answer:</strong> A closure retains a reference to its entire outer scope, not just used variables (though engines may optimize). If a closure lives long (event handlers, timers), large objects in its scope can't be GC'd. Patterns: DOM event listeners holding component references, setInterval callbacks, unsubscribed observables. Fix: nullify references, remove listeners, use WeakRef.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="iife">6. IIFE (Immediately Invoked Function Expressions)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=GAIbn16Iytc" target="_blank">IIFE Explained — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=8GDk8sj0YgQ" target="_blank">IIFE Pattern — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// IIFE: function that executes immediately after creation
+(function() {
+  console.log("I run immediately!");
+})();
+
+// Arrow IIFE
+(() => {
+  console.log("Arrow IIFE!");
+})();
+
+// Named IIFE (useful for stack traces)
+(function init() {
+  console.log("Named IIFE");
+})();
+
+// With parameters
+(function(global) {
+  global.myLib = { version: "1.0" };
+})(window);
+
+// IIFE returning a value
+const result = (function() {
+  const x = 10;
+  const y = 20;
+  return x + y;
+})(); // result = 30
+
+// Classic use: creating private scope (pre-ES6 modules)
+const module = (function() {
+  let private = 0;
+  
+  return {
+    increment() { private++; },
+    getValue() { return private; }
+  };
+})();
+
+// Modern use: top-level await alternative (before ES2022)
+(async function() {
+  const data = await fetch('/api/data');
+  // ... process data
+})();</code></pre>
+
+<div class="callout">
+<strong>Modern Relevance:</strong> IIFEs are less needed now because ES6 modules provide file-level scope, and let/const provide block scope. However, they still appear in legacy code, library patterns, and interview questions. Angular projects rarely need IIFEs since TypeScript/modules handle scoping.
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What is an IIFE and why was it used?</p>
+<p><strong>Answer:</strong> IIFE is a function that's defined and executed immediately: <code>(function(){})();</code>. Used to create private scope (avoid polluting global), initialize modules, create closures for loops (var problem), and execute async operations at top level. Less needed with ES6 modules and let/const.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="hof">7. Higher-Order Functions & Callbacks</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=HkWxvB1RJq0" target="_blank">Higher-Order Functions — Namaste JavaScript</a></li>
+  <li><a href="https://www.youtube.com/watch?v=rRgD1yVwIvE" target="_blank">Higher-Order Functions — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=H4awPsyugS0" target="_blank">Callbacks Explained — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p>A <strong>Higher-Order Function (HOF)</strong> is a function that: (1) takes one or more functions as arguments, OR (2) returns a function.</p>
+
+<pre><code>// HOF that takes a function (map, filter, reduce, forEach, etc.)
+const numbers = [1, 2, 3, 4, 5];
+
+// map — transform each element
+const doubled = numbers.map(n => n * 2); // [2, 4, 6, 8, 10]
+
+// filter — keep elements passing test
+const evens = numbers.filter(n => n % 2 === 0); // [2, 4]
+
+// reduce — accumulate to single value
+const sum = numbers.reduce((acc, n) => acc + n, 0); // 15
+
+// find — first element passing test
+const found = numbers.find(n => n > 3); // 4
+
+// every — all pass test?
+const allPositive = numbers.every(n => n > 0); // true
+
+// some — any pass test?
+const hasEven = numbers.some(n => n % 2 === 0); // true
+
+// HOF that returns a function
+function withLogging(fn) {
+  return function(...args) {
+    console.log(`Calling ${fn.name} with`, args);
+    const result = fn(...args);
+    console.log(`Result:`, result);
+    return result;
+  };
+}
+
+const loggedAdd = withLogging(function add(a, b) { return a + b; });
+loggedAdd(3, 4); // Logs: "Calling add with [3, 4]" → "Result: 7"</code></pre>
+
+<h4>Building Custom HOFs</h4>
+<pre><code>// Custom map implementation
+function myMap(arr, callback) {
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    result.push(callback(arr[i], i, arr));
+  }
+  return result;
+}
+
+// Custom filter implementation
+function myFilter(arr, callback) {
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (callback(arr[i], i, arr)) {
+      result.push(arr[i]);
+    }
+  }
+  return result;
+}
+
+// Custom reduce implementation
+function myReduce(arr, callback, initialValue) {
+  let acc = initialValue !== undefined ? initialValue : arr[0];
+  let startIdx = initialValue !== undefined ? 0 : 1;
+  for (let i = startIdx; i < arr.length; i++) {
+    acc = callback(acc, arr[i], i, arr);
+  }
+  return acc;
+}
+
+// Function composition
+const compose = (...fns) => (x) => fns.reduceRight((acc, fn) => fn(acc), x);
+const pipe = (...fns) => (x) => fns.reduce((acc, fn) => fn(acc), x);
+
+const transform = pipe(
+  x => x * 2,
+  x => x + 1,
+  x => x.toString()
+);
+transform(5); // "11"</code></pre>
+
+<h4>Callback Pattern & Callback Hell</h4>
+<pre><code>// Callback: function passed to another function to be called later
+function fetchUser(id, callback) {
+  setTimeout(() => {
+    callback({ id, name: "Sid" });
+  }, 1000);
+}
+
+// Callback Hell (Pyramid of Doom)
+fetchUser(1, (user) => {
+  fetchPosts(user.id, (posts) => {
+    fetchComments(posts[0].id, (comments) => {
+      fetchReplies(comments[0].id, (replies) => {
+        // Deep nesting — hard to read, handle errors, maintain
+        console.log(replies);
+      });
+    });
+  });
+});
+// Solution: Promises / async-await (covered in Phase 5)</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 5:</strong> Implement <code>Array.prototype.myReduce</code>:</p>
+<pre><code>Array.prototype.myReduce = function(callback, initialValue) {
+  let accumulator = initialValue !== undefined ? initialValue : this[0];
+  let startIndex = initialValue !== undefined ? 0 : 1;
+  
+  if (initialValue === undefined && this.length === 0) {
+    throw new TypeError("Reduce of empty array with no initial value");
+  }
+  
+  for (let i = startIndex; i < this.length; i++) {
+    accumulator = callback(accumulator, this[i], i, this);
+  }
+  return accumulator;
+};
+
+[1, 2, 3, 4].myReduce((acc, val) => acc + val, 0); // 10</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> Implement Array.prototype.map using reduce.</p>
+<p><strong>Answer:</strong> <code>Array.prototype.myMap = function(cb) { return this.reduce((acc, val, i, arr) => { acc.push(cb(val, i, arr)); return acc; }, []); };</code></p>
+
+<p><span class="difficulty d-hard">Hard</span> Implement a pipe function that composes functions left-to-right.</p>
+<p><strong>Answer:</strong> <code>const pipe = (...fns) => (x) => fns.reduce((acc, fn) => fn(acc), x);</code> This passes the initial value through each function in sequence. For async: <code>const asyncPipe = (...fns) => (x) => fns.reduce((acc, fn) => acc.then(fn), Promise.resolve(x));</code></p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="this">8. The 'this' Keyword (All Rules)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=rv7Q11KWmKU" target="_blank">this keyword — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=gvicrj31JOM" target="_blank">this Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=zE9iro4r918" target="_blank">this keyword — Programming with Mosh</a></li>
+  <li><a href="https://www.youtube.com/watch?v=YOlr79NaAtQ" target="_blank">this in JS — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p><code>this</code> is NOT the function itself. It's NOT the function's scope. It's a runtime binding determined by <strong>how the function is called</strong> (call-site), not where it's defined (except arrow functions).</p>
+
+<h4>The 4 Rules of 'this' (in priority order)</h4>
+<pre><code>// RULE 1: new Binding (highest priority)
+// When function called with 'new', this = newly created object
+function Person(name) {
+  // this = {} (new empty object)
+  this.name = name;
+  // return this (implicit)
+}
+const p = new Person("Sid"); // this = p
+
+// RULE 2: Explicit Binding (call, apply, bind)
+function greet() {
+  console.log(`Hello, ${this.name}`);
+}
+const user = { name: "Sid" };
+greet.call(user);   // "Hello, Sid" — this = user
+greet.apply(user);  // "Hello, Sid" — this = user
+const bound = greet.bind(user);
+bound();            // "Hello, Sid" — this = user (permanently)
+
+// RULE 3: Implicit Binding
+// When function called as object method, this = the object
+const obj = {
+  name: "Sid",
+  greet() {
+    console.log(this.name); // "Sid" — this = obj
+  }
+};
+obj.greet(); // Implicit: obj is the call-site context
+
+// Implicit binding LOST:
+const fn = obj.greet; // Extracting method
+fn(); // undefined — no object context, falls to default rule!
+
+// RULE 4: Default Binding (lowest priority)
+// Standalone function call: this = window (non-strict) or undefined (strict)
+function standalone() {
+  console.log(this); // window (non-strict) / undefined (strict)
+}
+standalone();</code></pre>
+
+<h4>Arrow Function Exception</h4>
+<pre><code>// Arrow functions IGNORE all 4 rules above
+// They inherit 'this' from enclosing LEXICAL scope
+const obj = {
+  name: "Sid",
+  regular() {
+    console.log(this.name); // "Sid" (implicit binding)
+    
+    const arrow = () => {
+      console.log(this.name); // "Sid" (inherited from regular's this)
+    };
+    arrow();
+    
+    function nested() {
+      console.log(this.name); // undefined! (default binding)
+    }
+    nested();
+  }
+};
+
+// Arrow's this CANNOT be overridden
+const arrowFn = () => console.log(this);
+arrowFn.call({ x: 1 });  // still window/global (call has no effect!)
+arrowFn.bind({ x: 1 })(); // still window/global (bind has no effect!)</code></pre>
+
+<h4>'this' in Different Contexts</h4>
+<pre><code>// Global context
+console.log(this); // window (browser) / {} (Node module)
+
+// Inside object method
+const car = {
+  brand: "Tesla",
+  getBrand() { return this.brand; }  // "Tesla"
+};
+
+// Inside constructor
+class Dog {
+  constructor(name) {
+    this.name = name; // this = new instance
+  }
+}
+
+// Inside event handler (DOM)
+button.addEventListener('click', function() {
+  console.log(this); // the button element (implicit binding)
+});
+button.addEventListener('click', () => {
+  console.log(this); // window! (arrow inherits from enclosing scope)
+});
+
+// Inside setTimeout
+const obj2 = {
+  name: "Timer",
+  start() {
+    setTimeout(function() {
+      console.log(this.name); // undefined (default binding)
+    }, 100);
+    setTimeout(() => {
+      console.log(this.name); // "Timer" (arrow inherits)
+    }, 100);
+  }
+};
+
+// Inside class methods (Angular components)
+class MyComponent {
+  name = "Component";
+  
+  handleClick = () => {
+    // Arrow property: 'this' always = instance (safe for callbacks)
+    console.log(this.name);
+  };
+  
+  handleEvent() {
+    // Regular method: 'this' depends on call-site
+    console.log(this.name); // may be undefined if called as callback
+  }
+}</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 6:</strong> Predict 'this' for each console.log:</p>
+<pre><code>const hero = {
+  name: "Batman",
+  getName: function() { return this.name; },
+  getNameArrow: () => this.name,
+  getNameNested: function() {
+    const inner = function() { return this.name; };
+    return inner();
+  },
+  getNameNestedArrow: function() {
+    const inner = () => this.name;
+    return inner();
+  }
+};
+
+console.log(hero.getName());          // ?
+console.log(hero.getNameArrow());     // ?
+console.log(hero.getNameNested());    // ?
+console.log(hero.getNameNestedArrow()); // ?
+
+const extracted = hero.getName;
+console.log(extracted());             // ?</code></pre>
+<p><strong>Answers:</strong> "Batman", undefined (arrow inherits global this), undefined (inner = default binding), "Batman" (arrow inherits from getNameNestedArrow's this), undefined (lost implicit binding)</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Explain all 4 rules of 'this' binding with examples.</p>
+<p><strong>Answer:</strong> Priority: new > explicit > implicit > default. (1) new: this = new object, (2) call/apply/bind: this = specified object, (3) obj.method(): this = obj, (4) standalone(): this = window/undefined. Arrow functions bypass all rules — they lexically inherit this.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How does 'this' work in Angular components? Why do arrow function class properties solve callback issues?</p>
+<p><strong>Answer:</strong> In Angular, component methods use implicit binding (this = component instance when called as this.method()). But when passing methods as callbacks (to addEventListener, subscribe, setTimeout), implicit binding is lost. Arrow function class properties (<code>handleClick = () => {}</code>) solve this because they capture 'this' at instantiation time (in constructor), so they always refer to the component instance regardless of how they're called.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="call-apply-bind">9. call(), apply(), bind()</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=75W8UPQ5l7k" target="_blank">call, apply, bind — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=c0mLRpw-9rI" target="_blank">call & apply — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=rZc7_2YXbP8" target="_blank">bind Explained — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// All three set 'this' explicitly
+function introduce(greeting, punctuation) {
+  return `${greeting}, I'm ${this.name}${punctuation}`;
+}
+const person = { name: "Sid" };
+
+// call — invokes immediately, args passed individually
+introduce.call(person, "Hello", "!");    // "Hello, I'm Sid!"
+
+// apply — invokes immediately, args passed as array
+introduce.apply(person, ["Hi", "."]);    // "Hi, I'm Sid."
+
+// bind — returns NEW function with 'this' permanently set
+const sidIntro = introduce.bind(person);
+sidIntro("Hey", "!");                    // "Hey, I'm Sid!"
+// bind can also partially apply arguments:
+const sidHello = introduce.bind(person, "Hello");
+sidHello("...");                         // "Hello, I'm Sid..."</code></pre>
+
+<h4>Practical Use Cases</h4>
+<pre><code>// 1. Borrowing methods
+const nums = { 0: "a", 1: "b", 2: "c", length: 3 };
+// Array-like object — can't use array methods directly
+const arr = Array.prototype.slice.call(nums); // ["a", "b", "c"]
+// Modern: Array.from(nums)
+
+// 2. Finding max/min of array
+const values = [5, 2, 8, 1, 9];
+Math.max.apply(null, values); // 9
+// Modern: Math.max(...values)
+
+// 3. Preserving context in callbacks
+class Timer {
+  constructor() {
+    this.seconds = 0;
+  }
+  start() {
+    // Without bind: 'this' would be lost in setInterval
+    setInterval(this.tick.bind(this), 1000);
+    // Or use arrow: setInterval(() => this.tick(), 1000);
+  }
+  tick() {
+    this.seconds++;
+    console.log(this.seconds);
+  }
+}
+
+// 4. Function currying with bind
+function multiply(a, b) { return a * b; }
+const double = multiply.bind(null, 2); // first arg fixed to 2
+double(5);  // 10
+double(10); // 20</code></pre>
+
+<h4>Implementing call, apply, bind (Polyfills)</h4>
+<pre><code>// Polyfill for call
+Function.prototype.myCall = function(context, ...args) {
+  context = context || globalThis;
+  const sym = Symbol(); // unique key to avoid conflicts
+  context[sym] = this;  // attach function to context
+  const result = context[sym](...args);
+  delete context[sym];
+  return result;
+};
+
+// Polyfill for apply
+Function.prototype.myApply = function(context, args = []) {
+  context = context || globalThis;
+  const sym = Symbol();
+  context[sym] = this;
+  const result = context[sym](...args);
+  delete context[sym];
+  return result;
+};
+
+// Polyfill for bind
+Function.prototype.myBind = function(context, ...boundArgs) {
+  const fn = this;
+  return function(...callArgs) {
+    return fn.apply(context, [...boundArgs, ...callArgs]);
+  };
+};</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is the difference between call, apply, and bind?</p>
+<p><strong>Answer:</strong> call/apply invoke immediately; bind returns a new function. call passes args individually (fn.call(obj, a, b)), apply passes as array (fn.apply(obj, [a, b])), bind returns function with fixed this and optionally pre-filled args. Mnemonic: call = commas, apply = array.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Implement Function.prototype.bind polyfill.</p>
+<p><strong>Answer:</strong> <code>Function.prototype.myBind = function(ctx, ...bound) { const fn = this; return function(...args) { return fn.apply(ctx, [...bound, ...args]); }; };</code> Key points: returns new function, merges bound + call-time args, uses apply to set context.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="currying">10. Currying & Partial Application</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=vQcCNpuaJO8" target="_blank">Currying in JavaScript — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=dOnAC2Rr-6A" target="_blank">Currying — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=J4MuILjJyBk" target="_blank">Partial Application — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<p><strong>Currying</strong>: Transforming a function with multiple arguments into a sequence of functions each taking a single argument. f(a, b, c) → f(a)(b)(c)</p>
+
+<p><strong>Partial Application</strong>: Fixing a number of arguments to a function, producing a function with fewer arguments. f(a, b, c) with a fixed → g(b, c)</p>
+
+<pre><code>// CURRYING
+// Non-curried
+function add(a, b, c) { return a + b + c; }
+add(1, 2, 3); // 6
+
+// Curried version
+function curriedAdd(a) {
+  return function(b) {
+    return function(c) {
+      return a + b + c;
+    };
+  };
+}
+curriedAdd(1)(2)(3); // 6
+
+// Arrow syntax (cleaner)
+const curriedAdd2 = a => b => c => a + b + c;
+curriedAdd2(1)(2)(3); // 6
+
+// Reusable partially applied functions
+const add5 = curriedAdd(5);
+const add5and3 = add5(3);
+add5and3(2); // 10
+
+// PRACTICAL CURRYING EXAMPLES
+// 1. Logger
+const log = (level) => (module) => (message) =>
+  console.log(`[${level}] [${module}] ${message}`);
+
+const errorLog = log("ERROR");
+const authError = errorLog("Auth");
+authError("Invalid token"); // "[ERROR] [Auth] Invalid token"
+
+// 2. API URL builder
+const apiUrl = (base) => (version) => (endpoint) =>
+  `${base}/api/${version}/${endpoint}`;
+
+const myApi = apiUrl("https://example.com")("v2");
+myApi("users");  // "https://example.com/api/v2/users"
+myApi("posts");  // "https://example.com/api/v2/posts"
+
+// 3. Event handler (Angular-relevant)
+const handleEvent = (eventType) => (handler) => (element) => {
+  element.addEventListener(eventType, handler);
+  return () => element.removeEventListener(eventType, handler);
+};
+const onClick = handleEvent("click");
+const onClickLog = onClick(() => console.log("clicked"));</code></pre>
+
+<h4>Generic Curry Utility</h4>
+<pre><code>// Converts any function into curried form
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn(...args);  // All args received — execute
+    }
+    return function(...more) {
+      return curried(...args, ...more); // Collect more args
+    };
+  };
+}
+
+// Usage:
+const multiply = (a, b, c) => a * b * c;
+const curriedMultiply = curry(multiply);
+
+curriedMultiply(2)(3)(4);    // 24
+curriedMultiply(2, 3)(4);    // 24 (also works with multiple args)
+curriedMultiply(2)(3, 4);    // 24
+
+// Infinite currying (interview favorite)
+function infiniteSum(a) {
+  return function(b) {
+    if (b === undefined) return a;
+    return infiniteSum(a + b);
+  };
+}
+infiniteSum(1)(2)(3)(4)(); // 10</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 7:</strong> Implement <code>sum(1)(2)(3)...(n)()</code> — returns total when called with no args:</p>
+<pre><code>function sum(a) {
+  return function(b) {
+    if (b === undefined) return a;
+    return sum(a + b);
+  };
+}
+console.log(sum(1)(2)(3)(4)()); // 10</code></pre>
+
+<p><strong>Exercise 8:</strong> Implement a generic <code>curry()</code> function:</p>
+<pre><code>function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) return fn(...args);
+    return (...more) => curried(...args, ...more);
+  };
+}</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is currying and how is it useful?</p>
+<p><strong>Answer:</strong> Currying transforms f(a,b,c) into f(a)(b)(c). Benefits: (1) Create reusable specialized functions, (2) Function composition, (3) Partial application, (4) Point-free style. Example: <code>const multiply = a => b => a * b; const double = multiply(2);</code></p>
+
+<p><span class="difficulty d-hard">Hard</span> Implement sum(1)(2)(3)...(n)() that works with infinite arguments.</p>
+<p><strong>Answer:</strong> <code>function sum(a) { return function(b) { return b !== undefined ? sum(a + b) : a; }; }</code> Each call returns a new function that adds to the accumulated value. Calling with no arg returns the total.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="recursion">11. Recursion & Tail Call Optimization</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=k7-N8R0-KY4" target="_blank">Recursion in JS — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=lMBVwYrmFZQ" target="_blank">Recursion — freeCodeCamp</a></li>
+  <li><a href="https://www.youtube.com/watch?v=6oDQaB2one8" target="_blank">Tail Call Optimization — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Recursion: function that calls itself with a base case
+function factorial(n) {
+  if (n <= 1) return 1;     // Base case (stops recursion)
+  return n * factorial(n - 1); // Recursive case
+}
+factorial(5); // 5 * 4 * 3 * 2 * 1 = 120
+
+// Call stack for factorial(4):
+// factorial(4) waiting for factorial(3) × 4
+//   factorial(3) waiting for factorial(2) × 3
+//     factorial(2) waiting for factorial(1) × 2
+//       factorial(1) → returns 1 (base case)
+//     factorial(2) → 1 × 2 = 2
+//   factorial(3) → 2 × 3 = 6
+// factorial(4) → 6 × 4 = 24
+
+// Common recursive patterns:
+// 1. Fibonacci
+function fib(n) {
+  if (n <= 1) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+// ⚠️ O(2^n) — exponential! Use memoization or iteration
+
+// 2. Deep flatten array
+function flatten(arr) {
+  return arr.reduce((flat, item) => {
+    return flat.concat(Array.isArray(item) ? flatten(item) : item);
+  }, []);
+}
+flatten([1, [2, [3, [4]]]]); // [1, 2, 3, 4]
+
+// 3. Deep clone object
+function deepClone(obj) {
+  if (obj === null || typeof obj !== "object") return obj;
+  if (obj instanceof Date) return new Date(obj);
+  if (obj instanceof RegExp) return new RegExp(obj);
+  
+  const clone = Array.isArray(obj) ? [] : {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      clone[key] = deepClone(obj[key]);
+    }
+  }
+  return clone;
+}
+
+// 4. Tree traversal (DOM, file systems)
+function walkDOM(node, callback) {
+  callback(node);
+  node = node.firstElementChild;
+  while (node) {
+    walkDOM(node, callback);
+    node = node.nextElementSibling;
+  }
+}
+
+// 5. Power function
+function power(base, exp) {
+  if (exp === 0) return 1;
+  if (exp < 0) return 1 / power(base, -exp);
+  return base * power(base, exp - 1);
+}</code></pre>
+
+<h4>Tail Call Optimization (TCO)</h4>
+<pre><code>// TCO: when recursive call is the LAST operation, engine can reuse stack frame
+// Only supported in Safari (Strict mode). V8/SpiderMonkey do NOT support TCO.
+
+// NOT tail-recursive (must multiply AFTER the call returns)
+function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1); // has pending operation (multiply)
+}
+
+// TAIL-recursive version (accumulator pattern)
+function factorialTCO(n, acc = 1) {
+  if (n <= 1) return acc;
+  return factorialTCO(n - 1, n * acc); // last operation IS the call
+}
+
+// Converting to iterative (manual TCO — works everywhere)
+function factorialIterative(n) {
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+// Trampoline pattern (simulate TCO in any engine)
+function trampoline(fn) {
+  return function(...args) {
+    let result = fn(...args);
+    while (typeof result === "function") {
+      result = result();
+    }
+    return result;
+  };
+}
+
+const trampolinedFactorial = trampoline(function fact(n, acc = 1) {
+  if (n <= 1) return acc;
+  return () => fact(n - 1, n * acc); // return function, not call
+});
+trampolinedFactorial(100000); // Won't stack overflow!</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 9:</strong> Implement a recursive <code>deepFreeze(obj)</code> that freezes an object and all nested objects:</p>
+<pre><code>function deepFreeze(obj) {
+  Object.freeze(obj);
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] === "object" && obj[key] !== null && !Object.isFrozen(obj[key])) {
+      deepFreeze(obj[key]);
+    }
+  });
+  return obj;
+}</code></pre>
+
+<p><strong>Exercise 10:</strong> Implement recursive <code>flattenObject({ a: { b: { c: 1 } } })</code> → <code>{ "a.b.c": 1 }</code>:</p>
+<pre><code>function flattenObject(obj, prefix = "", result = {}) {
+  for (const key in obj) {
+    const newKey = prefix ? `${prefix}.${key}` : key;
+    if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
+      flattenObject(obj[key], newKey, result);
+    } else {
+      result[newKey] = obj[key];
+    }
+  }
+  return result;
+}</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> Write a recursive function to deep flatten a nested array.</p>
+<p><strong>Answer:</strong> <code>function flatten(arr) { return arr.reduce((flat, item) => flat.concat(Array.isArray(item) ? flatten(item) : item), []); }</code> Or: <code>arr.flat(Infinity)</code> (ES2019).</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is tail call optimization? Is it supported in all engines?</p>
+<p><strong>Answer:</strong> TCO allows the engine to reuse the current stack frame when the recursive call is the last operation (no pending computation). Only Safari supports it (in strict mode). V8 (Chrome/Node) and SpiderMonkey (Firefox) do not implement it. Workarounds: convert to iteration, use trampoline pattern, or accumulator pattern.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="nav-links">
+  <a href="phase1-foundations-how-js-works.html">← Phase 1: Foundations</a>
+  <a href="phase3-objects-arrays-deep-dive.html">Phase 3: Objects & Arrays →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

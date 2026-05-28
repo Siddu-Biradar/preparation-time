@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 6: DOM, Events & Browser APIs</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 6: DOM, Events & Browser APIs</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (6 of 8)</p>
+  <div class="pill-row">
+    <span class="pill">DOM Tree</span>
+    <span class="pill">Event Propagation</span>
+    <span class="pill">Delegation</span>
+    <span class="pill">Mutation Observer</span>
+    <span class="pill">Storage APIs</span>
+    <span class="pill">Web Workers</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#dom-tree">DOM Tree & Node Types</a></li>
+    <li><a href="#selectors">Selecting & Traversing Elements</a></li>
+    <li><a href="#manipulation">DOM Manipulation & Performance</a></li>
+    <li><a href="#events">Event Model (Capturing, Bubbling, Delegation)</a></li>
+    <li><a href="#custom-events">Custom Events & Event Emitter</a></li>
+    <li><a href="#forms">Form Handling & Validation</a></li>
+    <li><a href="#intersection">IntersectionObserver & MutationObserver</a></li>
+    <li><a href="#storage">Web Storage, Cookies & IndexedDB</a></li>
+    <li><a href="#fetch-api">Fetch API & Network</a></li>
+    <li><a href="#workers">Web Workers & Service Workers</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="dom-tree">1. DOM Tree & Node Types</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=v7rSSy8CaYE" target="_blank">DOM Crash Course — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=0ik6X4DJKCc" target="_blank">DOM Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=i-LN2DFgPqw" target="_blank">DOM Deep Dive — Akshay Saini</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// DOM = Document Object Model — tree representation of HTML
+// Browser parses HTML → builds DOM tree → renders pixels
+
+/*
+document (Document node)
+└── html (Element node)
+    ├── head
+    │   ├── title
+    │   │   └── "Page Title" (Text node)
+    │   └── meta
+    └── body
+        ├── div#app
+        │   ├── h1
+        │   │   └── "Hello" (Text node)
+        │   └── p.intro
+        │       └── "Welcome" (Text node)
+        └── <!-- comment --> (Comment node)
+*/
+
+// Node types (nodeType property):
+// 1  = Element (div, p, span)
+// 3  = Text (whitespace counts!)
+// 8  = Comment
+// 9  = Document
+// 11 = DocumentFragment
+
+// Node vs Element:
+// Node: any node in the DOM tree (text, comment, element)
+// Element: specific type of Node that represents HTML tags
+
+const div = document.querySelector("div");
+div.nodeType;     // 1 (Element)
+div.nodeName;     // "DIV"
+div.childNodes;   // NodeList (includes text, comments)
+div.children;     // HTMLCollection (only elements)
+
+// Important: whitespace between tags creates Text nodes!
+// <div> <span>hi</span> </div>
+// div.childNodes → [TextNode(" "), span, TextNode(" ")]
+// div.children → [span]
+
+// Document vs document:
+// Document = interface/constructor
+// document = the actual Document instance for the page</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="selectors">2. Selecting & Traversing Elements</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=eIqm_-oMKmY" target="_blank">DOM Selectors — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Modern selectors (use these):
+document.querySelector(".class");        // First match (or null)
+document.querySelectorAll("div.card");   // Static NodeList
+document.getElementById("app");          // By ID (fastest)
+
+// Older methods (still valid):
+document.getElementsByClassName("card"); // Live HTMLCollection
+document.getElementsByTagName("div");    // Live HTMLCollection
+
+// CRITICAL DIFFERENCE:
+// querySelectorAll → Static NodeList (snapshot, doesn't update)
+// getElementsBy*   → Live HTMLCollection (updates when DOM changes!)
+
+const liveList = document.getElementsByClassName("item");
+const staticList = document.querySelectorAll(".item");
+document.body.innerHTML += '<div class="item">new</div>';
+liveList.length;  // Increased! (live)
+staticList.length; // Same! (static snapshot)
+
+// Traversing (Element-based — skips text/comment nodes):
+element.parentElement;
+element.children;              // HTMLCollection
+element.firstElementChild;
+element.lastElementChild;
+element.nextElementSibling;
+element.previousElementSibling;
+element.closest(".ancestor");  // Closest ancestor matching selector (or self)
+
+// Traversing (Node-based — includes text/comments):
+node.parentNode;
+node.childNodes;               // NodeList
+node.firstChild;
+node.lastChild;
+node.nextSibling;
+node.previousSibling;
+
+// Checking relationships:
+parent.contains(child);        // true if child is descendant
+element.matches(".selector");  // true if element matches CSS selector
+
+// Iterating NodeLists / HTMLCollections:
+const items = document.querySelectorAll("li");
+items.forEach(item => { /* NodeList has forEach */ });
+[...items].map(item => item.textContent); // Convert to array
+
+// HTMLCollection doesn't have forEach!
+const divs = document.getElementsByTagName("div");
+Array.from(divs).forEach(div => { /* ... */ });</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="manipulation">3. DOM Manipulation & Performance</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=y17RuWkWdn8" target="_blank">DOM Manipulation — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=NS5MWnbkr2c" target="_blank">Performance-Optimized DOM — Google Chrome Developers</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Creating elements
+const div = document.createElement("div");
+div.id = "card";
+div.className = "card active"; // Overwrites all classes
+div.classList.add("highlight"); // Add single class
+div.classList.remove("active");
+div.classList.toggle("visible");
+div.classList.contains("card"); // true
+
+// Setting content
+div.textContent = "Safe text (escapes HTML)";
+div.innerHTML = "<strong>Renders HTML</strong>"; // ⚠️ XSS risk with user input!
+div.innerText = "Visible text only"; // Slower (triggers reflow)
+
+// Attributes
+div.setAttribute("data-id", "123");
+div.getAttribute("data-id");      // "123"
+div.dataset.id;                   // "123" (data-* shortcut)
+div.removeAttribute("data-id");
+
+// Styles
+div.style.backgroundColor = "red"; // Inline style
+div.style.cssText = "color: blue; padding: 10px"; // Multiple at once
+getComputedStyle(div).backgroundColor; // Final computed style
+
+// Inserting elements (modern API):
+parent.append(child);          // Append at end (multiple nodes, strings OK)
+parent.prepend(child);         // Insert at start
+parent.before(sibling);       // Before reference
+parent.after(sibling);        // After reference
+element.replaceWith(newEl);   // Replace self
+
+// Older API:
+parent.appendChild(child);     // Returns the child
+parent.insertBefore(newNode, referenceNode);
+parent.removeChild(child);
+parent.replaceChild(newChild, oldChild);
+
+// insertAdjacentHTML — FAST, no serialize/reparse of existing DOM
+element.insertAdjacentHTML("beforebegin", "<p>Before</p>");
+element.insertAdjacentHTML("afterbegin", "<p>First child</p>");
+element.insertAdjacentHTML("beforeend", "<p>Last child</p>");
+element.insertAdjacentHTML("afterend", "<p>After</p>");
+
+// ─── PERFORMANCE ───────────────────────────────────────────
+
+// Problem: Each DOM write triggers potential reflow/repaint
+// Solution 1: DocumentFragment (batch inserts)
+const fragment = document.createDocumentFragment();
+for (let i = 0; i < 1000; i++) {
+  const li = document.createElement("li");
+  li.textContent = `Item ${i}`;
+  fragment.appendChild(li); // Append to fragment (no reflows!)
+}
+document.querySelector("ul").appendChild(fragment); // ONE reflow
+
+// Solution 2: Clone and replace
+const list = document.querySelector("ul");
+const clone = list.cloneNode(false); // Shallow clone (empty)
+for (let i = 0; i < 1000; i++) {
+  const li = document.createElement("li");
+  li.textContent = `Item ${i}`;
+  clone.appendChild(li);
+}
+list.replaceWith(clone); // ONE operation
+
+// Solution 3: Batch reads and writes separately
+// BAD (thrashing: read → write → read → write → ...)
+elements.forEach(el => {
+  const height = el.offsetHeight; // READ (forces layout)
+  el.style.height = height + 10 + "px"; // WRITE (invalidates layout)
+});
+// GOOD (batch reads, then batch writes)
+const heights = elements.map(el => el.offsetHeight); // All reads
+elements.forEach((el, i) => {
+  el.style.height = heights[i] + 10 + "px"; // All writes
+});</code></pre>
+
+<div class="callout warning">
+<strong>XSS Warning:</strong> NEVER use <code>innerHTML</code> with user-provided data. Use <code>textContent</code> or sanitize with DOMPurify. In Angular, the framework auto-sanitizes bindings — but direct DOM manipulation via ElementRef bypasses it.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="events">4. Event Model (Capturing, Bubbling, Delegation)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=XF1_MlZ5l6M" target="_blank">Event Bubbling & Capturing — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=3KJI1WZGDrg" target="_blank">Event Delegation — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=SqQZ8SttQsI" target="_blank">JavaScript Events Deep Dive — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>/*
+Event Propagation (3 phases):
+
+Phase 1: CAPTURING (top → target)
+window → document → html → body → div → button
+
+Phase 2: TARGET
+button (the element that was clicked)
+
+Phase 3: BUBBLING (target → top)
+button → div → body → html → document → window
+*/
+
+// addEventListener with capture option:
+element.addEventListener("click", handler, { capture: true }); // Capture phase
+element.addEventListener("click", handler, { capture: false }); // Bubble phase (default)
+element.addEventListener("click", handler, true); // Shorthand for capture: true
+
+// Event object properties:
+element.addEventListener("click", (e) => {
+  e.target;          // Element that triggered the event (deepest)
+  e.currentTarget;   // Element the listener is attached to (=this)
+  e.type;            // "click"
+  e.timeStamp;       // When event occurred
+  e.bubbles;         // Does this event bubble?
+  e.eventPhase;      // 1=capturing, 2=target, 3=bubbling
+  
+  e.stopPropagation();      // Stop propagation (current handler runs)
+  e.stopImmediatePropagation(); // Stop ALL handlers on this element too
+  e.preventDefault();       // Prevent default browser behavior
+});
+
+// ─── EVENT DELEGATION ─────────────────────────────────────
+// Instead of adding listeners to EVERY child, listen on parent
+
+// ❌ Bad: 1000 listeners for 1000 items
+document.querySelectorAll("li").forEach(li => {
+  li.addEventListener("click", handleClick);
+});
+
+// ✅ Good: 1 listener for unlimited items
+document.querySelector("ul").addEventListener("click", (e) => {
+  const li = e.target.closest("li"); // Find the li (handles nested elements)
+  if (!li) return; // Click wasn't on an li
+  console.log("Clicked:", li.textContent);
+});
+
+// Delegation advantages:
+// 1. Works for dynamically added elements
+// 2. Uses less memory (1 handler vs N)
+// 3. Less setup/teardown code
+
+// Angular equivalent: (click) binding handles this via zones
+// But for Renderer2 or native DOM in directives, delegation is key
+
+// Common events and best practices:
+// Mouse: click, dblclick, mouseenter (no bubble), mouseleave, mouseover (bubbles)
+// Keyboard: keydown (preferred), keyup, keypress (deprecated)
+// Form: submit, input (real-time), change (on blur), focus, blur
+// focus/blur DON'T bubble — use focusin/focusout instead!
+
+// Passive listeners (performance for scroll/touch):
+window.addEventListener("scroll", handler, { passive: true });
+// Tells browser: "I won't call preventDefault()" → enables optimizations</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 1:</strong> Build event delegation for a dynamic todo list:</p>
+<pre><code>const todoList = document.querySelector("#todo-list");
+
+todoList.addEventListener("click", (e) => {
+  const deleteBtn = e.target.closest("[data-action='delete']");
+  const toggleBtn = e.target.closest("[data-action='toggle']");
+  const li = e.target.closest("li");
+  
+  if (deleteBtn && li) {
+    li.remove();
+  } else if (toggleBtn && li) {
+    li.classList.toggle("completed");
+  }
+});
+
+// Adding new items — delegation handles them automatically!
+function addTodo(text) {
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <span>${text}</span>
+    <button data-action="toggle">✓</button>
+    <button data-action="delete">✕</button>
+  `;
+  todoList.appendChild(li);
+}</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Explain event bubbling vs capturing. When would you use capture phase?</p>
+<p><strong>Answer:</strong> Events propagate in 3 phases: capture (window→target), target, bubble (target→window). Use capture for: intercepting events BEFORE they reach children (e.g., analytics, global error catching), handling focus/blur events that don't bubble, or stopping propagation before delegation handlers fire.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between e.target and e.currentTarget?</p>
+<p><strong>Answer:</strong> e.target is the element that ORIGINATED the event (deepest element clicked). e.currentTarget is the element the handler is ATTACHED to. In delegation, parent has the handler (currentTarget=parent), but the click was on a child (target=child). Inside the handler, <code>this === e.currentTarget</code> (unless using arrow functions).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="custom-events">5. Custom Events & Event Emitter</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=DzZXRvk3EGg" target="_blank">Custom Events — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=jMHiDwqNAIE" target="_blank">Event Emitter Pattern — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Custom DOM Events
+const event = new CustomEvent("user:login", {
+  detail: { userId: 1, name: "Sid" },  // Custom data
+  bubbles: true,                        // Can bubble up
+  cancelable: true                      // Can be prevented
+});
+
+// Dispatch (fire) the event on any DOM element
+document.dispatchEvent(event);
+
+// Listen for it
+document.addEventListener("user:login", (e) => {
+  console.log("User logged in:", e.detail.name);
+});
+
+// Event Emitter (pub/sub pattern — framework independent)
+class EventEmitter {
+  #listeners = new Map();
+  
+  on(event, callback) {
+    if (!this.#listeners.has(event)) {
+      this.#listeners.set(event, new Set());
+    }
+    this.#listeners.get(event).add(callback);
+    return () => this.off(event, callback); // Return unsubscribe fn
+  }
+  
+  off(event, callback) {
+    this.#listeners.get(event)?.delete(callback);
+  }
+  
+  emit(event, ...args) {
+    this.#listeners.get(event)?.forEach(cb => cb(...args));
+  }
+  
+  once(event, callback) {
+    const wrapper = (...args) => {
+      callback(...args);
+      this.off(event, wrapper);
+    };
+    this.on(event, wrapper);
+  }
+}
+
+// Usage:
+const bus = new EventEmitter();
+const unsub = bus.on("data", (payload) => console.log(payload));
+bus.emit("data", { id: 1 }); // Logs: { id: 1 }
+unsub(); // Unsubscribe
+
+// Angular comparison:
+// - @Output() EventEmitter — same concept for component communication
+// - RxJS Subject — more powerful (async, operators, backpressure)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="forms">6. Form Handling & Validation</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=In0nB0ABaUk" target="_blank">Form Validation — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=fNcJuPIZ2WE" target="_blank">FormData API — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// FormData API — extract all form values at once
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  
+  const formData = new FormData(form);
+  
+  // Get individual values
+  formData.get("email");       // "sid@x.com"
+  formData.get("password");    // "secret123"
+  
+  // Convert to object
+  const data = Object.fromEntries(formData);
+  // { email: "sid@x.com", password: "secret123" }
+  
+  // Send as JSON
+  fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  
+  // Or send as FormData (multipart — for file uploads)
+  fetch("/api/upload", { method: "POST", body: formData });
+});
+
+// Constraint Validation API
+const input = document.querySelector("input[type='email']");
+input.validity.valid;          // Overall validity
+input.validity.valueMissing;   // required but empty
+input.validity.typeMismatch;   // Email format wrong
+input.validity.tooShort;       // Below minlength
+input.validity.patternMismatch;// Doesn't match pattern attr
+
+input.checkValidity();         // Returns boolean
+input.reportValidity();        // Shows browser tooltip
+input.setCustomValidity("Custom error message");
+
+// input vs change events:
+// 'input' — fires on EVERY keystroke/change (real-time)
+// 'change' — fires when element LOSES FOCUS (blur)
+// Use 'input' for live search, 'change' for final value
+
+// Angular parallel: Reactive Forms & Validators do the same
+// but with Observable streams and FormControl abstraction</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="intersection">7. IntersectionObserver & MutationObserver</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=2IbRtjez6ag" target="_blank">IntersectionObserver — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=T8EYosX4NOo" target="_blank">MutationObserver — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=aUjBvuUdkhg" target="_blank">Lazy Loading with IntersectionObserver — Google Dev</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// IntersectionObserver — detect when elements enter/leave viewport
+// Use cases: Lazy loading, infinite scroll, analytics (impressions), animations
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // Element is visible!
+      entry.target.classList.add("visible");
+      
+      // Lazy load image:
+      const img = entry.target;
+      img.src = img.dataset.src;
+      observer.unobserve(img); // Stop watching (one-time)
+    }
+  });
+}, {
+  root: null,           // Viewport (or specific scrollable element)
+  rootMargin: "100px",  // Start loading 100px before visible
+  threshold: [0, 0.5, 1] // Trigger at 0%, 50%, 100% visibility
+});
+
+// Observe elements
+document.querySelectorAll("img[data-src]").forEach(img => {
+  observer.observe(img);
+});
+
+// Infinite scroll
+const sentinel = document.querySelector("#load-more-trigger");
+const scrollObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    loadMoreItems(); // Fetch next page
+  }
+});
+scrollObserver.observe(sentinel);
+
+// ─── MutationObserver ─────────────────────────────────────
+// Watch for DOM changes (attributes, children, text)
+const mutationObserver = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    switch (mutation.type) {
+      case "childList":
+        console.log("Children added:", mutation.addedNodes);
+        console.log("Children removed:", mutation.removedNodes);
+        break;
+      case "attributes":
+        console.log(`${mutation.attributeName} changed`);
+        break;
+      case "characterData":
+        console.log("Text changed:", mutation.target.data);
+        break;
+    }
+  });
+});
+
+mutationObserver.observe(document.querySelector("#app"), {
+  childList: true,      // Watch child additions/removals
+  attributes: true,     // Watch attribute changes
+  characterData: true,  // Watch text content changes
+  subtree: true,        // Watch entire subtree (not just direct children)
+  attributeFilter: ["class", "data-state"], // Only specific attributes
+});
+
+// Stop watching:
+mutationObserver.disconnect();
+
+// Angular uses MutationObserver internally for:
+// - ContentChildren/ViewChildren change detection
+// - Zone.js patches it to trigger change detection</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="storage">8. Web Storage, Cookies & IndexedDB</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=GihQAC1I39Q" target="_blank">localStorage & sessionStorage — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=vb7fkBeblcw" target="_blank">IndexedDB Crash Course — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=sovAIX4doOE" target="_blank">Cookies Explained — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<table>
+<tr><th>Feature</th><th>localStorage</th><th>sessionStorage</th><th>Cookies</th><th>IndexedDB</th></tr>
+<tr><td>Capacity</td><td>~5-10 MB</td><td>~5-10 MB</td><td>~4 KB</td><td>50+ MB</td></tr>
+<tr><td>Expiry</td><td>Never (manual)</td><td>Tab close</td><td>Configurable</td><td>Never</td></tr>
+<tr><td>Sent to server</td><td>No</td><td>No</td><td>Yes (every req)</td><td>No</td></tr>
+<tr><td>Accessible from</td><td>Same origin</td><td>Same tab</td><td>Configurable</td><td>Same origin</td></tr>
+<tr><td>API</td><td>Sync</td><td>Sync</td><td>Sync</td><td>Async</td></tr>
+<tr><td>Data type</td><td>Strings only</td><td>Strings only</td><td>Strings only</td><td>Any (structured clone)</td></tr>
+</table>
+
+<pre><code>// localStorage / sessionStorage
+localStorage.setItem("user", JSON.stringify({ name: "Sid" }));
+const user = JSON.parse(localStorage.getItem("user"));
+localStorage.removeItem("user");
+localStorage.clear();
+
+// Listen for storage changes (cross-tab!)
+window.addEventListener("storage", (e) => {
+  console.log(`${e.key} changed from ${e.oldValue} to ${e.newValue}`);
+  // Only fires in OTHER tabs (not the one that made the change)
+});
+
+// Cookies (use for server-communication, auth tokens)
+document.cookie = "theme=dark; path=/; max-age=86400; SameSite=Strict; Secure";
+// Read all cookies:
+const cookies = Object.fromEntries(
+  document.cookie.split("; ").map(c => c.split("="))
+);
+
+// Cookie attributes:
+// HttpOnly — NOT accessible via JS (server-only, prevents XSS theft)
+// Secure — HTTPS only
+// SameSite=Strict|Lax|None — CSRF protection
+// max-age / expires — lifetime
+
+// IndexedDB — for large/structured data (async, transactional)
+const request = indexedDB.open("myDB", 1);
+request.onupgradeneeded = (e) => {
+  const db = e.target.result;
+  const store = db.createObjectStore("users", { keyPath: "id" });
+  store.createIndex("email", "email", { unique: true });
+};
+request.onsuccess = (e) => {
+  const db = e.target.result;
+  const tx = db.transaction("users", "readwrite");
+  tx.objectStore("users").add({ id: 1, name: "Sid", email: "s@x.com" });
+};</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="fetch-api">9. Fetch API & Network</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cuEtnrL9-H0" target="_blank">Fetch API — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=drK6mdA9d_M" target="_blank">Fetch vs Axios — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Basic fetch
+const response = await fetch("https://api.example.com/users");
+// response.ok — true if status 200-299
+// response.status — HTTP status code
+// response.headers — Headers object
+// response.body — ReadableStream
+
+if (!response.ok) {
+  throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+}
+const data = await response.json(); // Parse JSON body
+
+// POST with JSON
+const newUser = await fetch("/api/users", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer token123"
+  },
+  body: JSON.stringify({ name: "Sid", email: "sid@x.com" }),
+  credentials: "include", // Send cookies cross-origin
+  signal: AbortSignal.timeout(5000) // Timeout
+});
+
+// Streaming response (large downloads, SSE)
+const res = await fetch("/api/large-file");
+const reader = res.body.getReader();
+const contentLength = +res.headers.get("Content-Length");
+let received = 0;
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  received += value.length;
+  console.log(`Progress: ${(received / contentLength * 100).toFixed(1)}%`);
+}
+
+// Request/Response cloning
+const cached = response.clone(); // Can only read body once! Clone first.
+
+// fetch does NOT reject on HTTP errors (404, 500)!
+// It only rejects on network failure or abort.
+// Always check response.ok!
+
+// Angular equivalent: HttpClient
+// - Returns Observable (can cancel, retry, intercept)
+// - Auto JSON parsing
+// - Interceptors for auth tokens, error handling
+// - HttpClient uses fetch/XMLHttpRequest under the hood</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="workers">10. Web Workers & Service Workers</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Gcp7triXFjg" target="_blank">Web Workers — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ksAfmJfdub0" target="_blank">Service Workers — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4uQMl7mFB6g" target="_blank">Web Workers Crash Course — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Web Workers — run JS in a background thread (heavy computation)
+// worker.js
+self.onmessage = (e) => {
+  const result = heavyComputation(e.data);
+  self.postMessage(result); // Send back to main thread
+};
+
+// main.js
+const worker = new Worker("worker.js");
+worker.postMessage({ data: largeArray }); // Send to worker
+worker.onmessage = (e) => {
+  console.log("Result:", e.data); // Receive from worker
+};
+worker.terminate(); // Kill the worker
+
+// Worker limitations:
+// - NO access to DOM (window, document)
+// - NO access to parent's variables (separate context)
+// - Communication only via postMessage (structured clone)
+// - Can use fetch, IndexedDB, WebSockets
+
+// Transferable objects (zero-copy transfer, not clone)
+const buffer = new ArrayBuffer(1024 * 1024); // 1MB
+worker.postMessage(buffer, [buffer]); // Transfer ownership
+// buffer.byteLength === 0 now! (transferred, not copied)
+
+// SharedArrayBuffer + Atomics (shared memory between threads)
+const shared = new SharedArrayBuffer(1024);
+const view = new Int32Array(shared);
+Atomics.store(view, 0, 42);
+Atomics.load(view, 0); // 42
+
+// ─── Service Workers ──────────────────────────────────────
+// Proxy between browser and network — enables offline, caching, push
+
+// Register
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js")
+    .then(reg => console.log("SW registered:", reg.scope));
+}
+
+// sw.js — Cache-first strategy
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open("v1").then(cache => 
+      cache.addAll(["/", "/index.html", "/style.css", "/app.js"])
+    )
+  );
+});
+
+self.addEventListener("fetch", (e) => {
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      return cached || fetch(e.request); // Cache first, then network
+    })
+  );
+});
+
+// Angular: @angular/service-worker (ngsw) handles all this
+// ng add @angular/pwa — sets up SW with configurable caching strategies</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> What's the difference between Web Workers and Service Workers?</p>
+<p><strong>Answer:</strong> Web Workers: background thread for CPU-heavy tasks, created per page, dies with the page, communicate via postMessage. Service Workers: network proxy, runs independent of page, survives page close, intercepts fetch requests, enables offline/caching/push notifications, lifecycle-based (install→activate→fetch). Angular's @angular/pwa uses Service Workers for PWA support.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="nav-links">
+  <a href="phase5-async-event-loop.html">← Phase 5: Async & Event Loop</a>
+  <a href="phase7-es6-design-patterns.html">Phase 7: ES6+ & Design Patterns →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

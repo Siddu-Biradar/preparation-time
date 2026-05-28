@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 7: ES6+ Features & Design Patterns</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 7: ES6+ Features & Design Patterns</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (7 of 8)</p>
+  <div class="pill-row">
+    <span class="pill">Modules</span>
+    <span class="pill">Map/Set/WeakRef</span>
+    <span class="pill">Optional Chaining</span>
+    <span class="pill">Design Patterns</span>
+    <span class="pill">Functional Patterns</span>
+    <span class="pill">ES2020-2024</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#modules">ES Modules (import/export)</a></li>
+    <li><a href="#map-set">Map, Set, WeakMap, WeakSet</a></li>
+    <li><a href="#weakref">WeakRef & FinalizationRegistry</a></li>
+    <li><a href="#optional-chaining">Optional Chaining, Nullish Coalescing & Latest Syntax</a></li>
+    <li><a href="#regex">Regular Expressions (Advanced)</a></li>
+    <li><a href="#singleton-factory">Singleton, Factory & Builder Patterns</a></li>
+    <li><a href="#observer-pubsub">Observer, Pub/Sub & Mediator</a></li>
+    <li><a href="#strategy-command">Strategy, Command & Chain of Responsibility</a></li>
+    <li><a href="#functional">Functional Patterns (Curry, Compose, Monad)</a></li>
+    <li><a href="#module-patterns">Module Pattern & Revealing Module</a></li>
+    <li><a href="#generators">Generators & Iterators (Interview Deep-Dive)</a></li>
+    <li><a href="#proxy">Proxy & Metaprogramming Patterns</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="modules">1. ES Modules (import/export)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cRHQNNcYf6s" target="_blank">ES Modules — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=qgRUr-YUk1Q" target="_blank">Modules Deep Dive — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=mK54Cn4ceac" target="_blank">CJS vs ESM — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Named Exports ────────────────────────────────────────
+// math.js
+export const PI = 3.14159;
+export function add(a, b) { return a + b; }
+export class Vector { constructor(x, y) { this.x = x; this.y = y; } }
+
+// Importing named exports:
+import { PI, add, Vector } from "./math.js";
+import { add as sum } from "./math.js";          // Rename
+import * as MathUtils from "./math.js";           // Namespace
+MathUtils.add(1, 2);
+
+// ─── Default Export (one per module) ──────────────────────
+// logger.js
+export default class Logger {
+  log(msg) { console.log(`[LOG] ${msg}`); }
+}
+
+// Importing default:
+import Logger from "./logger.js";          // Any name works
+import MyLogger from "./logger.js";        // Same thing
+
+// Mix default + named:
+import Logger, { formatDate } from "./logger.js";
+
+// ─── Re-exports (barrel files) ────────────────────────────
+// index.js (barrel)
+export { add, PI } from "./math.js";
+export { default as Logger } from "./logger.js";
+export * from "./helpers.js"; // Re-export all named
+
+// ─── Dynamic Import (code splitting, lazy loading) ────────
+const module = await import("./heavy-module.js");
+module.default; // Default export
+module.namedExport; // Named exports
+
+// Conditional loading:
+if (user.isAdmin) {
+  const { AdminPanel } = await import("./admin.js");
+}
+
+// Angular lazy routes use this:
+// { path: 'admin', loadComponent: () => import('./admin.component') }
+
+// ─── Module characteristics ───────────────────────────────
+// 1. Strict mode by default
+// 2. Own scope (no global pollution)
+// 3. Executed only ONCE (cached/singleton)
+// 4. Static structure (enables tree-shaking)
+// 5. Top-level await supported
+// 6. 'this' is undefined at top level (not window)
+
+// CommonJS vs ESM:
+// CJS: require(), module.exports — synchronous, Node.js
+// ESM: import/export — async, static, tree-shakable, standard</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What's the difference between named and default exports?</p>
+<p><strong>Answer:</strong> Named: multiple per file, must use exact name (or rename with 'as'), imported with curly braces. Default: one per file, can be imported with any name, no curly braces. Named exports enable better tree-shaking and IDE auto-imports. Prefer named exports in libraries.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How does tree-shaking work with ES modules?</p>
+<p><strong>Answer:</strong> Bundlers (webpack, esbuild) analyze static import/export statements at build time. Since ESM structure is determined statically (not at runtime like require()), the bundler can determine which exports are unused and eliminate dead code. Dynamic imports and CommonJS defeat tree-shaking because they're runtime-dependent.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="map-set">2. Map, Set, WeakMap, WeakSet</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=hLgUTM3FOII" target="_blank">Map & Set — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=yJDofSGTSNQ" target="_blank">WeakMap & WeakSet — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Map ──────────────────────────────────────────────────
+// Key-value pairs where keys can be ANY type (not just strings)
+const map = new Map();
+map.set("string", 1);
+map.set(42, "number key");
+map.set({}, "object key");
+map.set(document.body, "DOM element as key!");
+
+map.get("string");    // 1
+map.has(42);          // true
+map.size;             // 4
+map.delete(42);
+map.clear();
+
+// Map vs Object:
+// - Map keys can be any type (Object keys are always strings/symbols)
+// - Map preserves insertion order (Object mostly does, but not guaranteed for integer keys)
+// - Map has .size property (Object needs Object.keys().length)
+// - Map is iterable by default
+// - Map better for frequent additions/deletions (optimized)
+// - Object better for JSON, static structures
+
+// Iterating Map:
+const users = new Map([["id1", "Sid"], ["id2", "Ram"]]);
+for (const [key, value] of users) { /* ... */ }
+users.forEach((value, key) => { /* ... */ });
+[...users.keys()];    // ["id1", "id2"]
+[...users.values()];  // ["Sid", "Ram"]
+[...users.entries()]; // [["id1","Sid"], ["id2","Ram"]]
+
+// ─── Set ──────────────────────────────────────────────────
+// Unique values (no duplicates)
+const set = new Set([1, 2, 3, 3, 3]);
+set.size;  // 3 (duplicates removed)
+set.add(4);
+set.has(3);    // true
+set.delete(2);
+
+// Common patterns:
+const unique = [...new Set(array)]; // Remove duplicates
+const intersection = new Set([...a].filter(x => b.has(x)));
+const difference = new Set([...a].filter(x => !b.has(x)));
+const union = new Set([...a, ...b]);
+
+// ES2025: Set methods (native!)
+setA.intersection(setB);
+setA.union(setB);
+setA.difference(setB);
+setA.symmetricDifference(setB);
+setA.isSubsetOf(setB);
+
+// ─── WeakMap ──────────────────────────────────────────────
+// Keys MUST be objects — keys are weakly held (GC can collect them)
+const cache = new WeakMap();
+let user = { name: "Sid" };
+cache.set(user, computeExpensive(user));
+// If 'user' is set to null, the entry is automatically GC'd!
+// No memory leak!
+
+// Use cases:
+// 1. Private data storage (see Phase 4)
+// 2. Caching without preventing GC
+// 3. DOM element metadata (element removed → data auto-cleaned)
+
+// WeakMap limitations:
+// - Not iterable (no .keys(), .values(), .entries(), .forEach())
+// - No .size property
+// - No .clear()
+// - Keys must be objects (not primitives)
+
+// ─── WeakSet ──────────────────────────────────────────────
+// Like Set but values are weakly held objects
+const visited = new WeakSet();
+visited.add(domElement);
+visited.has(domElement); // true
+// If domElement is removed from DOM and no other reference exists → GC'd</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="weakref">3. WeakRef & FinalizationRegistry</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=uygxJ8nStBk" target="_blank">WeakRef Explained — Low Level JavaScript</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// WeakRef — hold a weak reference to an object
+// Does NOT prevent garbage collection
+
+let target = { data: "important" };
+const weakRef = new WeakRef(target);
+
+weakRef.deref(); // { data: "important" } (or undefined if GC'd)
+
+target = null; // Remove strong reference
+// At some point later, GC may collect the object
+// weakRef.deref() → undefined
+
+// FinalizationRegistry — callback when object is GC'd
+const registry = new FinalizationRegistry((heldValue) => {
+  console.log(`Object with id ${heldValue} was garbage collected`);
+  // Clean up external resources (close connection, remove from cache)
+});
+
+let obj = { id: 1 };
+registry.register(obj, obj.id); // Register obj, hold onto id
+obj = null; // Eventually: "Object with id 1 was garbage collected"
+
+// Practical: Cache with automatic cleanup
+class WeakCache {
+  #cache = new Map();
+  #registry = new FinalizationRegistry(key => {
+    this.#cache.delete(key);
+  });
+  
+  set(key, value) {
+    const ref = new WeakRef(value);
+    this.#cache.set(key, ref);
+    this.#registry.register(value, key);
+  }
+  
+  get(key) {
+    return this.#cache.get(key)?.deref();
+  }
+}
+
+// ⚠️ WARNING: GC timing is non-deterministic!
+// Never rely on WeakRef/FinalizationRegistry for correctness.
+// Use only for optimization (caches, reducing memory).</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="optional-chaining">4. Optional Chaining, Nullish Coalescing & Latest Syntax</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=v2tJ3nzXRoE" target="_blank">Optional Chaining & Nullish — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Mus_vwhTCq0" target="_blank">Modern JS Features — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Optional Chaining (?.) — ES2020 ──────────────────────
+const user = { address: { street: "Main St" } };
+user?.address?.street;   // "Main St"
+user?.phone?.number;     // undefined (not TypeError!)
+
+// With methods:
+user.getProfile?.();     // Calls if exists, undefined if not
+
+// With arrays:
+users?.[0]?.name;        // First user's name or undefined
+
+// With delete:
+delete user?.address;    // Safe delete
+
+// ─── Nullish Coalescing (??) — ES2020 ─────────────────────
+// Returns right side ONLY for null/undefined (not "" or 0 or false)
+const count = 0;
+count || 10;    // 10 (0 is falsy — WRONG for numbers!)
+count ?? 10;    // 0  (0 is not null/undefined — CORRECT!)
+
+"" || "default";  // "default" (empty string is falsy)
+"" ?? "default";  // "" (empty string is NOT nullish)
+
+// ─── Logical Assignment (ES2021) ──────────────────────────
+let a = null;
+a ??= "default";    // a = "default" (assign if nullish)
+a ||= "fallback";   // a = a || "fallback" (assign if falsy)
+a &&= transform(a); // a = a && transform(a) (assign if truthy)
+
+// ─── Structured Clone (ES2022) ────────────────────────────
+const deep = structuredClone(original); // True deep copy!
+// Handles: Date, Map, Set, RegExp, ArrayBuffer, circular refs
+// Does NOT handle: Functions, DOM nodes, Error objects
+
+// ─── Array methods (ES2023) ───────────────────────────────
+const arr = [3, 1, 4, 1, 5];
+arr.toSorted();       // [1, 1, 3, 4, 5] — returns new array (immutable!)
+arr.toReversed();     // [5, 1, 4, 1, 3] — returns new array
+arr.toSpliced(1, 2);  // [3, 1, 5] — returns new array
+arr.with(2, 99);      // [3, 1, 99, 1, 5] — replace at index (immutable)
+arr.findLast(x => x > 3);      // 5
+arr.findLastIndex(x => x > 3); // 4
+
+// ─── Object.groupBy (ES2024) ──────────────────────────────
+const items = [
+  { name: "Apple", type: "fruit" },
+  { name: "Carrot", type: "vegetable" },
+  { name: "Banana", type: "fruit" }
+];
+const grouped = Object.groupBy(items, item => item.type);
+// { fruit: [{...}, {...}], vegetable: [{...}] }
+
+// ─── Promise.withResolvers (ES2024) ───────────────────────
+const { promise, resolve, reject } = Promise.withResolvers();
+
+// ─── Pipeline Operator (Stage 2 — future) ─────────────────
+// value |> fn1 |> fn2 |> fn3
+// Equivalent to: fn3(fn2(fn1(value)))</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="regex">5. Regular Expressions (Advanced)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=rhzKDrUiJVk" target="_blank">RegEx Crash Course — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=sXQxhojSdZM" target="_blank">RegEx Complete — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// Flags: g (global), i (case-insensitive), m (multiline), 
+//        s (dotAll), u (unicode), d (indices), v (unicodeSets)
+
+// Named capture groups
+const dateRegex = /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
+const match = "2024-01-15".match(dateRegex);
+match.groups.year;  // "2024"
+match.groups.month; // "01"
+
+// Lookbehind & Lookahead
+/(?<=\$)\d+/.exec("Price: $99");  // ["99"] (lookbehind: preceded by $)
+/\d+(?=px)/.exec("width: 100px"); // ["100"] (lookahead: followed by px)
+/(?<!\d)\d{3}(?!\d)/.exec("abc123def"); // Exactly 3 digits
+
+// matchAll (ES2020) — all matches with groups
+const text = "Call 123-456 or 789-012";
+const regex = /(\d{3})-(\d{3})/g;
+for (const match of text.matchAll(regex)) {
+  console.log(match[0], match[1], match[2]);
+}
+
+// replaceAll with function
+"hello world".replaceAll(/\b\w/g, c => c.toUpperCase()); // "Hello World"
+
+// Practical patterns:
+const EMAIL = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const URL_PATTERN = /https?:\/\/(www\.)?[\w-]+\.[\w./?#&=%-]+/gi;
+const PHONE = /^\+?[\d\s()-]{10,}$/;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="singleton-factory">6. Singleton, Factory & Builder Patterns</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=tv-_1er1mWI" target="_blank">Design Patterns in JS — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=kuirGzhGhR8" target="_blank">Factory Pattern — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=M7Xi1yO_s8E" target="_blank">Builder Pattern — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Singleton ────────────────────────────────────────────
+// Only ONE instance exists throughout the application
+
+// Method 1: Module singleton (simplest — ES modules are cached)
+// config.js
+class Config {
+  #settings = {};
+  set(key, val) { this.#settings[key] = val; }
+  get(key) { return this.#settings[key]; }
+}
+export const config = new Config(); // Same instance everywhere!
+
+// Method 2: Class-based singleton
+class Database {
+  static #instance;
+  #connection;
+  
+  constructor() {
+    if (Database.#instance) return Database.#instance;
+    this.#connection = this.#connect();
+    Database.#instance = this;
+  }
+  
+  static getInstance() {
+    return Database.#instance ?? new Database();
+  }
+  
+  #connect() { return { connected: true }; }
+}
+// Angular: providedIn: 'root' services ARE singletons!
+
+// ─── Factory ──────────────────────────────────────────────
+// Create objects without specifying exact class
+function createNotification(type, message) {
+  const base = { message, timestamp: Date.now(), read: false };
+  
+  switch (type) {
+    case "success": return { ...base, icon: "✓", color: "green" };
+    case "error":   return { ...base, icon: "✕", color: "red" };
+    case "warning": return { ...base, icon: "⚠", color: "orange" };
+    default:        return { ...base, icon: "ℹ", color: "blue" };
+  }
+}
+
+// Abstract Factory (family of related objects)
+class UIFactory {
+  createButton() {}
+  createInput() {}
+  createModal() {}
+}
+class DarkThemeFactory extends UIFactory {
+  createButton() { return { theme: "dark", bg: "#333" }; }
+  createInput() { return { theme: "dark", border: "#555" }; }
+}
+
+// ─── Builder ──────────────────────────────────────────────
+// Construct complex objects step by step
+class QueryBuilder {
+  #table = "";
+  #conditions = [];
+  #ordering = [];
+  #limit = null;
+  
+  from(table) { this.#table = table; return this; }
+  where(condition) { this.#conditions.push(condition); return this; }
+  orderBy(field, dir = "ASC") { this.#ordering.push(`${field} ${dir}`); return this; }
+  take(n) { this.#limit = n; return this; }
+  
+  build() {
+    let sql = `SELECT * FROM ${this.#table}`;
+    if (this.#conditions.length) sql += ` WHERE ${this.#conditions.join(" AND ")}`;
+    if (this.#ordering.length) sql += ` ORDER BY ${this.#ordering.join(", ")}`;
+    if (this.#limit) sql += ` LIMIT ${this.#limit}`;
+    return sql;
+  }
+}
+
+const query = new QueryBuilder()
+  .from("users")
+  .where("age > 18")
+  .where("active = true")
+  .orderBy("name")
+  .take(10)
+  .build();
+// "SELECT * FROM users WHERE age > 18 AND active = true ORDER BY name LIMIT 10"</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="observer-pubsub">7. Observer, Pub/Sub & Mediator</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=45TeJEmcqk8" target="_blank">Observer Pattern — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=nQRXi1SVOow" target="_blank">Pub/Sub Pattern — Traversy Media</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Observer Pattern ─────────────────────────────────────
+// Subject notifies observers when state changes
+// (Angular: this is what RxJS Subject/BehaviorSubject does!)
+
+class Observable {
+  #subscribers = new Set();
+  
+  subscribe(fn) {
+    this.#subscribers.add(fn);
+    return { unsubscribe: () => this.#subscribers.delete(fn) };
+  }
+  
+  notify(data) {
+    this.#subscribers.forEach(fn => fn(data));
+  }
+}
+
+// BehaviorSubject equivalent (remembers last value)
+class Store extends Observable {
+  #value;
+  
+  constructor(initialValue) {
+    super();
+    this.#value = initialValue;
+  }
+  
+  get value() { return this.#value; }
+  
+  set(newValue) {
+    this.#value = newValue;
+    this.notify(newValue);
+  }
+  
+  subscribe(fn) {
+    fn(this.#value); // Emit current value immediately
+    return super.subscribe(fn);
+  }
+}
+
+const counter = new Store(0);
+const sub = counter.subscribe(v => console.log("Count:", v)); // "Count: 0"
+counter.set(1); // "Count: 1"
+sub.unsubscribe();
+
+// ─── Pub/Sub (decoupled Observer) ─────────────────────────
+// Publishers and subscribers don't know about each other
+class EventBus {
+  #topics = new Map();
+  
+  publish(topic, data) {
+    this.#topics.get(topic)?.forEach(fn => fn(data));
+  }
+  
+  subscribe(topic, fn) {
+    if (!this.#topics.has(topic)) this.#topics.set(topic, new Set());
+    this.#topics.get(topic).add(fn);
+    return () => this.#topics.get(topic).delete(fn);
+  }
+}
+
+const bus = new EventBus();
+bus.subscribe("cart:updated", (items) => updateBadge(items.length));
+bus.publish("cart:updated", [{ id: 1, name: "Widget" }]);
+
+// ─── Mediator ─────────────────────────────────────────────
+// Central coordinator — components communicate through mediator only
+class ChatRoom {
+  #users = new Map();
+  
+  register(user) {
+    this.#users.set(user.name, user);
+    user.room = this;
+  }
+  
+  send(message, from, to) {
+    if (to) {
+      this.#users.get(to)?.receive(message, from);
+    } else {
+      // Broadcast to all except sender
+      this.#users.forEach((user, name) => {
+        if (name !== from) user.receive(message, from);
+      });
+    }
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="strategy-command">8. Strategy, Command & Chain of Responsibility</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=SicL4fYCz8w" target="_blank">Strategy Pattern — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=GQzfAjDsHKg" target="_blank">Command Pattern — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Strategy Pattern ─────────────────────────────────────
+// Define family of algorithms, make them interchangeable
+// (Angular: Inject different service implementations!)
+
+const strategies = {
+  validate: {
+    email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    phone: (value) => /^\+?[\d\s()-]{10,}$/.test(value),
+    url: (value) => { try { new URL(value); return true; } catch { return false; } }
+  },
+  
+  sort: {
+    byName: (a, b) => a.name.localeCompare(b.name),
+    byDate: (a, b) => new Date(b.date) - new Date(a.date),
+    byPrice: (a, b) => a.price - b.price
+  },
+  
+  format: {
+    currency: (n) => `$${n.toFixed(2)}`,
+    percent: (n) => `${(n * 100).toFixed(1)}%`,
+    compact: (n) => Intl.NumberFormat("en", { notation: "compact" }).format(n)
+  }
+};
+
+// Usage:
+items.sort(strategies.sort.byPrice);
+strategies.validate.email("test@x.com"); // true
+
+// ─── Command Pattern ──────────────────────────────────────
+// Encapsulate actions as objects (undo/redo, queues, macros)
+class CommandManager {
+  #history = [];
+  #redoStack = [];
+  
+  execute(command) {
+    command.execute();
+    this.#history.push(command);
+    this.#redoStack = []; // Clear redo on new action
+  }
+  
+  undo() {
+    const cmd = this.#history.pop();
+    if (cmd) { cmd.undo(); this.#redoStack.push(cmd); }
+  }
+  
+  redo() {
+    const cmd = this.#redoStack.pop();
+    if (cmd) { cmd.execute(); this.#history.push(cmd); }
+  }
+}
+
+class AddTextCommand {
+  constructor(editor, text) { this.editor = editor; this.text = text; }
+  execute() { this.editor.content += this.text; }
+  undo() { this.editor.content = this.editor.content.slice(0, -this.text.length); }
+}
+
+const manager = new CommandManager();
+const editor = { content: "" };
+manager.execute(new AddTextCommand(editor, "Hello "));
+manager.execute(new AddTextCommand(editor, "World"));
+// editor.content = "Hello World"
+manager.undo(); // "Hello "
+manager.redo(); // "Hello World"
+
+// ─── Chain of Responsibility ──────────────────────────────
+// Pass request along a chain of handlers (middleware!)
+class Middleware {
+  #next;
+  setNext(handler) { this.#next = handler; return handler; }
+  handle(request) { return this.#next?.handle(request); }
+}
+
+class AuthMiddleware extends Middleware {
+  handle(request) {
+    if (!request.headers?.authorization) {
+      return { status: 401, body: "Unauthorized" };
+    }
+    return super.handle(request);
+  }
+}
+
+class RateLimitMiddleware extends Middleware {
+  #requests = new Map();
+  handle(request) {
+    const count = (this.#requests.get(request.ip) || 0) + 1;
+    this.#requests.set(request.ip, count);
+    if (count > 100) return { status: 429, body: "Too many requests" };
+    return super.handle(request);
+  }
+}
+
+// Angular's HttpInterceptors are Chain of Responsibility!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="functional">9. Functional Patterns (Curry, Compose, Monad)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=iZLP4qOwY8I" target="_blank">Currying — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=vDe-4o8Uwl8" target="_blank">Function Composition — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=dkZFtimgAcM" target="_blank">Functional JS — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Currying ─────────────────────────────────────────────
+// Transform f(a, b, c) → f(a)(b)(c)
+const curry = (fn) => {
+  const arity = fn.length;
+  return function curried(...args) {
+    if (args.length >= arity) return fn(...args);
+    return (...more) => curried(...args, ...more);
+  };
+};
+
+const add = curry((a, b, c) => a + b + c);
+add(1)(2)(3);    // 6
+add(1, 2)(3);   // 6
+add(1)(2, 3);   // 6
+
+// Practical currying:
+const multiply = curry((factor, number) => factor * number);
+const double = multiply(2);
+const triple = multiply(3);
+[1, 2, 3].map(double); // [2, 4, 6]
+
+// ─── Compose & Pipe ───────────────────────────────────────
+const compose = (...fns) => (x) => fns.reduceRight((acc, fn) => fn(acc), x);
+const pipe = (...fns) => (x) => fns.reduce((acc, fn) => fn(acc), x);
+
+const process = pipe(
+  (str) => str.trim(),
+  (str) => str.toLowerCase(),
+  (str) => str.replace(/\s+/g, "-"),
+  (str) => encodeURIComponent(str)
+);
+process("  Hello World  "); // "hello-world"
+
+// ─── Partial Application ──────────────────────────────────
+function partial(fn, ...presetArgs) {
+  return (...laterArgs) => fn(...presetArgs, ...laterArgs);
+}
+const log = partial(console.log, "[APP]");
+log("started"); // "[APP] started"
+
+// ─── Memoization ──────────────────────────────────────────
+function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+const expensiveFib = memoize(function fib(n) {
+  if (n <= 1) return n;
+  return fib(n - 1) + fib(n - 2);
+});
+expensiveFib(100); // Instant (cached)
+
+// ─── Maybe Monad (null-safe chaining) ─────────────────────
+class Maybe {
+  constructor(value) { this.value = value; }
+  static of(value) { return new Maybe(value); }
+  
+  isNothing() { return this.value === null || this.value === undefined; }
+  
+  map(fn) {
+    return this.isNothing() ? this : Maybe.of(fn(this.value));
+  }
+  
+  flatMap(fn) {
+    return this.isNothing() ? this : fn(this.value);
+  }
+  
+  getOrElse(defaultValue) {
+    return this.isNothing() ? defaultValue : this.value;
+  }
+}
+
+// Safe property access:
+Maybe.of(user)
+  .map(u => u.address)
+  .map(a => a.city)
+  .getOrElse("Unknown"); // "Unknown" if any is null</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Implement a curry function that works with any number of arguments.</p>
+<p><strong>Answer:</strong> <code>const curry = fn => { const arity = fn.length; return function curried(...args) { if (args.length >= arity) return fn(...args); return (...more) => curried(...args, ...more); }; };</code> Uses fn.length to know when enough args are collected, then calls original. Partial application at each step until arity is met.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="module-patterns">10. Module Pattern & Revealing Module</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=SKBmJ9P6OAk" target="_blank">Module Pattern — Academind</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<pre><code>// ─── Classic Module Pattern (IIFE-based, pre-ES6) ─────────
+const Counter = (function() {
+  // Private (closure)
+  let count = 0;
+  const MAX = 100;
+  
+  // Public API (returned)
+  return {
+    increment() { if (count < MAX) count++; return count; },
+    decrement() { if (count > 0) count--; return count; },
+    getCount() { return count; },
+    reset() { count = 0; }
+  };
+})();
+
+Counter.increment(); // 1
+Counter.getCount();  // 1
+// Counter.count → undefined (private!)
+
+// ─── Revealing Module ─────────────────────────────────────
+const Calculator = (function() {
+  let result = 0;
+  
+  function add(n) { result += n; return api; }
+  function subtract(n) { result -= n; return api; }
+  function multiply(n) { result *= n; return api; }
+  function getResult() { return result; }
+  function reset() { result = 0; return api; }
+  
+  const api = { add, subtract, multiply, getResult, reset };
+  return api;
+})();
+
+Calculator.add(5).multiply(3).subtract(2).getResult(); // 13
+
+// ─── Why these still matter ───────────────────────────────
+// 1. Understanding Angular's module system internals
+// 2. Legacy code you'll encounter in interviews
+// 3. UMD bundles still use IIFE module pattern
+// 4. Understanding closure-based privacy vs #private fields
+// 5. Libraries (jQuery plugins, older Angular.js)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="generators">11. Generators & Iterators (Interview Deep-Dive)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=gu3FfmgkwUc" target="_blank">Generators in JavaScript — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IJ6EgdiI_wU" target="_blank">Iterators & Generators — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Iterator Protocol</h3>
+<pre><code>// ─── ITERABLE PROTOCOL ────────────────────────────────────
+// An object is iterable if it has a [Symbol.iterator]() method
+// that returns an iterator (object with next() method)
+
+// Iterator: { next() → { value, done } }
+
+// Making a custom iterable:
+const range = {
+  from: 1,
+  to: 5,
+  
+  [Symbol.iterator]() {
+    let current = this.from;
+    const last = this.to;
+    
+    return {
+      next() {
+        if (current <= last) {
+          return { value: current++, done: false };
+        }
+        return { value: undefined, done: true };
+      }
+    };
+  }
+};
+
+// Now works with for...of, spread, destructuring!
+for (const num of range) console.log(num); // 1, 2, 3, 4, 5
+console.log([...range]);                   // [1, 2, 3, 4, 5]
+const [a, b, c] = range;                   // a=1, b=2, c=3
+
+// ─── Built-in iterables ──────────────────────────────────
+// String, Array, Map, Set, NodeList, arguments, TypedArray
+// Objects are NOT iterable by default!
+
+for (const char of "Hello") console.log(char);  // H, e, l, l, o
+for (const [key, val] of new Map([["a",1]])) {} // destructured entries
+
+// ─── Interview Q: Make an object iterable ─────────────────
+const user = { name: "Sid", age: 25, city: "Bangalore" };
+
+// Add iterator to loop over values:
+user[Symbol.iterator] = function* () {
+  for (const key of Object.keys(this)) {
+    yield [key, this[key]];
+  }
+};
+for (const [key, val] of user) console.log(key, val);</code></pre>
+
+<h3>Generator Functions (function*)</h3>
+<pre><code>// ─── BASICS ───────────────────────────────────────────────
+// Generator function: pauses at each `yield` and resumes on next()
+function* numberGenerator() {
+  console.log("Start");
+  yield 1;            // Pause here, return { value: 1, done: false }
+  console.log("After first yield");
+  yield 2;
+  console.log("After second yield");
+  yield 3;
+  console.log("End");
+  return "final";     // { value: "final", done: true }
+}
+
+const gen = numberGenerator();
+gen.next(); // "Start" → { value: 1, done: false }
+gen.next(); // "After first yield" → { value: 2, done: false }
+gen.next(); // "After second yield" → { value: 3, done: false }
+gen.next(); // "End" → { value: "final", done: true }
+gen.next(); // { value: undefined, done: true }
+
+// ─── SENDING VALUES INTO GENERATOR ────────────────────────
+function* conversation() {
+  const name = yield "What is your name?";
+  const age = yield `Hello ${name}! How old are you?`;
+  return `${name} is ${age} years old`;
+}
+
+const chat = conversation();
+console.log(chat.next());           // { value: "What is your name?", done: false }
+console.log(chat.next("Sid"));      // { value: "Hello Sid! How old are you?", done: false }
+console.log(chat.next(25));         // { value: "Sid is 25 years old", done: true }
+
+// ─── INFINITE SEQUENCES ──────────────────────────────────
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+// Take first 10 fibonacci numbers:
+function take(gen, n) {
+  const result = [];
+  for (const val of gen) {
+    result.push(val);
+    if (result.length >= n) break;
+  }
+  return result;
+}
+console.log(take(fibonacci(), 10)); // [0,1,1,2,3,5,8,13,21,34]
+
+// ─── GENERATOR DELEGATION (yield*) ───────────────────────
+function* inner() {
+  yield "a";
+  yield "b";
+  return "inner done";
+}
+
+function* outer() {
+  yield 1;
+  const result = yield* inner(); // Delegates to inner generator
+  console.log(result);           // "inner done" (return value)
+  yield 2;
+}
+
+console.log([...outer()]); // [1, "a", "b", 2]
+
+// ─── ERROR HANDLING IN GENERATORS ─────────────────────────
+function* safeGen() {
+  try {
+    const val = yield "waiting...";
+    yield val * 2;
+  } catch (e) {
+    yield `Error caught: ${e.message}`;
+  } finally {
+    console.log("Cleanup!");
+  }
+}
+
+const sg = safeGen();
+sg.next();                           // { value: "waiting...", done: false }
+sg.throw(new Error("oops"));         // { value: "Error caught: oops", done: false }
+sg.return("forced");                 // "Cleanup!" → { value: "forced", done: true }</code></pre>
+
+<h3>Async Generators & for-await-of</h3>
+<pre><code>// ─── ASYNC GENERATORS ─────────────────────────────────────
+// Combine generators + async/await for streaming async data
+
+async function* fetchPages(url) {
+  let page = 1;
+  let hasMore = true;
+  
+  while (hasMore) {
+    const response = await fetch(`${url}?page=${page}`);
+    const data = await response.json();
+    
+    yield data.items; // Yields one page at a time (lazy!)
+    
+    hasMore = data.hasNextPage;
+    page++;
+  }
+}
+
+// Consume with for-await-of:
+async function getAllUsers() {
+  for await (const users of fetchPages("/api/users")) {
+    users.forEach(user => processUser(user));
+    // Next page fetched only when this iteration finishes!
+  }
+}
+
+// ─── Practical: Event stream with async generator ─────────
+async function* eventStream(element, eventName) {
+  const queue = [];
+  let resolve;
+  
+  element.addEventListener(eventName, (e) => {
+    if (resolve) { resolve(e); resolve = null; }
+    else queue.push(e);
+  });
+  
+  while (true) {
+    if (queue.length > 0) {
+      yield queue.shift();
+    } else {
+      yield await new Promise(r => { resolve = r; });
+    }
+  }
+}
+
+// Usage:
+// for await (const click of eventStream(button, "click")) {
+//   console.log("Clicked at:", click.clientX, click.clientY);
+// }
+
+// ─── Practical: Read file line by line (Node.js) ──────────
+async function* readLines(filePath) {
+  const fileStream = fs.createReadStream(filePath);
+  const rl = readline.createInterface({ input: fileStream });
+  
+  for await (const line of rl) {
+    yield line;
+  }
+}
+// Only holds ONE line in memory at a time (perfect for huge files!)</code></pre>
+
+<div class="interview">
+<h4>🎯 Generator Interview Questions</h4>
+<ul>
+<li><strong>Q: What's the difference between an iterator and a generator?</strong><br>
+A: An iterator is any object with a next() method returning {value, done}. A generator is a special function (function*) that automatically creates iterators. Generators can pause/resume (yield) and support bidirectional communication (next(value), throw(error), return(value)).</li>
+<li><strong>Q: When would you use generators in production?</strong><br>
+A: (1) Lazy evaluation of large/infinite sequences, (2) Paginated API consumption with for-await-of, (3) Custom control flow (redux-saga), (4) Streaming data processing where you don't want entire dataset in memory, (5) Implementing custom iterables.</li>
+<li><strong>Q: How does yield* differ from yield?</strong><br>
+A: yield pauses and returns a single value. yield* delegates to another iterable/generator, yielding all its values one by one. The return value of the delegated generator becomes the value of the yield* expression.</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="proxy">12. Proxy & Metaprogramming Patterns</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=gv0jH8qEi_0" target="_blank">JavaScript Proxy — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=KJ_F3Rg3FJk" target="_blank">Proxy & Reflect Deep Dive — CodeSmith</a></li>
+</ul></details>
+
+<h3>Proxy Fundamentals</h3>
+<pre><code>// ─── PROXY: Intercept and customize operations on objects ──
+// new Proxy(target, handler)
+// handler = object with "traps" (interceptor methods)
+
+// ═══ TRAP 1: get — intercept property access ═══
+const user = { name: "Sid", age: 25 };
+
+const proxy = new Proxy(user, {
+  get(target, property, receiver) {
+    console.log(`Accessing: ${String(property)}`);
+    
+    if (property in target) {
+      return Reflect.get(target, property, receiver);
+    }
+    return `Property "${String(property)}" doesn't exist`;
+  }
+});
+
+proxy.name;    // "Accessing: name" → "Sid"
+proxy.unknown; // "Accessing: unknown" → "Property "unknown" doesn't exist"
+
+// ═══ TRAP 2: set — intercept property assignment ═══
+const validated = new Proxy({}, {
+  set(target, property, value, receiver) {
+    if (property === "age" && (typeof value !== "number" || value < 0)) {
+      throw new TypeError("Age must be a positive number");
+    }
+    if (property === "email" && !value.includes("@")) {
+      throw new TypeError("Invalid email format");
+    }
+    return Reflect.set(target, property, value, receiver);
+  }
+});
+
+validated.age = 25;        // ✅ works
+validated.email = "a@b.c"; // ✅ works
+// validated.age = -5;     // ❌ TypeError: Age must be a positive number
+// validated.email = "bad"; // ❌ TypeError: Invalid email format
+
+// ═══ TRAP 3: has — intercept `in` operator ═══
+const hiddenProps = new Proxy({ _secret: 42, visible: "hello" }, {
+  has(target, property) {
+    if (property.startsWith("_")) return false; // Hide private props
+    return Reflect.has(target, property);
+  }
+});
+
+console.log("visible" in hiddenProps); // true
+console.log("_secret" in hiddenProps); // false (hidden!)
+
+// ═══ TRAP 4: deleteProperty ═══
+const protectedObj = new Proxy({ id: 1, name: "Sid" }, {
+  deleteProperty(target, property) {
+    if (property === "id") {
+      throw new Error("Cannot delete 'id' property");
+    }
+    return Reflect.deleteProperty(target, property);
+  }
+});</code></pre>
+
+<h3>Real-World Proxy Patterns (Interview Gold)</h3>
+<pre><code>// ─── PATTERN 1: Negative Array Indexing (Python-style) ────
+function createNegativeArray(arr) {
+  return new Proxy(arr, {
+    get(target, property, receiver) {
+      const index = Number(property);
+      if (Number.isInteger(index) && index < 0) {
+        return target[target.length + index]; // arr[-1] = last element
+      }
+      return Reflect.get(target, property, receiver);
+    }
+  });
+}
+
+const arr = createNegativeArray([10, 20, 30, 40, 50]);
+console.log(arr[-1]); // 50
+console.log(arr[-2]); // 40
+console.log(arr[0]);  // 10 (positive still works)
+
+// ─── PATTERN 2: Auto-vivification (auto-create nested objects) ──
+function autoVivify() {
+  return new Proxy({}, {
+    get(target, property) {
+      if (!(property in target)) {
+        target[property] = autoVivify(); // Create nested proxy
+      }
+      return target[property];
+    }
+  });
+}
+
+const config = autoVivify();
+config.database.host.primary = "localhost"; // No errors! All paths auto-created
+console.log(config.database.host.primary); // "localhost"
+
+// ─── PATTERN 3: Observable/Reactive Object (Vue 3 Reactivity!) ──
+function reactive(obj, onChange) {
+  return new Proxy(obj, {
+    set(target, property, value, receiver) {
+      const oldValue = target[property];
+      const result = Reflect.set(target, property, value, receiver);
+      
+      if (oldValue !== value) {
+        onChange(property, value, oldValue);
+      }
+      return result;
+    },
+    deleteProperty(target, property) {
+      const result = Reflect.deleteProperty(target, property);
+      onChange(property, undefined, target[property]);
+      return result;
+    }
+  });
+}
+
+const state = reactive({ count: 0, name: "Sid" }, (prop, newVal, oldVal) => {
+  console.log(`${prop} changed: ${oldVal} → ${newVal}`);
+  // Re-render UI here!
+});
+state.count = 1; // "count changed: 0 → 1"
+state.name = "Ram"; // "name changed: Sid → Ram"
+// This is EXACTLY how Vue 3's reactivity system works!
+
+// ─── PATTERN 4: API Method Chaining (like jQuery/Lodash) ──
+function chainable(obj) {
+  return new Proxy(obj, {
+    get(target, property) {
+      if (typeof target[property] === "function") {
+        return (...args) => {
+          const result = target[property](...args);
+          // If method returns undefined, return proxy for chaining
+          return result === undefined ? proxy : result;
+        };
+      }
+      return target[property];
+    }
+  });
+}
+
+// ─── PATTERN 5: Revocable Proxy (One-time access tokens) ──
+const { proxy: tempAccess, revoke } = Proxy.revocable(sensitiveData, {
+  get(target, prop) { return target[prop]; }
+});
+
+tempAccess.secret; // Works!
+revoke();          // Revoke access forever
+// tempAccess.secret; // TypeError: Cannot perform 'get' on a proxy that has been revoked</code></pre>
+
+<div class="interview">
+<h4>🎯 Proxy Interview Questions</h4>
+<ul>
+<li><strong>Q: What are Proxies used for in real frameworks?</strong><br>
+A: Vue 3 uses Proxy for its entire reactivity system (replacing Vue 2's Object.defineProperty). MobX uses Proxy for observable state. Immer uses Proxy for structural sharing in immutable updates. Libraries use revocable proxies for access control.</li>
+<li><strong>Q: Proxy vs Object.defineProperty?</strong><br>
+A: Proxy intercepts ALL operations (get, set, delete, has, ownKeys, etc.) on any property including new ones. defineProperty only works on predefined individual properties. Proxy can't be polyfilled (needs native support). defineProperty works in IE11.</li>
+<li><strong>Q: Performance considerations with Proxy?</strong><br>
+A: Proxy adds overhead per operation (~3-5x slower than direct access). Don't use in hot loops. Good for infrequently accessed config, validation layers, and development tools. V8 optimizes simple get/set traps well.</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="nav-links">
+  <a href="phase6-dom-events-browser-apis.html">← Phase 6: DOM & Browser APIs</a>
+  <a href="phase8-advanced-interview-masterclass.html">Phase 8: Advanced & Interview Masterclass →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

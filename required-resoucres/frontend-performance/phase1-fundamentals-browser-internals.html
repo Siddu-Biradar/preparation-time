@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend Performance — Phase 1: Fundamentals & Browser Internals</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #0f6b5f; --accent-soft: #d9efe8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.5; font-size: 11.4pt; }
+    main { max-width: 920px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #152923; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 28px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 18px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #f1ece2; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf7f2 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #13443d; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #bfded5; }
+    .callout { border-left: 4px solid var(--accent); background: #f4fbf8; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 1: Fundamentals & Browser Internals</h1>
+  <p class="subtitle">Frontend Performance Mastery — Zero to Hero Series (1 of 6)</p>
+  <div class="pill-row">
+    <span class="pill">Browser Architecture</span>
+    <span class="pill">Critical Rendering Path</span>
+    <span class="pill">Core Web Vitals</span>
+    <span class="pill">Network Layer</span>
+    <span class="pill">DNS / TCP / TLS</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#why-perf">Why Frontend Performance Matters</a></li>
+    <li><a href="#browser-arch">Browser Architecture (Multi-Process)</a></li>
+    <li><a href="#navigation">Navigation: DNS → TCP → TLS → HTTP</a></li>
+    <li><a href="#crp">Critical Rendering Path (CRP)</a></li>
+    <li><a href="#parsing">HTML Parsing & DOM Construction</a></li>
+    <li><a href="#cssom">CSSOM Construction</a></li>
+    <li><a href="#render-tree">Render Tree, Layout & Paint</a></li>
+    <li><a href="#compositing">Compositing & GPU Acceleration</a></li>
+    <li><a href="#cwv">Core Web Vitals (LCP, INP, CLS)</a></li>
+    <li><a href="#metrics">Other Performance Metrics (FCP, TTFB, TBT, TTI, SI)</a></li>
+    <li><a href="#devtools">Chrome DevTools Performance Panel Deep Dive</a></li>
+    <li><a href="#exercise1">Hands-On Exercise 1</a></li>
+    <li><a href="#interview1">Interview Questions — Phase 1</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="why-perf">1. Why Frontend Performance Matters</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Why Web Performance Matters — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=0fONene3OIA" target="_blank">Web Performance Fundamentals — Todd Gardner (Frontend Masters)</a></li>
+</ul></details></div>
+
+<p>Frontend performance directly impacts <strong>user experience</strong>, <strong>business revenue</strong>, and <strong>SEO rankings</strong>.</p>
+
+<h3>Business Impact — Real Statistics</h3>
+<ul>
+  <li><strong>Google</strong>: A 0.5 second delay in search results = 20% drop in traffic</li>
+  <li><strong>Amazon</strong>: Every 100ms of latency costs 1% in sales</li>
+  <li><strong>Walmart</strong>: Every 1 second improvement = 2% increase in conversions</li>
+  <li><strong>Pinterest</strong>: 40% reduction in perceived wait time = 15% increase in sign-ups</li>
+  <li><strong>BBC</strong>: Every additional second of page load = 10% more users leave</li>
+</ul>
+
+<h3>User Perception Thresholds</h3>
+<table>
+  <tr><th>Response Time</th><th>User Perception</th></tr>
+  <tr><td>0–100ms</td><td>Instant — feels like direct manipulation</td></tr>
+  <tr><td>100–300ms</td><td>Slight delay — still feels responsive</td></tr>
+  <tr><td>300–1000ms</td><td>Noticeable delay — user notices something is happening</td></tr>
+  <tr><td>1000–5000ms</td><td>Focus shift — user's mind wanders, needs feedback</td></tr>
+  <tr><td>&gt;5000ms</td><td>Abandonment threshold — user likely leaves</td></tr>
+</table>
+
+<h3>Performance and SEO</h3>
+<p>Google uses <strong>page experience signals</strong> as ranking factors:</p>
+<ul>
+  <li>Core Web Vitals (LCP, INP, CLS) are direct ranking signals</li>
+  <li>Mobile-first indexing means mobile performance is critical</li>
+  <li>Slow pages get de-prioritized in Google Discover</li>
+  <li>Chrome User Experience Report (CrUX) data feeds into Search Console</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="browser-arch">2. Browser Architecture (Multi-Process)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=PzzNuCk-e0Y" target="_blank">How Browsers Work — Inside look at modern web browser (Google)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=m-J-tbAlFic" target="_blank">Browser Architecture — Life of a Pixel (Chrome University)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=p-iiEDtpy6I" target="_blank">Multi-Process Architecture in Chrome — Hussein Nasser</a></li>
+</ul></details></div>
+
+<h3>Chrome's Multi-Process Architecture</h3>
+<p>Modern browsers (Chromium-based) use multiple processes for <strong>security</strong>, <strong>stability</strong>, and <strong>performance</strong>:</p>
+
+<table>
+  <tr><th>Process</th><th>Responsibility</th><th>Count</th></tr>
+  <tr><td><strong>Browser Process</strong></td><td>UI (address bar, bookmarks), network requests, storage access, coordinating other processes</td><td>1</td></tr>
+  <tr><td><strong>Renderer Process</strong></td><td>Parsing HTML/CSS, executing JS, painting — one per tab (site isolation)</td><td>Multiple</td></tr>
+  <tr><td><strong>GPU Process</strong></td><td>Handles GPU tasks for all tabs (compositing, WebGL, video decoding)</td><td>1</td></tr>
+  <tr><td><strong>Plugin Process</strong></td><td>Runs browser plugins (Flash-era, mostly deprecated)</td><td>Per plugin</td></tr>
+  <tr><td><strong>Utility Process</strong></td><td>Network service, audio service, storage service</td><td>Multiple</td></tr>
+</table>
+
+<h3>Inside the Renderer Process — Threads</h3>
+<table>
+  <tr><th>Thread</th><th>Responsibility</th></tr>
+  <tr><td><strong>Main Thread</strong></td><td>DOM parsing, CSS computation, JS execution, Layout, Paint — SINGLE THREADED!</td></tr>
+  <tr><td><strong>Compositor Thread</strong></td><td>Composites layers, handles scroll & zoom (can work without main thread)</td></tr>
+  <tr><td><strong>Raster Threads</strong></td><td>Convert paint records into bitmaps (GPU rasterization)</td></tr>
+  <tr><td><strong>Worker Threads</strong></td><td>Web Workers, Service Workers (separate from main thread)</td></tr>
+</table>
+
+<div class="callout">
+  <strong>Key Insight:</strong> JavaScript execution, DOM manipulation, style calculations, and layout ALL happen on the <strong>same main thread</strong>. This is WHY heavy JS blocks rendering. Understanding this single fact explains most performance problems.
+</div>
+
+<h3>Site Isolation (Security + Performance)</h3>
+<p>Since Chrome 67, each site gets its own renderer process. This means:</p>
+<ul>
+  <li>A heavy tab cannot freeze other tabs</li>
+  <li>Spectre/Meltdown attacks are mitigated</li>
+  <li>Cross-origin iframes get separate processes</li>
+  <li>Trade-off: More memory usage (~100-150MB per process)</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="navigation">3. Navigation: DNS → TCP → TLS → HTTP</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=AlkDbnbv7dk" target="_blank">DNS Resolution Explained — ByteByteGo</a></li>
+  <li><a href="https://www.youtube.com/watch?v=j9QmMEWmcfo" target="_blank">TCP 3-Way Handshake — Sunny Classroom</a></li>
+  <li><a href="https://www.youtube.com/watch?v=86cQJ0MMses" target="_blank">TLS Handshake Explained — Computerphile</a></li>
+  <li><a href="https://www.youtube.com/watch?v=a-sBfyiXysI" target="_blank">What happens when you type a URL — Alex Xu (ByteByteGo)</a></li>
+</ul></details></div>
+
+<p>When a user types a URL and presses Enter, here's the <strong>complete journey</strong>:</p>
+
+<h3>Step 1: URL Parsing & HSTS Check</h3>
+<ul>
+  <li>Browser parses the URL (scheme, host, port, path)</li>
+  <li>Checks HSTS (HTTP Strict Transport Security) preload list</li>
+  <li>If HTTP and in HSTS list → automatically upgrades to HTTPS (307 internal redirect)</li>
+</ul>
+
+<h3>Step 2: DNS Resolution (~20-120ms)</h3>
+<p>Domain Name System translates human-readable domain to IP address:</p>
+<pre>
+Browser Cache → OS Cache → Router Cache → ISP DNS → Root DNS → TLD DNS → Authoritative DNS
+
+Example: www.kyndryl.com
+1. Browser DNS cache (chrome://net-internals/#dns)
+2. OS resolver cache (macOS: scutil --dns)
+3. Router cache
+4. ISP recursive resolver
+5. Root nameserver → "Go ask .com TLD"
+6. .com TLD nameserver → "Go ask ns1.kyndryl.com"
+7. Authoritative nameserver → "IP is 104.18.x.x"
+</pre>
+
+<h4>DNS Optimization Techniques</h4>
+<ul>
+  <li><code>&lt;link rel="dns-prefetch" href="//api.example.com"&gt;</code> — Resolves DNS early</li>
+  <li><code>&lt;link rel="preconnect" href="https://api.example.com"&gt;</code> — DNS + TCP + TLS early</li>
+  <li>Reduce DNS lookups by minimizing third-party domains</li>
+  <li>Use DNS over HTTPS (DoH) for privacy and sometimes speed</li>
+</ul>
+
+<h3>Step 3: TCP Three-Way Handshake (~1 RTT = 20-100ms)</h3>
+<pre>
+Client → Server:  SYN (sequence number = x)
+Server → Client:  SYN-ACK (seq = y, ack = x+1)
+Client → Server:  ACK (seq = x+1, ack = y+1)
+
+Total: 1 Round Trip Time (RTT)
+</pre>
+
+<h4>TCP Optimization: Connection Reuse</h4>
+<ul>
+  <li><strong>Keep-Alive</strong> (HTTP/1.1 default): Reuse TCP connection for multiple requests</li>
+  <li><strong>HTTP/2 multiplexing</strong>: Single TCP connection, multiple streams in parallel</li>
+  <li><strong>TCP Fast Open (TFO)</strong>: Send data in SYN packet (saves 1 RTT on repeat visits)</li>
+</ul>
+
+<h3>Step 4: TLS Handshake (~1-2 RTT = 40-200ms)</h3>
+<pre>
+TLS 1.2 (2 RTT):
+Client → Server:  ClientHello (supported ciphers, random)
+Server → Client:  ServerHello + Certificate + ServerHelloDone
+Client → Server:  ClientKeyExchange + ChangeCipherSpec + Finished
+Server → Client:  ChangeCipherSpec + Finished
+
+TLS 1.3 (1 RTT — modern):
+Client → Server:  ClientHello + KeyShare
+Server → Client:  ServerHello + KeyShare + {Certificate} + Finished
+Client → Server:  Finished
+
+TLS 1.3 0-RTT (resumption):
+Client sends early data with PSK (pre-shared key from previous session)
+</pre>
+
+<div class="callout">
+  <strong>Performance Tip:</strong> TLS 1.3 saves a full RTT compared to TLS 1.2. For users 200ms away (mobile in India), this is a <strong>200ms improvement</strong> on every new connection.
+</div>
+
+<h3>Step 5: HTTP Request/Response</h3>
+<pre>
+GET /index.html HTTP/2
+Host: www.kyndryl.com
+Accept: text/html
+Accept-Encoding: gzip, br, zstd
+
+HTTP/2 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Encoding: br
+Content-Length: 45230
+Cache-Control: public, max-age=31536000, immutable
+</pre>
+
+<h3>HTTP/2 vs HTTP/1.1 vs HTTP/3</h3>
+<table>
+  <tr><th>Feature</th><th>HTTP/1.1</th><th>HTTP/2</th><th>HTTP/3</th></tr>
+  <tr><td>Multiplexing</td><td>No (6 connections max)</td><td>Yes (single TCP connection)</td><td>Yes (QUIC/UDP)</td></tr>
+  <tr><td>Header Compression</td><td>No</td><td>HPACK</td><td>QPACK</td></tr>
+  <tr><td>Server Push</td><td>No</td><td>Yes (deprecated)</td><td>No</td></tr>
+  <tr><td>Head-of-Line Blocking</td><td>Yes (per connection)</td><td>Yes (TCP level)</td><td>No (per stream)</td></tr>
+  <tr><td>Transport</td><td>TCP</td><td>TCP</td><td>QUIC (UDP)</td></tr>
+  <tr><td>0-RTT Connection</td><td>No</td><td>No</td><td>Yes</td></tr>
+</table>
+
+<h3>Complete Timeline Example</h3>
+<pre>
+t=0ms     URL entered
+t=2ms     HSTS check, URL parsed
+t=22ms    DNS resolved (cached: 0ms, cold: 50-200ms)
+t=52ms    TCP handshake complete (+1 RTT = 30ms)
+t=82ms    TLS 1.3 handshake complete (+1 RTT = 30ms)
+t=85ms    HTTP GET sent
+t=115ms   First byte received (TTFB = 115ms)
+t=145ms   HTML fully downloaded (30KB gzipped)
+t=146ms   HTML parsing begins → triggers more resource requests
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="crp">4. Critical Rendering Path (CRP)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=lvb06W_VKVE" target="_blank">Critical Rendering Path — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=SmE4OwHztCc" target="_blank">How the Browser Renders a Web Page — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=n1cKlKM3jYI" target="_blank">Browser Rendering Optimization — Udacity (Google)</a></li>
+</ul></details></div>
+
+<p>The Critical Rendering Path is the sequence of steps the browser takes to convert HTML, CSS, and JavaScript into pixels on the screen.</p>
+
+<h3>The 5 Steps of CRP</h3>
+<pre>
+HTML → DOM → CSSOM → Render Tree → Layout → Paint → Composite
+         ↑                ↑
+         |                |
+    JavaScript        JavaScript
+   (can modify)     (can modify)
+</pre>
+
+<ol>
+  <li><strong>DOM Construction</strong> — Parse HTML bytes → Characters → Tokens → Nodes → DOM Tree</li>
+  <li><strong>CSSOM Construction</strong> — Parse CSS bytes → Characters → Tokens → Nodes → CSSOM Tree</li>
+  <li><strong>Render Tree</strong> — Combine DOM + CSSOM (only visible elements)</li>
+  <li><strong>Layout (Reflow)</strong> — Calculate exact position and size of each element</li>
+  <li><strong>Paint</strong> — Fill in pixels (text, colors, images, borders, shadows)</li>
+  <li><strong>Composite</strong> — Draw layers in correct order on GPU</li>
+</ol>
+
+<h3>Render-Blocking Resources</h3>
+<p>These BLOCK the Critical Rendering Path:</p>
+<table>
+  <tr><th>Resource</th><th>Blocks</th><th>Why</th></tr>
+  <tr><td>CSS (all)</td><td>Render</td><td>Browser won't paint until CSSOM is complete (avoid FOUC)</td></tr>
+  <tr><td>JS (without async/defer)</td><td>DOM parsing</td><td>Parser stops to download + execute JS</td></tr>
+  <tr><td>JS (async)</td><td>DOM parsing briefly</td><td>Downloads async, but executes immediately (pauses parser)</td></tr>
+  <tr><td>JS (defer)</td><td>Nothing</td><td>Downloads async, executes after DOM is parsed</td></tr>
+  <tr><td>Fonts</td><td>Text render</td><td>Text invisible until font loads (FOIT)</td></tr>
+</table>
+
+<h3>Script Loading Strategies</h3>
+<pre>
+&lt;!-- Parser-blocking: stops parsing until downloaded AND executed --&gt;
+&lt;script src="app.js"&gt;&lt;/script&gt;
+
+&lt;!-- Async: download in parallel, execute ASAP (blocks parser during execution) --&gt;
+&lt;script async src="analytics.js"&gt;&lt;/script&gt;
+
+&lt;!-- Defer: download in parallel, execute AFTER DOM parsed (in order) --&gt;
+&lt;script defer src="app.js"&gt;&lt;/script&gt;
+
+&lt;!-- Module: deferred by default --&gt;
+&lt;script type="module" src="app.mjs"&gt;&lt;/script&gt;
+</pre>
+
+<div class="callout">
+  <strong>Best Practice:</strong> Use <code>defer</code> for your main application bundle. Use <code>async</code> only for independent scripts that don't depend on DOM (analytics, ads). Never put <code>&lt;script&gt;</code> in <code>&lt;head&gt;</code> without async/defer.
+</div>
+
+<h3>Optimizing the Critical Rendering Path</h3>
+<ol>
+  <li><strong>Minimize critical resources</strong> — Reduce number of render-blocking CSS/JS files</li>
+  <li><strong>Minimize critical bytes</strong> — Compress, minify, reduce CSS/JS size</li>
+  <li><strong>Minimize critical path length</strong> — Reduce round trips (inline critical CSS)</li>
+  <li><strong>Defer non-critical CSS</strong> — Use <code>media</code> attribute or load async</li>
+  <li><strong>Inline critical CSS</strong> — First 14KB of HTML should contain above-the-fold styles</li>
+</ol>
+
+<h4>Critical CSS Inlining Example</h4>
+<pre>
+&lt;head&gt;
+  &lt;!-- Critical CSS inlined --&gt;
+  &lt;style&gt;
+    body { font-family: sans-serif; margin: 0; }
+    .header { background: #1a1a2e; color: white; padding: 16px; }
+    .hero { min-height: 400px; display: flex; align-items: center; }
+  &lt;/style&gt;
+
+  &lt;!-- Non-critical CSS loaded async --&gt;
+  &lt;link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'"&gt;
+  &lt;noscript&gt;&lt;link rel="stylesheet" href="styles.css"&gt;&lt;/noscript&gt;
+&lt;/head&gt;
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="parsing">5. HTML Parsing & DOM Construction</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Lsg84NtJbmI" target="_blank">HTML Parser & DOM Tree — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ZTnIxIA5KGw" target="_blank">How the DOM is Built — Google Chrome Developers</a></li>
+</ul></details></div>
+
+<h3>The Parsing Pipeline</h3>
+<pre>
+Bytes (from network)
+  → Characters (via encoding, e.g., UTF-8)
+    → Tokens (via tokenizer: StartTag, EndTag, Character, Comment)
+      → Nodes (via tree construction algorithm)
+        → DOM Tree (in memory)
+</pre>
+
+<h3>Speculative Parsing (Preload Scanner)</h3>
+<p>When the main parser is blocked (e.g., by a synchronous script), the browser uses a <strong>preload scanner</strong> to look ahead and find resources to fetch:</p>
+<ul>
+  <li>Scans ahead for <code>&lt;img&gt;</code>, <code>&lt;link&gt;</code>, <code>&lt;script&gt;</code> tags</li>
+  <li>Initiates downloads in parallel while main parser is blocked</li>
+  <li>Does NOT build DOM — only fetches resources</li>
+  <li><strong>This is why you should use standard HTML tags</strong> — the preload scanner can't parse JS-generated URLs</li>
+</ul>
+
+<div class="callout warning">
+  <strong>Anti-pattern:</strong> Dynamically injecting scripts via JS defeats the preload scanner. The browser won't discover these resources until JS executes.
+<pre>
+// BAD: Invisible to preload scanner
+const script = document.createElement('script');
+script.src = 'important-lib.js';
+document.head.appendChild(script);
+
+// GOOD: Visible to preload scanner
+// &lt;script defer src="important-lib.js"&gt;&lt;/script&gt;
+</pre>
+</div>
+
+<h3>DOM Tree Size Impact</h3>
+<table>
+  <tr><th>DOM Nodes</th><th>Impact</th></tr>
+  <tr><td>&lt;800</td><td>Excellent — fast style recalculation, layout, paint</td></tr>
+  <tr><td>800–1,500</td><td>Good — typical for well-structured pages</td></tr>
+  <tr><td>1,500–3,000</td><td>Warning — style recalculation becoming expensive</td></tr>
+  <tr><td>&gt;3,000</td><td>Critical — significant performance issues, especially on mobile</td></tr>
+</table>
+
+<h4>Why Large DOM is Slow</h4>
+<ul>
+  <li><strong>Style Recalculation</strong>: Browser must check every CSS rule against every DOM node</li>
+  <li><strong>Layout</strong>: More nodes = more geometry calculations</li>
+  <li><strong>Memory</strong>: Each node ≈ 0.5-1KB in memory</li>
+  <li><strong>querySelector</strong>: Slower traversal with more nodes</li>
+  <li><strong>GC Pressure</strong>: More objects for garbage collector to track</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cssom">6. CSSOM Construction</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=lvb06W_VKVE" target="_blank">CSSOM & Render-Blocking CSS — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=iniwPUEbPUM" target="_blank">CSS Containment & Performance — Una Kravets (Chrome)</a></li>
+</ul></details></div>
+
+<h3>Why CSS is Render-Blocking</h3>
+<p>The browser MUST construct the complete CSSOM before painting anything because:</p>
+<ul>
+  <li>CSS rules cascade — later rules override earlier ones</li>
+  <li>A rule at the end of CSS could change everything above</li>
+  <li>Without complete CSSOM, the browser might show wrong styles (Flash of Unstyled Content - FOUC)</li>
+</ul>
+
+<h3>CSS Specificity Calculation Performance</h3>
+<pre>
+Selector matching is RIGHT to LEFT:
+
+/* Browser reads: find all &lt;a&gt; → filter those inside .nav → filter inside .header */
+.header .nav a { color: blue; }
+
+/* More efficient selectors */
+.nav-link { color: blue; }  /* Direct class — O(1) lookup */
+</pre>
+
+<h4>Selector Performance (Fastest → Slowest)</h4>
+<ol>
+  <li><code>#id</code> — Hash map lookup, O(1)</li>
+  <li><code>.class</code> — Hash map lookup, O(1)</li>
+  <li><code>tag</code> — Hash map lookup, O(1)</li>
+  <li><code>.parent .child</code> — Requires ancestor traversal</li>
+  <li><code>.parent > .child</code> — Only checks immediate parent (better than descendant)</li>
+  <li><code>*</code> — Matches everything (avoid)</li>
+  <li><code>[attr=value]</code> — Attribute lookup</li>
+  <li><code>:nth-child()</code> — Requires counting siblings</li>
+</ol>
+
+<div class="callout">
+  <strong>Modern Reality:</strong> CSS selector performance rarely matters unless you have 10,000+ nodes AND complex selectors. Focus on reducing CSS size and avoiding forced reflows instead.
+</div>
+
+<h3>CSS Containment</h3>
+<p><code>contain</code> property tells browser what optimizations it can make:</p>
+<pre>
+.card {
+  contain: layout;     /* Layout of this element is independent of the rest */
+  contain: paint;      /* Descendants won't paint outside this box */
+  contain: size;       /* Element's size is independent of children */
+  contain: style;      /* Counters/quotes scoped to this subtree */
+  contain: content;    /* = layout + paint + style (most common) */
+  contain: strict;     /* = layout + paint + size + style (strongest) */
+}
+
+/* content-visibility: auto — HUGE performance win for off-screen content */
+.below-fold-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px; /* Estimated height for layout stability */
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="render-tree">7. Render Tree, Layout & Paint</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=dndeRnzkZlg" target="_blank">Layout & Reflow — Chrome DevTools (Paul Irish)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ZTnIxIA5KGw" target="_blank">Rendering Performance — Google Chrome Developers</a></li>
+</ul></details></div>
+
+<h3>Render Tree Construction</h3>
+<p>The Render Tree combines DOM + CSSOM, containing ONLY visible elements:</p>
+<ul>
+  <li><code>display: none</code> → NOT in render tree (no layout, no paint)</li>
+  <li><code>visibility: hidden</code> → IN render tree (takes space, no paint)</li>
+  <li><code>opacity: 0</code> → IN render tree (takes space, composited layer)</li>
+  <li><code>&lt;head&gt;</code>, <code>&lt;script&gt;</code>, <code>&lt;meta&gt;</code> → NOT in render tree</li>
+  <li>Pseudo-elements (<code>::before</code>, <code>::after</code>) → IN render tree</li>
+</ul>
+
+<h3>Layout (Reflow) — The Expensive Step</h3>
+<p>Layout calculates the <strong>exact position and size</strong> of every element in the render tree.</p>
+
+<h4>What Triggers Layout</h4>
+<ul>
+  <li>First page load (initial layout)</li>
+  <li>Window resize</li>
+  <li>DOM changes (add/remove nodes)</li>
+  <li>CSS changes that affect geometry (width, height, margin, padding, position, font-size)</li>
+  <li>Reading layout properties (getBoundingClientRect, offsetWidth, scrollTop)</li>
+  <li>Content changes (text, images loading)</li>
+</ul>
+
+<h4>Layout Thrashing (Forced Synchronous Layout)</h4>
+<pre>
+// BAD: Layout thrashing — read/write/read/write pattern
+for (let i = 0; i &lt; elements.length; i++) {
+  const height = elements[i].offsetHeight;     // READ → forces layout
+  elements[i].style.height = height + 10 + 'px'; // WRITE → invalidates layout
+}
+// Result: N forced layouts in a single frame!
+
+// GOOD: Batch reads, then batch writes
+const heights = elements.map(el => el.offsetHeight); // All reads first
+elements.forEach((el, i) => {
+  el.style.height = heights[i] + 10 + 'px';        // All writes after
+});
+// Result: Only 1 forced layout + 1 recalculation
+</pre>
+
+<h3>Paint — Filling Pixels</h3>
+<p>Paint converts the render tree into actual pixels. Two types:</p>
+<ul>
+  <li><strong>Full Paint</strong>: Repaint the entire page (expensive, rare after initial load)</li>
+  <li><strong>Incremental Paint</strong>: Only repaint "dirty" rectangles (regions that changed)</li>
+</ul>
+
+<h4>Properties That Trigger Only Paint (No Layout)</h4>
+<pre>
+/* These cause REPAINT only (cheaper than reflow) */
+color, background-color, background-image,
+border-color, border-style, border-radius,
+outline, visibility, box-shadow, text-decoration,
+filter (some), opacity (if not on own layer)
+</pre>
+
+<h4>Properties That Trigger Layout + Paint (Expensive)</h4>
+<pre>
+/* These cause REFLOW + REPAINT (expensive!) */
+width, height, min-*, max-*,
+margin, padding, border-width,
+position, top, left, right, bottom,
+display, float, clear,
+font-size, font-family, font-weight,
+line-height, text-align, vertical-align,
+overflow, white-space
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="compositing">8. Compositing & GPU Acceleration</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Th-nv-GGBCE" target="_blank">GPU Compositing & Layers — Surma (Chrome DevRel)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=dbZMo2hPpag" target="_blank">Compositing in Blink & Chrome — Chrome University</a></li>
+</ul></details></div>
+
+<h3>Layer Promotion</h3>
+<p>The browser promotes elements to their own <strong>compositor layers</strong> when:</p>
+<ul>
+  <li>Element has <code>transform: translateZ(0)</code> or <code>will-change: transform</code></li>
+  <li>Element has <code>opacity</code> less than 1 with animation</li>
+  <li>Element has <code>position: fixed</code></li>
+  <li>Element overlaps another composited layer</li>
+  <li>Element has hardware-accelerated CSS (3D transforms, filters)</li>
+</ul>
+
+<h3>The Compositor's Advantage</h3>
+<pre>
+Without Compositing (everything on main thread):
+  JS → Style → Layout → Paint → Display
+  [-------- ALL ON MAIN THREAD --------]
+
+With Compositing (GPU layers):
+  JS → Style → Composite → Display
+  [main]        [compositor thread — no main thread needed!]
+</pre>
+
+<h4>Properties Handled by Compositor ONLY (Cheapest)</h4>
+<pre>
+/* These ONLY trigger COMPOSITE — no layout, no paint! */
+transform (translate, scale, rotate, skew)
+opacity
+filter (on promoted layer)
+</pre>
+
+<div class="callout">
+  <strong>The Golden Rule of 60fps Animations:</strong><br>
+  Only animate <code>transform</code> and <code>opacity</code>. These run on the compositor thread and don't touch the main thread at all. This means animations stay smooth even if JS is busy.
+</div>
+
+<h3>will-change Property</h3>
+<pre>
+/* Hint to browser: "I'm going to animate this" */
+.animated-element {
+  will-change: transform, opacity;
+}
+
+/* Use sparingly! Each layer = GPU memory */
+/* Remove after animation completes */
+element.addEventListener('transitionend', () => {
+  element.style.willChange = 'auto';
+});
+</pre>
+
+<div class="callout warning">
+  <strong>Warning:</strong> Don't apply <code>will-change</code> to everything! Each composited layer uses GPU memory (mobile GPUs have limited VRAM). Too many layers = "layer explosion" = worse performance.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cwv">9. Core Web Vitals (LCP, INP, CLS)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Core Web Vitals — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=nEHsHioWY1U" target="_blank">INP Explained — web.dev</a></li>
+  <li><a href="https://www.youtube.com/watch?v=jUQ2ABk1IjY" target="_blank">Optimize LCP — Google I/O</a></li>
+  <li><a href="https://www.youtube.com/watch?v=zIJuY-JCjqw" target="_blank">Fix CLS Issues — web.dev (Annie Sullivan)</a></li>
+</ul></details></div>
+
+<p>Core Web Vitals are Google's <strong>official metrics</strong> for user experience, directly impacting SEO rankings.</p>
+
+<h3>LCP — Largest Contentful Paint</h3>
+<p><strong>What it measures:</strong> Time until the largest visible content element finishes rendering.</p>
+
+<table>
+  <tr><th>Score</th><th>Threshold</th><th>Rating</th></tr>
+  <tr><td>Good</td><td>≤ 2.5 seconds</td><td>🟢</td></tr>
+  <tr><td>Needs Improvement</td><td>2.5 – 4.0 seconds</td><td>🟡</td></tr>
+  <tr><td>Poor</td><td>&gt; 4.0 seconds</td><td>🔴</td></tr>
+</table>
+
+<h4>What counts as LCP element?</h4>
+<ul>
+  <li><code>&lt;img&gt;</code> elements</li>
+  <li><code>&lt;image&gt;</code> inside SVG</li>
+  <li><code>&lt;video&gt;</code> poster image</li>
+  <li>Background image via <code>url()</code> (on block-level elements)</li>
+  <li>Block-level text elements (<code>&lt;h1&gt;</code>, <code>&lt;p&gt;</code>, etc.)</li>
+</ul>
+
+<h4>How to Optimize LCP</h4>
+<ol>
+  <li><strong>Eliminate render-blocking resources</strong> — Defer non-critical CSS/JS</li>
+  <li><strong>Optimize server response time</strong> — CDN, caching, server-side rendering</li>
+  <li><strong>Preload LCP resource</strong> — <code>&lt;link rel="preload" as="image" href="hero.webp"&gt;</code></li>
+  <li><strong>Optimize image size</strong> — Serve right size, use modern formats (WebP, AVIF)</li>
+  <li><strong>Reduce client-side rendering</strong> — SSR or pre-rendering for content-heavy pages</li>
+  <li><strong>Avoid lazy-loading LCP image</strong> — Above-fold images should load eagerly</li>
+</ol>
+
+<pre>
+&lt;!-- Preload the LCP image --&gt;
+&lt;link rel="preload" as="image" href="hero-banner.webp"
+      fetchpriority="high"
+      type="image/webp"&gt;
+
+&lt;!-- fetchpriority attribute --&gt;
+&lt;img src="hero-banner.webp" fetchpriority="high" alt="Hero"&gt;
+&lt;img src="below-fold.webp" loading="lazy" fetchpriority="low" alt="..."&gt;
+</pre>
+
+<h3>INP — Interaction to Next Paint (Replaced FID in March 2024)</h3>
+<p><strong>What it measures:</strong> The latency of ALL interactions throughout the page lifecycle, reported as the worst interaction (at the 98th percentile).</p>
+
+<table>
+  <tr><th>Score</th><th>Threshold</th><th>Rating</th></tr>
+  <tr><td>Good</td><td>≤ 200ms</td><td>🟢</td></tr>
+  <tr><td>Needs Improvement</td><td>200 – 500ms</td><td>🟡</td></tr>
+  <tr><td>Poor</td><td>&gt; 500ms</td><td>🔴</td></tr>
+</table>
+
+<h4>INP Breakdown</h4>
+<pre>
+User clicks button
+  |
+  ├── Input Delay (time waiting for main thread to be free)
+  │     └── Caused by: long tasks, heavy JS, event handlers from other interactions
+  │
+  ├── Processing Time (time running event handlers)
+  │     └── Caused by: complex logic in handlers, synchronous operations
+  │
+  └── Presentation Delay (time for browser to render the update)
+        └── Caused by: large DOM updates, forced reflows, expensive paint
+  |
+Next frame painted → User sees response
+</pre>
+
+<h4>How to Optimize INP</h4>
+<ol>
+  <li><strong>Break long tasks</strong> — Use <code>scheduler.yield()</code> or <code>setTimeout(0)</code></li>
+  <li><strong>Reduce input delay</strong> — Minimize third-party scripts blocking main thread</li>
+  <li><strong>Debounce expensive handlers</strong> — Don't recalculate on every keystroke</li>
+  <li><strong>Use <code>requestAnimationFrame</code></strong> — Batch DOM updates to next frame</li>
+  <li><strong>Virtualize long lists</strong> — Don't render 10,000 DOM nodes</li>
+  <li><strong>Use CSS containment</strong> — Limit style/layout recalculation scope</li>
+</ol>
+
+<pre>
+// Breaking long tasks with scheduler.yield()
+async function processLargeData(items) {
+  for (let i = 0; i &lt; items.length; i++) {
+    processItem(items[i]);
+
+    // Yield to main thread every 5 items
+    if (i % 5 === 0) {
+      await scheduler.yield(); // Let browser handle pending interactions
+    }
+  }
+}
+
+// Fallback for browsers without scheduler.yield()
+function yieldToMain() {
+  return new Promise(resolve => setTimeout(resolve, 0));
+}
+</pre>
+
+<h3>CLS — Cumulative Layout Shift</h3>
+<p><strong>What it measures:</strong> Sum of all unexpected layout shifts during the page lifecycle.</p>
+
+<table>
+  <tr><th>Score</th><th>Threshold</th><th>Rating</th></tr>
+  <tr><td>Good</td><td>≤ 0.1</td><td>🟢</td></tr>
+  <tr><td>Needs Improvement</td><td>0.1 – 0.25</td><td>🟡</td></tr>
+  <tr><td>Poor</td><td>&gt; 0.25</td><td>🔴</td></tr>
+</table>
+
+<h4>CLS Calculation Formula</h4>
+<pre>
+Layout Shift Score = Impact Fraction × Distance Fraction
+
+Impact Fraction = % of viewport affected by the shift
+Distance Fraction = how far the elements moved (as % of viewport)
+
+Example: An element covering 50% viewport moves 25% down
+Score = 0.5 × 0.25 = 0.125
+</pre>
+
+<h4>Common CLS Causes & Fixes</h4>
+<table>
+  <tr><th>Cause</th><th>Fix</th></tr>
+  <tr><td>Images without dimensions</td><td>Always set width/height or use aspect-ratio</td></tr>
+  <tr><td>Ads/embeds without reserved space</td><td>Use min-height on containers</td></tr>
+  <tr><td>Dynamically injected content</td><td>Reserve space with skeleton screens</td></tr>
+  <tr><td>Web fonts causing FOIT/FOUT</td><td>Use font-display: swap + size-adjust</td></tr>
+  <tr><td>Late-loading CSS changing layout</td><td>Inline critical CSS, preload rest</td></tr>
+</table>
+
+<pre>
+&lt;!-- Always specify dimensions --&gt;
+&lt;img src="photo.webp" width="800" height="600" alt="..."&gt;
+
+&lt;!-- Or use aspect-ratio in CSS --&gt;
+&lt;style&gt;
+  .responsive-img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+&lt;/style&gt;
+
+&lt;!-- Reserve space for dynamic content --&gt;
+&lt;div class="ad-slot" style="min-height: 250px;"&gt;
+  &lt;!-- Ad loads here --&gt;
+&lt;/div&gt;
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="metrics">10. Other Performance Metrics</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=0fONene3OIA" target="_blank">Web Performance Metrics Explained — Todd Gardner</a></li>
+  <li><a href="https://www.youtube.com/watch?v=MOax6LJNHGE" target="_blank">TTFB, FCP, LCP, TBT — web.dev (Barry Pollard)</a></li>
+</ul></details></div>
+
+<table>
+  <tr><th>Metric</th><th>What It Measures</th><th>Good Threshold</th><th>How to Improve</th></tr>
+  <tr><td><strong>TTFB</strong> (Time to First Byte)</td><td>Server responsiveness — time from request to first byte of response</td><td>≤ 800ms</td><td>CDN, caching, server optimization, connection reuse</td></tr>
+  <tr><td><strong>FCP</strong> (First Contentful Paint)</td><td>Time until first text/image is painted</td><td>≤ 1.8s</td><td>Eliminate render-blocking resources, inline critical CSS</td></tr>
+  <tr><td><strong>TBT</strong> (Total Blocking Time)</td><td>Sum of blocking time for all Long Tasks (>50ms) between FCP and TTI</td><td>≤ 200ms</td><td>Code splitting, defer non-essential JS, break long tasks</td></tr>
+  <tr><td><strong>TTI</strong> (Time to Interactive)</td><td>Time until page is fully interactive (no long tasks, handlers attached)</td><td>≤ 3.8s</td><td>Minimize JS, code-split, defer third-party scripts</td></tr>
+  <tr><td><strong>SI</strong> (Speed Index)</td><td>How quickly the contents of a page are visibly populated</td><td>≤ 3.4s</td><td>Optimize CRP, reduce render-blocking, prioritize above-fold</td></tr>
+</table>
+
+<h3>Long Tasks</h3>
+<p>A <strong>Long Task</strong> is any task on the main thread that takes &gt;50ms. During a long task:</p>
+<ul>
+  <li>The page feels frozen/unresponsive</li>
+  <li>User interactions are delayed</li>
+  <li>Animations jank</li>
+  <li>The browser can't paint new frames</li>
+</ul>
+
+<pre>
+// Detect Long Tasks with PerformanceObserver
+const observer = new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    console.warn('Long Task detected:', {
+      duration: entry.duration,
+      startTime: entry.startTime,
+      name: entry.name
+    });
+  }
+});
+observer.observe({ type: 'longtask', buffered: true });
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="devtools">11. Chrome DevTools Performance Panel</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=LGAIs50onCc" target="_blank">Chrome DevTools Performance Panel — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">Reading a Performance Trace — Paul Irish</a></li>
+  <li><a href="https://www.youtube.com/watch?v=5fLW5Q5ODiE" target="_blank">DevTools Tips for Performance — Jecelyn Yeen (Chrome)</a></li>
+</ul></details></div>
+
+<h3>Key Panels for Performance</h3>
+<table>
+  <tr><th>Panel</th><th>Use For</th></tr>
+  <tr><td><strong>Performance</strong></td><td>Record & analyze runtime performance (flame chart, frames, layers)</td></tr>
+  <tr><td><strong>Lighthouse</strong></td><td>Automated audit of performance, accessibility, SEO, best practices</td></tr>
+  <tr><td><strong>Network</strong></td><td>Request waterfall, size, timing, throttling</td></tr>
+  <tr><td><strong>Memory</strong></td><td>Heap snapshots, allocation timelines, detached DOM detection</td></tr>
+  <tr><td><strong>Rendering</strong> (drawer)</td><td>Paint flashing, layout shift regions, FPS meter, layer borders</td></tr>
+  <tr><td><strong>Coverage</strong> (drawer)</td><td>Find unused CSS/JS — critical for code splitting decisions</td></tr>
+</table>
+
+<h3>Performance Panel — Reading the Flame Chart</h3>
+<pre>
+Top Section: Frames (each bar = 1 frame, green = &lt;16.6ms, red = janky)
+├── Network: Request waterfall
+├── Frames: Visual frame rendering
+├── Main: Main thread activity (THE MOST IMPORTANT SECTION)
+│   ├── Parse HTML (blue)
+│   ├── Evaluate Script (yellow)
+│   ├── Recalculate Style (purple)
+│   ├── Layout (purple)
+│   ├── Paint (green)
+│   ├── Composite (green)
+│   └── Long Tasks highlighted with red triangle ⚠️
+├── Compositor: Compositor thread activity
+├── Raster: Rasterization threads
+└── GPU: GPU activity
+
+Bottom Section:
+├── Summary: Time breakdown by category
+├── Bottom-Up: Most expensive functions
+├── Call Tree: Top-down call hierarchy
+└── Event Log: Chronological events
+</pre>
+
+<h3>Essential DevTools Tricks</h3>
+<ul>
+  <li><strong>CPU Throttling</strong>: Simulate slow devices (4x/6x slowdown)</li>
+  <li><strong>Network Throttling</strong>: Simulate Slow 3G, Fast 3G, Offline</li>
+  <li><strong>Paint Flashing</strong>: Rendering drawer → highlights repainted areas in green</li>
+  <li><strong>Layout Shift Regions</strong>: Rendering drawer → highlights CLS in blue</li>
+  <li><strong>FPS Meter</strong>: Rendering drawer → real-time FPS overlay</li>
+  <li><strong>Coverage Tab</strong>: Sources → Coverage → see % of unused CSS/JS per file</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="exercise1">12. Hands-On Exercise — Phase 1</h2>
+
+<h3>Exercise 1: Measure & Analyze a Page</h3>
+<ol>
+  <li>Open Chrome DevTools on any website (try <code>web.dev/measure</code>)</li>
+  <li>Go to <strong>Performance</strong> tab → Check "Screenshots" + "Web Vitals"</li>
+  <li>Click Record → Reload page → Stop recording</li>
+  <li>Identify:
+    <ul>
+      <li>How long does DOM parsing take? (blue bars in Main)</li>
+      <li>How many Long Tasks exist? (red triangles)</li>
+      <li>What is the LCP element? (Web Vitals lane)</li>
+      <li>Are there any layout shifts? (Experience lane)</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>Exercise 2: Identify Render-Blocking Resources</h3>
+<pre>
+&lt;!-- Create this HTML file and profile it --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;!-- Render-blocking CSS --&gt;
+  &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"&gt;
+
+  &lt;!-- Parser-blocking JS --&gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello World&lt;/h1&gt;
+  &lt;p&gt;This content won't render until CSS + JS are loaded&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p><strong>Task:</strong> Optimize this page to eliminate render-blocking resources and measure the improvement using Lighthouse.</p>
+
+<h3>Exercise 3: Detect Layout Thrashing</h3>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;div id="container"&gt;&lt;/div&gt;
+  &lt;script&gt;
+    const container = document.getElementById('container');
+
+    // Create 100 boxes
+    for (let i = 0; i &lt; 100; i++) {
+      const box = document.createElement('div');
+      box.style.cssText = 'width:50px;height:50px;background:coral;margin:4px;display:inline-block;';
+      box.textContent = i;
+      container.appendChild(box);
+    }
+
+    // BAD: Layout thrashing
+    const boxes = container.children;
+    console.time('thrashing');
+    for (let i = 0; i &lt; boxes.length; i++) {
+      const width = boxes[i].offsetWidth; // FORCED LAYOUT
+      boxes[i].style.width = (width + i) + 'px'; // INVALIDATE
+    }
+    console.timeEnd('thrashing');
+
+    // TODO: Rewrite this without layout thrashing and compare times
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h3>Exercise 4: Measure Core Web Vitals in Code</h3>
+<pre>
+// Install: npm install web-vitals
+import { onLCP, onINP, onCLS, onFCP, onTTFB } from 'web-vitals';
+
+function sendToAnalytics(metric) {
+  console.log(`${metric.name}: ${metric.value.toFixed(2)}ms (rating: ${metric.rating})`);
+  // In production, send to your analytics endpoint
+}
+
+onLCP(sendToAnalytics);
+onINP(sendToAnalytics);
+onCLS(sendToAnalytics);
+onFCP(sendToAnalytics);
+onTTFB(sendToAnalytics);
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview1">13. Interview Questions — Phase 1</h2>
+
+<h3>Beginner Level</h3>
+<ol>
+  <li><strong>Q: What is the Critical Rendering Path?</strong><br>
+    A: The CRP is the sequence of steps the browser takes to convert HTML, CSS, and JavaScript into pixels on screen: DOM construction → CSSOM construction → Render Tree → Layout → Paint → Composite.</li>
+
+  <li><strong>Q: What is the difference between async and defer in script tags?</strong><br>
+    A: Both download scripts asynchronously. <code>async</code> executes immediately upon download (pauses HTML parsing), with no guaranteed order. <code>defer</code> waits until HTML parsing is complete, then executes in document order. Use <code>defer</code> for app scripts, <code>async</code> for independent analytics scripts.</li>
+
+  <li><strong>Q: What are Core Web Vitals?</strong><br>
+    A: Google's three key metrics for user experience: LCP (loading performance, ≤2.5s), INP (interactivity, ≤200ms), and CLS (visual stability, ≤0.1). They directly impact SEO rankings.</li>
+
+  <li><strong>Q: Why is CSS render-blocking?</strong><br>
+    A: CSS is render-blocking because the browser must construct the complete CSSOM before painting. Without it, the page might flash with wrong/no styles (FOUC). CSS rules cascade, so the browser can't safely paint until all CSS is parsed.</li>
+
+  <li><strong>Q: What is TTFB?</strong><br>
+    A: Time to First Byte — the time from the browser making an HTTP request to receiving the first byte of the response. It includes DNS resolution, TCP connection, TLS handshake, and server processing time. Good TTFB is ≤800ms.</li>
+</ol>
+
+<h3>Intermediate Level</h3>
+<ol>
+  <li><strong>Q: Explain the difference between reflow, repaint, and composite.</strong><br>
+    A: <em>Reflow</em> (Layout): Recalculates geometry of elements (position, size) — most expensive. <em>Repaint</em>: Fills in pixels for visual changes (color, background) without geometry change. <em>Composite</em>: Draws pre-painted layers together — cheapest, runs on GPU. Changing <code>width</code> triggers all three; changing <code>color</code> triggers repaint + composite; changing <code>transform</code> triggers only composite.</li>
+
+  <li><strong>Q: What is layout thrashing and how do you fix it?</strong><br>
+    A: Layout thrashing occurs when you alternate between reading layout properties (offsetWidth, getBoundingClientRect) and writing style changes in a loop. Each read forces the browser to synchronously recalculate layout. Fix: Batch all reads first, then batch all writes. Or use <code>requestAnimationFrame</code> to schedule writes.</li>
+
+  <li><strong>Q: How does HTTP/2 improve performance over HTTP/1.1?</strong><br>
+    A: HTTP/2 provides: (1) Multiplexing — multiple requests over single TCP connection instead of 6 parallel connections, (2) Header compression (HPACK), (3) Stream prioritization, (4) Server push (deprecated). Main limitation: TCP-level head-of-line blocking, solved by HTTP/3 (QUIC/UDP).</li>
+
+  <li><strong>Q: What is the preload scanner and why does it matter?</strong><br>
+    A: The preload scanner is a secondary parser that runs when the main HTML parser is blocked (by synchronous JS). It looks ahead in the HTML for resource URLs (img, link, script) and initiates downloads early. It's why we should use standard HTML elements for resources instead of dynamically creating them in JS.</li>
+
+  <li><strong>Q: Explain dns-prefetch vs preconnect vs preload vs prefetch.</strong><br>
+    A: <code>dns-prefetch</code>: Resolve DNS only. <code>preconnect</code>: DNS + TCP + TLS (full connection setup). <code>preload</code>: Download resource needed for current page with high priority. <code>prefetch</code>: Download resource for future navigation with low priority. Use preconnect for critical third-party origins, preload for critical above-fold resources.</li>
+</ol>
+
+<h3>Advanced Level</h3>
+<ol>
+  <li><strong>Q: How does the browser decide which elements get their own compositor layer?</strong><br>
+    A: Browsers promote elements to compositor layers when they have: 3D transforms, <code>will-change: transform/opacity</code>, animated opacity/transform, <code>position: fixed</code>, hardware-accelerated filters, or overlap with another composited layer (overlap promotion). Each layer uses GPU memory, so excessive promotion causes "layer explosion" and hurts performance.</li>
+
+  <li><strong>Q: Explain INP in detail — how is it different from FID?</strong><br>
+    A: FID measured only the input delay of the FIRST interaction. INP measures the full latency (input delay + processing time + presentation delay) of ALL interactions throughout the page lifetime, reporting the worst at the 98th percentile. INP is a better measure because: (1) it covers all interactions not just the first, (2) it includes processing + render time not just input delay, (3) it reflects real user experience across the entire session.</li>
+
+  <li><strong>Q: What is content-visibility: auto and how does it improve performance?</strong><br>
+    A: <code>content-visibility: auto</code> tells the browser to skip rendering (style, layout, paint) of off-screen elements until they're near the viewport. It's like built-in virtualization. Combined with <code>contain-intrinsic-size</code> (to maintain scroll height), it can reduce initial rendering time by 50%+ for long pages. The browser still creates the DOM but skips the rendering pipeline for off-screen sections.</li>
+
+  <li><strong>Q: Explain the TCP slow start and its impact on web performance.</strong><br>
+    A: TCP slow start is a congestion control mechanism where the initial congestion window (cwnd) starts small (typically 10 segments = ~14KB) and doubles with each ACK. This means on a cold connection, you can only send 14KB in the first round trip. This is why: (1) critical CSS should fit in ~14KB, (2) connection reuse (keep-alive, HTTP/2) is important, (3) CDNs help by being physically closer (smaller RTT). After ~4 RTTs, the connection reaches full speed.</li>
+
+  <li><strong>Q: How would you investigate a performance regression in production?</strong><br>
+    A: (1) Check Real User Monitoring (RUM) data for specific metrics degradation (LCP, INP, CLS). (2) Correlate with deployment timeline. (3) Segment by device, geography, connection type. (4) Use Chrome UX Report (CrUX) for field data. (5) Reproduce in lab with DevTools Performance panel + CPU/network throttling. (6) Use <code>PerformanceObserver</code> to instrument specific events. (7) Check for regressions in bundle size (source maps), third-party scripts, or server TTFB.</li>
+</ol>
+
+<h3>Tricky/Gotcha Questions</h3>
+<ol>
+  <li><strong>Q: Does <code>display: none</code> prevent an image from downloading?</strong><br>
+    A: NO! The image still downloads. <code>display: none</code> only removes the element from the render tree (no layout/paint), but the browser still fetches the resource. To prevent download, use <code>loading="lazy"</code> or conditionally inject the <code>&lt;img&gt;</code> element via JS.</li>
+
+  <li><strong>Q: Does moving CSS to the bottom of the page help?</strong><br>
+    A: NO! Unlike JS, CSS position in the document doesn't change its render-blocking behavior. The browser won't paint ANYTHING until all CSS is parsed (regardless of position). Worse — putting CSS at the bottom can cause FOUC in some browsers. Always keep CSS in <code>&lt;head&gt;</code>.</li>
+
+  <li><strong>Q: Can JavaScript affect CSSOM construction?</strong><br>
+    A: YES! If a <code>&lt;script&gt;</code> tag appears after a <code>&lt;link rel="stylesheet"&gt;</code>, the browser must wait for CSS to download before executing the script (because JS might query computed styles). This means CSS indirectly blocks JS, and JS blocks DOM parsing — creating a chain of blocking.</li>
+</ol>
+
+<div class="nav-links">
+  <span></span>
+  <a href="phase2-css-js-rendering-performance.html">Phase 2: CSS, JS & Rendering Performance →</a>
+</div>
+
+</main>
+</body>
+</html>

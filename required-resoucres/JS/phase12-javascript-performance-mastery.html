@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 12: JavaScript Performance Deep Dive</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .perf-tip { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .perf-tip h4 { color: #1b7340; margin-top: 0; }
+    .anti-pattern { background: #fdf0f0; border: 1px solid #f5c6c6; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .anti-pattern h4 { color: #a02020; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 12: JavaScript Performance Mastery</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (12 of 14)</p>
+  <div class="pill-row">
+    <span class="pill">V8 Internals</span>
+    <span class="pill">Memory & GC</span>
+    <span class="pill">Event Loop Optimization</span>
+    <span class="pill">Rendering Pipeline</span>
+    <span class="pill">Web Workers</span>
+    <span class="pill">Performance API</span>
+    <span class="pill">Profiling</span>
+  </div>
+</div>
+
+<div class="callout warning">
+<strong>⚠️ Why JS Performance Matters for Interviews:</strong> Senior-level interviews (L5+) at Google, Meta, Amazon explicitly test your understanding of V8 optimization, memory leaks, rendering performance, and profiling. You're expected to explain WHY code is slow and HOW to fix it with concrete techniques — not just "use memoization."
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#v8-engine">V8 Engine Internals & Optimization Pipeline</a></li>
+    <li><a href="#memory">Memory Management & Garbage Collection</a></li>
+    <li><a href="#memory-leaks">Memory Leaks: Detection & Prevention</a></li>
+    <li><a href="#event-loop-perf">Event Loop Performance & Main Thread Optimization</a></li>
+    <li><a href="#rendering">Rendering Pipeline & Layout Thrashing</a></li>
+    <li><a href="#data-structures">Data Structure Performance & Big-O in JS</a></li>
+    <li><a href="#string-perf">String & RegExp Performance</a></li>
+    <li><a href="#async-perf">Async Performance Patterns</a></li>
+    <li><a href="#web-workers">Web Workers & Off-Main-Thread</a></li>
+    <li><a href="#performance-api">Performance API & Measurement</a></li>
+    <li><a href="#bundle-perf">Bundle & Load Performance</a></li>
+    <li><a href="#profiling">Chrome DevTools Profiling Masterclass</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="v8-engine">1. V8 Engine Internals & Optimization Pipeline</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=p-iiEDtpy6I" target="_blank">V8 Engine Internals — Franziska Hinkelmann (Google)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=xckH5s3UuX4" target="_blank">JavaScript Engine Fundamentals — Mathias Bynens</a></li>
+</ul></details>
+
+<h3>V8 Compilation Pipeline</h3>
+<pre><code>/*
+ * V8 COMPILATION PIPELINE (2024+):
+ * 
+ * Source Code → Parser → AST → Ignition (Bytecode Interpreter)
+ *                                    ↓
+ *                              Type Feedback (IC)
+ *                                    ↓
+ *                         Turbofan (Optimizing JIT Compiler)
+ *                                    ↓
+ *                         Optimized Machine Code
+ *                                    ↓
+ *                     [Deoptimization if assumptions fail]
+ *                                    ↓
+ *                         Back to Bytecode (Ignition)
+ * 
+ * KEY CONCEPTS:
+ * - Ignition: Interprets bytecode. Fast startup, slower execution.
+ * - TurboFan: JIT compiles "hot" functions. Slow compile, FAST execution.
+ * - Inline Caches (IC): Record type info at call sites for optimization.
+ * - Hidden Classes (Maps): V8's internal type system for fast property access.
+ * - Deoptimization: Bail out of optimized code when assumptions break.
+ */</code></pre>
+
+<h3>Hidden Classes (Shapes/Maps) — Critical for Performance</h3>
+<pre><code>// ═══ HIDDEN CLASS OPTIMIZATION ═══
+// V8 creates internal "Hidden Classes" (called Maps) for objects.
+// Objects with the same property names in the same order share a Hidden Class.
+// This enables FAST property access (like C++ structs).
+
+// GOOD: Same shape — V8 optimizes with shared Hidden Class
+function createPoint(x, y) {
+  const point = {};
+  point.x = x;  // Transition: HC0 → HC1
+  point.y = y;  // Transition: HC1 → HC2
+  return point;
+}
+const p1 = createPoint(1, 2); // HC2
+const p2 = createPoint(3, 4); // Same HC2! V8 reuses optimized code.
+
+// BAD: Different property order → DIFFERENT hidden classes
+const a = {}; a.x = 1; a.y = 2; // HC: {x, y}
+const b = {}; b.y = 2; b.x = 1; // HC: {y, x} ← DIFFERENT!
+// V8 can't reuse optimized code between a and b.
+
+// BAD: Adding properties dynamically AFTER creation
+function createUser(name) {
+  const user = { name };
+  if (name === "admin") {
+    user.role = "admin";    // Only some objects get this → POLYMORPHIC
+  }
+  return user;
+}
+// Some users have HC{name}, others have HC{name, role}
+// V8 can't optimize access patterns well.
+
+// GOOD: Always initialize ALL properties (even to undefined)
+function createUserOptimized(name, role) {
+  return { name, role: role || null }; // ALWAYS same shape!
+}
+
+// ═══ INTERVIEW TIP: Monomorphic vs Polymorphic vs Megamorphic ═══
+// Monomorphic (1 shape): FASTEST — V8 generates specialized code
+// Polymorphic (2-4 shapes): Slower — V8 checks a few shapes
+// Megamorphic (5+ shapes): SLOWEST — V8 falls back to generic lookup
+
+function getX(obj) { return obj.x; }
+
+// Monomorphic: all calls with same shape
+getX({ x: 1, y: 2 });
+getX({ x: 3, y: 4 });
+getX({ x: 5, y: 6 }); // All same HC → FAST
+
+// Megamorphic: many different shapes
+getX({ x: 1 });
+getX({ x: 1, y: 2 });
+getX({ x: 1, y: 2, z: 3 });
+getX({ x: 1, a: 2 });
+getX({ x: 1, b: 2 });
+getX({ x: 1, c: 2 }); // 6 different HCs → SLOW generic lookup</code></pre>
+
+<h3>Inline Caches (ICs) and Optimization</h3>
+<pre><code>// V8 records type info at each property access site (Inline Cache)
+// If the IC sees the same type repeatedly → optimizes to direct offset access
+
+// FAST: Consistent types
+function sum(arr) {
+  let total = 0;
+  for (let i = 0; i < arr.length; i++) {
+    total += arr[i]; // IC: always sees Number → optimized to machine add
+  }
+  return total;
+}
+sum([1, 2, 3, 4, 5]); // All integers → V8 uses Smi (Small Integer) path
+
+// SLOW: Type changes (causes deoptimization!)
+function sumBad(arr) {
+  let total = 0;
+  for (let i = 0; i < arr.length; i++) {
+    total += arr[i]; // IC: sees Number... then String! → DEOPT!
+  }
+  return total;
+}
+sumBad([1, 2, "3", 4]); // Mixing types causes bailout from optimized code
+
+// ═══ V8 NUMBER REPRESENTATIONS ═══
+// Smi (Small Integer): 31-bit integers stored directly in pointer. FASTEST.
+// HeapNumber: All other numbers (doubles, > 2^30). Heap allocated. Slower.
+
+const fast = 42;         // Smi — no allocation!
+const slow = 42.5;      // HeapNumber — heap allocated
+const overflow = 2**31;  // HeapNumber — too large for Smi
+
+// TIP: Prefer integer operations where possible for hot loops
+// Use | 0 to force integer:  (a + b) | 0
+
+// ═══ ARRAY STORAGE MODES ═══
+// V8 internal array types (from fastest to slowest):
+// 1. PACKED_SMI_ELEMENTS     — dense, all small integers [1,2,3]
+// 2. PACKED_DOUBLE_ELEMENTS  — dense, all doubles [1.1, 2.2]
+// 3. PACKED_ELEMENTS         — dense, mixed types [1, "a", {}]
+// 4. HOLEY_SMI_ELEMENTS      — sparse integers [1,,3]
+// 5. HOLEY_DOUBLE_ELEMENTS   — sparse doubles [1.1,,3.3]
+// 6. HOLEY_ELEMENTS          — sparse mixed [1,,"a"]
+// 7. DICTIONARY_ELEMENTS     — hash table (very large sparse arrays)
+
+// IMPORTANT: V8 NEVER transitions from a more generic to a more specific type!
+const arr1 = [1, 2, 3];      // PACKED_SMI_ELEMENTS (fastest)
+arr1.push(4.5);              // → PACKED_DOUBLE_ELEMENTS (can't go back!)
+arr1.push("hello");          // → PACKED_ELEMENTS (can't go back!)
+
+// AVOID creating holes:
+const arr2 = [1, 2, 3];
+delete arr2[1];              // → HOLEY_ELEMENTS (permanent downgrade!)
+
+// PREFER: Pre-allocate and fill
+const arr3 = new Array(1000);  // HOLEY — already degraded!
+const arr4 = Array.from({ length: 1000 }, () => 0); // PACKED_SMI — good!</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions on V8 Internals</h4>
+<ul>
+<li><strong>Q: What are Hidden Classes and why do they matter?</strong><br>A: V8 creates internal type descriptors (Maps) for objects. Same-shaped objects share a Map → enables fast property access via fixed offsets (like struct access in C). Different shapes = different Maps = slower generic access.</li>
+<li><strong>Q: What causes deoptimization?</strong><br>A: Type changes (number→string), changing object shape after creation, using arguments object in certain ways, using `delete`, using `with`, try-catch in hot functions (legacy).</li>
+<li><strong>Q: How does V8 handle arrays?</strong><br>A: Different internal representations. Dense integer arrays (PACKED_SMI) are like C arrays. Adding non-integers or creating holes permanently downgrades performance. Never use `delete` on arrays; use splice.</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="memory">2. Memory Management & Garbage Collection</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=LaxbdIyBkL0" target="_blank">Memory Management in JavaScript — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=2mlFoGjrLnQ" target="_blank">V8 Garbage Collection Deep Dive — Peter Marshall</a></li>
+</ul></details>
+
+<h3>Generational Garbage Collection</h3>
+<pre><code>/*
+ * V8 HEAP STRUCTURE:
+ * 
+ * ┌────────────────────────────────────────────────────┐
+ * │ NEW SPACE (Young Generation) — ~1-8 MB             │
+ * │ ┌──────────────┐  ┌──────────────┐                 │
+ * │ │  Semi-space  │  │  Semi-space  │                 │
+ * │ │  (From)      │  │  (To)        │                 │
+ * │ └──────────────┘  └──────────────┘                 │
+ * │ • Scavenger (Minor GC) — FAST (~1-5ms)             │
+ * │ • Objects that survive 2 GCs → promoted to Old     │
+ * ├────────────────────────────────────────────────────┤
+ * │ OLD SPACE (Old Generation) — ~hundreds of MB       │
+ * │ • Mark-Sweep-Compact (Major GC) — SLOWER           │
+ * │ • Incremental Marking (reduces pause)              │
+ * │ • Concurrent Marking (off main thread)             │
+ * │ • Lazy Sweeping                                    │
+ * ├────────────────────────────────────────────────────┤
+ * │ LARGE OBJECT SPACE — objects > 512KB               │
+ * │ CODE SPACE — compiled JIT code                     │
+ * │ MAP SPACE — Hidden Classes (Maps)                  │
+ * └────────────────────────────────────────────────────┘
+ */
+
+// ═══ GENERATIONAL HYPOTHESIS ═══
+// "Most objects die young" — so V8 optimizes for short-lived objects.
+// - New Space: small, collected VERY frequently (Scavenger)
+// - Old Space: large, collected LESS frequently (Mark-Sweep-Compact)
+
+// SHORT-LIVED (stays in New Space, collected fast):
+function processData(items) {
+  const temp = items.map(x => x * 2); // temp array dies after function returns
+  return temp.reduce((a, b) => a + b);
+}
+// 'temp' is allocated in New Space, collected by Scavenger on next minor GC
+
+// LONG-LIVED (promoted to Old Space):
+const cache = new Map(); // Lives forever → promoted to Old Space
+function addToCache(key, value) {
+  cache.set(key, value); // Each entry stays in Old Space
+}</code></pre>
+
+<h3>GC Algorithms Deep Dive</h3>
+<pre><code>/*
+ * 1. SCAVENGER (Minor GC) — Young Generation
+ *    - Cheney's algorithm (semi-space copying)
+ *    - Copies LIVE objects from "From-space" to "To-space"
+ *    - Dead objects are simply abandoned (no sweep needed!)
+ *    - After copy, swap From↔To
+ *    - Objects surviving 2 scavenges → promoted to Old Space
+ *    - Pause: ~1-5ms (very fast, runs frequently)
+ * 
+ * 2. MARK-SWEEP-COMPACT (Major GC) — Old Generation
+ *    Step 1: MARK — Traverse from roots, mark all reachable objects
+ *    Step 2: SWEEP — Reclaim memory of unmarked objects
+ *    Step 3: COMPACT — Move objects to eliminate fragmentation
+ *    - Pause: ~50-200ms (optimized with concurrent/incremental)
+ * 
+ * 3. INCREMENTAL MARKING
+ *    - Instead of marking all at once (stop-the-world),
+ *      mark in small chunks between JS execution
+ *    - Write barrier: track objects modified during incremental mark
+ * 
+ * 4. CONCURRENT GC (V8 modern)
+ *    - Marking and sweeping happen on BACKGROUND THREADS
+ *    - Main thread only pauses briefly for "atomic" operations
+ *    - Reduces pause times to ~1-5ms even for Major GC
+ */
+
+// ═══ GC ROOTS (Starting points for mark phase) ═══
+// 1. Global objects (window, global)
+// 2. Currently executing function's local variables (call stack)
+// 3. Active closures referencing objects
+// 4. Registered event listeners
+// 5. Active timers (setTimeout/setInterval callbacks)
+
+// ═══ WHEN DOES GC RUN? ═══
+// - V8 uses allocation-based triggers
+// - Minor GC: when New Space fills up (~1-8MB)
+// - Major GC: when Old Space grows significantly
+// - Idle-time GC: during browser idle periods (requestIdleCallback)
+// - You CANNOT control GC timing from JavaScript (non-deterministic)</code></pre>
+
+<h3>Memory-Efficient Coding Patterns</h3>
+<pre><code>// ═══ OBJECT POOLING (avoid GC pressure) ═══
+class ObjectPool {
+  #pool = [];
+  #factory;
+  #reset;
+  
+  constructor(factory, reset, initialSize = 10) {
+    this.#factory = factory;
+    this.#reset = reset;
+    // Pre-allocate objects
+    for (let i = 0; i < initialSize; i++) {
+      this.#pool.push(factory());
+    }
+  }
+  
+  acquire() {
+    return this.#pool.length > 0 ? this.#pool.pop() : this.#factory();
+  }
+  
+  release(obj) {
+    this.#reset(obj);
+    this.#pool.push(obj);
+  }
+}
+
+// Usage: particle system (avoids creating/destroying thousands of objects)
+const particlePool = new ObjectPool(
+  () => ({ x: 0, y: 0, vx: 0, vy: 0, active: false }),
+  (p) => { p.x = 0; p.y = 0; p.vx = 0; p.vy = 0; p.active = false; }
+);
+
+const particle = particlePool.acquire();
+particle.x = 100; particle.y = 200; particle.active = true;
+// When done:
+particlePool.release(particle);
+
+// ═══ AVOID FREQUENT ALLOCATIONS IN HOT LOOPS ═══
+// BAD: Creates new object every iteration
+function transformBad(points) {
+  return points.map(p => ({ x: p.x * 2, y: p.y * 2 })); // N allocations!
+}
+
+// GOOD: Mutate in place (when safe)
+function transformGood(points) {
+  for (let i = 0; i < points.length; i++) {
+    points[i].x *= 2;
+    points[i].y *= 2;
+  }
+  return points;
+}
+
+// ═══ USE TypedArrays FOR NUMERIC DATA ═══
+// Regular arrays: Each number is a heap-allocated object (HeapNumber)
+const slow = [1.1, 2.2, 3.3, /* ... 10000 items */]; // 10K heap allocations
+
+// TypedArray: Contiguous memory, no per-element overhead
+const fast = new Float64Array(10000); // Single allocation, C-like performance
+fast[0] = 1.1; fast[1] = 2.2;
+
+// ═══ WEAK REFERENCES FOR CACHES ═══
+// WeakMap keys don't prevent GC — perfect for caching metadata
+const metadata = new WeakMap();
+
+function addMetadata(element, data) {
+  metadata.set(element, data);
+  // When element is removed from DOM and GC'd,
+  // the WeakMap entry is automatically cleaned up!
+}
+
+// WeakRef for expensive computed results
+class ComputeCache {
+  #cache = new Map();
+  
+  get(key, computeFn) {
+    const ref = this.#cache.get(key);
+    const cached = ref?.deref();
+    
+    if (cached !== undefined) return cached;
+    
+    const result = computeFn();
+    this.#cache.set(key, new WeakRef(result));
+    return result;
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="memory-leaks">3. Memory Leaks: Detection & Prevention</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=YDU_3WdfkxA" target="_blank">Fix Memory Leaks — Google Chrome DevTools</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IKD1RQsBNuc" target="_blank">Memory Leaks in JS — Akshay Saini</a></li>
+</ul></details>
+
+<h3>5 Common Memory Leak Patterns + Fixes</h3>
+<pre><code>// ═══ LEAK 1: FORGOTTEN EVENT LISTENERS ═══
+// BAD: Listener keeps reference to large closure
+class Component {
+  #data = new Array(100000).fill("data");
+  
+  mount() {
+    // This listener holds a reference to `this` (and #data)
+    // Even after component is "destroyed", the listener keeps it alive!
+    window.addEventListener("resize", this.#handleResize);
+  }
+  
+  #handleResize = () => {
+    console.log(this.#data.length);
+  };
+  
+  // FIX: Always remove listeners on cleanup
+  destroy() {
+    window.removeEventListener("resize", this.#handleResize);
+  }
+}
+
+// ═══ LEAK 2: CLOSURES HOLDING LARGE REFERENCES ═══
+// BAD:
+function createHandler() {
+  const hugeData = new Array(1000000).fill("x");
+  
+  return function handler() {
+    // handler doesn't USE hugeData, but the closure still captures it!
+    // (Some engines optimize this away, but not guaranteed)
+    console.log("clicked");
+  };
+}
+document.addEventListener("click", createHandler()); // hugeData stuck in memory!
+
+// FIX: Null out references or restructure
+function createHandlerFixed() {
+  let hugeData = new Array(1000000).fill("x");
+  const result = processData(hugeData);
+  hugeData = null; // Explicitly release!
+  
+  return function handler() {
+    console.log("result:", result); // Only keeps small 'result'
+  };
+}
+
+// ═══ LEAK 3: FORGOTTEN TIMERS ═══
+// BAD:
+class Poller {
+  start() {
+    this.intervalId = setInterval(() => {
+      this.fetchData(); // Holds reference to `this` forever
+    }, 5000);
+  }
+  // If we forget to call stop(), this object is never GC'd!
+  stop() { clearInterval(this.intervalId); }
+}
+
+// ═══ LEAK 4: DETACHED DOM NODES ═══
+// BAD:
+let detachedNodes = [];
+function addItem() {
+  const li = document.createElement("li");
+  li.textContent = "item";
+  document.getElementById("list").appendChild(li);
+  detachedNodes.push(li); // JS keeps reference!
+}
+function removeAll() {
+  document.getElementById("list").innerHTML = "";
+  // DOM nodes removed from tree BUT still in detachedNodes array!
+  // They can't be GC'd → memory leak!
+}
+// FIX: detachedNodes = []; or use WeakRef
+
+// ═══ LEAK 5: GROWING MAP/SET WITHOUT CLEANUP ═══
+// BAD:
+const sessionData = new Map();
+function trackUser(userId, data) {
+  sessionData.set(userId, data);
+  // Map grows forever! Old sessions never cleaned up.
+}
+
+// FIX: Use LRU cache with max size, or WeakMap if possible
+class BoundedCache {
+  #map = new Map();
+  #maxSize;
+  
+  constructor(maxSize = 100) { this.#maxSize = maxSize; }
+  
+  set(key, value) {
+    if (this.#map.size >= this.#maxSize) {
+      const oldestKey = this.#map.keys().next().value;
+      this.#map.delete(oldestKey);
+    }
+    this.#map.set(key, value);
+  }
+  
+  get(key) { return this.#map.get(key); }
+}</code></pre>
+
+<h3>Memory Leak Detection with DevTools</h3>
+<pre><code>/*
+ * CHROME DEVTOOLS MEMORY PROFILING:
+ * 
+ * 1. HEAP SNAPSHOT (Memory tab → "Take heap snapshot")
+ *    - Take snapshot BEFORE action
+ *    - Perform the action (e.g., open/close modal)
+ *    - Force GC (click trash icon)
+ *    - Take snapshot AFTER
+ *    - Compare: "Objects allocated between snapshots 1 and 2"
+ *    - Look for: Detached HTMLElements, growing arrays/maps
+ * 
+ * 2. ALLOCATION TIMELINE
+ *    - Record while performing actions
+ *    - Blue bars = allocated and still alive
+ *    - Gray bars = allocated and GC'd (good!)
+ *    - Look for blue bars that never turn gray
+ * 
+ * 3. ALLOCATION SAMPLING
+ *    - Lower overhead than timeline
+ *    - Shows which functions allocated the most memory
+ *    - Good for production profiling
+ * 
+ * KEY METRICS:
+ * - JS Heap Size: total allocated JS memory
+ * - Used JS Heap: actual live objects
+ * - If "Used" grows over time without stopping → LEAK
+ * 
+ * PROGRAMMATIC CHECK:
+ */
+if (performance.memory) {
+  console.log("Heap size:", performance.memory.usedJSHeapSize / 1024 / 1024, "MB");
+  console.log("Heap limit:", performance.memory.jsHeapSizeLimit / 1024 / 1024, "MB");
+}
+
+// Automated leak detection pattern:
+function checkForLeaks(action, iterations = 100) {
+  const before = performance.memory?.usedJSHeapSize;
+  
+  for (let i = 0; i < iterations; i++) {
+    action();
+  }
+  
+  // Force GC if available (only works with --expose-gc flag)
+  if (globalThis.gc) gc();
+  
+  const after = performance.memory?.usedJSHeapSize;
+  const growth = (after - before) / 1024;
+  
+  if (growth > 100) { // > 100KB growth after GC = potential leak
+    console.warn(`Potential memory leak: ${growth.toFixed(0)}KB growth`);
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-loop-perf">4. Event Loop Performance & Main Thread</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">In The Loop — Jake Archibald (JSConf)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank">What the heck is the event loop? — Philip Roberts</a></li>
+</ul></details>
+
+<h3>Long Tasks & Main Thread Blocking</h3>
+<pre><code>// THE PROBLEM: JavaScript is single-threaded
+// Any computation > 50ms blocks rendering, input, and scrolling
+// Users perceive lag at > 100ms, frustration at > 300ms
+
+// ═══ DETECTING LONG TASKS ═══
+const observer = new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    if (entry.duration > 50) {
+      console.warn(`Long Task detected: ${entry.duration.toFixed(0)}ms`, entry);
+    }
+  }
+});
+observer.observe({ entryTypes: ["longtask"] });
+
+// ═══ BREAKING UP LONG TASKS ═══
+
+// BAD: Blocks main thread for 500ms
+function processLargeArrayBad(items) {
+  for (let i = 0; i < items.length; i++) {
+    heavyComputation(items[i]); // 500ms total!
+  }
+}
+
+// GOOD: Yield to browser between chunks using scheduler.yield() (modern)
+async function processLargeArrayGood(items) {
+  const CHUNK_SIZE = 100;
+  
+  for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+    const chunk = items.slice(i, i + CHUNK_SIZE);
+    chunk.forEach(item => heavyComputation(item));
+    
+    // Yield to browser — allows rendering and input processing
+    await scheduler.yield?.() ?? new Promise(r => setTimeout(r, 0));
+  }
+}
+
+// ALTERNATIVE: requestIdleCallback for non-urgent work
+function processInIdle(items) {
+  let index = 0;
+  
+  function processChunk(deadline) {
+    // Process items while we have time budget
+    while (index < items.length && deadline.timeRemaining() > 1) {
+      heavyComputation(items[index]);
+      index++;
+    }
+    
+    if (index < items.length) {
+      requestIdleCallback(processChunk); // Continue in next idle period
+    }
+  }
+  
+  requestIdleCallback(processChunk);
+}
+
+// ═══ requestAnimationFrame for visual updates ═══
+function animateSmooth() {
+  let start = null;
+  
+  function frame(timestamp) {
+    if (!start) start = timestamp;
+    const progress = timestamp - start;
+    
+    // Update visuals — ALWAYS use rAF for animations
+    element.style.transform = `translateX(${progress * 0.1}px)`;
+    
+    if (progress < 2000) {
+      requestAnimationFrame(frame);
+    }
+  }
+  
+  requestAnimationFrame(frame);
+}
+
+// ═══ DEBOUNCE vs THROTTLE vs rAF — When to use which ═══
+// Debounce: Wait N ms after LAST event (search input, resize end)
+// Throttle: Max once per N ms (scroll tracking, mousemove)
+// rAF: Once per frame (~16ms) — visual updates, animations
+
+// Production-grade throttle with trailing call
+function throttle(fn, limit) {
+  let inThrottle = false;
+  let lastArgs = null;
+  
+  return function(...args) {
+    if (!inThrottle) {
+      fn.apply(this, args);
+      inThrottle = true;
+      
+      setTimeout(() => {
+        inThrottle = false;
+        if (lastArgs) {
+          fn.apply(this, lastArgs);
+          lastArgs = null;
+        }
+      }, limit);
+    } else {
+      lastArgs = args; // Save for trailing call
+    }
+  };
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rendering">5. Rendering Pipeline & Layout Thrashing</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=recvVY52UNk" target="_blank">Rendering Performance — Google Chrome DevTools</a></li>
+  <li><a href="https://www.youtube.com/watch?v=0fOSaICqkJY" target="_blank">Compositor & Layers — Google Chrome Developers</a></li>
+</ul></details>
+
+<h3>The Browser Rendering Pipeline</h3>
+<pre><code>/*
+ * PIXEL PIPELINE (happens every frame at 60fps = 16.67ms budget):
+ * 
+ * JavaScript → Style → Layout → Paint → Composite
+ * 
+ * 1. JAVASCRIPT: Run your code (event handlers, animations, DOM changes)
+ * 2. STYLE: Compute which CSS rules apply to which elements
+ * 3. LAYOUT: Calculate position and size of every element (EXPENSIVE!)
+ * 4. PAINT: Fill pixels for each layer (text, colors, images, shadows)
+ * 5. COMPOSITE: Combine layers in correct order (GPU-accelerated, CHEAP)
+ * 
+ * GOAL: Skip expensive steps whenever possible!
+ * - transform/opacity → skip Layout AND Paint (only Composite)
+ * - color/background → skip Layout (only Paint + Composite)
+ * - width/height/margin/padding → triggers EVERYTHING (full pipeline)
+ */</code></pre>
+
+<h3>Layout Thrashing (Forced Reflow)</h3>
+<pre><code>// ═══ LAYOUT THRASHING — THE #1 PERFORMANCE KILLER ═══
+// When you READ layout properties, browser must compute layout first.
+// If you write THEN read in a loop → forces layout on EVERY iteration!
+
+// BAD: Read-Write-Read-Write (forces layout on each read) — O(n) layouts!
+function resizeAllBad(elements) {
+  elements.forEach(el => {
+    const width = el.offsetWidth;        // READ → forces layout
+    el.style.width = (width * 2) + "px"; // WRITE → invalidates layout
+    // Next iteration's READ will force layout AGAIN!
+  });
+}
+// With 1000 elements → 1000 forced layouts = ~500ms frame!
+
+// GOOD: Batch reads, then batch writes — O(1) layouts!
+function resizeAllGood(elements) {
+  // Phase 1: Read all (single layout calculation)
+  const widths = elements.map(el => el.offsetWidth);
+  
+  // Phase 2: Write all (layout calculated once at end)
+  elements.forEach((el, i) => {
+    el.style.width = (widths[i] * 2) + "px";
+  });
+}
+// Only 1 layout calculation! ~5ms instead of ~500ms!
+
+// ═══ PROPERTIES THAT TRIGGER LAYOUT (avoid reading in loops!) ═══
+// element.offsetTop/Left/Width/Height
+// element.clientTop/Left/Width/Height
+// element.scrollTop/Left/Width/Height
+// element.getBoundingClientRect()
+// window.getComputedStyle()
+// element.focus() (may trigger scroll/layout)
+// window.scrollX/Y, innerWidth/Height
+
+// ═══ USE FASTDOM PATTERN ═══
+class FastDOM {
+  #reads = [];
+  #writes = [];
+  #scheduled = false;
+  
+  measure(fn) {
+    this.#reads.push(fn);
+    this.#schedule();
+  }
+  
+  mutate(fn) {
+    this.#writes.push(fn);
+    this.#schedule();
+  }
+  
+  #schedule() {
+    if (this.#scheduled) return;
+    this.#scheduled = true;
+    
+    requestAnimationFrame(() => {
+      // All reads first (single layout)
+      this.#reads.forEach(fn => fn());
+      this.#reads = [];
+      
+      // Then all writes (single style recalc)
+      this.#writes.forEach(fn => fn());
+      this.#writes = [];
+      
+      this.#scheduled = false;
+    });
+  }
+}
+
+const fastdom = new FastDOM();
+
+// Usage:
+fastdom.measure(() => {
+  const height = element.offsetHeight;
+  fastdom.mutate(() => {
+    element.style.height = height * 2 + "px";
+  });
+});
+
+// ═══ GPU-ACCELERATED PROPERTIES (cheapest to animate) ═══
+// ONLY these properties can be composited without layout/paint:
+// - transform (translate, rotate, scale, skew)
+// - opacity
+// - filter (blur, brightness, etc.)
+// - will-change (hint to browser to promote to own layer)
+
+// BAD: Animating layout-triggering properties
+element.style.left = x + "px";   // Triggers layout + paint + composite
+element.style.top = y + "px";    // Every frame!
+
+// GOOD: Use transform (only composite)
+element.style.transform = `translate(${x}px, ${y}px)`;  // GPU only!
+
+// Force GPU layer promotion (use sparingly — costs memory):
+element.style.willChange = "transform";
+// Remove when done: element.style.willChange = "auto";</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="data-structures">6. Data Structure Performance & Big-O in JS</h2>
+
+<h3>JavaScript Built-in Complexity</h3>
+<table>
+<tr><th>Operation</th><th>Array</th><th>Object</th><th>Map</th><th>Set</th></tr>
+<tr><td>Access by index/key</td><td>O(1)</td><td>O(1)*</td><td>O(1)</td><td>N/A</td></tr>
+<tr><td>Search (by value)</td><td>O(n)</td><td>O(n)</td><td>O(n)</td><td>O(1)</td></tr>
+<tr><td>Insert (end/any key)</td><td>O(1) push / O(n) unshift</td><td>O(1)</td><td>O(1)</td><td>O(1)</td></tr>
+<tr><td>Delete (end/any key)</td><td>O(1) pop / O(n) splice</td><td>O(1)</td><td>O(1)</td><td>O(1)</td></tr>
+<tr><td>Has (check existence)</td><td>O(n) includes</td><td>O(1) in</td><td>O(1)</td><td>O(1)</td></tr>
+</table>
+<p><em>* Object property access is O(1) average via hidden class optimization, but can degrade with megamorphic access or many properties.</em></p>
+
+<pre><code>// ═══ WHEN TO USE WHICH DATA STRUCTURE ═══
+
+// Array vs Set for lookups
+const arr = [1, 2, 3, 4, 5, /* ... 10000 items */];
+const set = new Set(arr);
+
+arr.includes(9999);  // O(n) — scans entire array
+set.has(9999);       // O(1) — hash lookup
+
+// BENCHMARK: For 10,000 items:
+// arr.includes: ~0.5ms per lookup
+// set.has: ~0.001ms per lookup (500x faster!)
+
+// Object vs Map
+// Use Map when:
+// - Keys are not strings (objects, numbers, symbols)
+// - You need ordered iteration
+// - You frequently add/delete keys
+// - You need .size property
+
+// Use Object when:
+// - Keys are always strings
+// - You need JSON serialization
+// - You need prototype chain methods
+
+// Map is faster for frequent insertions/deletions:
+const map = new Map();
+const obj = {};
+
+// Map: ~25% faster for add/delete operations
+// Object: faster for static access patterns (hidden class optimization)
+
+// ═══ PRACTICAL: Replace includes() with Set ═══
+// BAD: O(n) per check
+function filterAllowedBad(items, allowedList) {
+  return items.filter(item => allowedList.includes(item.type));
+}
+
+// GOOD: O(1) per check
+function filterAllowedGood(items, allowedList) {
+  const allowedSet = new Set(allowedList); // One-time O(n) setup
+  return items.filter(item => allowedSet.has(item.type)); // O(1) per check
+}
+// For 10,000 items with 100 allowed types:
+// BAD: 10,000 × 100 = 1,000,000 comparisons
+// GOOD: 10,000 × 1 = 10,000 lookups (100x faster!)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="string-perf">7. String & RegExp Performance</h2>
+
+<pre><code>// ═══ STRING CONCATENATION PERFORMANCE ═══
+
+// BAD: String concatenation in loop (creates new string each iteration)
+function buildStringBad(items) {
+  let result = "";
+  for (const item of items) {
+    result += item + ", "; // Creates a NEW string each time!
+  }
+  return result;
+}
+// For 10,000 items: ~15ms (creates 10,000 intermediate strings)
+
+// GOOD: Use array join
+function buildStringGood(items) {
+  return items.join(", ");
+}
+// For 10,000 items: ~2ms (single allocation)
+
+// ALSO GOOD: Template literals for known sizes
+const str = `${a}, ${b}, ${c}`;  // Optimized by V8 for known count
+
+// ═══ REGEXP PERFORMANCE ═══
+
+// 1. Compile regex ONCE, not in loops
+// BAD:
+function findMatchesBad(strings) {
+  return strings.filter(s => /^[A-Z]/.test(s)); // New regex every call!
+}
+
+// GOOD:
+const STARTS_WITH_UPPER = /^[A-Z]/; // Compiled once
+function findMatchesGood(strings) {
+  return strings.filter(s => STARTS_WITH_UPPER.test(s));
+}
+
+// 2. Avoid catastrophic backtracking
+// BAD regex (exponential backtracking):
+const evil = /^(a+)+$/;  // O(2^n) for "aaaaaaaaaaab"
+
+// GOOD: Use possessive/atomic groups or restructure
+const safe = /^a+$/;  // Linear time
+
+// 3. Use specific patterns over greedy
+const greedySlow = /<.*>/;      // Backtracks from end
+const specificFast = /<[^>]*>/;  // No backtracking
+
+// ═══ STRING METHOD PERFORMANCE COMPARISON ═══
+const bigString = "a".repeat(100000);
+
+// startsWith vs indexOf vs regex:
+bigString.startsWith("abc");     // O(3) — checks only prefix. FASTEST
+bigString.indexOf("abc") === 0;  // O(n) worst case
+/^abc/.test(bigString);          // Regex overhead but still fast for anchored
+
+// includes vs indexOf:
+bigString.includes("xyz");       // Internally uses same algorithm as indexOf
+bigString.indexOf("xyz") !== -1; // Same performance, less readable</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="async-perf">8. Async Performance Patterns</h2>
+
+<pre><code>// ═══ SEQUENTIAL vs PARALLEL EXECUTION ═══
+
+// BAD: Sequential (total time = sum of all requests)
+async function fetchAllSequential(urls) {
+  const results = [];
+  for (const url of urls) {
+    const response = await fetch(url); // Waits for each!
+    results.push(await response.json());
+  }
+  return results;
+}
+// 5 requests × 200ms each = 1000ms total
+
+// GOOD: Parallel (total time = max of all requests)
+async function fetchAllParallel(urls) {
+  const promises = urls.map(url => fetch(url).then(r => r.json()));
+  return Promise.all(promises);
+}
+// 5 requests in parallel = 200ms total (5x faster!)
+
+// BEST: Parallel with concurrency limit (don't overwhelm server)
+async function fetchWithLimit(urls, concurrency = 5) {
+  const results = [];
+  const executing = new Set();
+  
+  for (const url of urls) {
+    const promise = fetch(url).then(r => r.json()).then(result => {
+      executing.delete(promise);
+      return result;
+    });
+    
+    executing.add(promise);
+    results.push(promise);
+    
+    if (executing.size >= concurrency) {
+      await Promise.race(executing); // Wait for one to finish
+    }
+  }
+  
+  return Promise.all(results);
+}
+// 100 URLs, 5 concurrency → 20 batches × 200ms = 4s (vs 20s sequential!)
+
+// ═══ LAZY EVALUATION (compute only when needed) ═══
+class Lazy {
+  #factory;
+  #value;
+  #computed = false;
+  
+  constructor(factory) { this.#factory = factory; }
+  
+  get value() {
+    if (!this.#computed) {
+      this.#value = this.#factory();
+      this.#computed = true;
+    }
+    return this.#value;
+  }
+}
+
+const expensiveResult = new Lazy(() => {
+  // Only computed on first access!
+  return heavyComputation();
+});
+
+// ═══ STREAMING LARGE DATA WITH ASYNC GENERATORS ═══
+async function* fetchPages(baseUrl) {
+  let page = 1;
+  let hasMore = true;
+  
+  while (hasMore) {
+    const response = await fetch(`${baseUrl}?page=${page}`);
+    const data = await response.json();
+    
+    yield data.items; // Yields one page at a time
+    
+    hasMore = data.hasMore;
+    page++;
+  }
+}
+
+// Consume lazily — only fetches pages as needed
+async function processAllPages() {
+  for await (const items of fetchPages("/api/users")) {
+    items.forEach(item => processItem(item));
+    // Next page only fetched when this loop iteration completes
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="web-workers">9. Web Workers & Off-Main-Thread</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Gcp7UUwtYZI" target="_blank">Web Workers Explained — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7Rrv9qFMWNM" target="_blank">Comlink & Off-Main-Thread — Surma (Google)</a></li>
+</ul></details>
+
+<pre><code>// ═══ WEB WORKERS: True Parallelism ═══
+// Workers run in separate threads — DON'T block main thread!
+// Can't access DOM, window, document, or shared memory (by default)
+
+// main.js
+const worker = new Worker("worker.js");
+
+// Send data TO worker
+worker.postMessage({ type: "COMPUTE", data: largeArray });
+
+// Receive results FROM worker
+worker.onmessage = (event) => {
+  console.log("Result:", event.data.result);
+};
+
+worker.onerror = (error) => {
+  console.error("Worker error:", error.message);
+};
+
+// worker.js
+self.onmessage = (event) => {
+  const { type, data } = event.data;
+  
+  if (type === "COMPUTE") {
+    // Heavy computation here — doesn't block UI!
+    const result = data.reduce((sum, item) => sum + heavyCalc(item), 0);
+    self.postMessage({ result });
+  }
+};
+
+// ═══ TRANSFERABLE OBJECTS (Zero-Copy Transfer) ═══
+// Normally, postMessage COPIES data (expensive for large buffers)
+// Transferable objects MOVE ownership (zero-copy!)
+
+// Main thread:
+const buffer = new ArrayBuffer(1024 * 1024); // 1MB
+console.log(buffer.byteLength); // 1048576
+
+// Transfer (not copy) to worker:
+worker.postMessage({ buffer }, [buffer]); // Second arg = transferable list
+console.log(buffer.byteLength); // 0! Ownership transferred!
+
+// Worker receives the buffer instantly (no copy):
+self.onmessage = (event) => {
+  const { buffer } = event.data;
+  const view = new Float64Array(buffer);
+  // Process directly — no deserialization cost!
+};
+
+// ═══ SHARED WORKERS (Shared between tabs) ═══
+// SharedWorker persists across multiple tabs/windows
+const shared = new SharedWorker("shared-worker.js");
+shared.port.postMessage("hello from tab");
+shared.port.onmessage = (e) => console.log(e.data);
+
+// ═══ COMLINK PATTERN (Makes workers feel like async functions) ═══
+// Simplified Comlink-like pattern:
+function createWorkerProxy(workerUrl) {
+  const worker = new Worker(workerUrl);
+  let callId = 0;
+  const pending = new Map();
+  
+  worker.onmessage = ({ data }) => {
+    const { id, result, error } = data;
+    const { resolve, reject } = pending.get(id);
+    pending.delete(id);
+    error ? reject(error) : resolve(result);
+  };
+  
+  return new Proxy({}, {
+    get(_, method) {
+      return (...args) => new Promise((resolve, reject) => {
+        const id = callId++;
+        pending.set(id, { resolve, reject });
+        worker.postMessage({ id, method, args });
+      });
+    }
+  });
+}
+
+// Usage (feels like calling local functions!):
+const mathWorker = createWorkerProxy("math-worker.js");
+const result = await mathWorker.fibonacci(40); // Runs in worker!
+const primes = await mathWorker.findPrimes(1000000);
+
+// ═══ WHEN TO USE WEB WORKERS ═══
+// ✅ Image processing (resize, filter, format conversion)
+// ✅ JSON parsing of large payloads (>1MB)
+// ✅ Sorting/searching large datasets
+// ✅ Cryptographic operations
+// ✅ Code syntax highlighting
+// ✅ PDF generation
+// ✅ Complex mathematical computations
+// ❌ DOM manipulation (not available in workers)
+// ❌ Small operations (worker overhead > computation time)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="performance-api">10. Performance API & Measurement</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=mGe-sH5pxCM" target="_blank">Performance API — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Web Vitals Measurement — web.dev</a></li>
+</ul></details>
+
+<pre><code>// ═══ HIGH-RESOLUTION TIMING ═══
+// performance.now() — microsecond precision, monotonic clock
+const start = performance.now();
+doExpensiveWork();
+const duration = performance.now() - start;
+console.log(`Took ${duration.toFixed(2)}ms`);
+
+// ═══ PERFORMANCE MARKS & MEASURES ═══
+// Name specific operations for analysis
+performance.mark("fetch-start");
+const data = await fetch("/api/users");
+performance.mark("fetch-end");
+
+performance.measure("API Fetch", "fetch-start", "fetch-end");
+
+// Retrieve measurements:
+const measures = performance.getEntriesByType("measure");
+measures.forEach(m => console.log(`${m.name}: ${m.duration.toFixed(1)}ms`));
+
+// Clean up:
+performance.clearMarks();
+performance.clearMeasures();
+
+// ═══ PERFORMANCE OBSERVER (Real-Time Monitoring) ═══
+// LCP (Largest Contentful Paint)
+new PerformanceObserver((list) => {
+  const entries = list.getEntries();
+  const lastEntry = entries[entries.length - 1];
+  console.log("LCP:", lastEntry.startTime.toFixed(0), "ms");
+  console.log("LCP element:", lastEntry.element);
+}).observe({ type: "largest-contentful-paint", buffered: true });
+
+// FID (First Input Delay)
+new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    const delay = entry.processingStart - entry.startTime;
+    console.log("FID:", delay.toFixed(0), "ms");
+  }
+}).observe({ type: "first-input", buffered: true });
+
+// CLS (Cumulative Layout Shift)
+let clsValue = 0;
+new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    if (!entry.hadRecentInput) { // Ignore user-initiated shifts
+      clsValue += entry.value;
+    }
+  }
+  console.log("CLS:", clsValue.toFixed(4));
+}).observe({ type: "layout-shift", buffered: true });
+
+// Long Tasks
+new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    console.warn("Long Task:", entry.duration.toFixed(0), "ms", entry.attribution);
+  }
+}).observe({ type: "longtask" });
+
+// ═══ NAVIGATION TIMING (Page Load Breakdown) ═══
+window.addEventListener("load", () => {
+  const nav = performance.getEntriesByType("navigation")[0];
+  
+  console.log("DNS Lookup:", nav.domainLookupEnd - nav.domainLookupStart, "ms");
+  console.log("TCP Connect:", nav.connectEnd - nav.connectStart, "ms");
+  console.log("TLS:", nav.secureConnectionStart ? nav.connectEnd - nav.secureConnectionStart : 0, "ms");
+  console.log("TTFB:", nav.responseStart - nav.requestStart, "ms");
+  console.log("Download:", nav.responseEnd - nav.responseStart, "ms");
+  console.log("DOM Parse:", nav.domInteractive - nav.responseEnd, "ms");
+  console.log("DOM Complete:", nav.domComplete - nav.domInteractive, "ms");
+  console.log("Total Load:", nav.loadEventStart - nav.startTime, "ms");
+});
+
+// ═══ RESOURCE TIMING (Individual Assets) ═══
+const resources = performance.getEntriesByType("resource");
+const slowResources = resources
+  .filter(r => r.duration > 500)
+  .sort((a, b) => b.duration - a.duration);
+
+slowResources.forEach(r => {
+  console.log(`${r.name}: ${r.duration.toFixed(0)}ms (${r.initiatorType})`);
+});
+
+// ═══ CUSTOM PERFORMANCE UTILITY ═══
+class PerfMonitor {
+  #marks = new Map();
+  #metrics = [];
+  
+  time(label) {
+    this.#marks.set(label, performance.now());
+  }
+  
+  timeEnd(label) {
+    const start = this.#marks.get(label);
+    if (!start) return;
+    
+    const duration = performance.now() - start;
+    this.#metrics.push({ label, duration, timestamp: Date.now() });
+    this.#marks.delete(label);
+    
+    return duration;
+  }
+  
+  // Decorator for auto-measuring function execution time
+  measure(fn, label) {
+    return (...args) => {
+      this.time(label || fn.name);
+      const result = fn(...args);
+      
+      if (result instanceof Promise) {
+        return result.finally(() => this.timeEnd(label || fn.name));
+      }
+      
+      this.timeEnd(label || fn.name);
+      return result;
+    };
+  }
+  
+  report() {
+    const grouped = {};
+    this.#metrics.forEach(m => {
+      if (!grouped[m.label]) grouped[m.label] = [];
+      grouped[m.label].push(m.duration);
+    });
+    
+    Object.entries(grouped).forEach(([label, durations]) => {
+      const avg = durations.reduce((a, b) => a + b, 0) / durations.length;
+      const max = Math.max(...durations);
+      const p95 = durations.sort((a, b) => a - b)[Math.floor(durations.length * 0.95)];
+      console.log(`${label}: avg=${avg.toFixed(1)}ms, max=${max.toFixed(1)}ms, p95=${p95.toFixed(1)}ms`);
+    });
+  }
+}
+
+const perf = new PerfMonitor();
+const measuredFetch = perf.measure(fetch, "API Call");
+await measuredFetch("/api/data");
+perf.report();</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="bundle-perf">11. Bundle & Load Performance</h2>
+
+<pre><code>// ═══ CODE SPLITTING & LAZY LOADING ═══
+
+// Dynamic import — load modules on demand
+async function loadChart() {
+  const { Chart } = await import("./chart.js"); // Only loaded when needed!
+  return new Chart(canvas);
+}
+
+// Route-level code splitting (React pattern)
+const Dashboard = React.lazy(() => import("./Dashboard"));
+// Angular equivalent: loadChildren in routes
+
+// ═══ PRELOADING STRATEGIES ═══
+// Preload: High priority, load ASAP (needed soon)
+// <link rel="preload" href="critical.js" as="script">
+
+// Prefetch: Low priority, load in idle time (might need later)
+// <link rel="prefetch" href="next-page.js">
+
+// Programmatic prefetch:
+function prefetchRoute(url) {
+  const link = document.createElement("link");
+  link.rel = "prefetch";
+  link.href = url;
+  document.head.appendChild(link);
+}
+
+// Prefetch on hover (speculative loading):
+document.querySelectorAll("a[data-prefetch]").forEach(link => {
+  link.addEventListener("mouseenter", () => {
+    prefetchRoute(link.href);
+  }, { once: true });
+});
+
+// ═══ TREE SHAKING (Dead Code Elimination) ═══
+// ONLY works with ES Modules (import/export), NOT CommonJS (require)
+
+// utils.js — named exports allow tree shaking:
+export function used() { return "I'm included"; }
+export function unused() { return "I'm removed by bundler"; }
+
+// consumer.js:
+import { used } from "./utils.js"; // 'unused' is eliminated from bundle!
+
+// IMPORTANT: Side-effect-free modules:
+// package.json: "sideEffects": false → bundler can safely tree-shake
+
+// ═══ SCRIPT LOADING STRATEGIES ═══
+// 1. Regular &lt;script&gt;: Blocks HTML parsing
+// 2. &lt;script defer&gt;: Download parallel, execute after DOM ready (in order!)
+// 3. &lt;script async&gt;: Download parallel, execute immediately (out of order!)
+// 4. &lt;script type="module"&gt;: Always deferred, strict mode, own scope
+
+// For most scripts: use defer
+// For analytics/ads: use async
+// For modern code: use type="module"
+
+// ═══ COMPRESSION ═══
+// Brotli (br): 20-26% smaller than gzip. Support: all modern browsers.
+// Gzip: Universal fallback.
+// Content-Encoding: br (server-side, transparent to JS)
+
+// ═══ BUNDLE SIZE ANALYSIS ═══
+// Check what's in your bundle:
+// webpack-bundle-analyzer, source-map-explorer, bundlephobia.com
+
+// Import cost awareness:
+import moment from "moment";   // 67KB gzipped! Use dayjs (2KB) instead
+import _ from "lodash";        // 71KB! Use lodash-es with tree-shaking
+import { debounce } from "lodash-es"; // Only imports what you use</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="profiling">12. Chrome DevTools Profiling Masterclass</h2>
+
+<pre><code>/*
+ * ═══ PERFORMANCE TAB WORKFLOW ═══
+ * 
+ * 1. Open DevTools → Performance tab
+ * 2. Click Record (or Ctrl+E)
+ * 3. Perform the action you want to profile
+ * 4. Stop recording
+ * 
+ * WHAT TO LOOK FOR:
+ * 
+ * ┌─────────────────────────────────────────────┐
+ * │ FRAMES (top)                                │
+ * │ • Green = good (rendered in &lt;16ms)       │
+ * │ • Red = dropped frame (jank!)               │
+ * ├─────────────────────────────────────────────┤
+ * │ MAIN THREAD (flame chart)                   │
+ * │ • Yellow = JavaScript execution             │
+ * │ • Purple = Layout/Style recalculation       │
+ * │ • Green = Paint                             │
+ * │ • Gray = System/idle                        │
+ * │ • Long yellow bars = Long Tasks (>50ms)     │
+ * ├─────────────────────────────────────────────┤
+ * │ SUMMARY (bottom)                            │
+ * │ • Shows time breakdown per category         │
+ * │ • Click any block for call stack details    │
+ * └─────────────────────────────────────────────┘
+ * 
+ * PROFILING CHECKLIST:
+ * □ Are there Long Tasks (>50ms yellow blocks)?
+ * □ Is there forced reflow (purple "Layout" in JS)?
+ * □ Are there many small functions vs. few large ones?
+ * □ Is there excessive GC (gray "Minor GC" / "Major GC")?
+ * □ Are paint events too frequent?
+ * □ Is the compositor thread blocked?
+ */
+
+// ═══ PROGRAMMATIC PROFILING ═══
+
+// Console.time for quick measurements:
+console.time("operation");
+doSomething();
+console.timeEnd("operation"); // "operation: 42.3ms"
+
+// Profile blocks:
+console.profile("My Profile");
+doExpensiveWork();
+console.profileEnd("My Profile");
+// View in DevTools → Profiles tab
+
+// Trace events (Chrome-specific):
+console.timeStamp("Important Event"); // Adds marker to Performance timeline
+
+// ═══ MEMORY PROFILING ═══
+// Memory tab → Take heap snapshot
+// Compare snapshots to find leaks:
+// Snapshot 1 → Do action → Force GC → Snapshot 2 → Compare
+
+// ═══ NETWORK PROFILING ═══
+// Network tab → Throttle to Slow 3G
+// Check:
+// - Which resources are render-blocking?
+// - What's the waterfall look like?
+// - Are resources cached properly?
+// - Are there unnecessary requests?
+
+// ═══ LIGHTHOUSE AUDIT ═══
+// DevTools → Lighthouse tab
+// Key metrics:
+// - FCP (First Contentful Paint): Target &lt; 1.8s
+// - LCP (Largest Contentful Paint): Target &lt; 2.5s
+// - FID (First Input Delay): Target &lt; 100ms
+// - CLS (Cumulative Layout Shift): Target &lt; 0.1
+// - TBT (Total Blocking Time): Target &lt; 200ms
+// - TTI (Time to Interactive): Target &lt; 3.8s</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Performance Interview Questions</h4>
+<ul>
+<li><strong>Q: How would you debug a janky scroll?</strong><br>
+A: Performance tab → look for long tasks during scroll. Check for: forced reflows (layout thrashing), expensive paint (complex CSS), non-composited animations. Fix: use transform/opacity, debounce scroll handlers, use IntersectionObserver instead of scroll event calculations, add will-change for animated elements.</li>
+
+<li><strong>Q: Your app has a memory leak. How do you find it?</strong><br>
+A: Memory tab → take heap snapshots before and after the action. Force GC between snapshots. Compare → look for growing "Detached DOM" or "Array/Object" counts. Check Retainers panel for what's keeping objects alive. Common culprits: event listeners, closures, growing Maps/caches.</li>
+
+<li><strong>Q: How would you optimize a function called 10,000 times per second?</strong><br>
+A: 1) Profile with DevTools to confirm it's the bottleneck. 2) Ensure consistent object shapes (monomorphic). 3) Use TypedArrays for numeric data. 4) Avoid creating objects in the hot path (use object pooling). 5) Consider Web Worker if CPU-bound. 6) Memoize if inputs repeat.</li>
+
+<li><strong>Q: Explain how you'd achieve 60fps animations.</strong><br>
+A: 60fps = 16.67ms per frame budget. Use only composite-triggering properties (transform, opacity). Use requestAnimationFrame for timing. Avoid layout reads in animation loop. Promote animated elements to their own layer (will-change). If JS computation needed → do it in rAF callback and keep it under 10ms.</li>
+
+<li><strong>Q: How do you reduce bundle size?</strong><br>
+A: 1) Code splitting at route level (dynamic import). 2) Tree shaking (ESM named exports). 3) Replace heavy libraries (moment→dayjs, lodash→lodash-es). 4) Lazy load below-the-fold components. 5) Compress with Brotli. 6) Analyze with webpack-bundle-analyzer. 7) Remove unused CSS (PurgeCSS).</li>
+</ul>
+</div>
+
+<div class="nav-links">
+  <a href="phase11-frontend-system-design.html">← Phase 11: Frontend System Design</a>
+  <a href="phase13-real-interview-questions.html">Phase 13: Real Interview Questions →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

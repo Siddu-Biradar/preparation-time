@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 10: Output Prediction & Tricky Questions</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .output-q { background: #f8f6f1; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .output-q h4 { color: #2c3e50; margin-top: 0; }
+    .answer { background: #e8f8f0; border: 1px solid #b7e4c7; border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
+    .answer strong { color: #1b7340; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 10: Output Prediction & Tricky Questions</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (10 of 11)</p>
+  <div class="pill-row">
+    <span class="pill">73 Output Questions</span>
+    <span class="pill">Event Loop Ordering</span>
+    <span class="pill">'this' Traps</span>
+    <span class="pill">Hoisting Gotchas</span>
+    <span class="pill">Type Coercion</span>
+    <span class="pill">Closure Traps</span>
+    <span class="pill">?? vs || vs ?.&nbsp;</span>
+    <span class="pill">try/catch/finally</span>
+  </div>
+</div>
+
+<div class="callout warning">
+<strong>⚠️ Why Output Questions Matter:</strong> Every single JavaScript interview includes output prediction questions. They test whether you truly understand execution context, scope, closures, async behavior, and type system — not just whether you've memorized syntax. Companies use these to quickly filter candidates.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong> 
+  <ol>
+    <li><a href="#event-loop-output">Event Loop & Async Output (12 Questions)</a></li>
+    <li><a href="#this-output">'this' Keyword Traps (8 Questions)</a></li>
+    <li><a href="#closure-output">Closure & Scope Gotchas (8 Questions)</a></li>
+    <li><a href="#coercion-output">Type Coercion & Equality (8 Questions)</a></li>
+    <li><a href="#hoisting-output">Hoisting & TDZ (6 Questions)</a></li>
+    <li><a href="#prototype-output">Prototypes & Classes (5 Questions)</a></li>
+    <li><a href="#misc-output">Miscellaneous Tricky (8 Questions)</a></li>
+    <li><a href="#modern-js">Modern JS & Error Handling (12 Questions)</a></li>
+    <li><a href="#bonus-must-know">Bonus Must-Know Traps (6 Questions)</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-loop-output">1. Event Loop & Async Output Questions</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank">What the heck is the event loop? — Philip Roberts (JSConf EU)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=eiC58R16hb8" target="_blank">JavaScript Visualized - Event Loop — Lydia Hallie</a></li>
+  <li><a href="https://www.youtube.com/watch?v=cCOL7MC4Pl0" target="_blank">In The Loop — Jake Archibald (JSConf Asia)</a></li>
+</ul></details>
+
+<div class="callout">
+<strong>💡 Remember the execution order:</strong>
+<ol>
+<li>Synchronous code (call stack)</li>
+<li>Microtasks (Promise.then, queueMicrotask, MutationObserver)</li>
+<li>Macrotasks (setTimeout, setInterval, I/O, UI rendering)</li>
+</ol>
+Within same queue: FIFO (first in, first out). Microtasks drain completely before ANY macrotask.
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q1: Promise vs setTimeout</h4>
+<pre><code>console.log("1");
+
+setTimeout(() => console.log("2"), 0);
+
+Promise.resolve().then(() => console.log("3"));
+
+console.log("4");</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, 4, 3, 2<br>
+<strong>Why:</strong> Sync first (1, 4) → microtask queue (Promise → 3) → macrotask queue (setTimeout → 2). Even with 0ms delay, setTimeout goes to macrotask queue which runs AFTER all microtasks.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q2: Nested Promises & setTimeout</h4>
+<pre><code>console.log("start");
+
+setTimeout(() => {
+  console.log("timeout 1");
+  Promise.resolve().then(() => console.log("promise inside timeout"));
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log("promise 1");
+  setTimeout(() => console.log("timeout inside promise"), 0);
+});
+
+Promise.resolve().then(() => console.log("promise 2"));
+
+console.log("end");</code></pre>
+<div class="answer">
+<strong>Output:</strong> start, end, promise 1, promise 2, timeout 1, promise inside timeout, timeout inside promise<br>
+<strong>Why:</strong><br>
+1. Sync: "start", "end"<br>
+2. Microtasks: "promise 1" (schedules new setTimeout), "promise 2"<br>
+3. Macrotask 1: "timeout 1" → schedules microtask → drain microtask: "promise inside timeout"<br>
+4. Macrotask 2: "timeout inside promise" (was scheduled later)
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q3: queueMicrotask vs Promise.resolve</h4>
+<pre><code>queueMicrotask(() => console.log("microtask 1"));
+
+Promise.resolve()
+  .then(() => console.log("promise 1"))
+  .then(() => console.log("promise 2"));
+
+queueMicrotask(() => console.log("microtask 2"));
+
+Promise.resolve().then(() => console.log("promise 3"));</code></pre>
+<div class="answer">
+<strong>Output:</strong> microtask 1, promise 1, microtask 2, promise 3, promise 2<br>
+<strong>Why:</strong> All are microtasks queued synchronously. Order: microtask 1, promise 1 (.then#1 of chain), microtask 2, promise 3. Then the SECOND .then ("promise 2") runs because it was only queued after "promise 1" resolved.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q4: async/await desugaring</h4>
+<pre><code>async function foo() {
+  console.log("foo start");
+  await bar();
+  console.log("foo end");
+}
+
+async function bar() {
+  console.log("bar start");
+  await Promise.resolve();
+  console.log("bar end");
+}
+
+console.log("script start");
+foo();
+console.log("script end");</code></pre>
+<div class="answer">
+<strong>Output:</strong> script start, foo start, bar start, script end, bar end, foo end<br>
+<strong>Why:</strong><br>
+- "script start" (sync)<br>
+- foo() called → "foo start" (sync), calls bar()<br>
+- bar() called → "bar start" (sync), hits await → pauses bar, returns to foo<br>
+- foo hits await bar() → pauses foo, returns to global<br>
+- "script end" (sync done)<br>
+- Microtask: bar's await resolves → "bar end"<br>
+- Microtask: foo's await resolves → "foo end"
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q5: Complex async ordering</h4>
+<pre><code>async function async1() {
+  console.log("async1 start");
+  await async2();
+  console.log("async1 end");
+}
+
+async function async2() {
+  console.log("async2");
+}
+
+console.log("script start");
+
+setTimeout(() => console.log("setTimeout"), 0);
+
+async1();
+
+new Promise((resolve) => {
+  console.log("promise1");
+  resolve();
+}).then(() => {
+  console.log("promise2");
+});
+
+console.log("script end");</code></pre>
+<div class="answer">
+<strong>Output:</strong> script start, async1 start, async2, promise1, script end, async1 end, promise2, setTimeout<br>
+<strong>Why:</strong><br>
+1. Sync: "script start"<br>
+2. async1() → "async1 start", calls async2 → "async2", await pauses async1<br>
+3. new Promise executor (sync!): "promise1", resolve() queues .then<br>
+4. "script end"<br>
+5. Microtasks in order: async1's continuation → "async1 end", then .then → "promise2"<br>
+6. Macrotask: "setTimeout"
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q6: Promise.resolve vs new Promise</h4>
+<pre><code>Promise.resolve().then(() => console.log(1));
+
+new Promise((resolve) => {
+  resolve();
+}).then(() => console.log(2));
+
+Promise.resolve().then(() => console.log(3));
+
+queueMicrotask(() => console.log(4));
+
+setTimeout(() => console.log(5), 0);</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, 2, 3, 4, 5<br>
+<strong>Why:</strong> All .then() and queueMicrotask are microtasks, queued in order. All resolve synchronously (resolve() is called immediately in the executor). Microtasks run in FIFO order. setTimeout is macrotask → last.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q7: Then chain inside then</h4>
+<pre><code>Promise.resolve()
+  .then(() => {
+    console.log(1);
+    return Promise.resolve(2);
+  })
+  .then((val) => console.log(val));
+
+Promise.resolve()
+  .then(() => console.log(3))
+  .then(() => console.log(4))
+  .then(() => console.log(5));</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, 3, 4, 2, 5 (modern V8/Chrome 73+/Node 12+)<br>
+<strong>Why:</strong> When .then returns a native resolved Promise, modern V8 optimizes the unwrap to 1 extra microtask tick. Chain 1 logs 1 → chain 2 logs 3 (both were queued together). Chain 2's .then(4) is queued. The Promise.resolve(2) unwrap resolves → 4 runs, then 2 runs, then 5 runs.
+<br><em>Note: Older engines (per spec) take 2 extra ticks → output would be 1, 3, 4, 5, 2. Always state which engine you're assuming.</em>
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q8: setTimeout(0) vs setImmediate vs Promise</h4>
+<pre><code>// Browser environment:
+setTimeout(() => console.log("timeout"), 0);
+requestAnimationFrame(() => console.log("rAF"));
+Promise.resolve().then(() => console.log("promise"));
+console.log("sync");</code></pre>
+<div class="answer">
+<strong>Output:</strong> sync, promise, timeout, rAF (or sync, promise, rAF, timeout)<br>
+<strong>Why:</strong> Sync first. Promise is microtask (before any rendering). setTimeout is macrotask. rAF runs before next paint — timing depends on when in the frame you are. In practice: promise always before timeout, rAF timing varies.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q9: Promise constructor is synchronous!</h4>
+<pre><code>const promise = new Promise((resolve, reject) => {
+  console.log(1);
+  resolve("success");
+  console.log(2);
+  reject("error");  // Does this throw?
+  console.log(3);
+});
+
+promise
+  .then(val => console.log(val))
+  .catch(err => console.log(err));</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, 2, 3, "success"<br>
+<strong>Why:</strong> The executor runs synchronously (1, 2, 3 all log). resolve() is called first — promise is now fulfilled. reject() is ignored (state already changed — can only transition ONCE). .then receives "success". .catch never fires.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q10: Microtask starvation</h4>
+<pre><code>function recursiveMicrotask(count) {
+  if (count > 3) return;
+  Promise.resolve().then(() => {
+    console.log(`microtask ${count}`);
+    recursiveMicrotask(count + 1);
+  });
+}
+
+setTimeout(() => console.log("timeout"), 0);
+recursiveMicrotask(1);</code></pre>
+<div class="answer">
+<strong>Output:</strong> microtask 1, microtask 2, microtask 3, timeout<br>
+<strong>Why:</strong> Each microtask schedules another microtask. The microtask queue must be FULLY drained before any macrotask runs. So all recursive microtasks complete first, then setTimeout fires. If the count check was removed → infinite loop (microtask starvation, setTimeout NEVER fires).
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q11: catch returns a resolved promise</h4>
+<pre><code>Promise.reject("error")
+  .catch(err => {
+    console.log("caught:", err);
+    return "recovered";
+  })
+  .then(val => console.log("then:", val))
+  .catch(err => console.log("catch2:", err));</code></pre>
+<div class="answer">
+<strong>Output:</strong> caught: error, then: recovered<br>
+<strong>Why:</strong> .catch() returns a NEW resolved promise (unless it throws). The returned value "recovered" becomes the resolved value for the next .then(). The second .catch never fires because the promise chain is now in fulfilled state.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q12: finally doesn't change the value</h4>
+<pre><code>Promise.resolve("hello")
+  .finally(() => {
+    console.log("finally");
+    return "world"; // Does this change the resolved value?
+  })
+  .then(val => console.log("then:", val));
+
+Promise.reject("oops")
+  .finally(() => {
+    console.log("finally2");
+    // throw new Error("new error"); // This WOULD change it
+  })
+  .catch(err => console.log("catch:", err));</code></pre>
+<div class="answer">
+<strong>Output:</strong> finally, finally2, then: hello, catch: oops<br>
+<strong>Why:</strong> .finally() is transparent — it doesn't receive the value and doesn't change it (return is ignored). The original value passes through. Exception: if finally THROWS, it replaces the value with the error.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="this-output">2. 'this' Keyword Traps</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=rv7Q11KWmKU" target="_blank">'this' in JavaScript — Akshay Saini (Namaste JS)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=gvicrj31JOM" target="_blank">this keyword explained — Fireship</a></li>
+</ul></details>
+
+<div class="callout">
+<strong>💡 Rules of 'this' (priority order):</strong>
+<ol>
+<li><strong>new</strong> binding → this = new object</li>
+<li><strong>Explicit</strong> (call/apply/bind) → this = specified object</li>
+<li><strong>Implicit</strong> (method call) → this = object before dot</li>
+<li><strong>Default</strong> → this = globalThis (or undefined in strict mode)</li>
+<li><strong>Arrow functions</strong> → NO own this (inherits from enclosing lexical scope)</li>
+</ol>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q13: Method extraction</h4>
+<pre><code>const obj = {
+  name: "Sid",
+  greet() {
+    return `Hello, ${this.name}`;
+  }
+};
+
+const greet = obj.greet;
+console.log(obj.greet());  // ?
+console.log(greet());      // ?</code></pre>
+<div class="answer">
+<strong>Output:</strong> "Hello, Sid", "Hello, undefined" (or throws in strict mode)<br>
+<strong>Why:</strong> obj.greet() → implicit binding (this = obj). greet() → default binding (this = window → window.name = undefined). In strict mode, this = undefined → TypeError.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q14: Arrow function in object</h4>
+<pre><code>const obj = {
+  name: "Sid",
+  regular() {
+    return this.name;
+  },
+  arrow: () => {
+    return this.name;
+  }
+};
+
+console.log(obj.regular());
+console.log(obj.arrow());</code></pre>
+<div class="answer">
+<strong>Output:</strong> "Sid", undefined<br>
+<strong>Why:</strong> Arrow functions don't have their own 'this'. The arrow function's 'this' is determined at creation time from the enclosing LEXICAL scope. The enclosing scope of the object literal is the module/global scope (NOT the object itself!). So this = window/module → name is undefined.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q15: setTimeout and this</h4>
+<pre><code>class Timer {
+  constructor() {
+    this.seconds = 0;
+  }
+  
+  start() {
+    // Method 1:
+    setInterval(function() {
+      this.seconds++;
+      console.log("A:", this.seconds);
+    }, 1000);
+    
+    // Method 2:
+    setInterval(() => {
+      this.seconds++;
+      console.log("B:", this.seconds);
+    }, 1000);
+  }
+}
+
+const t = new Timer();
+// t.start(); — What happens?</code></pre>
+<div class="answer">
+<strong>Output:</strong> A: NaN (repeated), B: 1, B: 2, B: 3...<br>
+<strong>Why:</strong> Method 1: regular function in setTimeout → 'this' = window (default binding). window.seconds is undefined → undefined++ = NaN. Method 2: arrow function inherits 'this' from start() → 'this' = Timer instance → works correctly.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q16: bind vs call precedence</h4>
+<pre><code>function showThis() {
+  console.log(this.name);
+}
+
+const bound = showThis.bind({ name: "Bound" });
+
+bound();                          // ?
+bound.call({ name: "Called" });   // ?
+new bound();                      // ?</code></pre>
+<div class="answer">
+<strong>Output:</strong> "Bound", "Bound", undefined<br>
+<strong>Why:</strong> bind() creates a function with permanently set 'this'. call() CANNOT override bind (bind wins over explicit). BUT 'new' keyword ALWAYS wins over bind — when used with 'new', 'this' is the newly created object (which doesn't have .name).
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q17: Nested functions and this</h4>
+<pre><code>const obj = {
+  name: "Sid",
+  outer() {
+    console.log("outer:", this.name);
+    
+    function inner() {
+      console.log("inner:", this.name);
+    }
+    
+    const arrowInner = () => {
+      console.log("arrow:", this.name);
+    };
+    
+    inner();
+    arrowInner();
+  }
+};
+
+obj.outer();</code></pre>
+<div class="answer">
+<strong>Output:</strong> outer: Sid, inner: undefined, arrow: Sid<br>
+<strong>Why:</strong> outer() is called as method → this = obj. inner() is a standalone function call inside outer → default binding → this = window. arrowInner inherits 'this' from outer's scope → this = obj.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q18: Class field arrow functions</h4>
+<pre><code>class Animal {
+  name = "Animal";
+  
+  speak() {
+    return this.name;
+  }
+  
+  speakArrow = () => {
+    return this.name;
+  };
+}
+
+class Dog extends Animal {
+  name = "Dog";
+}
+
+const dog = new Dog();
+const { speak, speakArrow } = dog;
+
+console.log(dog.speak());
+console.log(dog.speakArrow());
+console.log(speak());
+console.log(speakArrow());</code></pre>
+<div class="answer">
+<strong>Output:</strong> "Dog", "Dog", TypeError, "Dog"<br>
+<strong>Why:</strong> Classes are ALWAYS in strict mode — no exception. Extracted speak() → this = undefined (strict mode default binding) → TypeError: Cannot read properties of undefined. Class field arrow functions are created per-instance and permanently bind 'this' to the instance. So even when extracted, speakArrow's 'this' = the dog instance → "Dog".
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q19: this in event handlers</h4>
+<pre><code>const button = document.createElement("button");
+
+button.addEventListener("click", function() {
+  console.log("regular:", this === button);
+});
+
+button.addEventListener("click", () => {
+  console.log("arrow:", this === button);
+});
+
+button.addEventListener("click", function() {
+  console.log("regular:", this === button);
+}.bind({ custom: true }));
+
+button.click();</code></pre>
+<div class="answer">
+<strong>Output:</strong> regular: true, arrow: false, regular: false<br>
+<strong>Why:</strong> Regular function: addEventListener sets 'this' to the element. Arrow function: inherits 'this' from enclosing scope (NOT the element). bind(): overrides addEventListener's 'this' setting.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q20: Chained method calls</h4>
+<pre><code>const calc = {
+  value: 0,
+  add(n) { this.value += n; return this; },
+  subtract(n) { this.value -= n; return this; },
+  getResult() { return this.value; }
+};
+
+console.log(calc.add(5).subtract(2).add(10).getResult());
+
+// But what about this?
+const { add } = calc;
+// add(5); — What happens?</code></pre>
+<div class="answer">
+<strong>Output:</strong> 13, then TypeError (or NaN)<br>
+<strong>Why:</strong> Method chaining works because each method returns 'this' (the same object). Extracted add() has default binding → this = window → window.value is undefined → NaN, and return this → returns window (no chaining possible).
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="closure-output">3. Closure & Scope Gotchas</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=qikxEIxsXco" target="_blank">Closures in JS — Akshay Saini (Namaste JS)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=3a0I8ICR1Vg" target="_blank">Closures Explained — Fireship</a></li>
+</ul></details>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q21: Classic for loop closure</h4>
+<pre><code>for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log("var:", i), 100);
+}
+
+for (let j = 0; j < 3; j++) {
+  setTimeout(() => console.log("let:", j), 100);
+}</code></pre>
+<div class="answer">
+<strong>Output:</strong> var: 3, var: 3, var: 3, let: 0, let: 1, let: 2<br>
+<strong>Why:</strong> var is function-scoped — all callbacks close over the SAME 'i' (which is 3 after loop ends). let is block-scoped — each iteration creates a NEW binding of 'j'. Fix for var: use IIFE or setTimeout with third arg.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q22: Closure with reassignment</h4>
+<pre><code>function createCounter() {
+  let count = 0;
+  
+  return {
+    increment: () => ++count,
+    getCount: () => count,
+    reset: () => { count = 0; }
+  };
+}
+
+const counter = createCounter();
+counter.increment();
+counter.increment();
+counter.increment();
+console.log(counter.getCount());
+
+counter.reset();
+console.log(counter.getCount());</code></pre>
+<div class="answer">
+<strong>Output:</strong> 3, 0<br>
+<strong>Why:</strong> All three methods close over the SAME 'count' variable. They share the reference, not a copy. Incrementing changes the shared variable. Reset sets it back to 0. This is the module pattern.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q23: Closure vs value capture</h4>
+<pre><code>function createFunctions() {
+  const fns = [];
+  
+  for (var i = 0; i < 5; i++) {
+    fns.push(function() {
+      return i * i;
+    });
+  }
+  
+  return fns;
+}
+
+const functions = createFunctions();
+console.log(functions[0]());
+console.log(functions[1]());
+console.log(functions[4]());</code></pre>
+<div class="answer">
+<strong>Output:</strong> 25, 25, 25<br>
+<strong>Why:</strong> All functions close over the SAME 'i' (var is function-scoped). After loop: i = 5. All functions return 5*5 = 25. Fix: use let, or IIFE: <code>(function(j) { fns.push(() => j*j); })(i);</code>
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q24: Stale closure in React-like scenario</h4>
+<pre><code>function useCounter() {
+  let count = 0;
+  
+  function handleClick() {
+    setTimeout(() => {
+      console.log("count:", count);
+    }, 3000);
+  }
+  
+  count = 5; // Simulating state update
+  handleClick();
+  count = 10; // Another update before timeout fires
+}
+
+useCounter();</code></pre>
+<div class="answer">
+<strong>Output:</strong> count: 10 (after 3 seconds)<br>
+<strong>Why:</strong> The closure captures the REFERENCE to 'count', not its value at the time of creation. By the time setTimeout fires, count has been updated to 10. This is the "stale closure" problem in React hooks.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q25: Block scoping inside loops</h4>
+<pre><code>const arr = [];
+for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i++) { // Same variable name!
+    arr.push(() => i);
+  }
+}
+console.log(arr.map(fn => fn()));</code></pre>
+<div class="answer">
+<strong>Output:</strong> [0, 1, 2, 0, 1, 2, 0, 1, 2]<br>
+<strong>Why:</strong> The inner 'let i' creates its OWN block-scoped variable that shadows the outer 'i'. Each iteration of the inner loop creates a fresh binding. The closures capture the inner 'i' values.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q26: IIFE and closure</h4>
+<pre><code>var result = [];
+for (var i = 0; i < 3; i++) {
+  result.push(
+    (function(j) {
+      return function() { return j; };
+    })(i)
+  );
+}
+
+console.log(result[0]());
+console.log(result[1]());
+console.log(result[2]());</code></pre>
+<div class="answer">
+<strong>Output:</strong> 0, 1, 2<br>
+<strong>Why:</strong> The IIFE creates a new scope for each iteration. 'j' is a parameter (local to the IIFE), so each returned function closes over its own 'j'. This was the classic fix before 'let' existed.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q27: Closure memory leak pattern</h4>
+<pre><code>function outer() {
+  const bigData = new Array(1000000).fill("🔥");
+  
+  return function inner() {
+    // inner doesn't use bigData at all!
+    return "hello";
+  };
+}
+
+const fn = outer();
+// Is bigData garbage collected?</code></pre>
+<div class="answer">
+<strong>Answer:</strong> In theory NO (bigData is in inner's closure scope). In practice: modern V8 DOES optimize this — if bigData isn't referenced in inner, V8 excludes it from the closure. But in older engines or with eval/debugger, it stays in memory. Always set large variables to null if not needed.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q28: Closure with setTimeout and let</h4>
+<pre><code>for (let i = 0; i < 3; i++) {
+  setTimeout(function timer() {
+    console.log(i);
+  }, i * 1000);
+}
+
+// What's the timing of outputs?</code></pre>
+<div class="answer">
+<strong>Output:</strong> 0 (at 0s), 1 (at 1s), 2 (at 2s)<br>
+<strong>Why:</strong> let creates a new binding per iteration. Each setTimeout captures its own 'i'. The delays are 0ms, 1000ms, 2000ms respectively. If this were var: 3, 3, 3 all at different times.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="coercion-output">4. Type Coercion & Equality</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=pFt45JMf7cI" target="_blank">Type Coercion Explained — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=RiU_euSvirc" target="_blank">JavaScript Type Coercion — Low Level JavaScript</a></li>
+</ul></details>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q29: Implicit coercion with +</h4>
+<pre><code>console.log(1 + "2");
+console.log("3" - 1);
+console.log("3" + 1);
+console.log(true + true);
+console.log(true + "1");
+console.log([] + []);
+console.log({} + []);
+console.log([] + {});</code></pre>
+<div class="answer">
+<strong>Output:</strong> "12", 2, "31", 2, "true1", "", "[object Object]", "[object Object]"<br>
+<strong>Why:</strong><br>
+- 1 + "2": + with string → string concat → "12"<br>
+- "3" - 1: - only works with numbers → "3" → 3, result: 2<br>
+- "3" + 1: + with string → concat → "31"<br>
+- true + true: no string → numeric: true=1, 1+1=2<br>
+- true + "1": + with string → "true" + "1" = "true1"<br>
+- [] + []: both coerce to "" → "" + "" = ""<br>
+- {} + []: Inside console.log() (expression context), {} is always an object literal → "[object Object]". Only when `{} + []` is a standalone statement in DevTools does {} parse as a block (giving 0).<br>
+- [] + {}: "" + "[object Object]" = "[object Object]"
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q30: == vs === edge cases</h4>
+<pre><code>console.log(null == undefined);
+console.log(null === undefined);
+console.log(null == 0);
+console.log(null == "");
+console.log(null == false);
+console.log(NaN == NaN);
+console.log(NaN === NaN);
+console.log(undefined == false);
+console.log("" == false);
+console.log("" == 0);
+console.log(0 == false);</code></pre>
+<div class="answer">
+<strong>Output:</strong> true, false, false, false, false, false, false, false, true, true, true<br>
+<strong>Why:</strong><br>
+- null == undefined → SPECIAL RULE: true (they're only equal to each other)<br>
+- null/undefined don't coerce to anything else with ==<br>
+- NaN is not equal to ANYTHING, including itself<br>
+- "" == false: both coerce to 0 → true<br>
+- "" == 0: "" coerces to 0 → true<br>
+- 0 == false: false coerces to 0 → true
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q31: Object coercion (valueOf, toString)</h4>
+<pre><code>const obj = {
+  valueOf() { return 42; },
+  toString() { return "hello"; }
+};
+
+console.log(obj + 1);
+console.log(`${obj}`);
+console.log(obj == 42);
+console.log(String(obj));</code></pre>
+<div class="answer">
+<strong>Output:</strong> 43, "hello", true, "hello"<br>
+<strong>Why:</strong><br>
+- obj + 1: hint is "default" (+ operator uses default hint) → valueOf() → 42 + 1 = 43<br>
+- Template literal: hint is "string" → toString() → "hello"<br>
+- obj == 42: hint is "default" → valueOf() → 42 == 42 → true<br>
+- String(obj): hint is "string" → toString() → "hello"<br>
+<em>Note: "default" and "number" hints both try valueOf() first, then toString(). Only "string" hint reverses the order.</em>
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q32: Tricky falsy/truthy</h4>
+<pre><code>console.log(Boolean("0"));
+console.log(Boolean(0));
+console.log(Boolean(""));
+console.log(Boolean(" "));
+console.log(Boolean([]));
+console.log(Boolean({}));
+console.log(Boolean(null));
+console.log(Boolean(undefined));
+console.log(Boolean(-0));
+console.log(Boolean(NaN));
+
+// Tricky:
+console.log([] == false);
+console.log([] == ![]);
+console.log({} == !{});</code></pre>
+<div class="answer">
+<strong>Output:</strong> true, false, false, true, true, true, false, false, false, false, true, true, false<br>
+<strong>Key insights:</strong><br>
+- "0" is truthy (non-empty string!)<br>
+- " " is truthy (space is a character!)<br>
+- [] is truthy, {} is truthy (all objects are truthy!)<br>
+- [] == false: [] → "" → 0, false → 0, 0==0 → true<br>
+- [] == ![]: ![] = false (object→truthy→negated), then [] == false (see above) → true<br>
+- {} == !{}: !{} = false, {} → "[object Object]" → NaN, NaN != 0 → false
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q33: typeof quirks</h4>
+<pre><code>console.log(typeof undefined);
+console.log(typeof null);
+console.log(typeof NaN);
+console.log(typeof typeof 1);
+console.log(typeof function(){});
+console.log(typeof []);
+console.log(typeof {});
+console.log(typeof 1n);
+console.log(typeof Symbol());
+
+// This one is tricky:
+let x;
+console.log(typeof x);
+console.log(typeof y); // y is not declared!</code></pre>
+<div class="answer">
+<strong>Output:</strong> "undefined", "object", "number", "string", "function", "object", "object", "bigint", "symbol", "undefined", "undefined"<br>
+<strong>Why:</strong><br>
+- typeof null = "object" → FAMOUS BUG (never fixed for backward compat)<br>
+- typeof NaN = "number" → NaN is technically a number value<br>
+- typeof typeof 1 = typeof "number" = "string"<br>
+- typeof [] = "object" → arrays are objects (use Array.isArray())<br>
+- typeof undeclaredVariable → "undefined" (doesn't throw! Safe check)
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q34: Number parsing gotchas</h4>
+<pre><code>console.log(parseInt("123abc"));
+console.log(parseInt("abc123"));
+console.log(parseInt("0x10"));
+console.log(parseInt("010", 10));
+console.log(parseInt(""));
+console.log(Number(""));
+console.log(Number("123abc"));
+console.log(Number(null));
+console.log(Number(undefined));
+console.log(Number(true));
+console.log(Number([1]));
+console.log(Number([1, 2]));</code></pre>
+<div class="answer">
+<strong>Output:</strong> 123, NaN, 16, 10, NaN, 0, NaN, 0, NaN, 1, 1, NaN<br>
+<strong>Key rules:</strong><br>
+- parseInt: reads digits until non-digit, stops. "abc123" → starts with non-digit → NaN<br>
+- parseInt("0x10") → hex → 16<br>
+- Number(""): empty string → 0 (parseInt("") → NaN!)<br>
+- Number(null) = 0, Number(undefined) = NaN<br>
+- Number([1]) → "1" → 1. Number([1,2]) → "1,2" → NaN
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q35: Comparison operators</h4>
+<pre><code>console.log(null > 0);
+console.log(null == 0);
+console.log(null >= 0);
+console.log(undefined > 0);
+console.log(undefined < 0);
+console.log(undefined == 0);</code></pre>
+<div class="answer">
+<strong>Output:</strong> false, false, true, false, false, false<br>
+<strong>Why:</strong><br>
+- Comparisons (&gt; &lt; &gt;= &lt;=) convert null to 0: null &gt; 0 → 0 &gt; 0 → false<br>
+- == has SPECIAL rule: null only equals null and undefined<br>
+- null &gt;= 0 → 0 &gt;= 0 → true (uses numeric comparison)<br>
+- undefined always converts to NaN in comparisons → all comparisons with NaN are false<br>
+- This inconsistency (null not == 0 but >= 0) is a famous JS quirk!
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q36: String comparison</h4>
+<pre><code>console.log("2" > "12");
+console.log("2" > 12);
+console.log("abc" > "abd");
+console.log("a" > "A");</code></pre>
+<div class="answer">
+<strong>Output:</strong> true, false, false, true<br>
+<strong>Why:</strong><br>
+- "2" > "12": string comparison (char by char): "2" (char code 50) > "1" (char code 49) → true<br>
+- "2" > 12: mixed → numeric: 2 > 12 → false<br>
+- "abc" > "abd": char by char, "c"(99) < "d"(100) → false<br>
+- "a"(97) > "A"(65) → true (lowercase > uppercase in char codes)
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="hoisting-output">5. Hoisting & TDZ</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Fnlnw8uY6jo" target="_blank">Hoisting in JavaScript — Akshay Saini (Namaste JS)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ppMlvGMT2qE" target="_blank">Temporal Dead Zone — Lydia Hallie</a></li>
+</ul></details>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q37: var hoisting</h4>
+<pre><code>console.log(a);
+console.log(b);
+var a = 1;
+let b = 2;</code></pre>
+<div class="answer">
+<strong>Output:</strong> undefined, ReferenceError: Cannot access 'b' before initialization<br>
+<strong>Why:</strong> var declarations are hoisted and initialized to undefined. let declarations are hoisted but NOT initialized (TDZ = Temporal Dead Zone until declaration line).
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q38: Function hoisting vs variable hoisting</h4>
+<pre><code>console.log(foo);
+console.log(bar);
+
+function foo() { return "I am foo"; }
+var bar = function() { return "I am bar"; };
+
+console.log(foo());
+console.log(bar());</code></pre>
+<div class="answer">
+<strong>Output:</strong> [Function: foo], undefined, "I am foo", "I am bar"<br>
+<strong>Why:</strong> Function DECLARATIONS are fully hoisted (entire function available). Function EXPRESSIONS assigned to var: only the variable declaration is hoisted (= undefined). The assignment happens at runtime.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q39: Function vs var same name</h4>
+<pre><code>var a = 1;
+function a() { return 2; }
+console.log(typeof a);
+console.log(a);
+
+// What about this?
+console.log(typeof b);
+var b = 3;
+function b() { return 4; }
+console.log(b);</code></pre>
+<div class="answer">
+<strong>Output:</strong> "number", 1, "function", 3<br>
+<strong>Why:</strong><br>
+First block: during hoisting, function declaration goes first, then var a = 1 assignment executes → a becomes 1 (number).<br>
+Second block: before any code runs, hoisting makes b = function (function declarations override var declarations during hoisting). Then var b = 3 executes → b becomes 3.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q40: TDZ in different contexts</h4>
+<pre><code>let x = 1;
+{
+  // console.log(x); // What would this print?
+  let x = 2;
+  console.log(x);
+}
+console.log(x);</code></pre>
+<div class="answer">
+<strong>Output:</strong> 2, 1 (the commented line would throw ReferenceError)<br>
+<strong>Why:</strong> The inner 'let x' creates a new block-scoped variable. Even though outer x=1 exists, the inner x's TDZ starts at the beginning of the block. Accessing it before declaration → ReferenceError. After declaration: inner x=2. Outside block: outer x=1.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q41: Hoisting in conditional blocks</h4>
+<pre><code>foo(); // Does this work?
+
+if (true) {
+  function foo() { console.log("inside if"); }
+}
+
+// What about:
+console.log(typeof bar);
+if (false) {
+  function bar() { console.log("never defined?"); }
+}</code></pre>
+<div class="answer">
+<strong>Output (modern V8, non-strict):</strong> TypeError: foo is not a function, then typeof bar → "undefined"<br>
+<strong>Why:</strong> In non-strict mode, function declarations inside blocks are hoisted as `var foo = undefined` (name is hoisted, but NOT the function body). The function body is only assigned when execution reaches the declaration inside the block. So calling foo() before the if-block → foo is undefined → TypeError. typeof bar → "undefined" because the if(false) block never executes.<br>
+<strong>Key point:</strong> Function declarations inside blocks have unreliable behavior. Always use function expressions: `const foo = function() {...}` in conditional blocks.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q42: const hoisting</h4>
+<pre><code>const fn = () => console.log(x);
+
+// fn(); // What happens if we call here?
+
+const x = 10;
+fn(); // What about here?</code></pre>
+<div class="answer">
+<strong>Output:</strong> Calling fn() before const x → ReferenceError (x is in TDZ). Calling after: logs 10.<br>
+<strong>Why:</strong> fn closes over x (same scope). The closure sees x in TDZ until declaration. Once x is declared and initialized, fn can access it. Closures capture the VARIABLE (binding), not the value at creation time.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="prototype-output">6. Prototypes & Classes</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=wstwjQ1yqWQ" target="_blank">Prototypes in JavaScript — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=1UTqFAjYx1k" target="_blank">Prototype Chain Explained — Fireship</a></li>
+</ul></details>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q43: Prototype chain lookup</h4>
+<pre><code>function Animal(name) {
+  this.name = name;
+}
+Animal.prototype.speak = function() { return `${this.name} speaks`; };
+
+function Dog(name) {
+  Animal.call(this, name);
+}
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+Dog.prototype.bark = function() { return `${this.name} barks`; };
+
+const dog = new Dog("Rex");
+
+console.log(dog.bark());
+console.log(dog.speak());
+console.log(dog.constructor === Dog);
+console.log(dog instanceof Dog);
+console.log(dog instanceof Animal);
+console.log(dog.hasOwnProperty("name"));
+console.log(dog.hasOwnProperty("bark"));</code></pre>
+<div class="answer">
+<strong>Output:</strong> "Rex barks", "Rex speaks", true, true, true, true, false<br>
+<strong>Why:</strong> dog.bark() → found on Dog.prototype. dog.speak() → not on Dog.prototype → walks up to Animal.prototype → found! dog.name is an OWN property (set in constructor). dog.bark is on prototype (not own).
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q44: Prototype mutation</h4>
+<pre><code>function Foo() {}
+Foo.prototype.x = 1;
+
+const a = new Foo();
+console.log(a.x); // ?
+
+Foo.prototype = { x: 2, y: 3 };
+
+const b = new Foo();
+console.log(a.x); // ?
+console.log(b.x); // ?
+console.log(a.y); // ?
+console.log(b.y); // ?</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, 1, 2, undefined, 3<br>
+<strong>Why:</strong> Replacing Foo.prototype with a new object doesn't affect existing instances! 'a' still points to the OLD prototype object (where x=1, no y). Only 'b' (created after replacement) points to the new prototype (x=2, y=3). Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)!
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q45: Class field initialization order</h4>
+<pre><code>class Base {
+  name = "Base: " + this.greet();
+  
+  greet() { return "hello from Base"; }
+}
+
+class Child extends Base {
+  name = "Child: " + this.greet();
+  
+  greet() { return "hello from Child"; }
+}
+
+const c = new Child();
+console.log(c.name);</code></pre>
+<div class="answer">
+<strong>Output:</strong> "Child: hello from Child"<br>
+<strong>Why:</strong> Class fields initialize TOP to BOTTOM per class. But Child overrides greet(). Field initialization order: Base fields run first (with 'this' being the Child instance → calls Child's greet()), then Child fields run (overwriting Base's name). Final: Child's field assignment wins.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q46: Shadowing prototype properties</h4>
+<pre><code>const parent = { x: 1, y: 2 };
+const child = Object.create(parent);
+
+console.log(child.x);
+child.x = 10;
+console.log(child.x);
+console.log(parent.x);
+console.log("x" in child);
+console.log(child.hasOwnProperty("x"));
+
+delete child.x;
+console.log(child.x);</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, 10, 1, true, true, 1<br>
+<strong>Why:</strong> First child.x reads from prototype (1). Setting child.x creates an OWN property (shadows prototype). parent.x unchanged. delete child.x removes the own property → prototype property (1) shows through again.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q47: super keyword behavior</h4>
+<pre><code>class A {
+  constructor() { this.x = 1; }
+  method() { return "A"; }
+}
+
+class B extends A {
+  constructor() {
+    super();
+    this.x = 2;
+    console.log(super.x);  // ?
+  }
+  method() {
+    return "B-" + super.method();
+  }
+}
+
+const b = new B();
+console.log(b.x);
+console.log(b.method());</code></pre>
+<div class="answer">
+<strong>Output:</strong> undefined, 2, "B-A"<br>
+<strong>Why:</strong> super.x looks up x on the PROTOTYPE (A.prototype), not on 'this'. A.prototype doesn't have x (it's set in constructor on instances). super.method() correctly calls A.prototype.method(). b.x = 2 (set in B's constructor, overwriting the 1 set by super()).
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="misc-output">7. Miscellaneous Tricky Questions</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=MY0UBGX2FtA" target="_blank">JavaScript Tricky Interview Questions — Roadside Coder</a></li>
+  <li><a href="https://www.youtube.com/watch?v=QO4NXhWo_NM" target="_blank">JavaScript Puzzles — Jake Archibald</a></li>
+</ul></details>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q48: ASI (Automatic Semicolon Insertion)</h4>
+<pre><code>function foo() {
+  return
+  {
+    bar: "hello"
+  };
+}
+
+function baz() {
+  return (
+    {
+      bar: "hello"
+    }
+  );
+}
+
+console.log(foo());
+console.log(baz());</code></pre>
+<div class="answer">
+<strong>Output:</strong> undefined, { bar: "hello" }<br>
+<strong>Why:</strong> ASI inserts semicolon after 'return' in foo() because the next line starts with {. So foo returns undefined. In baz(), the ( on same line prevents ASI — return sees the expression continues.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q49: Arguments object</h4>
+<pre><code>function test(a, b) {
+  console.log(arguments.length);
+  console.log(arguments[2]);
+  
+  a = 100;
+  console.log(arguments[0]);
+  
+  arguments[1] = 200;
+  console.log(b);
+}
+
+test(1, 2, 3);</code></pre>
+<div class="answer">
+<strong>Output:</strong> 3, 3, 100, 200<br>
+<strong>Why:</strong> arguments is array-like (has length, indexed access). arguments[2] = 3 (third arg). In sloppy mode, arguments and named params are LINKED — changing one changes the other. (In strict mode, they're NOT linked!)
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q50: Object property order</h4>
+<pre><code>const obj = {};
+obj[2] = "two";
+obj["b"] = "bee";
+obj[1] = "one";
+obj["a"] = "ay";
+obj[10] = "ten";
+
+console.log(Object.keys(obj));</code></pre>
+<div class="answer">
+<strong>Output:</strong> ["1", "2", "10", "a", "b"]<br>
+<strong>Why:</strong> Object property order (ES2015+): 1) Integer-like keys in ascending numeric order (1, 2, 10). 2) String keys in insertion order ("b", "a"). 3) Symbol keys in insertion order. This is guaranteed by spec!
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q51: delete operator quirks</h4>
+<pre><code>var x = 1;
+let y = 2;
+const z = 3;
+globalThis.w = 4;
+
+console.log(delete x);
+console.log(delete y);
+console.log(delete z);
+console.log(delete w);
+console.log(x, typeof y, typeof z, typeof w);</code></pre>
+<div class="answer">
+<strong>Output:</strong> false, false, false, true, 1, "number", "number", "undefined"<br>
+<strong>Why:</strong> delete only removes OBJECT properties. var/let/const declarations cannot be deleted (they're not configurable properties). globalThis.w IS a configurable property → successfully deleted. delete returns false for non-configurable, true for configurable (even if property doesn't exist!).
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q52: Comma operator</h4>
+<pre><code>const result = (1, 2, 3, 4, 5);
+console.log(result);
+
+const fn = (a, b) => (a += 1, b += 2, a + b);
+console.log(fn(1, 2));
+
+let i = 0;
+const arr = [i++, i++, i++];
+console.log(arr);
+console.log(i);</code></pre>
+<div class="answer">
+<strong>Output:</strong> 5, 6, [0, 1, 2], 3<br>
+<strong>Why:</strong><br>
+- Comma operator: evaluates all expressions left-to-right, returns LAST value → 5<br>
+- fn: a becomes 2, b becomes 4, returns 2+4=6<br>
+- arr: i++ returns current value then increments: [0, 1, 2]. Final i = 3
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q53: Label statements & break</h4>
+<pre><code>outer: for (let i = 0; i < 3; i++) {
+  inner: for (let j = 0; j < 3; j++) {
+    if (j === 1) continue outer;
+    console.log(`${i}-${j}`);
+  }
+}
+
+// What about:
+block: {
+  console.log("before");
+  break block;
+  console.log("after");
+}</code></pre>
+<div class="answer">
+<strong>Output:</strong> 0-0, 1-0, 2-0, then: "before"<br>
+<strong>Why:</strong> `continue outer` skips the rest of the inner loop and goes to next iteration of outer loop. So j never reaches 2. Block labels: `break block` exits the labeled block (skips "after").
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q54: Generator output prediction</h4>
+<pre><code>function* gen() {
+  const x = yield 1;
+  console.log("x:", x);
+  const y = yield 2;
+  console.log("y:", y);
+  return 3;
+}
+
+const it = gen();
+console.log(it.next());
+console.log(it.next("hello"));
+console.log(it.next("world"));
+console.log(it.next());</code></pre>
+<div class="answer">
+<strong>Output:</strong><br>
+{value: 1, done: false}<br>
+x: hello<br>
+{value: 2, done: false}<br>
+y: world<br>
+{value: 3, done: true}<br>
+{value: undefined, done: true}<br>
+<strong>Why:</strong> First next() runs until first yield (returns 1). Second next("hello") resumes — "hello" becomes x (yield's return value). Third next("world") → "world" becomes y, hits return 3. Fourth next() → already done, returns undefined.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q55: Spread vs rest in different contexts</h4>
+<pre><code>const str = "hello";
+console.log([...str]);
+console.log({...str});
+
+const arr = [1, 2, 3];
+console.log({...arr});
+
+const obj = { a: 1, b: 2 };
+// console.log([...obj]); // What happens?</code></pre>
+<div class="answer">
+<strong>Output:</strong> ["h","e","l","l","o"], {0:"h",1:"e",2:"l",3:"l",4:"o"}, {0:1,1:2,2:3}, TypeError<br>
+<strong>Why:</strong><br>
+- [...str]: iterates string chars → array<br>
+- {...str}: string indices become keys<br>
+- {...arr}: array indices become keys<br>
+- [...obj]: TypeError! Objects are NOT iterable by default (no Symbol.iterator). Need Object.entries() or custom iterator.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="modern-js">8. Modern JS & Error Handling (Critical Interview Gaps)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=v2tJ3nzXRoE" target="_blank">Nullish Coalescing & Optional Chaining — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Zeuyoq-8Cfw" target="_blank">try/catch/finally Gotchas — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4UZlZdkQEIs" target="_blank">JSON.stringify Deep Dive — Low Level JS</a></li>
+</ul></details>
+
+<div class="callout warning">
+<strong>⚠️ These are the #1 gap:</strong> try/catch/finally with return, ?? vs ||, destructuring defaults, and JSON.stringify questions are asked at 80%+ of interviews. Missing these = instant reject.
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q56: try/catch/finally with return (Google/Meta favorite)</h4>
+<pre><code>function test1() {
+  try {
+    return 1;
+  } catch (e) {
+    return 2;
+  } finally {
+    return 3;
+  }
+}
+
+function test2() {
+  try {
+    throw new Error("oops");
+    return 1;
+  } catch (e) {
+    return 2;
+  } finally {
+    console.log("finally");
+    // No return here
+  }
+}
+
+function test3() {
+  let x = 1;
+  try {
+    return x;
+  } finally {
+    x = 2;
+  }
+}
+
+console.log(test1());
+console.log(test2());
+console.log(test3());</code></pre>
+<div class="answer">
+<strong>Output:</strong> 3, "finally" then 2, 1<br>
+<strong>Why:</strong><br>
+- test1(): finally's return ALWAYS overrides try/catch return. Even though try returned 1, finally returns 3 → 3 wins.<br>
+- test2(): throws → catch returns 2. finally logs but doesn't return → catch's return (2) is used.<br>
+- test3(): return x captures the VALUE of x (1) before finally modifies x. finally changes x to 2 but the return value was already captured. Returns 1.<br>
+<strong>Rule: finally return > catch return > try return. But finally can't modify an already-captured primitive return value.</strong>
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q57: try/catch with async/await</h4>
+<pre><code>async function foo() {
+  try {
+    const result = await Promise.reject("rejected!");
+    console.log("after await:", result);
+  } catch (e) {
+    console.log("caught:", e);
+  } finally {
+    console.log("finally");
+  }
+  console.log("after try-catch");
+}
+
+foo();
+console.log("sync end");</code></pre>
+<div class="answer">
+<strong>Output:</strong> sync end, caught: rejected!, finally, after try-catch<br>
+<strong>Why:</strong> foo() is async — starts executing, hits await → pauses. "sync end" runs. The rejected promise is caught by catch. finally always runs. Execution continues after the try-catch block.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q58: Nullish coalescing (??) vs OR (||)</h4>
+<pre><code>console.log(0 || "default");
+console.log(0 ?? "default");
+console.log("" || "default");
+console.log("" ?? "default");
+console.log(null || "default");
+console.log(null ?? "default");
+console.log(undefined ?? "default");
+console.log(false ?? "default");
+console.log(NaN ?? "default");
+console.log(false || "default");</code></pre>
+<div class="answer">
+<strong>Output:</strong> "default", 0, "default", "", "default", "default", "default", false, NaN, "default"<br>
+<strong>Why:</strong><br>
+- <code>||</code> returns RHS for ALL falsy values (0, "", false, null, undefined, NaN)<br>
+- <code>??</code> returns RHS ONLY for null and undefined — NOT for 0, "", false, NaN<br>
+<strong>Key:</strong> Use ?? when 0 or "" are valid values (e.g., form inputs, counters). Use || when you want any falsy to trigger default.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q59: Destructuring defaults — undefined vs null</h4>
+<pre><code>const { a = 1, b = 2, c = 3, d = 4 } = { a: undefined, b: null, c: 0, d: "" };
+console.log(a, b, c, d);
+
+function greet({ name = "Anonymous", age = 0 } = {}) {
+  return `${name} is ${age}`;
+}
+console.log(greet({ name: undefined, age: null }));
+console.log(greet({}));
+console.log(greet());
+
+// Array destructuring:
+const [x = 10, y = 20, z = 30] = [undefined, null, 0];
+console.log(x, y, z);</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, null, 0, "", "Anonymous is null", "Anonymous is 0", "Anonymous is 0", 10, null, 0<br>
+<strong>Why:</strong> Default values ONLY kick in for <code>undefined</code>, NEVER for null, 0, "", or false. This applies to both object and array destructuring, and function parameter defaults.<br>
+- a: undefined → uses default 1 ✓<br>
+- b: null → does NOT use default (null is a value!) → null<br>
+- c: 0 → does NOT use default → 0<br>
+- greet({age: null}) → null replaces default 0 (null is not undefined)
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q60: Sparse arrays (array holes) — Meta/Flipkart classic</h4>
+<pre><code>const arr = [1, , 3, , 5];
+console.log(arr.length);
+console.log(arr[1]);
+console.log(1 in arr);
+
+// Each method handles holes differently:
+console.log(arr.map(x => x * 2));
+console.log(arr.filter(x => true));
+console.log(arr.forEach(x => console.log(x)));
+console.log([...arr]);
+console.log(Array.from(arr));
+
+// Bonus:
+const arr2 = new Array(3);
+console.log(arr2.length);
+console.log(arr2[0]);
+console.log(arr2.map(x => "filled"));</code></pre>
+<div class="answer">
+<strong>Output:</strong><br>
+5<br>
+undefined<br>
+false (hole ≠ undefined! "in" returns false for holes)<br>
+[2, empty, 6, empty, 10] (map preserves holes, skips callback)<br>
+[1, 3, 5] (filter removes holes entirely)<br>
+logs: 1, 3, 5 then undefined (forEach skips holes)<br>
+[1, undefined, 3, undefined, 5] (spread converts holes → undefined)<br>
+[1, undefined, 3, undefined, 5] (Array.from converts holes → undefined)<br>
+3, undefined, [empty × 3] (new Array(3) creates all holes — map skips them!)<br>
+<strong>Key:</strong> Holes are "empty slots" — different from undefined! Use <code>Array.from({length: 3}, (_, i) => i)</code> to create filled arrays.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q61: JSON.stringify edge cases (Amazon/Walmart favorite)</h4>
+<pre><code>console.log(JSON.stringify(undefined));
+console.log(JSON.stringify(function(){}));
+console.log(JSON.stringify(Symbol("s")));
+
+console.log(JSON.stringify({ a: undefined, b: null, c: NaN, d: Infinity, e: 42 }));
+console.log(JSON.stringify([undefined, null, NaN, Infinity, function(){}]));
+
+console.log(JSON.stringify({ toJSON: () => "custom!" }));
+console.log(JSON.stringify(new Map([["a", 1]])));
+console.log(JSON.stringify(new Set([1, 2, 3])));
+console.log(JSON.stringify(/regex/g));
+console.log(JSON.stringify(new Date("2024-01-01")));
+
+// Circular reference:
+const obj = { a: 1 };
+obj.self = obj;
+try {
+  JSON.stringify(obj);
+} catch (e) {
+  console.log(e.constructor.name);
+}</code></pre>
+<div class="answer">
+<strong>Output:</strong><br>
+undefined (returns undefined, not the string "undefined"!)<br>
+undefined<br>
+undefined<br>
+'{"b":null,"c":null,"d":null,"e":42}' (undefined → omitted, NaN/Infinity → null)<br>
+'[null,null,null,null,null]' (in arrays: undefined/function/Symbol → null)<br>
+'"custom!"' (toJSON() is called if present — you control output)<br>
+'{}' (Map not serializable)<br>
+'{}' (Set not serializable)<br>
+'{}' (RegExp not serializable)<br>
+'"2024-01-01T00:00:00.000Z"' (Date has built-in toJSON → ISO string)<br>
+"TypeError" (circular references throw)<br>
+<strong>Rules:</strong> In objects: undefined/function/Symbol → key omitted. In arrays → null. NaN/Infinity → null everywhere.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q62: Logical assignment operators (??=, ||=, &&=)</h4>
+<pre><code>let a = null;
+let b = 0;
+let c = "hello";
+let d = undefined;
+let e = "";
+
+a ??= "default A";
+b ??= "default B";
+c ??= "default C";
+d ||= "fallback D";
+b ||= "fallback B";
+e ||= "fallback E";
+c &&= c.toUpperCase();
+b &&= "won't run";
+
+console.log(a, b, c, d, e);</code></pre>
+<div class="answer">
+<strong>Output:</strong> "default A", "won't run", "HELLO", "fallback D", "fallback E"<br>
+<strong>Why (step by step):</strong><br>
+- <code>a ??= "default A"</code>: a is null → assigns → a = "default A"<br>
+- <code>b ??= "default B"</code>: b is 0 (NOT null/undefined) → no-op → b stays 0<br>
+- <code>c ??= "default C"</code>: c is "hello" (NOT null/undefined) → no-op → c stays "hello"<br>
+- <code>d ||= "fallback D"</code>: d is undefined (falsy) → assigns → d = "fallback D"<br>
+- <code>b ||= "fallback B"</code>: b is 0 (falsy!) → assigns → b = "fallback B"<br>
+- <code>e ||= "fallback E"</code>: e is "" (falsy) → assigns → e = "fallback E"<br>
+- <code>c &&= c.toUpperCase()</code>: c is "hello" (truthy) → assigns RHS → c = "HELLO"<br>
+- <code>b &&= "won't run"</code>: b is now "fallback B" (truthy!) → assigns RHS → b = "won't run"<br>
+<strong>Key:</strong> &&= assigns the RHS when LHS is truthy. ||= assigns when LHS is falsy. ??= assigns when LHS is null/undefined only.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q63: Object.is() vs === vs ==</h4>
+<pre><code>console.log(NaN === NaN);
+console.log(Object.is(NaN, NaN));
+console.log(0 === -0);
+console.log(Object.is(0, -0));
+console.log(Object.is(+0, -0));
+console.log(null === undefined);
+console.log(null == undefined);
+console.log(Object.is(null, undefined));
+console.log(Object.is("", false));
+console.log("" == false);
+console.log(Object.is([], []));
+console.log([] == []);</code></pre>
+<div class="answer">
+<strong>Output:</strong> false, true, true, false, false, false, true, false, false, true, false, false<br>
+<strong>Why:</strong><br>
+- Object.is() is like === but with 2 exceptions:<br>
+  • NaN IS equal to NaN (=== says false!)<br>
+  • +0 is NOT equal to -0 (=== says true!)<br>
+- null == undefined → true (special == rule)<br>
+- null === undefined → false (different types)<br>
+- Object.is(null, undefined) → false (different values)<br>
+- "" == false → true (both coerce to 0)<br>
+- [] == [] → false (different references — objects compare by reference)
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q64: Optional chaining (?.) edge cases</h4>
+<pre><code>const obj = { a: { b: null }, c: undefined, fn: () => 42 };
+
+console.log(obj.a.b?.c);
+console.log(obj.c?.d);
+console.log(obj.x?.y?.z);
+console.log(obj.fn?.());
+console.log(obj.notFn?.());
+console.log(obj.a.b?.());  // b is null, calling it?
+
+// Tricky:
+console.log(null?.x);
+console.log(undefined?.x);
+console.log(0?.x);
+console.log("")?.length;</code></pre>
+<div class="answer">
+<strong>Output:</strong> undefined, undefined, undefined, 42, undefined, TypeError, undefined, undefined, undefined, 0<br>
+<strong>Why:</strong><br>
+- obj.a.b?.c: b is null → ?. short-circuits → undefined<br>
+- obj.c?.d: c is undefined → short-circuits → undefined<br>
+- obj.x?.y?.z: x is undefined → first ?. returns undefined, no error<br>
+- obj.fn?.(): fn exists → calls it → 42<br>
+- obj.notFn?.(): notFn is undefined → returns undefined (no call)<br>
+- obj.a.b?.(): b is null. ?. with () means "if not null/undefined, call it". b IS null → returns undefined. Wait, actually: null?.() → undefined! But obj.a.b?.() — b is null → short-circuits → undefined (no TypeError)<br>
+- 0?.x: 0 is NOT null/undefined → accesses .x → undefined<br>
+- ""?.length → NOT shown as optional! "".length = 0. The ?. only guards against null/undefined.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q65: Promise.race vs Promise.any vs Promise.allSettled</h4>
+<pre><code>const p1 = new Promise(res => setTimeout(() => res("one"), 100));
+const p2 = Promise.reject("two");
+const p3 = new Promise(res => setTimeout(() => res("three"), 50));
+
+// What order do these resolve?
+Promise.race([p1, p2, p3])
+  .then(v => console.log("race resolved:", v))
+  .catch(e => console.log("race rejected:", e));
+
+Promise.any([p1, p2, p3])
+  .then(v => console.log("any resolved:", v))
+  .catch(e => console.log("any rejected:", e));
+
+Promise.allSettled([p1, p2, p3])
+  .then(results => console.log("allSettled:", results.map(r => r.status)));</code></pre>
+<div class="answer">
+<strong>Output:</strong><br>
+race rejected: two<br>
+any resolved: three (after 50ms)<br>
+allSettled: ["fulfilled", "rejected", "fulfilled"] (after 100ms)<br>
+<strong>Why:</strong><br>
+- <code>Promise.race</code>: first to SETTLE (fulfill OR reject) wins. p2 rejects synchronously → wins immediately.<br>
+- <code>Promise.any</code>: first to FULFILL wins (rejections are ignored). p2 rejected → ignored. p3 fulfills at 50ms → wins.<br>
+- <code>Promise.allSettled</code>: waits for ALL to settle. Never rejects. Returns array of {status, value/reason}.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q66: Tagged template literals</h4>
+<pre><code>function highlight(strings, ...values) {
+  console.log("strings:", strings);
+  console.log("values:", values);
+  console.log("strings.raw:", strings.raw);
+  return strings.reduce((result, str, i) => 
+    result + str + (values[i] !== undefined ? `<b>${values[i]}</b>` : ""), "");
+}
+
+const name = "Sid";
+const score = 95;
+const result = highlight`Hello ${name}, you scored ${score}!\nWell done.`;
+console.log(result);</code></pre>
+<div class="answer">
+<strong>Output:</strong><br>
+strings: ["Hello ", ", you scored ", "!\nWell done."] (3 elements)<br>
+values: ["Sid", 95] (2 elements)<br>
+strings.raw: ["Hello ", ", you scored ", "!\\nWell done."] (raw: backslash not interpreted)<br>
+"Hello &lt;b&gt;Sid&lt;/b&gt;, you scored &lt;b&gt;95&lt;/b&gt;!\nWell done."<br>
+<strong>Why:</strong> Tagged templates receive: (1) array of string segments (always N+1 for N interpolations), (2) spread of interpolated values. strings.raw preserves escape sequences as-is. The tag function fully controls output format.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-expert">Expert</span> Q67: WeakRef and FinalizationRegistry</h4>
+<pre><code>let obj = { name: "target" };
+const weakRef = new WeakRef(obj);
+
+console.log(weakRef.deref()?.name);
+
+obj = null; // Remove strong reference
+
+// After GC runs (non-deterministic):
+// console.log(weakRef.deref()); // undefined (maybe)
+
+// But immediately:
+console.log(weakRef.deref()?.name);
+
+// What's guaranteed?</code></pre>
+<div class="answer">
+<strong>Output:</strong> "target", "target" (probably — GC hasn't run yet)<br>
+<strong>Why:</strong><br>
+- WeakRef holds a weak reference — doesn't prevent GC<br>
+- deref() returns the object if still alive, or undefined if GC'd<br>
+- Setting obj = null removes the strong reference, but GC is non-deterministic<br>
+- You can NEVER rely on when deref() returns undefined — it depends on GC timing<br>
+<strong>Interview key points:</strong> WeakRef is for caches. Never put important logic behind deref(). FinalizationRegistry notifies when object is GC'd (also non-deterministic). Use WeakMap for proper weak key-value caching.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="bonus-must-know">9. Bonus Must-Know Traps (High Interview Frequency)</h2>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q68: Object.freeze — shallow vs deep (asked 40%+ of interviews)</h4>
+<pre><code>const obj = Object.freeze({ 
+  a: 1, 
+  nested: { b: 2 },
+  arr: [1, 2, 3]
+});
+
+obj.a = 99;
+obj.newProp = "hello";
+delete obj.a;
+obj.nested.b = 99;
+obj.arr.push(4);
+
+console.log(obj.a);
+console.log(obj.newProp);
+console.log(obj.nested.b);
+console.log(obj.arr);</code></pre>
+<div class="answer">
+<strong>Output:</strong> 1, undefined, 99, [1, 2, 3, 4]<br>
+<strong>Why:</strong><br>
+- obj.a = 99: silently fails (frozen — can't modify existing props)<br>
+- obj.newProp: silently fails (frozen — can't add new props)<br>
+- delete obj.a: silently fails (frozen — can't delete props)<br>
+- obj.nested.b = 99: WORKS! Object.freeze is SHALLOW — nested objects are not frozen<br>
+- obj.arr.push(4): WORKS! The array reference is frozen, but array contents are mutable<br>
+<strong>Key:</strong> In strict mode, all mutations on frozen props throw TypeError. To deep-freeze: use recursive freeze or structuredClone + freeze. Object.seal() allows modification but not add/delete.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q69: Array.sort without comparator (Amazon/Flipkart classic)</h4>
+<pre><code>console.log([10, 9, 8, 100, 2].sort());
+console.log([10, 9, 8, 100, 2].sort((a, b) => a - b));
+console.log(["banana", "apple", "cherry"].sort());
+console.log([undefined, 1, null, 0, ""].sort());
+console.log([3, 1, 2].sort(() => 0));</code></pre>
+<div class="answer">
+<strong>Output:</strong><br>
+[10, 100, 2, 8, 9] (lexicographic string sort!)<br>
+[2, 8, 9, 10, 100] (proper numeric sort)<br>
+["apple", "banana", "cherry"] (alphabetical works for strings)<br>
+[0, "", 1, null, undefined] (undefined always sorts to end; others string-compared)<br>
+[3, 1, 2] (comparator returns 0 → no swaps → order preserved, stable sort)<br>
+<strong>Key:</strong> Default sort converts elements to STRINGS then compares UTF-16 code units. "10" < "2" because "1" < "2" char-by-char. ALWAYS provide a comparator for numbers! undefined always goes to the end regardless of comparator.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q70: Promise.all rejection behavior</h4>
+<pre><code>Promise.all([
+  Promise.resolve(1),
+  Promise.reject("fail"),
+  new Promise((res) => { console.log("p3 executor"); res(3); }),
+  Promise.reject("second fail")
+])
+.then(v => console.log("resolved:", v))
+.catch(e => console.log("rejected:", e));
+
+console.log("sync");</code></pre>
+<div class="answer">
+<strong>Output:</strong> p3 executor, sync, rejected: fail<br>
+<strong>Why:</strong><br>
+- Promise constructors/executors run SYNCHRONOUSLY → "p3 executor" logs immediately<br>
+- "sync" logs (still synchronous)<br>
+- Promise.all rejects with the FIRST rejection ("fail") — doesn't wait for others<br>
+- "second fail" is ignored (only first rejection matters)<br>
+- All promise executors still RUN (they're not cancelled!) but their results are ignored<br>
+<strong>Key:</strong> Promise.all is "fail-fast". Use Promise.allSettled if you need all results regardless of failures.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-medium">Medium</span> Q71: for...in vs for...of (fundamental distinction)</h4>
+<pre><code>const arr = [10, 20, 30];
+arr.custom = "hello";
+
+console.log("--- for...in ---");
+for (let x in arr) console.log(x, typeof x);
+
+console.log("--- for...of ---");
+for (let x of arr) console.log(x, typeof x);
+
+const obj = { a: 1, b: 2 };
+// for (let x of obj) console.log(x); // What happens?</code></pre>
+<div class="answer">
+<strong>Output:</strong><br>
+--- for...in ---<br>
+"0" string, "1" string, "2" string, "custom" string<br>
+--- for...of ---<br>
+10 number, 20 number, 30 number<br>
+for...of obj → TypeError: obj is not iterable<br>
+<strong>Why:</strong><br>
+- <code>for...in</code>: iterates over enumerable PROPERTY KEYS (as strings!). Includes inherited and custom properties. Returns keys, not values.<br>
+- <code>for...of</code>: iterates over ITERABLE VALUES (Symbol.iterator). Only works on iterables (Array, String, Map, Set, generators). Does NOT include non-index properties.<br>
+- Objects are NOT iterable by default (no Symbol.iterator). Use Object.entries(obj) with for...of.<br>
+<strong>Key:</strong> Never use for...in on arrays! It includes prototype properties and custom properties.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q72: Symbol.toPrimitive (overrides valueOf/toString)</h4>
+<pre><code>const obj = {
+  [Symbol.toPrimitive](hint) {
+    if (hint === "number") return 42;
+    if (hint === "string") return "hello";
+    return true; // "default" hint
+  },
+  valueOf() { return 999; },   // IGNORED!
+  toString() { return "ignored"; } // IGNORED!
+};
+
+console.log(+obj);       // hint: "number"
+console.log(`${obj}`);   // hint: "string"
+console.log(obj + "");   // hint: "default"
+console.log(obj * 2);    // hint: "number"
+console.log(obj == true); // hint: "default"</code></pre>
+<div class="answer">
+<strong>Output:</strong> 42, "hello", "true", 84, true<br>
+<strong>Why:</strong><br>
+- Symbol.toPrimitive COMPLETELY overrides valueOf and toString when present<br>
+- +obj: unary + → hint "number" → 42<br>
+- Template literal: hint "string" → "hello"<br>
+- obj + "": binary + with string → hint "default" → true → "true" (concat)<br>
+- obj * 2: multiplication → hint "number" → 42 * 2 = 84<br>
+- obj == true: == uses hint "default" → true == true → true<br>
+<strong>Priority:</strong> Symbol.toPrimitive > valueOf/toString. If no Symbol.toPrimitive: "default"/"number" → valueOf first, "string" → toString first.
+</div>
+</div>
+
+<div class="output-q">
+<h4><span class="difficulty d-hard">Hard</span> Q73: RegExp lastIndex stateful trap (senior-level)</h4>
+<pre><code>const regex = /a/g;  // Note: global flag!
+
+console.log(regex.test("abc"));
+console.log(regex.lastIndex);
+console.log(regex.test("abc"));
+console.log(regex.lastIndex);
+console.log(regex.test("abc"));
+
+// Same with exec:
+const re2 = /\d+/g;
+const str = "12 and 34 and 56";
+console.log(re2.exec(str)?.[0]);
+console.log(re2.exec(str)?.[0]);
+console.log(re2.exec(str)?.[0]);
+console.log(re2.exec(str)?.[0]);</code></pre>
+<div class="answer">
+<strong>Output:</strong> true, 1, false, 0, true, "12", "34", "56", null<br>
+<strong>Why:</strong><br>
+- With /g flag, regex.test() and regex.exec() are STATEFUL — they remember lastIndex<br>
+- First test("abc"): finds "a" at index 0 → true, lastIndex becomes 1<br>
+- Second test("abc"): starts searching from index 1 → no "a" found → false, lastIndex resets to 0<br>
+- Third test("abc"): starts from 0 again → finds "a" → true<br>
+- exec with /g: returns next match each time, null when no more matches (then resets)<br>
+<strong>Key:</strong> NEVER reuse a global regex across different strings without resetting lastIndex! Or use string.match() / string.matchAll() instead which don't have this problem.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>💡 Golden Rules for Output Prediction:</strong>
+<ol>
+<li><strong>Read line by line</strong> — don't jump ahead. Execution is sequential.</li>
+<li><strong>Identify async boundaries</strong> — what goes to microtask queue vs macrotask queue?</li>
+<li><strong>Track 'this'</strong> — who called the function and how?</li>
+<li><strong>Check scope</strong> — is it var (function scope) or let/const (block scope)?</li>
+<li><strong>Coercion</strong> — is there + with a string? Which side converts?</li>
+<li><strong>Draw the prototype chain</strong> for inheritance questions.</li>
+<li><strong>Remember:</strong> Promise executor is sync, .then is async (microtask).</li>
+<li><strong>?? vs ||:</strong> ?? only cares about null/undefined. || cares about ALL falsy values.</li>
+<li><strong>Destructuring defaults:</strong> Only trigger for undefined, NEVER for null.</li>
+<li><strong>finally:</strong> Its return overrides everything. But can't modify already-captured primitives.</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase9-polyfills-machine-coding.html">← Phase 9: Polyfills & Machine Coding</a>
+  <a href="phase11-frontend-system-design.html">Phase 11: Frontend System Design →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

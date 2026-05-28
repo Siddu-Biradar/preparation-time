@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 1: Foundations & How JavaScript Works</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 1: Foundations & How JavaScript Works</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (1 of 8)</p>
+  <div class="pill-row">
+    <span class="pill">JS History & Engines</span>
+    <span class="pill">Execution Context</span>
+    <span class="pill">Variables & Types</span>
+    <span class="pill">Type Coercion</span>
+    <span class="pill">Operators</span>
+    <span class="pill">Control Flow</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#history">History of JavaScript & ECMAScript</a></li>
+    <li><a href="#how-js-works">How JavaScript Works Under the Hood</a></li>
+    <li><a href="#execution-context">Execution Context & Call Stack</a></li>
+    <li><a href="#variables">Variables: var, let, const</a></li>
+    <li><a href="#data-types">Data Types (Primitives & Objects)</a></li>
+    <li><a href="#type-coercion">Type Coercion & Type Conversion</a></li>
+    <li><a href="#operators">Operators (All Categories)</a></li>
+    <li><a href="#control-flow">Control Flow (Conditions & Loops)</a></li>
+    <li><a href="#error-handling">Error Handling (try/catch/finally)</a></li>
+    <li><a href="#strict-mode">Strict Mode</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="history">1. History of JavaScript & ECMAScript</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Sh6lK57Cuk4" target="_blank">History of JavaScript — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=DHjqpvDnNGE" target="_blank">JavaScript in 100 Seconds — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=aX3ZABCdlPY" target="_blank">Brief History of JavaScript — DevSage</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p><strong>1995</strong>: Brendan Eich created JavaScript in just <strong>10 days</strong> at Netscape. Originally called "Mocha", then "LiveScript", then "JavaScript" (marketing tie-in with Java — they are completely unrelated).</p>
+
+<p><strong>ECMAScript</strong> is the specification; JavaScript is the implementation. The standard is maintained by <strong>TC39</strong> (Technical Committee 39) under ECMA International.</p>
+
+<table>
+<tr><th>Year</th><th>Edition</th><th>Key Features</th></tr>
+<tr><td>1997</td><td>ES1</td><td>First standardization</td></tr>
+<tr><td>1999</td><td>ES3</td><td>Regular Expressions, try/catch</td></tr>
+<tr><td>2009</td><td>ES5</td><td>strict mode, JSON, Array methods (forEach, map, filter)</td></tr>
+<tr><td>2015</td><td>ES6/ES2015</td><td>let/const, arrow functions, classes, Promises, modules, template literals, destructuring</td></tr>
+<tr><td>2016</td><td>ES7</td><td>Array.includes(), exponentiation operator (**)</td></tr>
+<tr><td>2017</td><td>ES8</td><td>async/await, Object.entries/values, padStart/padEnd</td></tr>
+<tr><td>2018</td><td>ES9</td><td>Rest/Spread for objects, Promise.finally, async iteration</td></tr>
+<tr><td>2019</td><td>ES10</td><td>flat/flatMap, Object.fromEntries, optional catch binding</td></tr>
+<tr><td>2020</td><td>ES11</td><td>Optional Chaining (?.), Nullish Coalescing (??), BigInt, globalThis</td></tr>
+<tr><td>2021</td><td>ES12</td><td>Logical assignment (&&=, ||=, ??=), String.replaceAll, Promise.any</td></tr>
+<tr><td>2022</td><td>ES13</td><td>Top-level await, .at() method, Object.hasOwn, Error cause</td></tr>
+<tr><td>2023</td><td>ES14</td><td>Array findLast/findLastIndex, Hashbang Grammar, Change Array by Copy (toSorted, toReversed, toSpliced)</td></tr>
+<tr><td>2024</td><td>ES15</td><td>Object.groupBy, Promise.withResolvers, ArrayBuffer.resize, Atomics.waitAsync</td></tr>
+</table>
+
+<div class="callout">
+<strong>TC39 Process:</strong> Stage 0 (Strawperson) → Stage 1 (Proposal) → Stage 2 (Draft) → Stage 3 (Candidate) → Stage 4 (Finished). Features at Stage 4 are included in the next annual spec release.
+</div>
+
+<h3>JavaScript vs Other Languages</h3>
+<ul>
+  <li><strong>Interpreted + JIT Compiled</strong> — Not purely interpreted; modern engines (V8, SpiderMonkey) use Just-In-Time compilation</li>
+  <li><strong>Single-threaded</strong> — One call stack, uses event loop for concurrency</li>
+  <li><strong>Dynamically typed</strong> — Types resolved at runtime, not compile-time</li>
+  <li><strong>Multi-paradigm</strong> — Supports OOP (prototype-based), functional, and imperative</li>
+  <li><strong>First-class functions</strong> — Functions are objects, can be assigned to variables, passed as arguments</li>
+  <li><strong>Prototype-based inheritance</strong> — No classical inheritance (classes are syntactic sugar)</li>
+</ul>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What is the difference between JavaScript and ECMAScript?</p>
+<p><strong>Answer:</strong> ECMAScript is the specification/standard (ECMA-262). JavaScript is the most popular implementation of ECMAScript. Other implementations include ActionScript and JScript.</p>
+<p><span class="difficulty d-medium">Medium</span> Explain the TC39 process. How does a feature get into the JavaScript language?</p>
+<p><strong>Answer:</strong> A proposal goes through 5 stages (0-4). Stage 0 is just an idea. Stage 1 means TC39 expects to devote time to it. Stage 2 has a formal spec draft. Stage 3 means it's ready for implementations. Stage 4 means it's been implemented in at least 2 browsers and passes test262, and will be in the next annual spec.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="how-js-works">2. How JavaScript Works Under the Hood</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ZKH3DLT4BKw" target="_blank">Namaste JavaScript Ep.1 — How JS Works (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=iLWTnMzWtj4" target="_blank">How JavaScript Works — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=p-iiEDtpy6I" target="_blank">V8 Engine Explained — Lydia Hallie</a></li>
+  <li><a href="https://www.youtube.com/watch?v=FSs_JYwnAdI" target="_blank">How V8 JavaScript Engine Works — Valentino Gagliardi</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>JavaScript Engine Architecture</h4>
+<p>A JavaScript engine is a program that executes JavaScript code. Every browser has its own:</p>
+<table>
+<tr><th>Browser</th><th>Engine</th><th>Key Feature</th></tr>
+<tr><td>Chrome, Edge, Node.js</td><td>V8 (Google)</td><td>TurboFan optimizing compiler</td></tr>
+<tr><td>Firefox</td><td>SpiderMonkey (Mozilla)</td><td>Warp JIT compiler</td></tr>
+<tr><td>Safari</td><td>JavaScriptCore / Nitro (Apple)</td><td>DFG + FTL JIT tiers</td></tr>
+</table>
+
+<h4>V8 Engine Pipeline (Detailed)</h4>
+<pre><code>Source Code
+    ↓
+[Scanner/Lexer] — Tokenization (breaks code into tokens)
+    ↓
+[Parser] — Creates AST (Abstract Syntax Tree)
+    ↓
+[Ignition Interpreter] — Generates Bytecode (fast startup)
+    ↓
+[Profiler/Feedback] — Monitors "hot" functions
+    ↓
+[TurboFan Compiler] — Optimized Machine Code (for hot paths)
+    ↓ (deoptimization if assumptions fail)
+[Back to Ignition]</code></pre>
+
+<div class="callout">
+<strong>Key Insight:</strong> V8 uses <em>speculative optimization</em>. If a function is always called with numbers, TurboFan optimizes it for numbers. If suddenly called with a string — it <em>deoptimizes</em> (bails out back to bytecode). This is why consistent types improve performance.
+</div>
+
+<h4>Memory Management</h4>
+<ul>
+  <li><strong>Stack</strong> — Stores primitive values and function call frames. LIFO order. Fixed size, fast access.</li>
+  <li><strong>Heap</strong> — Stores objects, arrays, functions. Dynamically allocated. Managed by Garbage Collector.</li>
+  <li><strong>Garbage Collection</strong> — V8 uses "Mark-and-Sweep" + "Generational GC" (Young Generation with Scavenger, Old Generation with Mark-Compact).</li>
+</ul>
+
+<pre><code>// Stack vs Heap visualization
+let name = "Sid";      // "Sid" stored in STACK (primitive)
+let age = 25;          // 25 stored in STACK (primitive)
+
+let person = {         // Reference stored in STACK
+  name: "Sid",         // Object stored in HEAP
+  age: 25
+};
+
+let person2 = person;  // person2 gets COPY of reference (both point to same heap object)
+person2.name = "Ram";
+console.log(person.name); // "Ram" — both reference same object!</code></pre>
+
+<h4>JavaScript Runtime Environment</h4>
+<pre><code>
+┌─────────────────────────────────────────────────┐
+│           JavaScript Runtime (Browser)          │
+├─────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────┐   │
+│  │         JavaScript Engine (V8)           │   │
+│  │  ┌────────────┐  ┌────────────────────┐  │   │
+│  │  │ Call Stack │  │   Memory Heap      │  │   │
+│  │  │            │  │                    │  │   │
+│  │  └────────────┘  └────────────────────┘  │   │
+│  └──────────────────────────────────────────┘   │
+│                                                 │
+│  ┌──────────────────────────────────────────┐   │
+│  │         Web APIs (Browser Provided)      │   │
+│  │  DOM, fetch, setTimeout, console,        │   │
+│  │  geolocation, localStorage, WebSocket    │   │
+│  └──────────────────────────────────────────┘   │
+│                                                 │
+│  ┌─────────────┐  ┌──────────────────────┐      │
+│  │ Task Queue  │  │  Microtask Queue     │      │
+│  │ (Macrotask) │  │  (Promises, queueMT) │      │
+│  └─────────────┘  └──────────────────────┘      │
+│                                                 │
+│  ┌──────────────────────────────────────────┐   │
+│  │           Event Loop                     │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
+</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> Is JavaScript interpreted or compiled?</p>
+<p><strong>Answer:</strong> Neither purely. Modern JS engines use JIT (Just-In-Time) compilation. Code is first interpreted to bytecode (fast startup), then hot paths are compiled to optimized machine code by TurboFan. If optimization assumptions break, it deoptimizes back to bytecode. This is called "adaptive optimization."</p>
+
+<p><span class="difficulty d-hard">Hard</span> What causes V8 deoptimization? How do you avoid it?</p>
+<p><strong>Answer:</strong> Deoptimization occurs when TurboFan's type assumptions are violated. Examples: (1) Changing object shape after creation (adding/deleting properties), (2) Passing different types to the same function, (3) Using `arguments` object in optimized code, (4) Using `eval()` or `with`. Avoid by: keeping object shapes consistent, using TypeScript, avoiding polymorphic functions.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Explain the difference between Stack and Heap memory in JS.</p>
+<p><strong>Answer:</strong> Stack stores primitives and execution context frames (fixed-size, LIFO, fast). Heap stores objects/arrays/functions (dynamically sized, slower access, garbage collected). Variables holding objects store a reference (pointer) on the stack that points to the heap location. This is why object assignment copies the reference, not the value.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="execution-context">3. Execution Context & Call Stack</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=iLWTnMzWtj4" target="_blank">Execution Context — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Fd9VaW0M7K4" target="_blank">Call Stack Explained — Namaste JavaScript</a></li>
+  <li><a href="https://www.youtube.com/watch?v=exrc_rLj5iw" target="_blank">JavaScript Execution Context — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>What is an Execution Context?</h4>
+<p>An <strong>Execution Context (EC)</strong> is the environment in which JavaScript code is evaluated and executed. It contains everything the code needs: variables, functions, scope chain, and the value of <code>this</code>.</p>
+
+<p><strong>Three types of Execution Context:</strong></p>
+<ol>
+  <li><strong>Global Execution Context (GEC)</strong> — Created when the script first runs. Only one per program. Creates the global object (<code>window</code> in browser, <code>global</code> in Node.js) and sets <code>this</code> to it.</li>
+  <li><strong>Function Execution Context (FEC)</strong> — Created each time a function is invoked. Each function gets its own EC.</li>
+  <li><strong>Eval Execution Context</strong> — Created inside <code>eval()</code> (avoid using eval).</li>
+</ol>
+
+<h4>Two Phases of Execution Context</h4>
+
+<p><strong>Phase 1: Creation Phase (Memory Allocation)</strong></p>
+<ul>
+  <li>Creates the Variable Object (VO) / Lexical Environment</li>
+  <li><code>var</code> declarations → allocated memory, initialized to <code>undefined</code></li>
+  <li><code>let</code>/<code>const</code> → allocated memory but NOT initialized (Temporal Dead Zone)</li>
+  <li>Function declarations → entire function stored in memory (hoisted completely)</li>
+  <li>Sets up Scope Chain</li>
+  <li>Determines value of <code>this</code></li>
+</ul>
+
+<p><strong>Phase 2: Execution Phase (Code Execution)</strong></p>
+<ul>
+  <li>Code executes line by line</li>
+  <li>Values are assigned to variables</li>
+  <li>Functions are invoked (creating new ECs)</li>
+</ul>
+
+<pre><code>// Visualizing Execution Context
+var x = 10;
+function greet(name) {
+  var message = "Hello " + name;
+  return message;
+}
+var result = greet("Sid");
+
+/* 
+CREATION PHASE (Global EC):
+  x: undefined
+  greet: [entire function]
+  result: undefined
+  this: window
+
+EXECUTION PHASE:
+  x = 10
+  greet("Sid") → NEW Function EC created:
+    CREATION PHASE (greet EC):
+      name: "Sid" (argument)
+      message: undefined
+    EXECUTION PHASE:
+      message = "Hello Sid"
+      return "Hello Sid"
+    → Function EC destroyed after return
+  result = "Hello Sid"
+*/</code></pre>
+
+<h4>Call Stack (Execution Stack)</h4>
+<p>The <strong>Call Stack</strong> is a LIFO (Last-In-First-Out) data structure that keeps track of execution contexts. When a function is called, its EC is pushed onto the stack. When it returns, it's popped off.</p>
+
+<pre><code>function first() {
+  console.log("first");
+  second();
+  console.log("first end");
+}
+function second() {
+  console.log("second");
+  third();
+}
+function third() {
+  console.log("third");
+}
+first();
+
+/* Call Stack progression:
+  [1] Global EC
+  [2] Global EC → first() EC
+  [3] Global EC → first() EC → second() EC
+  [4] Global EC → first() EC → second() EC → third() EC
+  [5] Global EC → first() EC → second() EC  (third popped)
+  [6] Global EC → first() EC  (second popped)
+  [7] Global EC  (first popped)
+
+  Output: "first" → "second" → "third" → "first end"
+*/</code></pre>
+
+<h4>Stack Overflow</h4>
+<pre><code>// Infinite recursion causes stack overflow
+function forever() {
+  forever(); // keeps pushing ECs onto stack
+}
+forever(); // RangeError: Maximum call stack size exceeded
+
+// Chrome default: ~15,000-16,000 frames
+// Node.js: configurable via --stack-size</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 1:</strong> Predict the output and draw the call stack at each step:</p>
+<pre><code>function a() {
+  console.log("a start");
+  b();
+  console.log("a end");
+}
+function b() {
+  console.log("b start");
+  c();
+  console.log("b end");
+}
+function c() {
+  console.log("c");
+}
+console.log("global start");
+a();
+console.log("global end");</code></pre>
+<p><strong>Expected Output:</strong> "global start" → "a start" → "b start" → "c" → "b end" → "a end" → "global end"</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Explain the two phases of Execution Context creation in detail.</p>
+<p><strong>Answer:</strong> Phase 1 (Creation/Memory): Variable Object is created — var variables are allocated and set to undefined, let/const are allocated but uninitialized (TDZ), function declarations are stored entirely. Scope chain is established. 'this' binding is determined. Phase 2 (Execution): Code runs line by line, values are assigned, functions are called (creating child ECs on the stack).</p>
+
+<p><span class="difficulty d-expert">Expert</span> What is the difference between Variable Object and Lexical Environment in ES6?</p>
+<p><strong>Answer:</strong> In ES5 spec, each EC has a Variable Object (stores var/function declarations). In ES6+ spec, this was replaced with Lexical Environment (has Environment Record + outer reference). Two types: (1) Declarative Environment Record (for let/const/function/class) and (2) Object Environment Record (for with/global). var uses a separate VariableEnvironment component that also points to a Lexical Environment.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="variables">4. Variables: var, let, const</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=BJ-VvGyQxho" target="_blank">let & const in JS — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=9WIJQDvt4Us" target="_blank">var, let, const — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=XgSjoHgy3Rk" target="_blank">Hoisting Explained — Namaste JavaScript</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>var (Function-scoped, ES5)</h4>
+<pre><code>// var is function-scoped (NOT block-scoped)
+function example() {
+  var x = 10;
+  if (true) {
+    var x = 20; // SAME variable — overwrites!
+    console.log(x); // 20
+  }
+  console.log(x); // 20 (not 10!)
+}
+
+// var is hoisted with initialization to undefined
+console.log(a); // undefined (NOT ReferenceError)
+var a = 5;
+
+// var allows re-declaration
+var name = "Sid";
+var name = "Ram"; // No error!
+
+// var attaches to window object in global scope
+var globalVar = "hello";
+console.log(window.globalVar); // "hello"</code></pre>
+
+<h4>let (Block-scoped, ES6)</h4>
+<pre><code>// let is block-scoped
+function example() {
+  let x = 10;
+  if (true) {
+    let x = 20; // DIFFERENT variable (new block scope)
+    console.log(x); // 20
+  }
+  console.log(x); // 10
+}
+
+// let is hoisted but NOT initialized (Temporal Dead Zone)
+console.log(b); // ReferenceError: Cannot access 'b' before initialization
+let b = 5;
+
+// let does NOT allow re-declaration in same scope
+let name = "Sid";
+let name = "Ram"; // SyntaxError: Identifier 'name' has already been declared
+
+// let does NOT attach to window
+let globalLet = "hello";
+console.log(window.globalLet); // undefined</code></pre>
+
+<h4>const (Block-scoped, Immutable Binding, ES6)</h4>
+<pre><code>// const must be initialized at declaration
+const PI; // SyntaxError: Missing initializer in const declaration
+const PI = 3.14159;
+
+// const binding cannot be reassigned
+PI = 3.14; // TypeError: Assignment to constant variable
+
+// BUT — const objects/arrays ARE mutable (reference is constant, not value)
+const person = { name: "Sid", age: 25 };
+person.name = "Ram";  // ✅ Works! Object is mutable
+person = {};          // ❌ TypeError: Assignment to constant variable
+
+const arr = [1, 2, 3];
+arr.push(4);    // ✅ Works! [1, 2, 3, 4]
+arr = [5, 6];   // ❌ TypeError
+
+// To make truly immutable: Object.freeze (shallow)
+const frozen = Object.freeze({ name: "Sid", address: { city: "BLR" } });
+frozen.name = "Ram";          // Silently fails (or TypeError in strict mode)
+frozen.address.city = "MUM";  // ✅ Works! freeze is SHALLOW</code></pre>
+
+<h4>Temporal Dead Zone (TDZ)</h4>
+<pre><code>// TDZ = time between entering scope and declaration being reached
+{
+  // TDZ for 'x' starts here
+  console.log(x); // ReferenceError (TDZ)
+  console.log(typeof x); // ReferenceError (even typeof!)
+  let x = 10; // TDZ ends here
+  console.log(x); // 10
+}
+
+// var has NO TDZ
+{
+  console.log(y); // undefined (hoisted, initialized)
+  var y = 20;
+}</code></pre>
+
+<h4>Comparison Table</h4>
+<table>
+<tr><th>Feature</th><th>var</th><th>let</th><th>const</th></tr>
+<tr><td>Scope</td><td>Function</td><td>Block</td><td>Block</td></tr>
+<tr><td>Hoisting</td><td>Yes (undefined)</td><td>Yes (TDZ)</td><td>Yes (TDZ)</td></tr>
+<tr><td>Re-declaration</td><td>✅ Allowed</td><td>❌ Error</td><td>❌ Error</td></tr>
+<tr><td>Re-assignment</td><td>✅</td><td>✅</td><td>❌</td></tr>
+<tr><td>Global object</td><td>Added to window</td><td>Not added</td><td>Not added</td></tr>
+<tr><td>Must initialize</td><td>No</td><td>No</td><td>Yes</td></tr>
+</table>
+
+<div class="callout warning">
+<strong>Best Practice:</strong> Use <code>const</code> by default. Use <code>let</code> only when you need to reassign. Never use <code>var</code> in modern code (it's legacy). In Angular/TypeScript projects, <code>var</code> should never appear.
+</div>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 2:</strong> Predict the output:</p>
+<pre><code>console.log(a); // ?
+console.log(b); // ?
+console.log(c); // ?
+
+var a = 1;
+let b = 2;
+const c = 3;
+
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log("var:", i), 100);
+}
+for (let j = 0; j < 3; j++) {
+  setTimeout(() => console.log("let:", j), 100);
+}
+</code></pre>
+<p><strong>Answer:</strong> <code>a</code> = undefined, <code>b</code> = ReferenceError (stops execution). If we skip b/c: var loop prints 3,3,3 (shared i). let loop prints 0,1,2 (each iteration gets fresh j).</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What is the difference between var, let, and const?</p>
+<p><strong>Answer:</strong> var is function-scoped, hoisted with undefined, allows re-declaration, adds to window. let is block-scoped, hoisted but in TDZ, no re-declaration. const is like let but binding cannot be reassigned (must initialize). const objects are still mutable.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is the Temporal Dead Zone?</p>
+<p><strong>Answer:</strong> TDZ is the period between entering a scope and the point where a let/const variable is declared. Accessing the variable during TDZ throws ReferenceError. It exists because let/const are hoisted (engine knows about them) but not initialized until the declaration line is executed.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why does the classic for-loop with var and setTimeout print the same value? How to fix it?</p>
+<p><strong>Answer:</strong> var is function-scoped, so there's ONE i shared across all iterations. By the time setTimeout callbacks run, the loop has finished and i=3. Fixes: (1) Use let (creates new binding per iteration), (2) IIFE: <code>(function(i){ setTimeout(()=>console.log(i), 0) })(i)</code>, (3) setTimeout's 3rd parameter: <code>setTimeout(console.log, 0, i)</code>.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="data-types">5. Data Types (Primitives & Objects)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=O_qbYMCJx7c" target="_blank">JavaScript Data Types — Programming with Mosh</a></li>
+  <li><a href="https://www.youtube.com/watch?v=808eYu9B9Yw" target="_blank">Primitive vs Reference Types — Academind</a></li>
+  <li><a href="https://www.youtube.com/watch?v=qw3j0A3DIzQ" target="_blank">typeof & Data Types Deep Dive — techsith</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>7 Primitive Types (Immutable, Stored in Stack)</h4>
+<pre><code>// 1. Number — 64-bit floating point (IEEE 754)
+let integer = 42;
+let float = 3.14;
+let negative = -7;
+let infinity = Infinity;       // 1/0
+let negInfinity = -Infinity;   // -1/0
+let notANumber = NaN;          // 0/0, parseInt("abc")
+// Special: NaN !== NaN (only value not equal to itself)
+// Use Number.isNaN() not global isNaN()
+
+// 2. String — UTF-16 encoded, immutable
+let str = "Hello";
+let str2 = 'World';
+let template = `Sum: ${1 + 2}`; // Template literal
+// Strings are immutable:
+str[0] = "h"; // Silently fails
+str.toUpperCase(); // Returns NEW string, doesn't modify original
+
+// 3. Boolean
+let isActive = true;
+let isDeleted = false;
+// Falsy values: false, 0, -0, 0n, "", null, undefined, NaN
+// Everything else is truthy (including "0", "false", [], {}, function(){})
+
+// 4. undefined — variable declared but not assigned
+let x;
+console.log(x); // undefined
+console.log(typeof x); // "undefined"
+
+// 5. null — intentional absence of value
+let y = null;
+console.log(typeof y); // "object" ← FAMOUS BUG (since ES1, can't fix)
+
+// 6. Symbol (ES6) — unique, immutable identifier
+let sym1 = Symbol("id");
+let sym2 = Symbol("id");
+console.log(sym1 === sym2); // false — always unique!
+// Use case: private-like object properties, avoiding name collisions
+
+// 7. BigInt (ES11/2020) — arbitrary precision integers
+let big = 9007199254740991n; // or BigInt("9007199254740991")
+let bigger = big + 1n;
+// Cannot mix BigInt with Number: big + 1 → TypeError</code></pre>
+
+<h4>Object Type (Stored in Heap, Mutable)</h4>
+<pre><code>// Everything that's not a primitive is an Object
+let obj = { name: "Sid" };           // Object literal
+let arr = [1, 2, 3];                 // Array (special object)
+let fn = function() {};              // Function (callable object)
+let date = new Date();               // Date object
+let regex = /hello/gi;               // RegExp object
+let map = new Map();                 // Map
+let set = new Set();                 // Set
+
+// typeof results (tricky!)
+typeof undefined    // "undefined"
+typeof null         // "object" ← bug
+typeof true         // "boolean"
+typeof 42           // "number"
+typeof "hello"      // "string"
+typeof Symbol()     // "symbol"
+typeof 10n          // "bigint"
+typeof {}           // "object"
+typeof []           // "object" ← use Array.isArray([])
+typeof function(){} // "function" ← special case
+typeof NaN          // "number" ← NaN is a number!</code></pre>
+
+<h4>Pass by Value vs Pass by Reference</h4>
+<pre><code>// Primitives: Pass by VALUE (copy)
+let a = 10;
+let b = a;     // b gets COPY of value
+b = 20;
+console.log(a); // 10 (unchanged)
+
+// Objects: Pass by REFERENCE (shared pointer)
+let obj1 = { x: 1 };
+let obj2 = obj1;   // obj2 gets copy of REFERENCE
+obj2.x = 99;
+console.log(obj1.x); // 99 (same object!)
+
+// Function arguments follow same rules:
+function modify(prim, obj) {
+  prim = 100;     // local copy changed
+  obj.val = 100;  // shared object modified
+}
+let num = 5;
+let data = { val: 5 };
+modify(num, data);
+console.log(num);      // 5 (unchanged)
+console.log(data.val); // 100 (modified!)</code></pre>
+
+<div class="callout">
+<strong>Important:</strong> JavaScript does NOT have "pass by reference" for primitives. For objects, it's technically "pass by sharing" (copy of reference). You cannot reassign the original variable from inside a function: <code>function(obj) { obj = {} }</code> doesn't affect the original.
+</div>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 3:</strong> What's the output?</p>
+<pre><code>console.log(typeof null);
+console.log(typeof NaN);
+console.log(NaN === NaN);
+console.log(null == undefined);
+console.log(null === undefined);
+
+let arr1 = [1, 2, 3];
+let arr2 = arr1;
+arr2.push(4);
+console.log(arr1.length);
+
+let str = "hello";
+str[0] = "H";
+console.log(str);</code></pre>
+<p><strong>Answers:</strong> "object", "number", false, true, false, 4, "hello"</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What are the primitive types in JavaScript?</p>
+<p><strong>Answer:</strong> 7 primitives: Number, String, Boolean, undefined, null, Symbol (ES6), BigInt (ES2020). They are immutable, compared by value, stored on the stack.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Why is <code>typeof null === "object"</code>?</p>
+<p><strong>Answer:</strong> It's a bug from the first version of JavaScript (1995). In the original implementation, values were represented with a type tag and value. Objects had type tag 0, and null was represented as the NULL pointer (0x00). So typeof checks the tag and incorrectly returns "object" for null. It can never be fixed because too much code depends on it.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you check if something is NaN reliably?</p>
+<p><strong>Answer:</strong> Use <code>Number.isNaN(value)</code> — it returns true ONLY if value is actually NaN. Do NOT use global <code>isNaN()</code> which coerces first: <code>isNaN("hello")</code> returns true (coerces to NaN). Also: <code>value !== value</code> is true only for NaN (exploits NaN's unique self-inequality).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="type-coercion">6. Type Coercion & Type Conversion</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=XiKhnBVylUI" target="_blank">Type Coercion Explained — Namaste JavaScript (Akshay Saini)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=rlEBdmJ9EBk" target="_blank">== vs === Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=RjK_XXKYhRU" target="_blank">Type Coercion — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Explicit Conversion (Type Casting)</h4>
+<pre><code>// To String
+String(123);        // "123"
+String(true);       // "true"
+String(null);       // "null"
+String(undefined);  // "undefined"
+String([1,2]);      // "1,2"
+String({});         // "[object Object]"
+(123).toString();   // "123"
+(255).toString(16); // "ff" (base 16)
+
+// To Number
+Number("42");       // 42
+Number("3.14");     // 3.14
+Number("");         // 0
+Number(" ");        // 0
+Number("hello");    // NaN
+Number(true);       // 1
+Number(false);      // 0
+Number(null);       // 0
+Number(undefined);  // NaN
+Number([]);         // 0 ([] → "" → 0)
+Number([5]);        // 5 ([5] → "5" → 5)
+Number([1,2]);      // NaN
+parseInt("42px");   // 42 (parses until non-numeric)
+parseFloat("3.14m");// 3.14
+
+// To Boolean
+Boolean(0);         // false
+Boolean("");        // false
+Boolean(null);      // false
+Boolean(undefined); // false
+Boolean(NaN);       // false
+Boolean("0");       // true! (non-empty string)
+Boolean([]);        // true! (empty array is truthy)
+Boolean({});        // true! (empty object is truthy)</code></pre>
+
+<h4>Implicit Coercion (Automatic)</h4>
+<pre><code>// String concatenation (+ with string)
+"5" + 3;       // "53" (number → string)
+"5" + true;    // "5true"
+"5" + null;    // "5null"
+"5" + undefined; // "5undefined"
+5 + "3";       // "53"
+
+// Numeric context (-, *, /, %)
+"5" - 3;       // 2 (string → number)
+"5" * "2";     // 10
+"5" - true;    // 4 (true → 1)
+"hello" - 1;   // NaN
+
+// The + unary operator converts to number
++"5";          // 5
++true;         // 1
++[];           // 0
++{};           // NaN
+
+// Comparison operators
+"5" > 3;       // true (string → number)
+"a" > "b";     // false (string comparison: charCode)
+
+// == (loose equality) — COERCES before comparing
+0 == false;    // true (false → 0)
+"" == false;   // true ("" → 0, false → 0)
+null == undefined; // true (special rule)
+null == 0;     // false (null only == undefined)
+NaN == NaN;    // false (NaN never equals anything)
+[] == false;   // true ([] → "" → 0, false → 0)
+[] == ![];     // true! ([] → 0, ![] → false → 0)
+
+// === (strict equality) — NO coercion
+0 === false;   // false (different types)
+"5" === 5;     // false</code></pre>
+
+<h4>The Abstract Equality Algorithm (== rules)</h4>
+<pre><code>/*
+When x == y:
+1. Same type → compare normally (=== behavior)
+2. null == undefined → true
+3. Number vs String → convert String to Number
+4. Boolean vs anything → convert Boolean to Number first
+5. Object vs Primitive → call ToPrimitive (valueOf, then toString)
+6. Everything else → false
+*/
+
+// Example: [] == ![]
+// Step 1: ![] → false ([] is truthy, !truthy = false)
+// Now: [] == false
+// Step 2: Boolean → Number: false → 0
+// Now: [] == 0
+// Step 3: Object → Primitive: [].valueOf() → [] (not primitive)
+//         [].toString() → ""
+// Now: "" == 0
+// Step 4: String → Number: "" → 0
+// Now: 0 == 0 → true!</code></pre>
+
+<div class="callout warning">
+<strong>Golden Rule:</strong> Always use <code>===</code> (strict equality). The only acceptable use of <code>==</code> is <code>value == null</code> to check both null and undefined in one check.
+</div>
+
+<h4>Object to Primitive Coercion ([Symbol.toPrimitive], valueOf, toString)</h4>
+<pre><code>// The engine calls methods in this order:
+// 1. [Symbol.toPrimitive](hint) — if defined
+// 2. For "number" hint: valueOf() → toString()
+// 3. For "string" hint: toString() → valueOf()
+
+let obj = {
+  [Symbol.toPrimitive](hint) {
+    if (hint === "number") return 42;
+    if (hint === "string") return "hello";
+    return true; // default
+  }
+};
++obj;          // 42
+`${obj}`;      // "hello"
+obj + "";      // "true" (default hint)
+
+// Classic interview trick: make (a == 1 && a == 2 && a == 3)
+let a = {
+  value: 1,
+  valueOf() { return this.value++; }
+};
+console.log(a == 1 && a == 2 && a == 3); // true!</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 4:</strong> Predict output without running:</p>
+<pre><code>console.log(1 + "2" + "2");   // ?
+console.log(1 + +"2" + "2");  // ?
+console.log("A" - "B" + "2"); // ?
+console.log("A" - "B" + 2);  // ?
+console.log([] + []);         // ?
+console.log([] + {});         // ?
+console.log({} + []);         // ?
+console.log(true + true + true); // ?
+console.log(10 - true);      // ?</code></pre>
+<p><strong>Answers:</strong> "122", "32", "NaN2", NaN, "", "[object Object]", "[object Object]" (or 0 in console), 3, 9</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What are truthy and falsy values?</p>
+<p><strong>Answer:</strong> Falsy: <code>false, 0, -0, 0n, "", null, undefined, NaN</code> (8 values). Everything else is truthy including <code>"0", "false", [], {}, function(){}</code>.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Explain why <code>[] == ![]</code> is true.</p>
+<p><strong>Answer:</strong> ![] evaluates first: [] is truthy, so ![] = false. Now [] == false. Per == algorithm: Boolean converts to Number (false→0). Object converts via ToPrimitive: [].toString()→"". String converts to Number: ""→0. Final: 0 == 0 → true.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How can you make <code>(a == 1 && a == 2 && a == 3)</code> true?</p>
+<p><strong>Answer:</strong> Override valueOf() to return incrementing values. Or use Symbol.toPrimitive. Or with Proxy get trap. Or with Object.defineProperty getter on window. Each == call triggers ToPrimitive which calls valueOf().</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="operators">7. Operators (All Categories)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=FZzyij43A54" target="_blank">JavaScript Operators — Programming with Mosh</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4p0Aq2kFnHs" target="_blank">Logical Operators Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=v2tJ3nzXRzE" target="_blank">Nullish Coalescing & Optional Chaining — Fireship</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Arithmetic Operators</h4>
+<pre><code>5 + 3;    // 8 (addition)
+5 - 3;    // 2 (subtraction)
+5 * 3;    // 15 (multiplication)
+5 / 3;    // 1.6666... (division — always float!)
+5 % 3;    // 2 (remainder/modulo)
+5 ** 3;   // 125 (exponentiation, ES7)
+
+// Increment/Decrement
+let x = 5;
+x++;      // post-increment: returns 5, then x becomes 6
+++x;      // pre-increment: x becomes 7, returns 7
+x--;      // post-decrement: returns 7, then x becomes 6
+--x;      // pre-decrement: x becomes 5, returns 5
+
+// Tricky:
+let a = 1;
+let b = a++;  // b = 1, a = 2 (post returns old value)
+let c = ++a;  // c = 3, a = 3 (pre returns new value)</code></pre>
+
+<h4>Comparison Operators</h4>
+<pre><code>5 == "5";   // true (loose: coerces types)
+5 === "5";  // false (strict: no coercion)
+5 != "5";   // false
+5 !== "5";  // true
+5 > 3;      // true
+5 >= 5;     // true
+5 < 3;      // false
+
+// Object comparison — by reference!
+{} === {};  // false (different objects in memory)
+[] === [];  // false
+let arr = [1];
+let ref = arr;
+ref === arr; // true (same reference)</code></pre>
+
+<h4>Logical Operators (Short-circuit evaluation)</h4>
+<pre><code>// && (AND) — returns first falsy OR last truthy
+true && "hello";   // "hello" (both truthy → returns last)
+false && "hello";  // false (first falsy → short-circuits)
+"" && "hello";     // "" (falsy → stops)
+1 && 2 && 3;      // 3 (all truthy → returns last)
+1 && 0 && 3;      // 0 (first falsy)
+
+// || (OR) — returns first truthy OR last falsy
+false || "hello";  // "hello" (first truthy)
+"" || "default";   // "default"
+0 || "" || null || "found"; // "found"
+0 || "" || null;   // null (all falsy → returns last)
+
+// ?? (Nullish Coalescing, ES2020) — only null/undefined trigger fallback
+0 ?? "default";    // 0 (0 is NOT null/undefined)
+"" ?? "default";   // "" (NOT null/undefined)
+null ?? "default"; // "default"
+undefined ?? "default"; // "default"
+
+// Difference: || vs ??
+let count = 0;
+count || 10;  // 10 (0 is falsy — BAD if 0 is valid!)
+count ?? 10;  // 0 (0 is not null/undefined — CORRECT!)
+
+// ?. (Optional Chaining, ES2020)
+let user = { address: { city: "BLR" } };
+user?.address?.city;  // "BLR"
+user?.phone?.number;  // undefined (no error!)
+user?.getName?.();    // undefined (safe function call)</code></pre>
+
+<h4>Assignment Operators (ES2021 Logical Assignment)</h4>
+<pre><code>let x = 10;
+x += 5;   // x = x + 5 = 15
+x -= 3;   // x = 12
+x *= 2;   // x = 24
+x /= 4;   // x = 6
+x %= 4;   // x = 2
+x **= 3;  // x = 8
+
+// Logical Assignment (ES2021)
+let a = null;
+a ??= "default";  // a = "default" (was null)
+a ??= "other";    // a = "default" (not null anymore)
+
+let b = "";
+b ||= "fallback"; // b = "fallback" (was falsy)
+
+let c = 1;
+c &&= 2;          // c = 2 (was truthy, so assign)</code></pre>
+
+<h4>Bitwise Operators</h4>
+<pre><code>// Convert to 32-bit integers for operation
+5 & 3;    // 1 (AND: 101 & 011 = 001)
+5 | 3;    // 7 (OR: 101 | 011 = 111)
+5 ^ 3;    // 6 (XOR: 101 ^ 011 = 110)
+~5;       // -6 (NOT: inverts all bits, -(n+1))
+5 << 1;   // 10 (left shift: multiply by 2)
+5 >> 1;   // 2 (right shift: divide by 2, floor)
+-1 >>> 0; // 4294967295 (unsigned right shift)
+
+// Practical uses:
+~~3.7;          // 3 (double NOT = floor for positive)
+n | 0;          // integer conversion (fast floor)
+n << 1;         // multiply by 2
+n >> 1;         // divide by 2 (floor)
+color >> 16 & 0xFF; // extract red from RGB</code></pre>
+
+<h4>Comma, typeof, void, delete, in, instanceof</h4>
+<pre><code>// Comma operator — evaluates all, returns last
+let x = (1, 2, 3); // x = 3
+
+// typeof — returns type as string (covered above)
+typeof undefined; // "undefined"
+
+// void — evaluates expression, returns undefined
+void 0; // undefined (common in old code: javascript:void(0))
+
+// delete — removes object property
+let obj = { a: 1, b: 2 };
+delete obj.a; // true, obj is now { b: 2 }
+// Cannot delete: variables, function declarations, non-configurable props
+
+// in — checks if property exists in object
+"a" in obj;       // false (deleted)
+"b" in obj;       // true
+0 in [10, 20];    // true (index exists)
+
+// instanceof — checks prototype chain
+[] instanceof Array;  // true
+[] instanceof Object; // true (Array extends Object)
+"hello" instanceof String; // false (primitive, not wrapper)</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 5:</strong> Predict output:</p>
+<pre><code>console.log(false || "hello");
+console.log(false ?? "hello");
+console.log(0 || 42);
+console.log(0 ?? 42);
+console.log("" || "default");
+console.log("" ?? "default");
+console.log(null || undefined || 0 || "first");
+console.log(1 && 2 && 0 && 3);
+console.log(typeof typeof 42);</code></pre>
+<p><strong>Answers:</strong> "hello", "hello", 42, 0, "default", "", "first", 0, "string"</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is the difference between <code>||</code> and <code>??</code>?</p>
+<p><strong>Answer:</strong> <code>||</code> returns the right operand if the left is any falsy value (0, "", false, null, undefined, NaN). <code>??</code> returns the right operand ONLY if the left is null or undefined. Use ?? when 0 or "" are valid values you want to keep.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How does short-circuit evaluation work?</p>
+<p><strong>Answer:</strong> && stops at first falsy (returns it), if all truthy returns last. || stops at first truthy (returns it), if all falsy returns last. The key insight: they return actual values, not booleans. <code>1 && "hello"</code> returns "hello", not true.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="control-flow">8. Control Flow (Conditions & Loops)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=IsG4Xd6LlsM" target="_blank">Loops & Iteration — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=Kn06785pkJg" target="_blank">for...in vs for...of — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=AqgVLYpBWG8" target="_blank">Switch Statement Deep Dive — Programming with Mosh</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>Conditional Statements</h4>
+<pre><code>// if / else if / else
+let score = 85;
+if (score >= 90) {
+  console.log("A");
+} else if (score >= 80) {
+  console.log("B"); // ← this runs
+} else if (score >= 70) {
+  console.log("C");
+} else {
+  console.log("F");
+}
+
+// Ternary Operator
+let grade = score >= 90 ? "A" : score >= 80 ? "B" : "C";
+
+// switch (uses === for comparison)
+let day = "Monday";
+switch (day) {
+  case "Monday":
+  case "Tuesday":   // fall-through (shared case)
+    console.log("Weekday start");
+    break;          // without break, falls through!
+  case "Friday":
+    console.log("TGIF");
+    break;
+  default:
+    console.log("Midweek");
+}
+
+// switch with expressions (pattern)
+let temp = 35;
+switch (true) {
+  case temp > 40: console.log("Extreme heat"); break;
+  case temp > 30: console.log("Hot"); break;  // ← runs
+  case temp > 20: console.log("Warm"); break;
+  default: console.log("Cool");
+}</code></pre>
+
+<h4>Loops</h4>
+<pre><code>// 1. for loop (classic)
+for (let i = 0; i < 5; i++) {
+  console.log(i); // 0, 1, 2, 3, 4
+}
+
+// 2. while loop
+let i = 0;
+while (i < 5) {
+  console.log(i);
+  i++;
+}
+
+// 3. do...while (executes at least once)
+let j = 10;
+do {
+  console.log(j); // prints 10 even though condition is false
+} while (j < 5);
+
+// 4. for...in (iterates over KEYS/indices — use for objects)
+let obj = { a: 1, b: 2, c: 3 };
+for (let key in obj) {
+  console.log(key, obj[key]); // "a" 1, "b" 2, "c" 3
+}
+// ⚠️ for...in also iterates inherited properties!
+// Always use hasOwnProperty check or Object.keys()
+
+// 5. for...of (iterates over VALUES — use for iterables)
+let arr = [10, 20, 30];
+for (let value of arr) {
+  console.log(value); // 10, 20, 30
+}
+// Works on: Arrays, Strings, Maps, Sets, arguments, NodeLists
+// Does NOT work on plain objects! (not iterable)
+
+// for...of with index
+for (let [index, value] of arr.entries()) {
+  console.log(index, value);
+}
+
+// 6. Loop control
+for (let i = 0; i < 10; i++) {
+  if (i === 3) continue; // skip iteration
+  if (i === 7) break;    // exit loop
+  console.log(i); // 0, 1, 2, 4, 5, 6
+}
+
+// Labeled statements (for nested loops)
+outer: for (let i = 0; i < 3; i++) {
+  for (let j = 0; j < 3; j++) {
+    if (j === 1) continue outer; // skip to next i
+    if (i === 2) break outer;    // exit both loops
+    console.log(i, j);
+  }
+}</code></pre>
+
+<h4>for...in vs for...of Comparison</h4>
+<table>
+<tr><th>Feature</th><th>for...in</th><th>for...of</th></tr>
+<tr><td>Iterates over</td><td>Keys (enumerable properties)</td><td>Values (iterable protocol)</td></tr>
+<tr><td>Works on objects?</td><td>✅ Yes</td><td>❌ No (unless [Symbol.iterator])</td></tr>
+<tr><td>Works on arrays?</td><td>⚠️ Gives indices as strings</td><td>✅ Yes (values)</td></tr>
+<tr><td>Includes inherited?</td><td>Yes (prototype chain)</td><td>No</td></tr>
+<tr><td>Order guaranteed?</td><td>Not historically (now mostly yes)</td><td>Yes (insertion order)</td></tr>
+<tr><td>Best for</td><td>Object property enumeration</td><td>Arrays, strings, Maps, Sets</td></tr>
+</table>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 6:</strong> Write a loop that prints numbers 1-100 with: "Fizz" for multiples of 3, "Buzz" for multiples of 5, "FizzBuzz" for both.</p>
+<pre><code>for (let i = 1; i <= 100; i++) {
+  let output = "";
+  if (i % 3 === 0) output += "Fizz";
+  if (i % 5 === 0) output += "Buzz";
+  console.log(output || i);
+}</code></pre>
+<p><strong>Exercise 7:</strong> Convert this for loop to for...of with destructuring:</p>
+<pre><code>const users = [{name:"Sid",age:25},{name:"Ram",age:30}];
+// Your code using for...of:
+for (const {name, age} of users) {
+  console.log(`${name} is ${age}`);
+}</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What is the difference between for...in and for...of?</p>
+<p><strong>Answer:</strong> for...in iterates over enumerable property names/keys (works on objects, gives string indices for arrays, includes inherited properties). for...of iterates over values of iterables (arrays, strings, Maps, Sets — NOT plain objects). Use for...in for objects, for...of for arrays.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Why should you avoid for...in with arrays?</p>
+<p><strong>Answer:</strong> (1) Gives string indices ("0","1","2") not numbers, (2) iterates prototype chain properties, (3) order not historically guaranteed, (4) iterates all enumerable properties including custom ones added to Array.prototype. Use for...of, forEach, or classic for with arrays.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="error-handling">9. Error Handling (try/catch/finally)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cFTFtuEQ-10" target="_blank">Error Handling — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=blBoIyNhGvY" target="_blank">try/catch/finally Explained — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=aEIDwslfKf0" target="_blank">Custom Errors — Coding Train</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>try / catch / finally</h4>
+<pre><code>try {
+  // Code that might throw
+  let result = riskyOperation();
+  console.log(result);
+} catch (error) {
+  // Handles the error
+  console.error("Error:", error.message);
+  console.error("Stack:", error.stack);
+} finally {
+  // ALWAYS executes (even if return/throw in try/catch)
+  cleanup();
+}
+
+// finally runs even with return!
+function test() {
+  try {
+    return "try";
+  } finally {
+    console.log("finally runs!"); // This executes!
+    // If finally has return, it overrides try's return
+  }
+}
+test(); // logs "finally runs!", returns "try"</code></pre>
+
+<h4>Error Types</h4>
+<pre><code>// Built-in Error types:
+new Error("generic error");
+new SyntaxError("invalid syntax");     // JSON.parse("{bad}")
+new ReferenceError("x is not defined");// accessing undeclared var
+new TypeError("x is not a function");  // wrong type operation
+new RangeError("Maximum call stack");  // stack overflow, invalid array length
+new URIError("URI malformed");         // decodeURI("%")
+new EvalError("eval error");           // rarely used now
+new AggregateError([err1, err2]);      // Promise.any (ES2021)
+
+// Error properties:
+try {
+  null.property;
+} catch (e) {
+  console.log(e.name);       // "TypeError"
+  console.log(e.message);    // "Cannot read properties of null"
+  console.log(e.stack);      // full stack trace string
+  console.log(e.cause);      // ES2022: chained error cause
+}</code></pre>
+
+<h4>Custom Errors</h4>
+<pre><code>class ValidationError extends Error {
+  constructor(message, field) {
+    super(message);
+    this.name = "ValidationError";
+    this.field = field;
+  }
+}
+
+class HttpError extends Error {
+  constructor(statusCode, message) {
+    super(message);
+    this.name = "HttpError";
+    this.statusCode = statusCode;
+  }
+}
+
+// Usage
+function validateAge(age) {
+  if (typeof age !== "number") {
+    throw new ValidationError("Age must be a number", "age");
+  }
+  if (age < 0 || age > 150) {
+    throw new RangeError("Age must be between 0-150");
+  }
+}
+
+try {
+  validateAge("twenty");
+} catch (e) {
+  if (e instanceof ValidationError) {
+    console.log(`Validation failed for ${e.field}: ${e.message}`);
+  } else if (e instanceof RangeError) {
+    console.log(`Range error: ${e.message}`);
+  } else {
+    throw e; // Re-throw unexpected errors
+  }
+}
+
+// Error Cause (ES2022)
+try {
+  try {
+    JSON.parse("{invalid}");
+  } catch (parseError) {
+    throw new Error("Config failed to load", { cause: parseError });
+  }
+} catch (e) {
+  console.log(e.message);       // "Config failed to load"
+  console.log(e.cause.message); // "Expected property name..."
+}</code></pre>
+
+<h4>Error Handling Patterns</h4>
+<pre><code>// Pattern 1: Re-throwing
+try {
+  doSomething();
+} catch (e) {
+  if (e instanceof TypeError) {
+    handleTypeError(e);
+  } else {
+    throw e; // Don't swallow unknown errors!
+  }
+}
+
+// Pattern 2: Optional catch binding (ES2019)
+try {
+  JSON.parse(data);
+} catch { // No (error) needed if you don't use it
+  return defaultValue;
+}
+
+// Pattern 3: Async error handling
+async function fetchData() {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new HttpError(response.status, `HTTP ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    if (error instanceof HttpError && error.statusCode === 404) {
+      return null; // Handle 404 gracefully
+    }
+    throw error; // Re-throw others
+  }
+}
+
+// Pattern 4: Global error handlers
+window.onerror = function(msg, src, line, col, error) {
+  // Catches uncaught errors
+  logToService({ msg, src, line, col, stack: error?.stack });
+};
+window.addEventListener("unhandledrejection", (event) => {
+  // Catches unhandled Promise rejections
+  logToService({ reason: event.reason });
+});</code></pre>
+
+<div class="exercise">
+<h4>🏋️ Hands-on Exercise</h4>
+<p><strong>Exercise 8:</strong> Create a <code>safeDivide(a, b)</code> function that throws appropriate errors:</p>
+<pre><code>function safeDivide(a, b) {
+  if (typeof a !== "number" || typeof b !== "number") {
+    throw new TypeError("Both arguments must be numbers");
+  }
+  if (b === 0) {
+    throw new RangeError("Cannot divide by zero");
+  }
+  return a / b;
+}
+
+// Test it:
+try {
+  console.log(safeDivide(10, 2));    // 5
+  console.log(safeDivide(10, 0));    // RangeError
+} catch (e) {
+  console.log(`${e.name}: ${e.message}`);
+}</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What is the purpose of the finally block?</p>
+<p><strong>Answer:</strong> finally always executes regardless of whether an error occurred or not, even if try/catch has a return statement. Used for cleanup: closing connections, releasing resources, resetting state.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How do you handle errors in async code?</p>
+<p><strong>Answer:</strong> For Promises: .catch() or try/catch with async/await. For unhandled rejections: window.addEventListener("unhandledrejection"). For global errors: window.onerror or window.addEventListener("error"). In Angular: implement ErrorHandler class.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="strict-mode">10. Strict Mode</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=uqUYNqZx0qY" target="_blank">Strict Mode Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=VgJSAlHI6Ds" target="_blank">JavaScript Strict Mode — Dcode</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>What is Strict Mode?</h4>
+<p>Strict mode (ES5) opts into a restricted variant of JavaScript that eliminates silent errors, fixes mistakes that make optimization difficult, and prohibits syntax likely to be defined in future ECMAScript.</p>
+
+<pre><code>// Enable for entire script
+"use strict";
+
+// Or for a single function
+function strictFunc() {
+  "use strict";
+  // strict rules apply only here
+}
+
+// ES6 modules and classes are ALWAYS in strict mode automatically!</code></pre>
+
+<h4>What Strict Mode Changes</h4>
+<pre><code>"use strict";
+
+// 1. Cannot use undeclared variables
+x = 10; // ReferenceError: x is not defined (without strict: creates global!)
+
+// 2. Cannot delete variables, functions, or undeletable properties
+let y = 5;
+delete y; // SyntaxError
+
+// 3. Cannot duplicate parameter names
+function sum(a, a, c) {} // SyntaxError: Duplicate parameter
+
+// 4. Octal literals not allowed
+let oct = 010; // SyntaxError (use 0o10 for octal)
+
+// 5. Cannot write to read-only properties
+let obj = {};
+Object.defineProperty(obj, "x", { value: 42, writable: false });
+obj.x = 9; // TypeError (without strict: fails silently)
+
+// 6. Cannot add properties to non-extensible objects
+let frozen = Object.freeze({ a: 1 });
+frozen.b = 2; // TypeError
+
+// 7. 'this' in functions is undefined (not window)
+function getThis() {
+  return this; // undefined (without strict: window)
+}
+
+// 8. Cannot use 'with' statement
+with (Math) {} // SyntaxError
+
+// 9. eval doesn't introduce variables into surrounding scope
+eval("var z = 10");
+console.log(z); // ReferenceError (without strict: z is accessible)
+
+// 10. Reserved words cannot be used as variable names
+let implements, interface, package; // SyntaxError
+let private, protected, public;     // SyntaxError
+let static, yield;                  // SyntaxError</code></pre>
+
+<div class="callout">
+<strong>Angular Note:</strong> TypeScript compiles with strict mode by default. All Angular code runs in strict mode since it uses ES modules. You rarely need to add "use strict" manually in modern Angular projects.
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What is strict mode and why use it?</p>
+<p><strong>Answer:</strong> "use strict" enables a stricter parsing/error handling mode: turns silent errors into thrown errors, prevents accidental globals, disables confusing features (with, octal), makes eval safer, and sets 'this' to undefined in plain functions. Use it to write safer, more optimizable code.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is the value of 'this' inside a function in strict mode vs non-strict?</p>
+<p><strong>Answer:</strong> In strict mode: <code>this</code> is undefined in a regular function call. In non-strict: <code>this</code> is the global object (window/global). This prevents accidental modification of global state. Arrow functions inherit this from enclosing scope regardless of strict mode.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="nav-links">
+  <span></span>
+  <a href="phase2-functions-scope-closures.html">Phase 2: Functions, Scope & Closures →</a>
+</div>
+
+</main>
+<script src="js-notes-inline.js"></script>
+</body>
+</html>

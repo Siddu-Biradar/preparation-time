@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend Performance — Phase 5: Advanced Topics & Production Monitoring</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #0f6b5f; --accent-soft: #d9efe8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.5; font-size: 11.4pt; }
+    main { max-width: 920px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #152923; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 28px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 18px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #f1ece2; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf7f2 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #13443d; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #bfded5; }
+    .callout { border-left: 4px solid var(--accent); background: #f4fbf8; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 5: Advanced Topics & Production Monitoring</h1>
+  <p class="subtitle">Frontend Performance Mastery — Zero to Hero Series (5 of 6)</p>
+  <div class="pill-row">
+    <span class="pill">Service Workers</span>
+    <span class="pill">Performance APIs</span>
+    <span class="pill">RUM vs Synthetic</span>
+    <span class="pill">Performance Budgets</span>
+    <span class="pill">WebAssembly</span>
+    <span class="pill">Rendering Patterns</span>
+    <span class="pill">Network Optimization</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#service-workers">Service Workers & Offline Performance</a></li>
+    <li><a href="#perf-apis">Performance APIs (Complete Reference)</a></li>
+    <li><a href="#rum">Real User Monitoring (RUM) vs Synthetic Testing</a></li>
+    <li><a href="#budgets">Performance Budgets & CI Integration</a></li>
+    <li><a href="#rendering-patterns">Rendering Patterns (CSR, SSR, SSG, ISR, Streaming)</a></li>
+    <li><a href="#network-opt">Advanced Network Optimization</a></li>
+    <li><a href="#wasm">WebAssembly for Performance</a></li>
+    <li><a href="#accessibility-perf">Accessibility & Performance</a></li>
+    <li><a href="#mobile-perf">Mobile Performance Optimization</a></li>
+    <li><a href="#perf-culture">Performance Culture & Process</a></li>
+    <li><a href="#exercise5">Hands-On Exercises</a></li>
+    <li><a href="#interview5">Interview Questions — Phase 5</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="service-workers">1. Service Workers & Offline Performance</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=ksXwaWHCW6k" target="_blank">Service Workers: An Introduction — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=4XT23X0Fjfk" target="_blank">Service Worker Lifecycle — Jake Archibald (Google I/O)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=5YtNQJQu6GI" target="_blank">Angular PWA & Service Workers — Angular (Official)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=JYXUGRoXy18" target="_blank">Caching Strategies Explained — Fireship</a></li>
+</ul></details></div>
+
+<h3>Service Worker Lifecycle</h3>
+<pre>
+Registration → Install → Activate → Fetch (intercept requests)
+
+1. REGISTER (main thread):
+   navigator.serviceWorker.register('/sw.js')
+
+2. INSTALL (first time or update detected):
+   - Download SW script
+   - Parse & execute
+   - Pre-cache critical assets (install event)
+   - WAIT (if previous SW is still active)
+
+3. ACTIVATE (after old SW releases control):
+   - Clean up old caches
+   - Take control of clients
+
+4. FETCH (intercept every network request):
+   - Apply caching strategy
+   - Return cached/network response
+
+// Angular PWA: All this is handled automatically!
+// ng add @angular/pwa
+</pre>
+
+<h3>Caching Strategies</h3>
+<table>
+  <tr><th>Strategy</th><th>How It Works</th><th>Use For</th><th>Trade-off</th></tr>
+  <tr><td><strong>Cache First</strong></td><td>Check cache → if miss → network → cache response</td><td>Static assets (JS, CSS, images)</td><td>May serve stale content</td></tr>
+  <tr><td><strong>Network First</strong></td><td>Try network → if fails → fallback to cache</td><td>API data that must be fresh</td><td>Slow on bad network</td></tr>
+  <tr><td><strong>Stale While Revalidate</strong></td><td>Serve from cache immediately → fetch update in background</td><td>Content that can be slightly stale</td><td>Best UX, eventual consistency</td></tr>
+  <tr><td><strong>Network Only</strong></td><td>Always network, no caching</td><td>Real-time data, POST requests</td><td>Fails offline</td></tr>
+  <tr><td><strong>Cache Only</strong></td><td>Only serve from pre-cache</td><td>App shell, critical assets</td><td>Must be pre-cached on install</td></tr>
+</table>
+
+<h3>Implementing Strategies (Raw SW)</h3>
+<pre>
+// sw.js — Stale While Revalidate
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.open('dynamic-v1').then(async (cache) => {
+      const cachedResponse = await cache.match(event.request);
+
+      // Fetch fresh in background
+      const networkFetch = fetch(event.request).then(response => {
+        if (response.ok) {
+          cache.put(event.request, response.clone());
+        }
+        return response;
+      }).catch(() => cachedResponse); // Offline fallback
+
+      // Return cached immediately (or wait for network if no cache)
+      return cachedResponse || networkFetch;
+    })
+  );
+});
+
+// Cache First with expiration
+self.addEventListener('fetch', (event) => {
+  if (event.request.url.includes('/static/')) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        return cached || fetch(event.request).then(response => {
+          const clone = response.clone();
+          caches.open('static-v1').then(cache => cache.put(event.request, clone));
+          return response;
+        });
+      })
+    );
+  }
+});
+</pre>
+
+<h3>Navigation Preload (Critical for Performance)</h3>
+<pre>
+// Problem: Service Worker startup adds latency to navigation requests
+// The browser must wake up the SW before it can fetch from network
+// This adds 50-200ms to navigation!
+
+// Solution: Navigation Preload starts the network request WHILE SW boots
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    self.registration.navigationPreload?.enable()
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      (async () => {
+        // Use the preloaded response (already fetching in parallel!)
+        const preloadResponse = await event.preloadResponse;
+        if (preloadResponse) return preloadResponse;
+
+        // Fallback to cache
+        const cached = await caches.match(event.request);
+        return cached || fetch(event.request);
+      })()
+    );
+  }
+});
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="perf-apis">2. Performance APIs (Complete Reference)</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=MOax6LJNHGE" target="_blank">Performance Observer API — web.dev (Barry Pollard)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=WrLR1ysNTu0" target="_blank">User Timing API & Custom Metrics — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=kqM76sIeQLo" target="_blank">Resource Timing API — Rick Viscomi (Chrome)</a></li>
+</ul></details></div>
+
+<h3>Performance Timeline API</h3>
+<pre>
+// PerformanceObserver — the unified way to observe performance entries
+const observer = new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    switch (entry.entryType) {
+      case 'navigation':
+        // Page load timing
+        console.log('DOM Interactive:', entry.domInteractive);
+        console.log('DOM Complete:', entry.domComplete);
+        console.log('Load Event:', entry.loadEventEnd);
+        break;
+      case 'resource':
+        // Individual resource timing
+        console.log(`${entry.name}: ${entry.duration}ms`);
+        break;
+      case 'longtask':
+        // Tasks > 50ms
+        console.log(`Long task: ${entry.duration}ms`);
+        break;
+      case 'largest-contentful-paint':
+        console.log(`LCP: ${entry.startTime}ms`, entry.element);
+        break;
+      case 'layout-shift':
+        if (!entry.hadRecentInput) {
+          console.log(`CLS shift: ${entry.value}`);
+        }
+        break;
+      case 'first-input':
+        console.log(`FID: ${entry.processingStart - entry.startTime}ms`);
+        break;
+      case 'event':
+        // INP tracking
+        console.log(`Interaction: ${entry.duration}ms`);
+        break;
+    }
+  }
+});
+
+// Observe multiple types
+observer.observe({ type: 'navigation', buffered: true });
+observer.observe({ type: 'resource', buffered: true });
+observer.observe({ type: 'longtask', buffered: true });
+observer.observe({ type: 'largest-contentful-paint', buffered: true });
+observer.observe({ type: 'layout-shift', buffered: true });
+observer.observe({ type: 'event', buffered: true, durationThreshold: 16 });
+</pre>
+
+<h3>User Timing API (Custom Marks & Measures)</h3>
+<pre>
+// Mark specific points in your code
+performance.mark('component-render-start');
+
+// ... rendering work ...
+
+performance.mark('component-render-end');
+
+// Measure between marks
+performance.measure('component-render', 'component-render-start', 'component-render-end');
+
+// Get measurements
+const measures = performance.getEntriesByName('component-render');
+console.log(`Render time: ${measures[0].duration}ms`);
+
+// Angular-specific: Measure change detection
+performance.mark('cd-start');
+this.cdr.detectChanges();
+performance.mark('cd-end');
+performance.measure('change-detection', 'cd-start', 'cd-end');
+
+// Measure API call + render
+async function measureDataLoad() {
+  performance.mark('fetch-start');
+  const data = await fetch('/api/data').then(r => r.json());
+  performance.mark('fetch-end');
+
+  performance.mark('render-start');
+  renderData(data);
+  performance.mark('render-end');
+
+  performance.measure('api-fetch', 'fetch-start', 'fetch-end');
+  performance.measure('render', 'render-start', 'render-end');
+  performance.measure('total', 'fetch-start', 'render-end');
+}
+</pre>
+
+<h3>Resource Timing API</h3>
+<pre>
+// Get detailed timing for every resource loaded
+const resources = performance.getEntriesByType('resource');
+
+resources.forEach(r => {
+  console.log({
+    name: r.name,
+    type: r.initiatorType,       // 'script', 'css', 'img', 'fetch'
+    duration: r.duration,         // Total time
+    dns: r.domainLookupEnd - r.domainLookupStart,
+    tcp: r.connectEnd - r.connectStart,
+    tls: r.secureConnectionStart ? r.connectEnd - r.secureConnectionStart : 0,
+    ttfb: r.responseStart - r.requestStart,
+    download: r.responseEnd - r.responseStart,
+    size: r.transferSize,         // Actual bytes transferred
+    cached: r.transferSize === 0, // Cache hit!
+  });
+});
+
+// Find slow resources
+const slowResources = resources
+  .filter(r => r.duration > 500)
+  .sort((a, b) => b.duration - a.duration);
+console.table(slowResources.map(r => ({
+  url: new URL(r.name).pathname,
+  duration: Math.round(r.duration) + 'ms',
+  size: Math.round(r.transferSize / 1024) + 'KB'
+})));
+</pre>
+
+<h3>Memory API & Performance.memory</h3>
+<pre>
+// Chrome-only: Check memory usage
+if (performance.memory) {
+  console.log({
+    usedJSHeapSize: (performance.memory.usedJSHeapSize / 1048576).toFixed(2) + 'MB',
+    totalJSHeapSize: (performance.memory.totalJSHeapSize / 1048576).toFixed(2) + 'MB',
+    jsHeapSizeLimit: (performance.memory.jsHeapSizeLimit / 1048576).toFixed(2) + 'MB'
+  });
+}
+
+// Measurement API (cross-browser, more modern)
+if ('measureUserAgentSpecificMemory' in performance) {
+  const memory = await performance.measureUserAgentSpecificMemory();
+  console.log('Total bytes:', memory.bytes);
+  memory.breakdown.forEach(entry => {
+    console.log(`${entry.types.join(',')}: ${entry.bytes} bytes`);
+  });
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rum">3. Real User Monitoring (RUM) vs Synthetic Testing</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=0fONene3OIA" target="_blank">RUM & Synthetic Monitoring — Todd Gardner (Request Metrics)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">web-vitals Library & CrUX — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=yrJm_tKQI_0" target="_blank">Lighthouse CI in GitHub Actions — Google (Paul Irish)</a></li>
+</ul></details></div>
+
+<h3>RUM (Field Data)</h3>
+<pre>
+// RUM = Real data from actual users in production
+// Captures: real devices, real networks, real geographic locations
+
+// Key RUM tools:
+// - Google CrUX (Chrome User Experience Report) — free, 28-day rolling
+// - web-vitals.js library — measure in your app
+// - Commercial: Datadog RUM, New Relic, Sentry Performance
+
+// Implementing RUM with web-vitals:
+import { onLCP, onINP, onCLS, onFCP, onTTFB } from 'web-vitals';
+
+function sendToAnalytics(metric) {
+  // Send to your analytics endpoint
+  const body = JSON.stringify({
+    name: metric.name,
+    value: metric.value,
+    rating: metric.rating,    // 'good', 'needs-improvement', 'poor'
+    delta: metric.delta,      // Change since last report
+    id: metric.id,            // Unique ID for this metric
+    navigationType: metric.navigationType, // 'navigate', 'reload', 'back_forward'
+    // Custom dimensions
+    page: window.location.pathname,
+    userAgent: navigator.userAgent,
+    connection: navigator.connection?.effectiveType,
+    deviceMemory: navigator.deviceMemory
+  });
+
+  // Use sendBeacon for reliability (survives page unload)
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon('/api/analytics/vitals', body);
+  } else {
+    fetch('/api/analytics/vitals', {
+      method: 'POST',
+      body,
+      keepalive: true
+    });
+  }
+}
+
+onLCP(sendToAnalytics);
+onINP(sendToAnalytics);
+onCLS(sendToAnalytics);
+onFCP(sendToAnalytics);
+onTTFB(sendToAnalytics);
+</pre>
+
+<h3>Synthetic Testing (Lab Data)</h3>
+<pre>
+// Synthetic = Controlled environment testing (consistent, repeatable)
+// Tools: Lighthouse, WebPageTest, Chrome DevTools
+
+// Lighthouse CI in GitHub Actions:
+// .github/workflows/lighthouse.yml
+name: Lighthouse CI
+on: [push]
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm ci && npm run build
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:4200/
+            http://localhost:4200/dashboard
+          budgetPath: ./budget.json
+          uploadArtifacts: true
+
+// budget.json — fail if performance degrades
+[
+  {
+    "path": "/*",
+    "timings": [
+      { "metric": "first-contentful-paint", "budget": 1800 },
+      { "metric": "largest-contentful-paint", "budget": 2500 },
+      { "metric": "interactive", "budget": 3800 },
+      { "metric": "total-blocking-time", "budget": 200 }
+    ],
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 300 },
+      { "resourceType": "total", "budget": 500 }
+    ]
+  }
+]
+</pre>
+
+<h3>RUM vs Synthetic — When to Use Each</h3>
+<table>
+  <tr><th>Aspect</th><th>RUM (Field)</th><th>Synthetic (Lab)</th></tr>
+  <tr><td>Data source</td><td>Real users in production</td><td>Controlled test environment</td></tr>
+  <tr><td>Network conditions</td><td>Varied (3G, 4G, WiFi)</td><td>Simulated (consistent)</td></tr>
+  <tr><td>Devices</td><td>Real devices (thousands of models)</td><td>Emulated (Moto G4, Pixel)</td></tr>
+  <tr><td>When to use</td><td>Monitor production, validate impact</td><td>Pre-deploy testing, debugging</td></tr>
+  <tr><td>Metrics available</td><td>LCP, INP, CLS (real interaction)</td><td>LCP, TBT, CLS (no real INP)</td></tr>
+  <tr><td>Reproducibility</td><td>Low (users are unpredictable)</td><td>High (same conditions every run)</td></tr>
+  <tr><td>SEO impact</td><td>CrUX data affects search rankings</td><td>No direct SEO impact</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="budgets">4. Performance Budgets & CI Integration</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=yqejmZrtmNg" target="_blank">Performance Budgets — web.dev (Addy Osmani)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=yrJm_tKQI_0" target="_blank">Lighthouse CI for Performance Budgets — Google</a></li>
+</ul></details></div>
+
+<h3>Types of Performance Budgets</h3>
+<pre>
+// 1. Quantity-based budgets (easiest to implement)
+{
+  "maxRequests": 50,
+  "maxTransferSize": "500KB",
+  "maxScriptSize": "300KB",
+  "maxImageSize": "500KB",
+  "maxThirdPartySize": "100KB"
+}
+
+// 2. Timing-based budgets (most meaningful)
+{
+  "FCP": 1800,      // ms
+  "LCP": 2500,      // ms
+  "TBT": 200,       // ms
+  "CLS": 0.1,       // score
+  "TTI": 3800       // ms
+}
+
+// 3. Rule-based budgets (preventive)
+{
+  "noSyncScripts": true,
+  "noLayoutThrashing": true,
+  "maxDOMNodes": 1500,
+  "maxCSSRules": 3000,
+  "imagesHaveDimensions": true,
+  "fontsHaveDisplaySwap": true
+}
+</pre>
+
+<h3>Integrating Budgets in Angular CI Pipeline</h3>
+<pre>
+// angular.json — built-in budget support
+"budgets": [
+  {
+    "type": "initial",
+    "maximumWarning": "400kb",
+    "maximumError": "600kb"
+  },
+  {
+    "type": "anyComponentStyle",
+    "maximumWarning": "4kb",
+    "maximumError": "8kb"
+  },
+  {
+    "type": "anyScript",
+    "maximumWarning": "150kb",
+    "maximumError": "250kb"
+  }
+]
+
+// bundlesize (npm package) — track bundle size over time
+// package.json
+{
+  "bundlesize": [
+    { "path": "dist/main.*.js", "maxSize": "250 kB" },
+    { "path": "dist/vendor.*.js", "maxSize": "180 kB" },
+    { "path": "dist/polyfills.*.js", "maxSize": "40 kB" },
+    { "path": "dist/styles.*.css", "maxSize": "50 kB" }
+  ]
+}
+
+// In CI: bundlesize checks against these limits
+// Reports pass/fail status on GitHub PR
+</pre>
+
+<h3>Performance Regression Detection</h3>
+<pre>
+// Custom CI script to detect performance regressions:
+// compare-bundles.js
+const fs = require('fs');
+const path = require('path');
+
+function getBundleSizes(distPath) {
+  const files = fs.readdirSync(distPath);
+  return files
+    .filter(f => f.endsWith('.js') || f.endsWith('.css'))
+    .map(f => ({
+      name: f.replace(/\.[a-f0-9]+\./, '.*.'),
+      size: fs.statSync(path.join(distPath, f)).size
+    }));
+}
+
+const current = getBundleSizes('./dist/current');
+const previous = getBundleSizes('./dist/previous');
+
+// Alert if any bundle grew by more than 10%
+current.forEach(file => {
+  const prev = previous.find(p => p.name === file.name);
+  if (prev) {
+    const growth = ((file.size - prev.size) / prev.size) * 100;
+    if (growth > 10) {
+      console.error(`⚠️  ${file.name} grew by ${growth.toFixed(1)}%!`);
+      process.exit(1);
+    }
+  }
+});
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rendering-patterns">5. Rendering Patterns</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Dkx5ydvtpCA" target="_blank">10 Rendering Patterns for Web Apps — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=860d8usGC0o" target="_blank">SSR vs SSG vs ISR vs CSR — Theo (t3.gg)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=VcMH6Rz3UEI" target="_blank">Islands Architecture & Partial Hydration — Fireship</a></li>
+</ul></details></div>
+
+<h3>Complete Rendering Pattern Comparison</h3>
+<table>
+  <tr><th>Pattern</th><th>FCP</th><th>LCP</th><th>TTI</th><th>SEO</th><th>Complexity</th></tr>
+  <tr><td><strong>CSR</strong> (Client-Side)</td><td>Slow</td><td>Slow</td><td>Slow</td><td>Poor</td><td>Low</td></tr>
+  <tr><td><strong>SSR</strong> (Server-Side)</td><td>Fast</td><td>Fast</td><td>Medium</td><td>Excellent</td><td>High</td></tr>
+  <tr><td><strong>SSG</strong> (Static Generation)</td><td>Fastest</td><td>Fastest</td><td>Medium</td><td>Excellent</td><td>Medium</td></tr>
+  <tr><td><strong>ISR</strong> (Incremental Static)</td><td>Fastest</td><td>Fastest</td><td>Medium</td><td>Excellent</td><td>High</td></tr>
+  <tr><td><strong>Streaming SSR</strong></td><td>Fast</td><td>Fast</td><td>Fast</td><td>Excellent</td><td>High</td></tr>
+  <tr><td><strong>Islands Architecture</strong></td><td>Fastest</td><td>Fast</td><td>Fastest</td><td>Excellent</td><td>Medium</td></tr>
+  <tr><td><strong>Resumability</strong> (Qwik-like)</td><td>Fastest</td><td>Fastest</td><td>Instant</td><td>Excellent</td><td>High</td></tr>
+</table>
+
+<h3>Streaming SSR</h3>
+<pre>
+// Traditional SSR:
+// Server renders ENTIRE page → sends complete HTML (slow TTFB)
+
+// Streaming SSR:
+// Server sends HTML in chunks as it's ready
+// Browser can start rendering while server is still working!
+
+// Angular 18+ supports streaming:
+// Server streams the app shell immediately
+// Heavy data-dependent sections stream when ready
+
+// Timeline:
+// Traditional SSR:
+// [--server renders entire page--]→[---send all HTML---]→[user sees page]
+// 0ms                            500ms                  700ms
+
+// Streaming SSR:
+// [--shell ready--]→[send shell]→[user sees shell!]→[rest streams in]
+// 0ms              100ms        200ms               500ms (progressive)
+// User sees content 500ms earlier!
+</pre>
+
+<h3>Partial Hydration & Islands</h3>
+<pre>
+// Full Hydration (Angular default):
+// Server sends HTML → Client downloads ALL JS → hydrates EVERYTHING
+// Even static content that never changes gets hydrated
+
+// Partial/Incremental Hydration (Angular 18+):
+// Only hydrate interactive components on demand
+// Static HTML stays as-is (no JS needed!)
+
+// Angular @defer with hydration triggers:
+@defer (hydrate on viewport) {
+  &lt;app-interactive-chart /&gt;
+  // Only hydrates when visible in viewport
+}
+
+@defer (hydrate on interaction) {
+  &lt;app-comment-form /&gt;
+  // Only hydrates when user clicks/focuses
+}
+
+@defer (hydrate never) {
+  &lt;app-static-footer /&gt;
+  // NEVER hydrated — pure HTML, zero JS!
+}
+
+// Impact: Instead of hydrating 50 components (500KB JS executing):
+// Only hydrate 5 interactive ones (50KB JS) → 10x less work!
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="network-opt">6. Advanced Network Optimization</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=GriONb4EfPY" target="_blank">HTTP/3 & QUIC Explained — Hussein Nasser</a></li>
+  <li><a href="https://www.youtube.com/watch?v=cdb5Lguzstc" target="_blank">HTTP/3 is HERE — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=0czYmTEfGRU" target="_blank">Early Hints (103) & Resource Prioritization — web.dev</a></li>
+  <li><a href="https://www.youtube.com/watch?v=2csMY0rr254" target="_blank">Speculation Rules API — Barry Pollard (Chrome)</a></li>
+</ul></details></div>
+
+<h3>HTTP/3 & QUIC</h3>
+<pre>
+// HTTP/3 advantages over HTTP/2:
+// 1. Built on QUIC (UDP) — no TCP head-of-line blocking
+// 2. 0-RTT connection resumption
+// 3. Connection migration (WiFi → cellular without reconnect)
+// 4. Per-stream flow control
+
+// Impact on performance:
+// - Faster connection establishment (0-1 RTT vs 2-3 RTT)
+// - No packet loss cascading (one lost packet doesn't block all streams)
+// - Better on mobile (connection migration)
+// - Especially important for users with packet loss (3G, poor WiFi)
+
+// Enable in your server (example: Nginx with QUIC)
+// listen 443 quic reuseport;
+// listen 443 ssl;
+// add_header Alt-Svc 'h3=":443"; ma=86400';
+</pre>
+
+<h3>Early Hints (103 Status Code)</h3>
+<pre>
+// Problem: While server is processing the request (database query, etc.),
+// the browser is IDLE — wasting time.
+
+// Solution: 103 Early Hints — server sends resource hints BEFORE the response
+// Browser can start downloading critical resources while server is still working
+
+// Server timeline:
+// t=0ms:  Request received
+// t=5ms:  Send 103 Early Hints (preload critical CSS, JS, fonts)
+// t=5ms:  Browser starts downloading hinted resources!
+// t=200ms: Server finishes processing
+// t=200ms: Send 200 OK with HTML
+// t=200ms: Browser already has CSS/JS/fonts downloaded!
+//          → Faster FCP because resources were prefetched during server think time
+
+// Example 103 response:
+// HTTP/1.1 103 Early Hints
+// Link: &lt;/styles/main.css&gt;; rel=preload; as=style
+// Link: &lt;/scripts/app.js&gt;; rel=preload; as=script
+// Link: &lt;/fonts/inter.woff2&gt;; rel=preload; as=font; crossorigin
+//
+// (server continues processing...)
+//
+// HTTP/1.1 200 OK
+// Content-Type: text/html
+// ... (full response)
+</pre>
+
+<h3>Request Prioritization</h3>
+<pre>
+// Browsers assign priority to requests:
+// Highest: Main document HTML
+// High: CSS, Fonts, Preloaded resources
+// Medium: Scripts (in viewport), Images (in viewport)
+// Low: Scripts (deferred), Images (below fold), Prefetch
+
+// You can influence priority:
+&lt;link rel="preload" href="critical.css" as="style" fetchpriority="high"&gt;
+&lt;img src="hero.webp" fetchpriority="high"&gt;      &lt;!-- Boost priority --&gt;
+&lt;img src="carousel.webp" fetchpriority="low"&gt;    &lt;!-- Lower priority --&gt;
+&lt;script src="analytics.js" fetchpriority="low"&gt;&lt;/script&gt;
+
+// HTTP/2 Priority Hints header:
+// Priority: u=0 (highest urgency)
+// Priority: u=7 (lowest urgency)
+// Priority: u=3, i (incremental — can be rendered progressively)
+</pre>
+
+<h3>Speculative Loading</h3>
+<pre>
+// Speculation Rules API (Chrome 109+)
+// Tell browser what pages user is likely to visit next
+// Browser can prerender them in background!
+
+&lt;script type="speculationrules"&gt;
+{
+  "prerender": [
+    {
+      "urls": ["/dashboard", "/profile"],
+      "eagerness": "moderate"
+    }
+  ],
+  "prefetch": [
+    {
+      "urls": ["/settings", "/help"],
+      "eagerness": "conservative"
+    }
+  ]
+}
+&lt;/script&gt;
+
+// Eagerness levels:
+// "immediate": Start right away
+// "eager": Start quickly, high confidence needed
+// "moderate": Start on hover over link (most common)
+// "conservative": Start on pointer down (just before click)
+
+// With moderate eagerness:
+// User hovers over "Dashboard" link → browser starts prerendering
+// User clicks → page appears INSTANTLY (already rendered!)
+// This gives sub-50ms navigation for SPAs!
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="wasm">7. WebAssembly for Performance</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=cbB3QEwWMlA" target="_blank">WebAssembly Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=njt-Qzw0mVY" target="_blank">WebAssembly for Web Developers — Surma & Jake Archibald</a></li>
+</ul></details></div>
+
+<h3>When WebAssembly Beats JavaScript</h3>
+<table>
+  <tr><th>Scenario</th><th>JS Performance</th><th>WASM Advantage</th></tr>
+  <tr><td>Image/Video processing</td><td>Slow (no SIMD in JS)</td><td>10-20x faster</td></tr>
+  <tr><td>Physics simulation</td><td>Moderate</td><td>3-5x faster</td></tr>
+  <tr><td>Cryptography</td><td>Moderate (WebCrypto helps)</td><td>2-5x faster</td></tr>
+  <tr><td>Data compression</td><td>Slow</td><td>5-10x faster</td></tr>
+  <tr><td>3D rendering/game logic</td><td>Moderate</td><td>2-4x faster</td></tr>
+  <tr><td>DOM manipulation</td><td>Fast</td><td>Slower (must call JS)</td></tr>
+  <tr><td>Simple CRUD operations</td><td>Fast enough</td><td>No benefit</td></tr>
+</table>
+
+<pre>
+// Using WASM in Angular:
+// Example: Image processing with wasm-based library
+
+// 1. Load WASM module
+async function loadImageProcessor() {
+  const wasm = await import('./image-processor.wasm');
+  await wasm.default(); // Initialize
+  return wasm;
+}
+
+// 2. Use in Angular service
+@Injectable({ providedIn: 'root' })
+export class ImageService {
+  private wasm: any;
+
+  async init() {
+    this.wasm = await loadImageProcessor();
+  }
+
+  // Process image off main thread using WASM in Web Worker
+  async processImage(imageData: ImageData): Promise&lt;ImageData&gt; {
+    const worker = new Worker(new URL('./image.worker', import.meta.url));
+    return new Promise((resolve) => {
+      worker.onmessage = (e) => resolve(e.data);
+      worker.postMessage(imageData, [imageData.data.buffer]); // Transfer
+    });
+  }
+}
+
+// image.worker.ts
+import init, { apply_filter } from './image-processor.wasm';
+
+addEventListener('message', async ({ data }) => {
+  await init();
+  const result = apply_filter(data.data, data.width, data.height);
+  postMessage(new ImageData(result, data.width, data.height));
+});
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="accessibility-perf">8. Accessibility & Performance</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=z8xUCzToff8" target="_blank">Accessibility & Performance — Rob Dodson (Chrome A11yCasts)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=QW_dUs9D1oQ" target="_blank">prefers-reduced-motion — Kevin Powell</a></li>
+</ul></details></div>
+
+<h3>How Accessibility Overlaps with Performance</h3>
+<ul>
+  <li><strong>Reduced motion</strong>: Fewer animations = less GPU work = better battery</li>
+  <li><strong>Semantic HTML</strong>: Less JS needed for accessibility = smaller bundle</li>
+  <li><strong>Font sizing</strong>: System fonts = no font download latency</li>
+  <li><strong>Image alt text</strong>: Proper dimensions prevent CLS</li>
+  <li><strong>Skip navigation</strong>: Reduces DOM traversal for screen readers</li>
+  <li><strong>Reduced data usage</strong>: <code>prefers-reduced-data</code> media query</li>
+</ul>
+
+<pre>
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Respect data-saving preferences */
+@media (prefers-reduced-data: reduce) {
+  .hero-video { display: none; }
+  .hero-image { content: url('hero-low-res.webp'); }
+}
+
+/* In Angular: */
+@Component({
+  template: `
+    @if (!prefersReducedMotion) {
+      &lt;app-animated-hero /&gt;
+    } @else {
+      &lt;app-static-hero /&gt;
+    }
+  `
+})
+export class HeroComponent {
+  prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="mobile-perf">9. Mobile Performance Optimization</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=4bZvq3nodf4" target="_blank">Mobile Web Performance — Addy Osmani (Chrome Dev Summit)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=AQqFZ5t8uNc" target="_blank">Adaptive Loading — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=wC6CS7js-tc" target="_blank">Performance on Low-End Devices — web.dev</a></li>
+</ul></details></div>
+
+<h3>Mobile vs Desktop Reality</h3>
+<table>
+  <tr><th>Factor</th><th>Desktop</th><th>Mobile (mid-range)</th><th>Impact</th></tr>
+  <tr><td>CPU</td><td>3-5 GHz, 8+ cores</td><td>1-2 GHz, 4-8 cores (throttled)</td><td>JS parsing 3-5x slower</td></tr>
+  <tr><td>Memory</td><td>16-32 GB</td><td>3-6 GB (shared with OS)</td><td>More GC pressure, tab kills</td></tr>
+  <tr><td>Network</td><td>50-1000 Mbps</td><td>1-30 Mbps (variable)</td><td>Larger impact of bundle size</td></tr>
+  <tr><td>Latency</td><td>5-20ms</td><td>50-300ms (cellular)</td><td>More impact of round trips</td></tr>
+  <tr><td>GPU</td><td>Dedicated, powerful</td><td>Shared, limited VRAM</td><td>Layer explosion = crashes</td></tr>
+  <tr><td>Battery</td><td>N/A (plugged in)</td><td>Limited, CPU throttles when hot</td><td>Sustained perf degrades</td></tr>
+</table>
+
+<h3>Mobile-Specific Optimizations</h3>
+<pre>
+// 1. Adaptive loading based on device capabilities
+const connection = navigator.connection;
+const deviceMemory = navigator.deviceMemory; // GB
+const hardwareConcurrency = navigator.hardwareConcurrency; // CPU cores
+
+function getAppTier(): 'lite' | 'standard' | 'premium' {
+  if (connection?.saveData) return 'lite';
+  if (connection?.effectiveType === '2g' || deviceMemory &lt;= 2) return 'lite';
+  if (connection?.effectiveType === '3g' || deviceMemory &lt;= 4) return 'standard';
+  return 'premium';
+}
+
+// Angular implementation:
+@Injectable({ providedIn: 'root' })
+export class AdaptiveService {
+  readonly tier = signal(this.detectTier());
+
+  private detectTier(): 'lite' | 'standard' | 'premium' {
+    // ... detection logic
+  }
+}
+
+@Component({
+  template: `
+    @switch (adaptive.tier()) {
+      @case ('lite') { &lt;app-simple-chart /&gt; }
+      @case ('standard') { &lt;app-chart /&gt; }
+      @case ('premium') { &lt;app-3d-chart /&gt; }
+    }
+  `
+})
+
+// 2. Touch performance
+// - Use touchstart instead of click for instant feedback (300ms delay removal)
+// - Use touch-action: manipulation to remove 300ms click delay
+// - Avoid hover-dependent interactions on mobile
+.interactive-element {
+  touch-action: manipulation; /* Removes 300ms click delay */
+}
+
+// 3. Viewport-aware loading
+// Only load heavy content when visible
+@defer (on viewport; prefetch on idle) {
+  &lt;app-heavy-widget /&gt;
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="perf-culture">10. Performance Culture & Process</h2>
+<div class="yt-links"><details><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=0fONene3OIA" target="_blank">Building Performance Culture — Todd Gardner (Frontend Masters)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=yqejmZrtmNg" target="_blank">Performance as a Feature — web.dev (Addy Osmani)</a></li>
+</ul></details></div>
+
+<h3>Building a Performance Culture</h3>
+<pre>
+Performance is not a one-time fix — it's a process:
+
+1. MEASURE (Know where you are)
+   - Set up RUM monitoring (web-vitals, CrUX)
+   - Run Lighthouse CI on every PR
+   - Track Core Web Vitals dashboard
+
+2. BUDGET (Set guardrails)
+   - Define budgets for bundles, metrics, resources
+   - Enforce in CI (fail builds that exceed)
+   - Review budgets quarterly
+
+3. OPTIMIZE (Fix issues)
+   - Prioritize by user impact (LCP > CLS > INP for most sites)
+   - Focus on p75 (75th percentile), not averages
+   - A/B test performance changes
+
+4. PREVENT (Stop regressions)
+   - Bundle size checks in CI
+   - Performance-aware code reviews
+   - Team education and documentation
+
+5. ITERATE (Continuous improvement)
+   - Monthly performance reviews
+   - Celebrate wins (X% improvement in LCP!)
+   - Keep up with platform improvements
+</pre>
+
+<h3>Performance Review Checklist</h3>
+<pre>
+// PR Review — Performance Checklist:
+□ No new render-blocking resources added
+□ Images have dimensions (width/height) and loading="lazy"
+□ New routes are lazy-loaded
+□ No function calls in templates (use pipes or computed)
+□ *ngFor has trackBy
+□ New components use OnPush
+□ Subscriptions are properly cleaned up
+□ No synchronous localStorage/sessionStorage in hot paths
+□ Bundle size hasn't increased unexpectedly
+□ Third-party scripts loaded async/deferred
+□ New animations use only transform/opacity
+□ No layout thrashing patterns (read-write-read-write)
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="exercise5">11. Hands-On Exercises — Phase 5</h2>
+
+<h3>Exercise 1: Set Up Performance Monitoring</h3>
+<pre>
+// Task: Implement complete RUM monitoring in an Angular app
+
+// 1. Create a PerformanceMonitorService
+@Injectable({ providedIn: 'root' })
+export class PerformanceMonitorService {
+  // TODO: Implement these methods:
+
+  init() {
+    // Set up web-vitals observers
+    // Track LCP, INP, CLS, FCP, TTFB
+    // Log Long Tasks
+    // Track route change performance
+  }
+
+  measureRouteChange(routeName: string) {
+    // Mark navigation start
+    // Measure time to route rendered
+    // Report as custom metric
+  }
+
+  measureComponentRender(componentName: string) {
+    // Use Performance.mark/measure
+    // Track component-level render times
+  }
+
+  reportToBackend(metric: PerformanceMetric) {
+    // Use sendBeacon for reliable delivery
+    // Include context: page, device, connection
+  }
+}
+
+// 2. Create a performance dashboard
+// Show: LCP distribution, INP by page, CLS hotspots, bundle sizes over time
+</pre>
+
+<h3>Exercise 2: Implement Performance Budget CI</h3>
+<pre>
+// Task: Create a CI pipeline that catches performance regressions
+
+// 1. Configure Angular budgets (angular.json)
+// 2. Add Lighthouse CI to GitHub Actions
+// 3. Create custom bundle size tracker
+// 4. Set up alerts for:
+//    - Initial bundle > 400KB
+//    - Any lazy chunk > 150KB
+//    - LCP > 2.5s
+//    - TBT > 200ms
+// 5. Generate performance report on each PR
+// 6. Block merge if budgets exceeded
+</pre>
+
+<h3>Exercise 3: Implement Adaptive Loading</h3>
+<pre>
+// Task: Create an Angular app that adapts to device capabilities
+
+// 1. Detect: connection type, device memory, CPU cores
+// 2. For LOW-END devices:
+//    - Serve smaller images (lower resolution)
+//    - Disable animations
+//    - Use simplified components
+//    - Reduce data fetched
+// 3. For HIGH-END devices:
+//    - Enable rich animations
+//    - Prefetch next page data
+//    - Use high-resolution images
+//    - Enable 3D visualizations
+
+// Implementation steps:
+// 1. Create AdaptiveLoadingService
+// 2. Create AdaptiveImageDirective
+// 3. Create feature flags based on device tier
+// 4. Test with Chrome DevTools throttling
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview5">12. Interview Questions — Phase 5</h2>
+
+<h3>Beginner Level</h3>
+<ol>
+  <li><strong>Q: What is a Service Worker and how does it improve performance?</strong><br>
+    A: A Service Worker is a script that runs in the background (separate thread), intercepting network requests. It improves performance by: (1) Caching assets for instant subsequent loads, (2) Enabling offline functionality, (3) Serving cached responses while fetching fresh data in background (stale-while-revalidate), (4) Pre-caching critical resources on install. In Angular, <code>@angular/pwa</code> provides automatic service worker setup.</li>
+
+  <li><strong>Q: What is the difference between RUM and synthetic monitoring?</strong><br>
+    A: RUM (Real User Monitoring) collects performance data from actual users in production — reflects real devices, networks, and conditions but is noisy and hard to reproduce. Synthetic monitoring runs automated tests in controlled environments (Lighthouse, WebPageTest) — consistent and reproducible but doesn't reflect real-world conditions. Use both: synthetic for pre-deploy testing and debugging, RUM for monitoring production reality.</li>
+
+  <li><strong>Q: What are performance budgets?</strong><br>
+    A: Performance budgets are limits set on metrics (bundle size, load time, Core Web Vitals) that trigger warnings or errors when exceeded. Examples: "Initial JS bundle must be under 400KB", "LCP must be under 2.5s". They're enforced in CI pipelines to prevent performance regressions. Angular supports budgets natively in angular.json.</li>
+</ol>
+
+<h3>Intermediate Level</h3>
+<ol>
+  <li><strong>Q: Explain Service Worker caching strategies and when to use each.</strong><br>
+    A: (1) Cache First: Check cache, fallback to network — for static assets (JS, CSS, images). (2) Network First: Try network, fallback to cache — for API data that must be fresh. (3) Stale While Revalidate: Serve cache immediately, refresh in background — best UX for content that can be slightly stale. (4) Network Only: Always fetch — for real-time data, POST requests. (5) Cache Only: Only from pre-cache — for app shell, critical assets that never change.</li>
+
+  <li><strong>Q: How do you implement performance monitoring in an Angular production application?</strong><br>
+    A: (1) Install web-vitals library and measure CWV on every page load. (2) Use PerformanceObserver for Long Tasks and resource timing. (3) Track route change performance with User Timing API (mark start/end of navigation). (4) Send metrics via sendBeacon (reliable on page unload). (5) Include context: page URL, device memory, connection type, Angular version. (6) Build a dashboard showing p75 CWV metrics per page. (7) Set up alerts for regressions. (8) Use Chrome UX Report (CrUX) for field data without instrumentation.</li>
+
+  <li><strong>Q: Explain rendering patterns: CSR vs SSR vs SSG. When to use each?</strong><br>
+    A: CSR (Client-Side): JS renders everything in browser. Best for: dashboards, authenticated apps. Downsides: slow FCP/LCP, poor SEO. SSR (Server-Side): Server renders HTML per request. Best for: dynamic content that changes per user/request. Trade-off: higher server cost, complex setup. SSG (Static Site Generation): HTML generated at build time. Best for: blogs, docs, marketing pages — content that rarely changes. Fastest possible delivery from CDN. In Angular: Use SSG for static pages, SSR for dynamic personalized content, CSR for fully interactive dashboards.</li>
+</ol>
+
+<h3>Advanced Level</h3>
+<ol>
+  <li><strong>Q: Explain HTTP/3 and QUIC — how do they improve web performance?</strong><br>
+    A: HTTP/3 uses QUIC (UDP-based protocol) instead of TCP. Improvements: (1) 0-RTT connection resumption (instant reconnection to known servers). (2) No head-of-line blocking — lost packet on one stream doesn't block others (unlike HTTP/2 over TCP). (3) Connection migration — switching from WiFi to cellular doesn't break connections (based on connection ID, not IP). (4) Built-in TLS 1.3 — always encrypted, no separate handshake. Impact: Most significant on mobile with unreliable networks (India, developing markets). Reduces connection establishment by 1-2 RTT and eliminates cascade failures from packet loss.</li>
+
+  <li><strong>Q: What is the Speculation Rules API and how does it differ from prefetch/prerender?</strong><br>
+    A: Speculation Rules API (Chrome 109+) is a declarative way to tell the browser what navigations are likely, enabling it to prefetch or prerender pages in advance. Unlike link rel="prefetch" (which only downloads resources), speculation rules can PRERENDER (full page render in hidden tab). It supports eagerness levels (immediate, moderate on hover, conservative on mousedown). It replaces the deprecated link rel="prerender" with a more powerful and controllable API. Combined with Angular's router, it can make route transitions appear instant (&lt;50ms).</li>
+
+  <li><strong>Q: How would you design a performance strategy for a global enterprise Angular application serving users in 50+ countries?</strong><br>
+    A: (1) CDN with edge nodes in all regions (Cloudflare, Akamai). (2) SSR at the edge (Cloudflare Workers / Lambda@Edge) — render close to user. (3) Adaptive loading: detect connection quality → serve appropriate tier. (4) Image CDN with on-the-fly format/size optimization. (5) Critical CSS inlined, fonts self-hosted on CDN. (6) Performance budgets enforced per region (stricter for slower markets). (7) Route-based code splitting + smart preloading (viewport/hover based). (8) Service Worker for offline + cache-first strategy. (9) RUM segmented by country/device/connection to identify regional issues. (10) HTTP/3 enabled for mobile-heavy markets. (11) Consider ISR for pages with mixed static/dynamic content.</li>
+
+  <li><strong>Q: Explain partial/incremental hydration and its performance benefits over full hydration.</strong><br>
+    A: Full hydration: Server renders HTML, client downloads ALL JS, executes ALL component logic, and attaches ALL event listeners — even for static content that never changes. This means TTI is delayed until ALL JS executes. Partial/Incremental hydration (Angular 18+): Only hydrate components that need interactivity, and only when they're visible or interacted with. Static sections remain as pure HTML with zero JS. Benefits: (1) Dramatically reduces JS execution on load (from 500KB → 50KB). (2) Faster TTI (only interactive components need JS). (3) Lower memory usage. (4) Better mobile performance. In Angular: <code>@defer (hydrate on viewport/interaction/never)</code> controls granularity.</li>
+</ol>
+
+<h3>System Design: Performance</h3>
+<ol>
+  <li><strong>Q: Design a performance monitoring and alerting system for a large-scale frontend application.</strong><br>
+    A: Architecture: (1) Collection Layer: web-vitals SDK in app → sendBeacon to ingestion endpoint. (2) Ingestion: Edge function validates and enriches data (adds region, page category). (3) Storage: Time-series DB (InfluxDB/TimescaleDB) for metrics, S3 for raw events. (4) Processing: Streaming aggregation (p50, p75, p95 per page per hour). (5) Dashboard: Grafana/custom UI showing CWV trends, distributions, regressions. (6) Alerting: Alert when p75 of any CWV crosses threshold for 30+ minutes. (7) Correlation: Link performance data to deploys (detect regression source). (8) Budget enforcement: CI integration that fails builds exceeding budgets. Segmentation: by page, device type, connection, geography.</li>
+</ol>
+
+<div class="nav-links">
+  <a href="phase4-angular-specific-performance.html">← Phase 4: Angular Performance</a>
+  <a href="phase6-interview-masterclass.html">Phase 6: Interview Masterclass →</a>
+</div>
+
+</main>
+</body>
+</html>
