@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessible Tabs Component</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .container { max-width: 700px; margin: 0 auto; }
+    .container h1 { text-align: center; margin-bottom: 24px; }
+
+    .tabs-wrapper {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    /* Tab List */
+    .tab-list {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #eee;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 16px 24px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      transition: color 0.2s;
+      margin: 0;
+    }
+    .tab-btn:hover { color: #333; background: rgba(0,0,0,0.02); }
+    .tab-btn[aria-selected="true"] { color: #4a90d9; }
+    .tab-btn[aria-selected="true"]::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #4a90d9;
+      border-radius: 3px 3px 0 0;
+    }
+    .tab-btn:focus-visible {
+      outline: 2px solid #4a90d9;
+      outline-offset: -2px;
+      border-radius: 4px;
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      padding: 28px;
+      animation: fadeIn 0.25s ease;
+    }
+    .tab-panel.active { display: block; }
+    .tab-panel h2 { font-size: 20px; margin-bottom: 12px; color: #333; }
+    .tab-panel p { line-height: 1.7; color: #555; margin-bottom: 12px; }
+    .tab-panel code {
+      background: #f4f4f4; padding: 2px 6px; border-radius: 4px;
+      font-family: 'SF Mono', Consolas, monospace; font-size: 13px;
+    }
+    .tab-panel ul { margin-left: 20px; margin-bottom: 12px; }
+    .tab-panel li { line-height: 2; color: #555; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .instructions {
+      background: white; border-radius: 10px; padding: 20px; margin-top: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .instructions h3 { margin-bottom: 8px; font-size: 14px; }
+    .instructions kbd {
+      display: inline-block; padding: 2px 8px; background: #eee;
+      border-radius: 4px; font-family: monospace; font-size: 12px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📑 Accessible Tabs</h1>
+  
+  <div class="tabs-wrapper">
+    <div class="tab-list" role="tablist" aria-label="Project Information" id="tablist"></div>
+    <div id="panels-container"></div>
+  </div>
+
+  <div class="instructions">
+    <h3>⌨️ Keyboard Navigation:</h3>
+    <p><kbd>←</kbd> <kbd>→</kbd> Move between tabs &nbsp;|&nbsp; <kbd>Home</kbd> First tab &nbsp;|&nbsp; <kbd>End</kbd> Last tab &nbsp;|&nbsp; <kbd>Enter</kbd> / <kbd>Space</kbd> Select</p>
+  </div>
+</div>
+
+<script>
+class Tabs {
+  constructor({ tablistEl, panelsContainer, tabs }) {
+    this.tablistEl = tablistEl;
+    this.panelsContainer = panelsContainer;
+    this.tabs = tabs;
+    this.activeIndex = 0;
+    this.render();
+    this.bindEvents();
+  }
+
+  render() {
+    this.tabs.forEach((tab, i) => {
+      // Tab button
+      const btn = document.createElement('button');
+      btn.className = 'tab-btn';
+      btn.id = `tab-${i}`;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+      btn.setAttribute('aria-controls', `panel-${i}`);
+      btn.setAttribute('tabindex', i === 0 ? '0' : '-1');
+      btn.textContent = tab.label;
+      this.tablistEl.appendChild(btn);
+
+      // Panel
+      const panel = document.createElement('div');
+      panel.className = `tab-panel ${i === 0 ? 'active' : ''}`;
+      panel.id = `panel-${i}`;
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', `tab-${i}`);
+      panel.setAttribute('tabindex', '0');
+      panel.innerHTML = tab.content;
+      this.panelsContainer.appendChild(panel);
+    });
+
+    this.buttons = Array.from(this.tablistEl.querySelectorAll('.tab-btn'));
+    this.panels = Array.from(this.panelsContainer.querySelectorAll('.tab-panel'));
+  }
+
+  bindEvents() {
+    this.buttons.forEach((btn, i) => {
+      btn.addEventListener('click', () => this.activate(i));
+    });
+
+    this.tablistEl.addEventListener('keydown', (e) => {
+      let newIndex;
+      switch (e.key) {
+        case 'ArrowRight': newIndex = (this.activeIndex + 1) % this.tabs.length; break;
+        case 'ArrowLeft': newIndex = (this.activeIndex - 1 + this.tabs.length) % this.tabs.length; break;
+        case 'Home': newIndex = 0; break;
+        case 'End': newIndex = this.tabs.length - 1; break;
+        default: return;
+      }
+      e.preventDefault();
+      this.activate(newIndex);
+      this.buttons[newIndex].focus();
+    });
+  }
+
+  activate(index) {
+    // Deactivate old
+    this.buttons[this.activeIndex].setAttribute('aria-selected', 'false');
+    this.buttons[this.activeIndex].setAttribute('tabindex', '-1');
+    this.panels[this.activeIndex].classList.remove('active');
+    
+    // Activate new
+    this.activeIndex = index;
+    this.buttons[index].setAttribute('aria-selected', 'true');
+    this.buttons[index].setAttribute('tabindex', '0');
+    this.panels[index].classList.add('active');
+  }
+}
+
+new Tabs({
+  tablistEl: document.getElementById('tablist'),
+  panelsContainer: document.getElementById('panels-container'),
+  tabs: [
+    {
+      label: '🏗️ Overview',
+      content: `
+        <h2>Project Overview</h2>
+        <p>This Tabs component demonstrates a fully accessible, WAI-ARIA compliant tab interface built with vanilla JavaScript.</p>
+        <p>Key features:</p>
+        <ul>
+          <li>Roving tabindex for keyboard navigation</li>
+          <li>ARIA roles: <code>tablist</code>, <code>tab</code>, <code>tabpanel</code></li>
+          <li>Arrow key navigation within tab list</li>
+          <li>Home/End key support</li>
+        </ul>
+      `
+    },
+    {
+      label: '🛠️ Implementation',
+      content: `
+        <h2>Implementation Notes</h2>
+        <p>The component uses the <strong>Roving Tabindex</strong> pattern:</p>
+        <ul>
+          <li>Only the active tab has <code>tabindex="0"</code></li>
+          <li>All other tabs have <code>tabindex="-1"</code></li>
+          <li>Arrow keys move focus AND activate</li>
+          <li><code>aria-selected</code> tracks the active tab</li>
+          <li><code>aria-controls</code> / <code>aria-labelledby</code> link tabs to panels</li>
+        </ul>
+        <p>This pattern is recommended by the <a href="https://www.w3.org/WAI/ARIA/apg/patterns/tabs/" target="_blank">WAI-ARIA Authoring Practices Guide</a>.</p>
+      `
+    },
+    {
+      label: '📋 API',
+      content: `
+        <h2>API Reference</h2>
+        <p>The <code>Tabs</code> class accepts a config object:</p>
+        <ul>
+          <li><code>tablistEl</code> — Container for tab buttons</li>
+          <li><code>panelsContainer</code> — Container for tab panels</li>
+          <li><code>tabs</code> — Array of <code>{ label, content }</code> objects</li>
+        </ul>
+        <p>Methods:</p>
+        <ul>
+          <li><code>activate(index)</code> — Programmatically switch tab</li>
+        </ul>
+      `
+    },
+    {
+      label: '🎨 Styling',
+      content: `
+        <h2>Styling Guide</h2>
+        <p>The component uses minimal CSS with easy customization points:</p>
+        <ul>
+          <li>Tab indicator: Bottom border via <code>::after</code> pseudo-element</li>
+          <li>Active color: Change <code>--tab-color: #4a90d9</code></li>
+          <li>Fade animation on panel switch</li>
+          <li>Focus-visible outline for keyboard users only</li>
+          <li>Horizontal scroll on overflow (mobile-friendly)</li>
+        </ul>
+      `
+    }
+  ]
+});
+</script>
+</body>
+</html>

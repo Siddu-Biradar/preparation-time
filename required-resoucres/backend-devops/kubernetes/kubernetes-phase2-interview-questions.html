@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kubernetes Interview Questions — Backend &amp; Full-Stack Engineers (Part 2)</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 17pt; margin-top: 30px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 12.5pt; margin-top: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; margin-left: 6px; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .qa { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 0 0 14px; background: #fffefb; }
+    .qa .q { font-family: "Avenir Next", sans-serif; font-weight: 700; margin-bottom: 6px; }
+    .qa .a { margin: 0; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Kubernetes Interview Questions</h1>
+  <p class="subtitle">Part 2 — Backend &amp; Full-Stack Rounds (Theory + Scenario-Based, NOT cluster-admin/SRE questions)</p>
+  <div class="pill-row">
+    <span class="pill">Core Concepts</span>
+    <span class="pill">Services &amp; Networking</span>
+    <span class="pill">ConfigMap/Secret</span>
+    <span class="pill">Probes</span>
+    <span class="pill">Deployments/Rollouts</span>
+    <span class="pill">Helm</span>
+    <span class="pill">Debugging Scenarios</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>How to use this:</strong> Companion theory file: <a href="kubernetes-phase1-fundamentals-theory.html">Kubernetes Part 1 — Fundamentals</a>. Answer style is intentionally interview-spoken, not textbook-formal.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#core">Core Concepts</a></li>
+    <li><a href="#services-net">Services &amp; Networking</a></li>
+    <li><a href="#config-secret">ConfigMaps &amp; Secrets</a></li>
+    <li><a href="#probes-q">Probes &amp; Health</a></li>
+    <li><a href="#deploy-rollout">Deployments &amp; Rollouts</a></li>
+    <li><a href="#helm-q">Helm</a></li>
+    <li><a href="#scenario-k8s">Scenario-Based / Debugging</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="core">1. Core Concepts</h2>
+
+<div class="qa">
+  <p class="q">Q1. What is a Pod, and why doesn't Kubernetes just run containers directly? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">A Pod is the smallest deployable unit — one or more containers sharing a network namespace (same IP, can reach each other via localhost) and optionally storage. Kubernetes schedules/manages Pods, not raw containers, because it needs an atomic unit that can bundle tightly-coupled containers (e.g. app + sidecar) that must co-locate and share networking.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q2. Why should you use a Deployment instead of creating a Pod directly? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">A bare Pod that dies is gone forever — nothing recreates it. A Deployment manages a ReplicaSet that continuously ensures the desired number of Pod replicas exist, and additionally provides rolling updates and rollback history that a raw Pod/ReplicaSet doesn't.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q3. What's the relationship between Deployment, ReplicaSet, and Pod? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Deployment manages ReplicaSets (creating a new one on each rollout); ReplicaSet manages Pods (ensuring the replica count matches spec via its label selector). Deployment is the layer that adds versioned rollout/rollback behavior on top of ReplicaSet's simple "keep N Pods alive" job.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q4. How does Kubernetes know which Pods belong to which Service/ReplicaSet? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Purely through labels and selectors — a Service/ReplicaSet has a label selector (e.g. <code>app: di-jfrog</code>), and any Pod carrying matching labels is automatically included, regardless of how it was created. There's no other linkage mechanism.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="services-net">2. Services &amp; Networking</h2>
+
+<div class="qa">
+  <p class="q">Q5. ClusterIP vs NodePort vs LoadBalancer — differences and when to use each? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">ClusterIP (default) is only reachable inside the cluster — used for internal service-to-service calls. NodePort exposes a fixed port on every node's IP — simple external access, common for local/dev clusters. LoadBalancer provisions an external cloud load balancer with its own IP — typical production external entrypoint (often still fronted by an Ingress for HTTP routing).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q6. Why do Pod IPs matter less than you'd think in Kubernetes? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Because Pods are ephemeral and their IPs change every time they're recreated (e.g. after a crash or rollout). You never hardcode a Pod IP — you always talk to a Service's stable ClusterIP/DNS name, and the Service transparently load-balances to whichever Pods currently match its selector.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q7. What is an Ingress, and why not just create many LoadBalancer Services? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Ingress is an HTTP(S) layer-7 routing rule (host/path-based) sitting in front of Services, letting you route many services through ONE external entrypoint (with TLS termination), instead of provisioning a separate expensive cloud LoadBalancer per service. Requires an Ingress Controller running in the cluster to actually implement the routing.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q8. What is <code>kube-dns</code>/CoreDNS used for from an app developer's perspective? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">It lets your app reach other services by a stable DNS name (e.g. <code>di-jfrog-svc</code> or fully-qualified <code>di-jfrog-svc.dash.svc.cluster.local</code>) instead of an IP — resolving to the Service's ClusterIP, which then load-balances to healthy backing Pods.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="config-secret">3. ConfigMaps &amp; Secrets</h2>
+
+<div class="qa">
+  <p class="q">Q9. ConfigMap vs Secret — what's actually different under the hood? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Functionally similar (both can be consumed as env vars or mounted files), but Secrets are intended for sensitive data and are base64-encoded in etcd — NOT encrypted by default. Both are equally "insecure" at rest unless you enable etcd encryption-at-rest or use an external secrets manager (e.g. Vault).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q10. Your app needs different DB connection strings in dev/staging/prod — how would you handle this in Kubernetes? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Keep the same container image across environments, and inject environment-specific values via a ConfigMap/Secret referenced in the Deployment spec (or, in a Helm-based setup like this workspace's, via per-environment <code>values.yaml</code> overlays that template the ConfigMap/env vars) — never bake environment-specific config into the image itself.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q11. If you update a ConfigMap that's mounted as a volume, does the running Pod see the change automatically? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">If mounted as a volume, the file content eventually updates in the Pod (kubelet syncs it periodically) — but if consumed as environment variables (<code>envFrom</code>/<code>valueFrom</code>), the Pod does NOT pick up the change until it's restarted, since env vars are only read at container start.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="probes-q">4. Probes &amp; Health</h2>
+
+<div class="qa">
+  <p class="q">Q12. Liveness vs Readiness probe — what's the practical difference in what happens on failure? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">A failing liveness probe causes Kubernetes to RESTART the container (it assumes the process is stuck/unrecoverable). A failing readiness probe only removes the Pod from the Service's routable endpoints — traffic stops going to it, but it is NOT restarted, since it might recover on its own (e.g. waiting on a dependency).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q13. Why is it a bad idea to make your liveness probe check downstream dependencies (e.g. database connectivity)? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">If the database has a temporary outage, EVERY Pod's liveness probe would fail simultaneously, causing Kubernetes to restart all of them in a loop — worsening the outage instead of just quietly waiting it out. Downstream dependency checks belong in the READINESS probe (stop routing traffic) not liveness (restart the process).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q14. What is a startup probe for, and when do you need one? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">For slow-starting applications (e.g. large in-memory cache warm-up) — it delays liveness/readiness checks from running until the startup probe succeeds once, preventing Kubernetes from prematurely killing a Pod that's still legitimately starting up.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="deploy-rollout">5. Deployments &amp; Rollouts</h2>
+
+<div class="qa">
+  <p class="q">Q15. How does a rolling update achieve zero-downtime deployment? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">The Deployment creates a new ReplicaSet with the updated Pod template and gradually scales it up while scaling the old ReplicaSet down, governed by <code>maxSurge</code> (how many extra Pods above desired count are allowed) and <code>maxUnavailable</code> (how many Pods below desired count are tolerated). Crucially, a new Pod only starts receiving traffic once its READINESS probe passes — so a broken new version won't fully replace working old Pods before it's confirmed ready.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q16. How do you roll back a bad deployment? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a"><code>kubectl rollout undo deployment/&lt;name&gt;</code> reverts to the previous ReplicaSet revision. You can also target a specific revision with <code>--to-revision=N</code>, viewable via <code>kubectl rollout history</code>.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q17. What's the difference between <code>kubectl apply</code> and <code>kubectl create</code>? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a"><code>create</code> fails if the resource already exists. <code>apply</code> is declarative — it creates the resource if it doesn't exist, or computes/applies a diff to update it if it does, which is why <code>apply</code> is the standard way to manage resources via version-controlled YAML/Helm templates.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q18. What causes a rollout to get "stuck" mid-way, and how would you notice it? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a"><code>kubectl rollout status deployment/&lt;name&gt;</code> will hang/report not-progressing if new Pods never become Ready — typically because the new image is broken, a readiness probe never passes, or there aren't enough cluster resources to schedule the surge Pods. Check <code>kubectl describe deployment</code> and the new ReplicaSet's Pods directly.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="helm-q">6. Helm</h2>
+
+<div class="qa">
+  <p class="q">Q18b. What's the difference between an Init Container and a regular container, and between a Job and a Deployment? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">An Init Container runs to completion BEFORE the Pod's main container(s) start (e.g. wait for a dependency, run a migration) — if it fails, the main container never starts. A Job runs a Pod to completion ONCE for a batch/one-off task (retried on failure until success or a backoff limit), whereas a Deployment keeps its Pods running continuously and restarts/replaces them if they exit. A CronJob just creates Jobs on a schedule.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q19. What problem does Helm solve that raw YAML manifests don't? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">It templates Kubernetes YAML so the same chart can be parameterized per environment via <code>values.yaml</code> overrides (image tag, replica count, resource limits, env vars), instead of maintaining separate near-duplicate YAML files per environment. It also gives you release versioning, easy rollback (<code>helm rollback</code>), and dependency composition (subcharts into an umbrella chart).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q20. What is an umbrella chart with subcharts, in practical terms? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">A parent chart (e.g. this workspace's <code>dash-chart</code>) that declares other charts as dependencies (e.g. one subchart per microservice — <code>di-jfrog</code>, <code>di-authorization</code>, etc.), so a single <code>helm install</code> deploys the entire platform as one coordinated release, while each subchart still has its own independently maintained templates/values.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q21. How would you debug what YAML Helm is actually going to apply before running <code>helm install</code>? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a"><code>helm template ./chart -f values-override.yaml</code> renders the final manifests locally without touching the cluster — the fastest way to verify your values actually produce the YAML you expect.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="scenario-k8s">7. Scenario-Based / Debugging</h2>
+
+<div class="qa">
+  <p class="q">Q22. Your Pod shows status <code>Pending</code> and never starts — what do you check? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a"><code>kubectl describe pod</code> and read the Events section — most commonly insufficient CPU/memory across all nodes to satisfy the Pod's resource <code>requests</code>, or a node selector/affinity/taint rule that no node satisfies.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q23. Your Pod is stuck in <code>ImagePullBackOff</code> — what are the likely causes? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Wrong image name or tag (typo, or the tag was never pushed), missing/incorrect <code>imagePullSecrets</code> for a private registry (e.g. the JFrog Artifactory registry used across this workspace's services), or the registry being unreachable from the cluster's network.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q24. Your Pod is in <code>CrashLoopBackOff</code> — walk through how you'd debug it. <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">First <code>kubectl logs &lt;pod&gt; --previous</code> to see the crashed instance's actual error (the current instance may have just restarted with no logs yet). Then <code>kubectl describe pod</code> to check exit code/reason (e.g. OOMKilled) and recent Events. If needed, temporarily override the container's command to drop into a shell for manual investigation.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q25. A Pod is <code>Running</code> and healthy, but the Service never routes traffic to it — what's wrong? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">Two likely causes: (1) the readiness probe is failing, so the Pod is excluded from the Service's endpoints even though it's "Running" — check <code>kubectl describe pod</code> Conditions; (2) the Service's label selector doesn't actually match the Pod's labels — check with <code>kubectl get endpoints &lt;svc&gt;</code> (empty means no match).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q26. After a rollout, users intermittently get errors for the first few seconds — what's the likely misconfiguration? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">The readiness probe isn't strict/accurate enough — it's marking the new Pod "ready" before it can truly serve traffic (e.g. before a DB connection pool or cache warms up), so the rolling update routes real traffic to a Pod that isn't fully ready. Fix by making the readiness check reflect true application readiness and/or tuning <code>initialDelaySeconds</code>/<code>periodSeconds</code>.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q27. How would you safely test a config change (e.g. a new env var) without risking the whole production Deployment? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Apply the change to a staging/dev namespace or a separate Helm values override first (e.g. this workspace's <code>env-config/onprem-dev</code> vs <code>env-config/shared-prod</code>), verify via <code>kubectl logs</code>/health checks, then promote the same change to production values once verified — never edit production values directly as a first test.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q28. What's the difference between scaling a Deployment (<code>kubectl scale</code>) and a Horizontal Pod Autoscaler (HPA)? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a"><code>kubectl scale</code> sets a fixed, manual replica count. An HPA automatically adjusts the replica count within a min/max range based on observed metrics (commonly CPU/memory utilization, or custom metrics) — useful when load is variable and you don't want to manually scale up/down.</p>
+</div>
+
+<div class="nav-links">
+  <a href="kubernetes-phase1-fundamentals-theory.html">← Kubernetes Part 1 — Fundamentals</a>
+  <a href="kubernetes-commands-cheatsheet.html">Kubernetes Commands Cheatsheet →</a>
+</div>
+
+</main>
+</body>
+</html>

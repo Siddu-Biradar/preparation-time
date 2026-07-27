@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Game Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; padding: 24px; color: white; display: flex; flex-direction: column; align-items: center; }
+    h2 { margin-bottom: 8px; }
+    .hint { font-size: 13px; color: #aaa; margin-bottom: 16px; }
+    canvas { border-radius: 8px; display: block; border: 2px solid #333; }
+    .controls { margin-top: 16px; display: flex; gap: 12px; }
+    .controls button { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; }
+    .controls button:hover { background: #219a52; }
+    .score { margin-top: 12px; font-size: 18px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h2>🐍 Snake Game</h2>
+  <p class="hint">Use Arrow Keys to control. Press Start to begin!</p>
+  <canvas id="game" width="400" height="400"></canvas>
+  <div class="score">Score: <span id="score">0</span></div>
+  <div class="controls">
+    <button id="start-btn">▶ Start</button>
+    <button id="reset-btn">↺ Reset</button>
+  </div>
+
+  <script>
+    class SnakeGame {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.gridSize = 20;
+        this.cols = canvas.width / this.gridSize;
+        this.rows = canvas.height / this.gridSize;
+        this.reset();
+        this.bindControls();
+        this.draw();
+      }
+
+      reset() {
+        this.snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+        this.direction = { x: 1, y: 0 };
+        this.nextDirection = { x: 1, y: 0 };
+        this.food = this.randomFood();
+        this.score = 0;
+        this.gameOver = false;
+        if (this.intervalId) clearInterval(this.intervalId);
+        this.intervalId = null;
+        document.getElementById('score').textContent = '0';
+        this.draw();
+      }
+
+      start() {
+        if (this.gameOver) this.reset();
+        if (this.intervalId) return;
+        this.intervalId = setInterval(() => this.tick(), 120);
+      }
+
+      tick() {
+        this.direction = this.nextDirection;
+        const head = { x: this.snake[0].x + this.direction.x, y: this.snake[0].y + this.direction.y };
+
+        if (head.x < 0 || head.x >= this.cols || head.y < 0 || head.y >= this.rows) return this.endGame();
+        if (this.snake.some(s => s.x === head.x && s.y === head.y)) return this.endGame();
+
+        this.snake.unshift(head);
+        if (head.x === this.food.x && head.y === this.food.y) {
+          this.score += 10;
+          document.getElementById('score').textContent = this.score;
+          this.food = this.randomFood();
+        } else {
+          this.snake.pop();
+        }
+        this.draw();
+      }
+
+      draw() {
+        const { ctx, gridSize } = this;
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Grid lines (subtle)
+        ctx.strokeStyle = '#252540';
+        for (let i = 0; i < this.cols; i++) {
+          ctx.beginPath(); ctx.moveTo(i * gridSize, 0); ctx.lineTo(i * gridSize, this.canvas.height); ctx.stroke();
+        }
+        for (let i = 0; i < this.rows; i++) {
+          ctx.beginPath(); ctx.moveTo(0, i * gridSize); ctx.lineTo(this.canvas.width, i * gridSize); ctx.stroke();
+        }
+
+        // Snake
+        this.snake.forEach((seg, i) => {
+          ctx.fillStyle = i === 0 ? '#27ae60' : '#2ecc71';
+          ctx.fillRect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2);
+          if (i === 0) {
+            ctx.fillStyle = '#1a1a2e';
+            const eyeX = seg.x * gridSize + gridSize * 0.3 + this.direction.x * 4;
+            const eyeY = seg.y * gridSize + gridSize * 0.3 + this.direction.y * 4;
+            ctx.fillRect(eyeX, eyeY, 4, 4);
+            ctx.fillRect(eyeX + 8, eyeY, 4, 4);
+          }
+        });
+
+        // Food
+        ctx.fillStyle = '#e74c3c';
+        ctx.beginPath();
+        ctx.arc(this.food.x * gridSize + gridSize/2, this.food.y * gridSize + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (this.gameOver) {
+          ctx.fillStyle = 'rgba(0,0,0,0.75)';
+          ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+          ctx.fillStyle = 'white';
+          ctx.font = 'bold 24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`Game Over!`, this.canvas.width/2, this.canvas.height/2 - 10);
+          ctx.font = '16px sans-serif';
+          ctx.fillText(`Score: ${this.score}`, this.canvas.width/2, this.canvas.height/2 + 20);
+        }
+      }
+
+      bindControls() {
+        const dirMap = { ArrowUp: {x:0,y:-1}, ArrowDown: {x:0,y:1}, ArrowLeft: {x:-1,y:0}, ArrowRight: {x:1,y:0} };
+        document.addEventListener('keydown', (e) => {
+          const dir = dirMap[e.key];
+          if (!dir) return;
+          e.preventDefault();
+          if (dir.x !== -this.direction.x || dir.y !== -this.direction.y) this.nextDirection = dir;
+        });
+      }
+
+      randomFood() {
+        let pos;
+        do { pos = { x: Math.floor(Math.random() * this.cols), y: Math.floor(Math.random() * this.rows) }; }
+        while (this.snake.some(s => s.x === pos.x && s.y === pos.y));
+        return pos;
+      }
+
+      endGame() {
+        this.gameOver = true;
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+        this.draw();
+      }
+    }
+
+    const game = new SnakeGame(document.getElementById('game'));
+    document.getElementById('start-btn').addEventListener('click', () => game.start());
+    document.getElementById('reset-btn').addEventListener('click', () => game.reset());
+  </script>
+</body>
+</html>

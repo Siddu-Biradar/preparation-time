@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 11: Signals & Modern Angular (v16-19)</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 11: Signals & Modern Angular</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (11 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Signals API</span>
+    <span class="pill">computed()</span>
+    <span class="pill">effect()</span>
+    <span class="pill">Signal Inputs</span>
+    <span class="pill">Model Inputs</span>
+    <span class="pill">linkedSignal</span>
+    <span class="pill">Resource API</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Signals Fundamentals</h2>
+
+<h3>What are Signals?</h3>
+<p>Signals are <strong>reactive primitives</strong> that hold a value and notify consumers when that value changes. They enable fine-grained reactivity — Angular knows exactly which parts of the template need updating, without Zone.js.</p>
+
+<pre><code>import { signal, computed, effect } from '@angular/core';
+
+// Create a writable signal
+const count = signal(0);
+
+// Read the value (call the signal like a function)
+console.log(count());  // 0
+
+// Update the value
+count.set(5);          // Set to specific value
+count.update(c => c + 1);  // Update based on current value
+
+// computed — derived signal (read-only, auto-tracks dependencies)
+const doubleCount = computed(() => count() * 2);
+console.log(doubleCount());  // 12
+
+// effect — side effect that re-runs when dependencies change
+effect(() => {
+  console.log(`Count changed to: ${count()}`);
+  // Automatically tracks which signals are read inside
+  // Re-runs whenever count() changes
+});
+
+// Signal is read-only externally via .asReadonly()
+const readonlyCount = count.asReadonly();  // WritableSignal → Signal</code></pre>
+
+<h4>Signal vs BehaviorSubject</h4>
+<table>
+<tr><th>Feature</th><th>Signal</th><th>BehaviorSubject</th></tr>
+<tr><td>Read value</td><td><code>mySignal()</code> — synchronous</td><td><code>.getValue()</code> or <code>.value</code></td></tr>
+<tr><td>Subscribe</td><td>Automatic in templates & computed</td><td>Manual <code>.subscribe()</code></td></tr>
+<tr><td>Unsubscribe</td><td>Not needed (automatic)</td><td>Must unsubscribe (memory leaks)</td></tr>
+<tr><td>Glitch-free</td><td>Yes (consistent state)</td><td>No (intermediate values possible)</td></tr>
+<tr><td>Template integration</td><td>Direct: <code>{{ count() }}</code></td><td>Needs async pipe: <code>{{ count$ | async }}</code></td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. computed() — Derived State</h2>
+
+<pre><code>@Component({
+  template: `
+    &lt;input [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)"&gt;
+    &lt;select (change)="sortBy.set($any($event.target).value)"&gt;
+      &lt;option value="name"&gt;Name&lt;/option&gt;
+      &lt;option value="date"&gt;Date&lt;/option&gt;
+    &lt;/select&gt;
+    
+    &lt;p&gt;Showing {{ filteredUsers().length }} of {{ users().length }} users&lt;/p&gt;
+    
+    @for (user of filteredUsers(); track user.id) {
+      &lt;app-user-card [user]="user" /&gt;
+    }
+  `
+})
+export class UserListComponent {
+  users = signal&lt;User[]&gt;([]);
+  searchTerm = signal('');
+  sortBy = signal&lt;'name' | 'date'&gt;('name');
+
+  // Automatically recomputes when users(), searchTerm(), or sortBy() changes
+  filteredUsers = computed(() => {
+    let result = this.users();
+    
+    // Filter
+    const term = this.searchTerm().toLowerCase();
+    if (term) {
+      result = result.filter(u => u.name.toLowerCase().includes(term));
+    }
+    
+    // Sort
+    const sort = this.sortBy();
+    result = [...result].sort((a, b) => {
+      if (sort === 'name') return a.name.localeCompare(b.name);
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    
+    return result;
+  });
+
+  // Computed are LAZY and MEMOIZED:
+  // - Only recalculates when dependencies actually change
+  // - Reading the same computed multiple times returns cached value
+  // - If no one reads it, it doesn't compute at all
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. effect() — Side Effects</h2>
+
+<pre><code>@Component({ ... })
+export class SettingsComponent {
+  theme = signal&lt;'light' | 'dark'&gt;('light');
+  fontSize = signal(14);
+
+  constructor() {
+    // effect runs once immediately, then re-runs when tracked signals change
+    effect(() => {
+      // Auto-persists settings to localStorage
+      const settings = { theme: this.theme(), fontSize: this.fontSize() };
+      localStorage.setItem('settings', JSON.stringify(settings));
+    });
+
+    // effect with cleanup
+    effect((onCleanup) => {
+      const id = setInterval(() => this.poll(), 5000);
+      
+      onCleanup(() => {
+        clearInterval(id);  // Runs before next execution or on destroy
+      });
+    });
+  }
+
+  // IMPORTANT: You generally should NOT set signals inside effects
+  // Use computed() for derived state instead
+  // If you must (e.g., calling an API), use allowSignalWrites:
+  constructor() {
+    effect(() => {
+      const userId = this.selectedUserId();
+      // Fetch user data when selection changes
+      this.userService.getUser(userId).subscribe(user => {
+        this.currentUser.set(user);  // Writing signal in effect
+      });
+    }, { allowSignalWrites: true });
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>4. Signal Inputs (Angular 17.1+)</h2>
+
+<pre><code>// Traditional @Input
+@Input() name: string = '';
+@Input({ required: true }) id!: string;
+
+// Signal Input — reactive, no need for ngOnChanges!
+@Component({
+  template: `
+    &lt;h1&gt;{{ fullName() }}&lt;/h1&gt;
+    &lt;p&gt;ID: {{ id() }}&lt;/p&gt;
+  `
+})
+export class UserCardComponent {
+  // Required signal input
+  id = input.required&lt;string&gt;();
+  
+  // Optional signal input with default
+  name = input('Anonymous');
+  
+  // Input with alias
+  avatar = input('', { alias: 'userAvatar' });
+  
+  // Input with transform
+  disabled = input(false, { transform: booleanAttribute });
+  size = input(0, { transform: numberAttribute });
+
+  // Computed based on inputs — REPLACES ngOnChanges!
+  fullName = computed(() => {
+    return `User: ${this.name()} (${this.id()})`;
+  });
+
+  // React to input changes with effect (replaces ngOnChanges)
+  constructor() {
+    effect(() => {
+      console.log('ID changed to:', this.id());
+      // Automatically re-runs when id input changes
+    });
+  }
+}
+
+// Usage:
+// &lt;app-user-card [id]="userId" [name]="userName" /&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>5. Signal Outputs & Model Inputs</h2>
+
+<pre><code>// output() function (Angular 17.3+)
+import { output } from '@angular/core';
+
+@Component({ ... })
+export class CounterComponent {
+  // Signal-based output
+  countChanged = output&lt;number&gt;();
+  
+  // With alias
+  deleted = output&lt;string&gt;({ alias: 'itemDeleted' });
+
+  increment() {
+    this.countChanged.emit(this.count() + 1);
+  }
+}
+
+// model() — Two-way binding with signals (Angular 17.2+)
+import { model } from '@angular/core';
+
+@Component({
+  selector: 'app-toggle',
+  template: `
+    &lt;button (click)="checked.set(!checked())"&gt;
+      {{ checked() ? 'ON' : 'OFF' }}
+    &lt;/button&gt;
+  `
+})
+export class ToggleComponent {
+  // model() creates a writable signal that supports two-way binding
+  checked = model(false);  // ModelSignal&lt;boolean&gt;
+  
+  // Required model
+  value = model.required&lt;string&gt;();
+}
+
+// Parent usage with two-way binding:
+// &lt;app-toggle [(checked)]="isEnabled" /&gt;
+// Equivalent to: [checked]="isEnabled" (checkedChange)="isEnabled = $event"</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>6. linkedSignal (Angular 19)</h2>
+
+<pre><code>// linkedSignal — writable signal that resets when a source changes
+import { linkedSignal } from '@angular/core';
+
+@Component({ ... })
+export class ProductPageComponent {
+  products = signal&lt;Product[]&gt;([]);
+  
+  // Selected product resets to first item when products list changes
+  selectedProduct = linkedSignal(() => this.products()[0]);
+  
+  // linkedSignal with explicit source tracking
+  selectedIndex = linkedSignal({
+    source: this.products,
+    computation: (products) => products.length > 0 ? 0 : -1
+  });
+
+  // User can manually change it:
+  selectProduct(product: Product) {
+    this.selectedProduct.set(product);  // It's writable!
+  }
+  // But when products() changes, it auto-resets to products()[0]
+}
+
+// Real-world: pagination that resets when filters change
+export class DataGridComponent {
+  filters = signal&lt;Filters&gt;({});
+  
+  // Page resets to 1 whenever filters change
+  currentPage = linkedSignal({
+    source: this.filters,
+    computation: () => 1  // Always reset to page 1
+  });
+  
+  nextPage() {
+    this.currentPage.update(p => p + 1);  // User navigates
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>7. Resource API (Angular 19)</h2>
+
+<pre><code>import { resource, rxResource } from '@angular/core';
+
+@Component({
+  template: `
+    @if (userResource.isLoading()) {
+      &lt;app-spinner /&gt;
+    }
+    @if (userResource.error()) {
+      &lt;p&gt;Error: {{ userResource.error() }}&lt;/p&gt;
+    }
+    @if (userResource.value(); as user) {
+      &lt;h1&gt;{{ user.name }}&lt;/h1&gt;
+    }
+  `
+})
+export class UserProfileComponent {
+  userId = input.required&lt;string&gt;();
+
+  // resource() — async data fetching tied to signals
+  userResource = resource({
+    request: () => ({ id: this.userId() }),  // Reactive request
+    loader: async ({ request, abortSignal }) => {
+      const response = await fetch(`/api/users/${request.id}`, { signal: abortSignal });
+      if (!response.ok) throw new Error('Failed to load');
+      return response.json() as Promise&lt;User&gt;;
+    }
+  });
+
+  // rxResource — Observable-based (for existing Angular services)
+  userResource2 = rxResource({
+    request: () => this.userId(),
+    loader: ({ request: id }) => this.userService.getUser(id)
+  });
+
+  // When userId() changes:
+  // 1. Previous request is automatically CANCELLED (abort signal)
+  // 2. isLoading() becomes true
+  // 3. New request fires
+  // 4. value() updates when complete
+
+  refresh() {
+    this.userResource.reload();  // Force re-fetch
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>8. RxJS ↔ Signals Interop</h2>
+
+<pre><code>import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+
+// Observable → Signal
+export class SearchComponent {
+  private route = inject(ActivatedRoute);
+  
+  // Convert route params observable to signal
+  userId = toSignal(
+    this.route.params.pipe(map(p => p['id'])),
+    { initialValue: '' }
+  );
+  
+  // Convert HTTP observable to signal
+  private userService = inject(UserService);
+  users = toSignal(this.userService.getAll(), { initialValue: [] });
+  
+  // With requireSync (when observable is guaranteed to emit synchronously)
+  // e.g., BehaviorSubject
+  currentUser = toSignal(this.authService.currentUser$, { requireSync: true });
+}
+
+// Signal → Observable
+export class FilterComponent {
+  searchTerm = signal('');
+  
+  // Convert signal to observable (for existing RxJS-based services)
+  searchTerm$ = toObservable(this.searchTerm);
+  
+  results$ = this.searchTerm$.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    switchMap(term => this.searchService.search(term))
+  );
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>9. Migrating from Observables to Signals</h2>
+
+<pre><code>// BEFORE: Observable-based component
+@Component({
+  template: `
+    @if (user$ | async; as user) { &lt;h1&gt;{{ user.name }}&lt;/h1&gt; }
+    &lt;p&gt;Items: {{ (items$ | async)?.length }}&lt;/p&gt;
+  `
+})
+export class BeforeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject&lt;void&gt;();
+  user$!: Observable&lt;User&gt;;
+  items$!: Observable&lt;Item[]&gt;;
+
+  ngOnInit() {
+    this.user$ = this.userService.getUser(this.userId);
+    this.items$ = this.itemService.getItems().pipe(takeUntil(this.destroy$));
+  }
+  ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }
+}
+
+// AFTER: Signal-based component
+@Component({
+  template: `
+    @if (user(); as user) { &lt;h1&gt;{{ user.name }}&lt;/h1&gt; }
+    &lt;p&gt;Items: {{ items().length }}&lt;/p&gt;
+  `
+})
+export class AfterComponent {
+  userId = input.required&lt;string&gt;();
+  
+  userResource = rxResource({
+    request: () => this.userId(),
+    loader: ({ request: id }) => this.userService.getUser(id)
+  });
+  
+  user = computed(() => this.userResource.value());
+  items = toSignal(this.itemService.getItems(), { initialValue: [] });
+  // No OnDestroy! No async pipe! No subscription management!
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 11</h4>
+<ol>
+  <li>What are Angular Signals? How are they different from RxJS Observables?</li>
+  <li>Explain signal(), computed(), and effect(). When would you use each?</li>
+  <li>What is the difference between signal inputs (input()) and @Input()?</li>
+  <li>How does model() enable two-way binding with signals?</li>
+  <li>What is linkedSignal? Give a real-world use case.</li>
+  <li>How does the Resource API work? How does it handle cancellation?</li>
+  <li>How do you convert between Observables and Signals (toSignal/toObservable)?</li>
+  <li>How do signals enable zoneless Angular?</li>
+  <li>What does "glitch-free" mean in the context of signals?</li>
+  <li>How would you migrate an existing Observable-based app to signals?</li>
+  <li>When should you still use RxJS over signals?</li>
+  <li>What is the difference between effect() and computed()? When to use which?</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase10-advanced-patterns.html">← Phase 10: Advanced Patterns</a>
+  <a href="phase12-machine-coding.html">Phase 12: Machine Coding →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

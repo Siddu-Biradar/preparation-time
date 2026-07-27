@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promise from Scratch + Promise.all/race/any/allSettled</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 30px; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 8px; font-size: 22px; }
+    .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+    .demo-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .demo-card h3 { margin-bottom: 10px; color: #1a5276; font-size: 15px; }
+    button { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; margin: 4px; transition: transform 0.1s; }
+    button:active { transform: scale(0.95); }
+    .btn-run { background: #4a90d9; color: white; }
+    .btn-clear { background: #eee; color: #555; }
+    .log-area { margin-top: 10px; padding: 12px; background: #1a1a2e; border-radius: 8px; max-height: 200px; overflow-y: auto; font-family: 'SF Mono', Consolas, monospace; font-size: 11.5px; color: #eee; line-height: 1.8; }
+    .log-area .resolve { color: #27ae60; }
+    .log-area .reject { color: #e74c3c; }
+    .log-area .info { color: #f39c12; }
+    .log-area .time { color: #888; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🔗 Custom Promise + Static Methods</h1>
+  <p class="subtitle">All methods built from scratch — see them resolve/reject in real-time</p>
+
+  <div class="demo-card">
+    <h3>1. MyPromise — Basic resolve/reject/then/catch</h3>
+    <button class="btn-run" onclick="runBasic()">Run Demo</button>
+    <button class="btn-clear" onclick="clearLog('log1')">Clear</button>
+    <div class="log-area" id="log1"></div>
+  </div>
+
+  <div class="demo-card">
+    <h3>2. MyPromise.all — All must resolve (fails fast)</h3>
+    <button class="btn-run" onclick="runAll()">Run (All Pass)</button>
+    <button class="btn-run" style="background:#e74c3c" onclick="runAllFail()">Run (One Fails)</button>
+    <button class="btn-clear" onclick="clearLog('log2')">Clear</button>
+    <div class="log-area" id="log2"></div>
+  </div>
+
+  <div class="demo-card">
+    <h3>3. MyPromise.race — First to settle wins</h3>
+    <button class="btn-run" onclick="runRace()">Run Race</button>
+    <button class="btn-clear" onclick="clearLog('log3')">Clear</button>
+    <div class="log-area" id="log3"></div>
+  </div>
+
+  <div class="demo-card">
+    <h3>4. MyPromise.allSettled — Wait for all, never rejects</h3>
+    <button class="btn-run" onclick="runAllSettled()">Run</button>
+    <button class="btn-clear" onclick="clearLog('log4')">Clear</button>
+    <div class="log-area" id="log4"></div>
+  </div>
+
+  <div class="demo-card">
+    <h3>5. MyPromise.any — First to resolve wins (AggregateError if all fail)</h3>
+    <button class="btn-run" onclick="runAny()">Run (One Resolves)</button>
+    <button class="btn-run" style="background:#e74c3c" onclick="runAnyAllFail()">Run (All Fail)</button>
+    <button class="btn-clear" onclick="clearLog('log5')">Clear</button>
+    <div class="log-area" id="log5"></div>
+  </div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CUSTOM PROMISE IMPLEMENTATION (FROM SCRATCH)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+class MyPromise {
+  constructor(executor) {
+    this.state = 'pending';
+    this.value = undefined;
+    this.callbacks = [];
+
+    const resolve = (value) => {
+      if (this.state !== 'pending') return;
+      // Handle thenable
+      if (value && typeof value.then === 'function') {
+        value.then(resolve, reject);
+        return;
+      }
+      this.state = 'fulfilled';
+      this.value = value;
+      this.callbacks.forEach(cb => cb.onFulfilled(value));
+    };
+
+    const reject = (reason) => {
+      if (this.state !== 'pending') return;
+      this.state = 'rejected';
+      this.value = reason;
+      this.callbacks.forEach(cb => cb.onRejected(reason));
+    };
+
+    try {
+      executor(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
+  }
+
+  then(onFulfilled, onRejected) {
+    return new MyPromise((resolve, reject) => {
+      const handle = (fn, fallback) => (value) => {
+        try {
+          if (typeof fn === 'function') {
+            resolve(fn(value));
+          } else {
+            fallback(value);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      };
+
+      if (this.state === 'fulfilled') {
+        queueMicrotask(() => handle(onFulfilled, resolve)(this.value));
+      } else if (this.state === 'rejected') {
+        queueMicrotask(() => handle(onRejected, reject)(this.value));
+      } else {
+        this.callbacks.push({
+          onFulfilled: handle(onFulfilled, resolve),
+          onRejected: handle(onRejected, reject),
+        });
+      }
+    });
+  }
+
+  catch(onRejected) { return this.then(null, onRejected); }
+  finally(fn) { return this.then(v => { fn(); return v; }, r => { fn(); throw r; }); }
+
+  // ━━━━━━━ STATIC METHODS ━━━━━━━
+  static resolve(val) { return new MyPromise(res => res(val)); }
+  static reject(val) { return new MyPromise((_, rej) => rej(val)); }
+
+  static all(promises) {
+    return new MyPromise((resolve, reject) => {
+      const results = [];
+      let completed = 0;
+      if (promises.length === 0) return resolve([]);
+
+      promises.forEach((p, i) => {
+        MyPromise.resolve(p).then(val => {
+          results[i] = val;
+          if (++completed === promises.length) resolve(results);
+        }, reject); // First rejection rejects all
+      });
+    });
+  }
+
+  static race(promises) {
+    return new MyPromise((resolve, reject) => {
+      promises.forEach(p => MyPromise.resolve(p).then(resolve, reject));
+    });
+  }
+
+  static allSettled(promises) {
+    return new MyPromise((resolve) => {
+      const results = [];
+      let completed = 0;
+      if (promises.length === 0) return resolve([]);
+
+      promises.forEach((p, i) => {
+        MyPromise.resolve(p).then(
+          val => { results[i] = { status: 'fulfilled', value: val }; if (++completed === promises.length) resolve(results); },
+          reason => { results[i] = { status: 'rejected', reason }; if (++completed === promises.length) resolve(results); }
+        );
+      });
+    });
+  }
+
+  static any(promises) {
+    return new MyPromise((resolve, reject) => {
+      const errors = [];
+      let rejectedCount = 0;
+      if (promises.length === 0) return reject(new AggregateError([], 'All promises were rejected'));
+
+      promises.forEach((p, i) => {
+        MyPromise.resolve(p).then(resolve, err => {
+          errors[i] = err;
+          if (++rejectedCount === promises.length) {
+            reject(new AggregateError(errors, 'All promises were rejected'));
+          }
+        });
+      });
+    });
+  }
+}
+
+// ━━━━━━━ DEMO HELPERS ━━━━━━━
+function log(id, msg, cls = '') {
+  const el = document.getElementById(id);
+  const time = new Date().toLocaleTimeString([], { hour12: false, fractionalSecondDigits: 2 });
+  el.innerHTML += `<div class="${cls}"><span class="time">[${time}]</span> ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog(id) { document.getElementById(id).innerHTML = ''; }
+
+function delay(ms, val, shouldReject = false) {
+  return new MyPromise((resolve, reject) => {
+    setTimeout(() => shouldReject ? reject(val) : resolve(val), ms);
+  });
+}
+
+// ━━━━━━━ DEMOS ━━━━━━━
+function runBasic() {
+  log('log1', '▶ Creating MyPromise...', 'info');
+  const p = new MyPromise((resolve) => {
+    setTimeout(() => resolve('Hello from MyPromise!'), 800);
+  });
+  p.then(val => { log('log1', `✅ Resolved: "${val}"`, 'resolve'); })
+   .catch(err => { log('log1', `❌ Rejected: ${err}`, 'reject'); });
+  log('log1', '⏳ Waiting 800ms for resolution...', 'info');
+}
+
+function runAll() {
+  log('log2', '▶ Promise.all([300ms, 600ms, 200ms]) — all resolve', 'info');
+  const start = Date.now();
+  MyPromise.all([
+    delay(300, 'API-1'), delay(600, 'API-2'), delay(200, 'API-3')
+  ]).then(results => {
+    log('log2', `✅ All resolved in ${Date.now()-start}ms: [${results.join(', ')}]`, 'resolve');
+  });
+}
+
+function runAllFail() {
+  log('log2', '▶ Promise.all — 2nd rejects at 200ms', 'info');
+  MyPromise.all([
+    delay(500, 'OK-1'), delay(200, 'NETWORK_ERROR', true), delay(300, 'OK-3')
+  ]).then(
+    r => log('log2', `✅ ${r}`, 'resolve'),
+    err => log('log2', `❌ Fast-failed: "${err}" (others cancelled)`, 'reject')
+  );
+}
+
+function runRace() {
+  log('log3', '▶ Promise.race([500ms, 200ms, 800ms]) — fastest wins', 'info');
+  MyPromise.race([
+    delay(500, 'Slow'), delay(200, 'Fast!'), delay(800, 'Slowest')
+  ]).then(val => log('log3', `🏆 Winner: "${val}" (200ms)`, 'resolve'));
+}
+
+function runAllSettled() {
+  log('log4', '▶ Promise.allSettled — mix of resolve/reject', 'info');
+  MyPromise.allSettled([
+    delay(200, 'OK'), delay(400, 'FAIL', true), delay(300, 'Also OK')
+  ]).then(results => {
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') log('log4', `  [${i}] ✅ fulfilled: "${r.value}"`, 'resolve');
+      else log('log4', `  [${i}] ❌ rejected: "${r.reason}"`, 'reject');
+    });
+  });
+}
+
+function runAny() {
+  log('log5', '▶ Promise.any — first resolve wins, ignores rejections', 'info');
+  MyPromise.any([
+    delay(300, 'ERR-1', true), delay(200, 'First Success!'), delay(500, 'ERR-2', true)
+  ]).then(val => log('log5', `✅ First resolved: "${val}"`, 'resolve'));
+}
+
+function runAnyAllFail() {
+  log('log5', '▶ Promise.any — ALL reject → AggregateError', 'info');
+  MyPromise.any([
+    delay(200, 'E1', true), delay(300, 'E2', true), delay(100, 'E3', true)
+  ]).then(
+    val => log('log5', `✅ ${val}`, 'resolve'),
+    err => log('log5', `❌ AggregateError: [${err.errors.join(', ')}]`, 'reject')
+  );
+}
+</script>
+</body>
+</html>

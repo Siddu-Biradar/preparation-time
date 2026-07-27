@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Spreadsheet Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f9fa; padding: 24px; }
+    h2 { margin-bottom: 8px; color: #1a2530; }
+    .hint { font-size: 13px; color: #666; margin-bottom: 16px; }
+    .spreadsheet { border-collapse: collapse; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+    .spreadsheet th { background: #eaf2f8; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #1a5276; min-width: 80px; border: 1px solid #d8d0c3; }
+    .spreadsheet td { padding: 0; border: 1px solid #e0e0e0; }
+    .spreadsheet .row-header { background: #eaf2f8; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #1a5276; text-align: center; min-width: 40px; }
+    .cell { width: 100%; border: none; padding: 8px 10px; font-size: 13px; font-family: 'SF Mono', monospace; outline: none; background: transparent; }
+    .cell:focus { background: #f0f7fc; box-shadow: inset 0 0 0 2px #1a5276; }
+    .formula-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 12px; background: white; border: 1px solid #ddd; border-radius: 8px; }
+    .formula-bar label { font-size: 12px; font-weight: 600; color: #666; }
+    .formula-bar input { flex: 1; border: none; font-size: 13px; font-family: 'SF Mono', monospace; outline: none; }
+  </style>
+</head>
+<body>
+  <h2>📊 Mini Spreadsheet</h2>
+  <p class="hint">Type numbers or formulas (e.g. <code>=A1+B1</code>, <code>=A1*2</code>). Supports cell references and auto-propagation.</p>
+  <div class="formula-bar">
+    <label>Cell:</label>
+    <span id="active-cell">-</span>
+    <label style="margin-left:12px">Formula:</label>
+    <input type="text" id="formula-input" placeholder="Select a cell">
+  </div>
+  <div id="spreadsheet"></div>
+
+  <script>
+    class Spreadsheet {
+      constructor(container, { rows = 10, cols = 6 } = {}) {
+        this.container = container;
+        this.rows = rows;
+        this.cols = cols;
+        this.data = {};
+        this.dependencies = {};
+        this.dependents = {};
+        this.selectedCell = null;
+        this.render();
+        this.bindEvents();
+      }
+
+      render() {
+        let html = '<table class="spreadsheet"><tr><th></th>';
+        for (let c = 0; c < this.cols; c++) html += `<th>${String.fromCharCode(65 + c)}</th>`;
+        html += '</tr>';
+        for (let r = 1; r <= this.rows; r++) {
+          html += `<tr><td class="row-header">${r}</td>`;
+          for (let c = 0; c < this.cols; c++) {
+            const id = String.fromCharCode(65 + c) + r;
+            html += `<td><input class="cell" data-cell="${id}" value="${this.data[id]?.computed ?? ''}"></td>`;
+          }
+          html += '</tr>';
+        }
+        html += '</table>';
+        this.container.innerHTML = html;
+      }
+
+      bindEvents() {
+        const formulaInput = document.getElementById('formula-input');
+        const activeLabel = document.getElementById('active-cell');
+
+        this.container.addEventListener('focus', (e) => {
+          if (e.target.classList.contains('cell')) {
+            this.selectedCell = e.target.dataset.cell;
+            activeLabel.textContent = this.selectedCell;
+            const d = this.data[this.selectedCell];
+            e.target.value = d?.raw ?? '';
+            formulaInput.value = d?.raw ?? '';
+          }
+        }, true);
+
+        this.container.addEventListener('blur', (e) => {
+          if (e.target.classList.contains('cell')) {
+            const id = e.target.dataset.cell;
+            const raw = e.target.value;
+            if (raw !== (this.data[id]?.raw ?? '')) this.setCellValue(id, raw);
+            else e.target.value = this.data[id]?.computed ?? '';
+          }
+        }, true);
+
+        this.container.addEventListener('keydown', (e) => {
+          if (e.target.classList.contains('cell') && e.key === 'Enter') {
+            e.preventDefault();
+            e.target.blur();
+            // Move to cell below
+            const id = e.target.dataset.cell;
+            const col = id[0];
+            const row = parseInt(id.slice(1)) + 1;
+            if (row <= this.rows) {
+              const next = this.container.querySelector(`[data-cell="${col}${row}"]`);
+              if (next) next.focus();
+            }
+          }
+        });
+
+        formulaInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && this.selectedCell) {
+            this.setCellValue(this.selectedCell, formulaInput.value);
+            const cell = this.container.querySelector(`[data-cell="${this.selectedCell}"]`);
+            if (cell) cell.focus();
+          }
+        });
+      }
+
+      setCellValue(cellId, raw) {
+        if (this.dependencies[cellId]) {
+          this.dependencies[cellId].forEach(dep => {
+            if (this.dependents[dep]) this.dependents[dep] = this.dependents[dep].filter(d => d !== cellId);
+          });
+        }
+
+        const deps = this.parseDeps(raw);
+        this.dependencies[cellId] = deps;
+        deps.forEach(dep => {
+          if (!this.dependents[dep]) this.dependents[dep] = [];
+          if (!this.dependents[dep].includes(cellId)) this.dependents[dep].push(cellId);
+        });
+
+        if (this.hasCircular(cellId, new Set())) {
+          alert(`Circular reference in ${cellId}!`);
+          return;
+        }
+
+        this.data[cellId] = { raw, computed: this.evaluate(raw) };
+        this.updateCell(cellId);
+        this.propagate(cellId);
+      }
+
+      evaluate(raw) {
+        if (!raw || !raw.startsWith('=')) return isNaN(raw) ? raw : Number(raw);
+        const formula = raw.slice(1).replace(/[A-Z]\d+/g, (ref) => this.data[ref]?.computed ?? 0);
+        try {
+          const sanitized = formula.replace(/[^0-9+\-*/().,%\s]/g, '');
+          return Function(`"use strict"; return (${sanitized})`)();
+        } catch { return '#ERROR'; }
+      }
+
+      parseDeps(raw) {
+        if (!raw || !raw.startsWith('=')) return [];
+        return [...raw.matchAll(/[A-Z]\d+/g)].map(m => m[0]);
+      }
+
+      propagate(cellId) {
+        const visited = new Set();
+        const queue = [...(this.dependents[cellId] || [])];
+        while (queue.length) {
+          const current = queue.shift();
+          if (visited.has(current)) continue;
+          visited.add(current);
+          const d = this.data[current];
+          if (d) { d.computed = this.evaluate(d.raw); this.updateCell(current); }
+          if (this.dependents[current]) queue.push(...this.dependents[current]);
+        }
+      }
+
+      hasCircular(cellId, visited) {
+        if (visited.has(cellId)) return true;
+        visited.add(cellId);
+        return (this.dependencies[cellId] || []).some(dep => this.hasCircular(dep, new Set(visited)));
+      }
+
+      updateCell(cellId) {
+        const input = this.container.querySelector(`[data-cell="${cellId}"]`);
+        if (input && document.activeElement !== input) input.value = this.data[cellId]?.computed ?? '';
+      }
+    }
+
+    const sheet = new Spreadsheet(document.getElementById('spreadsheet'));
+    // Pre-fill some example data
+    sheet.setCellValue('A1', '10');
+    sheet.setCellValue('B1', '20');
+    sheet.setCellValue('C1', '=A1+B1');
+    sheet.setCellValue('A2', '5');
+    sheet.setCellValue('B2', '3');
+    sheet.setCellValue('C2', '=A2*B2');
+    sheet.setCellValue('C3', '=C1+C2');
+  </script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 8: State Management</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 8: State Management</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (8 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Service + BehaviorSubject</span>
+    <span class="pill">Signal Store</span>
+    <span class="pill">NgRx Store</span>
+    <span class="pill">NgRx ComponentStore</span>
+    <span class="pill">SignalStore</span>
+    <span class="pill">Patterns</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. When Do You Need State Management?</h2>
+
+<table>
+<tr><th>Complexity</th><th>Solution</th><th>When</th></tr>
+<tr><td>Simple</td><td>Component state + @Input/@Output</td><td>Parent-child, small apps</td></tr>
+<tr><td>Medium</td><td>Service + BehaviorSubject/Signals</td><td>Shared state across features</td></tr>
+<tr><td>Complex</td><td>NgRx ComponentStore / SignalStore</td><td>Feature-level complex state</td></tr>
+<tr><td>Enterprise</td><td>NgRx Global Store</td><td>Large teams, complex data flows, time-travel debugging</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. Service + BehaviorSubject Pattern</h2>
+
+<pre><code>// The simplest state management — works for 80% of apps
+@Injectable({ providedIn: 'root' })
+export class TodoStore {
+  // Private state
+  private todosSubject = new BehaviorSubject&lt;Todo[]&gt;([]);
+  private loadingSubject = new BehaviorSubject&lt;boolean&gt;(false);
+  private errorSubject = new BehaviorSubject&lt;string | null&gt;(null);
+
+  // Public observables (read-only)
+  readonly todos$ = this.todosSubject.asObservable();
+  readonly loading$ = this.loadingSubject.asObservable();
+  readonly error$ = this.errorSubject.asObservable();
+
+  // Derived state
+  readonly completedCount$ = this.todos$.pipe(
+    map(todos => todos.filter(t => t.completed).length)
+  );
+  readonly pendingTodos$ = this.todos$.pipe(
+    map(todos => todos.filter(t => !t.completed))
+  );
+
+  private http = inject(HttpClient);
+
+  // Actions
+  loadTodos(): void {
+    this.loadingSubject.next(true);
+    this.errorSubject.next(null);
+
+    this.http.get&lt;Todo[]&gt;('/api/todos').pipe(
+      finalize(() => this.loadingSubject.next(false))
+    ).subscribe({
+      next: todos => this.todosSubject.next(todos),
+      error: err => this.errorSubject.next(err.message)
+    });
+  }
+
+  addTodo(title: string): void {
+    const newTodo: Todo = { id: Date.now().toString(), title, completed: false };
+    // Optimistic update
+    this.todosSubject.next([...this.todosSubject.getValue(), newTodo]);
+
+    this.http.post&lt;Todo&gt;('/api/todos', { title }).pipe(
+      catchError(err => {
+        // Rollback on failure
+        this.todosSubject.next(
+          this.todosSubject.getValue().filter(t => t.id !== newTodo.id)
+        );
+        return throwError(() => err);
+      })
+    ).subscribe();
+  }
+
+  toggleTodo(id: string): void {
+    const todos = this.todosSubject.getValue().map(t =>
+      t.id === id ? { ...t, completed: !t.completed } : t
+    );
+    this.todosSubject.next(todos);
+  }
+
+  deleteTodo(id: string): void {
+    const todos = this.todosSubject.getValue().filter(t => t.id !== id);
+    this.todosSubject.next(todos);
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. Signal-based Store (Angular 16+)</h2>
+
+<pre><code>@Injectable({ providedIn: 'root' })
+export class TodoSignalStore {
+  // State as signals
+  private readonly _todos = signal&lt;Todo[]&gt;([]);
+  private readonly _loading = signal(false);
+  private readonly _error = signal&lt;string | null&gt;(null);
+  private readonly _filter = signal&lt;'all' | 'active' | 'completed'&gt;('all');
+
+  // Public readonly signals
+  readonly todos = this._todos.asReadonly();
+  readonly loading = this._loading.asReadonly();
+  readonly error = this._error.asReadonly();
+  readonly filter = this._filter.asReadonly();
+
+  // Computed (derived state — automatically re-evaluates when dependencies change)
+  readonly filteredTodos = computed(() => {
+    const todos = this._todos();
+    const filter = this._filter();
+    switch (filter) {
+      case 'active': return todos.filter(t => !t.completed);
+      case 'completed': return todos.filter(t => t.completed);
+      default: return todos;
+    }
+  });
+
+  readonly stats = computed(() => ({
+    total: this._todos().length,
+    completed: this._todos().filter(t => t.completed).length,
+    pending: this._todos().filter(t => !t.completed).length
+  }));
+
+  private http = inject(HttpClient);
+
+  // Actions
+  loadTodos(): void {
+    this._loading.set(true);
+    this._error.set(null);
+
+    this.http.get&lt;Todo[]&gt;('/api/todos').subscribe({
+      next: todos => {
+        this._todos.set(todos);
+        this._loading.set(false);
+      },
+      error: err => {
+        this._error.set(err.message);
+        this._loading.set(false);
+      }
+    });
+  }
+
+  addTodo(title: string): void {
+    this._todos.update(todos => [
+      ...todos,
+      { id: crypto.randomUUID(), title, completed: false }
+    ]);
+  }
+
+  toggleTodo(id: string): void {
+    this._todos.update(todos =>
+      todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t)
+    );
+  }
+
+  setFilter(filter: 'all' | 'active' | 'completed'): void {
+    this._filter.set(filter);
+  }
+}
+
+// Component using signal store
+@Component({
+  template: `
+    &lt;h2&gt;Todos ({{ store.stats().pending }} pending)&lt;/h2&gt;
+    @for (todo of store.filteredTodos(); track todo.id) {
+      &lt;app-todo-item [todo]="todo" (toggle)="store.toggleTodo(todo.id)" /&gt;
+    }
+  `
+})
+export class TodoListComponent {
+  store = inject(TodoSignalStore);
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>4. NgRx Global Store</h2>
+
+<h3>Core Concepts</h3>
+<pre><code>// NgRx follows Redux pattern: Actions → Reducers → Store → Selectors
+
+// 1. ACTIONS — describe events that happened
+// users.actions.ts
+export const UsersActions = createActionGroup({
+  source: 'Users',
+  events: {
+    'Load Users': emptyProps(),
+    'Load Users Success': props&lt;{ users: User[] }&gt;(),
+    'Load Users Failure': props&lt;{ error: string }&gt;(),
+    'Add User': props&lt;{ user: User }&gt;(),
+    'Delete User': props&lt;{ id: string }&gt;(),
+    'Update User': props&lt;{ user: Update&lt;User&gt; }&gt;(),
+  }
+});
+
+// 2. REDUCER — pure function that produces new state
+// users.reducer.ts
+export interface UsersState {
+  users: User[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: UsersState = {
+  users: [],
+  loading: false,
+  error: null
+};
+
+export const usersReducer = createReducer(
+  initialState,
+  on(UsersActions.loadUsers, state => ({
+    ...state, loading: true, error: null
+  })),
+  on(UsersActions.loadUsersSuccess, (state, { users }) => ({
+    ...state, users, loading: false
+  })),
+  on(UsersActions.loadUsersFailure, (state, { error }) => ({
+    ...state, error, loading: false
+  })),
+  on(UsersActions.addUser, (state, { user }) => ({
+    ...state, users: [...state.users, user]
+  })),
+  on(UsersActions.deleteUser, (state, { id }) => ({
+    ...state, users: state.users.filter(u => u.id !== id)
+  }))
+);
+
+// 3. SELECTORS — derive data from state (memoized)
+// users.selectors.ts
+export const selectUsersState = createFeatureSelector&lt;UsersState&gt;('users');
+export const selectAllUsers = createSelector(selectUsersState, s => s.users);
+export const selectLoading = createSelector(selectUsersState, s => s.loading);
+export const selectError = createSelector(selectUsersState, s => s.error);
+export const selectActiveUsers = createSelector(
+  selectAllUsers,
+  users => users.filter(u => u.active)
+);
+export const selectUserById = (id: string) => createSelector(
+  selectAllUsers,
+  users => users.find(u => u.id === id)
+);
+
+// 4. EFFECTS — handle side effects (API calls)
+// users.effects.ts
+export const loadUsers$ = createEffect(
+  (actions$ = inject(Actions), userService = inject(UserService)) => {
+    return actions$.pipe(
+      ofType(UsersActions.loadUsers),
+      switchMap(() =>
+        userService.getAll().pipe(
+          map(users => UsersActions.loadUsersSuccess({ users })),
+          catchError(error => of(UsersActions.loadUsersFailure({ error: error.message })))
+        )
+      )
+    );
+  },
+  { functional: true }
+);
+
+// 5. COMPONENT usage
+@Component({
+  template: `
+    @if (loading()) {
+      &lt;app-spinner /&gt;
+    }
+    @for (user of users(); track user.id) {
+      &lt;app-user-card [user]="user" (delete)="delete(user.id)" /&gt;
+    }
+  `
+})
+export class UsersComponent implements OnInit {
+  private store = inject(Store);
+
+  users = this.store.selectSignal(selectAllUsers);
+  loading = this.store.selectSignal(selectLoading);
+
+  ngOnInit() {
+    this.store.dispatch(UsersActions.loadUsers());
+  }
+
+  delete(id: string) {
+    this.store.dispatch(UsersActions.deleteUser({ id }));
+  }
+}
+
+// 6. REGISTRATION
+// app.config.ts
+providers: [
+  provideStore({ users: usersReducer }),
+  provideEffects(loadUsers$),
+  provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() })
+]</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>5. NgRx SignalStore (Modern NgRx)</h2>
+
+<pre><code>// Combines the power of NgRx with the simplicity of signals
+import { signalStore, withState, withComputed, withMethods, patchState } from '@ngrx/signals';
+
+type TodosState = {
+  todos: Todo[];
+  loading: boolean;
+  filter: 'all' | 'active' | 'completed';
+};
+
+const initialState: TodosState = {
+  todos: [],
+  loading: false,
+  filter: 'all'
+};
+
+export const TodosStore = signalStore(
+  { providedIn: 'root' },
+  withState(initialState),
+  
+  withComputed(({ todos, filter }) => ({
+    filteredTodos: computed(() => {
+      switch (filter()) {
+        case 'active': return todos().filter(t => !t.completed);
+        case 'completed': return todos().filter(t => t.completed);
+        default: return todos();
+      }
+    }),
+    stats: computed(() => ({
+      total: todos().length,
+      completed: todos().filter(t => t.completed).length
+    }))
+  })),
+
+  withMethods((store, todoService = inject(TodoService)) => ({
+    async loadTodos() {
+      patchState(store, { loading: true });
+      const todos = await firstValueFrom(todoService.getAll());
+      patchState(store, { todos, loading: false });
+    },
+    addTodo(title: string) {
+      patchState(store, { 
+        todos: [...store.todos(), { id: crypto.randomUUID(), title, completed: false }] 
+      });
+    },
+    toggleTodo(id: string) {
+      patchState(store, {
+        todos: store.todos().map(t => 
+          t.id === id ? { ...t, completed: !t.completed } : t
+        )
+      });
+    },
+    setFilter(filter: 'all' | 'active' | 'completed') {
+      patchState(store, { filter });
+    }
+  }))
+);
+
+// Usage in component:
+@Component({
+  providers: [TodosStore],  // Or use providedIn: 'root'
+  template: `
+    &lt;p&gt;{{ store.stats().completed }}/{{ store.stats().total }} completed&lt;/p&gt;
+    @for (todo of store.filteredTodos(); track todo.id) {
+      &lt;div (click)="store.toggleTodo(todo.id)"&gt;{{ todo.title }}&lt;/div&gt;
+    }
+  `
+})
+export class TodosComponent {
+  readonly store = inject(TodosStore);
+  
+  constructor() {
+    this.store.loadTodos();
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>6. Choosing the Right Approach</h2>
+
+<div class="callout">
+<strong>Decision Guide:</strong>
+<ul>
+  <li><strong>1-3 developers, simple app</strong> → Service + Signals</li>
+  <li><strong>Medium app, shared feature state</strong> → NgRx SignalStore or ComponentStore</li>
+  <li><strong>Large enterprise, 10+ devs, complex data flows</strong> → NgRx Global Store</li>
+  <li><strong>Need time-travel debugging, action logging</strong> → NgRx Global Store</li>
+</ul>
+</div>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 8</h4>
+<ol>
+  <li>When would you choose NgRx over a simple service with BehaviorSubject?</li>
+  <li>Explain the NgRx data flow: Actions → Reducers → Store → Selectors.</li>
+  <li>What are NgRx Effects? Why are they needed?</li>
+  <li>How do NgRx Selectors work? What is memoization in this context?</li>
+  <li>What is the difference between NgRx Store, ComponentStore, and SignalStore?</li>
+  <li>How do you handle optimistic updates with state management?</li>
+  <li>How would you implement a signal-based store without NgRx?</li>
+  <li>What is the Redux pattern? How does NgRx implement it?</li>
+  <li>How do you test NgRx reducers, effects, and selectors?</li>
+  <li>When would you NOT use a state management library?</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase7-forms-validation.html">← Phase 7: Forms</a>
+  <a href="phase9-testing.html">Phase 9: Testing →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 15: Angular Internals & Output Prediction</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .interview { border-left: 4px solid #1565c0; background: #e8f0fe; padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+    .exercise { border-left: 4px solid #2e7d32; background: #e8f5e9; padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10.2pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; } th { background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .toc { background: #f9f6f0; border: 1px solid var(--line); padding: 16px 20px; border-radius: 10px; margin-bottom: 24px; }
+    .toc ol { margin: 8px 0 0 18px; } .toc li { margin-bottom: 4px; } .toc a { color: var(--accent); text-decoration: none; }
+    .output-q { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .output-q h4 { color: #e65100; margin-top: 0; }
+    details { margin: 8px 0; } details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 15: Angular Internals & Output Prediction</h1>
+  <p class="subtitle">Angular Mastery — Deep Internals, Compiler Pipeline, Renderer, Lifecycle Edge Cases (15 of 16)</p>
+  <div class="pill-row">
+    <span class="pill">Compiler Pipeline</span>
+    <span class="pill">Ivy Renderer</span>
+    <span class="pill">Lifecycle Ordering</span>
+    <span class="pill">Output Prediction</span>
+    <span class="pill">Zone.js Timing</span>
+    <span class="pill">Directive Composition</span>
+    <span class="pill">Microsyntax</span>
+    <span class="pill">afterRender</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h3 style="margin-top:0;">Table of Contents</h3>
+  <ol>
+    <li><a href="#compiler">Angular Compiler Pipeline — Complete Deep Dive</a></li>
+    <li><a href="#ivy">Ivy Renderer & Instruction Set</a></li>
+    <li><a href="#afterrender">afterRender & afterNextRender Hooks</a></li>
+    <li><a href="#directive-composition">Directive Composition API</a></li>
+    <li><a href="#microsyntax">Structural Directive Microsyntax</a></li>
+    <li><a href="#recursive-templates">Recursive Templates & Advanced ng-template</a></li>
+    <li><a href="#view-queries">View Queries — static vs dynamic Timing</a></li>
+    <li><a href="#forroot">forRoot / forChild Pattern Deep Dive</a></li>
+    <li><a href="#inject-context">inject() Context Edge Cases</a></li>
+    <li><a href="#output-prediction">Output Prediction Challenges</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="compiler">1. Angular Compiler Pipeline — Complete Deep Dive</h2>
+
+<p>Understanding Angular's compiler is the ultimate differentiator in senior interviews. The compiler transforms templates and TypeScript into optimized JavaScript that Angular's runtime can execute.</p>
+
+<h3>Compilation Phases</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    ANGULAR COMPILER (ngc)                     │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. PARSING PHASE                                            │
+│     ├── Template Parsing → Template AST                      │
+│     ├── CSS Parsing → Scoped Styles                          │
+│     └── Metadata Collection (decorators → metadata)          │
+│                                                              │
+│  2. ANALYSIS PHASE                                           │
+│     ├── Resolve imports, declarations, exports               │
+│     ├── Build dependency graph (which component uses what)   │
+│     ├── Semantic analysis (validate bindings, directives)    │
+│     └── Detect circular dependencies                         │
+│                                                              │
+│  3. TYPE-CHECKING PHASE (strictTemplates)                    │
+│     ├── Generate Type Check Block (TCB) per component        │
+│     ├── TCB = TypeScript code representing template logic    │
+│     ├── Feed TCB to TypeScript compiler                      │
+│     └── Report type errors as template errors                │
+│                                                              │
+│  4. CODE GENERATION (EMIT) PHASE                             │
+│     ├── Generate ɵcmp (component definition)                 │
+│     ├── Generate ɵfac (factory function)                     │
+│     ├── Generate template function (Ivy instructions)        │
+│     ├── Generate ɵdir, ɵpipe, ɵmod definitions              │
+│     └── Output .js + .d.ts with Angular metadata             │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘</code></pre>
+
+<h3>Type Check Block (TCB) — How Template Type-Checking Works</h3>
+<pre><code>// Given this component:
+@Component({
+  template: `
+    &lt;input [value]="user.name" (input)="update($event)" /&gt;
+    &lt;app-card [title]="user.age"&gt;&lt;/app-card&gt;
+  `
+})
+class MyComponent {
+  user = { name: 'John', age: 30 };
+  update(e: Event) {}
+}
+
+// Angular generates a TCB (simplified):
+function _tcb_MyComponent(ctx: MyComponent) {
+  // Validates [value]="user.name" — is user.name assignable to string?
+  const _binding1: string = ctx.user.name; // ✓
+
+  // Validates (input)="update($event)" — $event is Event
+  const _event: Event = null!;
+  ctx.update(_event); // ✓
+
+  // Validates [title]="user.age" — is number assignable to AppCard's title: string?
+  const _cardCtx: AppCardComponent = null!;
+  _cardCtx.title = ctx.user.age; // ✗ ERROR: Type 'number' is not assignable to 'string'
+}</code></pre>
+
+<h3>Partial Compilation (for Libraries)</h3>
+<pre><code>// Libraries use "partial compilation" — generates INTERMEDIATE format
+// that the consuming app's compiler finishes ("linking" step)
+
+// Why? Because libraries don't know the consumer's Angular version at build time.
+// Partial compilation produces version-agnostic intermediate code.
+
+// tsconfig.json for library:
+{
+  "angularCompilerOptions": {
+    "compilationMode": "partial"  // Only for LIBRARIES
+  }
+}
+
+// At build time in the consuming app, the Angular "linker" converts
+// partial declarations (ɵɵngDeclareComponent) → full definitions (ɵɵdefineComponent)</code></pre>
+
+<h3>Incremental Compilation</h3>
+<pre><code>// Angular's compiler supports incremental rebuilds:
+// 1. File dependency graph tracked
+// 2. On change, only affected files + their dependents recompiled
+// 3. TCBs regenerated only for affected components
+
+// How Angular determines "affected":
+// - Component A uses Directive B in its template
+// - If B's public API changes → A is re-type-checked
+// - If B's template changes → only B is re-compiled (locality!)
+
+// IVY LOCALITY PRINCIPLE:
+// Each component can be compiled independently knowing only about
+// its direct dependencies' PUBLIC API (inputs, outputs, selectors).
+// This is what makes incremental compilation fast.</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>What is a Type Check Block? → TypeScript function generated from template that TypeScript compiler validates</li>
+  <li>What is the Ivy locality principle? → Each component compiled independently using only public API of dependencies</li>
+  <li>Why do libraries use partial compilation? → They don't know consumer's Angular version; linker finalizes at build time</li>
+  <li>How does Angular achieve incremental builds? → Dependency graph tracking; only recompile affected files and dependents</li>
+  <li>What happens if you disable strictTemplates? → No TCB generated; template errors only caught at runtime</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="ivy">2. Ivy Renderer & Instruction Set</h2>
+
+<h3>How Templates Become DOM Instructions</h3>
+<pre><code>// Template:
+// &lt;div class="container"&gt;
+//   &lt;h1&gt;{{ title }}&lt;/h1&gt;
+//   &lt;app-child [data]="items" /&gt;
+// &lt;/div&gt;
+
+// Compiled to (simplified Ivy instructions):
+function MyComponent_Template(rf: RenderFlags, ctx: MyComponent) {
+  if (rf & RenderFlags.Create) {          // CREATION PHASE (runs once)
+    ɵɵelementStart(0, 'div', ['class', 'container']);
+      ɵɵelementStart(1, 'h1');
+        ɵɵtext(2);                         // placeholder for text node
+      ɵɵelementEnd();
+      ɵɵelement(3, 'app-child', ['data']); // self-closing element
+    ɵɵelementEnd();
+  }
+  if (rf & RenderFlags.Update) {          // UPDATE PHASE (runs on every CD)
+    ɵɵadvance(2);                          // move cursor to text node
+    ɵɵtextInterpolate(ctx.title);          // update text content
+    ɵɵadvance(1);                          // move to app-child
+    ɵɵproperty('data', ctx.items);         // update input binding
+  }
+}</code></pre>
+
+<h3>Key Ivy Instructions</h3>
+<table>
+  <tr><th>Instruction</th><th>Purpose</th></tr>
+  <tr><td><code>ɵɵelementStart / ɵɵelementEnd</code></td><td>Create opening/closing DOM element</td></tr>
+  <tr><td><code>ɵɵelement</code></td><td>Self-closing element (no children)</td></tr>
+  <tr><td><code>ɵɵtext</code></td><td>Create text node</td></tr>
+  <tr><td><code>ɵɵtextInterpolate</code></td><td>Update text content (interpolation)</td></tr>
+  <tr><td><code>ɵɵproperty</code></td><td>Update property binding</td></tr>
+  <tr><td><code>ɵɵlistener</code></td><td>Attach event listener</td></tr>
+  <tr><td><code>ɵɵtemplate</code></td><td>Create embedded view (for *ngIf, @if)</td></tr>
+  <tr><td><code>ɵɵadvance</code></td><td>Move internal cursor to next element</td></tr>
+  <tr><td><code>ɵɵpipe / ɵɵpipeBind</code></td><td>Create/invoke pipe</td></tr>
+  <tr><td><code>ɵɵdefineComponent</code></td><td>Component definition with metadata</td></tr>
+</table>
+
+<h3>Component Definition Structure</h3>
+<pre><code>// What Angular generates for each component:
+MyComponent.ɵcmp = ɵɵdefineComponent({
+  type: MyComponent,
+  selectors: [['app-my']],
+  inputs: { title: 'title', items: 'items' },
+  outputs: { save: 'save' },
+  standalone: true,
+  features: [ɵɵStandaloneFeature],
+  decls: 4,           // Number of static nodes in template
+  vars: 2,            // Number of binding slots
+  consts: [['class', 'container']],
+  template: MyComponent_Template,
+  styles: ['...'],
+  encapsulation: ViewEncapsulation.Emulated,
+  changeDetection: ChangeDetectionStrategy.OnPush
+});
+
+MyComponent.ɵfac = () => new MyComponent(ɵɵdirectiveInject(MyService));</code></pre>
+
+<h3>LView & TView — Runtime Data Structures</h3>
+<pre><code>// TView (Template View) — SHARED blueprint, created once per component TYPE
+// Contains: node definitions, binding indices, directive list, pipes
+// Think of it as the "class" — the shape/schema
+
+// LView (Logical View) — PER INSTANCE data array
+// Contains: actual DOM nodes, binding values, directive instances
+// Think of it as the "object" — the actual runtime data
+
+// Why this matters:
+// - Memory efficiency: 1000 list items share 1 TView, have 1000 LViews
+// - CD checks LView[bindingIndex] === newValue for dirty checking
+// - LView is a flat array (not a tree) for cache-line efficiency
+
+// LView layout:
+// [FLAGS, PARENT, TVIEW, HOST, ...DIRECTIVE_INSTANCES, ...BINDING_VALUES, ...CHILD_VIEWS]</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="afterrender">3. afterRender & afterNextRender Hooks</h2>
+
+<p>Angular 16+ introduced <code>afterRender</code> and <code>afterNextRender</code> — hooks that run after Angular has rendered DOM. They replace many <code>ngAfterViewInit</code> + <code>setTimeout</code> hacks.</p>
+
+<h3>The 4 Render Phases</h3>
+<pre><code>// Phases run in a specific order EVERY time Angular renders:
+// 1. earlyRead  — Read DOM layout before writes (fast reads)
+// 2. write      — Write to DOM (mutations, style changes)
+// 3. mixedReadWrite — Legacy compatibility (avoid this)
+// 4. read       — Final DOM reads after all writes complete
+
+import { afterRender, afterNextRender, AfterRenderPhase } from '@angular/core';
+
+@Component({ ... })
+export class ChartComponent {
+  private chartEl = viewChild.required&lt;ElementRef&gt;('chart');
+
+  constructor() {
+    // Runs ONCE after first render (replacement for ngAfterViewInit)
+    afterNextRender(() => {
+      this.initChart(this.chartEl().nativeElement);
+    });
+
+    // Runs EVERY render cycle (replacement for ngAfterViewChecked)
+    afterRender(() => {
+      this.updateChartDimensions();
+    });
+  }
+}
+
+// Using specific phases:
+afterRender({
+  earlyRead: () => {
+    // Read layout metrics BEFORE any writes (avoids forced reflow)
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    return rect; // Return value passed to write phase
+  },
+  write: (rect) => {
+    // Now make DOM mutations based on the read
+    this.tooltip.style.top = `${rect.bottom + 10}px`;
+  }
+});</code></pre>
+
+<h3>Why Phases Matter (Layout Thrashing Prevention)</h3>
+<pre><code>// WITHOUT phases (causes layout thrashing):
+afterRender(() => {
+  const height = el.offsetHeight;   // READ → triggers layout
+  el.style.width = height + 'px';   // WRITE → invalidates layout
+  const width = el.offsetWidth;     // READ AGAIN → forces REFLOW!
+  el2.style.height = width + 'px';  // WRITE
+});
+
+// WITH phases (batched reads and writes):
+afterRender({
+  earlyRead: () => ({
+    height: el.offsetHeight,        // All reads batched together
+    width: el.offsetWidth
+  }),
+  write: (dims) => {
+    el.style.width = dims.height + 'px';   // All writes batched
+    el2.style.height = dims.width + 'px';
+  }
+});
+// Result: Only ONE layout calculation, not multiple forced reflows</code></pre>
+
+<h3>afterNextRender vs ngAfterViewInit</h3>
+<table>
+  <tr><th>Aspect</th><th>ngAfterViewInit</th><th>afterNextRender</th></tr>
+  <tr><td>Runs on server (SSR)?</td><td>YES (problematic!)</td><td>NO (browser-only)</td></tr>
+  <tr><td>DOM guaranteed?</td><td>Yes, but in Zone context</td><td>Yes, truly after render</td></tr>
+  <tr><td>Phase control?</td><td>No</td><td>Yes (earlyRead, write, read)</td></tr>
+  <tr><td>Injection context?</td><td>No (use constructor)</td><td>YES (can use inject())</td></tr>
+  <tr><td>Works with signals?</td><td>Yes</td><td>Yes (designed for signals)</td></tr>
+</table>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>When would you use afterNextRender vs ngAfterViewInit? → afterNextRender is SSR-safe, has render phases, works in injection context</li>
+  <li>What is layout thrashing? How do render phases prevent it? → Interleaved reads/writes force multiple reflows; phases batch all reads then all writes</li>
+  <li>What's the difference between afterRender and afterNextRender? → afterRender runs every CD; afterNextRender runs once</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="directive-composition">4. Directive Composition API</h2>
+
+<p>Angular 15+ allows composing multiple directives on a host component without the consumer needing to apply them manually. This is critical for building clean component libraries.</p>
+
+<pre><code>// The Problem: Users must remember to add related directives
+// &lt;button appRipple appTooltip="Save" appLoadingState&gt;Save&lt;/button&gt;
+
+// The Solution: Compose directives inside the component
+@Component({
+  selector: 'app-button',
+  hostDirectives: [
+    {
+      directive: RippleDirective,
+      inputs: ['rippleColor: color'],     // Expose/remap inputs
+      outputs: ['rippleComplete: onRipple']
+    },
+    {
+      directive: TooltipDirective,
+      inputs: ['tooltipText: tooltip'],
+    },
+    LoadingStateDirective  // All inputs/outputs hidden from consumer
+  ],
+  template: `&lt;ng-content /&gt;`
+})
+export class AppButtonComponent {}
+
+// Usage (clean — no extra directives needed):
+&lt;app-button color="blue" tooltip="Save changes"&gt;Save&lt;/app-button&gt;
+
+// Key Rules:
+// 1. hostDirectives must be standalone
+// 2. Directive lifecycle hooks still fire (in order of declaration)
+// 3. Host bindings from all directives are merged
+// 4. If two directives bind the same host property, last one wins
+// 5. Consumers can still add MORE directives on top</code></pre>
+
+<h3>Advanced: Directive Inheritance vs Composition</h3>
+<pre><code>// Inheritance (limited — single parent only):
+@Directive({ ... })
+class BaseTooltip { @Input() text = ''; show() {} hide() {} }
+
+@Directive({ selector: '[appRichTooltip]' })
+class RichTooltip extends BaseTooltip {
+  // Inherits inputs + can override methods
+  override show() { /* rich version */ }
+}
+
+// Composition (preferred — multiple behaviors):
+@Component({
+  hostDirectives: [
+    FocusableDirective,      // Adds focus ring + keyboard nav
+    DisableableDirective,    // Adds disabled state handling
+    { directive: TooltipDirective, inputs: ['tooltipText'] }
+  ]
+})
+class MyWidget {}
+
+// The component AUTOMATICALLY gets all behaviors without inheritance!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="microsyntax">5. Structural Directive Microsyntax</h2>
+
+<p>The microsyntax is the grammar behind <code>*ngIf="expr"</code>, <code>*ngFor="let x of items"</code>. Understanding it is essential for building custom structural directives.</p>
+
+<h3>Microsyntax Grammar</h3>
+<pre><code>// *directive="expression" desugars to:
+// &lt;ng-template [directive]="expression"&gt;...&lt;/ng-template&gt;
+
+// Full grammar:
+// *prefix="( :let | :expression ) (';' | ',')? ( :let | :as | :keyExp )*"
+//
+// :let = "let" identifier ( '=' identifier )?
+// :as = identifier "as" identifier  
+// :keyExp = identifier ':'? expression ( 'as' identifier )?
+
+// Examples:
+
+// *ngIf="condition; else elseBlock; let result"
+// Desugars to:
+&lt;ng-template [ngIf]="condition" [ngIfElse]="elseBlock" let-result="ngIf"&gt;
+
+// *ngFor="let item of items; index as i; trackBy: trackFn"
+// Desugars to:
+&lt;ng-template ngFor [ngForOf]="items" let-item [ngForTrackBy]="trackFn" let-i="index"&gt;</code></pre>
+
+<h3>Building a Custom Structural Directive with Context</h3>
+<pre><code>// Custom *appRepeat="3; let i = index; let isLast = last"
+interface RepeatContext {
+  $implicit: number;   // Value for bare "let x"
+  index: number;
+  count: number;
+  first: boolean;
+  last: boolean;
+}
+
+@Directive({ selector: '[appRepeat]', standalone: true })
+export class RepeatDirective {
+  private templateRef = inject(TemplateRef&lt;RepeatContext&gt;);
+  private vcr = inject(ViewContainerRef);
+
+  @Input() set appRepeat(count: number) {
+    this.vcr.clear();
+    for (let i = 0; i < count; i++) {
+      this.vcr.createEmbeddedView(this.templateRef, {
+        $implicit: i,        // Available as "let x" (bare variable)
+        index: i,            // Available as "let i = index"
+        count,
+        first: i === 0,      // Available as "let f = first"
+        last: i === count - 1
+      });
+    }
+  }
+}
+
+// Usage:
+// &lt;div *appRepeat="5; let i = index; let isLast = last"&gt;
+//   Item {{ i }} {{ isLast ? '(last!)' : '' }}
+// &lt;/div&gt;</code></pre>
+
+<h3>$implicit — The Magic Variable</h3>
+<pre><code>// $implicit is the value that a bare "let x" receives
+// without specifying "= propertyName"
+
+// In ngFor: $implicit = the current item
+// Template: let item    → item = context.$implicit
+
+// In ngIf: $implicit = the condition value  
+// Template: let result  → result = context.$implicit (= condition value)
+
+// Custom directive:
+this.vcr.createEmbeddedView(this.templateRef, {
+  $implicit: 'hello',  // "let x" → x = 'hello'
+  name: 'world'        // "let y = name" → y = 'world'
+});</code></pre>
+
+<h3>ngTemplateOutlet with Typed Context</h3>
+<pre><code>// Passing context to projected templates
+interface CardContext {
+  $implicit: string;  // card title
+  actions: string[];
+  isExpanded: boolean;
+}
+
+@Component({
+  selector: 'app-card-list',
+  template: `
+    @for (card of cards(); track card.id) {
+      &lt;ng-container
+        [ngTemplateOutlet]="cardTemplate()"
+        [ngTemplateOutletContext]="{ $implicit: card.title, actions: card.actions, isExpanded: false }"
+      /&gt;
+    }
+  `
+})
+export class CardListComponent {
+  cards = input.required&lt;Card[]&gt;();
+  cardTemplate = contentChild.required(TemplateRef);
+}
+
+// Consumer provides the template:
+&lt;app-card-list [cards]="myCards"&gt;
+  &lt;ng-template let-title let-actions="actions" let-expanded="isExpanded"&gt;
+    &lt;div class="card"&gt;
+      &lt;h3&gt;{{ title }}&lt;/h3&gt;
+      &lt;button *ngFor="let a of actions"&gt;{{ a }}&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/ng-template&gt;
+&lt;/app-card-list&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="recursive-templates">6. Recursive Templates & Advanced ng-template</h2>
+
+<h3>Rendering Tree Structures</h3>
+<pre><code>interface TreeNode {
+  label: string;
+  children?: TreeNode[];
+}
+
+@Component({
+  selector: 'app-tree',
+  standalone: true,
+  imports: [NgTemplateOutlet],
+  template: `
+    &lt;ng-template #nodeTemplate let-nodes&gt;
+      &lt;ul&gt;
+        @for (node of nodes; track node.label) {
+          &lt;li&gt;
+            {{ node.label }}
+            @if (node.children?.length) {
+              &lt;ng-container
+                [ngTemplateOutlet]="nodeTemplate"
+                [ngTemplateOutletContext]="{ $implicit: node.children }"
+              /&gt;
+            }
+          &lt;/li&gt;
+        }
+      &lt;/ul&gt;
+    &lt;/ng-template&gt;
+
+    &lt;!-- Bootstrap the recursion --&gt;
+    &lt;ng-container
+      [ngTemplateOutlet]="nodeTemplate"
+      [ngTemplateOutletContext]="{ $implicit: data() }"
+    /&gt;
+  `
+})
+export class TreeComponent {
+  data = input.required&lt;TreeNode[]&gt;();
+}</code></pre>
+
+<h3>Dynamic Template Selection</h3>
+<pre><code>// Different templates based on item type
+@Component({
+  template: `
+    &lt;ng-template #textTpl let-item&gt;
+      &lt;p&gt;{{ item.content }}&lt;/p&gt;
+    &lt;/ng-template&gt;
+
+    &lt;ng-template #imageTpl let-item&gt;
+      &lt;img [src]="item.url" [alt]="item.alt" /&gt;
+    &lt;/ng-template&gt;
+
+    &lt;ng-template #videoTpl let-item&gt;
+      &lt;video [src]="item.url" controls&gt;&lt;/video&gt;
+    &lt;/ng-template&gt;
+
+    @for (item of items(); track item.id) {
+      &lt;ng-container
+        [ngTemplateOutlet]="getTemplate(item.type)"
+        [ngTemplateOutletContext]="{ $implicit: item }"
+      /&gt;
+    }
+  `
+})
+export class FeedComponent {
+  @ViewChild('textTpl') textTpl!: TemplateRef&lt;any&gt;;
+  @ViewChild('imageTpl') imageTpl!: TemplateRef&lt;any&gt;;
+  @ViewChild('videoTpl') videoTpl!: TemplateRef&lt;any&gt;;
+
+  items = input.required&lt;FeedItem[]&gt;();
+
+  getTemplate(type: string): TemplateRef&lt;any&gt; {
+    const map: Record&lt;string, TemplateRef&lt;any&gt;&gt; = {
+      text: this.textTpl,
+      image: this.imageTpl,
+      video: this.videoTpl
+    };
+    return map[type] || this.textTpl;
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="view-queries">7. View Queries — static vs dynamic Timing</h2>
+
+<pre><code>// The `static` flag controls WHEN the query resolves
+
+@ViewChild('myEl', { static: true })  elRef!: ElementRef;
+// Resolved in ngOnInit (before CD runs)
+// ONLY works if element is NOT inside *ngIf, @if, *ngFor, @for, etc.
+// Use for: elements that are ALWAYS present in template
+
+@ViewChild('myEl', { static: false }) elRef!: ElementRef; // DEFAULT
+// Resolved in ngAfterViewInit (after first CD)
+// Works with conditional/dynamic elements
+// Use for: elements inside structural directives
+
+// GOTCHA: If you need the element in ngOnInit for initial setup,
+// you MUST use static: true — but the element must be unconditional.
+
+// With Signals (Angular 17+):
+el = viewChild('myEl');              // Signal&lt;ElementRef | undefined&gt;
+el = viewChild.required('myEl');     // Signal&lt;ElementRef&gt; (throws if missing)
+
+// ContentChild works the same way:
+@ContentChild(HeaderDirective, { static: true }) header!: HeaderDirective;
+// Available in ngOnInit if projected content is unconditional</code></pre>
+
+<h3>Query Timing Diagram</h3>
+<pre><code>COMPONENT CREATION
+  │
+  ├── constructor()                — No queries available
+  │
+  ├── ngOnChanges()                — No queries available  
+  │
+  ├── ngOnInit()                   — ✅ STATIC queries available
+  │                                   ❌ Dynamic queries = undefined
+  │
+  ├── ngDoCheck()                  — Same as ngOnInit
+  │
+  ├── ngAfterContentInit()         — ✅ STATIC ContentChild available
+  │                                   ✅ Dynamic ContentChild available
+  │
+  ├── ngAfterContentChecked()
+  │
+  ├── ngAfterViewInit()            — ✅ ALL ViewChild/ViewChildren available
+  │                                   ✅ ALL ContentChild available
+  │
+  └── ngAfterViewChecked()         — All queries available</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="forroot">8. forRoot / forChild Pattern Deep Dive</h2>
+
+<pre><code>// PROBLEM: Lazy-loaded modules create CHILD injectors.
+// If a lazy module imports a module with providers, it gets its OWN instance!
+
+// SOLUTION: forRoot() / forChild() pattern
+
+@NgModule({ declarations: [TooltipDirective, ModalComponent] })
+export class UiModule {
+  // forRoot: provides SINGLETON services (only called in AppModule)
+  static forRoot(config: UiConfig): ModuleWithProviders&lt;UiModule&gt; {
+    return {
+      ngModule: UiModule,
+      providers: [
+        TooltipService,           // Singleton
+        ModalService,             // Singleton  
+        { provide: UI_CONFIG, useValue: config }
+      ]
+    };
+  }
+
+  // forChild: NO providers (safe for lazy modules — uses parent's singleton)
+  static forChild(): ModuleWithProviders&lt;UiModule&gt; {
+    return {
+      ngModule: UiModule,
+      providers: []  // Empty! Uses root providers
+    };
+  }
+}
+
+// AppModule:
+imports: [UiModule.forRoot({ theme: 'dark' })]  // ← provides singletons
+
+// LazyFeatureModule:
+imports: [UiModule.forChild()]  // ← only gets declarations, uses root services
+
+// IN STANDALONE WORLD (Angular 15+):
+// This pattern is OBSOLETE! Use:
+// - providedIn: 'root' for singletons
+// - Route-level providers for scoped services
+// - provideRouter(routes) instead of RouterModule.forRoot(routes)</code></pre>
+
+<div class="callout warning">
+<strong>⚠️ Common Bug:</strong> Importing a module with providers in a lazy module WITHOUT forChild() creates a SECOND instance of the service. This causes subtle bugs where lazy features have stale/different state than the rest of the app.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="inject-context">9. inject() Context Edge Cases</h2>
+
+<pre><code>// inject() can ONLY be called in an "injection context":
+// ✅ Field initializers
+// ✅ Constructor body
+// ✅ Factory functions (useFactory, InjectionToken factory)
+// ✅ afterNextRender / afterRender callbacks
+// ✅ Inside runInInjectionContext()
+// ❌ ngOnInit, ngOnChanges, lifecycle hooks
+// ❌ Event handlers, setTimeout callbacks
+// ❌ Regular methods called later
+
+// Example: inject() in field initializer (works!)
+@Component({ ... })
+class MyComponent {
+  private http = inject(HttpClient);            // ✅
+  private route = inject(ActivatedRoute);       // ✅
+  private destroy = inject(DestroyRef);         // ✅
+  
+  data$ = inject(HttpClient).get('/api/data');  // ✅ (inline)
+}
+
+// Example: inject() in ngOnInit (FAILS!)
+ngOnInit() {
+  const http = inject(HttpClient); // ❌ ERROR: inject() must be called in injection context
+}
+
+// Workaround: runInInjectionContext
+import { Injector, runInInjectionContext } from '@angular/core';
+
+@Component({ ... })
+class MyComponent {
+  private injector = inject(Injector);
+
+  laterMethod() {
+    runInInjectionContext(this.injector, () => {
+      const svc = inject(SomeService); // ✅ Works now!
+    });
+  }
+}
+
+// Common Pattern: Creating injection context in utility functions
+export function injectDestroy(): Observable&lt;void&gt; {
+  // Must be called during construction (field init or constructor)
+  const destroy$ = new Subject&lt;void&gt;();
+  inject(DestroyRef).onDestroy(() => {
+    destroy$.next();
+    destroy$.complete();
+  });
+  return destroy$.asObservable();
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="output-prediction">10. Output Prediction Challenges</h2>
+
+<div class="callout">
+<strong>Rules for solving Angular output questions:</strong>
+<ol>
+  <li>Lifecycle hooks fire in a SPECIFIC order (see diagram above)</li>
+  <li>Parent lifecycle hooks wrap child hooks (parent init → child init → parent afterViewInit)</li>
+  <li>OnPush + object mutation = NO re-render</li>
+  <li>Zone.js means setTimeout/Promise triggers CD (unless runOutsideAngular)</li>
+  <li>Signals are glitch-free (computed never shows intermediate state)</li>
+  <li>async pipe subscribes in ngOnInit and unsubscribes in ngOnDestroy</li>
+</ol>
+</div>
+
+<div class="output-q">
+<h4>Challenge 1: Lifecycle Hook Ordering</h4>
+<pre><code>// What's the console output when AppComponent renders?
+
+@Component({
+  selector: 'app-child',
+  template: '&lt;p&gt;child&lt;/p&gt;'
+})
+class ChildComponent implements OnInit, AfterViewInit, AfterContentInit {
+  ngOnInit() { console.log('Child OnInit'); }
+  ngAfterContentInit() { console.log('Child AfterContentInit'); }
+  ngAfterViewInit() { console.log('Child AfterViewInit'); }
+}
+
+@Component({
+  selector: 'app-root',
+  template: '&lt;app-child /&gt;'
+})
+class AppComponent implements OnInit, AfterViewInit, AfterContentInit {
+  ngOnInit() { console.log('Parent OnInit'); }
+  ngAfterContentInit() { console.log('Parent AfterContentInit'); }
+  ngAfterViewInit() { console.log('Parent AfterViewInit'); }
+}</code></pre>
+<details><summary>Answer</summary>
+<pre><code>Parent OnInit
+Parent AfterContentInit
+Child OnInit
+Child AfterContentInit
+Child AfterViewInit
+Parent AfterViewInit     // ← Parent WAITS for child's view!</code></pre>
+<p><strong>Rule:</strong> Parent's OnInit/AfterContentInit fire BEFORE children. But Parent's AfterViewInit fires AFTER all children's AfterViewInit (because parent's "view" includes child components).</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 2: OnPush + Object Mutation</h4>
+<pre><code>@Component({
+  selector: 'app-child',
+  template: '{{ user.name }}',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+class ChildComponent {
+  @Input() user!: { name: string };
+}
+
+@Component({
+  selector: 'app-root',
+  template: '&lt;app-child [user]="user" /&gt; &lt;button (click)="update()"&gt;Update&lt;/button&gt;'
+})
+class AppComponent {
+  user = { name: 'Alice' };
+  
+  update() {
+    this.user.name = 'Bob';  // Mutation!
+  }
+}
+
+// Q: After clicking "Update", what does child display?</code></pre>
+<details><summary>Answer</summary>
+<p><strong>Still displays "Alice"!</strong></p>
+<p>OnPush checks @Input REFERENCE. <code>this.user.name = 'Bob'</code> mutates the object but doesn't change the reference. The child's OnPush strategy sees the same object reference and SKIPS re-rendering.</p>
+<p><strong>Fix:</strong> <code>this.user = { ...this.user, name: 'Bob' };</code> (new reference)</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 3: async pipe + switchMap Cancellation</h4>
+<pre><code>@Component({
+  template: '{{ result$ | async }}'
+})
+class SearchComponent implements OnInit {
+  search$ = new Subject&lt;string&gt;();
+  result$!: Observable&lt;string&gt;;
+
+  ngOnInit() {
+    this.result$ = this.search$.pipe(
+      switchMap(term => {
+        console.log('Fetching:', term);
+        return of(`Result for ${term}`).pipe(delay(1000));
+      })
+    );
+  }
+
+  ngAfterViewInit() {
+    this.search$.next('Angular');
+    setTimeout(() => this.search$.next('React'), 500);
+  }
+}
+
+// Q: What gets logged? What does the template show after 1.5s?</code></pre>
+<details><summary>Answer</summary>
+<pre><code>// Console:
+"Fetching: Angular"     // t=0ms
+"Fetching: React"       // t=500ms (switchMap CANCELS "Angular" request)
+
+// Template after 1.5s:
+"Result for React"      // Only this — "Angular" was cancelled by switchMap</code></pre>
+<p><strong>Rule:</strong> switchMap cancels the previous inner observable when a new emission arrives. "Angular" request never completes because "React" is emitted 500ms later (before the 1000ms delay).</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 4: Signal Computed Glitch-Free Guarantee</h4>
+<pre><code>const firstName = signal('John');
+const lastName = signal('Doe');
+const fullName = computed(() => {
+  console.log('computed runs');
+  return `${firstName()} ${lastName()}`;
+});
+
+effect(() => {
+  console.log('effect:', fullName());
+});
+
+// After initial run, execute:
+firstName.set('Jane');
+lastName.set('Smith');
+
+// Q: How many times does "computed runs" log for the batch update?
+// Q: Does effect ever see "Jane Doe" (intermediate state)?</code></pre>
+<details><summary>Answer</summary>
+<p><strong>computed runs: ONCE</strong> for the batch (when finally read)</p>
+<p><strong>Effect NEVER sees "Jane Doe"</strong> — Angular signals are <strong>glitch-free</strong>. Effects are scheduled, not synchronous. By the time the effect runs, both signals have their final values.</p>
+<p>The notification is: "signals are dirty" → effect scheduled → effect runs → reads computed → computed evaluates with BOTH new values → "Jane Smith"</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 5: Zone.js + async/await Timing</h4>
+<pre><code>@Component({
+  template: '{{ value }}'
+})
+class TimingComponent implements OnInit {
+  value = 'initial';
+
+  async ngOnInit() {
+    console.log('1:', this.value);
+    this.value = 'sync update';
+    console.log('2:', this.value);
+    
+    await Promise.resolve();
+    
+    console.log('3:', this.value);
+    this.value = 'async update';
+    console.log('4:', this.value);
+  }
+}
+
+// Q: What's the console output?
+// Q: When does change detection run?</code></pre>
+<details><summary>Answer</summary>
+<pre><code>1: initial
+2: sync update
+// ← Change Detection runs here (microtask from Zone.js after sync code)
+3: sync update
+4: async update
+// ← Change Detection runs AGAIN (another microtask completed)</code></pre>
+<p><strong>Key insight:</strong> <code>await Promise.resolve()</code> creates a microtask boundary. Zone.js detects microtask completion and triggers CD. So there are TWO CD cycles — one after the sync part, one after the async part. The template shows "sync update" briefly, then "async update".</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 6: ContentChild vs ViewChild Resolution</h4>
+<pre><code>@Component({
+  selector: 'app-wrapper',
+  template: `
+    &lt;ng-content /&gt;
+    &lt;p #viewEl&gt;View Element&lt;/p&gt;
+  `
+})
+class WrapperComponent implements AfterContentInit, AfterViewInit {
+  @ContentChild('projectedEl') content!: ElementRef;
+  @ViewChild('viewEl') view!: ElementRef;
+
+  ngAfterContentInit() {
+    console.log('Content:', this.content?.nativeElement?.textContent);
+    console.log('View:', this.view?.nativeElement?.textContent);
+  }
+  ngAfterViewInit() {
+    console.log('Content2:', this.content?.nativeElement?.textContent);
+    console.log('View2:', this.view?.nativeElement?.textContent);
+  }
+}
+
+// Parent template:
+// &lt;app-wrapper&gt;
+//   &lt;p #projectedEl&gt;Projected Element&lt;/p&gt;
+// &lt;/app-wrapper&gt;</code></pre>
+<details><summary>Answer</summary>
+<pre><code>Content: Projected Element       // ✅ ContentChild available in AfterContentInit
+View: undefined                  // ❌ ViewChild NOT available yet!
+Content2: Projected Element      // ✅ Still available
+View2: View Element              // ✅ ViewChild available in AfterViewInit</code></pre>
+<p><strong>Rule:</strong> ContentChild resolves BEFORE ViewChild. Content (projected from parent) is processed first, then the component's own view template.</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 7: Dependency Injection Hierarchy</h4>
+<pre><code>@Injectable()
+class CounterService {
+  count = 0;
+  increment() { return ++this.count; }
+}
+
+@Component({
+  selector: 'app-child',
+  template: '{{ counter.increment() }}',
+  // NOTE: No providers here!
+})
+class ChildComponent {
+  counter = inject(CounterService);
+}
+
+@Component({
+  selector: 'app-parent',
+  template: '&lt;app-child /&gt;&lt;app-child /&gt;',
+  providers: [CounterService]  // Provides at PARENT level
+})
+class ParentComponent {}
+
+// Q: What numbers do the two app-child components display?</code></pre>
+<details><summary>Answer</summary>
+<p><strong>First child: 1, Second child: 2</strong></p>
+<p>Both children share the SAME CounterService instance (provided by parent). First child increments 0→1, second child increments 1→2. They share state because the service is provided at the parent level, not per-child.</p>
+<p>If each child had <code>providers: [CounterService]</code>, they'd each get their own instance and both show 1.</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 8: ngOnChanges vs Signal Input</h4>
+<pre><code>// With traditional @Input + ngOnChanges:
+@Component({ selector: 'app-a', template: '{{ label }}' })
+class CompA implements OnChanges {
+  @Input() value = 0;
+  label = '';
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['value']) {
+      this.label = `prev=${changes['value'].previousValue}, curr=${changes['value'].currentValue}`;
+    }
+  }
+}
+
+// With signal input:
+@Component({ selector: 'app-b', template: '{{ label() }}' })
+class CompB {
+  value = input(0);
+  label = computed(() => `value=${this.value()}`);
+}
+
+// Parent: &lt;app-a [value]="x" /&gt;&lt;app-b [value]="x" /&gt;
+// Parent sets x = 5 (initial was 0)
+
+// Q: What does CompA's ngOnChanges receive?
+// Q: Can CompB access previousValue?</code></pre>
+<details><summary>Answer</summary>
+<p><strong>CompA:</strong> <code>prev=0, curr=5</code> — ngOnChanges provides SimpleChange with previousValue/currentValue.</p>
+<p><strong>CompB:</strong> Can ONLY see current value <code>value=5</code>. Signal inputs don't track previous values. If you need previous, use <code>effect()</code> with a local variable or <code>toObservable()</code> with <code>pairwise()</code>.</p>
+<pre><code>// Workaround for previous value with signals:
+prevValue = signal(0);
+value = input(0);
+constructor() {
+  effect(() => {
+    const curr = this.value();
+    // Access this.prevValue() for previous
+    this.prevValue.set(curr); // Update after use
+  });
+}</code></pre>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 9: Router Guard Execution Order</h4>
+<pre><code>// Route config:
+{
+  path: 'admin',
+  canActivate: [() => { console.log('Guard 1'); return true; }],
+  canActivateChild: [() => { console.log('Guard 2'); return true; }],
+  children: [
+    {
+      path: 'settings',
+      canActivate: [() => { console.log('Guard 3'); return true; }],
+      component: SettingsComponent
+    }
+  ]
+}
+
+// Q: Navigate to /admin/settings — what's the console output?</code></pre>
+<details><summary>Answer</summary>
+<pre><code>Guard 1        // Parent canActivate runs FIRST
+Guard 2        // Parent canActivateChild runs SECOND
+Guard 3        // Child canActivate runs LAST</code></pre>
+<p><strong>Order:</strong> canActivate (parent) → canActivateChild (parent) → canActivate (child). If any returns false/UrlTree, navigation is cancelled and remaining guards don't run.</p>
+</details>
+</div>
+
+<div class="output-q">
+<h4>Challenge 10: ExpressionChangedAfterItHasBeenChecked</h4>
+<pre><code>@Component({
+  selector: 'app-child',
+  template: '{{ value }}'
+})
+class ChildComponent implements AfterViewInit {
+  @Input() value = 0;
+}
+
+@Component({
+  selector: 'app-root',
+  template: '&lt;app-child [value]="count" /&gt;'
+})
+class AppComponent implements AfterViewInit {
+  count = 0;
+  ngAfterViewInit() {
+    this.count = 1;  // ← Modify in AfterViewInit!
+  }
+}
+
+// Q: What error appears in dev mode? Why?</code></pre>
+<details><summary>Answer</summary>
+<p><strong>Error:</strong> <code>ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked. Previous value: '0'. Current value: '1'.</code></p>
+<p><strong>Why:</strong> Angular runs a verification pass (dev mode only) AFTER AfterViewInit. It detects that <code>count</code> changed from 0 to 1 between the check and verification pass. This means the DOM is out of sync — the child received 0 but parent now has 1.</p>
+<p><strong>Fixes:</strong></p>
+<ul>
+  <li><code>setTimeout(() => this.count = 1)</code> — pushes to next CD cycle</li>
+  <li><code>this.cdr.detectChanges()</code> — force immediate re-check</li>
+  <li>Use signals (they schedule updates properly)</li>
+  <li>Move the logic to ngOnInit instead</li>
+</ul>
+</details>
+</div>
+
+<div class="nav-links">
+  <a href="phase14-advanced-topics.html">← Phase 14: Advanced Topics</a>
+  <a href="phase16-ngrx-rxjs-advanced.html">Phase 16: NgRx & RxJS Advanced →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

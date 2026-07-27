@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Coding — Async JavaScript: E2E Problems, Theory & Solutions</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .companies { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+    .live-demo { border: 2px solid var(--accent-soft); border-radius: 12px; margin: 14px 0 18px; overflow: hidden; background: #fff; }
+    .live-demo-header { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); }
+    .live-demo iframe { width: 100%; height: 420px; border: none; display: block; }
+    details.html-source { margin: -10px 0 18px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    details.html-source summary { padding: 10px 14px; background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); cursor: pointer; user-select: none; }
+    details.html-source summary:hover { background: #d6eaf8; }
+    details.html-source pre { margin: 0; border: none; border-radius: 0; max-height: 400px; overflow-y: auto; font-size: 9pt; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Machine Coding — Async JavaScript</h1>
+  <p class="subtitle">E2E Problems with Theory, Solutions & Live Demos (Asked at Google, Amazon, Flipkart, Uber, Atlassian)</p>
+  <div class="pill-row">
+    <span class="pill">Promise from Scratch</span>
+    <span class="pill">Promise.all/race/any</span>
+    <span class="pill">Retry + Backoff</span>
+    <span class="pill">Concurrency Pool</span>
+    <span class="pill">Event Loop</span>
+    <span class="pill">AbortController</span>
+    <span class="pill">Async Queue</span>
+    <span class="pill">Rate Limiter</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>🎯 Why Async Machine Coding?</strong> At 4 YOE, interviewers expect you to implement Promise polyfills, understand event loop execution order, build retry mechanisms, and handle concurrency. These are NOT theoretical — you'll write working code on a whiteboard or coderpad. This guide covers <strong>theory → implementation → interactive demo</strong> for each problem.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#event-loop-theory">Event Loop — Theory & Output Prediction</a></li>
+    <li><a href="#promise-impl">Implement Promise from Scratch</a></li>
+    <li><a href="#promise-static">Promise.all / race / allSettled / any (Polyfills)</a></li>
+    <li><a href="#retry">Retry with Exponential Backoff</a></li>
+    <li><a href="#concurrency-pool">Promise Pool / Concurrency Limiter</a></li>
+    <li><a href="#async-queue">Async Task Queue (FIFO)</a></li>
+    <li><a href="#sequential-parallel">Sequential vs Parallel Execution</a></li>
+    <li><a href="#abort-cancel">Cancellable Fetch (AbortController)</a></li>
+    <li><a href="#rate-limiter">Rate Limiter</a></li>
+    <li><a href="#auto-retry-fetch">Auto-Retry Fetch Wrapper</a></li>
+    <li><a href="#timeout-promise">Timeout a Promise</a></li>
+    <li><a href="#lazy-load">Lazy/Deferred Promise</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-loop-theory">1. Event Loop — Theory & Output Prediction</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Amazon, Microsoft, Flipkart, Uber, Razorpay — literally everywhere</p>
+
+<h3>Theory — The Mental Model</h3>
+
+<p>JavaScript is <strong>single-threaded</strong>. It has ONE call stack. But it handles async operations through the <strong>Event Loop</strong>:</p>
+
+<pre><code>/*
+┌──────────────────────────────────────────────────────────────────┐
+│                   HOW THE EVENT LOOP WORKS                        │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. Execute ALL synchronous code (call stack)                    │
+│  2. Call stack empty? → Drain ALL microtasks                     │
+│  3. Microtask queue empty? → Pick ONE macrotask                  │
+│  4. After that macrotask → Drain ALL microtasks again            │
+│  5. Repeat forever                                               │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│  MICROTASKS (higher priority):                                   │
+│  • Promise.then / catch / finally                                │
+│  • queueMicrotask()                                              │
+│  • MutationObserver                                              │
+│  • process.nextTick() [Node.js only, even higher priority]       │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│  MACROTASKS (lower priority):                                    │
+│  • setTimeout / setInterval                                      │
+│  • setImmediate() [Node.js only]                                 │
+│  • I/O callbacks                                                 │
+│  • UI rendering (between macrotasks in browsers)                 │
+│  • requestAnimationFrame (before repaint)                        │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│  KEY RULE: Microtasks can STARVE macrotasks!                     │
+│  If a microtask enqueues another microtask, it runs immediately  │
+│  before any macrotask gets a chance.                             │
+└──────────────────────────────────────────────────────────────────┘
+*/</code></pre>
+
+<h4>The Golden Rules</h4>
+<ol>
+  <li><strong>Promise executor is SYNC</strong> — <code>new Promise((resolve, reject) => { /* THIS IS SYNC */ })</code></li>
+  <li><strong>await pauses the function, not the thread</strong> — code AFTER await becomes a microtask</li>
+  <li><strong>Microtasks always run before macrotasks</strong> — setTimeout(0) loses to Promise.then()</li>
+  <li><strong>Nested microtasks run immediately</strong> — they don't wait for the next "tick"</li>
+</ol>
+
+<h3>Live Demo — Output Prediction Quiz</h3>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Interactive Quiz — Predict the output, then reveal answer</div>
+  <iframe src="demos/event-loop-quiz.html" loading="lazy" style="height:580px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Event Loop Output Prediction&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 30px; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 8px; font-size: 22px; }
+    .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+    .demo-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .demo-card h3 { margin-bottom: 8px; color: #1a5276; font-size: 14px; }
+    .code-block { background: #282c34; color: #abb2bf; padding: 14px; border-radius: 8px; font-family: &#x27;SF Mono&#x27;, Consolas, monospace; font-size: 12px; line-height: 1.7; margin-bottom: 10px; overflow-x: auto; white-space: pre; }
+    button { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin: 4px; }
+    .btn-reveal { background: #27ae60; color: white; }
+    .btn-run { background: #4a90d9; color: white; }
+    .answer { display: none; margin-top: 10px; padding: 12px; background: #1a1a2e; border-radius: 8px; font-family: monospace; font-size: 12px; color: #27ae60; line-height: 1.8; }
+    .answer.show { display: block; }
+    .explanation { display: none; margin-top: 8px; padding: 10px 14px; background: #f0f7fc; border-left: 3px solid #4a90d9; border-radius: 0 6px 6px 0; font-size: 12px; color: #333; line-height: 1.6; }
+    .explanation.show { display: block; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;🧠 Event Loop Output Prediction&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;Predict the output order — tests microtask vs macrotask understanding&lt;/p&gt;
+
+  &lt;!-- Q1 --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;Q1: Basic Promise vs setTimeout&lt;/h3&gt;
+    &lt;div class=&quot;code-block&quot;&gt;console.log(&#x27;1&#x27;);
+setTimeout(() =&gt; console.log(&#x27;2&#x27;), 0);
+Promise.resolve().then(() =&gt; console.log(&#x27;3&#x27;));
+console.log(&#x27;4&#x27;);&lt;/div&gt;
+    &lt;button class=&quot;btn-reveal&quot; onclick=&quot;toggle(&#x27;a1&#x27;)&quot;&gt;Reveal Answer&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;toggle(&#x27;e1&#x27;)&quot;&gt;Explain&lt;/button&gt;
+    &lt;div class=&quot;answer&quot; id=&quot;a1&quot;&gt;1 → 4 → 3 → 2&lt;/div&gt;
+    &lt;div class=&quot;explanation&quot; id=&quot;e1&quot;&gt;
+      &lt;strong&gt;Execution order:&lt;/strong&gt;&lt;br&gt;
+      1. &lt;code&gt;console.log(&#x27;1&#x27;)&lt;/code&gt; — sync, runs immediately&lt;br&gt;
+      2. &lt;code&gt;setTimeout&lt;/code&gt; — schedules callback to &lt;strong&gt;macrotask queue&lt;/strong&gt;&lt;br&gt;
+      3. &lt;code&gt;Promise.then&lt;/code&gt; — schedules callback to &lt;strong&gt;microtask queue&lt;/strong&gt;&lt;br&gt;
+      4. &lt;code&gt;console.log(&#x27;4&#x27;)&lt;/code&gt; — sync, runs immediately&lt;br&gt;
+      5. Call stack empty → drain microtask queue → &lt;code&gt;&#x27;3&#x27;&lt;/code&gt;&lt;br&gt;
+      6. Microtasks done → pick from macrotask queue → &lt;code&gt;&#x27;2&#x27;&lt;/code&gt;&lt;br&gt;
+      &lt;strong&gt;Rule:&lt;/strong&gt; Microtasks ALWAYS run before the next macrotask.
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Q2 --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;Q2: Nested Promises&lt;/h3&gt;
+    &lt;div class=&quot;code-block&quot;&gt;Promise.resolve().then(() =&gt; {
+  console.log(&#x27;A&#x27;);
+  Promise.resolve().then(() =&gt; console.log(&#x27;B&#x27;));
+}).then(() =&gt; console.log(&#x27;C&#x27;));
+
+Promise.resolve().then(() =&gt; console.log(&#x27;D&#x27;));&lt;/div&gt;
+    &lt;button class=&quot;btn-reveal&quot; onclick=&quot;toggle(&#x27;a2&#x27;)&quot;&gt;Reveal Answer&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;toggle(&#x27;e2&#x27;)&quot;&gt;Explain&lt;/button&gt;
+    &lt;div class=&quot;answer&quot; id=&quot;a2&quot;&gt;A → D → B → C&lt;/div&gt;
+    &lt;div class=&quot;explanation&quot; id=&quot;e2&quot;&gt;
+      &lt;strong&gt;Microtask queue processing:&lt;/strong&gt;&lt;br&gt;
+      1. Two .then callbacks enqueued: [then→A, then→D]&lt;br&gt;
+      2. Run then→A: logs &#x27;A&#x27;, enqueues then→B, returns (so next .then→C is enqueued)&lt;br&gt;
+      3. Run then→D: logs &#x27;D&#x27;&lt;br&gt;
+      4. Queue now: [then→B, then→C]&lt;br&gt;
+      5. Run then→B: logs &#x27;B&#x27;&lt;br&gt;
+      6. Run then→C: logs &#x27;C&#x27;&lt;br&gt;
+      &lt;strong&gt;Key:&lt;/strong&gt; Inner .then gets enqueued during execution, but the next chained .then also gets enqueued at the same level.
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Q3 --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;Q3: async/await Desugaring&lt;/h3&gt;
+    &lt;div class=&quot;code-block&quot;&gt;async function foo() {
+  console.log(&#x27;foo start&#x27;);
+  await Promise.resolve();
+  console.log(&#x27;foo end&#x27;);
+}
+
+console.log(&#x27;script start&#x27;);
+foo();
+console.log(&#x27;script end&#x27;);&lt;/div&gt;
+    &lt;button class=&quot;btn-reveal&quot; onclick=&quot;toggle(&#x27;a3&#x27;)&quot;&gt;Reveal Answer&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;toggle(&#x27;e3&#x27;)&quot;&gt;Explain&lt;/button&gt;
+    &lt;div class=&quot;answer&quot; id=&quot;a3&quot;&gt;script start → foo start → script end → foo end&lt;/div&gt;
+    &lt;div class=&quot;explanation&quot; id=&quot;e3&quot;&gt;
+      &lt;strong&gt;await pauses the function, not the call stack:&lt;/strong&gt;&lt;br&gt;
+      1. &lt;code&gt;&#x27;script start&#x27;&lt;/code&gt; — sync&lt;br&gt;
+      2. Call &lt;code&gt;foo()&lt;/code&gt; — enters function, logs &lt;code&gt;&#x27;foo start&#x27;&lt;/code&gt;&lt;br&gt;
+      3. &lt;code&gt;await&lt;/code&gt; — pauses foo, schedules the rest as a microtask, returns to caller&lt;br&gt;
+      4. &lt;code&gt;&#x27;script end&#x27;&lt;/code&gt; — sync (caller continues)&lt;br&gt;
+      5. Call stack empty → microtask → &lt;code&gt;&#x27;foo end&#x27;&lt;/code&gt;&lt;br&gt;
+      &lt;strong&gt;Key:&lt;/strong&gt; Everything AFTER await is equivalent to putting it inside .then()
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Q4 --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;Q4: setTimeout vs Promise vs queueMicrotask&lt;/h3&gt;
+    &lt;div class=&quot;code-block&quot;&gt;setTimeout(() =&gt; console.log(&#x27;timeout&#x27;), 0);
+queueMicrotask(() =&gt; console.log(&#x27;microtask&#x27;));
+Promise.resolve().then(() =&gt; console.log(&#x27;promise&#x27;));
+console.log(&#x27;sync&#x27;);&lt;/div&gt;
+    &lt;button class=&quot;btn-reveal&quot; onclick=&quot;toggle(&#x27;a4&#x27;)&quot;&gt;Reveal Answer&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;toggle(&#x27;e4&#x27;)&quot;&gt;Explain&lt;/button&gt;
+    &lt;div class=&quot;answer&quot; id=&quot;a4&quot;&gt;sync → microtask → promise → timeout&lt;/div&gt;
+    &lt;div class=&quot;explanation&quot; id=&quot;e4&quot;&gt;
+      &lt;strong&gt;Priority hierarchy:&lt;/strong&gt;&lt;br&gt;
+      1. Synchronous code runs first&lt;br&gt;
+      2. &lt;code&gt;queueMicrotask&lt;/code&gt; and &lt;code&gt;Promise.then&lt;/code&gt; both go to microtask queue (FIFO order)&lt;br&gt;
+      3. &lt;code&gt;setTimeout&lt;/code&gt; goes to macrotask queue&lt;br&gt;
+      4. All microtasks drain before any macrotask&lt;br&gt;
+      &lt;strong&gt;Microtask sources:&lt;/strong&gt; Promise.then, queueMicrotask, MutationObserver&lt;br&gt;
+      &lt;strong&gt;Macrotask sources:&lt;/strong&gt; setTimeout, setInterval, setImmediate, I/O, requestAnimationFrame
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Q5 --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;Q5: The Tricky One — async + setTimeout + Promise&lt;/h3&gt;
+    &lt;div class=&quot;code-block&quot;&gt;async function async1() {
+  console.log(&#x27;async1 start&#x27;);
+  await async2();
+  console.log(&#x27;async1 end&#x27;);
+}
+async function async2() { console.log(&#x27;async2&#x27;); }
+
+console.log(&#x27;start&#x27;);
+setTimeout(() =&gt; console.log(&#x27;timeout&#x27;), 0);
+async1();
+new Promise((resolve) =&gt; {
+  console.log(&#x27;promise1&#x27;);
+  resolve();
+}).then(() =&gt; console.log(&#x27;promise2&#x27;));
+console.log(&#x27;end&#x27;);&lt;/div&gt;
+    &lt;button class=&quot;btn-reveal&quot; onclick=&quot;toggle(&#x27;a5&#x27;)&quot;&gt;Reveal Answer&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;toggle(&#x27;e5&#x27;)&quot;&gt;Explain&lt;/button&gt;
+    &lt;div class=&quot;answer&quot; id=&quot;a5&quot;&gt;start → async1 start → async2 → promise1 → end → async1 end → promise2 → timeout&lt;/div&gt;
+    &lt;div class=&quot;explanation&quot; id=&quot;e5&quot;&gt;
+      &lt;strong&gt;Step-by-step:&lt;/strong&gt;&lt;br&gt;
+      1. &lt;code&gt;&#x27;start&#x27;&lt;/code&gt; — sync&lt;br&gt;
+      2. setTimeout enqueued to macrotask&lt;br&gt;
+      3. Call async1: &lt;code&gt;&#x27;async1 start&#x27;&lt;/code&gt;, then call async2: &lt;code&gt;&#x27;async2&#x27;&lt;/code&gt;&lt;br&gt;
+      4. await pauses async1, schedules rest as microtask&lt;br&gt;
+      5. new Promise executor is SYNC: &lt;code&gt;&#x27;promise1&#x27;&lt;/code&gt;, resolve() → .then enqueued as microtask&lt;br&gt;
+      6. &lt;code&gt;&#x27;end&#x27;&lt;/code&gt; — sync&lt;br&gt;
+      7. Call stack empty → microtask queue: [async1-continuation, promise2]&lt;br&gt;
+      8. &lt;code&gt;&#x27;async1 end&#x27;&lt;/code&gt;, then &lt;code&gt;&#x27;promise2&#x27;&lt;/code&gt;&lt;br&gt;
+      9. Macrotask: &lt;code&gt;&#x27;timeout&#x27;&lt;/code&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function toggle(id) {
+  document.getElementById(id).classList.toggle(&#x27;show&#x27;);
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promise-impl">2. Implement Promise from Scratch</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Microsoft, Flipkart, Atlassian, Razorpay, PhonePe</p>
+
+<h3>Theory — How Promises Work Internally</h3>
+
+<p>A Promise is a <strong>state machine</strong> with 3 states: <code>pending → fulfilled</code> OR <code>pending → rejected</code>. Once settled, it NEVER changes state again.</p>
+
+<pre><code>/*
+  Promise Internals:
+  ┌─────────┐     resolve(value)     ┌───────────┐
+  │ PENDING │ ─────────────────────→ │ FULFILLED │
+  │         │                        └───────────┘
+  │         │     reject(reason)     ┌──────────┐
+  │         │ ─────────────────────→ │ REJECTED │
+  └─────────┘                        └──────────┘
+
+  Key implementation details:
+  1. Store callbacks array (for .then called before resolution)
+  2. Handle "thenable" values (if resolve(anotherPromise))
+  3. .then() ALWAYS returns a new Promise (chaining!)
+  4. Callbacks must be async (queueMicrotask)
+*/</code></pre>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>class MyPromise {
+  constructor(executor) {
+    this.state = 'pending';   // pending | fulfilled | rejected
+    this.value = undefined;   // resolved value or rejection reason
+    this.callbacks = [];      // [{onFulfilled, onRejected}] — queued .then handlers
+
+    const resolve = (value) => {
+      if (this.state !== 'pending') return; // Ignore if already settled
+      
+      // If value is a thenable, unwrap it
+      if (value && (typeof value === 'object' || typeof value === 'function') && typeof value.then === 'function') {
+        value.then(resolve, reject);
+        return;
+      }
+      
+      this.state = 'fulfilled';
+      this.value = value;
+      this.callbacks.forEach(cb => cb.onFulfilled(value));
+    };
+
+    const reject = (reason) => {
+      if (this.state !== 'pending') return;
+      this.state = 'rejected';
+      this.value = reason;
+      this.callbacks.forEach(cb => cb.onRejected(reason));
+    };
+
+    try {
+      executor(resolve, reject);
+    } catch (err) {
+      reject(err); // Executor throws → auto-reject
+    }
+  }
+
+  then(onFulfilled, onRejected) {
+    // .then ALWAYS returns a new Promise for chaining
+    return new MyPromise((resolve, reject) => {
+      const handleFulfilled = (value) => {
+        queueMicrotask(() => {
+          try {
+            if (typeof onFulfilled === 'function') {
+              resolve(onFulfilled(value));
+            } else {
+              resolve(value); // Pass through if no handler
+            }
+          } catch (err) {
+            reject(err);
+          }
+        });
+      };
+
+      const handleRejected = (reason) => {
+        queueMicrotask(() => {
+          try {
+            if (typeof onRejected === 'function') {
+              resolve(onRejected(reason)); // catch returns resolved promise!
+            } else {
+              reject(reason); // Propagate rejection
+            }
+          } catch (err) {
+            reject(err);
+          }
+        });
+      };
+
+      // If already settled, run immediately (async)
+      if (this.state === 'fulfilled') handleFulfilled(this.value);
+      else if (this.state === 'rejected') handleRejected(this.value);
+      else this.callbacks.push({ onFulfilled: handleFulfilled, onRejected: handleRejected });
+    });
+  }
+
+  catch(onRejected) {
+    return this.then(null, onRejected);
+  }
+
+  finally(fn) {
+    return this.then(
+      value => { fn(); return value; },
+      reason => { fn(); throw reason; }
+    );
+  }
+}
+
+// Usage:
+const p = new MyPromise((resolve) => {
+  setTimeout(() => resolve(42), 1000);
+});
+
+p.then(val => val * 2)
+ .then(val => console.log(val)) // 84
+ .catch(err => console.error(err));</code></pre>
+
+<div class="callout">
+<strong>🔑 Interview Key Points:</strong>
+<ul>
+  <li>Executor runs synchronously in constructor</li>
+  <li>.then() returns a NEW promise (not the same one)</li>
+  <li>Resolution with a thenable recursively unwraps</li>
+  <li>Must use queueMicrotask (or setTimeout) for async execution</li>
+  <li>Catch is just .then(null, onRejected)</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promise-static">3. Promise.all / race / allSettled / any (Polyfills)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Amazon, Google, Flipkart, Razorpay, PhonePe, Paytm, Swiggy</p>
+
+<h3>Theory — When to Use Which</h3>
+
+<table>
+<tr><th>Method</th><th>Resolves When</th><th>Rejects When</th><th>Use Case</th></tr>
+<tr><td><code>Promise.all</code></td><td>ALL resolve</td><td>FIRST rejects (fail-fast)</td><td>Load all resources, parallel API calls that ALL must succeed</td></tr>
+<tr><td><code>Promise.race</code></td><td>FIRST settles (resolve OR reject)</td><td>FIRST settles</td><td>Timeout pattern, fastest server wins</td></tr>
+<tr><td><code>Promise.allSettled</code></td><td>ALL settle (never rejects)</td><td>Never</td><td>Fire-and-forget, batch where some can fail</td></tr>
+<tr><td><code>Promise.any</code></td><td>FIRST resolves</td><td>ALL reject (AggregateError)</td><td>Fastest success, CDN fallback, first available</td></tr>
+</table>
+
+<h3>Complete Polyfill Implementations</h3>
+
+<pre><code>// ━━━━━ Promise.all ━━━━━
+// Resolves with array of all values. Rejects immediately on first rejection.
+Promise.myAll = function(promises) {
+  return new Promise((resolve, reject) => {
+    if (!promises.length) return resolve([]);
+    
+    const results = [];
+    let completed = 0;
+    
+    promises.forEach((p, i) => {
+      Promise.resolve(p).then(
+        value => {
+          results[i] = value; // Maintain order!
+          if (++completed === promises.length) resolve(results);
+        },
+        reject // First rejection rejects entire Promise.all
+      );
+    });
+  });
+};
+
+// ━━━━━ Promise.race ━━━━━
+// First promise to settle (resolve OR reject) wins.
+Promise.myRace = function(promises) {
+  return new Promise((resolve, reject) => {
+    promises.forEach(p => Promise.resolve(p).then(resolve, reject));
+  });
+};
+
+// ━━━━━ Promise.allSettled ━━━━━
+// NEVER rejects. Returns [{status, value/reason}] for each promise.
+Promise.myAllSettled = function(promises) {
+  return new Promise((resolve) => {
+    if (!promises.length) return resolve([]);
+    
+    const results = [];
+    let completed = 0;
+    
+    promises.forEach((p, i) => {
+      Promise.resolve(p).then(
+        value => {
+          results[i] = { status: 'fulfilled', value };
+          if (++completed === promises.length) resolve(results);
+        },
+        reason => {
+          results[i] = { status: 'rejected', reason };
+          if (++completed === promises.length) resolve(results);
+        }
+      );
+    });
+  });
+};
+
+// ━━━━━ Promise.any ━━━━━
+// First to RESOLVE wins. Only rejects if ALL reject (AggregateError).
+Promise.myAny = function(promises) {
+  return new Promise((resolve, reject) => {
+    if (!promises.length) return reject(new AggregateError([], 'All promises rejected'));
+    
+    const errors = [];
+    let rejectedCount = 0;
+    
+    promises.forEach((p, i) => {
+      Promise.resolve(p).then(
+        resolve, // First resolve wins!
+        reason => {
+          errors[i] = reason;
+          if (++rejectedCount === promises.length) {
+            reject(new AggregateError(errors, 'All promises were rejected'));
+          }
+        }
+      );
+    });
+  });
+};</code></pre>
+
+<h3>Live Demo — See All Methods in Action</h3>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Interactive Demo — Run each method and watch resolve/reject timing</div>
+  <iframe src="demos/promise-impl.html" loading="lazy" style="height:600px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Promise from Scratch + Promise.all/race/any/allSettled&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 30px; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 8px; font-size: 22px; }
+    .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+    .demo-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .demo-card h3 { margin-bottom: 10px; color: #1a5276; font-size: 15px; }
+    button { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; margin: 4px; transition: transform 0.1s; }
+    button:active { transform: scale(0.95); }
+    .btn-run { background: #4a90d9; color: white; }
+    .btn-clear { background: #eee; color: #555; }
+    .log-area { margin-top: 10px; padding: 12px; background: #1a1a2e; border-radius: 8px; max-height: 200px; overflow-y: auto; font-family: &#x27;SF Mono&#x27;, Consolas, monospace; font-size: 11.5px; color: #eee; line-height: 1.8; }
+    .log-area .resolve { color: #27ae60; }
+    .log-area .reject { color: #e74c3c; }
+    .log-area .info { color: #f39c12; }
+    .log-area .time { color: #888; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;🔗 Custom Promise + Static Methods&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;All methods built from scratch — see them resolve/reject in real-time&lt;/p&gt;
+
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;1. MyPromise — Basic resolve/reject/then/catch&lt;/h3&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runBasic()&quot;&gt;Run Demo&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log1&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log1&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;2. MyPromise.all — All must resolve (fails fast)&lt;/h3&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runAll()&quot;&gt;Run (All Pass)&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; style=&quot;background:#e74c3c&quot; onclick=&quot;runAllFail()&quot;&gt;Run (One Fails)&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log2&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log2&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;3. MyPromise.race — First to settle wins&lt;/h3&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runRace()&quot;&gt;Run Race&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log3&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log3&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;4. MyPromise.allSettled — Wait for all, never rejects&lt;/h3&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runAllSettled()&quot;&gt;Run&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log4&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log4&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;5. MyPromise.any — First to resolve wins (AggregateError if all fail)&lt;/h3&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runAny()&quot;&gt;Run (One Resolves)&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; style=&quot;background:#e74c3c&quot; onclick=&quot;runAnyAllFail()&quot;&gt;Run (All Fail)&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log5&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log5&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CUSTOM PROMISE IMPLEMENTATION (FROM SCRATCH)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+class MyPromise {
+  constructor(executor) {
+    this.state = &#x27;pending&#x27;;
+    this.value = undefined;
+    this.callbacks = [];
+
+    const resolve = (value) =&gt; {
+      if (this.state !== &#x27;pending&#x27;) return;
+      // Handle thenable
+      if (value &amp;&amp; typeof value.then === &#x27;function&#x27;) {
+        value.then(resolve, reject);
+        return;
+      }
+      this.state = &#x27;fulfilled&#x27;;
+      this.value = value;
+      this.callbacks.forEach(cb =&gt; cb.onFulfilled(value));
+    };
+
+    const reject = (reason) =&gt; {
+      if (this.state !== &#x27;pending&#x27;) return;
+      this.state = &#x27;rejected&#x27;;
+      this.value = reason;
+      this.callbacks.forEach(cb =&gt; cb.onRejected(reason));
+    };
+
+    try {
+      executor(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
+  }
+
+  then(onFulfilled, onRejected) {
+    return new MyPromise((resolve, reject) =&gt; {
+      const handle = (fn, fallback) =&gt; (value) =&gt; {
+        try {
+          if (typeof fn === &#x27;function&#x27;) {
+            resolve(fn(value));
+          } else {
+            fallback(value);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      };
+
+      if (this.state === &#x27;fulfilled&#x27;) {
+        queueMicrotask(() =&gt; handle(onFulfilled, resolve)(this.value));
+      } else if (this.state === &#x27;rejected&#x27;) {
+        queueMicrotask(() =&gt; handle(onRejected, reject)(this.value));
+      } else {
+        this.callbacks.push({
+          onFulfilled: handle(onFulfilled, resolve),
+          onRejected: handle(onRejected, reject),
+        });
+      }
+    });
+  }
+
+  catch(onRejected) { return this.then(null, onRejected); }
+  finally(fn) { return this.then(v =&gt; { fn(); return v; }, r =&gt; { fn(); throw r; }); }
+
+  // ━━━━━━━ STATIC METHODS ━━━━━━━
+  static resolve(val) { return new MyPromise(res =&gt; res(val)); }
+  static reject(val) { return new MyPromise((_, rej) =&gt; rej(val)); }
+
+  static all(promises) {
+    return new MyPromise((resolve, reject) =&gt; {
+      const results = [];
+      let completed = 0;
+      if (promises.length === 0) return resolve([]);
+
+      promises.forEach((p, i) =&gt; {
+        MyPromise.resolve(p).then(val =&gt; {
+          results[i] = val;
+          if (++completed === promises.length) resolve(results);
+        }, reject); // First rejection rejects all
+      });
+    });
+  }
+
+  static race(promises) {
+    return new MyPromise((resolve, reject) =&gt; {
+      promises.forEach(p =&gt; MyPromise.resolve(p).then(resolve, reject));
+    });
+  }
+
+  static allSettled(promises) {
+    return new MyPromise((resolve) =&gt; {
+      const results = [];
+      let completed = 0;
+      if (promises.length === 0) return resolve([]);
+
+      promises.forEach((p, i) =&gt; {
+        MyPromise.resolve(p).then(
+          val =&gt; { results[i] = { status: &#x27;fulfilled&#x27;, value: val }; if (++completed === promises.length) resolve(results); },
+          reason =&gt; { results[i] = { status: &#x27;rejected&#x27;, reason }; if (++completed === promises.length) resolve(results); }
+        );
+      });
+    });
+  }
+
+  static any(promises) {
+    return new MyPromise((resolve, reject) =&gt; {
+      const errors = [];
+      let rejectedCount = 0;
+      if (promises.length === 0) return reject(new AggregateError([], &#x27;All promises were rejected&#x27;));
+
+      promises.forEach((p, i) =&gt; {
+        MyPromise.resolve(p).then(resolve, err =&gt; {
+          errors[i] = err;
+          if (++rejectedCount === promises.length) {
+            reject(new AggregateError(errors, &#x27;All promises were rejected&#x27;));
+          }
+        });
+      });
+    });
+  }
+}
+
+// ━━━━━━━ DEMO HELPERS ━━━━━━━
+function log(id, msg, cls = &#x27;&#x27;) {
+  const el = document.getElementById(id);
+  const time = new Date().toLocaleTimeString([], { hour12: false, fractionalSecondDigits: 2 });
+  el.innerHTML += `&lt;div class=&quot;${cls}&quot;&gt;&lt;span class=&quot;time&quot;&gt;[${time}]&lt;/span&gt; ${msg}&lt;/div&gt;`;
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog(id) { document.getElementById(id).innerHTML = &#x27;&#x27;; }
+
+function delay(ms, val, shouldReject = false) {
+  return new MyPromise((resolve, reject) =&gt; {
+    setTimeout(() =&gt; shouldReject ? reject(val) : resolve(val), ms);
+  });
+}
+
+// ━━━━━━━ DEMOS ━━━━━━━
+function runBasic() {
+  log(&#x27;log1&#x27;, &#x27;▶ Creating MyPromise...&#x27;, &#x27;info&#x27;);
+  const p = new MyPromise((resolve) =&gt; {
+    setTimeout(() =&gt; resolve(&#x27;Hello from MyPromise!&#x27;), 800);
+  });
+  p.then(val =&gt; { log(&#x27;log1&#x27;, `✅ Resolved: &quot;${val}&quot;`, &#x27;resolve&#x27;); })
+   .catch(err =&gt; { log(&#x27;log1&#x27;, `❌ Rejected: ${err}`, &#x27;reject&#x27;); });
+  log(&#x27;log1&#x27;, &#x27;⏳ Waiting 800ms for resolution...&#x27;, &#x27;info&#x27;);
+}
+
+function runAll() {
+  log(&#x27;log2&#x27;, &#x27;▶ Promise.all([300ms, 600ms, 200ms]) — all resolve&#x27;, &#x27;info&#x27;);
+  const start = Date.now();
+  MyPromise.all([
+    delay(300, &#x27;API-1&#x27;), delay(600, &#x27;API-2&#x27;), delay(200, &#x27;API-3&#x27;)
+  ]).then(results =&gt; {
+    log(&#x27;log2&#x27;, `✅ All resolved in ${Date.now()-start}ms: [${results.join(&#x27;, &#x27;)}]`, &#x27;resolve&#x27;);
+  });
+}
+
+function runAllFail() {
+  log(&#x27;log2&#x27;, &#x27;▶ Promise.all — 2nd rejects at 200ms&#x27;, &#x27;info&#x27;);
+  MyPromise.all([
+    delay(500, &#x27;OK-1&#x27;), delay(200, &#x27;NETWORK_ERROR&#x27;, true), delay(300, &#x27;OK-3&#x27;)
+  ]).then(
+    r =&gt; log(&#x27;log2&#x27;, `✅ ${r}`, &#x27;resolve&#x27;),
+    err =&gt; log(&#x27;log2&#x27;, `❌ Fast-failed: &quot;${err}&quot; (others cancelled)`, &#x27;reject&#x27;)
+  );
+}
+
+function runRace() {
+  log(&#x27;log3&#x27;, &#x27;▶ Promise.race([500ms, 200ms, 800ms]) — fastest wins&#x27;, &#x27;info&#x27;);
+  MyPromise.race([
+    delay(500, &#x27;Slow&#x27;), delay(200, &#x27;Fast!&#x27;), delay(800, &#x27;Slowest&#x27;)
+  ]).then(val =&gt; log(&#x27;log3&#x27;, `🏆 Winner: &quot;${val}&quot; (200ms)`, &#x27;resolve&#x27;));
+}
+
+function runAllSettled() {
+  log(&#x27;log4&#x27;, &#x27;▶ Promise.allSettled — mix of resolve/reject&#x27;, &#x27;info&#x27;);
+  MyPromise.allSettled([
+    delay(200, &#x27;OK&#x27;), delay(400, &#x27;FAIL&#x27;, true), delay(300, &#x27;Also OK&#x27;)
+  ]).then(results =&gt; {
+    results.forEach((r, i) =&gt; {
+      if (r.status === &#x27;fulfilled&#x27;) log(&#x27;log4&#x27;, `  [${i}] ✅ fulfilled: &quot;${r.value}&quot;`, &#x27;resolve&#x27;);
+      else log(&#x27;log4&#x27;, `  [${i}] ❌ rejected: &quot;${r.reason}&quot;`, &#x27;reject&#x27;);
+    });
+  });
+}
+
+function runAny() {
+  log(&#x27;log5&#x27;, &#x27;▶ Promise.any — first resolve wins, ignores rejections&#x27;, &#x27;info&#x27;);
+  MyPromise.any([
+    delay(300, &#x27;ERR-1&#x27;, true), delay(200, &#x27;First Success!&#x27;), delay(500, &#x27;ERR-2&#x27;, true)
+  ]).then(val =&gt; log(&#x27;log5&#x27;, `✅ First resolved: &quot;${val}&quot;`, &#x27;resolve&#x27;));
+}
+
+function runAnyAllFail() {
+  log(&#x27;log5&#x27;, &#x27;▶ Promise.any — ALL reject → AggregateError&#x27;, &#x27;info&#x27;);
+  MyPromise.any([
+    delay(200, &#x27;E1&#x27;, true), delay(300, &#x27;E2&#x27;, true), delay(100, &#x27;E3&#x27;, true)
+  ]).then(
+    val =&gt; log(&#x27;log5&#x27;, `✅ ${val}`, &#x27;resolve&#x27;),
+    err =&gt; log(&#x27;log5&#x27;, `❌ AggregateError: [${err.errors.join(&#x27;, &#x27;)}]`, &#x27;reject&#x27;)
+  );
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="retry">4. Retry with Exponential Backoff</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Amazon, Uber, Flipkart, Razorpay, Swiggy</p>
+
+<h3>Theory</h3>
+<p><strong>Exponential Backoff</strong>: Wait time doubles after each failure: 200ms → 400ms → 800ms → 1600ms. This prevents thundering herd (all clients retrying simultaneously after a service recovers).</p>
+
+<p><strong>Jitter</strong>: Add randomness to prevent synchronized retries across clients. Without jitter, 10,000 clients all retry at exactly the same exponential intervals.</p>
+
+<pre><code>/*
+  Retry Strategy:
+  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+  │  Attempt 1   │────→│  Wait 200ms  │────→│  Attempt 2   │───→ ...
+  │  (FAIL)      │     │  (backoff)   │     │  (FAIL)      │
+  └──────────────┘     └──────────────┘     └──────────────┘
+  
+  Backoff formula: delay = baseDelay * (factor ^ attemptNumber)
+  With jitter:     delay = baseDelay * (factor ^ attempt) * random(0.5, 1.5)
+*/</code></pre>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>async function retry(fn, options = {}) {
+  const {
+    retries = 3,          // Max retry attempts
+    baseDelay = 200,      // Initial delay in ms
+    factor = 2,           // Exponential factor
+    maxDelay = 10000,     // Cap maximum delay
+    jitter = true,        // Add randomness
+    retryOn = null,       // Function to decide if error is retryable
+    onRetry = null,       // Callback on each retry
+  } = options;
+
+  let lastError;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn(attempt);
+    } catch (err) {
+      lastError = err;
+
+      // Check if we should retry this specific error
+      if (retryOn && !retryOn(err)) throw err;
+      
+      // No more retries left
+      if (attempt === retries) break;
+
+      // Calculate delay with exponential backoff
+      let delay = Math.min(baseDelay * Math.pow(factor, attempt), maxDelay);
+      
+      // Add jitter (±50%)
+      if (jitter) {
+        delay *= 0.5 + Math.random();
+      }
+
+      if (onRetry) onRetry(attempt + 1, delay, err);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
+}
+
+// ━━━━━ Usage Examples ━━━━━
+
+// Basic retry
+const data = await retry(() => fetch('/api/data').then(r => {
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}), { retries: 3, baseDelay: 1000 });
+
+// Retry only on network errors (not 4xx)
+await retry(fetchUserData, {
+  retries: 5,
+  retryOn: (err) => err.message.includes('503') || err.message.includes('timeout'),
+  onRetry: (attempt, delay) => console.log(`Retry ${attempt}, waiting ${delay}ms`),
+});
+
+// With AbortController for timeout
+async function fetchWithTimeout(url, timeout = 5000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    return response.json();
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="concurrency-pool">5. Promise Pool / Concurrency Limiter</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Amazon, Uber, Atlassian, Flipkart, Razorpay</p>
+
+<h3>Theory</h3>
+<p>Problem: You have 100 URLs to fetch but don't want 100 simultaneous connections (server overload, browser limit is ~6 per domain). Solution: Run at most N tasks concurrently.</p>
+
+<pre><code>/*
+  Concurrency Pool (limit = 3):
+  
+  Time ──────────────────────────────────────────→
+  
+  Slot 1: [Task 1████] [Task 4████] [Task 7██]
+  Slot 2: [Task 2██████] [Task 5██] [Task 8████]
+  Slot 3: [Task 3████] [Task 6████████]
+  
+  When a slot finishes, next queued task immediately starts.
+*/</code></pre>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>// ━━━━━ Approach 1: Worker-based (clean & readable) ━━━━━
+async function promisePool(tasks, concurrency = 3) {
+  const results = [];
+  let index = 0;
+
+  async function worker() {
+    while (index < tasks.length) {
+      const currentIndex = index++;
+      results[currentIndex] = await tasks[currentIndex]();
+    }
+  }
+
+  // Create N workers that pull from shared task list
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, tasks.length) }, () => worker())
+  );
+
+  return results;
+}
+
+// ━━━━━ Approach 2: Queue-based (more control) ━━━━━
+class PromisePool {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.running = 0;
+    this.queue = [];
+  }
+
+  async add(taskFn) {
+    if (this.running >= this.concurrency) {
+      // Wait until a slot opens up
+      await new Promise(resolve => this.queue.push(resolve));
+    }
+    
+    this.running++;
+    try {
+      return await taskFn();
+    } finally {
+      this.running--;
+      if (this.queue.length > 0) {
+        this.queue.shift()(); // Release next waiting task
+      }
+    }
+  }
+}
+
+// ━━━━━ Usage ━━━━━
+const urls = Array.from({ length: 20 }, (_, i) => `/api/item/${i}`);
+
+// Convert URLs to task factories (functions that return promises)
+const tasks = urls.map(url => () => fetch(url).then(r => r.json()));
+
+const results = await promisePool(tasks, 5); // Only 5 concurrent requests
+
+// Class-based usage:
+const pool = new PromisePool(3);
+const promises = urls.map(url => pool.add(() => fetch(url)));
+const results2 = await Promise.all(promises);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="async-queue">6. Async Task Queue (FIFO)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Razorpay, Flipkart, Atlassian, Microsoft</p>
+
+<h3>Theory</h3>
+<p>An async queue processes tasks in FIFO order, respecting a concurrency limit. Unlike Promise Pool (which gets all tasks upfront), a queue allows dynamic enqueuing at any time.</p>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>class AsyncQueue {
+  constructor(concurrency = 1) {
+    this.concurrency = concurrency;
+    this.queue = [];
+    this.running = 0;
+    this.paused = false;
+  }
+
+  enqueue(task, priority = 0) {
+    return new Promise((resolve, reject) => {
+      const item = { task, resolve, reject, priority };
+      
+      // Insert by priority (higher priority = earlier execution)
+      const insertIdx = this.queue.findIndex(q => q.priority < priority);
+      if (insertIdx === -1) this.queue.push(item);
+      else this.queue.splice(insertIdx, 0, item);
+      
+      this.process();
+    });
+  }
+
+  async process() {
+    if (this.paused) return;
+    
+    while (this.running < this.concurrency && this.queue.length > 0) {
+      const { task, resolve, reject } = this.queue.shift();
+      this.running++;
+      
+      // Don't await here — let multiple tasks run concurrently
+      task()
+        .then(resolve)
+        .catch(reject)
+        .finally(() => {
+          this.running--;
+          this.process(); // Check if more tasks can run
+        });
+    }
+  }
+
+  pause() { this.paused = true; }
+  resume() { this.paused = false; this.process(); }
+  clear() { this.queue = []; }
+  get size() { return this.queue.length; }
+  get pending() { return this.running; }
+}
+
+// ━━━━━ Usage ━━━━━
+const queue = new AsyncQueue(2); // Max 2 concurrent
+
+// Enqueue tasks dynamically
+queue.enqueue(() => fetch('/api/1').then(r => r.json()));
+queue.enqueue(() => fetch('/api/2').then(r => r.json()));
+queue.enqueue(() => fetch('/api/critical').then(r => r.json()), 10); // High priority!
+queue.enqueue(() => fetch('/api/3').then(r => r.json()));</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="sequential-parallel">7. Sequential vs Parallel Execution</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Flipkart, Amazon, Razorpay, Paytm, PhonePe</p>
+
+<h3>Theory</h3>
+<pre><code>/*
+  Sequential: Total time = SUM of all task times
+  ────[T1 300ms]────[T2 200ms]────[T3 400ms]────  = 900ms
+
+  Parallel:   Total time = MAX of all task times  
+  ────[T1 300ms]────
+  ────[T2 200ms]──
+  ────[T3 400ms]──────   = 400ms
+
+  When to use which:
+  • Sequential: Each task depends on previous result (waterfall)
+  • Parallel: Tasks are independent (fetch multiple APIs)
+  • Pool: Parallel but with a concurrency limit
+*/</code></pre>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>// ━━━━━ Sequential (for...of + await) ━━━━━
+async function sequential(tasks) {
+  const results = [];
+  for (const task of tasks) {
+    results.push(await task()); // Wait for each before starting next
+  }
+  return results;
+}
+
+// ━━━━━ Parallel (Promise.all) ━━━━━
+async function parallel(tasks) {
+  return Promise.all(tasks.map(task => task()));
+}
+
+// ━━━━━ Waterfall (each gets previous result) ━━━━━
+async function waterfall(tasks, initialValue) {
+  let result = initialValue;
+  for (const task of tasks) {
+    result = await task(result); // Pass previous result to next
+  }
+  return result;
+}
+
+// ━━━━━ reduce pattern (sequential with accumulator) ━━━━━
+async function sequentialReduce(urls) {
+  return urls.reduce(async (prevPromise, url) => {
+    const results = await prevPromise;
+    const data = await fetch(url).then(r => r.json());
+    return [...results, data];
+  }, Promise.resolve([]));
+}
+
+// ━━━━━ Practical Example: Dependent API calls ━━━━━
+async function getUserPosts(userId) {
+  // Sequential — each depends on previous
+  const user = await fetch(`/api/user/${userId}`).then(r => r.json());
+  const posts = await fetch(`/api/posts?author=${user.id}`).then(r => r.json());
+  const comments = await Promise.all(
+    posts.map(post => fetch(`/api/comments?post=${post.id}`).then(r => r.json()))
+  );
+  return { user, posts, comments };
+}</code></pre>
+
+<h3>Live Demo — Sequential vs Parallel vs Pool</h3>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Interactive Demo — Compare execution strategies in real-time</div>
+  <iframe src="demos/async-patterns.html" loading="lazy" style="height:620px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Async Patterns: Retry, Queue, Concurrency&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 30px; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 8px; font-size: 22px; }
+    .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+    .demo-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .demo-card h3 { margin-bottom: 10px; color: #1a5276; font-size: 15px; }
+    .demo-card p { font-size: 12px; color: #888; margin-bottom: 10px; }
+    button { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; margin: 4px; transition: transform 0.1s; }
+    button:active { transform: scale(0.95); }
+    .btn-run { background: #4a90d9; color: white; }
+    .btn-clear { background: #eee; color: #555; }
+    .log-area { margin-top: 10px; padding: 12px; background: #1a1a2e; border-radius: 8px; max-height: 220px; overflow-y: auto; font-family: &#x27;SF Mono&#x27;, Consolas, monospace; font-size: 11.5px; color: #eee; line-height: 1.8; }
+    .log-area .ok { color: #27ae60; }
+    .log-area .err { color: #e74c3c; }
+    .log-area .warn { color: #f39c12; }
+    .log-area .dim { color: #888; }
+    .progress-bar { height: 6px; background: #eee; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: #4a90d9; border-radius: 4px; transition: width 0.3s; width: 0; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;⚡ Async Patterns&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;Retry, Queue, Concurrency Limiter, Sequential Execution&lt;/p&gt;
+
+  &lt;!-- Retry with Backoff --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;1. Retry with Exponential Backoff&lt;/h3&gt;
+    &lt;p&gt;Simulates flaky API that fails 70% of the time. Retries up to 4 times with increasing delays.&lt;/p&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runRetry()&quot;&gt;Run Retry&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log1&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log1&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Concurrency Pool --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;2. Promise Pool — Concurrency Limiter (limit=3)&lt;/h3&gt;
+    &lt;p&gt;8 tasks but only 3 run at a time. Watch how new tasks start as old ones finish.&lt;/p&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runPool()&quot;&gt;Run Pool&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log2&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;progress-bar&quot;&gt;&lt;div class=&quot;fill&quot; id=&quot;pool-progress&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log2&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Sequential Execution --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;3. Sequential Async Execution (waterfall)&lt;/h3&gt;
+    &lt;p&gt;Tasks run ONE at a time, each waits for the previous to finish.&lt;/p&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runSequential()&quot;&gt;Run Sequential&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; style=&quot;background:#27ae60&quot; onclick=&quot;runParallel()&quot;&gt;Run Parallel (compare)&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log3&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log3&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Async Task Queue --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;4. Async Task Queue (FIFO with concurrency)&lt;/h3&gt;
+    &lt;p&gt;Enqueue tasks dynamically — they execute in order respecting concurrency limit.&lt;/p&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runQueue()&quot;&gt;Enqueue 6 Tasks&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log4&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log4&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Cancellable Fetch --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;5. Cancellable Fetch with AbortController&lt;/h3&gt;
+    &lt;p&gt;Start a slow request, then cancel it before it finishes.&lt;/p&gt;
+    &lt;button class=&quot;btn-run&quot; onclick=&quot;runCancellable()&quot;&gt;Start Request&lt;/button&gt;
+    &lt;button class=&quot;btn-run&quot; style=&quot;background:#e74c3c&quot; onclick=&quot;cancelRequest()&quot;&gt;Cancel!&lt;/button&gt;
+    &lt;button class=&quot;btn-clear&quot; onclick=&quot;clearLog(&#x27;log5&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;log5&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// ━━━━━━━ UTILS ━━━━━━━
+function log(id, msg, cls = &#x27;&#x27;) {
+  const el = document.getElementById(id);
+  const t = new Date().toLocaleTimeString([], { hour12: false, fractionalSecondDigits: 2 });
+  el.innerHTML += `&lt;div class=&quot;${cls}&quot;&gt;&lt;span class=&quot;dim&quot;&gt;[${t}]&lt;/span&gt; ${msg}&lt;/div&gt;`;
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog(id) { document.getElementById(id).innerHTML = &#x27;&#x27;; }
+function sleep(ms) { return new Promise(r =&gt; setTimeout(r, ms)); }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 1. RETRY WITH EXPONENTIAL BACKOFF
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function retry(fn, { retries = 3, baseDelay = 200, factor = 2, onRetry } = {}) {
+  for (let attempt = 0; attempt &lt;= retries; attempt++) {
+    try {
+      return await fn(attempt);
+    } catch (err) {
+      if (attempt === retries) throw err;
+      const delay = baseDelay * Math.pow(factor, attempt);
+      if (onRetry) onRetry(attempt + 1, delay, err);
+      await sleep(delay);
+    }
+  }
+}
+
+function flakyAPI() {
+  return new Promise((resolve, reject) =&gt; {
+    setTimeout(() =&gt; {
+      Math.random() &gt; 0.7 ? resolve({ data: &#x27;Success!&#x27; }) : reject(new Error(&#x27;Server 503&#x27;));
+    }, 200);
+  });
+}
+
+async function runRetry() {
+  log(&#x27;log1&#x27;, &#x27;▶ Calling flaky API (fails 70% of time, max 4 retries)...&#x27;, &#x27;warn&#x27;);
+  try {
+    const result = await retry(flakyAPI, {
+      retries: 4,
+      baseDelay: 300,
+      factor: 2,
+      onRetry: (attempt, delay, err) =&gt; {
+        log(&#x27;log1&#x27;, `  ⚠️ Attempt ${attempt} failed: ${err.message}. Retrying in ${delay}ms...`, &#x27;warn&#x27;);
+      }
+    });
+    log(&#x27;log1&#x27;, `✅ Finally resolved: ${JSON.stringify(result)}`, &#x27;ok&#x27;);
+  } catch (err) {
+    log(&#x27;log1&#x27;, `❌ All retries exhausted: ${err.message}`, &#x27;err&#x27;);
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 2. PROMISE POOL (CONCURRENCY)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function promisePool(tasks, concurrency = 3) {
+  const results = [];
+  let index = 0;
+  let completed = 0;
+
+  async function worker() {
+    while (index &lt; tasks.length) {
+      const i = index++;
+      results[i] = await tasks[i]();
+      completed++;
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(concurrency, tasks.length) }, () =&gt; worker());
+  await Promise.all(workers);
+  return results;
+}
+
+async function runPool() {
+  const tasks = Array.from({ length: 8 }, (_, i) =&gt; {
+    const time = 300 + Math.floor(Math.random() * 700);
+    return () =&gt; new Promise(resolve =&gt; {
+      log(&#x27;log2&#x27;, `  🟡 Task ${i+1} started (${time}ms)`, &#x27;warn&#x27;);
+      setTimeout(() =&gt; {
+        log(&#x27;log2&#x27;, `  ✅ Task ${i+1} done`, &#x27;ok&#x27;);
+        resolve(`T${i+1}`);
+      }, time);
+    });
+  });
+
+  log(&#x27;log2&#x27;, `▶ Running 8 tasks with concurrency=3...`, &#x27;warn&#x27;);
+  const start = Date.now();
+  const results = await promisePool(tasks, 3);
+  log(&#x27;log2&#x27;, `🏁 All done in ${Date.now()-start}ms: [${results.join(&#x27;, &#x27;)}]`, &#x27;ok&#x27;);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 3. SEQUENTIAL vs PARALLEL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function runSequential() {
+  const tasks = [300, 200, 400, 150, 250];
+  log(&#x27;log3&#x27;, `▶ Sequential: running ${tasks.length} tasks one-by-one...`, &#x27;warn&#x27;);
+  const start = Date.now();
+
+  for (const [i, ms] of tasks.entries()) {
+    await sleep(ms);
+    log(&#x27;log3&#x27;, `  ✅ Task ${i+1} done (${ms}ms)`, &#x27;ok&#x27;);
+  }
+  log(&#x27;log3&#x27;, `🏁 Sequential total: ${Date.now()-start}ms (sum of all)`, &#x27;ok&#x27;);
+}
+
+async function runParallel() {
+  const tasks = [300, 200, 400, 150, 250];
+  log(&#x27;log3&#x27;, `▶ Parallel: running ${tasks.length} tasks simultaneously...`, &#x27;warn&#x27;);
+  const start = Date.now();
+
+  await Promise.all(tasks.map((ms, i) =&gt; sleep(ms).then(() =&gt; {
+    log(&#x27;log3&#x27;, `  ✅ Task ${i+1} done (${ms}ms)`, &#x27;ok&#x27;);
+  })));
+  log(&#x27;log3&#x27;, `🏁 Parallel total: ${Date.now()-start}ms (max of all)`, &#x27;ok&#x27;);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 4. ASYNC TASK QUEUE (FIFO)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+class AsyncQueue {
+  constructor(concurrency = 2) {
+    this.concurrency = concurrency;
+    this.queue = [];
+    this.running = 0;
+  }
+
+  enqueue(task) {
+    return new Promise((resolve, reject) =&gt; {
+      this.queue.push({ task, resolve, reject });
+      this.process();
+    });
+  }
+
+  async process() {
+    while (this.running &lt; this.concurrency &amp;&amp; this.queue.length &gt; 0) {
+      const { task, resolve, reject } = this.queue.shift();
+      this.running++;
+      try {
+        const result = await task();
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      } finally {
+        this.running--;
+        this.process();
+      }
+    }
+  }
+}
+
+async function runQueue() {
+  const queue = new AsyncQueue(2);
+  log(&#x27;log4&#x27;, &#x27;▶ Enqueuing 6 tasks (concurrency=2)...&#x27;, &#x27;warn&#x27;);
+
+  for (let i = 1; i &lt;= 6; i++) {
+    const ms = 400 + Math.floor(Math.random() * 600);
+    queue.enqueue(() =&gt; new Promise(resolve =&gt; {
+      log(&#x27;log4&#x27;, `  🟡 Task ${i} executing (${ms}ms)...`, &#x27;warn&#x27;);
+      setTimeout(() =&gt; { log(&#x27;log4&#x27;, `  ✅ Task ${i} complete`, &#x27;ok&#x27;); resolve(); }, ms);
+    }));
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 5. CANCELLABLE FETCH (AbortController)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let abortController = null;
+
+function cancellableFetch(url, { timeout = 5000 } = {}) {
+  abortController = new AbortController();
+  const { signal } = abortController;
+
+  // Timeout auto-cancel
+  const timeoutId = setTimeout(() =&gt; abortController.abort(), timeout);
+
+  return new Promise((resolve, reject) =&gt; {
+    signal.addEventListener(&#x27;abort&#x27;, () =&gt; {
+      clearTimeout(timeoutId);
+      reject(new DOMException(&#x27;Request cancelled&#x27;, &#x27;AbortError&#x27;));
+    });
+    // Simulate slow network
+    setTimeout(() =&gt; {
+      if (!signal.aborted) {
+        clearTimeout(timeoutId);
+        resolve({ status: 200, data: &#x27;Response received!&#x27; });
+      }
+    }, 3000);
+  });
+}
+
+async function runCancellable() {
+  log(&#x27;log5&#x27;, &#x27;▶ Starting slow request (3s)... Click Cancel to abort!&#x27;, &#x27;warn&#x27;);
+  try {
+    const result = await cancellableFetch(&#x27;/api/data&#x27;, { timeout: 5000 });
+    log(&#x27;log5&#x27;, `✅ ${JSON.stringify(result)}`, &#x27;ok&#x27;);
+  } catch (err) {
+    if (err.name === &#x27;AbortError&#x27;) {
+      log(&#x27;log5&#x27;, `🛑 Request CANCELLED by user`, &#x27;err&#x27;);
+    } else {
+      log(&#x27;log5&#x27;, `❌ Error: ${err.message}`, &#x27;err&#x27;);
+    }
+  }
+}
+
+function cancelRequest() {
+  if (abortController) {
+    abortController.abort();
+    log(&#x27;log5&#x27;, &#x27;  → abort() called&#x27;, &#x27;warn&#x27;);
+  }
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="abort-cancel">8. Cancellable Fetch (AbortController)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Uber, Flipkart, Atlassian, Microsoft</p>
+
+<h3>Theory</h3>
+<p><strong>AbortController</strong> is the standard way to cancel async operations. It creates a <code>signal</code> that you pass to fetch (or any async operation). Calling <code>abort()</code> triggers an <code>AbortError</code>.</p>
+
+<pre><code>/*
+  AbortController flow:
+  
+  controller = new AbortController()
+       │
+       ├── signal = controller.signal  ──→  Pass to fetch/listener
+       │
+       └── controller.abort()  ──→  signal fires 'abort' event
+                                   ──→  fetch rejects with AbortError
+                                   ──→  signal.aborted = true
+*/</code></pre>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>// ━━━━━ Basic cancellable fetch ━━━━━
+function createCancellableFetch() {
+  let controller = null;
+
+  return {
+    fetch(url, options = {}) {
+      // Cancel previous request if still in-flight
+      if (controller) controller.abort();
+      
+      controller = new AbortController();
+      
+      return fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+    },
+    cancel() {
+      if (controller) controller.abort();
+    }
+  };
+}
+
+// ━━━━━ Fetch with timeout (auto-cancel) ━━━━━
+async function fetchWithTimeout(url, { timeout = 5000, ...options } = {}) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeout}ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ━━━━━ Cancel-on-unmount pattern (React-style) ━━━━━
+function useEffect_fetchPattern() {
+  const controller = new AbortController();
+
+  fetch('/api/data', { signal: controller.signal })
+    .then(r => r.json())
+    .then(data => { /* update state only if not aborted */ })
+    .catch(err => {
+      if (err.name !== 'AbortError') console.error(err);
+    });
+
+  // Cleanup (runs on component unmount)
+  return () => controller.abort();
+}
+
+// ━━━━━ Cancellable Promise wrapper ━━━━━
+function makeCancellable(promise) {
+  let cancelled = false;
+  
+  const wrappedPromise = new Promise((resolve, reject) => {
+    promise.then(
+      val => cancelled ? reject({ isCancelled: true }) : resolve(val),
+      err => cancelled ? reject({ isCancelled: true }) : reject(err)
+    );
+  });
+
+  return { promise: wrappedPromise, cancel: () => { cancelled = true; } };
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rate-limiter">9. Rate Limiter</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Uber, Razorpay, Flipkart, Stripe</p>
+
+<h3>Theory</h3>
+<p>Rate limiting ensures a function executes at most N times within a time window. Common algorithms:</p>
+<ul>
+  <li><strong>Token Bucket:</strong> Tokens refill at a constant rate. Each call uses a token. No tokens? Wait.</li>
+  <li><strong>Sliding Window:</strong> Track timestamps of recent calls, reject if count exceeds limit in window.</li>
+  <li><strong>Leaky Bucket:</strong> Queue requests, process at a fixed rate (like a leaking bucket).</li>
+</ul>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>// ━━━━━ Token Bucket Rate Limiter ━━━━━
+class RateLimiter {
+  constructor({ maxTokens = 10, refillRate = 1, refillInterval = 1000 } = {}) {
+    this.maxTokens = maxTokens;
+    this.tokens = maxTokens;
+    this.refillRate = refillRate; // Tokens added per interval
+    this.refillInterval = refillInterval;
+    this.queue = [];
+    
+    // Refill tokens periodically
+    this.intervalId = setInterval(() => {
+      this.tokens = Math.min(this.maxTokens, this.tokens + this.refillRate);
+      this.processQueue();
+    }, this.refillInterval);
+  }
+
+  async execute(fn) {
+    if (this.tokens > 0) {
+      this.tokens--;
+      return fn();
+    }
+    
+    // Queue the request — wait for a token
+    return new Promise((resolve, reject) => {
+      this.queue.push({ fn, resolve, reject });
+    });
+  }
+
+  processQueue() {
+    while (this.tokens > 0 && this.queue.length > 0) {
+      this.tokens--;
+      const { fn, resolve, reject } = this.queue.shift();
+      fn().then(resolve).catch(reject);
+    }
+  }
+
+  destroy() { clearInterval(this.intervalId); }
+}
+
+// ━━━━━ Sliding Window Rate Limiter ━━━━━
+class SlidingWindowLimiter {
+  constructor(maxRequests, windowMs) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+    this.timestamps = [];
+  }
+
+  async execute(fn) {
+    const now = Date.now();
+    
+    // Remove timestamps outside the window
+    this.timestamps = this.timestamps.filter(t => now - t < this.windowMs);
+    
+    if (this.timestamps.length >= this.maxRequests) {
+      // Calculate wait time
+      const oldestInWindow = this.timestamps[0];
+      const waitTime = this.windowMs - (now - oldestInWindow);
+      await new Promise(r => setTimeout(r, waitTime));
+      return this.execute(fn); // Retry after waiting
+    }
+    
+    this.timestamps.push(now);
+    return fn();
+  }
+}
+
+// ━━━━━ Usage ━━━━━
+const limiter = new RateLimiter({ maxTokens: 5, refillRate: 2, refillInterval: 1000 });
+
+// Only 5 calls allowed initially, then 2 per second
+async function makeAPICall(id) {
+  return limiter.execute(async () => {
+    const res = await fetch(`/api/item/${id}`);
+    return res.json();
+  });
+}
+
+// Fire 20 requests — they'll be rate-limited automatically
+const results = await Promise.all(
+  Array.from({ length: 20 }, (_, i) => makeAPICall(i))
+);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="auto-retry-fetch">10. Auto-Retry Fetch Wrapper</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Swiggy, Razorpay, Amazon</p>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>// Production-ready fetch wrapper with retry, timeout, and interceptors
+function createFetchClient(defaultOptions = {}) {
+  const {
+    baseURL = '',
+    timeout = 10000,
+    retries = 3,
+    retryDelay = 1000,
+    retryOn = [408, 429, 500, 502, 503, 504], // Status codes to retry
+    onRequest = null,  // Request interceptor
+    onResponse = null, // Response interceptor
+    onError = null,    // Error interceptor
+  } = defaultOptions;
+
+  async function request(url, options = {}) {
+    const fullURL = baseURL + url;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), options.timeout || timeout);
+    
+    let lastError;
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        // Request interceptor
+        let requestOptions = { ...options, signal: controller.signal };
+        if (onRequest) requestOptions = await onRequest(requestOptions);
+
+        const response = await fetch(fullURL, requestOptions);
+        clearTimeout(timeoutId);
+
+        // Check if we should retry based on status code
+        if (!response.ok && retryOn.includes(response.status) && attempt < retries) {
+          const delay = retryDelay * Math.pow(2, attempt);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        // Response interceptor
+        return onResponse ? await onResponse(data, response) : data;
+      } catch (err) {
+        lastError = err;
+        clearTimeout(timeoutId);
+
+        if (err.name === 'AbortError') {
+          throw new Error(`Request timeout after ${timeout}ms`);
+        }
+
+        if (attempt < retries) {
+          const delay = retryDelay * Math.pow(2, attempt);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+      }
+    }
+
+    if (onError) return onError(lastError);
+    throw lastError;
+  }
+
+  return {
+    get: (url, opts) => request(url, { ...opts, method: 'GET' }),
+    post: (url, body, opts) => request(url, { ...opts, method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json', ...opts?.headers } }),
+    put: (url, body, opts) => request(url, { ...opts, method: 'PUT', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json', ...opts?.headers } }),
+    delete: (url, opts) => request(url, { ...opts, method: 'DELETE' }),
+  };
+}
+
+// Usage:
+const api = createFetchClient({
+  baseURL: 'https://api.example.com',
+  timeout: 8000,
+  retries: 3,
+  onRequest: (opts) => {
+    opts.headers = { ...opts.headers, Authorization: `Bearer ${getToken()}` };
+    return opts;
+  },
+});
+
+const user = await api.get('/users/123');
+await api.post('/users', { name: 'John', email: 'john@example.com' });</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="timeout-promise">11. Timeout a Promise</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Flipkart, Amazon, Razorpay, Swiggy, PhonePe</p>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>// ━━━━━ Promise.race approach (standard) ━━━━━
+function withTimeout(promise, ms, message = 'Operation timed out') {
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]);
+}
+
+// ━━━━━ With AbortController (cancels the actual operation) ━━━━━
+function fetchWithTimeout(url, ms = 5000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ms);
+  
+  return fetch(url, { signal: controller.signal })
+    .then(response => { clearTimeout(timeoutId); return response; })
+    .catch(err => {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') throw new Error(`Fetch timed out after ${ms}ms`);
+      throw err;
+    });
+}
+
+// ━━━━━ Configurable timeout with cleanup ━━━━━
+function timeoutPromise(fn, ms) {
+  let timeoutId;
+  let aborted = false;
+  
+  const promise = new Promise(async (resolve, reject) => {
+    timeoutId = setTimeout(() => {
+      aborted = true;
+      reject(new Error(`Timed out after ${ms}ms`));
+    }, ms);
+    
+    try {
+      const result = await fn(() => aborted); // Pass "isAborted" checker
+      if (!aborted) resolve(result);
+    } catch (err) {
+      if (!aborted) reject(err);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  });
+
+  return promise;
+}
+
+// Usage:
+const data = await withTimeout(
+  fetch('/api/slow-endpoint').then(r => r.json()),
+  3000,
+  'API call took too long'
+);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="lazy-load">12. Lazy / Deferred Promise</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Atlassian, Razorpay, Freshworks</p>
+
+<h3>Theory</h3>
+<p>A <strong>deferred promise</strong> doesn't start executing until you explicitly call it. Useful for lazy initialization, on-demand API calls, and conditional execution.</p>
+
+<h3>Complete Implementation</h3>
+
+<pre><code>// ━━━━━ Deferred (resolve/reject from outside) ━━━━━
+function createDeferred() {
+  let resolve, reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
+// ━━━━━ Lazy Promise (executes only when awaited) ━━━━━
+class LazyPromise {
+  constructor(executor) {
+    this.executor = executor;
+    this.promise = null;
+  }
+
+  then(onFulfilled, onRejected) {
+    if (!this.promise) {
+      this.promise = new Promise(this.executor);
+    }
+    return this.promise.then(onFulfilled, onRejected);
+  }
+
+  catch(onRejected) { return this.then(null, onRejected); }
+  finally(fn) { return this.then(v => { fn(); return v; }, r => { fn(); throw r; }); }
+}
+
+// ━━━━━ Memoized async (execute once, cache forever) ━━━━━
+function memoizeAsync(fn) {
+  let cache = null;
+  let pending = null;
+
+  return async function(...args) {
+    if (cache) return cache;
+    if (pending) return pending; // Deduplicate concurrent calls
+    
+    pending = fn(...args).then(result => {
+      cache = result;
+      pending = null;
+      return result;
+    }).catch(err => {
+      pending = null; // Allow retry on error
+      throw err;
+    });
+
+    return pending;
+  };
+}
+
+// ━━━━━ Usage ━━━━━
+// Deferred — control from outside
+const { promise, resolve } = createDeferred();
+setTimeout(() => resolve('done!'), 1000);
+const result = await promise; // Waits until resolve is called
+
+// Lazy — only fetches when you actually need it
+const lazyUser = new LazyPromise((resolve) => {
+  console.log('Fetching user...'); // Only runs when awaited!
+  fetch('/api/user').then(r => r.json()).then(resolve);
+});
+// ... later, when actually needed:
+const user = await lazyUser;
+
+// Memoized — fetch config once, cache for lifetime
+const getConfig = memoizeAsync(() => fetch('/api/config').then(r => r.json()));
+const config1 = await getConfig(); // Fetches
+const config2 = await getConfig(); // Returns cached</code></pre>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase5-async-event-loop.html">← Phase 5: Async & Event Loop (Theory)</a>
+  <a href="phase6-dom-events-browser-apis.html">Phase 6: DOM, Events & Browser APIs →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

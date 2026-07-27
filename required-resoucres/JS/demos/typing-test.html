@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Speed Test Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f9fa; padding: 24px; }
+    h2 { margin-bottom: 16px; color: #1a2530; }
+    .typing-test { max-width: 600px; }
+    .stats { display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; }
+    .stats span { font-size: 13px; color: #666; }
+    .stats strong { color: #1a5276; font-size: 18px; display: block; }
+    .text-display { font-family: 'Georgia', serif; font-size: 18px; line-height: 1.8; padding: 20px; background: white; border: 1px solid #e0e0e0; border-radius: 12px; margin-bottom: 16px; min-height: 100px; }
+    .text-display .correct { color: #27ae60; }
+    .text-display .incorrect { color: #e74c3c; background: #ffeaea; border-radius: 2px; }
+    .text-display .current { border-bottom: 2px solid #1a5276; animation: blink 1s infinite; }
+    @keyframes blink { 0%, 50% { border-color: #1a5276; } 51%, 100% { border-color: transparent; } }
+    .type-input { width: 100%; padding: 14px 18px; font-size: 16px; border: 2px solid #d6eaf8; border-radius: 10px; outline: none; font-family: 'Georgia', serif; }
+    .type-input:focus { border-color: #1a5276; }
+    .type-input:disabled { background: #f5f5f5; }
+    .restart-btn { margin-top: 12px; padding: 10px 20px; background: #1a5276; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .restart-btn:hover { background: #154360; }
+    .result { margin-top: 16px; padding: 16px; background: #d4edda; border-radius: 10px; font-size: 15px; display: none; }
+    .result.show { display: block; }
+  </style>
+</head>
+<body>
+  <h2>⌨️ Typing Speed Test</h2>
+  <div class="typing-test" id="app"></div>
+
+  <script>
+    class TypingTest {
+      constructor(container) {
+        this.container = container;
+        this.paragraphs = [
+          "The quick brown fox jumps over the lazy dog near the quiet riverbank on a warm summer evening.",
+          "JavaScript is a high-level interpreted programming language that powers the modern interactive web.",
+          "Practice makes perfect when it comes to coding interviews and building real-world applications.",
+          "A good developer writes code that humans can understand, not just code that machines can execute.",
+          "The best way to learn programming is by building projects and solving real problems every day.",
+        ];
+        this.reset();
+        this.render();
+      }
+
+      reset() {
+        this.text = this.paragraphs[Math.floor(Math.random() * this.paragraphs.length)];
+        this.charIndex = 0;
+        this.errors = 0;
+        this.startTime = null;
+        this.isRunning = false;
+        this.isFinished = false;
+        this.timerId = null;
+        this.duration = 60;
+        this.timeLeft = this.duration;
+      }
+
+      render() {
+        this.container.innerHTML = `
+          <div class="stats">
+            <span>Time<strong id="time">${this.timeLeft}s</strong></span>
+            <span>WPM<strong id="wpm">0</strong></span>
+            <span>Accuracy<strong id="accuracy">100%</strong></span>
+            <span>Errors<strong id="errors">0</strong></span>
+          </div>
+          <div class="text-display" id="display"></div>
+          <input type="text" class="type-input" id="input" placeholder="Start typing here..." autofocus>
+          <button class="restart-btn" id="restart">↺ New Test</button>
+          <div class="result" id="result"></div>
+        `;
+        this.renderText('');
+        this.bindEvents();
+      }
+
+      renderText(typed) {
+        const display = this.container.querySelector('#display');
+        display.innerHTML = this.text.split('').map((char, i) => {
+          let cls = '';
+          if (i < typed.length) cls = typed[i] === char ? 'correct' : 'incorrect';
+          else if (i === typed.length) cls = 'current';
+          return `<span class="${cls}">${char === ' ' && cls === 'incorrect' ? '·' : char}</span>`;
+        }).join('');
+      }
+
+      bindEvents() {
+        const input = this.container.querySelector('#input');
+        input.addEventListener('input', (e) => {
+          if (this.isFinished) return;
+          if (!this.isRunning) this.start();
+          const val = e.target.value;
+          this.charIndex = val.length;
+          this.errors = 0;
+          for (let i = 0; i < val.length; i++) { if (val[i] !== this.text[i]) this.errors++; }
+          this.renderText(val);
+          this.updateStats(val);
+          if (val.length >= this.text.length) this.finish(val);
+        });
+        this.container.querySelector('#restart').addEventListener('click', () => { clearInterval(this.timerId); this.reset(); this.render(); });
+      }
+
+      start() {
+        this.isRunning = true;
+        this.startTime = Date.now();
+        this.timerId = setInterval(() => {
+          this.timeLeft = this.duration - Math.floor((Date.now() - this.startTime) / 1000);
+          this.container.querySelector('#time').textContent = this.timeLeft + 's';
+          if (this.timeLeft <= 0) this.finish(this.container.querySelector('#input').value);
+        }, 1000);
+      }
+
+      finish(typed) {
+        this.isFinished = true;
+        this.isRunning = false;
+        clearInterval(this.timerId);
+        this.container.querySelector('#input').disabled = true;
+        this.updateStats(typed);
+        const elapsed = (Date.now() - this.startTime) / 1000 / 60;
+        const wpm = elapsed > 0 ? Math.round((typed.trim().split(' ').length) / elapsed) : 0;
+        const accuracy = typed.length > 0 ? Math.round(((typed.length - this.errors) / typed.length) * 100) : 100;
+        const result = this.container.querySelector('#result');
+        result.innerHTML = `🎉 <strong>Finished!</strong> ${wpm} WPM with ${accuracy}% accuracy (${this.errors} errors)`;
+        result.classList.add('show');
+      }
+
+      updateStats(typed) {
+        const elapsed = (Date.now() - (this.startTime || Date.now())) / 1000 / 60;
+        const words = typed.trim().split(' ').filter(w => w).length;
+        const wpm = elapsed > 0 ? Math.round(words / elapsed) : 0;
+        const accuracy = this.charIndex > 0 ? Math.round(((this.charIndex - this.errors) / this.charIndex) * 100) : 100;
+        this.container.querySelector('#wpm').textContent = wpm;
+        this.container.querySelector('#accuracy').textContent = accuracy + '%';
+        this.container.querySelector('#errors').textContent = this.errors;
+      }
+    }
+
+    new TypingTest(document.getElementById('app'));
+  </script>
+</body>
+</html>

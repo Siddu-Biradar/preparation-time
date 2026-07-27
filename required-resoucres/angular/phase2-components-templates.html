@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 2: Components & Templates Deep Dive</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 2: Components & Templates Deep Dive</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (2 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Data Binding</span>
+    <span class="pill">Directives</span>
+    <span class="pill">Pipes</span>
+    <span class="pill">Component Communication</span>
+    <span class="pill">Content Projection</span>
+    <span class="pill">View Queries</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#data-binding">Data Binding — All 4 Types Explained</a></li>
+    <li><a href="#directives">Built-in & Custom Directives</a></li>
+    <li><a href="#new-control-flow">New Control Flow Syntax (@if, @for, @switch)</a></li>
+    <li><a href="#pipes">Pipes — Built-in & Custom</a></li>
+    <li><a href="#communication">Component Communication Patterns</a></li>
+    <li><a href="#content-projection">Content Projection (ng-content)</a></li>
+    <li><a href="#view-queries">ViewChild, ViewChildren, ContentChild</a></li>
+    <li><a href="#dynamic-components">Dynamic Components</a></li>
+    <li><a href="#ng-template">ng-template, ng-container, ng-content</a></li>
+    <li><a href="#host-binding">HostBinding & HostListener</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="data-binding">1. Data Binding — All 4 Types Explained</h2>
+
+<h3>The Four Binding Types</h3>
+<table>
+<tr><th>Type</th><th>Syntax</th><th>Direction</th><th>Example</th></tr>
+<tr><td><strong>Interpolation</strong></td><td><code>{{ expression }}</code></td><td>Component → DOM</td><td><code>{{ user.name }}</code></td></tr>
+<tr><td><strong>Property Binding</strong></td><td><code>[property]="expr"</code></td><td>Component → DOM</td><td><code>[disabled]="isLoading"</code></td></tr>
+<tr><td><strong>Event Binding</strong></td><td><code>(event)="handler()"</code></td><td>DOM → Component</td><td><code>(click)="save()"</code></td></tr>
+<tr><td><strong>Two-way Binding</strong></td><td><code>[(ngModel)]="prop"</code></td><td>Both directions</td><td><code>[(ngModel)]="name"</code></td></tr>
+</table>
+
+<h4>Deep Dive: Property Binding vs Interpolation</h4>
+<pre><code>&lt;!-- These are equivalent for strings: --&gt;
+&lt;img src="{{ imageUrl }}"&gt;
+&lt;img [src]="imageUrl"&gt;
+
+&lt;!-- BUT only property binding works for non-string values: --&gt;
+&lt;button [disabled]="isLoading"&gt;Save&lt;/button&gt;  ✓
+&lt;button disabled="{{ isLoading }}"&gt;Save&lt;/button&gt;  ✗ (always disabled — string "false" is truthy!)
+
+&lt;!-- Property binding sets the DOM PROPERTY, not HTML attribute --&gt;
+&lt;!-- For HTML attributes that have no DOM property: --&gt;
+&lt;td [attr.colspan]="columnSpan"&gt;&lt;/td&gt;
+&lt;svg&gt;&lt;circle [attr.cx]="x" [attr.cy]="y" /&gt;&lt;/svg&gt;</code></pre>
+
+<h4>Two-Way Binding — How It Actually Works</h4>
+<pre><code>&lt;!-- [(ngModel)]="name" is syntactic sugar for: --&gt;
+&lt;input [ngModel]="name" (ngModelChange)="name = $event"&gt;
+
+&lt;!-- Custom two-way binding in your components: --&gt;
+@Component({
+  selector: 'app-counter',
+  template: `
+    &lt;button (click)="decrement()"&gt;-&lt;/button&gt;
+    &lt;span&gt;{{ count }}&lt;/span&gt;
+    &lt;button (click)="increment()"&gt;+&lt;/button&gt;
+  `
+})
+export class CounterComponent {
+  @Input() count = 0;
+  @Output() countChange = new EventEmitter&lt;number&gt;();  // Must be: inputName + "Change"
+
+  increment() {
+    this.count++;
+    this.countChange.emit(this.count);
+  }
+
+  decrement() {
+    this.count--;
+    this.countChange.emit(this.count);
+  }
+}
+
+// Parent uses:
+&lt;app-counter [(count)]="totalItems"&gt;&lt;/app-counter&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="directives">2. Built-in & Custom Directives</h2>
+
+<h3>Three Types of Directives</h3>
+<table>
+<tr><th>Type</th><th>Description</th><th>Examples</th></tr>
+<tr><td><strong>Components</strong></td><td>Directives WITH a template</td><td>Every component is a directive</td></tr>
+<tr><td><strong>Structural</strong></td><td>Change DOM structure (add/remove elements)</td><td><code>*ngIf, *ngFor, *ngSwitch</code></td></tr>
+<tr><td><strong>Attribute</strong></td><td>Change appearance/behavior of existing elements</td><td><code>[ngClass], [ngStyle], custom</code></td></tr>
+</table>
+
+<h4>Structural Directives — The * Syntax Explained</h4>
+<pre><code>&lt;!-- *ngIf is syntactic sugar. These are equivalent: --&gt;
+&lt;div *ngIf="isVisible"&gt;Content&lt;/div&gt;
+
+&lt;!-- Desugared: --&gt;
+&lt;ng-template [ngIf]="isVisible"&gt;
+  &lt;div&gt;Content&lt;/div&gt;
+&lt;/ng-template&gt;
+
+&lt;!-- *ngFor with all available variables: --&gt;
+&lt;li *ngFor="let item of items; let i = index; let first = first; 
+    let last = last; let even = even; let odd = odd; trackBy: trackById"&gt;
+  {{ i }}: {{ item.name }}
+&lt;/li&gt;
+
+&lt;!-- *ngIf with else and then: --&gt;
+&lt;div *ngIf="user$ | async as user; else loading"&gt;
+  Welcome, {{ user.name }}!
+&lt;/div&gt;
+&lt;ng-template #loading&gt;
+  &lt;app-spinner&gt;&lt;/app-spinner&gt;
+&lt;/ng-template&gt;
+
+&lt;!-- ngSwitch: --&gt;
+&lt;div [ngSwitch]="role"&gt;
+  &lt;span *ngSwitchCase="'admin'"&gt;Admin Panel&lt;/span&gt;
+  &lt;span *ngSwitchCase="'user'"&gt;User Dashboard&lt;/span&gt;
+  &lt;span *ngSwitchDefault&gt;Guest View&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+
+<h4>Custom Structural Directive</h4>
+<pre><code>@Directive({
+  selector: '[appRepeat]',
+  standalone: true
+})
+export class RepeatDirective {
+  constructor(
+    private templateRef: TemplateRef&lt;any&gt;,
+    private viewContainer: ViewContainerRef
+  ) {}
+
+  @Input() set appRepeat(times: number) {
+    this.viewContainer.clear();
+    for (let i = 0; i < times; i++) {
+      this.viewContainer.createEmbeddedView(this.templateRef, {
+        $implicit: i,    // Available as "let item" 
+        index: i         // Available as "let i = index"
+      });
+    }
+  }
+}
+
+// Usage:
+&lt;div *appRepeat="5; let i"&gt;Item {{ i }}&lt;/div&gt;</code></pre>
+
+<h4>Custom Attribute Directive</h4>
+<pre><code>@Directive({
+  selector: '[appHighlight]',
+  standalone: true
+})
+export class HighlightDirective {
+  @Input() appHighlight = 'yellow';
+  @Input() appHighlightOpacity = 0.3;
+
+  @HostBinding('style.backgroundColor') bgColor = '';
+
+  @HostListener('mouseenter')
+  onMouseEnter() {
+    this.bgColor = this.appHighlight || 'yellow';
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    this.bgColor = '';
+  }
+}
+
+// Usage:
+&lt;p [appHighlight]="'lightblue'"&gt;Hover me!&lt;/p&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="new-control-flow">3. New Control Flow Syntax (@if, @for, @switch)</h2>
+
+<div class="callout">
+<strong>Angular 17+ Feature:</strong> The new built-in control flow replaces structural directives with better performance (no need for CommonModule import) and cleaner syntax.
+</div>
+
+<pre><code>&lt;!-- @if (replaces *ngIf) --&gt;
+@if (user) {
+  &lt;h1&gt;Welcome, {{ user.name }}!&lt;/h1&gt;
+} @else if (isLoading) {
+  &lt;app-spinner /&gt;
+} @else {
+  &lt;p&gt;Please log in&lt;/p&gt;
+}
+
+&lt;!-- @for (replaces *ngFor) — REQUIRES track expression --&gt;
+@for (item of items; track item.id) {
+  &lt;app-card [data]="item" /&gt;
+} @empty {
+  &lt;p&gt;No items found.&lt;/p&gt;
+}
+
+&lt;!-- @for with index and other context variables --&gt;
+@for (user of users; track user.id; let i = $index; let isFirst = $first; let isLast = $last) {
+  &lt;div [class.first]="isFirst" [class.last]="isLast"&gt;
+    {{ i + 1 }}. {{ user.name }}
+  &lt;/div&gt;
+}
+
+&lt;!-- @switch (replaces ngSwitch) --&gt;
+@switch (status) {
+  @case ('loading') {
+    &lt;app-spinner /&gt;
+  }
+  @case ('error') {
+    &lt;app-error [message]="errorMsg" /&gt;
+  }
+  @case ('success') {
+    &lt;app-content [data]="data" /&gt;
+  }
+  @default {
+    &lt;p&gt;Unknown state&lt;/p&gt;
+  }
+}</code></pre>
+
+<h4>Why @for requires `track`</h4>
+<p>Unlike <code>*ngFor</code> where <code>trackBy</code> was optional (defaulting to object identity), <code>@for</code> REQUIRES a <code>track</code> expression. This ensures Angular can efficiently reconcile the DOM when the list changes — preventing unnecessary re-creation of DOM elements.</p>
+<pre><code>// What track does internally:
+// Angular uses the track value to map each item to a DOM node.
+// When the array changes, it compares track values to decide:
+// - Same track value → reuse DOM node (update bindings only)
+// - New track value → create new DOM node
+// - Missing track value → destroy DOM node
+
+// Good: unique identifier
+@for (user of users; track user.id) { ... }
+
+// OK for static lists:
+@for (item of items; track $index) { ... }
+
+// BAD: object reference (defeats the purpose)
+@for (item of items; track item) { ... }</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="pipes">4. Pipes — Built-in & Custom</h2>
+
+<h3>Built-in Pipes</h3>
+<pre><code>&lt;!-- Date --&gt;
+{{ today | date:'short' }}          &lt;!-- 6/11/26, 10:30 AM --&gt;
+{{ today | date:'fullDate' }}       &lt;!-- Thursday, June 11, 2026 --&gt;
+{{ today | date:'yyyy-MM-dd' }}     &lt;!-- 2026-06-11 --&gt;
+
+&lt;!-- Number --&gt;
+{{ 3.14159 | number:'1.2-2' }}      &lt;!-- 3.14 (min 1 int digit, 2-2 decimal) --&gt;
+{{ 1234567 | number }}              &lt;!-- 1,234,567 --&gt;
+
+&lt;!-- Currency --&gt;
+{{ 99.99 | currency }}              &lt;!-- $99.99 --&gt;
+{{ 99.99 | currency:'EUR':'symbol' }} &lt;!-- €99.99 --&gt;
+
+&lt;!-- Percent --&gt;
+{{ 0.85 | percent }}                &lt;!-- 85% --&gt;
+
+&lt;!-- String --&gt;
+{{ 'hello world' | uppercase }}     &lt;!-- HELLO WORLD --&gt;
+{{ 'HELLO' | lowercase }}           &lt;!-- hello --&gt;
+{{ 'hello world' | titlecase }}     &lt;!-- Hello World --&gt;
+
+&lt;!-- JSON (debugging) --&gt;
+&lt;pre&gt;{{ object | json }}&lt;/pre&gt;
+
+&lt;!-- Slice (arrays & strings) --&gt;
+{{ [1,2,3,4,5] | slice:1:3 }}       &lt;!-- [2,3] --&gt;
+
+&lt;!-- KeyValue (iterate objects) --&gt;
+@for (entry of myObj | keyvalue; track entry.key) {
+  {{ entry.key }}: {{ entry.value }}
+}
+
+&lt;!-- Async Pipe (CRITICAL for observables) --&gt;
+{{ user$ | async }}
+@if (data$ | async; as data) {
+  {{ data.title }}
+}</code></pre>
+
+<h4>Custom Pipe</h4>
+<pre><code>@Pipe({
+  name: 'truncate',
+  standalone: true
+})
+export class TruncatePipe implements PipeTransform {
+  transform(value: string, limit = 50, trail = '...'): string {
+    if (!value) return '';
+    return value.length > limit 
+      ? value.substring(0, limit) + trail 
+      : value;
+  }
+}
+
+// Usage:
+{{ longText | truncate:100:'…' }}</code></pre>
+
+<h4>Pure vs Impure Pipes</h4>
+<pre><code>// PURE pipe (default) — only recalculates when INPUT REFERENCE changes
+@Pipe({ name: 'filter', pure: true })  // Won't detect array mutations (push/splice)
+export class FilterPipe implements PipeTransform {
+  transform(items: any[], field: string, value: string): any[] {
+    return items.filter(item => item[field] === value);
+  }
+}
+
+// IMPURE pipe — recalculates on EVERY change detection cycle
+@Pipe({ name: 'filter', pure: false })  // Detects mutations but EXPENSIVE
+export class FilterPipe implements PipeTransform { ... }
+
+// Better approach: use a new array reference instead of impure pipe
+this.items = [...this.items, newItem];  // Triggers pure pipe</code></pre>
+
+<div class="callout warning">
+<strong>Performance Warning:</strong> Impure pipes run on EVERY change detection cycle (could be hundreds of times per second). Prefer pure pipes + immutable data patterns. If you must filter/sort in templates, memoize with signals or computed properties.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="communication">5. Component Communication Patterns</h2>
+
+<h3>Overview of All Patterns</h3>
+<table>
+<tr><th>Pattern</th><th>Direction</th><th>When to Use</th></tr>
+<tr><td>@Input / @Output</td><td>Parent ↔ Child</td><td>Direct parent-child relationship</td></tr>
+<tr><td>Service + Subject</td><td>Any ↔ Any</td><td>Unrelated components, cross-feature communication</td></tr>
+<tr><td>ViewChild / ContentChild</td><td>Parent → Child</td><td>Parent needs to call child methods directly</td></tr>
+<tr><td>Template Variables</td><td>Template-scoped</td><td>Sibling access within same template</td></tr>
+<tr><td>Signals</td><td>Any ↔ Any</td><td>Modern reactive state (Angular 16+)</td></tr>
+<tr><td>NgRx / Store</td><td>Global</td><td>Complex app-wide state management</td></tr>
+</table>
+
+<h4>Pattern 1: @Input / @Output</h4>
+<pre><code>// Parent component
+@Component({
+  template: `
+    &lt;app-child 
+      [items]="parentItems"
+      [config]="{ showHeader: true, pageSize: 10 }"
+      (itemSelected)="onItemSelected($event)"
+      (itemDeleted)="onItemDeleted($event)"
+    /&gt;
+  `
+})
+export class ParentComponent {
+  parentItems: Item[] = [];
+
+  onItemSelected(item: Item): void {
+    console.log('Selected:', item);
+  }
+
+  onItemDeleted(id: string): void {
+    this.parentItems = this.parentItems.filter(i => i.id !== id);
+  }
+}
+
+// Child component
+@Component({
+  selector: 'app-child',
+  template: `
+    @for (item of items; track item.id) {
+      &lt;div (click)="select(item)"&gt;
+        {{ item.name }}
+        &lt;button (click)="delete(item.id); $event.stopPropagation()"&gt;×&lt;/button&gt;
+      &lt;/div&gt;
+    }
+  `
+})
+export class ChildComponent {
+  @Input({ required: true }) items!: Item[];
+  @Input() config: ListConfig = { showHeader: false, pageSize: 20 };
+
+  @Output() itemSelected = new EventEmitter&lt;Item&gt;();
+  @Output() itemDeleted = new EventEmitter&lt;string&gt;();
+
+  select(item: Item) { this.itemSelected.emit(item); }
+  delete(id: string) { this.itemDeleted.emit(id); }
+}</code></pre>
+
+<h4>Pattern 2: Service with Subject (Sibling/Unrelated Communication)</h4>
+<pre><code>// Shared service
+@Injectable({ providedIn: 'root' })
+export class NotificationService {
+  private notificationSubject = new Subject&lt;Notification&gt;();
+  notifications$ = this.notificationSubject.asObservable();
+
+  show(message: string, type: 'success' | 'error' | 'info'): void {
+    this.notificationSubject.next({ message, type, id: Date.now() });
+  }
+}
+
+// Component A — sends notification
+export class OrderComponent {
+  private notify = inject(NotificationService);
+  
+  placeOrder() {
+    // ... order logic
+    this.notify.show('Order placed successfully!', 'success');
+  }
+}
+
+// Component B — displays notification (completely unrelated)
+export class ToastComponent {
+  private notify = inject(NotificationService);
+  notifications$ = this.notify.notifications$;
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="content-projection">6. Content Projection (ng-content)</h2>
+
+<h3>Single-slot Projection</h3>
+<pre><code>// card.component.ts
+@Component({
+  selector: 'app-card',
+  template: `
+    &lt;div class="card"&gt;
+      &lt;div class="card-header"&gt;{{ title }}&lt;/div&gt;
+      &lt;div class="card-body"&gt;
+        &lt;ng-content&gt;&lt;/ng-content&gt;  &lt;!-- Projected content goes here --&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  `
+})
+export class CardComponent {
+  @Input() title = '';
+}
+
+// Usage:
+&lt;app-card title="User Profile"&gt;
+  &lt;p&gt;This content is PROJECTED into the card body&lt;/p&gt;
+  &lt;app-user-avatar [user]="user" /&gt;
+&lt;/app-card&gt;</code></pre>
+
+<h3>Multi-slot Projection (with select)</h3>
+<pre><code>// modal.component.ts
+@Component({
+  selector: 'app-modal',
+  template: `
+    &lt;div class="modal-overlay" (click)="close()"&gt;
+      &lt;div class="modal" (click)="$event.stopPropagation()"&gt;
+        &lt;header&gt;
+          &lt;ng-content select="[modal-header]"&gt;&lt;/ng-content&gt;
+        &lt;/header&gt;
+        &lt;main&gt;
+          &lt;ng-content select="[modal-body]"&gt;&lt;/ng-content&gt;
+        &lt;/main&gt;
+        &lt;footer&gt;
+          &lt;ng-content select="[modal-footer]"&gt;&lt;/ng-content&gt;
+        &lt;/footer&gt;
+        &lt;!-- Catch-all for unmatched content --&gt;
+        &lt;ng-content&gt;&lt;/ng-content&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  `
+})
+export class ModalComponent {
+  @Output() closed = new EventEmitter&lt;void&gt;();
+  close() { this.closed.emit(); }
+}
+
+// Usage:
+&lt;app-modal (closed)="showModal = false"&gt;
+  &lt;h2 modal-header&gt;Confirm Delete&lt;/h2&gt;
+  &lt;p modal-body&gt;Are you sure you want to delete this item?&lt;/p&gt;
+  &lt;div modal-footer&gt;
+    &lt;button (click)="showModal = false"&gt;Cancel&lt;/button&gt;
+    &lt;button (click)="confirmDelete()"&gt;Delete&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/app-modal&gt;</code></pre>
+
+<h3>Conditional Content Projection with ng-template</h3>
+<pre><code>// data-table.component.ts
+@Component({
+  selector: 'app-data-table',
+  template: `
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          @for (col of columns; track col.key) {
+            &lt;th&gt;{{ col.label }}&lt;/th&gt;
+          }
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        @for (row of data; track row.id) {
+          &lt;tr&gt;
+            @for (col of columns; track col.key) {
+              &lt;td&gt;
+                &lt;!-- Use custom template if provided, else default --&gt;
+                @if (cellTemplates[col.key]) {
+                  &lt;ng-container 
+                    [ngTemplateOutlet]="cellTemplates[col.key]"
+                    [ngTemplateOutletContext]="{ $implicit: row, column: col }"
+                  /&gt;
+                } @else {
+                  {{ row[col.key] }}
+                }
+              &lt;/td&gt;
+            }
+          &lt;/tr&gt;
+        }
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  `
+})
+export class DataTableComponent {
+  @Input() columns: Column[] = [];
+  @Input() data: any[] = [];
+  @ContentChildren(CellTemplateDirective) templates!: QueryList&lt;CellTemplateDirective&gt;;
+
+  cellTemplates: Record&lt;string, TemplateRef&lt;any&gt;&gt; = {};
+
+  ngAfterContentInit() {
+    this.templates.forEach(t => {
+      this.cellTemplates[t.columnKey] = t.templateRef;
+    });
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="view-queries">7. ViewChild, ViewChildren, ContentChild</h2>
+
+<pre><code>@Component({
+  template: `
+    &lt;input #searchInput&gt;
+    &lt;app-chart #chart [data]="chartData" /&gt;
+    &lt;app-item *ngFor="let item of items" [data]="item" /&gt;
+  `
+})
+export class DashboardComponent implements AfterViewInit {
+  // Single element/component reference
+  @ViewChild('searchInput') searchInput!: ElementRef&lt;HTMLInputElement&gt;;
+  @ViewChild('chart') chartComponent!: ChartComponent;
+
+  // Multiple references (QueryList)
+  @ViewChildren(ItemComponent) itemComponents!: QueryList&lt;ItemComponent&gt;;
+
+  ngAfterViewInit() {
+    // Access DOM element
+    this.searchInput.nativeElement.focus();
+
+    // Call child component method
+    this.chartComponent.refresh();
+
+    // Iterate children
+    this.itemComponents.forEach(item => item.highlight());
+
+    // React to dynamic changes in children
+    this.itemComponents.changes.subscribe((items: QueryList&lt;ItemComponent&gt;) => {
+      console.log('Items changed, new count:', items.length);
+    });
+  }
+}
+
+// ContentChild — access projected content
+@Component({
+  selector: 'app-tab-group',
+  template: `&lt;ng-content&gt;&lt;/ng-content&gt;`
+})
+export class TabGroupComponent implements AfterContentInit {
+  @ContentChildren(TabComponent) tabs!: QueryList&lt;TabComponent&gt;;
+
+  ngAfterContentInit() {
+    // Access projected tab components
+    const firstTab = this.tabs.first;
+    firstTab.activate();
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="dynamic-components">8. Dynamic Components</h2>
+
+<h3>Modern Approach (Angular 13+)</h3>
+<pre><code>@Component({
+  template: `
+    &lt;ng-container #dynamicHost&gt;&lt;/ng-container&gt;
+    &lt;button (click)="loadChart()"&gt;Load Chart&lt;/button&gt;
+    &lt;button (click)="loadTable()"&gt;Load Table&lt;/button&gt;
+  `
+})
+export class DynamicLoaderComponent {
+  @ViewChild('dynamicHost', { read: ViewContainerRef }) container!: ViewContainerRef;
+
+  loadChart() {
+    this.container.clear();
+    const componentRef = this.container.createComponent(ChartComponent);
+    componentRef.instance.data = this.chartData;  // Set inputs
+    componentRef.instance.clicked.subscribe(e => this.handleClick(e));  // Subscribe to outputs
+  }
+
+  loadTable() {
+    this.container.clear();
+    const componentRef = this.container.createComponent(DataTableComponent);
+    componentRef.instance.columns = this.columns;
+    componentRef.instance.rows = this.rows;
+  }
+}
+
+// Lazy-loaded dynamic component
+async loadLazyComponent() {
+  const { HeavyChartComponent } = await import('./heavy-chart/heavy-chart.component');
+  this.container.clear();
+  this.container.createComponent(HeavyChartComponent);
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="ng-template">9. ng-template, ng-container, ng-content</h2>
+
+<h4>ng-template — Invisible template (not rendered until used)</h4>
+<pre><code>&lt;!-- Define a reusable template --&gt;
+&lt;ng-template #userCard let-user let-showAvatar="showAvatar"&gt;
+  &lt;div class="card"&gt;
+    @if (showAvatar) {
+      &lt;img [src]="user.avatar"&gt;
+    }
+    &lt;h3&gt;{{ user.name }}&lt;/h3&gt;
+  &lt;/div&gt;
+&lt;/ng-template&gt;
+
+&lt;!-- Render it with context --&gt;
+&lt;ng-container 
+  [ngTemplateOutlet]="userCard"
+  [ngTemplateOutletContext]="{ $implicit: currentUser, showAvatar: true }"
+/&gt;</code></pre>
+
+<h4>ng-container — Grouping without extra DOM element</h4>
+<pre><code>&lt;!-- Problem: you need *ngIf and *ngFor on same element (can't!) --&gt;
+
+&lt;!-- Solution: ng-container adds no DOM element --&gt;
+&lt;ng-container *ngIf="showList"&gt;
+  &lt;li *ngFor="let item of items"&gt;{{ item.name }}&lt;/li&gt;
+&lt;/ng-container&gt;
+
+&lt;!-- With new control flow, less needed: --&gt;
+@if (showList) {
+  @for (item of items; track item.id) {
+    &lt;li&gt;{{ item.name }}&lt;/li&gt;
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="host-binding">10. HostBinding & HostListener</h2>
+
+<pre><code>@Directive({
+  selector: '[appDropdown]',
+  standalone: true
+})
+export class DropdownDirective {
+  @HostBinding('class.open') isOpen = false;
+  @HostBinding('attr.aria-expanded') get ariaExpanded() { return this.isOpen; }
+
+  @HostListener('click') toggle() {
+    this.isOpen = !this.isOpen;
+  }
+
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: HTMLElement) {
+    // Close when clicking outside
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.isOpen = false;
+    }
+  }
+
+  constructor(private elementRef: ElementRef) {}
+}
+
+// Modern alternative using host in @Component/@Directive metadata:
+@Directive({
+  selector: '[appTooltip]',
+  standalone: true,
+  host: {
+    '(mouseenter)': 'show()',
+    '(mouseleave)': 'hide()',
+    '[class.tooltip-active]': 'isVisible',
+    'role': 'tooltip'
+  }
+})
+export class TooltipDirective {
+  isVisible = false;
+  show() { this.isVisible = true; }
+  hide() { this.isVisible = false; }
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 2</h4>
+<ol>
+  <li>What are the 4 types of data binding in Angular? Explain each with examples.</li>
+  <li>How does two-way binding work internally? How would you create custom two-way binding?</li>
+  <li>What's the difference between structural and attribute directives?</li>
+  <li>Explain the * (asterisk) prefix in structural directives. What does it desugar to?</li>
+  <li>What is the difference between pure and impure pipes? When would you use each?</li>
+  <li>How does the async pipe work? Why is it considered a best practice?</li>
+  <li>Explain content projection. What is multi-slot projection?</li>
+  <li>What's the difference between ViewChild and ContentChild?</li>
+  <li>How do you create dynamic components in Angular? When would you need them?</li>
+  <li>What's the difference between ng-template, ng-container, and ng-content?</li>
+  <li>Explain the new @for syntax. Why is track required?</li>
+  <li>How would you implement a reusable data table component with customizable cell templates?</li>
+</ol>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase1-angular-fundamentals.html">← Phase 1: Fundamentals</a>
+  <a href="phase3-dependency-injection.html">Phase 3: Dependency Injection →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

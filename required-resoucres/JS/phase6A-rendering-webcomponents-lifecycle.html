@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 6A: Critical Rendering Path, Web Components & Page Lifecycle</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: #1e2a3a; color: #7fdbca; padding: 3px 7px; border-radius: 5px; font-size: 9.8pt; border: 1px solid rgba(127,219,202,0.2); } pre code { background: none; padding: 0; border: none; color: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+
+    /* ─── Dynamic Flow Diagrams ─── */
+    .flow-diagram { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 14px; padding: 24px; margin: 16px 0; color: #e0e0e0; font-family: "SFMono-Regular", Menlo, monospace; font-size: 9.4pt; overflow-x: auto; position: relative; }
+    .flow-diagram::before { content: attr(data-title); position: absolute; top: 8px; right: 14px; font-size: 8pt; color: #7fdbca; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .flow-diagram h4 { color: #7fdbca; margin: 0 0 14px; font-size: 11pt; font-family: "Avenir Next", sans-serif; border-bottom: 1px solid rgba(127,219,202,0.3); padding-bottom: 8px; }
+
+    .flow-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+    .flow-box { padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 9pt; text-align: center; white-space: nowrap; border: 1px solid rgba(255,255,255,0.15); }
+    .flow-arrow { color: #ffd93d; font-size: 14pt; font-weight: 700; }
+    .flow-arrow-down { display: block; text-align: center; color: #ffd93d; font-size: 14pt; margin: 4px 0; }
+
+    .fb-network { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+    .fb-html { background: linear-gradient(135deg, #e67e22, #d35400); color: white; }
+    .fb-css { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+    .fb-js { background: linear-gradient(135deg, #f1c40f, #f39c12); color: #1a1a2e; }
+    .fb-dom { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+    .fb-cssom { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
+    .fb-render { background: linear-gradient(135deg, #1abc9c, #16a085); color: white; }
+    .fb-layout { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+    .fb-paint { background: linear-gradient(135deg, #fd79a8, #e84393); color: white; }
+    .fb-composite { background: linear-gradient(135deg, #00b894, #00cec9); color: #1a1a2e; }
+    .fb-gpu { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; }
+    .fb-pixels { background: linear-gradient(135deg, #ffd93d, #ff9f43); color: #1a1a2e; font-weight: 800; }
+
+    .flow-section { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+    .flow-section-title { color: #74b9ff; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 700; }
+
+    .flow-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0; }
+    .flow-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 12px; }
+    .flow-card h5 { margin: 0 0 6px; font-size: 9.5pt; color: #dfe6e9; font-family: "Avenir Next", sans-serif; }
+    .flow-card p { margin: 0; font-size: 8.5pt; color: #b2bec3; line-height: 1.5; }
+
+    .timeline-bar { display: flex; margin: 12px 0; border-radius: 6px; overflow: hidden; height: 32px; font-size: 8pt; font-weight: 600; }
+    .timeline-bar > div { display: flex; align-items: center; justify-content: center; padding: 0 6px; white-space: nowrap; }
+    .tb-dns { background: #636e72; color: white; flex: 1.5; }
+    .tb-ttfb { background: #e17055; color: white; flex: 1; }
+    .tb-dom { background: #e67e22; color: white; flex: 2; }
+    .tb-cssom { background: #9b59b6; color: white; flex: 1.5; }
+    .tb-layout { background: #e74c3c; color: white; flex: 1; }
+    .tb-paint { background: #fd79a8; color: white; flex: 1; }
+    .tb-comp { background: #00cec9; color: #1a1a2e; flex: 0.8; }
+
+    .priority-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.4pt; }
+    .priority-table th { background: rgba(116,185,255,0.2); color: #74b9ff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; text-align: left; }
+    .priority-table td { border: 1px solid rgba(255,255,255,0.08); padding: 7px 10px; }
+    .priority-table tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+    .p-highest { color: #ff6b6b; font-weight: 700; }
+    .p-high { color: #ffa502; font-weight: 600; }
+    .p-low { color: #a4b0be; }
+    .p-lowest { color: #636e72; }
+
+    .cost-meter { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .cost-meter .label { width: 140px; font-size: 9pt; color: #dfe6e9; }
+    .cost-meter .bar { flex: 1; height: 12px; border-radius: 6px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .cost-meter .bar > div { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+    .cost-expensive { background: linear-gradient(90deg, #e74c3c, #ff6b6b); }
+    .cost-medium { background: linear-gradient(90deg, #f39c12, #fdcb6e); }
+    .cost-cheap { background: linear-gradient(90deg, #00b894, #55efc4); }
+
+    .lifecycle-flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 12px 0; }
+    .lf-state { padding: 8px 14px; border-radius: 20px; font-size: 9pt; font-weight: 600; border: 2px solid; }
+    .lf-active { background: rgba(0,184,148,0.2); border-color: #00b894; color: #55efc4; }
+    .lf-hidden { background: rgba(108,92,231,0.2); border-color: #6c5ce7; color: #a29bfe; }
+    .lf-frozen { background: rgba(9,132,227,0.2); border-color: #0984e3; color: #74b9ff; }
+    .lf-terminated { background: rgba(214,48,49,0.2); border-color: #d63031; color: #ff7675; }
+    .lf-discarded { background: rgba(99,110,114,0.2); border-color: #636e72; color: #b2bec3; }
+    .lf-arrow { color: #ffd93d; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 6A: Critical Rendering Path, Web Components &amp; Page Lifecycle</h1>
+  <p class="subtitle">JavaScript Mastery — Companion to Phase 6 (Browser Internals)</p>
+  <div class="pill-row">
+    <span class="pill">Critical Rendering Path</span>
+    <span class="pill">Reflow vs Repaint</span>
+    <span class="pill">Shadow DOM</span>
+    <span class="pill">Web Components</span>
+    <span class="pill">Page Lifecycle</span>
+    <span class="pill">History API</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Why this file?</strong> "Explain the Critical Rendering Path" is the #1 most asked browser internals question. Shadow DOM is essential for understanding Angular's ViewEncapsulation. The History API powers every SPA router (including Angular Router).
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#crp">Critical Rendering Path (Complete)</a></li>
+    <li><a href="#reflow-repaint">Reflow vs Repaint (Performance Deep Dive)</a></li>
+    <li><a href="#shadow-dom">Shadow DOM &amp; Encapsulation</a></li>
+    <li><a href="#web-components">Web Components (Custom Elements)</a></li>
+    <li><a href="#page-lifecycle">Page Lifecycle &amp; Visibility</a></li>
+    <li><a href="#history-api">History API &amp; SPA Routing</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="crp">1. Critical Rendering Path (Complete)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=PkOBnYxqj3k" target="_blank">Critical Rendering Path — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=lvb06W_VKVE" target="_blank">How Browsers Render — Hussein Nasser</a></li>
+  <li><a href="https://www.youtube.com/watch?v=SmE4OwHztCc" target="_blank">Browser Rendering Deep Dive — Lydia Hallie</a></li>
+</ul></details>
+
+<h3>What Is the Critical Rendering Path?</h3>
+<p>The Critical Rendering Path (CRP) is the sequence of steps the browser takes to convert HTML, CSS, and JavaScript into pixels on screen. Understanding it is fundamental to performance optimization.</p>
+
+<div class="callout">
+  <strong>Mental Model:</strong> Think of building a house. You can't paint walls (Paint) before putting them up (Layout). You can't put walls up before knowing the blueprint (Render Tree). You can't make the blueprint before knowing both the house plan (DOM) and the decoration choices (CSSOM). The CRP is the browser's construction sequence.
+</div>
+
+<h3>Architecture Flow — Complete Browser Engine Pipeline</h3>
+
+<div class="flow-diagram" data-title="Browser Engine">
+<h4>🌐 Browser Engine Architecture — How Bytes Become Pixels</h4>
+
+<div class="flow-grid">
+  <div class="flow-card">
+    <h5>📡 Network Layer</h5>
+    <p>DNS lookup → TCP handshake → TLS negotiation → HTTP request/response. Raw bytes arrive via network stream.</p>
+  </div>
+  <div class="flow-card">
+    <h5>⚙️ Renderer Process (Main Thread)</h5>
+    <p>Parses HTML/CSS, executes JS, builds trees, calculates layout, paints layers. Single-threaded — JS blocks everything!</p>
+  </div>
+  <div class="flow-card">
+    <h5>🎮 GPU Process</h5>
+    <p>Rasterizes layers into tiles, composites final image, sends to display. Handles transform/opacity animations independently.</p>
+  </div>
+</div>
+
+<div class="flow-section">
+  <div class="flow-section-title">Complete Pipeline Flow</div>
+  <div class="flow-row">
+    <span class="flow-box fb-network">HTTP Response (bytes)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-html">HTML Parser</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-dom">DOM Tree</span>
+    <span class="flow-arrow">↘</span>
+  </div>
+  <div class="flow-row" style="justify-content: center;">
+    <span class="flow-box fb-render">Render Tree</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-layout">Layout (Reflow)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-paint">Paint</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-composite">Composite</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-pixels">🖥️ Pixels!</span>
+  </div>
+  <div class="flow-row">
+    <span class="flow-box fb-css">CSS Files</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-cssom">CSSOM Tree</span>
+    <span class="flow-arrow">↗</span>
+  </div>
+  <div class="flow-row" style="margin-top: 8px;">
+    <span class="flow-box fb-js">JavaScript</span>
+    <span class="flow-arrow">⟷</span>
+    <span style="color: #ffeaa7; font-size: 8.5pt;">Can modify DOM + CSSOM at any point (blocking!)</span>
+  </div>
+</div>
+
+<div class="flow-section">
+  <div class="flow-section-title">Timing — Typical First Load</div>
+  <div class="timeline-bar">
+    <div class="tb-dns">DNS+TCP+TLS</div>
+    <div class="tb-ttfb">TTFB</div>
+    <div class="tb-dom">DOM Parse</div>
+    <div class="tb-cssom">CSSOM</div>
+    <div class="tb-layout">Layout</div>
+    <div class="tb-paint">Paint</div>
+    <div class="tb-comp">Comp.</div>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:8pt; margin-top:4px;">
+    <span style="color:#636e72;">← Network →</span>
+    <span style="color:#ffd93d; font-weight:700;">← Critical Rendering Path →</span>
+  </div>
+</div>
+
+<p style="color:#7fdbca; margin:12px 0 0; font-size:9pt;"><strong>KEY INSIGHT:</strong> The CRP is the MINIMUM sequence that MUST complete before the browser can show the first pixel on screen. Optimizing CRP = reducing time to First Contentful Paint (FCP).</p>
+</div>
+
+<h3>The Preload Scanner — Browser's Secret Weapon</h3>
+
+<div class="flow-diagram" data-title="Preload Scanner">
+<h4>🔍 How the Preload Scanner Rescues Performance</h4>
+<p style="color:#b2bec3; margin-bottom:14px;">When the HTML parser hits a <code style="color:#ffeaa7;">&lt;script&gt;</code> tag (without async/defer), it STOPS. But the browser doesn't sit idle — it runs the <strong style="color:#7fdbca;">Preload Scanner</strong> to find resources ahead of time.</p>
+
+<div class="flow-section">
+  <div class="flow-section-title">Timeline With Script Blocking</div>
+  <div style="margin: 10px 0;">
+    <div style="display:flex; align-items:center; gap:6px; margin:6px 0;">
+      <span style="width:120px; color:#74b9ff; font-size:8.5pt; font-weight:600;">Main Parser:</span>
+      <div style="display:flex; flex:1; height:24px; border-radius:4px; overflow:hidden;">
+        <div style="background:#27ae60; flex:2; display:flex; align-items:center; justify-content:center; font-size:7.5pt; color:white;">Parse HTML</div>
+        <div style="background:#e74c3c; flex:1.5; display:flex; align-items:center; justify-content:center; font-size:7.5pt; color:white;">⛔ BLOCKED (exec JS)</div>
+        <div style="background:#27ae60; flex:2; display:flex; align-items:center; justify-content:center; font-size:7.5pt; color:white;">Continue Parsing</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px; margin:6px 0;">
+      <span style="width:120px; color:#7fdbca; font-size:8.5pt; font-weight:600;">Preload Scanner:</span>
+      <div style="display:flex; flex:1; height:24px; border-radius:4px; overflow:hidden;">
+        <div style="background:transparent; flex:2;"></div>
+        <div style="background:#6c5ce7; flex:3.5; display:flex; align-items:center; justify-content:center; font-size:7.5pt; color:white;">🔍 Scan ahead → find CSS, img, font → start downloads</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px; margin:6px 0;">
+      <span style="width:120px; color:#ffd93d; font-size:8.5pt; font-weight:600;">Network:</span>
+      <div style="display:flex; flex:1; height:24px; border-radius:4px; overflow:hidden; gap:3px;">
+        <div style="background:transparent; flex:1;"></div>
+        <div style="background:#3498db; flex:1.2; display:flex; align-items:center; justify-content:center; font-size:7pt; color:white; border-radius:4px;">↓ CSS</div>
+        <div style="background:#e67e22; flex:1; display:flex; align-items:center; justify-content:center; font-size:7pt; color:white; border-radius:4px;">↓ img</div>
+        <div style="background:#9b59b6; flex:1; display:flex; align-items:center; justify-content:center; font-size:7pt; color:white; border-radius:4px;">↓ font</div>
+        <div style="background:transparent; flex:1;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
+  <div class="flow-section">
+    <div class="flow-section-title" style="color:#55efc4;">✅ What It Finds</div>
+    <ul style="margin:4px 0 0 16px; padding:0; font-size:8.5pt; color:#dfe6e9;">
+      <li>&lt;link rel="stylesheet"&gt;</li>
+      <li>&lt;script src="..."&gt;</li>
+      <li>&lt;img src="..."&gt;</li>
+      <li>&lt;link rel="preload"&gt;</li>
+      <li>srcset images</li>
+      <li>poster on &lt;video&gt;</li>
+    </ul>
+  </div>
+  <div class="flow-section">
+    <div class="flow-section-title" style="color:#ff7675;">❌ Cannot Find</div>
+    <ul style="margin:4px 0 0 16px; padding:0; font-size:8.5pt; color:#dfe6e9;">
+      <li>CSS background-image, @font-face</li>
+      <li>JS-loaded resources (fetch, dynamic import)</li>
+      <li>CSS @import (creates waterfall!)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout warning" style="background:rgba(231,76,60,0.1); border-left-color:#e74c3c; margin-top:14px;">
+  <strong style="color:#ff7675;">⚠️ Anti-Pattern:</strong> <code style="color:#ffeaa7;">@import url("other.css")</code><br>
+  <span style="color:#b2bec3; font-size:8.5pt;">Creates a waterfall: HTML → download main.css → parse → find @import → download other.css. Use &lt;link&gt; tags instead (all discovered by preload scanner in parallel).</span>
+</div>
+</div>
+
+<h3>Resource Priority — How Browsers Decide What to Load First</h3>
+
+<div class="flow-diagram" data-title="Priority">
+<h4>📊 Browser Resource Priority System</h4>
+<p style="color:#b2bec3; margin-bottom:12px;">Browsers assign priority to every resource. Understanding this helps you optimize which resources load first.</p>
+
+<table class="priority-table">
+<tr><th>Resource Type</th><th>Priority</th><th>Notes</th></tr>
+<tr><td>Main HTML document</td><td class="p-highest">🔴 Highest</td><td>Everything depends on this</td></tr>
+<tr><td>CSS in &lt;head&gt;</td><td class="p-highest">🔴 Highest</td><td>Render-blocking</td></tr>
+<tr><td>Preload (as=style/font)</td><td class="p-highest">🔴 Highest</td><td>You explicitly marked it critical</td></tr>
+<tr><td>&lt;script&gt; in &lt;head&gt;</td><td class="p-high">🟠 High</td><td>Parser-blocking</td></tr>
+<tr><td>&lt;script defer&gt;</td><td class="p-high">🟠 High</td><td>Needed for interactivity</td></tr>
+<tr><td>Font (@font-face)</td><td class="p-high">🟠 High</td><td>Needed for text paint</td></tr>
+<tr><td>&lt;img&gt; above fold</td><td class="p-high">🟠 High</td><td>Visible immediately</td></tr>
+<tr><td>&lt;script async&gt;</td><td class="p-low">⚪ Low</td><td>Not critical for rendering</td></tr>
+<tr><td>&lt;img&gt; below fold</td><td class="p-low">⚪ Low</td><td>Not visible yet</td></tr>
+<tr><td>Prefetch resources</td><td class="p-lowest">⬜ Lowest</td><td>For future navigations</td></tr>
+<tr><td>&lt;img loading="lazy"&gt;</td><td class="p-lowest">⬜ Lowest</td><td>Upgraded when near viewport</td></tr>
+</table>
+
+<div class="flow-section">
+  <div class="flow-section-title">Override with fetchpriority Attribute</div>
+  <div style="font-size:8.5pt; color:#dfe6e9; line-height:1.8;">
+    <code style="color:#55efc4;">&lt;img src="hero.jpg" fetchpriority="high"&gt;</code> → hero image loads first<br>
+    <code style="color:#ffeaa7;">&lt;img src="carousel-3.jpg" fetchpriority="low"&gt;</code> → deprioritize offscreen<br>
+    <code style="color:#ff7675;">&lt;script src="analytics.js" fetchpriority="low"&gt;</code> → don't compete with critical JS
+  </div>
+</div>
+</div>
+
+<h3>The 5 Steps (Complete Pipeline)</h3>
+<pre><code>/*
+Step 1: Parse HTML → Build DOM Tree
+Step 2: Parse CSS → Build CSSOM Tree
+Step 3: Combine DOM + CSSOM → Render Tree
+Step 4: Layout (Reflow) → Calculate geometry (positions, sizes)
+Step 5: Paint → Fill in pixels (colors, borders, shadows, text)
+Step 6: Composite → Layer composition (GPU-accelerated)
+
+Full pipeline:
+
+ HTML bytes → Characters → Tokens → Nodes → DOM
+                                                 ↘
+                                                  → Render Tree → Layout → Paint → Composite → Pixels
+                                                 ↗
+ CSS bytes  → Characters → Tokens → Nodes → CSSOM
+*/</code></pre>
+
+<h3>Step 1: HTML → DOM (Document Object Model)</h3>
+<pre><code>// Browser receives raw HTML bytes from the network
+// Conversion: Bytes → Characters (encoding) → Tokens (tokenizer) → Nodes → DOM Tree
+
+// IMPORTANT: HTML parsing is INCREMENTAL (streaming)
+// Browser doesn't wait for entire HTML — it starts building DOM as bytes arrive
+
+// But parsing CAN BE BLOCKED by:
+// 1. &lt;script&gt; tags (parser stops, downloads &amp; executes JS, then resumes)
+// 2. &lt;script&gt; with document.write() — can modify the stream!
+
+// Solutions:
+// &lt;script defer&gt; — download in parallel, execute AFTER DOM is complete (order preserved)
+// &lt;script async&gt; — download in parallel, execute ASAP (order NOT guaranteed)
+// &lt;script type="module"&gt; — automatically deferred
+
+/*
+Comparison:
+                    Download    Execute         Order     DOMContentLoaded
+No attribute:       Blocking    Blocking        Yes       Blocks
+async:              Parallel    ASAP            No        Doesn't block
+defer:              Parallel    After parsing   Yes       Doesn't block (fires after)
+module:             Parallel    After parsing   Yes       Doesn't block
+*/</code></pre>
+
+<h3>Step 2: CSS → CSSOM (CSS Object Model)</h3>
+<pre><code>// CSS is RENDER-BLOCKING — browser won't render until ALL CSS is parsed
+// WHY? To avoid "flash of unstyled content" (FOUC)
+
+// CSSOM is built by combining:
+// 1. Browser default styles (user agent stylesheet)
+// 2. External stylesheets (&lt;link rel="stylesheet"&gt;)
+// 3. Inline styles (&lt;style&gt; blocks)
+// 4. Inline element styles (style="...")
+
+// CSS specificity cascade happens during CSSOM construction
+// Every CSS property for every visible element must be resolved
+
+// KEY INSIGHT: CSS blocks rendering but NOT DOM parsing
+// The browser can continue building the DOM while waiting for CSS
+// But it CANNOT build the Render Tree (Step 3) until CSSOM is ready
+
+// Performance implications:
+// - Put CSS in &lt;head&gt; (discovered early)
+// - Minimize render-blocking CSS
+// - Use media queries on &lt;link&gt; to make non-critical CSS non-blocking:
+//   &lt;link rel="stylesheet" href="print.css" media="print"&gt;
+//   (Still downloads, but doesn't block rendering for screen)
+// - Inline critical CSS for above-the-fold content
+// - Use rel="preload" for critical fonts/stylesheets</code></pre>
+
+<h3>Step 3: DOM + CSSOM → Render Tree</h3>
+<pre><code>// Render Tree = only VISIBLE elements with their computed styles
+// It combines DOM structure with CSSOM styles
+
+// What's NOT in the Render Tree:
+// - Elements with display: none (completely removed)
+// - &lt;head&gt;, &lt;script&gt;, &lt;meta&gt; (non-visual elements)
+// - Elements hidden by CSS inheritance
+
+// What IS in the Render Tree but invisible:
+// - visibility: hidden (takes space, just not painted)
+// - opacity: 0 (takes space, can still be interacted with)
+// - elements off-screen (positioned outside viewport)
+
+// Pseudo-elements (::before, ::after) ARE in the render tree
+// even though they're not in the DOM
+
+// Angular connection: 
+// Angular's ViewEncapsulation.Emulated adds _nghost/_ngcontent attributes
+// These attributes are part of the DOM and affect CSSOM specificity</code></pre>
+
+<h3>Step 4: Layout (Reflow)</h3>
+<pre><code>// Layout calculates the EXACT position and size of every element
+// Input: Render Tree (what to show + styles)
+// Output: Box model for each element (x, y, width, height)
+
+// Layout is EXPENSIVE because:
+// 1. One element's size can affect others (float, flexbox, grid)
+// 2. Changes cascade — moving a parent moves all children
+// 3. Layout is computed from the viewport inward
+
+// The viewport meta tag affects initial layout:
+// &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+// Without this, mobile browsers assume 980px width
+
+// Layout calculations involve:
+// - Box model (content + padding + border + margin)
+// - Flow layout (block vs inline)
+// - Flexbox / Grid calculations
+// - Positioning (relative, absolute, fixed, sticky)
+// - Float interactions
+// - Table layouts (especially expensive!)
+// - Text wrapping and line breaks (requires font metrics)</code></pre>
+
+<h3>Step 5: Paint</h3>
+<pre><code>// Paint fills in actual pixels: colors, borders, shadows, text, images
+// It creates PAINT RECORDS — ordered instructions for what to draw
+
+// Paint order matters! (back-to-front, like z-index):
+// 1. Background color
+// 2. Background image
+// 3. Border
+// 4. Children (in DOM order, modified by z-index)
+// 5. Outline
+
+// Paint is per-layer (see Step 6: Composite)
+// Changing only paint properties (color, background, shadow) is cheaper
+// than layout changes, but still costs a repaint of that layer</code></pre>
+
+<h3>Step 6: Composite</h3>
+<pre><code>// The browser splits the page into LAYERS (like Photoshop layers)
+// Each layer is painted independently, then composited together by the GPU
+
+// What creates a new layer (compositing trigger):
+// - position: fixed / sticky
+// - transform (even transform: translateZ(0) — the "GPU hack")
+// - opacity (when animated)
+// - will-change: transform / opacity
+// - &lt;video&gt;, &lt;canvas&gt;, &lt;iframe&gt;
+// - CSS filters
+// - Elements that overlap a composited layer
+
+// WHY layers matter for performance:
+// If an element is on its own layer, changes to it only require:
+// 1. Repaint that ONE layer (not the whole page)
+// 2. Re-composite (GPU operation — very fast!)
+// 
+// This is why transform/opacity animations are "free":
+// They ONLY trigger composite (skip Layout AND Paint entirely!)
+
+// The CSS properties that ONLY trigger composite:
+// - transform (translate, rotate, scale)
+// - opacity
+// These are the ONLY properties safe for 60fps animations!
+
+// will-change: tells browser to create a layer ahead of time
+.animate-soon {
+  will-change: transform; /* Creates layer in advance */
+}
+// WARNING: Don't overuse! Each layer consumes GPU memory.</code></pre>
+
+<h3>Complete CRP Optimization Checklist</h3>
+<pre><code>// 1. Minimize Critical Resources
+//    - Inline critical CSS (above-the-fold)
+//    - Defer non-critical CSS with media queries
+//    - Use async/defer for scripts
+//    - Remove unused CSS (tree-shaking)
+
+// 2. Minimize Critical Bytes
+//    - Minify HTML, CSS, JS
+//    - Enable gzip/brotli compression
+//    - Optimize images (WebP, AVIF, responsive srcset)
+
+// 3. Minimize Critical Path Length
+//    - Reduce number of round trips (HTTP/2, preload, preconnect)
+//    - &lt;link rel="preconnect" href="https://api.example.com"&gt;
+//    - &lt;link rel="preload" href="/critical.css" as="style"&gt;
+//    - &lt;link rel="dns-prefetch" href="https://cdn.example.com"&gt;
+
+// Key metrics:
+// - FCP (First Contentful Paint): When first content appears
+// - LCP (Largest Contentful Paint): When main content is visible
+// - CLS (Cumulative Layout Shift): Visual stability
+// - TBT (Total Blocking Time): How long main thread is blocked</code></pre>
+
+<h3>Render-Blocking vs Parser-Blocking — Critical Distinction</h3>
+
+<div class="flow-diagram" data-title="Blocking">
+<h4>🚦 Blocking Behavior Comparison</h4>
+
+<table class="priority-table">
+<tr><th>Resource</th><th>Parser-Blocking?</th><th>Render-Blocking?</th></tr>
+<tr><td><code style="color:#e74c3c;">&lt;script&gt;</code></td><td class="p-highest">YES (stops parsing)</td><td class="p-highest">YES (DOM incomplete)</td></tr>
+<tr><td><code style="color:#ffa502;">&lt;script async&gt;</code></td><td class="p-high">Only during exec</td><td class="p-high">Only during exec</td></tr>
+<tr><td><code style="color:#55efc4;">&lt;script defer&gt;</code></td><td style="color:#55efc4;">NO</td><td style="color:#55efc4;">NO (runs after parse)</td></tr>
+<tr><td><code style="color:#74b9ff;">&lt;link stylesheet&gt;</code></td><td style="color:#ffeaa7;">NO*</td><td class="p-highest">YES (CSSOM must complete)</td></tr>
+<tr><td><code style="color:#e74c3c;">CSS @import</code></td><td style="color:#55efc4;">NO</td><td class="p-highest">YES + waterfall!</td></tr>
+<tr><td><code style="color:#b2bec3;">&lt;img&gt;</code></td><td style="color:#55efc4;">NO</td><td style="color:#55efc4;">NO (placeholder)</td></tr>
+<tr><td><code style="color:#b2bec3;">Web fonts</code></td><td style="color:#55efc4;">NO</td><td class="p-high">Partial (FOIT/FOUT)</td></tr>
+</table>
+
+<div class="callout warning" style="background:rgba(255,234,167,0.1); border-left-color:#ffeaa7; margin-top:12px;">
+  <strong style="color:#ffeaa7;">* Special case:</strong> CSS blocks parsing ONLY when a &lt;script&gt; follows it. Why? JS might call <code style="color:#74b9ff;">getComputedStyle()</code> — browser must ensure CSSOM is ready first.<br>
+  <span style="color:#b2bec3; font-size:8.5pt;">Solution: Move scripts below CSS, or use async/defer.</span>
+</div>
+
+<div class="flow-section" style="margin-top:14px;">
+  <div class="flow-section-title">🔎 Finding Your Critical Path</div>
+  <ol style="margin:6px 0 0 16px; padding:0; font-size:8.5pt; color:#dfe6e9; line-height:1.8;">
+    <li>Chrome DevTools → <strong style="color:#74b9ff;">Performance tab</strong></li>
+    <li>Record page load (Ctrl+Shift+E)</li>
+    <li>Look at "First Contentful Paint" marker</li>
+    <li>Everything before it = your Critical Rendering Path</li>
+    <li>Resources after FCP are non-critical → can be deferred!</li>
+  </ol>
+</div>
+</div>
+
+<h3>How Each Browser Engine Implements CRP</h3>
+<table>
+<tr><th>Browser</th><th>Engine</th><th>Renderer</th><th>Key Difference</th></tr>
+<tr><td>Chrome/Edge</td><td>Blink</td><td>Skia → GPU</td><td>Compositor thread can scroll independently (off-main-thread scrolling)</td></tr>
+<tr><td>Firefox</td><td>Gecko</td><td>WebRender (GPU)</td><td>Entire rendering pipeline on GPU (most parallelized)</td></tr>
+<tr><td>Safari</td><td>WebKit</td><td>Core Animation</td><td>Tighter OS integration, aggressive bfcache</td></tr>
+</table>
+
+<div class="callout">
+<strong>Chrome's Multi-Process Architecture:</strong> Each tab runs in a separate renderer process (security + stability). The Browser process handles network. The GPU process handles compositing. This means one tab crashing doesn't kill others. The main thread handles JS + DOM + Layout + Paint. The compositor thread handles scrolling + transform animations (which is why they don't jank even with heavy JS).
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Explain the Critical Rendering Path step by step.</p>
+<p><strong>Answer:</strong> Browser receives HTML → parses into DOM tree (streaming, but blocked by scripts). Simultaneously downloads CSS → parses into CSSOM (render-blocking). DOM + CSSOM combine into Render Tree (only visible elements). Layout calculates exact geometry (position/size of every box). Paint fills pixels (colors, text, images). Composite combines layers via GPU. JavaScript can block DOM parsing (use defer/async). CSS blocks rendering but not parsing.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Why are transform/opacity animations smooth but width/height animations are janky?</p>
+<p><strong>Answer:</strong> The rendering pipeline is: Layout → Paint → Composite. Changing width/height triggers a FULL pipeline (Layout + Paint + Composite) — expensive, causes other elements to shift. Transform/opacity ONLY trigger Composite (GPU handles it on a separate layer) — skips Layout and Paint entirely. At 60fps you have 16.6ms per frame; layout easily exceeds this budget while compositing is nearly free.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between async and defer on script tags?</p>
+<p><strong>Answer:</strong> Both download in parallel without blocking HTML parsing. defer executes AFTER DOM is fully parsed, preserves script order, fires before DOMContentLoaded. async executes as soon as downloaded (interrupts parsing), no order guarantee, doesn't wait for DOM. Use defer for scripts that need DOM access or depend on each other. Use async for independent scripts like analytics.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="reflow-repaint">2. Reflow vs Repaint (Performance Deep Dive)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=3bc71-xzoWA" target="_blank">Reflow &amp; Repaint — Google Chrome Developers</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ZTnIxIA5KGw" target="_blank">Avoid Layout Thrashing — Paul Irish</a></li>
+</ul></details>
+
+<h3>What Triggers Reflow (Layout)?</h3>
+<p>Reflow recalculates element positions and dimensions. It's the most expensive operation because changes cascade — moving one element can affect its siblings, children, and ancestors.</p>
+
+<pre><code>// ─── TRIGGERS REFLOW (avoid in hot paths!) ──────────────────
+
+// 1. Geometric changes:
+element.style.width = "200px";
+element.style.height = "100px";
+element.style.padding = "10px";
+element.style.margin = "20px";
+element.style.border = "1px solid red";
+element.style.top / left / right / bottom;
+element.style.fontSize = "18px"; // Text reflow!
+
+// 2. DOM structure changes:
+parent.appendChild(child);
+parent.removeChild(child);
+element.innerHTML = "...";
+element.textContent = "...";
+
+// 3. CSS class changes (if they affect layout):
+element.classList.add("wide-layout");
+
+// 4. Window resize (everything reflows)
+window.addEventListener("resize", handler);
+
+// 5. READING layout properties (forces synchronous reflow!):
+element.offsetWidth;    element.offsetHeight;
+element.offsetTop;      element.offsetLeft;
+element.clientWidth;    element.clientHeight;
+element.scrollWidth;    element.scrollHeight;
+element.getBoundingClientRect();
+getComputedStyle(element).width;
+// These FORCE the browser to calculate layout RIGHT NOW
+// to give you an accurate answer
+
+// ─── TRIGGERS ONLY REPAINT (cheaper) ────────────────────────
+
+// Visual-only changes (no geometry shift):
+element.style.color = "red";
+element.style.backgroundColor = "blue";
+element.style.visibility = "hidden"; // Still takes space!
+element.style.boxShadow = "0 2px 4px rgba(0,0,0,.2)";
+element.style.outline = "2px solid red";
+element.style.borderColor = "green"; // If border-width unchanged
+element.style.backgroundImage = "url(...)";
+
+// ─── TRIGGERS ONLY COMPOSITE (cheapest!) ────────────────────
+
+element.style.transform = "translateX(100px)";
+element.style.opacity = "0.5";
+// These are handled entirely by the GPU on a separate layer</code></pre>
+
+<h3>The Rendering Pipeline — Visual Flow</h3>
+
+<div class="flow-diagram" data-title="Frame Pipeline">
+<h4>🎬 Every Frame Pipeline (60fps = 16.6ms budget per frame)</h4>
+
+<div class="flow-row" style="justify-content:center; margin:16px 0;">
+  <span class="flow-box fb-js">JS</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-cssom">Style</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-layout">Layout</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-paint">Paint</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-composite">Composite</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-pixels">🖥️ Screen</span>
+</div>
+
+<div class="flow-section">
+  <div class="flow-section-title">What Each Property Change Triggers</div>
+
+  <div class="cost-meter">
+    <span class="label" style="color:#ff7675;">width, height, margin, top</span>
+    <div class="bar"><div class="cost-expensive" style="width:100%;"></div></div>
+    <span style="font-size:7.5pt; color:#ff7675;">Layout→Paint→Composite</span>
+  </div>
+  <div class="cost-meter">
+    <span class="label" style="color:#fdcb6e;">color, background, shadow</span>
+    <div class="bar"><div class="cost-medium" style="width:65%;"></div></div>
+    <span style="font-size:7.5pt; color:#fdcb6e;">Paint→Composite</span>
+  </div>
+  <div class="cost-meter">
+    <span class="label" style="color:#55efc4;">transform, opacity</span>
+    <div class="bar"><div class="cost-cheap" style="width:20%;"></div></div>
+    <span style="font-size:7.5pt; color:#55efc4;">Composite ONLY (GPU!)</span>
+  </div>
+</div>
+
+<p style="color:#7fdbca; margin:12px 0 0; font-size:9pt;">
+  <strong>KEY:</strong> The less of the pipeline you trigger, the cheaper the operation. <code style="color:#55efc4;">transform</code> and <code style="color:#55efc4;">opacity</code> are the ONLY properties safe for buttery 60fps animations!
+</p>
+</div>
+
+<h3>CSS Containment — Performance Boundaries</h3>
+<pre><code>// CSS contain property tells the browser: "changes inside this element
+// do NOT affect anything outside." This lets browser SKIP recalculating
+// the rest of the page when this element changes.
+
+// contain: layout — element's layout is independent
+// contain: paint — nothing inside paints outside bounds (like overflow:hidden + optimization)
+// contain: size — element's size doesn't depend on children (YOU must set width/height)
+// contain: style — counters/quotes scoped to subtree
+// contain: content — shorthand for layout + paint + style (NOT size)
+// contain: strict — shorthand for ALL (layout + paint + size + style)
+
+// PRACTICAL USE: Lists, cards, off-screen sections
+// .card { contain: content; }
+// → When card's innerHTML changes, browser only recalculates THAT card's layout
+// → Without it, browser might recalculate layout of ALL siblings
+
+// content-visibility: auto — ULTIMATE performance optimization
+// .below-fold { content-visibility: auto; contain-intrinsic-size: 0 500px; }
+// → Browser skips rendering (Layout + Paint) for off-screen elements entirely!
+// → Renders only when element approaches viewport
+// → contain-intrinsic-size: placeholder size for scroll calculations
+// → Can reduce initial render time by 50-90% for long pages!
+
+// Angular equivalent: Virtual scrolling with CDK ScrollingModule
+// React equivalent: windowing libraries (react-window, react-virtualized)</code></pre>
+
+<h3>Layer Promotion &amp; GPU Memory</h3>
+
+<div class="flow-diagram" data-title="GPU Layers">
+<h4>🎨 Compositing Layers — When Elements Get Their Own GPU Layer</h4>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+  <div class="flow-section">
+    <div class="flow-section-title" style="color:#55efc4;">✅ Explicit Triggers (You Control)</div>
+    <ul style="margin:4px 0 0 14px; padding:0; font-size:8.5pt; color:#dfe6e9; line-height:1.8;">
+      <li><code style="color:#74b9ff;">transform: translateZ(0)</code> — the "GPU hack"</li>
+      <li><code style="color:#74b9ff;">will-change: transform | opacity</code></li>
+      <li><code style="color:#74b9ff;">position: fixed | sticky</code></li>
+      <li>Animated transform or opacity</li>
+      <li>&lt;video&gt;, &lt;canvas&gt;, &lt;iframe&gt;</li>
+      <li>CSS filters (blur, drop-shadow)</li>
+      <li>backdrop-filter</li>
+    </ul>
+  </div>
+  <div class="flow-section">
+    <div class="flow-section-title" style="color:#ffa502;">⚡ Implicit Triggers (Browser Decides)</div>
+    <ul style="margin:4px 0 0 14px; padding:0; font-size:8.5pt; color:#dfe6e9; line-height:1.8;">
+      <li>Element overlaps a composited element</li>
+      <li>Browser may merge (squash) layers to save memory</li>
+    </ul>
+  </div>
+</div>
+
+<div class="flow-section" style="margin-top:12px;">
+  <div class="flow-section-title" style="color:#ff7675;">⚠️ Dangers of Too Many Layers</div>
+  <div class="cost-meter">
+    <span class="label">1000×1000 layer</span>
+    <div class="bar"><div class="cost-expensive" style="width:40%;"></div></div>
+    <span style="font-size:7.5pt; color:#ff7675;">~4MB VRAM</span>
+  </div>
+  <div class="cost-meter">
+    <span class="label">50 unnecessary layers</span>
+    <div class="bar"><div class="cost-expensive" style="width:85%;"></div></div>
+    <span style="font-size:7.5pt; color:#ff7675;">~200MB VRAM! (crash on mobile)</span>
+  </div>
+  <div style="margin-top:8px; font-size:8.5pt; color:#ffeaa7;">
+    <strong>Rules:</strong> ① Only promote what you animate ② Remove will-change after animation ③ Use DevTools Layers panel ④ Green borders = composited layer
+  </div>
+</div>
+</div>
+
+<pre><code>// will-change best practice:
+element.addEventListener("mouseenter", () =&gt; {
+  element.style.willChange = "transform"; // Promote BEFORE animation
+});
+element.addEventListener("transitionend", () =&gt; {
+  element.style.willChange = "auto"; // Release layer AFTER animation
+});</code></pre>
+
+<h3>Layout Thrashing (Forced Synchronous Layout)</h3>
+<pre><code>// THE WORST performance pattern in DOM manipulation:
+// Alternating reads and writes in a loop
+
+// ❌ BAD: Layout Thrashing (forces layout N times!)
+const boxes = document.querySelectorAll(".box");
+boxes.forEach(box =&gt; {
+  const width = box.offsetWidth;    // READ → forces layout calculation
+  box.style.width = width + 10 + "px"; // WRITE → invalidates layout
+  // Next iteration's READ forces ANOTHER layout!
+});
+// N elements = N forced layouts = HORRIBLE performance
+
+// ✅ GOOD: Batch reads, then batch writes
+const boxes = document.querySelectorAll(".box");
+const widths = [...boxes].map(box =&gt; box.offsetWidth); // ALL reads first
+boxes.forEach((box, i) =&gt; {
+  box.style.width = widths[i] + 10 + "px"; // ALL writes after
+});
+// Only 1 forced layout (for the reads) + 1 natural layout (for writes)
+
+// ✅ BEST: Use requestAnimationFrame to batch writes
+function updateLayout() {
+  // Reads (okay — layout is current from last frame)
+  const height = element.offsetHeight;
+
+  // Writes (batched with other rAF callbacks, applied before next paint)
+  requestAnimationFrame(() =&gt; {
+    element.style.height = height * 2 + "px";
+  });
+}
+
+// Library solution: fastdom (batches reads/writes automatically)
+// fastdom.measure(() =&gt; { /* reads */ });
+// fastdom.mutate(() =&gt; { /* writes */ });</code></pre>
+
+<h3>Performance-Optimized Animation Patterns</h3>
+<pre><code>// ❌ WRONG: Animating top/left (triggers reflow every frame!)
+function animateBad() {
+  element.style.left = parseInt(element.style.left) + 1 + "px";
+  requestAnimationFrame(animateBad);
+}
+
+// ✅ RIGHT: Animating transform (composite only — 60fps guaranteed)
+function animateGood() {
+  position += 1;
+  element.style.transform = `translateX(${position}px)`;
+  requestAnimationFrame(animateGood);
+}
+
+// ✅ BEST: CSS animations/transitions (browser optimizes internally)
+// CSS:
+// .slide { transition: transform 0.3s ease; }
+// .slide.active { transform: translateX(100px); }
+// JS: element.classList.add("active"); // Browser handles the rest
+
+// FLIP technique (First, Last, Invert, Play) for layout animations:
+function flipAnimate(element, targetState) {
+  // FIRST: record current position
+  const first = element.getBoundingClientRect();
+
+  // Apply state change (causes layout shift)
+  targetState(); // e.g., reorder DOM, toggle class
+
+  // LAST: record final position
+  const last = element.getBoundingClientRect();
+
+  // INVERT: move element back to where it was (using transform)
+  const dx = first.left - last.left;
+  const dy = first.top - last.top;
+  element.style.transform = `translate(${dx}px, ${dy}px)`;
+
+  // PLAY: animate to natural position (transform: none)
+  requestAnimationFrame(() =&gt; {
+    element.style.transition = "transform 0.3s ease";
+    element.style.transform = "";
+    element.addEventListener("transitionend", () =&gt; {
+      element.style.transition = "";
+    }, { once: true });
+  });
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> What is layout thrashing and how do you prevent it?</p>
+<p><strong>Answer:</strong> Layout thrashing is alternating DOM reads and writes in a loop. Each read (offsetWidth, getBoundingClientRect) forces the browser to synchronously recalculate layout (because the previous write invalidated it). Prevention: batch all reads first, then all writes. Or use requestAnimationFrame to defer writes to the next frame. Libraries like fastdom automate this.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Which CSS properties are cheapest to animate and why?</p>
+<p><strong>Answer:</strong> transform and opacity — they only trigger the Composite step (GPU-only, skips Layout and Paint). All other properties either trigger Layout+Paint+Composite (width, height, top, left, font-size) or Paint+Composite (color, background, box-shadow). For 60fps animations, ONLY use transform and opacity.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Explain the FLIP animation technique.</p>
+<p><strong>Answer:</strong> FLIP = First, Last, Invert, Play. (1) Record element's current position (First). (2) Apply the DOM/style change (element jumps to Final position). (3) Calculate the difference and apply an inverse transform to make it LOOK like it hasn't moved (Invert). (4) Remove the transform with a CSS transition — the element animates smoothly to its new position (Play). This lets you animate layout changes using only transforms (GPU-accelerated).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="shadow-dom">3. Shadow DOM &amp; Encapsulation</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=K5i9zMzVlzM" target="_blank">Shadow DOM Explained — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=R9bkVBBEOFg" target="_blank">Web Components — Fireship</a></li>
+</ul></details>
+
+<h3>What Is Shadow DOM?</h3>
+<p>Shadow DOM is a browser API that lets you attach a <strong>hidden, encapsulated DOM tree</strong> to an element. Styles inside the Shadow DOM don't leak out, and external styles don't bleed in. It's the browser's native solution for component encapsulation.</p>
+
+<div class="callout">
+  <strong>Angular Connection:</strong> Angular's <code>ViewEncapsulation.ShadowDom</code> uses native Shadow DOM. The default <code>ViewEncapsulation.Emulated</code> simulates it with <code>_nghost</code>/<code>_ngcontent</code> attribute selectors. Understanding Shadow DOM explains WHY Angular styles are scoped to components.
+</div>
+
+<pre><code>// Creating a Shadow DOM
+const host = document.querySelector("#my-widget");
+const shadow = host.attachShadow({ mode: "open" }); // "open" = accessible via host.shadowRoot
+
+// Add content to shadow
+shadow.innerHTML = `
+  &lt;style&gt;
+    /* These styles are SCOPED — only affect this shadow tree! */
+    p { color: red; font-weight: bold; }
+    .title { font-size: 24px; }
+  &lt;/style&gt;
+  &lt;div class="title"&gt;I'm inside Shadow DOM&lt;/div&gt;
+  &lt;p&gt;External styles can't touch me!&lt;/p&gt;
+`;
+
+// External CSS "p { color: blue; }" has NO EFFECT inside shadow!
+// Shadow CSS "p { color: red; }" has NO EFFECT outside shadow!
+
+// mode: "open" vs "closed"
+// open: host.shadowRoot returns the ShadowRoot (inspectable)
+// closed: host.shadowRoot returns null (truly hidden — like &lt;video&gt; controls)
+
+// ─── CSS CROSSING THE SHADOW BOUNDARY ─────────────────────
+
+// 1. Inherited properties DO cross (font-family, color, etc.) — by design
+// 2. CSS custom properties (variables) cross:
+shadow.innerHTML = `
+  &lt;style&gt;
+    p { color: var(--text-color, black); } /* Uses external variable! */
+  &lt;/style&gt;
+  &lt;p&gt;I use the host's --text-color&lt;/p&gt;
+`;
+// External CSS: :root { --text-color: navy; } → affects shadow content
+
+// 3. ::part() selector (explicit opt-in):
+shadow.innerHTML = `
+  &lt;button part="submit-btn"&gt;Submit&lt;/button&gt;
+`;
+// External CSS: my-widget::part(submit-btn) { background: green; }
+
+// 4. :host and :host-context selectors (style from inside):
+shadow.innerHTML = `
+  &lt;style&gt;
+    :host { display: block; border: 1px solid gray; }
+    :host(.dark) { background: #333; color: white; }
+    :host-context(.theme-blue) { border-color: blue; }
+  &lt;/style&gt;
+`;
+
+// ─── SLOTS (Content Projection) ──────────────────────────
+
+// Slots let users inject content INTO your shadow DOM (like Angular &lt;ng-content&gt;)
+shadow.innerHTML = `
+  &lt;style&gt; .wrapper { border: 2px solid blue; padding: 10px; } &lt;/style&gt;
+  &lt;div class="wrapper"&gt;
+    &lt;h2&gt;&lt;slot name="title"&gt;Default Title&lt;/slot&gt;&lt;/h2&gt;
+    &lt;slot&gt;Default content goes here&lt;/slot&gt;
+  &lt;/div&gt;
+`;
+
+// Usage in light DOM:
+// &lt;my-widget&gt;
+//   &lt;span slot="title"&gt;Custom Title&lt;/span&gt;
+//   &lt;p&gt;This goes into the unnamed/default slot&lt;/p&gt;
+// &lt;/my-widget&gt;
+
+// Angular equivalent:
+// &lt;ng-content select="[header]"&gt;&lt;/ng-content&gt; = &lt;slot name="header"&gt;&lt;/slot&gt;</code></pre>
+
+<h3>Event Retargeting in Shadow DOM</h3>
+<pre><code>// Events that originate inside Shadow DOM are RETARGETED at the shadow boundary
+// Outside code sees the HOST element as the target (encapsulation preserved!)
+
+// Inside shadow: user clicks a &lt;button&gt; inside shadow root
+// Outside handler: event.target === hostElement (not the internal button)
+// Inside handler: event.target === button (normal behavior)
+
+// WHICH EVENTS CROSS THE SHADOW BOUNDARY?
+// Events with composed: true cross (most UI events):
+// - click, dblclick, mousedown/up, mousemove, mouseover/out
+// - keydown, keyup, keypress
+// - focus, blur (with composed: true + relatedTarget retargeted)
+// - input, change
+// - touchstart, touchend, touchmove
+
+// Events that DON'T cross (composed: false):
+// - Custom events (by default) — you must set composed: true manually
+// - Some internal events (slotchange)
+
+// Custom event crossing shadow boundary:
+this.shadowRoot.querySelector("button").addEventListener("click", () =&gt; {
+  this.dispatchEvent(new CustomEvent("card-click", {
+    detail: { id: this.getAttribute("data-id") },
+    bubbles: true,   // Bubbles up the DOM
+    composed: true   // CROSSES shadow boundary!
+  }));
+});
+
+// slotchange event — detect when slotted content changes
+const slot = this.shadowRoot.querySelector("slot");
+slot.addEventListener("slotchange", () =&gt; {
+  const assigned = slot.assignedNodes({ flatten: true });
+  console.log("Slot content changed:", assigned.length, "nodes");
+});</code></pre>
+
+<h3>Adopted Stylesheets — Shared Styles Efficiently</h3>
+<pre><code>// Problem: each Shadow DOM instance duplicates &lt;style&gt; content in memory
+// Solution: Constructable Stylesheets (shared, parsed once)
+
+const sharedStyles = new CSSStyleSheet();
+sharedStyles.replaceSync(`
+  :host { display: block; padding: 16px; }
+  .title { font-weight: bold; color: var(--heading-color, #333); }
+  .content { line-height: 1.6; }
+`);
+
+// Apply to multiple shadow roots (shared — one parse, many uses)
+class MyCard extends HTMLElement {
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: "open" });
+    shadow.adoptedStyleSheets = [sharedStyles]; // Array of CSSStyleSheet
+    shadow.innerHTML = `
+      &lt;div class="title"&gt;&lt;slot name="title"&gt;&lt;/slot&gt;&lt;/div&gt;
+      &lt;div class="content"&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/div&gt;
+    `;
+  }
+}
+
+// Benefits:
+// 1. One parse — multiple uses (memory efficient for repeated components)
+// 2. Dynamic updates: sharedStyles.replaceSync(newCSS) updates ALL instances
+// 3. Can combine multiple sheets: shadow.adoptedStyleSheets = [reset, theme, component]
+// 4. Performance: browser optimizes shared stylesheet references
+
+// For the document itself:
+document.adoptedStyleSheets = [sharedStyles]; // Works on document too!</code></pre>
+
+<h3>Shadow DOM vs iframe vs CSS Modules — Isolation Comparison</h3>
+<table>
+<tr><th>Feature</th><th>Shadow DOM</th><th>iframe</th><th>CSS Modules / BEM</th></tr>
+<tr><td>Style isolation</td><td>✅ True encapsulation</td><td>✅ Complete (separate document)</td><td>⚠️ Convention-based (name collisions possible)</td></tr>
+<tr><td>JS isolation</td><td>❌ Same JS context</td><td>✅ Separate window/global</td><td>❌ Same JS context</td></tr>
+<tr><td>Performance</td><td>✅ Lightweight (same document)</td><td>❌ Heavy (new document + process)</td><td>✅ Zero runtime cost</td></tr>
+<tr><td>Communication</td><td>Events + properties</td><td>postMessage only</td><td>Direct (same scope)</td></tr>
+<tr><td>SEO / Accessibility</td><td>✅ Same document (ARIA works)</td><td>⚠️ Separate document context</td><td>✅ Same document</td></tr>
+<tr><td>Browser DevTools</td><td>✅ Inspectable (mode: open)</td><td>⚠️ Separate context</td><td>✅ Normal inspection</td></tr>
+<tr><td>Use case</td><td>Reusable widgets, design systems</td><td>Third-party embeds, sandboxing</td><td>Application styling</td></tr>
+</table>
+
+<h3>Angular ViewEncapsulation Explained</h3>
+<pre><code>// ViewEncapsulation.Emulated (DEFAULT):
+// Angular adds unique attributes: _nghost-xxx, _ngcontent-xxx
+// Rewrites component CSS: .title → .title[_ngcontent-abc123]
+// Result: styles are scoped WITHOUT using real Shadow DOM
+// Pros: Works everywhere, no browser support issues
+// Cons: Not true isolation (global styles can still affect via specificity)
+
+// ViewEncapsulation.ShadowDom:
+// Uses REAL browser Shadow DOM
+// True encapsulation — global styles can't penetrate
+// Cons: Harder to theme, some libraries break, no IE support
+
+// ViewEncapsulation.None:
+// No encapsulation — styles are GLOBAL
+// Useful for global theme overrides, but use sparingly
+
+// @Component({
+//   encapsulation: ViewEncapsulation.ShadowDom, // or Emulated / None
+//   styles: [`h1 { color: red; }`]
+// })</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> How does Angular's ViewEncapsulation.Emulated work?</p>
+<p><strong>Answer:</strong> Angular generates unique attributes (_nghost-[id] on the host, _ngcontent-[id] on children). It rewrites component CSS selectors to include these attributes (e.g., <code>.title</code> becomes <code>.title[_ngcontent-abc]</code>). This scopes styles to the component without real Shadow DOM. CSS inheritance and global styles can still bleed in (unlike real Shadow DOM). The emulation happens at compile time.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How can external styles penetrate Shadow DOM?</p>
+<p><strong>Answer:</strong> Three ways: (1) CSS Custom Properties (--variables) cross the boundary. (2) Inherited properties (font-family, color, line-height) cascade into shadow. (3) The ::part() selector can style elements that opt-in with the "part" attribute. Global selectors like .class or #id cannot reach inside.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="web-components">4. Web Components (Custom Elements)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=2I7uX8m0Ta0" target="_blank">Web Components Crash Course — Traversy Media</a></li>
+  <li><a href="https://www.youtube.com/watch?v=PCWaFLy3VUo" target="_blank">Custom Elements — Google Dev</a></li>
+</ul></details>
+
+<h3>What Are Web Components?</h3>
+<p>Web Components are a set of browser-native APIs that let you create <strong>reusable, encapsulated UI components</strong> without any framework. They consist of three technologies: Custom Elements, Shadow DOM, and HTML Templates.</p>
+
+<pre><code>// ─── Custom Elements ──────────────────────────────────────
+
+class UserCard extends HTMLElement {
+  // Called when element is created
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
+
+  // Observed attributes (triggers attributeChangedCallback)
+  static get observedAttributes() {
+    return ["name", "avatar", "role"];
+  }
+
+  // Called when element is added to DOM
+  connectedCallback() {
+    this.render();
+    console.log("UserCard connected to DOM");
+  }
+
+  // Called when element is removed from DOM
+  disconnectedCallback() {
+    console.log("UserCard removed — cleanup here");
+    // Remove event listeners, cancel timers, abort fetches
+  }
+
+  // Called when an observed attribute changes
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      this.render(); // Re-render on attribute change
+    }
+  }
+
+  // Called when element is moved to a new document
+  adoptedCallback() {
+    console.log("Moved to new document");
+  }
+
+  render() {
+    const name = this.getAttribute("name") || "Unknown";
+    const avatar = this.getAttribute("avatar") || "";
+    const role = this.getAttribute("role") || "User";
+
+    this.shadowRoot.innerHTML = `
+      &lt;style&gt;
+        :host { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        img { width: 48px; height: 48px; border-radius: 50%; }
+        .name { font-weight: bold; font-size: 16px; }
+        .role { color: #666; font-size: 12px; }
+      &lt;/style&gt;
+      &lt;img src="${avatar}" alt="${name}"&gt;
+      &lt;div&gt;
+        &lt;div class="name"&gt;${name}&lt;/div&gt;
+        &lt;div class="role"&gt;${role}&lt;/div&gt;
+      &lt;/div&gt;
+    `;
+  }
+}
+
+// Register the custom element (name MUST have a hyphen)
+customElements.define("user-card", UserCard);
+
+// Usage in HTML:
+// &lt;user-card name="Siddu" avatar="/img/sid.jpg" role="Developer"&gt;&lt;/user-card&gt;
+
+// ─── HTML Templates &amp; Slots ──────────────────────────────
+
+// &lt;template&gt; — parsed but NOT rendered until cloned
+const template = document.createElement("template");
+template.innerHTML = `
+  &lt;style&gt;
+    .card { padding: 16px; border: 1px solid #ccc; }
+  &lt;/style&gt;
+  &lt;div class="card"&gt;
+    &lt;slot name="header"&gt;&lt;h3&gt;Default Header&lt;/h3&gt;&lt;/slot&gt;
+    &lt;slot&gt;&lt;p&gt;Default body content&lt;/p&gt;&lt;/slot&gt;
+    &lt;slot name="footer"&gt;&lt;/slot&gt;
+  &lt;/div&gt;
+`;
+
+class CardComponent extends HTMLElement {
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: "open" });
+    shadow.appendChild(template.content.cloneNode(true)); // Efficient!
+  }
+}
+customElements.define("card-component", CardComponent);
+
+// ─── Extending Built-in Elements ─────────────────────────
+
+class FancyButton extends HTMLButtonElement {
+  constructor() {
+    super();
+    this.style.background = "linear-gradient(45deg, #667eea, #764ba2)";
+    this.style.color = "white";
+    this.style.border = "none";
+    this.style.borderRadius = "6px";
+    this.style.padding = "8px 16px";
+    this.style.cursor = "pointer";
+  }
+}
+customElements.define("fancy-button", FancyButton, { extends: "button" });
+// Usage: &lt;button is="fancy-button"&gt;Click Me&lt;/button&gt;</code></pre>
+
+<h3>Form-Associated Custom Elements</h3>
+<pre><code>// Custom elements can participate in &lt;form&gt; (validation, submit, reset)
+// without wrapping a hidden &lt;input&gt;
+
+class RatingInput extends HTMLElement {
+  static formAssociated = true; // OPT-IN to form association
+
+  #internals;
+  #value = 0;
+
+  constructor() {
+    super();
+    this.#internals = this.attachInternals(); // FormInternals API
+    this.attachShadow({ mode: "open" });
+  }
+
+  connectedCallback() {
+    this.shadowRoot.innerHTML = `
+      &lt;style&gt;
+        .star { cursor: pointer; font-size: 24px; color: #ccc; }
+        .star.filled { color: gold; }
+      &lt;/style&gt;
+      &lt;div class="stars"&gt;${[1,2,3,4,5].map(n =&gt;
+        `&lt;span class="star" data-value="${n}"&gt;★&lt;/span&gt;`
+      ).join("")}&lt;/div&gt;
+    `;
+
+    this.shadowRoot.addEventListener("click", (e) =&gt; {
+      const star = e.target.closest(".star");
+      if (!star) return;
+      this.value = parseInt(star.dataset.value);
+    });
+  }
+
+  set value(v) {
+    this.#value = v;
+    this.#internals.setFormValue(String(v)); // Report to form!
+    // Validation:
+    if (v === 0) {
+      this.#internals.setValidity({ valueMissing: true }, "Please select a rating");
+    } else {
+      this.#internals.setValidity({});
+    }
+    this.#updateDisplay();
+  }
+
+  get value() { return this.#value; }
+
+  // Called when form is reset
+  formResetCallback() {
+    this.value = 0;
+  }
+
+  // Called when form state is restored (browser back)
+  formStateRestoreCallback(state) {
+    this.value = parseInt(state);
+  }
+
+  #updateDisplay() {
+    this.shadowRoot.querySelectorAll(".star").forEach((star, i) =&gt; {
+      star.classList.toggle("filled", i &lt; this.#value);
+    });
+  }
+}
+customElements.define("rating-input", RatingInput);
+
+// Usage in form:
+// &lt;form&gt;
+//   &lt;rating-input name="rating" required&gt;&lt;/rating-input&gt;
+//   &lt;button type="submit"&gt;Submit&lt;/button&gt;
+// &lt;/form&gt;
+// form.elements.rating.value → "3"  (works like native inputs!)</code></pre>
+
+<h3>Reactive Properties Pattern (Without Framework)</h3>
+<pre><code>// Pattern: Make Web Components reactive (auto-render on property change)
+// This is what Lit, Stencil, and other WC libraries do under the hood
+
+class ReactiveElement extends HTMLElement {
+  static observedAttributes = [];
+  #renderScheduled = false;
+  #props = {};
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+
+    // Create reactive properties from observedAttributes
+    for (const attr of this.constructor.observedAttributes) {
+      Object.defineProperty(this, attr, {
+        get: () =&gt; this.#props[attr],
+        set: (value) =&gt; {
+          const old = this.#props[attr];
+          if (old === value) return; // No change
+          this.#props[attr] = value;
+          this.#scheduleRender();
+        }
+      });
+    }
+  }
+
+  #scheduleRender() {
+    if (this.#renderScheduled) return;
+    this.#renderScheduled = true;
+    // Batch multiple property changes into ONE render (microtask)
+    queueMicrotask(() =&gt; {
+      this.#renderScheduled = false;
+      this.render();
+    });
+  }
+
+  attributeChangedCallback(name, _, newValue) {
+    this[name] = newValue; // Sync attribute → property
+  }
+
+  connectedCallback() { this.render(); }
+  render() { /* Override in subclass */ }
+}
+
+// Usage:
+class UserBadge extends ReactiveElement {
+  static observedAttributes = ["name", "status"];
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      &lt;span class="badge ${this.status}"&gt;${this.name}&lt;/span&gt;
+    `;
+  }
+}
+customElements.define("user-badge", UserBadge);
+
+// Setting properties triggers batched re-render:
+const badge = document.querySelector("user-badge");
+badge.name = "Siddu";   // Schedules render
+badge.status = "online"; // Same microtask — only ONE render happens!</code></pre>
+
+<h3>Web Component Design Patterns</h3>
+<table>
+<tr><th>Pattern</th><th>Description</th><th>When to Use</th></tr>
+<tr><td>Container/Presentational</td><td>Container fetches data, passes to child via props/attrs</td><td>Separating logic from display</td></tr>
+<tr><td>Mixin Pattern</td><td>Shared behavior via class mixins: <code>class X extends Draggable(Resizable(HTMLElement))</code></td><td>Cross-cutting concerns (no DI)</td></tr>
+<tr><td>Context Protocol</td><td>Parent provides context, children request it via events</td><td>Deeply nested component trees</td></tr>
+<tr><td>Lazy Registration</td><td>Define elements only when first used (IntersectionObserver)</td><td>Large component libraries</td></tr>
+<tr><td>Template Stamping</td><td>Clone &lt;template&gt; instead of innerHTML (faster for repeated elements)</td><td>Lists, repeated UI elements</td></tr>
+</table>
+
+<h3>Web Components Lifecycle vs Angular Lifecycle</h3>
+
+<div class="flow-diagram" data-title="Lifecycle">
+<h4>🔄 Custom Element Lifecycle Flow</h4>
+<div class="flow-row" style="justify-content:center;">
+  <span class="flow-box fb-js">constructor()</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-dom">connectedCallback()</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-cssom">attributeChangedCallback()</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box fb-layout">disconnectedCallback()</span>
+</div>
+<div style="text-align:center; font-size:8pt; color:#636e72; margin-top:6px;">created → added to DOM → attribute mutated → removed from DOM</div>
+</div>
+
+<table>
+  <tr><th>Web Component</th><th>Angular Equivalent</th><th>When</th></tr>
+  <tr><td>constructor()</td><td>constructor()</td><td>Element created</td></tr>
+  <tr><td>connectedCallback()</td><td>ngOnInit()</td><td>Added to DOM</td></tr>
+  <tr><td>disconnectedCallback()</td><td>ngOnDestroy()</td><td>Removed from DOM</td></tr>
+  <tr><td>attributeChangedCallback()</td><td>ngOnChanges()</td><td>Attribute/Input changes</td></tr>
+  <tr><td>adoptedCallback()</td><td>—</td><td>Moved to new document</td></tr>
+</table>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What are the three technologies that make up Web Components?</p>
+<p><strong>Answer:</strong> (1) Custom Elements — define new HTML tags with custom behavior via customElements.define(). (2) Shadow DOM — encapsulated DOM tree with scoped styles. (3) HTML Templates — &lt;template&gt; and &lt;slot&gt; for declarative content structure and projection. Together they enable framework-free reusable components.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How would you share state between Web Components?</p>
+<p><strong>Answer:</strong> Several approaches: (1) Custom Events (bubbling) — components dispatch events, parents listen and coordinate. (2) Shared state store — external singleton (like a mini Redux). (3) Attributes/properties for parent→child. (4) Context protocol (community pattern). Unlike Angular which has DI and services, Web Components need explicit patterns for cross-component communication.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="page-lifecycle">5. Page Lifecycle &amp; Visibility</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=GALW1xfsBMo" target="_blank">Page Lifecycle API — Google Dev</a></li>
+</ul></details>
+
+<h3>Complete Page Lifecycle State Machine</h3>
+
+<div class="flow-diagram" data-title="Lifecycle">
+<h4>🔄 Page Lifecycle States — How Browsers Manage Your Page</h4>
+<p style="color:#b2bec3; margin-bottom:14px;">Modern browsers (especially mobile) aggressively manage page states to save battery and memory.</p>
+
+<div class="flow-section">
+  <div class="flow-section-title">State Transitions</div>
+  <div class="lifecycle-flow">
+    <span class="lf-state" style="background:rgba(253,203,110,0.2); border-color:#fdcb6e; color:#fdcb6e;">📄 LOADING</span>
+    <span class="lf-arrow">→ DOMContentLoaded →</span>
+    <span class="lf-state lf-active">✅ ACTIVE (visible + focused)</span>
+    <span class="lf-arrow">→ blur →</span>
+    <span class="lf-state" style="background:rgba(162,155,254,0.2); border-color:#a29bfe; color:#a29bfe;">👁️ PASSIVE (visible, no focus)</span>
+  </div>
+  <div class="lifecycle-flow">
+    <span class="lf-state lf-active">✅ ACTIVE</span>
+    <span class="lf-arrow">→ visibilitychange →</span>
+    <span class="lf-state lf-hidden">👻 HIDDEN (tab switched)</span>
+    <span class="lf-arrow">→ freeze →</span>
+    <span class="lf-state lf-frozen">🧊 FROZEN (JS suspended)</span>
+  </div>
+  <div class="lifecycle-flow">
+    <span class="lf-state lf-frozen">🧊 FROZEN</span>
+    <span class="lf-arrow">→ memory pressure →</span>
+    <span class="lf-state lf-discarded">💀 DISCARDED (dead)</span>
+  </div>
+  <div class="lifecycle-flow">
+    <span class="lf-state lf-hidden">👻 HIDDEN</span>
+    <span class="lf-arrow">→ pagehide →</span>
+    <span class="lf-state lf-terminated">⛔ TERMINATED (unloading)</span>
+  </div>
+  <div class="lifecycle-flow" style="margin-top:6px;">
+    <span class="lf-state lf-frozen">🧊 FROZEN</span>
+    <span class="lf-arrow">→ resume →</span>
+    <span class="lf-state lf-active">✅ ACTIVE</span>
+    <span style="color:#636e72; font-size:8pt; margin-left:8px;">(must restore state!)</span>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;">
+  <div class="flow-section">
+    <div class="flow-section-title">State Descriptions</div>
+    <div style="font-size:8.5pt; color:#dfe6e9; line-height:2;">
+      <strong style="color:#55efc4;">ACTIVE</strong> — Visible + has input focus<br>
+      <strong style="color:#a29bfe;">PASSIVE</strong> — Visible, another window focused<br>
+      <strong style="color:#6c5ce7;">HIDDEN</strong> — Not visible (tab switched/minimized)<br>
+      <strong style="color:#74b9ff;">FROZEN</strong> — JS execution suspended (mobile!)<br>
+      <strong style="color:#b2bec3;">DISCARDED</strong> — Unloaded from memory (tab shell remains)<br>
+      <strong style="color:#ff7675;">TERMINATED</strong> — Page being closed/navigated away
+    </div>
+  </div>
+  <div class="flow-section">
+    <div class="flow-section-title">⚠️ Key Insight</div>
+    <p style="color:#ffd93d; font-size:9pt; margin:6px 0;">Mobile browsers AGGRESSIVELY freeze/discard hidden tabs!</p>
+    <p style="color:#b2bec3; font-size:8.5pt; margin:0;">Your code MUST handle freeze → resume gracefully. Save state on visibilitychange (hidden), restore on resume. Use sendBeacon for analytics on page close.</p>
+  </div>
+</div>
+</div>
+
+<h3>Document Loading Events</h3>
+<pre><code>// ─── LOADING PHASE EVENTS (in order) ─────────────────────
+
+// 1. DOMContentLoaded — HTML fully parsed, DOM ready
+//    CSS may still be loading, images not loaded
+document.addEventListener("DOMContentLoaded", () =&gt; {
+  console.log("DOM ready — safe to query elements");
+  // All DOM manipulation code should be here (or in deferred scripts)
+});
+
+// 2. load — EVERYTHING loaded (images, stylesheets, iframes)
+window.addEventListener("load", () =&gt; {
+  console.log("All resources loaded — including images");
+  // Good for: measuring image dimensions, removing loading spinners
+});
+
+// 3. beforeunload — User about to leave (chance to warn)
+window.addEventListener("beforeunload", (e) =&gt; {
+  if (hasUnsavedChanges) {
+    e.preventDefault();
+    // Chrome requires returnValue to be set (even empty string)
+    e.returnValue = "";
+    // Browser shows generic "Leave site?" dialog (can't customize text)
+  }
+});
+
+// 4. unload — Page is being unloaded (unreliable! avoid)
+//    Don't use this — blocked by bfcache, unreliable on mobile
+//    Use 'pagehide' instead
+
+// ─── VISIBILITY &amp; LIFECYCLE ──────────────────────────────
+
+// visibilitychange — user switches tab, minimizes window
+document.addEventListener("visibilitychange", () =&gt; {
+  if (document.visibilityState === "hidden") {
+    // Tab is hidden: pause videos, reduce polling, save state
+    pauseBackgroundWork();
+    saveProgress(); // Use sendBeacon for network requests here
+  } else if (document.visibilityState === "visible") {
+    // Tab is visible again: resume, refresh data
+    resumeBackgroundWork();
+    refreshData();
+  }
+});
+
+// pagehide / pageshow — bfcache-safe alternatives to unload/load
+window.addEventListener("pagehide", (e) =&gt; {
+  if (e.persisted) {
+    // Page is being stored in bfcache (back/forward cache)
+    // Will be restored on browser back/forward
+  } else {
+    // Page is truly being unloaded
+  }
+});
+
+window.addEventListener("pageshow", (e) =&gt; {
+  if (e.persisted) {
+    // Page was restored from bfcache
+    refreshTimestamps();
+    revalidateAuth();
+  }
+});
+
+// ─── bfcache (Back/Forward Cache) ────────────────────────
+// Browsers store complete page snapshots for instant back/forward navigation
+// Pages are NOT eligible for bfcache if they have:
+// - 'unload' event listeners (use 'pagehide' instead!)
+// - Open WebSocket/WebRTC connections
+// - Unfinished IndexedDB transactions
+// - Cache-Control: no-store
+
+// ─── Document readyState ─────────────────────────────────
+// document.readyState: "loading" → "interactive" → "complete"
+// "interactive" = DOM parsed (same as DOMContentLoaded)
+// "complete" = all resources loaded (same as window.load)
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init(); // DOM already ready
+}</code></pre>
+
+<h3>navigator.sendBeacon — Reliable Data Sending on Page Close</h3>
+<pre><code>// Problem: fetch/XHR in unload/visibilitychange might get cancelled
+// sendBeacon guarantees delivery even as page closes
+
+document.addEventListener("visibilitychange", () =&gt; {
+  if (document.visibilityState === "hidden") {
+    // Send analytics data reliably
+    navigator.sendBeacon("/api/analytics", JSON.stringify({
+      event: "page_exit",
+      timeSpent: Date.now() - pageLoadTime,
+      scrollDepth: getMaxScroll()
+    }));
+  }
+});
+
+// sendBeacon characteristics:
+// - Asynchronous, non-blocking
+// - Survives page unload (guaranteed delivery)
+// - Limited to POST method
+// - Body must be: string, Blob, FormData, or URLSearchParams
+// - Can't read the response (fire-and-forget)</code></pre>
+
+<h3>Freeze &amp; Resume — Handling Browser Suspension</h3>
+<pre><code>// On mobile (and increasingly desktop), browsers FREEZE hidden tabs
+// Your timers, intervals, and animations STOP
+// When resumed, they don't "catch up" — they just continue
+
+// freeze event — tab is being suspended (Chrome 68+)
+document.addEventListener("freeze", () =&gt; {
+  // MUST complete synchronously! No async allowed.
+  // 1. Stop all timers/intervals
+  clearInterval(pollingInterval);
+  // 2. Close WebSocket/EventSource connections (they'd be broken anyway)
+  socket.close();
+  // 3. Release IndexedDB locks
+  db.close();
+  // 4. Save state to sessionStorage (survives freeze)
+  sessionStorage.setItem("appState", JSON.stringify(getState()));
+});
+
+// resume event — tab is being un-suspended
+document.addEventListener("resume", () =&gt; {
+  // 1. Restore state
+  const saved = JSON.parse(sessionStorage.getItem("appState"));
+  if (saved) restoreState(saved);
+  // 2. Reconnect WebSocket
+  connectWebSocket();
+  // 3. Restart timers
+  pollingInterval = setInterval(poll, 30000);
+  // 4. Refresh stale data
+  refreshDataIfStale();
+});
+
+// Detect if page was discarded (tab is re-created from scratch)
+if (document.wasDiscarded) {
+  // Page was killed by browser (memory pressure) and is being recreated
+  // All JS state is GONE — restore from sessionStorage/IndexedDB
+  restoreFromStorage();
+}</code></pre>
+
+<h3>Idle Detection &amp; Background Throttling</h3>
+<pre><code>// requestIdleCallback — run work when browser is idle (low priority tasks)
+requestIdleCallback((deadline) =&gt; {
+  // deadline.timeRemaining() → ms left before browser needs to do other work
+  while (deadline.timeRemaining() &gt; 5 &amp;&amp; workQueue.length &gt; 0) {
+    processNextItem(workQueue.shift());
+  }
+  // If work remains, schedule another idle callback
+  if (workQueue.length &gt; 0) {
+    requestIdleCallback(processWork);
+  }
+}, { timeout: 5000 }); // Force run within 5s even if not idle
+
+// Use cases for requestIdleCallback:
+// - Analytics reporting
+// - Prefetching resources
+// - Pre-rendering off-screen components
+// - Non-critical DOM updates
+// - IndexedDB cleanup
+
+// ─── BACKGROUND THROTTLING (browser behavior) ─────────────
+
+// When a tab is HIDDEN, browsers throttle:
+// - setTimeout/setInterval: minimum 1000ms delay (not your specified delay!)
+// - requestAnimationFrame: suspended entirely (0 fps)
+// - fetch/XHR: may be delayed (lower priority)
+// - WebSocket: keep-alive only (no custom messages in some browsers)
+
+// EXCEPT when:
+// - Tab is playing audio (getUserMedia, Web Audio with output)
+// - Tab has an active WebSocket/WebRTC connection
+// - Tab is running a Service Worker
+
+// Timer Throttling Example:
+// setInterval(fn, 100) in background tab:
+//   Chrome: fires every 1000ms (not 100ms!)
+//   Firefox: similar
+//   Safari: may suspend entirely after 30s
+
+// To handle this gracefully:
+let lastTick = Date.now();
+setInterval(() =&gt; {
+  const now = Date.now();
+  const elapsed = now - lastTick;
+  lastTick = now;
+  if (elapsed &gt; 2000) {
+    // We were throttled/frozen — refresh stale data
+    syncState();
+  }
+  doWork();
+}, 1000);</code></pre>
+
+<h3>Wake Lock API — Prevent Screen Sleep</h3>
+<pre><code>// Prevent device from sleeping (e.g., video player, recipe app, navigation)
+let wakeLock = null;
+
+async function requestWakeLock() {
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake lock acquired");
+
+    wakeLock.addEventListener("release", () =&gt; {
+      console.log("Wake lock released");
+    });
+  } catch (err) {
+    // Fails if: tab hidden, low battery, browser doesn't support
+    console.error("Wake lock failed:", err);
+  }
+}
+
+// Re-acquire on visibility change (wake lock auto-releases when tab hidden)
+document.addEventListener("visibilitychange", () =&gt; {
+  if (document.visibilityState === "visible" &amp;&amp; !wakeLock) {
+    requestWakeLock();
+  }
+});
+
+// Release when no longer needed:
+await wakeLock.release();
+wakeLock = null;</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What's the difference between DOMContentLoaded and window.load?</p>
+<p><strong>Answer:</strong> DOMContentLoaded fires when HTML is fully parsed and DOM tree is built — CSS stylesheets, images, and subframes may still be loading. window.load fires only when ALL resources (images, CSS, fonts, iframes) are completely loaded. Use DOMContentLoaded for DOM-dependent JS (or defer scripts). Use load only when you need image dimensions or full page resources.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is bfcache and why does having an 'unload' listener break it?</p>
+<p><strong>Answer:</strong> bfcache (back/forward cache) stores a complete snapshot of the page in memory for instant back/forward navigation. The 'unload' event was designed to mean "page is being destroyed," which conflicts with bfcache's goal of preserving the page. Browsers disable bfcache for pages with 'unload' listeners because they can't guarantee the listener's semantics. Use 'pagehide' with the 'persisted' property instead.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What happens to timers and animations when a tab is hidden?</p>
+<p><strong>Answer:</strong> Browsers throttle hidden tabs: setTimeout/setInterval minimum delay becomes 1000ms (regardless of your specified delay). requestAnimationFrame is completely suspended (0 fps). Fetch requests may be deprioritized. This is intentional to save CPU/battery. Handle it by checking elapsed time on each tick and syncing state when the discrepancy is large. Use visibilitychange event to pause/resume work properly.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How would you reliably send analytics data when the user leaves?</p>
+<p><strong>Answer:</strong> Use navigator.sendBeacon() in the visibilitychange event (when state becomes "hidden"). sendBeacon is fire-and-forget: it queues the request and guarantees delivery even as the page unloads. Unlike fetch in beforeunload (which browsers cancel), sendBeacon survives page close. Limited to POST, can't read response, body must be string/Blob/FormData.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Explain the full page lifecycle state machine.</p>
+<p><strong>Answer:</strong> States: Active (visible + focused) → Passive (visible, not focused) → Hidden (tab switched) → Frozen (JS suspended, mobile) → Discarded (memory freed, tab shell remains) → Terminated (page closing). Transitions: visibilitychange (active↔hidden), freeze/resume (hidden↔frozen), pageshow/pagehide (for bfcache). Mobile browsers freeze aggressively — code must save state on freeze, restore on resume. document.wasDiscarded tells if page was previously killed.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="history-api">6. History API &amp; SPA Routing</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=6QE8dXq9SOE" target="_blank">History API — dcode</a></li>
+  <li><a href="https://www.youtube.com/watch?v=OemnzDRb7iE" target="_blank">Build a SPA Router from Scratch — Traversy Media</a></li>
+</ul></details>
+
+<h3>How SPA Routing Works</h3>
+<p>Single Page Applications don't reload the page when navigating. They use the History API to update the URL and manage navigation state without server round-trips. This is what Angular Router, React Router, and Vue Router all use under the hood.</p>
+
+<div class="flow-diagram" data-title="SPA Router">
+<h4>🧭 SPA Navigation Flow (No Page Reload!)</h4>
+<div class="flow-section">
+  <div class="flow-section-title">User Clicks a Link</div>
+  <div class="flow-row">
+    <span class="flow-box fb-js">Click &lt;a&gt;</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-html">preventDefault()</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-cssom">pushState(state, "", "/new-url")</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-dom">Render Component</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-pixels">UI Updated!</span>
+  </div>
+</div>
+<div class="flow-section" style="margin-top:10px;">
+  <div class="flow-section-title">User Clicks Back Button</div>
+  <div class="flow-row">
+    <span class="flow-box fb-layout">← Back Button</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-composite">popstate event fires</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-cssom">Read location.pathname</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box fb-dom">Render Previous</span>
+  </div>
+</div>
+<div style="display:flex; gap:16px; margin-top:12px;">
+  <div style="flex:1; padding:8px; background:rgba(255,255,255,0.05); border-radius:6px; border-left:3px solid #74b9ff;">
+    <div style="color:#74b9ff; font-size:8pt; font-weight:700;">HISTORY ROUTING</div>
+    <div style="color:#dfe6e9; font-size:8.5pt; margin-top:4px;">example.com<strong>/about</strong><br>Clean URLs · Needs server config · Angular default</div>
+  </div>
+  <div style="flex:1; padding:8px; background:rgba(255,255,255,0.05); border-radius:6px; border-left:3px solid #ffd93d;">
+    <div style="color:#ffd93d; font-size:8pt; font-weight:700;">HASH ROUTING</div>
+    <div style="color:#dfe6e9; font-size:8.5pt; margin-top:4px;">example.com<strong>/#/about</strong><br>No server config · Works on static hosting · Legacy</div>
+  </div>
+</div>
+</div>
+
+<pre><code>// ─── History API Basics ───────────────────────────────────
+
+// Push a new entry to history (URL changes, no reload)
+history.pushState(
+  { page: "about", scrollY: 0 },  // state object (serializable)
+  "",                               // title (ignored by most browsers)
+  "/about"                          // URL to display
+);
+
+// Replace current entry (no new history entry)
+history.replaceState({ page: "home" }, "", "/home");
+
+// Navigate back/forward
+history.back();     // Same as browser back button
+history.forward();  // Same as browser forward button
+history.go(-2);     // Go back 2 entries
+history.length;     // Number of entries in history stack
+
+// ─── Listening for Navigation ─────────────────────────────
+
+// popstate fires when user clicks back/forward (or history.back()/forward())
+// Does NOT fire on pushState/replaceState!
+window.addEventListener("popstate", (e) =&gt; {
+  console.log("Navigated to:", location.pathname);
+  console.log("State:", e.state); // The state object from pushState
+  renderRoute(location.pathname);
+});
+
+// ─── Building a Mini SPA Router ───────────────────────────
+
+class Router {
+  #routes = new Map();
+  #outlet = null;
+
+  constructor(outlet) {
+    this.#outlet = document.querySelector(outlet);
+    window.addEventListener("popstate", () =&gt; this.#resolve());
+    document.addEventListener("click", (e) =&gt; this.#handleClick(e));
+  }
+
+  route(path, handler) {
+    this.#routes.set(path, handler);
+    return this; // Chainable
+  }
+
+  navigate(path, state = {}) {
+    history.pushState(state, "", path);
+    this.#resolve();
+  }
+
+  #resolve() {
+    const path = location.pathname;
+    const handler = this.#routes.get(path) || this.#routes.get("*");
+    if (handler) {
+      this.#outlet.innerHTML = ""; // Clear
+      handler(this.#outlet, history.state);
+    }
+  }
+
+  #handleClick(e) {
+    const link = e.target.closest("a[data-route]");
+    if (!link) return;
+    e.preventDefault();
+    this.navigate(link.getAttribute("href"));
+  }
+
+  start() {
+    this.#resolve(); // Render current route on init
+  }
+}
+
+// Usage:
+const router = new Router("#app");
+router
+  .route("/", (el) =&gt; { el.innerHTML = "&lt;h1&gt;Home&lt;/h1&gt;"; })
+  .route("/about", (el) =&gt; { el.innerHTML = "&lt;h1&gt;About&lt;/h1&gt;"; })
+  .route("/contact", (el) =&gt; { el.innerHTML = "&lt;h1&gt;Contact&lt;/h1&gt;"; })
+  .route("*", (el) =&gt; { el.innerHTML = "&lt;h1&gt;404 Not Found&lt;/h1&gt;"; })
+  .start();
+
+// Links: &lt;a href="/about" data-route&gt;About&lt;/a&gt;</code></pre>
+
+<h3>Hash Routing vs History Routing</h3>
+<pre><code>// HASH ROUTING: example.com/#/about
+// - Uses location.hash (fragment identifier)
+// - hashchange event
+// - No server configuration needed (hash never sent to server)
+// - Looks "ugly" with the #
+// - Used by: older Angular (LocationStrategy), older SPAs
+
+window.addEventListener("hashchange", () =&gt; {
+  const route = location.hash.slice(1); // Remove #
+  renderRoute(route);
+});
+
+// HISTORY ROUTING: example.com/about  
+// - Uses History API (pushState/popstate)
+// - Clean URLs (no #)
+// - Requires server to serve index.html for ALL routes (404 fallback)
+// - Used by: Angular (PathLocationStrategy — default), modern SPAs
+
+// Angular Router uses History API by default:
+// { provide: LocationStrategy, useClass: PathLocationStrategy }
+// For hash routing: { provide: LocationStrategy, useClass: HashLocationStrategy }
+// Or: RouterModule.forRoot(routes, { useHash: true })
+
+// Server config needed for history routing:
+// Nginx: try_files $uri $uri/ /index.html;
+// Express: app.get("*", (req, res) =&gt; res.sendFile("index.html"));</code></pre>
+
+<h3>Route Parameters &amp; URL Parsing</h3>
+<pre><code>// Routers need to extract dynamic segments from URLs
+// e.g., /users/123/posts/456 → { userId: "123", postId: "456" }
+
+// URL pattern matching with regex:
+function matchRoute(pattern, path) {
+  // Convert "/users/:id/posts/:postId" to regex
+  const paramNames = [];
+  const regexStr = pattern.replace(/:([^/]+)/g, (_, name) =&gt; {
+    paramNames.push(name);
+    return "([^/]+)"; // Capture group for the value
+  });
+
+  const match = path.match(new RegExp(`^${regexStr}$`));
+  if (!match) return null;
+
+  const params = {};
+  paramNames.forEach((name, i) =&gt; {
+    params[name] = decodeURIComponent(match[i + 1]);
+  });
+  return params;
+}
+
+// Usage:
+matchRoute("/users/:id", "/users/123");
+// → { id: "123" }
+
+matchRoute("/users/:userId/posts/:postId", "/users/42/posts/7");
+// → { userId: "42", postId: "7" }
+
+// ─── URLSearchParams — Query String Parsing ───────────────
+
+const url = new URL("https://example.com/search?q=javascript&amp;page=2&amp;sort=date");
+const params = url.searchParams;
+
+params.get("q");          // "javascript"
+params.get("page");       // "2"
+params.has("sort");       // true
+params.getAll("tag");     // [] (multiple values for same key)
+params.toString();        // "q=javascript&amp;page=2&amp;sort=date"
+
+// Modify query params without page reload:
+params.set("page", "3");
+history.replaceState(null, "", `${url.pathname}?${params}`);
+
+// URLSearchParams from current page:
+const current = new URLSearchParams(location.search);
+// Angular uses ActivatedRoute.queryParams for the same purpose</code></pre>
+
+<h3>Scroll Restoration</h3>
+<pre><code>// By default, browsers restore scroll position on back/forward
+// But SPAs often need to control this manually
+
+// Disable browser's automatic scroll restoration:
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual"; // "auto" is default
+}
+
+// Manual scroll management:
+class ScrollManager {
+  #positions = new Map();
+
+  savePosition(path) {
+    this.#positions.set(path, {
+      x: window.scrollX,
+      y: window.scrollY
+    });
+  }
+
+  restorePosition(path) {
+    const pos = this.#positions.get(path);
+    if (pos) {
+      // Use requestAnimationFrame to ensure DOM has rendered
+      requestAnimationFrame(() =&gt; {
+        window.scrollTo(pos.x, pos.y);
+      });
+    } else {
+      window.scrollTo(0, 0); // New page — scroll to top
+    }
+  }
+}
+
+// Integration with router:
+// Before navigate: scrollManager.savePosition(currentPath);
+// After navigate: scrollManager.restorePosition(newPath);
+
+// Angular Router has this built-in:
+// RouterModule.forRoot(routes, {
+//   scrollPositionRestoration: "enabled", // or "top"
+//   anchorScrolling: "enabled"
+// })</code></pre>
+
+<h3>Route Guards Pattern (Pre-navigation Checks)</h3>
+<pre><code>// Route guards determine if navigation should proceed
+// Common in Angular (CanActivate, CanDeactivate)
+// Here's the vanilla JS equivalent:
+
+class GuardedRouter {
+  #routes = new Map();
+  #guards = { before: [], canLeave: [] };
+  #currentRoute = null;
+
+  // Guard that runs BEFORE entering a route
+  beforeEach(guardFn) {
+    this.#guards.before.push(guardFn);
+  }
+
+  // Guard that runs BEFORE leaving a route (unsaved changes?)
+  beforeLeave(guardFn) {
+    this.#guards.canLeave.push(guardFn);
+  }
+
+  async navigate(path) {
+    // 1. Check canLeave guards (e.g., unsaved form?)
+    for (const guard of this.#guards.canLeave) {
+      const canLeave = await guard(this.#currentRoute, path);
+      if (!canLeave) return false; // Block navigation!
+    }
+
+    // 2. Check before guards (e.g., auth check)
+    for (const guard of this.#guards.before) {
+      const result = await guard(path);
+      if (result === false) return false;
+      if (typeof result === "string") {
+        // Redirect
+        return this.navigate(result);
+      }
+    }
+
+    // 3. Proceed with navigation
+    history.pushState(null, "", path);
+    this.#currentRoute = path;
+    this.#resolve(path);
+    return true;
+  }
+}
+
+// Usage:
+const router = new GuardedRouter();
+
+// Auth guard:
+router.beforeEach(async (path) =&gt; {
+  if (path.startsWith("/admin") &amp;&amp; !isLoggedIn()) {
+    return "/login"; // Redirect to login
+  }
+  return true; // Allow
+});
+
+// Unsaved changes guard:
+router.beforeLeave(async (from, to) =&gt; {
+  if (formIsDirty()) {
+    return confirm("You have unsaved changes. Leave anyway?");
+  }
+  return true;
+});</code></pre>
+
+<h3>Navigation API (Modern — Chrome 102+)</h3>
+<pre><code>// The Navigation API is a modern replacement for the History API
+// Solves many pain points (no popstate on pushState, no intercept hooks)
+
+// navigation.navigate() — replaces pushState + manual rendering
+navigation.navigate("/about", { state: { fromClick: true } });
+
+// Intercept ALL navigations (link clicks, form submits, back/forward):
+navigation.addEventListener("navigate", (event) =&gt; {
+  // Skip external navigations
+  if (!event.canIntercept) return;
+
+  const url = new URL(event.destination.url);
+
+  // Only handle same-origin navigations
+  if (url.origin !== location.origin) return;
+
+  event.intercept({
+    // This function handles rendering — scroll happens automatically after
+    async handler() {
+      const content = await fetchPageContent(url.pathname);
+      document.querySelector("#app").innerHTML = content;
+    },
+    // Focus management (accessibility):
+    focusReset: "after-transition",
+    // Scroll behavior:
+    scroll: "after-transition" // Auto scroll-to-top or restore position
+  });
+});
+
+// Benefits over History API:
+// 1. ONE event for ALL navigations (pushState, link clicks, back/forward, form submit)
+// 2. Built-in scroll restoration
+// 3. Transition tracking: event.signal (AbortSignal for interrupted navigations)
+// 4. navigation.currentEntry.getState() — typed state access
+// 5. navigation.entries() — full history stack access (unlike history.length)
+// 6. navigation.canGoBack / navigation.canGoForward
+
+// Note: Not yet in Firefox/Safari (2024). Use progressively or with polyfill.
+// Angular 16+ experimentally uses Navigation API when available.</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How do SPAs handle routing without page reloads?</p>
+<p><strong>Answer:</strong> SPAs use the History API (history.pushState) to change the URL without triggering a page reload. When user navigates, the router intercepts link clicks (preventDefault), pushes new state to history, and renders the appropriate component. The popstate event handles browser back/forward buttons. Server must be configured to serve index.html for all routes.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What's the difference between hash and history routing? When would you use each?</p>
+<p><strong>Answer:</strong> Hash routing (#/path) uses the URL fragment — never sent to server, so no server config needed. History routing (/path) uses pushState — clean URLs but requires server to return index.html for all paths (otherwise 404 on refresh). Use hash when: you can't control server config, need static hosting (S3), or legacy browser support. Use history (default in Angular) when: you have server control, need clean URLs for SEO, or use SSR.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Why doesn't pushState trigger the popstate event?</p>
+<p><strong>Answer:</strong> By design, pushState/replaceState only modify the history stack — they don't trigger popstate. Only actual navigation (back/forward buttons, history.back(), history.go()) triggers popstate. This lets you update the URL programmatically and handle rendering directly (after calling pushState, you call your own renderRoute function). If pushState triggered popstate, you'd get double rendering.</p>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase6-dom-events-browser-apis.html">← Phase 6: Main File</a>
+  <a href="phase6B-interview-qa-exercises.html">Phase 6B: Q&amp;A &amp; Exercises →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

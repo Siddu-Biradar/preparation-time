@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Phase 1 Notes — Go Fundamentals</title>
+<style>
+  :root {
+    --bg: #f7f9fc; --panel: #ffffff; --text: #1b2330; --muted: #5b6675;
+    --accent: #00ADD8; --accent-dark: #0082a3; --accent2: #1a7f72;
+    --border: #e3e8ef; --success: #16a34a; --warn-bg: #fff8eb;
+    --warn-border: #f5d69a; --warn-text: #7a4a05;
+    --code-bg: #eef3f8; --code-border: #cfd6df; --shadow: 0 1px 4px rgba(16,24,40,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px; }
+
+  /* ── Layout ── */
+  .layout { display: flex; min-height: 100vh; }
+  nav.sidebar {
+    width: 230px; flex-shrink: 0; background: var(--panel);
+    border-right: 1px solid var(--border); padding: 20px 0;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  nav.sidebar .logo { padding: 0 18px 16px; font-weight: 700; font-size: 14px; color: var(--accent-dark); border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  nav.sidebar .logo a { color: inherit; text-decoration: none; }
+  nav.sidebar ul { list-style: none; padding: 0 10px; }
+  nav.sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; font-size: 13px;
+    color: var(--muted); text-decoration: none; transition: background .15s, color .15s;
+  }
+  nav.sidebar li a:hover { background: #eaf9fc; color: var(--accent-dark); }
+  nav.sidebar li a.active { background: #eaf9fc; color: var(--accent-dark); font-weight: 600; }
+  nav.sidebar .phase-links { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  nav.sidebar .phase-links a { display: block; padding: 5px 10px; font-size: 12px; color: var(--muted); text-decoration: none; }
+  nav.sidebar .phase-links a:hover { color: var(--accent-dark); }
+
+  main { flex: 1; max-width: 860px; padding: 32px 28px; }
+  header.page-header { margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  header.page-header h1 { font-size: 26px; color: #0f1621; }
+  header.page-header h1 span { color: var(--accent); }
+  header.page-header p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+
+  /* ── Section ── */
+  .section { margin: 0 0 48px; scroll-margin-top: 20px; }
+  .section-header {
+    background: linear-gradient(135deg, #eaf9fc 0%, #f0fdf4 100%);
+    border: 1px solid rgba(0,173,216,.25); border-radius: 12px 12px 0 0;
+    padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .section-header h2 { font-size: 19px; color: #0f1621; }
+  .section-header .badge { font-size: 11px; background: var(--accent); color: #fff; padding: 3px 10px; border-radius: 6px; font-weight: 700; }
+  .section-body { background: var(--panel); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; padding: 20px 22px; box-shadow: var(--shadow); }
+
+  /* ── Topic cards ── */
+  .topic { margin: 16px 0; }
+  .topic-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--accent2); margin: 0 0 8px; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #1e2533; color: #e6edf3; border-radius: 8px;
+    padding: 14px 16px; overflow-x: auto; font-size: 13px;
+    line-height: 1.6; margin: 8px 0; border: 1px solid #2d3748;
+  }
+  code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace; }
+  p code, li code {
+    background: var(--code-bg); color: #0b5d73; padding: 2px 6px;
+    border-radius: 4px; font-size: 13px; border: 1px solid var(--code-border);
+  }
+
+  /* ── Cards grid ── */
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 10px 0; }
+  .card { background: #f3f6fb; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .card h4 { font-size: 13px; color: var(--accent2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .card ul { padding-left: 18px; }
+  .card li { margin: 5px 0; font-size: 14px; }
+
+  /* ── Callouts ── */
+  .callout { background: #eaf9fc; border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; }
+  .callout b { color: var(--accent-dark); }
+  .warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; color: var(--warn-text); }
+  .warn b { color: #92400e; }
+  .success { background: #f0fdf4; border-left: 4px solid var(--success); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; }
+  .success b { color: var(--success); }
+
+  /* ── Q&A ── */
+  .qa-item { border: 1px solid var(--border); border-radius: 8px; margin: 8px 0; overflow: hidden; }
+  .qa-q { background: #f3f6fb; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none; }
+  .qa-q::before { content: "Q: "; color: var(--accent-dark); }
+  .qa-a { padding: 10px 14px; font-size: 14px; display: none; border-top: 1px solid var(--border); background: #fff; }
+  .qa-item.open .qa-a { display: block; }
+  .qa-item.open .qa-q { color: var(--accent-dark); }
+
+  /* ── Personal notes ── */
+  .note-editor {
+    min-height: 80px; border: 2px dashed var(--border); border-radius: 8px;
+    padding: 12px 14px; font-size: 14px; line-height: 1.6; background: #fffef7;
+    color: var(--text); outline: none; transition: border-color .2s;
+  }
+  .note-editor:focus { border-color: var(--accent); }
+  .note-editor:empty::before { content: attr(data-placeholder); color: #aab0bb; pointer-events: none; }
+  .note-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .note-label { font-size: 12px; color: var(--muted); }
+  .note-saved { font-size: 11px; color: var(--success); opacity: 0; transition: opacity .3s; }
+  .note-saved.show { opacity: 1; }
+  .note-clear { font-size: 11px; color: #e53e3e; cursor: pointer; background: none; border: none; padding: 2px 6px; border-radius: 4px; }
+  .note-clear:hover { background: #fff5f5; }
+
+  /* ── Dividers ── */
+  hr { border: none; border-top: 1px dashed var(--border); margin: 18px 0; }
+
+  /* ── Back button ── */
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 13px; color: var(--muted); text-decoration: none; margin-bottom: 20px; transition: all .15s; }
+  .back-btn:hover { color: var(--accent-dark); border-color: var(--accent); }
+
+  @media (max-width: 700px) {
+    nav.sidebar { display: none; }
+    main { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="logo"><a href="../go-roadmap.html">← Go Roadmap</a></div>
+  <ul>
+    <li><a href="#vars">Variables, Types &amp; Functions</a></li>
+    <li><a href="#flow">Control Flow</a></li>
+    <li><a href="#defer">defer, panic &amp; recover</a></li>
+    <li><a href="#slices">Slices, Maps &amp; Arrays</a></li>
+    <li><a href="#structs">Structs, Methods &amp; Composition</a></li>
+    <li><a href="#interfaces">Interfaces</a></li>
+    <li><a href="#errors">Error Handling</a></li>
+    <li><a href="#pointers">Pointers &amp; Memory</a></li>
+    <li><a href="#packages">Packages &amp; Modules</a></li>
+  </ul>
+  <div class="phase-links">
+    <a href="phase2.html">→ Phase 2 Notes</a>
+    <a href="phase3.html">→ Phase 3 Notes</a>
+  </div>
+</nav>
+
+<!-- Main -->
+<main>
+  <a href="../go-roadmap.html" class="back-btn">← Back to Roadmap</a>
+
+  <header class="page-header">
+    <h1>Phase 1 — <span>Go Fundamentals</span></h1>
+    <p>E2E notes: theory · syntax · code examples · gotchas · interview Q&amp;A · your personal notes (auto-saved).</p>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════ VARS -->
+  <section class="section" id="vars">
+    <div class="section-header">
+      <span class="badge">P1</span>
+      <h2>Variables, Types &amp; Functions</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Variable Declaration</h4>
+            <ul>
+              <li><code>var x int = 5</code> — full form (package or function scope)</li>
+              <li><code>x := 5</code> — short declaration (function scope only)</li>
+              <li><code>var x int</code> — zero value (<code>0</code> for int)</li>
+              <li>Multiple: <code>var a, b int = 1, 2</code></li>
+              <li><code>var</code> block groups related declarations</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Basic Types</h4>
+            <ul>
+              <li><code>bool</code> — <code>true</code> / <code>false</code></li>
+              <li><code>int</code>, <code>int8/16/32/64</code>, <code>uint</code></li>
+              <li><code>float32</code>, <code>float64</code></li>
+              <li><code>complex64</code>, <code>complex128</code></li>
+              <li><code>string</code> — immutable UTF-8 bytes</li>
+              <li><code>byte</code> = <code>uint8</code>, <code>rune</code> = <code>int32</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Functions</h4>
+            <ul>
+              <li>Multiple return values: <code>func f() (int, error)</code></li>
+              <li>Named returns: <code>func f() (x int)</code> — naked return</li>
+              <li>Variadic: <code>func sum(nums ...int)</code></li>
+              <li>First-class: assign to vars, pass as args</li>
+              <li>No default param values in Go</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Zero Values</h4>
+            <ul>
+              <li><code>int</code> → <code>0</code></li>
+              <li><code>float64</code> → <code>0.0</code></li>
+              <li><code>bool</code> → <code>false</code></li>
+              <li><code>string</code> → <code>""</code></li>
+              <li>pointer/slice/map/chan/func → <code>nil</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Syntax &amp; Code</div>
+<pre><code>package main
+
+import "fmt"
+
+// Multiple return values — idiomatic Go
+func divide(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, fmt.Errorf("division by zero")
+    }
+    return a / b, nil
+}
+
+// Named return values (avoid in long funcs — hurts readability)
+func minMax(arr []int) (min, max int) {
+    min, max = arr[0], arr[0]
+    for _, v := range arr {
+        if v < min { min = v }
+        if v > max { max = v }
+    }
+    return // naked return
+}
+
+// Variadic function
+func sum(nums ...int) int {
+    total := 0
+    for _, n := range nums { total += n }
+    return total
+}
+
+func main() {
+    // Short declaration
+    x := 42
+    s := "hello"
+
+    // Type conversion (no implicit casting in Go)
+    var f float64 = float64(x)
+
+    // Type inference
+    y := 3.14 // Go infers float64
+
+    result, err := divide(10, 3)
+    if err != nil {
+        fmt.Println("error:", err)
+    }
+
+    fmt.Println(x, s, f, y, result)
+    fmt.Println(sum(1, 2, 3, 4))       // 10
+    fmt.Println(sum([]int{1,2,3}...))  // spread slice
+}</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn">
+          <b>1. No implicit type conversion</b> — <code>var x int = 3.14</code> won't compile. Must use <code>float64(x)</code>.
+        </div>
+        <div class="warn">
+          <b>2. <code>:=</code> only inside functions</b> — package-level must use <code>var</code>.
+        </div>
+        <div class="warn">
+          <b>3. Unused variables = compile error</b> — Go refuses to compile if a declared local var is never used. Imports too.
+        </div>
+        <div class="warn">
+          <b>4. Named returns are often a smell</b> — good for short doc-like funcs; in longer funcs they shadow outer vars and hurt readability.
+        </div>
+        <div class="warn">
+          <b>5. <code>int</code> size is platform-dependent</b> — 32-bit on 32-bit systems, 64-bit on 64-bit. Don't assume 64-bit.
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between <code>var x int</code> and <code>x := 0</code>?</div>
+          <div class="qa-a">Both declare an int initialized to 0. <code>var</code> works at package and function scope; <code>:=</code> is shorthand only inside functions. <code>var</code> is preferred when the zero value is intentional (makes intent explicit).</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">Why does Go have multiple return values instead of exceptions?</div>
+          <div class="qa-a">Go favors explicit error handling over exceptions. Multiple returns force callers to handle errors at each call site. This makes control flow obvious — no hidden exception paths, no try/catch complexity.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What is a rune and when would you use it over byte?</div>
+          <div class="qa-a"><code>rune</code> is <code>int32</code> — represents a Unicode code point. Use <code>rune</code> when iterating over a string with non-ASCII characters (emoji, CJK). <code>for i, r := range "héllo"</code> gives runes. <code>[]byte("héllo")</code> gives raw UTF-8 bytes.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">Can you re-assign a variable with <code>:=</code> if it already exists?</div>
+          <div class="qa-a">Yes, if at least one variable on the left side is new. <code>x, err := f()</code> then <code>y, err := g()</code> — <code>err</code> is re-assigned, <code>y</code> is new. If ALL variables already exist, use <code>=</code>.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved to browser storage</span>
+          <span class="note-saved" id="saved-vars">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('vars')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-vars" contenteditable="true" data-key="go-p1-vars" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ FLOW -->
+  <section class="section" id="flow">
+    <div class="section-header">
+      <span class="badge">P1</span>
+      <h2>Control Flow</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>for — only loop in Go</h4>
+            <ul>
+              <li>C-style: <code>for i := 0; i &lt; n; i++</code></li>
+              <li>While-style: <code>for x &lt; 10</code></li>
+              <li>Infinite: <code>for { ... }</code></li>
+              <li>Range: <code>for i, v := range slice</code></li>
+              <li>No <code>while</code> or <code>do-while</code> keywords</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>if</h4>
+            <ul>
+              <li>No parentheses required</li>
+              <li>Init statement: <code>if x := f(); x &gt; 0</code></li>
+              <li>Init var scoped to the if/else block</li>
+              <li>No ternary operator in Go</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>switch</h4>
+            <ul>
+              <li>No <code>break</code> needed — cases don't fall through by default</li>
+              <li>Use <code>fallthrough</code> to explicitly fall through</li>
+              <li>No-condition switch = clean if-else chain</li>
+              <li>Type switch: <code>switch v := x.(type)</code></li>
+              <li>Cases can be comma-separated: <code>case 1, 2, 3:</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>range</h4>
+            <ul>
+              <li>Slice/array: <code>i, v</code> — index + copy of value</li>
+              <li>Map: <code>k, v</code> — iteration order NOT guaranteed</li>
+              <li>String: <code>i, r</code> — byte position + rune</li>
+              <li>Channel: <code>v</code> — receives until closed</li>
+              <li>Discard with <code>_</code>: <code>for _, v := range s</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── for loops ──────────────────────────────────────
+for i := 0; i < 5; i++ { fmt.Println(i) }     // C-style
+for n < 100 { n *= 2 }                         // while-style
+for { /* break or return to exit */ }           // infinite
+
+// range — canonical
+s := []string{"a", "b", "c"}
+for i, v := range s { fmt.Println(i, v) }
+for _, v := range s { fmt.Println(v) }          // ignore index
+
+m := map[string]int{"a": 1, "b": 2}
+for k, v := range m { fmt.Println(k, v) }       // random order!
+
+// ── if with init ───────────────────────────────────
+if err := doSomething(); err != nil {
+    log.Fatal(err)
+}
+// 'err' not accessible here — scoped to if/else block
+
+// ── switch ─────────────────────────────────────────
+switch os := runtime.GOOS; os {
+case "linux":   fmt.Println("Linux")
+case "darwin":  fmt.Println("macOS")
+default:        fmt.Println("Other:", os)
+}
+
+// no-condition switch (replaces long if-else)
+switch {
+case score >= 90: fmt.Println("A")
+case score >= 80: fmt.Println("B")
+default:          fmt.Println("C or below")
+}
+
+// fallthrough (explicit)
+switch x {
+case 1:
+    fmt.Println("one")
+    fallthrough
+case 2:
+    fmt.Println("one or two") // runs if x==1 too
+}</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>range gives a copy of the value</b> — modifying <code>v</code> in a range loop does NOT modify the original slice element. Use index: <code>s[i] = ...</code></div>
+        <div class="warn"><b>Map iteration order is random</b> — deliberately randomized in Go runtime. Never rely on order. Sort keys first if needed.</div>
+        <div class="warn"><b>Loop variable capture (pre-Go 1.22)</b> — in goroutines inside loops, all goroutines shared the same loop var. Fixed in Go 1.22. Pre-1.22: copy with <code>v := v</code>.</div>
+        <div class="warn"><b>switch cases don't fall through by default</b> — unlike C/Java. Use <code>fallthrough</code> keyword explicitly (rare in practice).</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">How do you iterate over a string character by character in Go?</div>
+          <div class="qa-a"><code>for i, r := range "héllo"</code> — gives Unicode code points (runes). Using <code>s[i]</code> directly gives bytes. For multi-byte characters (emoji, accented chars), always use range.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">Why is there no while loop in Go?</div>
+          <div class="qa-a">Go's designers wanted one loop construct. <code>for</code> covers all cases: C-style (init; cond; post), while-style (just condition), and infinite (<code>for {}</code>). Less syntax, same power.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between a type switch and a regular switch?</div>
+          <div class="qa-a">A regular switch compares values. A type switch (<code>switch v := x.(type)</code>) checks the dynamic type of an interface value. Each case tests whether the interface holds a specific concrete type.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-flow">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('flow')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-flow" contenteditable="true" data-key="go-p1-flow" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ DEFER -->
+  <section class="section" id="defer">
+    <div class="section-header">
+      <span class="badge">P1 ★</span>
+      <h2>defer, panic &amp; recover</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>defer</h4>
+            <ul>
+              <li>Pushes a function call onto a stack — runs when surrounding function returns</li>
+              <li>Arguments evaluated <b>immediately</b>, execution deferred</li>
+              <li>LIFO order (last deferred runs first)</li>
+              <li>Runs even if function panics</li>
+              <li>Use for: cleanup, unlock mutex, close file/conn</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>panic</h4>
+            <ul>
+              <li>Stops normal execution — unwinds the stack</li>
+              <li>Deferred functions still run during unwind</li>
+              <li>Reaches top of goroutine → program crashes</li>
+              <li>Only for truly unrecoverable situations</li>
+              <li>NOT a substitute for error handling</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>recover</h4>
+            <ul>
+              <li>Catches a panic — must be called inside a deferred function</li>
+              <li>Returns the value passed to <code>panic()</code></li>
+              <li>Returns <code>nil</code> if no panic is happening</li>
+              <li>Only recovers panics in the same goroutine</li>
+              <li>Use to build resilient server middleware</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── defer basics ──────────────────────────────────
+func copyFile(src, dst string) error {
+    f, err := os.Open(src)
+    if err != nil { return err }
+    defer f.Close() // guaranteed cleanup
+
+    // work with f...
+    return nil
+}
+
+// LIFO order
+func lifo() {
+    defer fmt.Println("first defer")  // runs LAST
+    defer fmt.Println("second defer") // runs SECOND
+    defer fmt.Println("third defer")  // runs FIRST
+    fmt.Println("function body")
+}
+// Output: function body → third → second → first
+
+// ── Argument evaluation is IMMEDIATE ─────────────
+x := 0
+defer fmt.Println(x) // captures x=0 right now, prints 0
+x = 42               // does NOT affect the deferred call
+
+// ── panic + recover ───────────────────────────────
+func safeDiv(a, b int) (result int, err error) {
+    defer func() {
+        if r := recover(); r != nil {
+            err = fmt.Errorf("recovered: %v", r)
+        }
+    }()
+    return a / b, nil // panics if b == 0
+}
+
+// ── HTTP middleware pattern ───────────────────────
+func panicMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        defer func() {
+            if rec := recover(); rec != nil {
+                http.Error(w, "Internal Server Error", 500)
+                log.Printf("panic: %v\n%s", rec, debug.Stack())
+            }
+        }()
+        next.ServeHTTP(w, r)
+    })
+}</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Args evaluated immediately</b> — <code>defer fmt.Println(x)</code> captures x's value NOW, not when the defer runs. Use a closure to capture later: <code>defer func() { fmt.Println(x) }()</code></div>
+        <div class="warn"><b>defer in a loop is dangerous</b> — each iteration pushes onto stack. Can exhaust memory. Use an inner function instead.</div>
+        <div class="warn"><b>recover only works in direct deferred function</b> — calling recover in a function called by a deferred function does NOT catch the panic.</div>
+        <div class="warn"><b>panic across goroutines</b> — recover cannot catch a panic from a different goroutine. Each goroutine must have its own recovery mechanism.</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">When are deferred function arguments evaluated?</div>
+          <div class="qa-a">Immediately when the defer statement is executed — not when the deferred function runs. So <code>defer fmt.Println(x)</code> captures the current value of x. To defer evaluation, wrap in a closure: <code>defer func() { fmt.Println(x) }()</code>.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">Can you modify a named return value inside a deferred function?</div>
+          <div class="qa-a">Yes. Named return values are accessible by the deferred function via closure. This is how you can change the return value even after a panic is recovered. Example: <code>func f() (err error) { defer func() { if r := recover(); r != nil { err = fmt.Errorf(...) } }() ... }</code></div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What is the order of deferred calls?</div>
+          <div class="qa-a">LIFO — last deferred runs first. Think of it as a stack. The last <code>defer</code> statement in source code is the first to execute when the function returns.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-defer">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('defer')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-defer" contenteditable="true" data-key="go-p1-defer" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ SLICES -->
+  <section class="section" id="slices">
+    <div class="section-header">
+      <span class="badge">P1 ★</span>
+      <h2>Slices, Maps &amp; Arrays</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Slice Internals</h4>
+            <ul>
+              <li>3-field header: pointer, length, capacity</li>
+              <li>Pointer → backing array (may be shared!)</li>
+              <li><code>len(s)</code> — elements accessible</li>
+              <li><code>cap(s)</code> — from ptr to end of array</li>
+              <li><code>make([]T, len, cap)</code> — allocate</li>
+              <li>nil slice: len=0, cap=0, ptr=nil</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Arrays vs Slices</h4>
+            <ul>
+              <li>Array: fixed size, value type (<b>copied</b> on assignment)</li>
+              <li>Slice: dynamic, reference type (shares backing array)</li>
+              <li><code>[3]int{}</code> vs <code>[]int{}</code></li>
+              <li>Arrays rarely used directly; slices everywhere</li>
+              <li>Array size is part of its type: <code>[3]int ≠ [4]int</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Maps</h4>
+            <ul>
+              <li>Hash table — O(1) average ops</li>
+              <li>Key must be comparable (no slices, maps as keys)</li>
+              <li>Unordered iteration</li>
+              <li>Zero value is nil — must <code>make</code> before writing</li>
+              <li>Delete: <code>delete(m, key)</code></li>
+              <li>Check: <code>v, ok := m[key]</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>append semantics</h4>
+            <ul>
+              <li>If cap has room → extends len, same backing array</li>
+              <li>If cap full → allocates new array (usually 2x), copies, returns new slice header</li>
+              <li>Always: <code>s = append(s, x)</code> — reassign!</li>
+              <li>Append can cause aliasing bugs silently</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Arrays ───────────────────────────────────────
+var a [3]int          // [0, 0, 0]
+b := [3]int{1, 2, 3}
+c := [...]int{1, 2, 3} // compiler counts
+
+// ── Slices ────────────────────────────────────────
+s := []int{1, 2, 3}
+s = append(s, 4, 5)
+fmt.Println(len(s), cap(s)) // 5, 6 (grew)
+
+// Slice of a slice — shares backing array!
+x := []int{1, 2, 3, 4, 5}
+y := x[1:3] // [2, 3], cap=4
+y[0] = 99   // also changes x[1]!
+
+// Safe copy
+dst := make([]int, len(src))
+copy(dst, src)
+
+// nil vs empty slice
+var ns []int       // nil, len=0, cap=0
+es := []int{}      // NOT nil, len=0, cap=0
+fmt.Println(ns == nil) // true
+fmt.Println(es == nil) // false
+
+// 2D slice
+matrix := make([][]int, rows)
+for i := range matrix { matrix[i] = make([]int, cols) }
+
+// ── Maps ──────────────────────────────────────────
+m := map[string]int{"a": 1, "b": 2}
+m["c"] = 3
+delete(m, "a")
+
+v, ok := m["x"] // ok=false if key missing, v=0 (zero val)
+
+// Writing to nil map panics!
+var bad map[string]int
+// bad["key"] = 1 // panic: assignment to entry in nil map
+good := make(map[string]int)
+good["key"] = 1  // safe</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ 7 Critical Gotchas</div>
+        <div class="warn"><b>1. Slice aliasing</b> — <code>b := a[1:3]</code> shares the backing array. Modifying b modifies a. Use <code>copy()</code> to avoid.</div>
+        <div class="warn"><b>2. append after slice — data corruption</b> — if capacity allows, append to a sub-slice overwrites elements of the original. Pre-Go: use full-slice expression <code>a[1:3:3]</code> to cap capacity.</div>
+        <div class="warn"><b>3. Writing to nil map panics</b> — reading from nil map is safe (returns zero value). Writing panics. Always <code>make</code> before write.</div>
+        <div class="warn"><b>4. Map iteration is random</b> — never write code that depends on map iteration order.</div>
+        <div class="warn"><b>5. Maps are NOT safe for concurrent use</b> — concurrent reads are fine, but concurrent writes (or write + read) cause data races. Use <code>sync.RWMutex</code> or <code>sync.Map</code>.</div>
+        <div class="warn"><b>6. Always reassign from append</b> — <code>append(s, x)</code> may return a different backing array. If you ignore the return, you may be mutating the old slice.</div>
+        <div class="warn"><b>7. range gives a copy</b> — <code>for _, v := range s</code> — v is a copy. Modifying v doesn't modify s. Use index <code>s[i]</code> to modify in place.</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">Explain the internal structure of a Go slice.</div>
+          <div class="qa-a">A slice is a 3-field struct: (pointer to backing array, length int, capacity int). Multiple slices can point to the same backing array — this is how sub-slicing works. append grows the slice; if cap is exceeded, a new backing array is allocated.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What happens when you append to a slice that was created from another slice?</div>
+          <div class="qa-a">If capacity is available, append modifies the shared backing array — which can corrupt the original slice's data. Use <code>s[low:high:max]</code> (3-index slice) to limit capacity, or <code>copy()</code> to get an independent slice.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">Is it safe to read from a nil map?</div>
+          <div class="qa-a">Yes. Reading from a nil map returns the zero value for the value type (0 for int, "" for string, false for bool, nil for pointers). Writing to a nil map causes a runtime panic. Always initialize maps with <code>make</code> before writing.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-slices">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('slices')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-slices" contenteditable="true" data-key="go-p1-slices" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ STRUCTS -->
+  <section class="section" id="structs">
+    <div class="section-header">
+      <span class="badge">P1</span>
+      <h2>Structs, Methods &amp; Composition</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Structs</h4>
+            <ul>
+              <li>Named collection of fields — Go's class equivalent</li>
+              <li>Value type — copied on assignment</li>
+              <li>Zero value: all fields at their zero values</li>
+              <li>Anonymous structs for one-off data</li>
+              <li>Struct tags for JSON, DB, validation</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Methods</h4>
+            <ul>
+              <li>Function with a receiver: <code>func (r T) Method()</code></li>
+              <li><b>Value receiver</b> — operates on a copy</li>
+              <li><b>Pointer receiver</b> — can modify the original</li>
+              <li>Methods can be defined on any named type (not just structs)</li>
+              <li>Be consistent: if any method has pointer receiver, all should</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Embedding (Composition)</h4>
+            <ul>
+              <li>Go has NO inheritance — uses composition</li>
+              <li>Embed a type: its fields/methods promoted to outer struct</li>
+              <li><code>type Admin struct { User }</code></li>
+              <li>Access as <code>admin.User.Name</code> or <code>admin.Name</code></li>
+              <li>Outer struct can override embedded methods</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Struct Tags</h4>
+            <ul>
+              <li>Metadata string for reflection tools</li>
+              <li><code>json:"name,omitempty"</code> — JSON encoding</li>
+              <li><code>db:"created_at"</code> — sqlc/GORM column name</li>
+              <li><code>validate:"required,min=3"</code> — go-playground/validator</li>
+              <li>Key:"value" pairs, backtick string literal</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>type User struct {
+    ID       int
+    Name     string   `json:"name"`
+    Email    string   `json:"email,omitempty"`
+    password string   // unexported — not marshalled
+}
+
+// Value receiver — works on a copy
+func (u User) String() string {
+    return fmt.Sprintf("%s <%s>", u.Name, u.Email)
+}
+
+// Pointer receiver — can modify the original
+func (u *User) SetName(name string) {
+    u.Name = name // modifies the original
+}
+
+// Methods on non-struct types
+type Celsius float64
+func (c Celsius) ToFahrenheit() float64 { return float64(c)*9/5 + 32 }
+
+// ── Embedding ─────────────────────────────────────
+type Animal struct { Name string }
+func (a Animal) Speak() string { return a.Name + " speaks" }
+
+type Dog struct {
+    Animal        // embedded — promotes Name and Speak()
+    Breed  string
+}
+
+d := Dog{Animal: Animal{Name: "Rex"}, Breed: "Husky"}
+fmt.Println(d.Speak()) // promoted method
+fmt.Println(d.Name)    // promoted field
+
+// Dog can override Speak:
+func (d Dog) Speak() string { return d.Name + " barks!" }
+
+// ── Anonymous struct ──────────────────────────────
+config := struct {
+    Host string
+    Port int
+}{"localhost", 8080}
+
+// ── Struct comparison ─────────────────────────────
+p1 := Point{1, 2}
+p2 := Point{1, 2}
+fmt.Println(p1 == p2) // true — comparable if all fields are</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Value receiver can't modify</b> — using a value receiver on a struct and expecting to mutate it won't work. Changes are on the copy. Use pointer receiver for mutation.</div>
+        <div class="warn"><b>Inconsistent receivers cause issues</b> — if a type has both value and pointer receivers, it can't satisfy an interface requiring pointer methods via value variable.</div>
+        <div class="warn"><b>Struct with unexported fields</b> — cannot be copied from a different package directly. Provide a constructor function instead.</div>
+        <div class="warn"><b>Embedding != inheritance</b> — there is no polymorphism. The outer type IS-A inner type is NOT true in Go. Use interfaces for polymorphism.</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">When should you use a pointer receiver vs a value receiver?</div>
+          <div class="qa-a">Use pointer receiver when: (1) the method needs to modify the receiver, (2) the struct is large and you want to avoid copying, (3) you need consistent behavior with other methods that use pointer receivers. Use value receiver for small read-only structs, or when the method shouldn't modify the original.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">How does Go achieve code reuse without inheritance?</div>
+          <div class="qa-a">Through struct embedding (composition). Embedding promotes fields and methods of the embedded type to the outer struct. Combined with interfaces, this gives polymorphic behaviour without class hierarchies. It's more flexible than inheritance — you can embed multiple types.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-structs">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('structs')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-structs" contenteditable="true" data-key="go-p1-structs" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ INTERFACES -->
+  <section class="section" id="interfaces">
+    <div class="section-header">
+      <span class="badge">P1 ★</span>
+      <h2>Interfaces</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Implicit Satisfaction</h4>
+            <ul>
+              <li>No <code>implements</code> keyword</li>
+              <li>A type satisfies an interface if it has all the methods</li>
+              <li>Checked at compile time</li>
+              <li>Decouples definition from usage</li>
+              <li>Small interfaces preferred: <code>io.Reader</code>, <code>io.Writer</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Interface Values</h4>
+            <ul>
+              <li>Two-field header: (type, value) pair</li>
+              <li>nil interface: both type and value are nil</li>
+              <li>Typed nil: type is set, value is nil — NOT nil!</li>
+              <li>Interface == nil only when BOTH are nil</li>
+              <li>Calling method on nil interface → panic</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Empty Interface (any)</h4>
+            <ul>
+              <li><code>interface{}</code> = <code>any</code> (Go 1.18+ alias)</li>
+              <li>Every type satisfies it — holds any value</li>
+              <li>Used by <code>fmt.Println(a ...any)</code></li>
+              <li>Prefer generics over <code>any</code> for typed collections</li>
+              <li>Type-assert to get concrete value back</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Design Rules</h4>
+            <ul>
+              <li>"Accept interfaces, return concrete types"</li>
+              <li>Define interfaces on the consumer side (not producer)</li>
+              <li>Keep interfaces small — 1-2 methods ideal</li>
+              <li>Don't preemptively abstract — extract when needed</li>
+              <li>Use interfaces for testing (mock the dependency)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Basic interface ───────────────────────────────
+type Animal interface {
+    Sound() string
+    Name() string
+}
+
+type Dog struct{ name string }
+func (d Dog) Sound() string { return "Woof" }
+func (d Dog) Name() string  { return d.name }
+
+type Cat struct{ name string }
+func (c Cat) Sound() string { return "Meow" }
+func (c Cat) Name() string  { return c.name }
+
+// Both satisfy Animal implicitly
+func describe(a Animal) {
+    fmt.Printf("%s says %s\n", a.Name(), a.Sound())
+}
+
+// ── Typed-nil trap ────────────────────────────────
+func getError() error {
+    var p *MyError = nil
+    return p  // NOT nil! interface has type=*MyError, val=nil
+}
+err := getError()
+fmt.Println(err == nil) // false — common bug!
+
+// Fix: return untyped nil
+func getErrorFixed() error {
+    return nil // both type and val are nil
+}
+
+// ── Interface composition ─────────────────────────
+type Reader interface { Read(p []byte) (n int, err error) }
+type Writer interface { Write(p []byte) (n int, err error) }
+type ReadWriter interface { Reader; Writer } // composed
+
+// ── Compile-time interface check ──────────────────
+var _ Animal = Dog{}    // fails at compile time if Dog doesn't implement Animal
+var _ Animal = (*Dog)(nil) // for pointer receivers
+
+// ── Repository pattern ────────────────────────────
+type UserRepository interface {
+    FindByID(ctx context.Context, id int) (*User, error)
+    Save(ctx context.Context, u *User) error
+}
+// Service depends on interface — easy to mock in tests
+type UserService struct { repo UserRepository }</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Typed-nil trap</b> — returning a typed pointer as an interface value is NOT nil, even if the pointer is nil. Always return untyped <code>nil</code> for error/interface returns.</div>
+        <div class="warn"><b>Interface on value vs pointer</b> — if a method has a pointer receiver, only <code>*T</code> satisfies the interface, not <code>T</code>. Conversely, value receiver methods are in the method set of both <code>T</code> and <code>*T</code>.</div>
+        <div class="warn"><b>Empty interface loses type info</b> — once stored as <code>any</code>, you must type-assert to recover the original type. Prefer generics for typed operations.</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">What is the typed-nil trap in Go interfaces?</div>
+          <div class="qa-a">An interface value is nil only when BOTH its type and value fields are nil. If you return a nil pointer of a concrete type as an interface, the interface stores the type info — making it non-nil. Classic bug: <code>var p *MyError = nil; return p</code> — the returned error interface is not nil.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">Why does Go prefer small interfaces?</div>
+          <div class="qa-a">Small interfaces (1-2 methods) are easier to implement, compose, and mock. io.Reader has just one method — any type with a Read() method satisfies it. Large interfaces create tight coupling and make mocking harder. This is known as the Interface Segregation Principle.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between interface{} and any?</div>
+          <div class="qa-a">They are identical. <code>any</code> is a type alias for <code>interface{}</code> introduced in Go 1.18 for readability. Both hold a value of any type. Prefer <code>any</code> in new code.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-interfaces">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('interfaces')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-interfaces" contenteditable="true" data-key="go-p1-interfaces" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ ERRORS -->
+  <section class="section" id="errors">
+    <div class="section-header">
+      <span class="badge">P1 ★</span>
+      <h2>Error Handling</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Error Interface</h4>
+            <ul>
+              <li><code>type error interface { Error() string }</code></li>
+              <li>Any type with <code>Error() string</code> is an error</li>
+              <li><code>errors.New("msg")</code> — simple sentinel</li>
+              <li><code>fmt.Errorf("ctx: %w", err)</code> — wrap with context</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Sentinel Errors</h4>
+            <ul>
+              <li>Package-level <code>var ErrNotFound = errors.New("not found")</code></li>
+              <li>Check with <code>errors.Is(err, ErrNotFound)</code></li>
+              <li>Works through wrapping chain</li>
+              <li>Export if callers need to check: <code>ErrXxx</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Custom Error Types</h4>
+            <ul>
+              <li>Struct implementing <code>error</code> interface</li>
+              <li>Carries extra context (status code, field, etc.)</li>
+              <li>Extract with <code>errors.As(err, &amp;myErr)</code></li>
+              <li>Use pointer receiver on Error() for consistency</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Wrapping (Go 1.13+)</h4>
+            <ul>
+              <li><code>fmt.Errorf("op failed: %w", err)</code> wraps err</li>
+              <li><code>errors.Is</code> — checks value (sentinel)</li>
+              <li><code>errors.As</code> — checks type (custom errors)</li>
+              <li><code>errors.Unwrap</code> — get the wrapped error</li>
+              <li>Chain: <code>errors.Join</code> (Go 1.20+)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Sentinel error ────────────────────────────────
+var ErrNotFound = errors.New("not found")
+
+func FindUser(id int) (*User, error) {
+    if id == 0 { return nil, ErrNotFound }
+    return &User{}, nil
+}
+
+u, err := FindUser(0)
+if errors.Is(err, ErrNotFound) {
+    // handle not found
+}
+
+// ── Custom error type ─────────────────────────────
+type ValidationError struct {
+    Field   string
+    Message string
+}
+func (e *ValidationError) Error() string {
+    return fmt.Sprintf("validation failed: %s — %s", e.Field, e.Message)
+}
+
+func validate(age int) error {
+    if age < 0 { return &ValidationError{Field: "age", Message: "must be >= 0"} }
+    return nil
+}
+
+var ve *ValidationError
+if errors.As(err, &ve) {
+    fmt.Println("field:", ve.Field) // extract structured info
+}
+
+// ── Wrapping for context ──────────────────────────
+func loadConfig(path string) error {
+    data, err := os.ReadFile(path)
+    if err != nil {
+        return fmt.Errorf("loadConfig: %w", err) // wrap with context
+    }
+    _ = data
+    return nil
+}
+
+// errors.Is unwraps the chain:
+if errors.Is(err, os.ErrNotExist) { ... } // works even if wrapped
+
+// ── errors.Join (Go 1.20) ─────────────────────────
+err1 := errors.New("db failed")
+err2 := errors.New("cache failed")
+combined := errors.Join(err1, err2)
+errors.Is(combined, err1) // true</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Never use == to compare wrapped errors</b> — use <code>errors.Is()</code>. Direct comparison breaks if the error was wrapped with <code>%w</code>.</div>
+        <div class="warn"><b>errors.As needs a pointer to pointer</b> — <code>errors.As(err, &amp;ve)</code> where <code>ve</code> is <code>*ValidationError</code>. Passing the wrong type silently fails.</div>
+        <div class="warn"><b>Don't wrap and log</b> — either wrap with context and propagate, OR log and handle. Doing both causes duplicate log entries and confusing traces.</div>
+        <div class="warn"><b>%w vs %v</b> — <code>%v</code> embeds the error message as a string (unwrappable chain broken). <code>%w</code> wraps it in the chain. Always use <code>%w</code> when propagating.</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between errors.Is and errors.As?</div>
+          <div class="qa-a"><code>errors.Is</code> checks if any error in the chain matches a specific value (sentinel comparison). <code>errors.As</code> checks if any error in the chain matches a specific type and extracts it. Use Is for sentinel errors, As for custom error types that carry additional data.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">How do you add context to an error without losing the original?</div>
+          <div class="qa-a">Use <code>fmt.Errorf("context: %w", err)</code>. The <code>%w</code> verb wraps the error, preserving the chain. Callers can then use <code>errors.Is</code> and <code>errors.As</code> to inspect the original error through the wrapping layers.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">When should you use panic vs returning an error?</div>
+          <div class="qa-a">Return errors for expected failure cases (file not found, invalid input, network timeout). Use panic only for truly unrecoverable situations (programmer errors like nil pointer dereference, invalid array index, or startup failures that make the program unable to function).</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-errors">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('errors')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-errors" contenteditable="true" data-key="go-p1-errors" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ POINTERS -->
+  <section class="section" id="pointers">
+    <div class="section-header">
+      <span class="badge">P1</span>
+      <h2>Pointers &amp; Memory</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Pointers</h4>
+            <ul>
+              <li><code>*T</code> — pointer to T value</li>
+              <li><code>&amp;x</code> — address of x (takes address)</li>
+              <li><code>*p</code> — dereference (value at address)</li>
+              <li>Zero value: <code>nil</code></li>
+              <li>No pointer arithmetic (unlike C)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Stack vs Heap</h4>
+            <ul>
+              <li>Stack: function-local vars, fast allocation/deallocation</li>
+              <li>Heap: long-lived allocations managed by GC</li>
+              <li>Go decides automatically via escape analysis</li>
+              <li>Variable "escapes" to heap when it outlives its function</li>
+              <li>Returning a pointer to a local var is safe in Go (unlike C)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Escape Analysis</h4>
+            <ul>
+              <li><code>go build -gcflags="-m"</code> — see escape analysis</li>
+              <li>Variables taken by address often escape to heap</li>
+              <li>Interfaces often cause escape (dynamic dispatch)</li>
+              <li>Heap allocation = more GC pressure</li>
+              <li>Don't over-optimize — profile first</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>new() builtin</h4>
+            <ul>
+              <li><code>new(T)</code> allocates zeroed T, returns <code>*T</code></li>
+              <li>Rarely used — struct literals preferred</li>
+              <li><code>new(int)</code> = <code>&amp;int(0)</code> essentially</li>
+              <li><code>make()</code> for slices, maps, channels (initializes structure)</li>
+              <li><code>new()</code> just zeros memory, no internal init</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Pointer basics ────────────────────────────────
+x := 42
+p := &x          // p is *int
+fmt.Println(*p)  // 42 — dereference
+*p = 100         // modifies x through pointer
+fmt.Println(x)   // 100
+
+// ── Returning pointer to local is SAFE ────────────
+func newPoint(x, y int) *Point {
+    p := Point{x, y} // local variable
+    return &p        // safe: Go compiler moves p to heap
+}
+
+// ── new() builtin (rarely needed) ─────────────────
+p1 := new(int)       // *int, value is 0
+p2 := &int(0)        // equivalent (can't do this syntax exactly)
+p3 := new(User)      // *User, all fields zeroed
+
+// Prefer struct literal:
+u := &User{Name: "Alice"} // allocates on heap, sets Name
+
+// ── Nil pointer dereference panic ─────────────────
+var p *int
+// fmt.Println(*p) // PANIC: nil pointer dereference
+if p != nil { fmt.Println(*p) } // safe guard
+
+// ── When to use *T ────────────────────────────────
+// ✅ Need to modify the value
+// ✅ Large struct (avoid copying)
+// ✅ Nil has semantic meaning (optional value)
+// ❌ Don't use *T for small immutable data — just copy it
+
+// ── Escape analysis check ─────────────────────────
+// go build -gcflags="-m" 2>&1 | grep "escapes"</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Nil pointer dereference</b> — most common Go panic. Always check <code>if p != nil</code> before dereferencing pointers from external sources.</div>
+        <div class="warn"><b>Pointer to loop variable (pre-Go 1.22)</b> — all goroutines share the same loop variable address. Fixed in 1.22; in older code, copy: <code>v := v</code>.</div>
+        <div class="warn"><b>No pointer arithmetic</b> — you cannot do <code>p++</code> to walk through memory like in C. Use slices for sequential access.</div>
+        <div class="warn"><b>GC doesn't mean no memory management</b> — creating many small heap allocations still causes GC pressure. Use value types and sync.Pool for hot paths.</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">Is it safe to return a pointer to a local variable in Go?</div>
+          <div class="qa-a">Yes, unlike C. Go's escape analysis detects that the variable's address is returned and automatically moves it to the heap. The GC manages its lifetime. <code>func newPoint() *Point { p := Point{1,2}; return &p }</code> is perfectly safe.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What is escape analysis and why does it matter?</div>
+          <div class="qa-a">Escape analysis determines at compile time whether a variable can live on the stack or must be allocated on the heap. Stack allocation is much faster (no GC). Variables that "escape" (address taken and returned, stored in interface, etc.) go to heap. Use <code>go build -gcflags="-m"</code> to see what escapes.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-pointers">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('pointers')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-pointers" contenteditable="true" data-key="go-p1-pointers" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ PACKAGES -->
+  <section class="section" id="packages">
+    <div class="section-header">
+      <span class="badge">P1</span>
+      <h2>Packages &amp; Modules</h2>
+    </div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Packages</h4>
+            <ul>
+              <li>Unit of code organization — directory = package</li>
+              <li>Exported: starts with uppercase letter</li>
+              <li>Unexported: lowercase — package-private</li>
+              <li>Package name ≠ import path (but conventionally same)</li>
+              <li><code>package main</code> + <code>func main()</code> = executable</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Modules (go.mod)</h4>
+            <ul>
+              <li><code>go mod init module/path</code> — creates go.mod</li>
+              <li>go.mod declares: module path, Go version, dependencies</li>
+              <li>go.sum: cryptographic checksums for security</li>
+              <li><code>go mod tidy</code> — sync go.mod with actual imports</li>
+              <li>Module path = how others import your code</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>internal/ package</h4>
+            <ul>
+              <li>Code in <code>internal/</code> can only be imported by parent and sibling packages</li>
+              <li>Prevents external packages from importing your internals</li>
+              <li>Standard pattern: <code>pkg/internal/store/</code></li>
+              <li>Enforced by the compiler — not just convention</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>init() function</h4>
+            <ul>
+              <li>Runs automatically when package is first imported</li>
+              <li>Cannot be called manually</li>
+              <li>Multiple init() in same file/package allowed</li>
+              <li>Used for: registering drivers, setting defaults</li>
+              <li>Blank import: <code>import _ "pkg"</code> — side effects only</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Package visibility ────────────────────────────
+package user
+
+type User struct {          // exported
+    Name  string            // exported field
+    email string            // unexported — only accessible in user package
+}
+
+func NewUser(name, email string) *User {
+    return &User{Name: name, email: email} // constructor pattern
+}
+
+// ── go.mod example ────────────────────────────────
+// module github.com/myorg/myapp
+//
+// go 1.22
+//
+// require (
+//     github.com/gin-gonic/gin v1.9.1
+//     github.com/jackc/pgx/v5 v5.5.0
+// )
+
+// ── Import aliases ────────────────────────────────
+import (
+    "fmt"
+    rand "math/rand"     // alias
+    _ "github.com/lib/pq" // blank import (register pq driver)
+    . "math"              // dot import (unqualified access — avoid)
+)
+
+// ── init() ────────────────────────────────────────
+func init() {
+    // runs once when package is imported
+    // common use: validate config, register things
+    if os.Getenv("DB_URL") == "" {
+        log.Fatal("DB_URL is required")
+    }
+}
+
+// ── Cyclic imports ────────────────────────────────
+// Package A imports B, B imports A → COMPILE ERROR
+// Fix: extract shared types to a third package C
+//      A → C, B → C (no cycle)</code></pre>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Cyclic imports compile error</b> — Go forbids A → B → A. Restructure: extract shared types to a common package.</div>
+        <div class="warn"><b>Package name vs import path</b> — <code>import "github.com/foo/bar/v2"</code> → the package is accessed as <code>bar.Something()</code>, not <code>v2.Something()</code>.</div>
+        <div class="warn"><b>init() order is deterministic within a package</b> but depends on import order across packages. Avoid relying on complex init() ordering.</div>
+        <div class="warn"><b>Dot import is an anti-pattern</b> — <code>import . "math"</code> puts all exported names in current scope. Makes code hard to read and can cause name collisions.</div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">How does Go enforce API boundaries within a project?</div>
+          <div class="qa-a">Through the <code>internal/</code> package convention enforced by the compiler. Code in <code>internal/</code> can only be imported by code in the parent directory tree. This lets you have internal helpers without exposing them as public API, even within the same module.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between go.mod and go.sum?</div>
+          <div class="qa-a"><code>go.mod</code> declares your module path, Go version, and required dependencies with version constraints. <code>go.sum</code> contains cryptographic hashes of every module version used. go.sum is used to verify downloads haven't been tampered with. Both should be committed to version control.</div>
+        </div>
+      </div>
+
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-packages">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('packages')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-packages" contenteditable="true" data-key="go-p1-packages" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div><!-- end layout -->
+
+<script>
+// ── Sections & keys ──────────────────────────────────────────────────────────
+const SECTIONS = ['vars','flow','defer','slices','structs','interfaces','errors','pointers','packages'];
+
+// ── Restore saved notes on page load ─────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  SECTIONS.forEach(id => {
+    const el = document.getElementById('note-' + id);
+    if (!el) return;
+    const saved = localStorage.getItem(el.dataset.key);
+    if (saved) el.innerHTML = saved;
+  });
+  updateActiveNav();
+});
+
+// ── Auto-save on input (debounced 500ms) ─────────────────────────────────────
+let saveTimers = {};
+document.querySelectorAll('.note-editor').forEach(el => {
+  el.addEventListener('input', () => {
+    const key = el.dataset.key;
+    const id = el.id.replace('note-', '');
+    clearTimeout(saveTimers[id]);
+    saveTimers[id] = setTimeout(() => {
+      localStorage.setItem(key, el.innerHTML);
+      showSaved(id);
+    }, 500);
+  });
+});
+
+function showSaved(id) {
+  const indicator = document.getElementById('saved-' + id);
+  if (!indicator) return;
+  indicator.classList.add('show');
+  setTimeout(() => indicator.classList.remove('show'), 2000);
+}
+
+// ── Clear note ────────────────────────────────────────────────────────────────
+function clearNote(id) {
+  if (!confirm('Clear notes for this section?')) return;
+  const el = document.getElementById('note-' + id);
+  if (!el) return;
+  el.innerHTML = '';
+  localStorage.removeItem(el.dataset.key);
+}
+
+// ── Q&A accordion ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.qa-q').forEach(q => {
+  q.addEventListener('click', () => {
+    q.closest('.qa-item').classList.toggle('open');
+  });
+});
+
+// ── Active nav highlight ──────────────────────────────────────────────────────
+function updateActiveNav() {
+  const sections = document.querySelectorAll('.section');
+  const navLinks = document.querySelectorAll('nav.sidebar li a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav.sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+}
+</script>
+</body>
+</html>

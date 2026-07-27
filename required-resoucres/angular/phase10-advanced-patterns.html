@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 10: Advanced Patterns & Architecture</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 10: Advanced Patterns & Architecture</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (10 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Smart/Dumb Components</span>
+    <span class="pill">Micro Frontends</span>
+    <span class="pill">Nx Monorepo</span>
+    <span class="pill">Angular Elements</span>
+    <span class="pill">SSR & Hydration</span>
+    <span class="pill">Security</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Smart/Container vs Dumb/Presentational Components</h2>
+
+<pre><code>// SMART (Container) Component — knows about services, state, business logic
+@Component({
+  selector: 'app-user-list-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    &lt;app-search-bar (search)="onSearch($event)" /&gt;
+    
+    @if (loading$ | async) {
+      &lt;app-skeleton-list /&gt;
+    } @else {
+      &lt;app-user-list 
+        [users]="users$ | async" 
+        [selectedId]="selectedId()"
+        (selectUser)="onSelectUser($event)"
+        (deleteUser)="onDeleteUser($event)"
+      /&gt;
+    }
+    
+    &lt;app-pagination 
+      [currentPage]="page()" 
+      [total]="totalPages()"
+      (pageChange)="onPageChange($event)" 
+    /&gt;
+  `
+})
+export class UserListPageComponent {
+  private store = inject(UserStore);
+  
+  users$ = this.store.filteredUsers$;
+  loading$ = this.store.loading$;
+  selectedId = this.store.selectedId;
+  page = this.store.page;
+  totalPages = this.store.totalPages;
+
+  onSearch(term: string) { this.store.setFilter(term); }
+  onSelectUser(id: string) { this.store.select(id); }
+  onDeleteUser(id: string) { this.store.delete(id); }
+  onPageChange(page: number) { this.store.setPage(page); }
+}
+
+// DUMB (Presentational) Component — pure UI, no services
+@Component({
+  selector: 'app-user-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    @for (user of users; track user.id) {
+      &lt;div 
+        [class.selected]="user.id === selectedId"
+        (click)="selectUser.emit(user.id)"
+      &gt;
+        {{ user.name }}
+        &lt;button (click)="deleteUser.emit(user.id); $event.stopPropagation()"&gt;
+          Delete
+        &lt;/button&gt;
+      &lt;/div&gt;
+    }
+  `
+})
+export class UserListComponent {
+  @Input() users: User[] = [];
+  @Input() selectedId: string | null = null;
+  @Output() selectUser = new EventEmitter&lt;string&gt;();
+  @Output() deleteUser = new EventEmitter&lt;string&gt;();
+  // NO inject(), NO services, NO business logic
+  // Just @Input → render, user action → @Output
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. Server-Side Rendering (SSR) & Hydration</h2>
+
+<pre><code>// Angular Universal / @angular/ssr
+// ng add @angular/ssr
+
+// app.config.server.ts
+import { mergeApplicationConfig } from '@angular/core';
+import { provideServerRendering } from '@angular/platform-server';
+import { appConfig } from './app.config';
+
+const serverConfig: ApplicationConfig = {
+  providers: [provideServerRendering()]
+};
+
+export const config = mergeApplicationConfig(appConfig, serverConfig);
+
+// Handling browser-only APIs in SSR:
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
+
+export class MyComponent {
+  private platformId = inject(PLATFORM_ID);
+
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Safe to use window, document, localStorage
+      window.addEventListener('scroll', this.onScroll);
+    }
+  }
+}
+
+// OR use afterNextRender (Angular 16+) — runs only in browser
+export class ChartComponent {
+  constructor() {
+    afterNextRender(() => {
+      // Runs only in browser, after first render
+      this.initD3Chart();
+    });
+  }
+}
+
+// Hydration (Angular 16+) — reuse server-rendered DOM
+// Enabled by default in Angular 17+ SSR apps
+// Angular 19: Incremental hydration
+@defer (on viewport; hydrate on interaction) {
+  &lt;app-heavy-widget /&gt;
+}
+// Server renders HTML, but doesn't hydrate (make interactive) 
+// until user interacts with it!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. Angular Elements (Web Components)</h2>
+
+<pre><code>// Convert Angular components to Custom Elements (Web Components)
+// They work in ANY framework (React, Vue, plain HTML)
+
+import { createCustomElement } from '@angular/elements';
+
+@Component({
+  selector: 'app-feedback-widget',
+  standalone: true,
+  template: `
+    &lt;div class="widget"&gt;
+      &lt;h3&gt;{{ title }}&lt;/h3&gt;
+      &lt;textarea [(ngModel)]="feedback"&gt;&lt;/textarea&gt;
+      &lt;button (click)="submit()"&gt;Send&lt;/button&gt;
+    &lt;/div&gt;
+  `
+})
+export class FeedbackWidgetComponent {
+  @Input() title = 'Feedback';
+  @Output() submitted = new EventEmitter&lt;string&gt;();
+  feedback = '';
+  
+  submit() { this.submitted.emit(this.feedback); }
+}
+
+// Register as custom element
+export class AppModule {
+  constructor(private injector: Injector) {
+    const el = createCustomElement(FeedbackWidgetComponent, { injector });
+    customElements.define('feedback-widget', el);
+  }
+  ngDoBootstrap() {}  // No bootstrap component
+}
+
+// Now use ANYWHERE:
+// &lt;feedback-widget title="How was your experience?"&gt;&lt;/feedback-widget&gt;
+// Works in React, Vue, WordPress, static HTML!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>4. Micro Frontends with Angular</h2>
+
+<pre><code>// Module Federation (Webpack 5) — most popular approach
+// angular.json or custom webpack config
+
+// Shell app (host)
+// webpack.config.js
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      remotes: {
+        mfeUsers: 'mfeUsers@http://localhost:4201/remoteEntry.js',
+        mfeOrders: 'mfeOrders@http://localhost:4202/remoteEntry.js'
+      },
+      shared: ['@angular/core', '@angular/common', '@angular/router']
+    })
+  ]
+};
+
+// Shell routing
+const routes: Routes = [
+  {
+    path: 'users',
+    loadChildren: () => import('mfeUsers/UsersModule').then(m => m.UsersModule)
+  },
+  {
+    path: 'orders',
+    loadChildren: () => import('mfeOrders/OrdersModule').then(m => m.OrdersModule)
+  }
+];
+
+// Remote app (micro frontend)
+// webpack.config.js
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'mfeUsers',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './UsersModule': './src/app/users/users.module.ts'
+      },
+      shared: ['@angular/core', '@angular/common', '@angular/router']
+    })
+  ]
+};
+
+// Native Federation (esbuild-based, Angular 17+) — newer approach
+// @angular-architects/native-federation</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>5. Security Best Practices</h2>
+
+<pre><code>// 1. XSS Protection — Angular sanitizes by default
+// SAFE: Angular escapes all interpolation
+{{ userInput }}  // &lt;script&gt; becomes &lt;script&gt; (text, not executed)
+
+// DANGEROUS: Bypassing sanitization
+// Only use when you TRUST the source (e.g., your own CMS)
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+@Component({ ... })
+export class RichContentComponent {
+  private sanitizer = inject(DomSanitizer);
+  
+  trustedHtml: SafeHtml;
+  
+  constructor() {
+    // Only for TRUSTED content (e.g., your own API, not user input!)
+    this.trustedHtml = this.sanitizer.bypassSecurityTrustHtml(htmlFromCMS);
+  }
+}
+
+// 2. CSRF Protection
+// Angular's HttpClient automatically reads XSRF-TOKEN cookie 
+// and sends it as X-XSRF-TOKEN header
+provideHttpClient(withXsrfConfiguration({
+  cookieName: 'XSRF-TOKEN',
+  headerName: 'X-XSRF-TOKEN'
+}))
+
+// 3. Content Security Policy (CSP)
+// In server headers or meta tag — prevents inline scripts
+// Angular AOT is CSP-compatible (no eval())
+
+// 4. Route Guard for authorization
+// 5. HTTP Interceptors for token management
+// 6. Avoid using innerHTML — use [innerHtml] with sanitization
+// 7. Validate on BOTH client and server
+// 8. Use HttpOnly cookies for tokens (not localStorage)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>6. Monorepo with Nx</h2>
+
+<pre><code>// Nx workspace structure
+my-workspace/
+├── apps/
+│   ├── web-app/         # Main Angular app
+│   ├── admin-app/       # Admin Angular app  
+│   └── api/             # NestJS/Express backend
+├── libs/
+│   ├── shared/
+│   │   ├── ui/          # Shared UI components
+│   │   ├── utils/       # Shared utility functions
+│   │   └── models/      # Shared interfaces/types
+│   ├── features/
+│   │   ├── auth/        # Auth feature (used by multiple apps)
+│   │   └── users/       # Users feature
+│   └── data-access/
+│       └── api-client/  # HTTP service layer
+├── nx.json
+└── tsconfig.base.json
+
+// Benefits:
+// - Shared code between apps (DRY)
+// - Affected commands: nx affected:test (only test what changed)
+// - Dependency graph: nx graph
+// - Consistent tooling across all projects
+// - Enforce module boundaries (lint rules)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>7. Error Handling & Logging Architecture</h2>
+
+<pre><code>// Global error handler
+@Injectable()
+export class GlobalErrorHandler implements ErrorHandler {
+  private notification = inject(NotificationService);
+  private logger = inject(LoggingService);
+
+  handleError(error: Error): void {
+    // Log to external service (Sentry, DataDog, etc.)
+    this.logger.logError(error);
+
+    // Show user-friendly message
+    if (error instanceof HttpErrorResponse) {
+      this.handleHttpError(error);
+    } else {
+      this.notification.show('An unexpected error occurred', 'error');
+    }
+
+    console.error('Global Error:', error);
+  }
+
+  private handleHttpError(error: HttpErrorResponse): void {
+    switch (error.status) {
+      case 0: this.notification.show('No internet connection', 'warning'); break;
+      case 401: /* handled by interceptor */ break;
+      case 403: this.notification.show('Access denied', 'error'); break;
+      case 404: this.notification.show('Resource not found', 'error'); break;
+      case 500: this.notification.show('Server error', 'error'); break;
+    }
+  }
+}
+
+// Register
+providers: [
+  { provide: ErrorHandler, useClass: GlobalErrorHandler }
+]</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 10</h4>
+<ol>
+  <li>Explain the Smart/Dumb component pattern. Why is it important?</li>
+  <li>How does Angular SSR work? What is hydration?</li>
+  <li>What are Angular Elements? When would you use them?</li>
+  <li>How would you implement micro frontends with Angular?</li>
+  <li>How does Angular protect against XSS? When would you bypass sanitization?</li>
+  <li>What is a monorepo? How does Nx help manage Angular projects?</li>
+  <li>How would you implement a global error handling strategy?</li>
+  <li>Explain the difference between SSR, SSG, and CSR. When use which?</li>
+  <li>How do you handle browser-only APIs (window, localStorage) in SSR?</li>
+  <li>How would you architect a large-scale Angular application for 20+ developers?</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase9-testing.html">← Phase 9: Testing</a>
+  <a href="phase11-signals-modern-angular.html">Phase 11: Signals & Modern Angular →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

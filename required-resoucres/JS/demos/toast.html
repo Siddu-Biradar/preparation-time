@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toast Notifications</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f5f5f5; min-height: 100vh; }
+
+    .demo { text-align: center; max-width: 500px; margin: 0 auto; }
+    .demo h1 { margin-bottom: 8px; }
+    .demo p { color: #666; margin-bottom: 20px; font-size: 14px; }
+    .demo button { 
+      padding: 12px 24px; margin: 6px; border: none; border-radius: 8px;
+      color: white; cursor: pointer; font-size: 14px; font-weight: 600;
+      transition: transform 0.1s;
+    }
+    .demo button:active { transform: scale(0.95); }
+    .btn-success { background: #27ae60; }
+    .btn-error { background: #e74c3c; }
+    .btn-warning { background: #f39c12; }
+    .btn-info { background: #3498db; }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 380px;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: 10px;
+      background: white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      animation: slideIn 0.3s ease;
+      transition: opacity 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+      border-left: 4px solid transparent;
+    }
+    .toast.success { border-left-color: #27ae60; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.warning { border-left-color: #f39c12; }
+    .toast.info { border-left-color: #3498db; }
+    
+    .toast.removing {
+      opacity: 0;
+      transform: translateX(120%);
+    }
+    .toast-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .toast-content { flex: 1; }
+    .toast-title { font-weight: 700; font-size: 14px; color: #333; margin-bottom: 2px; }
+    .toast-message { font-size: 13px; color: #666; line-height: 1.4; }
+    .toast-close {
+      background: none; border: none; font-size: 18px; cursor: pointer;
+      color: #bbb; padding: 0 4px; flex-shrink: 0; margin: 0;
+    }
+    .toast-close:hover { color: #333; }
+
+    .toast-progress {
+      position: absolute; bottom: 0; left: 0; height: 3px;
+      border-radius: 0 0 0 10px;
+      animation: progress linear forwards;
+    }
+    .toast.success .toast-progress { background: #27ae60; }
+    .toast.error .toast-progress { background: #e74c3c; }
+    .toast.warning .toast-progress { background: #f39c12; }
+    .toast.info .toast-progress { background: #3498db; }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes progress { from { width: 100%; } to { width: 0%; } }
+  </style>
+</head>
+<body>
+
+<div class="demo">
+  <h1>🔔 Toast Notifications</h1>
+  <p>Click buttons to trigger toasts. Hover to pause auto-dismiss.</p>
+  <button class="btn-success" onclick="toast.success('File saved successfully!', {title: 'Saved'})">✅ Success</button>
+  <button class="btn-error" onclick="toast.error('Failed to upload file. Please try again.', {title: 'Upload Failed'})">❌ Error</button>
+  <button class="btn-warning" onclick="toast.warning('Your session expires in 5 minutes.', {title: 'Warning'})">⚠️ Warning</button>
+  <button class="btn-info" onclick="toast.info('A new version is available. Refresh to update.', {title: 'Update'})">ℹ️ Info</button>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+class ToastManager {
+  constructor(containerId) {
+    this.container = document.getElementById(containerId);
+    this.toasts = [];
+    this.maxToasts = 5;
+  }
+
+  show({ type = 'info', title, message, duration = 5000 }) {
+    if (this.toasts.length >= this.maxToasts) {
+      this.remove(this.toasts[0].id);
+    }
+
+    const id = Date.now() + Math.random();
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    const defaultTitles = { success: 'Success', error: 'Error', warning: 'Warning', info: 'Info' };
+
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = `
+      <span class="toast-icon">${icons[type]}</span>
+      <div class="toast-content">
+        <div class="toast-title">${title || defaultTitles[type]}</div>
+        ${message ? `<div class="toast-message">${message}</div>` : ''}
+      </div>
+      <button class="toast-close" aria-label="Dismiss">&times;</button>
+      <div class="toast-progress" style="animation-duration:${duration}ms"></div>
+    `;
+
+    el.querySelector('.toast-close').onclick = () => this.remove(id);
+    
+    // Pause on hover
+    let timeoutId;
+    el.addEventListener('mouseenter', () => {
+      el.querySelector('.toast-progress').style.animationPlayState = 'paused';
+      clearTimeout(timeoutId);
+    });
+    el.addEventListener('mouseleave', () => {
+      el.querySelector('.toast-progress').style.animationPlayState = 'running';
+      timeoutId = setTimeout(() => this.remove(id), 2000);
+    });
+
+    this.container.appendChild(el);
+    this.toasts.push({ id, el });
+
+    timeoutId = setTimeout(() => this.remove(id), duration);
+    return id;
+  }
+
+  remove(id) {
+    const index = this.toasts.findIndex(t => t.id === id);
+    if (index === -1) return;
+    
+    const { el } = this.toasts[index];
+    el.classList.add('removing');
+    setTimeout(() => {
+      el.remove();
+      this.toasts.splice(this.toasts.findIndex(t => t.id === id), 1);
+    }, 300);
+  }
+
+  success(message, opts = {}) { return this.show({ type: 'success', message, ...opts }); }
+  error(message, opts = {}) { return this.show({ type: 'error', message, ...opts }); }
+  warning(message, opts = {}) { return this.show({ type: 'warning', message, ...opts }); }
+  info(message, opts = {}) { return this.show({ type: 'info', message, ...opts }); }
+}
+
+const toast = new ToastManager('toast-container');
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Scroll Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f9fa; padding: 24px; }
+    h2 { margin-bottom: 8px; color: #1a2530; }
+    .hint { font-size: 13px; color: #666; margin-bottom: 16px; }
+    .stats { font-size: 12px; color: #888; margin-bottom: 12px; padding: 8px 12px; background: #eaf2f8; border-radius: 6px; display: flex; gap: 16px; }
+    .stats strong { color: #1a5276; }
+    #list-container { height: 400px; overflow: auto; border: 1px solid #ddd; border-radius: 10px; background: white; position: relative; }
+    .virtual-item { display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+    .virtual-item:hover { background: #f8f9fa; }
+    .item-id { width: 60px; font-weight: 700; color: #1a5276; font-size: 12px; }
+    .item-name { flex: 1; }
+    .item-email { color: #888; font-size: 12px; }
+    .item-tag { padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; }
+    .tag-active { background: #d4edda; color: #155724; }
+    .tag-inactive { background: #f8d7da; color: #721c24; }
+    .scroll-to { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .scroll-to input { width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
+    .scroll-to button { padding: 8px 16px; background: #1a5276; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>📜 Virtual Scroll (100,000 items)</h2>
+  <p class="hint">Only visible items are rendered in the DOM. Scroll to see smooth performance with 100K rows.</p>
+  <div class="stats">
+    <span>Total items: <strong>100,000</strong></span>
+    <span>DOM nodes: <strong id="dom-count">0</strong></span>
+    <span>Scroll position: <strong id="scroll-pos">0</strong></span>
+  </div>
+  <div id="list-container"></div>
+  <div class="scroll-to">
+    <input type="number" id="goto-input" placeholder="Row #" min="0" max="99999">
+    <button id="goto-btn">Jump to Row</button>
+  </div>
+
+  <script>
+    class VirtualList {
+      constructor(container, options) {
+        this.container = container;
+        this.items = options.items;
+        this.itemHeight = options.itemHeight;
+        this.renderItem = options.renderItem;
+        this.overscan = options.overscan || 5;
+        this.containerHeight = container.clientHeight;
+        this.setup();
+        this.render();
+      }
+
+      setup() {
+        this.container.style.position = 'relative';
+        this.spacer = document.createElement('div');
+        this.spacer.style.height = `${this.items.length * this.itemHeight}px`;
+        this.spacer.style.position = 'relative';
+        this.viewport = document.createElement('div');
+        this.viewport.style.position = 'absolute';
+        this.viewport.style.left = '0';
+        this.viewport.style.right = '0';
+        this.viewport.style.willChange = 'transform';
+        this.spacer.appendChild(this.viewport);
+        this.container.appendChild(this.spacer);
+
+        let ticking = false;
+        this.container.addEventListener('scroll', () => {
+          if (!ticking) {
+            requestAnimationFrame(() => { this.render(); ticking = false; });
+            ticking = true;
+          }
+        });
+      }
+
+      render() {
+        const scrollTop = this.container.scrollTop;
+        const startIndex = Math.max(0, Math.floor(scrollTop / this.itemHeight) - this.overscan);
+        const visibleCount = Math.ceil(this.containerHeight / this.itemHeight) + this.overscan * 2;
+        const endIndex = Math.min(this.items.length, startIndex + visibleCount);
+
+        this.viewport.style.top = `${startIndex * this.itemHeight}px`;
+        let html = '';
+        for (let i = startIndex; i < endIndex; i++) {
+          html += `<div class="virtual-item" style="height:${this.itemHeight}px">${this.renderItem(this.items[i], i)}</div>`;
+        }
+        this.viewport.innerHTML = html;
+
+        // Update stats
+        document.getElementById('dom-count').textContent = endIndex - startIndex;
+        document.getElementById('scroll-pos').textContent = Math.round(scrollTop);
+      }
+
+      scrollToIndex(index) {
+        this.container.scrollTop = index * this.itemHeight;
+      }
+    }
+
+    // Generate 100K items
+    const names = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry', 'Ivy', 'Jack'];
+    const domains = ['gmail.com', 'outlook.com', 'company.io', 'dev.co', 'mail.org'];
+    const items = Array.from({ length: 100000 }, (_, i) => ({
+      id: i,
+      name: `${names[i % names.length]} ${String.fromCharCode(65 + (i % 26))}. (#${i})`,
+      email: `user${i}@${domains[i % domains.length]}`,
+      active: Math.random() > 0.3,
+    }));
+
+    const list = new VirtualList(document.getElementById('list-container'), {
+      items,
+      itemHeight: 48,
+      overscan: 8,
+      renderItem: (item, i) => `
+        <span class="item-id">#${item.id}</span>
+        <span class="item-name">${item.name}</span>
+        <span class="item-email">${item.email}</span>
+        <span class="item-tag ${item.active ? 'tag-active' : 'tag-inactive'}">${item.active ? 'Active' : 'Inactive'}</span>
+      `,
+    });
+
+    document.getElementById('goto-btn').addEventListener('click', () => {
+      const idx = parseInt(document.getElementById('goto-input').value);
+      if (!isNaN(idx) && idx >= 0 && idx < 100000) list.scrollToIndex(idx);
+    });
+  </script>
+</body>
+</html>

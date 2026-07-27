@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Progress Tracker</title>
+  <style>
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+      --green: #27ae60; --green-soft: #e8f8f0; --green-border: #a3d9b1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 960px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; min-height: 100vh; }
+    h1 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 6px; color: #1a2530; line-height: 1.2; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 16px; }
+
+    /* Stats Bar */
+    .stats-bar { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border: 1px solid var(--line); border-radius: 12px; align-items: center; }
+    .stat { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 10.4pt; color: var(--muted); }
+    .stat strong { color: var(--accent); font-size: 16pt; }
+    .stat.completed strong { color: var(--green); }
+    .progress-bar-outer { flex: 1; min-width: 200px; height: 18px; background: #e8e4dc; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+    .progress-bar-inner { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); border-radius: 10px; transition: width 0.4s ease; min-width: 0; }
+    .progress-text { font-family: "Avenir Next", sans-serif; font-size: 10pt; font-weight: 700; color: var(--green); min-width: 45px; text-align: right; }
+
+    /* Controls */
+    .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .controls button { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.6pt; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; transition: all 0.2s; }
+    .controls button:hover { background: var(--accent-soft); border-color: #b3d4e8; }
+    .controls button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .controls .reset-btn { margin-left: auto; background: var(--warning-soft); border-color: #e0c4ad; color: var(--warning); font-weight: 600; }
+    .controls .reset-btn:hover { background: #f0d4c0; }
+
+    /* Phase Card */
+    .phase-card { border: 1px solid var(--line); border-radius: 12px; margin-bottom: 16px; overflow: hidden; transition: box-shadow 0.2s; }
+    .phase-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .phase-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); cursor: pointer; user-select: none; border-bottom: 1px solid var(--line); }
+    .phase-header:hover { background: linear-gradient(135deg, #f0ede4 0%, #e4ecf2 100%); }
+    .phase-toggle { font-size: 11pt; color: var(--muted); transition: transform 0.2s; width: 18px; flex-shrink: 0; }
+    .phase-card.collapsed .phase-toggle { transform: rotate(-90deg); }
+    .phase-card.collapsed .phase-body { display: none; }
+    .phase-title { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13pt; font-weight: 700; color: #1a2530; flex: 1; }
+    .phase-progress { font-family: "Avenir Next", sans-serif; font-size: 9.4pt; color: var(--muted); white-space: nowrap; }
+    .phase-progress .done { color: var(--green); font-weight: 700; }
+    .phase-bar { width: 80px; height: 6px; background: #e8e4dc; border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+    .phase-bar-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width 0.3s; }
+    .phase-badge { font-family: "Avenir Next", sans-serif; font-size: 8.6pt; padding: 3px 10px; border-radius: 999px; font-weight: 700; flex-shrink: 0; }
+    .phase-badge.complete { background: var(--green-soft); color: var(--green); border: 1px solid var(--green-border); }
+    .phase-badge.in-progress { background: #fef9f0; color: #b8860b; border: 1px solid #f0dcc0; }
+    .phase-badge.not-started { background: #f5f3ef; color: var(--muted); border: 1px solid var(--line); }
+
+    .phase-body { padding: 6px 0; }
+    .section-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; transition: background 0.15s; }
+    .section-item:hover { background: #f9f7f3; }
+    .section-item.checked { background: var(--green-soft); }
+    .section-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+    .section-item label { cursor: pointer; font-size: 10.8pt; flex: 1; }
+    .section-item.checked label { color: var(--green); text-decoration: line-through; text-decoration-color: #a3d9b1; }
+    .section-item .section-link { font-size: 9pt; color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .section-item:hover .section-link { opacity: 1; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      main { padding: 16px 14px 30px; }
+      .stats-bar { flex-direction: column; gap: 10px; }
+      .phase-header { padding: 12px 14px; }
+      .section-item { padding: 8px 14px; }
+      .phase-bar { width: 60px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>📋 JavaScript Mastery — Progress Tracker</h1>
+  <p class="subtitle">Track your completion across all phases, sections & machine coding challenges. Your progress is saved in localStorage.</p>
+
+  <div class="stats-bar">
+    <div class="stat">Total: <strong id="totalCount">0</strong></div>
+    <div class="stat completed">Done: <strong id="doneCount">0</strong></div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">0%</div>
+  </div>
+
+  <div class="controls">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="pending">Pending</button>
+    <button class="filter-btn" data-filter="completed">Completed</button>
+    <button class="filter-btn" data-filter="collapse-all">Collapse All</button>
+    <button class="filter-btn" data-filter="expand-all">Expand All</button>
+    <button class="reset-btn" id="resetBtn">Reset All</button>
+  </div>
+
+  <div id="tracker"></div>
+</main>
+
+<script>
+const STORAGE_KEY = 'js-mastery-progress';
+
+const phases = [
+  {
+    id: 'phase1', file: 'phase1-foundations-how-js-works.html',
+    title: 'Phase 1: Foundations & How JavaScript Works',
+    sections: [
+      'History of JavaScript & ECMAScript',
+      'How JavaScript Works Under the Hood',
+      'Execution Context & Call Stack',
+      'Variables: var, let, const',
+      'Data Types (Primitives & Objects)',
+      'Type Coercion & Type Conversion',
+      'Operators (All Categories)',
+      'Control Flow (Conditions & Loops)',
+      'Error Handling (try/catch/finally)',
+      'Strict Mode'
+    ]
+  },
+  {
+    id: 'phase2', file: 'phase2-functions-scope-closures.html',
+    title: 'Phase 2: Functions, Scope & Closures',
+    sections: [
+      'Function Declarations, Expressions & Arrow Functions',
+      'Parameters, Arguments & Rest/Spread',
+      'Scope (Global, Function, Block, Lexical)',
+      'Hoisting Deep Dive',
+      'Closures (Complete Mastery)',
+      'IIFE (Immediately Invoked Function Expressions)',
+      'Higher-Order Functions & Callbacks',
+      "The 'this' Keyword (All Rules)",
+      'call(), apply(), bind()',
+      'Currying & Partial Application',
+      'Recursion & Tail Call Optimization'
+    ]
+  },
+  {
+    id: 'phase3', file: 'phase3-objects-arrays-deep-dive.html',
+    title: 'Phase 3: Objects & Arrays Deep Dive',
+    sections: [
+      'Object Creation Patterns',
+      'Property Access, Computed Keys & Shorthand',
+      'Property Descriptors & Object.defineProperty',
+      'Object Static Methods (keys, values, entries, assign, freeze)',
+      'Destructuring (Objects & Arrays)',
+      'Spread/Rest with Objects',
+      'Array Methods Complete Reference',
+      'Iterating Objects & Arrays',
+      'Shallow Copy vs Deep Copy',
+      'JSON (parse, stringify, reviver, replacer)',
+      'Immutability Patterns'
+    ]
+  },
+  {
+    id: 'phase4', file: 'phase4-prototypes-classes-oop.html',
+    title: 'Phase 4: Prototypes, Classes & OOP',
+    sections: [
+      'Prototype Chain & __proto__',
+      'Prototypal Inheritance',
+      'Constructor Functions & new Keyword',
+      'ES6 Classes (Complete)',
+      'Class Inheritance (extends, super)',
+      'Private Fields & Methods (#)',
+      'Static Members',
+      'Symbol, Iterator & Generator',
+      'Proxy & Reflect',
+      'Composition vs Inheritance & Mixins',
+      'SOLID Principles in JavaScript'
+    ]
+  },
+  {
+    id: 'phase5', file: 'phase5-async-event-loop.html',
+    title: 'Phase 5: Asynchronous JavaScript & Event Loop',
+    sections: [
+      'Event Loop (Complete Deep Dive)',
+      'Microtask vs Macrotask Queue',
+      'setTimeout, setInterval, requestAnimationFrame',
+      'Callbacks & Callback Hell',
+      'Promises (Complete Mastery)',
+      'Promise Static Methods (all, allSettled, race, any)',
+      'async/await (Complete)',
+      'Async Error Handling Patterns',
+      'Concurrency Patterns & Real-World Scenarios',
+      'AbortController & Cancellation'
+    ]
+  },
+  {
+    id: 'phase5a', file: 'phase5A-generators-output-drills.html',
+    title: 'Phase 5A: Generators, Async Iterators & Output Prediction',
+    sections: [
+      'Generators & Iterators (Complete)',
+      'Async Generators & for-await-of',
+      'How async/await Works (Generator + Promise)',
+      'Output Prediction Drills (15 Questions)'
+    ]
+  },
+  {
+    id: 'phase5b', file: 'phase5B-interview-qa-nodejs.html',
+    title: 'Phase 5B: Interview Q&A, Node.js Event Loop & Race Conditions',
+    sections: [
+      'Interview Q&A: Timers (setTimeout, setInterval, rAF)',
+      'Interview Q&A: Callbacks',
+      'Interview Q&A: Promise Static Methods',
+      'Interview Q&A: async/await',
+      'Interview Q&A: Concurrency Patterns',
+      'Node.js Event Loop (Phases & Differences)',
+      'Race Conditions & How to Prevent Them',
+      'Classic Debounce & Throttle (Timer Internals)',
+      'requestIdleCallback & Web Workers'
+    ]
+  },
+  {
+    id: 'phase6', file: 'phase6-dom-events-browser-apis.html',
+    title: 'Phase 6: DOM, Events & Browser APIs',
+    sections: [
+      'DOM Tree & Node Types',
+      'Selecting & Traversing Elements',
+      'DOM Manipulation & Performance',
+      'Event Model (Capturing, Bubbling, Delegation)',
+      'Custom Events & Event Emitter',
+      'Form Handling & Validation',
+      'IntersectionObserver & MutationObserver',
+      'Web Storage, Cookies & IndexedDB',
+      'Fetch API & Network',
+      'Web Workers & Service Workers'
+    ]
+  },
+  {
+    id: 'phase6a', file: 'phase6A-rendering-webcomponents-lifecycle.html',
+    title: 'Phase 6A: Critical Rendering Path, Web Components & Page Lifecycle',
+    sections: [
+      'Critical Rendering Path (Complete)',
+      'Reflow vs Repaint (Performance Deep Dive)',
+      'Shadow DOM & Encapsulation',
+      'Web Components (Custom Elements)',
+      'Page Lifecycle & Visibility',
+      'History API & SPA Routing'
+    ]
+  },
+  {
+    id: 'phase6b', file: 'phase6B-interview-qa-exercises.html',
+    title: 'Phase 6B: Interview Q&A, Exercises & Additional APIs',
+    sections: [
+      'Interview Q&A: DOM Tree & Selectors',
+      'Interview Q&A: DOM Manipulation',
+      'Interview Q&A: Custom Events & EventEmitter',
+      'Interview Q&A: Forms & Validation',
+      'Interview Q&A: Observers (Intersection, Mutation, Resize)',
+      'Interview Q&A: Storage & Cookies',
+      'Interview Q&A: Fetch & Network',
+      'postMessage, BroadcastChannel & Cross-Origin',
+      'Clipboard API & Drag and Drop',
+      'Performance API & Metrics',
+      'Comprehensive Exercises (8 Problems)'
+    ]
+  },
+  {
+    id: 'phase7', file: 'phase7-es6-design-patterns.html',
+    title: 'Phase 7: ES6+ Features & Design Patterns',
+    sections: [
+      'ES Modules (import/export)',
+      'Map, Set, WeakMap, WeakSet',
+      'WeakRef & FinalizationRegistry',
+      'Optional Chaining, Nullish Coalescing & Latest Syntax',
+      'Regular Expressions (Advanced)',
+      'Singleton, Factory & Builder Patterns',
+      'Observer, Pub/Sub & Mediator',
+      'Strategy, Command & Chain of Responsibility',
+      'Functional Patterns (Curry, Compose, Monad)',
+      'Module Pattern & Revealing Module',
+      'Generators & Iterators (Interview Deep-Dive)',
+      'Proxy & Metaprogramming Patterns'
+    ]
+  },
+  {
+    id: 'phase8', file: 'phase8-advanced-interview-masterclass.html',
+    title: 'Phase 8: Advanced Topics & Interview Masterclass',
+    sections: [
+      'Memory Management & Garbage Collection',
+      'Performance Optimization',
+      'Security (XSS, CSRF, CSP)',
+      'TypeScript Essentials for Angular Devs',
+      'Testing (Unit, Integration, E2E)',
+      'Error Handling Architecture',
+      'Metaprogramming & Reflect',
+      'V8 Engine Internals & Optimization',
+      'Coding Challenges (Frequently Asked)',
+      'Top 50 Interview Questions & Answers'
+    ]
+  },
+  {
+    id: 'phase9', file: 'phase9-polyfills-machine-coding.html',
+    title: 'Phase 9: Polyfills & Machine Coding Round',
+    sections: [
+      'Array Method Polyfills (map, filter, reduce, find, flat, forEach)',
+      'Function Polyfills (call, apply, bind)',
+      'Object Polyfills (create, assign, keys, entries, freeze)',
+      'Promise from Scratch (Full Implementation)',
+      'Promise.all, allSettled, race, any Polyfills',
+      'Utility Polyfills (new, instanceof, typeof, deepEqual)',
+      'Advanced Polyfills (memoize, pipe, compose, once, groupBy)',
+      'DOM & Timer Polyfills (setInterval, clearAllTimers, classList)',
+      'Machine Coding: JSON.stringify from Scratch',
+      'Machine Coding: Async Task Scheduler',
+      'Machine Coding: Retry with Backoff & Circuit Breaker',
+      'Machine Coding: LRU Cache with TTL'
+    ]
+  },
+  {
+    id: 'phase10', file: 'phase10-output-prediction-tricky.html',
+    title: 'Phase 10: Output Prediction & Tricky Questions',
+    sections: [
+      'Event Loop & Async Output (12 Questions)',
+      "'this' Keyword Traps (8 Questions)",
+      'Closure & Scope Gotchas (8 Questions)',
+      'Type Coercion & Equality (8 Questions)',
+      'Hoisting & TDZ (6 Questions)',
+      'Prototypes & Classes (5 Questions)',
+      'Miscellaneous Tricky (8 Questions)',
+      'Modern JS & Error Handling (12 Questions)',
+      'Bonus Must-Know Traps (6 Questions)'
+    ]
+  },
+  {
+    id: 'phase11', file: 'phase11-frontend-system-design.html',
+    title: 'Phase 11: Frontend System Design & Architecture',
+    sections: [
+      'Design: Autocomplete / Typeahead Search',
+      'Design: Infinite Scroll with Virtualization',
+      'Design: Client-Side Router (SPA)',
+      'Design: State Management (Mini Redux/Signals)',
+      'Design: Pub/Sub Event Bus with Namespacing',
+      'Design: API Request Layer (Queue, Dedup, Cache)',
+      'Design: Virtual DOM & Diffing Algorithm',
+      'Design: Drag & Drop Kanban Board',
+      'Design: Real-Time Collaboration (OT/CRDT Concepts)',
+      'Frontend System Design Interview Framework'
+    ]
+  },
+  {
+    id: 'phase12', file: 'phase12-javascript-performance-mastery.html',
+    title: 'Phase 12: JavaScript Performance Mastery',
+    sections: [
+      'V8 Engine Internals & Optimization Pipeline',
+      'Memory Management & Garbage Collection',
+      'Memory Leaks: Detection & Prevention',
+      'Event Loop Performance & Main Thread Optimization',
+      'Rendering Pipeline & Layout Thrashing',
+      'Data Structure Performance & Big-O in JS',
+      'String & RegExp Performance',
+      'Async Performance Patterns',
+      'Web Workers & Off-Main-Thread',
+      'Performance API & Measurement',
+      'Bundle & Load Performance',
+      'Chrome DevTools Profiling Masterclass'
+    ]
+  },
+  {
+    id: 'phase13', file: 'phase13-real-interview-questions.html',
+    title: 'Phase 13: Real Interview Questions (Company-Wise)',
+    sections: [
+      'Google Frontend Questions',
+      'Meta/Facebook Frontend Questions',
+      'Amazon Frontend Questions',
+      'Microsoft Frontend Questions',
+      'Flipkart/Walmart Frontend Questions',
+      'Atlassian/Uber/Other Top Companies',
+      'Must-Know Polyfills (All Companies)',
+      'Machine Coding Round (All Companies)',
+      'Indian Fintech & Startups (Razorpay, PhonePe, Groww, Swiggy)',
+      'Theory Rapid-Fire Questions (All Companies)'
+    ]
+  },
+  {
+    id: 'phase14', file: 'phase14-senior-architect-patterns.html',
+    title: 'Phase 14: Senior Architect Patterns & Production Scale',
+    sections: [
+      'Streaming, Backpressure & Data Pipelines',
+      'Resilience Patterns (Circuit Breaker, Bulkhead, Fallbacks)',
+      'Microfrontends & Module Federation',
+      'Frontend Observability & Production Debugging',
+      'TypeScript Architecture for Large Codebases',
+      'Advanced State Management at Scale',
+      'Offline-First, Sync & Conflict Resolution',
+      'Accessibility Engineering (WCAG 2.2 Mastery)',
+      'Real-Time Architecture (WebSocket, SSE, WebRTC)',
+      'Performance Budgets & CI/CD Integration',
+      'Architect Interview Scenarios & Trade-Off Questions'
+    ]
+  },
+  // ─── Machine Coding ───
+  {
+    id: 'mc-async', file: 'machine-coding-async-patterns.html',
+    title: 'Machine Coding — Async JavaScript',
+    sections: [
+      'Event Loop — Theory & Output Prediction',
+      'Implement Promise from Scratch',
+      'Promise.all / race / allSettled / any (Polyfills)',
+      'Retry with Exponential Backoff',
+      'Promise Pool / Concurrency Limiter',
+      'Async Task Queue (FIFO)',
+      'Sequential vs Parallel Execution',
+      'Cancellable Fetch (AbortController)',
+      'Rate Limiter',
+      'Auto-Retry Fetch Wrapper',
+      'Timeout a Promise',
+      'Lazy/Deferred Promise'
+    ]
+  },
+  {
+    id: 'mc-part1', file: 'machine-coding-part1-ui-components.html',
+    title: 'Machine Coding Part 1 — UI Components',
+    sections: [
+      'Debounce & Throttle (with Cancel, Flush, Leading/Trailing)',
+      'Infinite Scroll with Loading State',
+      'Autocomplete / Typeahead Search',
+      'Star Rating Component',
+      'Modal / Dialog System',
+      'Toast Notification System',
+      'Tabs Component',
+      'Accordion / Collapsible Sections',
+      'Form Validation (Real-time)',
+      'Countdown Timer / Stopwatch',
+      'Image Carousel / Slider',
+      'Drag & Drop (Sortable List)'
+    ]
+  },
+  {
+    id: 'mc-part2', file: 'machine-coding-part2-utility-implementations.html',
+    title: 'Machine Coding Part 2 — Utility Implementations',
+    sections: [
+      'EventEmitter (Node.js style)',
+      'Pub/Sub (Publish-Subscribe) System',
+      'Deep Clone (Handle all edge cases)',
+      'Flatten Array / Object (Deep)',
+      'Promise Pool (Concurrency Limiter)',
+      'Observable / Reactive Stream',
+      'Undo/Redo Manager',
+      'Runtime Type Checker / Schema Validator',
+      'Virtual List (Windowed Rendering)',
+      'Retry Queue with Exponential Backoff',
+      'Middleware Pipeline (Express-style)',
+      'Finite State Machine'
+    ]
+  },
+  {
+    id: 'mc-part3', file: 'machine-coding-part3-advanced-patterns.html',
+    title: 'Machine Coding Part 3 — Advanced Patterns',
+    sections: [
+      'Todo App (Complete with localStorage)',
+      'Shopping Cart with Discounts',
+      'File Explorer (Tree View)',
+      'Pagination Component',
+      'Progress Bar (Animated, Sequential)',
+      'Long Polling / Real-time Updates',
+      'Tic-Tac-Toe Game',
+      'Kanban Board (Trello Clone)',
+      'Typeahead with LRU Cache',
+      'Calendar / Date Picker',
+      'Mini Spreadsheet (Cell Dependencies)',
+      'Machine Coding Interview Checklist'
+    ]
+  },
+  {
+    id: 'mc-part4', file: 'machine-coding-part4-high-frequency.html',
+    title: 'Machine Coding Part 4 — High Frequency',
+    sections: [
+      'Custom Select / Multi-Select Dropdown',
+      'OTP Input Box',
+      'Nested Checkbox (Parent-Child)',
+      'Tag / Chip Input',
+      'File Uploader (Drag & Drop + Progress)',
+      'Calendar / Date Picker',
+      'Color Picker',
+      'Notification Center',
+      'Image Cropper / Resizer',
+      'Command Palette (VS Code style)',
+      'Tooltip / Popover',
+      'Mini Spreadsheet'
+    ]
+  },
+  {
+    id: 'mc-part5', file: 'machine-coding-part5-games-utilities.html',
+    title: 'Machine Coding Part 5 — Games & Utilities',
+    sections: [
+      'Nested / Threaded Comments (Reddit-style)',
+      'Multi-Step Form / Wizard',
+      'Memory Card Flip Game',
+      'Traffic Light System',
+      'Snake Game',
+      'Typing Speed Test',
+      'Poll / Voting Widget',
+      'Emoji Picker',
+      'Progress Stepper',
+      'Image Gallery with Lightbox',
+      'Chat Interface (WhatsApp-style)',
+      'Breadcrumb Navigation'
+    ]
+  },
+  {
+    id: 'mc-part6', file: 'machine-coding-part6-utilities.html',
+    title: 'Machine Coding Part 6 — Utilities',
+    sections: [
+      'Data Table (Sort, Filter, Paginate)',
+      'Transfer List (Dual Listbox)',
+      'Memoize (with LRU + TTL)',
+      'lodash.get & lodash.set',
+      'EventEmitter (Node.js style)',
+      'PubSub Pattern',
+      'Deep Clone (Circular References)',
+      'JSON Formatter / Tree Viewer',
+      'Undo/Redo Stack (Command Pattern)',
+      'localStorage Wrapper (TTL + Namespace)',
+      'Curry & Compose',
+      'Virtual Scroll / Windowed List'
+    ]
+  },
+  {
+    id: 'mc-part7', file: 'machine-coding-part7-production-scale.html',
+    title: 'Machine Coding Part 7 — Production-Scale Challenges',
+    sections: [
+      'Virtual Scroll (Variable Height, 100K rows)',
+      'Optimistic UI Updates with Rollback',
+      'Request Deduplication & Coalescing',
+      'Safe Expression Parser (No eval/Function)',
+      'Collaborative Text Editor (OT-based)',
+      'Task Scheduler with Priority & Time-Slicing'
+    ]
+  }
+];
+
+// ─── State ───
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function getKey(phaseId, sectionIdx) { return `${phaseId}__${sectionIdx}`; }
+
+let state = loadState();
+let currentFilter = 'all';
+
+// ─── Render ───
+function render() {
+  const container = document.getElementById('tracker');
+  container.innerHTML = '';
+  let totalSections = 0, doneSections = 0;
+
+  phases.forEach(phase => {
+    const card = document.createElement('div');
+    card.className = 'phase-card';
+    card.dataset.phaseId = phase.id;
+
+    let phaseDone = 0;
+    phase.sections.forEach((_, i) => {
+      totalSections++;
+      if (state[getKey(phase.id, i)]) { doneSections++; phaseDone++; }
+    });
+
+    const phasePct = phase.sections.length ? Math.round((phaseDone / phase.sections.length) * 100) : 0;
+    const badgeClass = phasePct === 100 ? 'complete' : phasePct > 0 ? 'in-progress' : 'not-started';
+    const badgeText = phasePct === 100 ? '✓ Done' : phasePct > 0 ? `${phasePct}%` : 'Not Started';
+
+    // Filter logic
+    if (currentFilter === 'completed' && phasePct < 100) { card.style.display = 'none'; }
+    if (currentFilter === 'pending' && phasePct === 100) { card.style.display = 'none'; }
+
+    card.innerHTML = `
+      <div class="phase-header">
+        <span class="phase-toggle">▼</span>
+        <span class="phase-title">${phase.title}</span>
+        <span class="phase-progress"><span class="done">${phaseDone}</span>/${phase.sections.length}</span>
+        <div class="phase-bar"><div class="phase-bar-fill" style="width:${phasePct}%"></div></div>
+        <span class="phase-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="phase-body">
+        ${phase.sections.map((sec, i) => {
+          const key = getKey(phase.id, i);
+          const checked = state[key] ? 'checked' : '';
+          const checkedClass = state[key] ? 'checked' : '';
+          return `<div class="section-item ${checkedClass}">
+            <input type="checkbox" id="${key}" ${checked} data-phase="${phase.id}" data-idx="${i}">
+            <label for="${key}">${sec}</label>
+            <a href="${phase.file}" class="section-link" target="_blank">Open ↗</a>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+
+    // Toggle collapse
+    card.querySelector('.phase-header').addEventListener('click', () => {
+      card.classList.toggle('collapsed');
+    });
+  });
+
+  // Checkbox listeners
+  container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', e => {
+      const key = getKey(e.target.dataset.phase, e.target.dataset.idx);
+      if (e.target.checked) state[key] = true;
+      else delete state[key];
+      saveState(state);
+      render();
+    });
+  });
+
+  // Stats
+  const pct = totalSections ? Math.round((doneSections / totalSections) * 100) : 0;
+  document.getElementById('totalCount').textContent = totalSections;
+  document.getElementById('doneCount').textContent = doneSections;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+}
+
+// ─── Controls ───
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const filter = btn.dataset.filter;
+    if (filter === 'collapse-all') {
+      document.querySelectorAll('.phase-card').forEach(c => c.classList.add('collapsed'));
+      return;
+    }
+    if (filter === 'expand-all') {
+      document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('collapsed'));
+      return;
+    }
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = filter;
+    render();
+  });
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (confirm('Reset ALL progress? This cannot be undone.')) {
+    state = {};
+    saveState(state);
+    render();
+  }
+});
+
+// Initial render
+render();
+</script>
+<script src="nav.js"></script>
+</body>
+</html>

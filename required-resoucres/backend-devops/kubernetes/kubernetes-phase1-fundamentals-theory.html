@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kubernetes for Backend &amp; Full-Stack Engineers — Part 1: Fundamentals &amp; Theory</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .not-devops { border-left-color: #7a3a12; background: #f7e7dd; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Kubernetes for Backend &amp; Full-Stack Engineers</h1>
+  <p class="subtitle">Part 1 — Fundamentals &amp; Theory (what YOU need to deploy, configure, and debug your own service on a cluster — not cluster administration)</p>
+  <div class="pill-row">
+    <span class="pill">Pod / Deployment</span>
+    <span class="pill">Services</span>
+    <span class="pill">Ingress</span>
+    <span class="pill">ConfigMap/Secret</span>
+    <span class="pill">Probes</span>
+    <span class="pill">Rolling Updates</span>
+    <span class="pill">Helm Basics</span>
+    <span class="pill">Debugging Playbook</span>
+  </div>
+</div>
+
+<div class="callout not-devops">
+<strong>🎯 Scope of this guide:</strong> Written for a <strong>Backend/Full-Stack developer</strong> — NOT a Kubernetes cluster admin/SRE deep-dive. You will NOT find kubeadm cluster bootstrapping, CNI plugin internals, etcd, or RBAC administration here. You WILL find exactly what you need: how your app gets packaged into a Pod, how to expose it via a Service/Ingress, how to configure it with ConfigMaps/Secrets, how rolling updates work, how <code>kubectl</code> is used day-to-day, and how to debug a Pod that won't start — the things a backend engineer is actually expected to know, directly relevant to how <code>bdg-sw-devx-di-deploy</code>'s <code>dash-chart</code> Helm chart deploys this workspace's 20+ DI microservices.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#why-k8s">Why Kubernetes? (The Orchestration Problem)</a></li>
+    <li><a href="#core-objects">Core Building Blocks: Cluster, Node, Pod</a></li>
+    <li><a href="#deployment-replicaset">Deployment &amp; ReplicaSet (Self-Healing &amp; Scaling)</a></li>
+    <li><a href="#services">Services: ClusterIP, NodePort, LoadBalancer</a></li>
+    <li><a href="#ingress">Ingress (Routing HTTP Traffic)</a></li>
+    <li><a href="#configmaps-secrets">ConfigMaps &amp; Secrets</a></li>
+    <li><a href="#probes">Probes: Liveness, Readiness, Startup</a></li>
+    <li><a href="#resources">Resource Requests &amp; Limits</a></li>
+    <li><a href="#rolling-updates">Rolling Updates &amp; Rollbacks</a></li>
+    <li><a href="#namespaces-labels">Namespaces &amp; Labels/Selectors</a></li>
+    <li><a href="#init-jobs">Init Containers &amp; Jobs/CronJobs</a></li>
+    <li><a href="#helm-basics">Helm Basics</a></li>
+    <li><a href="#kubectl-commands">Daily-Driver kubectl Commands</a></li>
+    <li><a href="#debug-playbook">Debugging a Broken Pod — Playbook</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="why-k8s">1. Why Kubernetes? (The Orchestration Problem)</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<p>Docker runs one container on one host. Once you have many services (this workspace has 20+ DI microservices) across many hosts, you need something to answer:</p>
+<ul>
+  <li>Which host should this container run on? (scheduling)</li>
+  <li>What happens if the host or container dies? (self-healing)</li>
+  <li>How do I run 5 copies for load, and route traffic across them? (scaling + service discovery)</li>
+  <li>How do I roll out a new version without downtime? (rolling updates)</li>
+  <li>How do I configure the same image differently per environment? (ConfigMaps/Secrets/Helm values)</li>
+</ul>
+<p>Kubernetes answers all of these declaratively — you describe the <em>desired state</em> (e.g. "run 3 replicas of this image"), and Kubernetes continuously works to make reality match it.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="core-objects">2. Core Building Blocks: Cluster, Node, Pod</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<table>
+  <tr><th>Object</th><th>What it is</th></tr>
+  <tr><td><strong>Cluster</strong></td><td>A set of machines (nodes) managed as one unit by Kubernetes.</td></tr>
+  <tr><td><strong>Node</strong></td><td>A single machine (VM or physical) in the cluster that runs Pods.</td></tr>
+  <tr><td><strong>Pod</strong></td><td>The smallest deployable unit — one or more containers that always run together on the same node, sharing network namespace (same IP/localhost) and optionally volumes. Usually one container per Pod for a backend service, with a "sidecar" container as the common multi-container case.</td></tr>
+</table>
+
+<pre><code># A minimal Pod spec for a Go backend service
+apiVersion: v1
+kind: Pod
+metadata:
+  name: di-jfrog-pod
+  labels:
+    app: di-jfrog
+spec:
+  containers:
+    - name: di-jfrog
+      image: kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.0.0
+      ports:
+        - containerPort: 8080</code></pre>
+
+<div class="callout warning">
+<strong>Interview point:</strong> You almost never create a bare Pod directly in production — you create a <strong>Deployment</strong> (next section), which creates and manages Pods for you (self-healing, scaling, rolling updates). A bare Pod that dies is gone forever; a Deployment notices and creates a replacement.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="deployment-replicaset">3. Deployment &amp; ReplicaSet</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p><strong>ReplicaSet</strong> — ensures a specified number of identical Pod replicas are always running (creates new ones if one dies, kills extras if there are too many). <strong>Deployment</strong> — a higher-level object that manages ReplicaSets for you, and is what enables rolling updates and rollbacks. You almost always write a Deployment, never a raw ReplicaSet.</p>
+
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: di-jfrog
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: di-jfrog
+  template:
+    metadata:
+      labels:
+        app: di-jfrog
+    spec:
+      containers:
+        - name: di-jfrog
+          image: kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.0.0
+          ports:
+            - containerPort: 8080</code></pre>
+
+<div class="callout">
+<strong>How it self-heals:</strong> Deployment → creates a ReplicaSet → ReplicaSet's job is only "make sure N Pods matching this label selector exist." If a Pod crashes or its node dies, the ReplicaSet controller notices the count dropped below 3 and creates a new Pod immediately — no human intervention needed.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="services">4. Services: ClusterIP, NodePort, LoadBalancer</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>Pods are ephemeral — their IPs change every time they're recreated. A <strong>Service</strong> gives a stable virtual IP + DNS name that automatically load-balances across all currently-matching Pods (matched via label selector, same mechanism as Deployment).</p>
+
+<table>
+  <tr><th>Type</th><th>Reachable from</th><th>Typical use</th></tr>
+  <tr><td><strong>ClusterIP</strong> (default)</td><td>Only inside the cluster</td><td>Internal service-to-service calls (e.g. <code>di-application-manager</code> calling <code>di-authorization</code>).</td></tr>
+  <tr><td><strong>NodePort</strong></td><td>Any node's IP, on a fixed high port (30000-32767)</td><td>Simple external access without a cloud load balancer (common in local/dev clusters).</td></tr>
+  <tr><td><strong>LoadBalancer</strong></td><td>An external IP provisioned by the cloud provider</td><td>Production external entrypoint (usually still fronted by an Ingress in practice).</td></tr>
+</table>
+
+<pre><code>apiVersion: v1
+kind: Service
+metadata:
+  name: di-jfrog-svc
+spec:
+  selector:
+    app: di-jfrog
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP</code></pre>
+
+<div class="callout">
+<strong>Interview point:</strong> Other Pods reach this Service simply via DNS name <code>di-jfrog-svc</code> (or <code>di-jfrog-svc.namespace.svc.cluster.local</code> fully-qualified) — Kubernetes' internal DNS resolves it to the Service's stable ClusterIP, which then load-balances to one of the healthy backing Pods. This is analogous to how Compose gives you name-based DNS between containers, but cluster-wide and load-balanced.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="ingress">5. Ingress (Routing HTTP Traffic)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>An Ingress is an HTTP(S) routing layer sitting in front of Services — path/host-based routing, TLS termination, all through one external entrypoint instead of provisioning a LoadBalancer per service. This matches this workspace's <code>dash-chart/templates/ingress.yaml</code>, which is a single unified Ingress routing to all 20+ DI microservices by path (e.g. <code>/api/jfrog/</code> → di-jfrog Service, <code>/api/authorization/</code> → di-authorization Service).</p>
+
+<pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dash-ingress
+spec:
+  rules:
+    - host: dash.example.kyndryl.com
+      http:
+        paths:
+          - path: /api/jfrog
+            pathType: Prefix
+            backend:
+              service:
+                name: di-jfrog-svc
+                port:
+                  number: 80
+          - path: /api/authorization
+            pathType: Prefix
+            backend:
+              service:
+                name: di-authorization-svc
+                port:
+                  number: 80</code></pre>
+
+<div class="callout">
+<strong>Requires an Ingress Controller:</strong> The Ingress object itself is just a routing rule — an Ingress Controller (e.g. NGINX Ingress Controller) must actually be running in the cluster to read these rules and do the routing. Note this workspace's umbrella chart uses its OWN NGINX reverse proxy templates (<code>dash-chart/templates/nginx/</code>) rather than relying purely on a cluster Ingress Controller in some deployment modes.</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="configmaps-secrets">6. ConfigMaps &amp; Secrets</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>Same purpose as Docker env vars/mounted config files, but cluster-native and decoupled from the container image so the same image can be deployed with different config per environment (dev/staging/prod) — exactly what <code>bdg-sw-devx-di-deploy/deployments/env-config/</code> overlays are for.</p>
+
+<table>
+  <tr><th></th><th>ConfigMap</th><th>Secret</th></tr>
+  <tr><td>Purpose</td><td>Non-sensitive config (feature flags, URLs, JSON config)</td><td>Sensitive data (passwords, tokens, TLS certs)</td></tr>
+  <tr><td>Storage</td><td>Plain text in etcd</td><td>Base64-encoded in etcd (NOT encrypted by default!)</td></tr>
+  <tr><td>Consumption</td><td>Env var or mounted file (matches <code>MOUNT_PATH</code> pattern used in this workspace's <code>do_build.sh</code> per-service settings)</td><td>Env var or mounted file, same mechanisms as ConfigMap</td></tr>
+</table>
+
+<pre><code># Mounting a ConfigMap as environment variables
+envFrom:
+  - configMapRef:
+      name: di-jfrog-config
+
+# Mounting a Secret as a file (common for config.json / certs)
+volumes:
+  - name: jfrog-secret-vol
+    secret:
+      secretName: di-jfrog-secret
+containers:
+  - name: di-jfrog
+    volumeMounts:
+      - name: jfrog-secret-vol
+        mountPath: /etc/secrets
+        readOnly: true</code></pre>
+
+<div class="callout warning">
+<strong>Common interview trap:</strong> "Are Kubernetes Secrets actually secure/encrypted?" — By default, no. They're only base64-<em>encoded</em> (trivially reversible, NOT encryption) at rest in etcd unless you explicitly enable encryption-at-rest or use an external secrets manager (e.g. Vault — this workspace's <code>dash-chart/templates/_extsecrets.tpl</code> integrates with exactly this kind of external secrets pattern).
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="probes">7. Probes: Liveness, Readiness, Startup</h2>
+<span class="difficulty d-hard">HARD</span>
+
+<p>This is one of the most important — and most commonly misunderstood — things a backend engineer must configure correctly for their own service.</p>
+
+<table>
+  <tr><th>Probe</th><th>Question it answers</th><th>On failure</th></tr>
+  <tr><td><strong>Liveness</strong></td><td>"Is this process healthy, or stuck/deadlocked?"</td><td>Kubernetes <strong>restarts</strong> the container.</td></tr>
+  <tr><td><strong>Readiness</strong></td><td>"Is this Pod ready to receive traffic right now?"</td><td>Kubernetes <strong>removes it from the Service's endpoints</strong> (stops routing traffic to it) — does NOT restart it.</td></tr>
+  <tr><td><strong>Startup</strong></td><td>"Has this slow-starting app finished initializing yet?"</td><td>Blocks liveness/readiness checks from running (and killing a slow-starting container) until startup succeeds once.</td></tr>
+</table>
+
+<pre><code>livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 15
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10</code></pre>
+
+<div class="callout warning">
+<strong>Real-world bug this explains:</strong> A service temporarily can't reach its database (e.g. Mongo restarting) — if you only define a liveness probe hitting <code>/health</code> which checks DB connectivity, Kubernetes will keep RESTARTING the app in a loop (making the outage worse), when what you actually want is for readiness to fail (temporarily stop routing traffic) while liveness stays healthy (the process itself is fine, just waiting on a dependency) — the app should recover once the DB is back, without needless restarts.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="resources">8. Resource Requests &amp; Limits</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<pre><code>resources:
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"</code></pre>
+
+<ul>
+  <li><strong>requests</strong> — what the scheduler guarantees/reserves for this Pod when deciding which node to place it on. Under-setting this risks the Pod landing on an already-busy node.</li>
+  <li><strong>limits</strong> — the hard ceiling. Exceeding the <strong>memory</strong> limit gets the container OOMKilled (same 137 exit code as Docker). Exceeding the <strong>CPU</strong> limit just throttles it (doesn't kill it).</li>
+</ul>
+
+<div class="callout">
+<strong>Interview point:</strong> "What happens if you don't set resource requests/limits at all?" — The Pod is treated as "BestEffort" QoS class — it can use as much as is available on the node, but it's the FIRST to be evicted under node memory pressure, which is dangerous for production services with unpredictable traffic.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rolling-updates">9. Rolling Updates &amp; Rollbacks</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<pre><code>strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1        # can create 1 extra Pod above desired count during rollout
+    maxUnavailable: 0  # never go below desired count → zero-downtime rollout</code></pre>
+
+<pre><code>kubectl set image deployment/di-jfrog di-jfrog=...:1.1.0   # trigger a rollout
+kubectl rollout status deployment/di-jfrog                  # watch progress
+kubectl rollout undo deployment/di-jfrog                    # rollback to previous revision
+kubectl rollout history deployment/di-jfrog                 # see revision history</code></pre>
+
+<p>How it actually works: the Deployment creates a NEW ReplicaSet (new Pod template with the new image), gradually scales it up while scaling the OLD ReplicaSet down, respecting <code>maxSurge</code>/<code>maxUnavailable</code> and readiness probes at each step — a new Pod isn't considered "up" until its readiness probe passes, so a broken new version won't fully replace working old Pods.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="namespaces-labels">10. Namespaces &amp; Labels/Selectors</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<ul>
+  <li><strong>Namespace</strong> — a logical partition within a cluster (e.g. <code>dash</code> namespace used by this workspace's umbrella chart) for isolating resources, RBAC, and resource quotas per team/environment.</li>
+  <li><strong>Labels</strong> — arbitrary key-value tags on objects (e.g. <code>app: di-jfrog</code>).</li>
+  <li><strong>Selectors</strong> — how Services/Deployments/ReplicaSets find the Pods they should manage or route to, by matching labels. This is the ENTIRE mechanism connecting a Service to its Pods — there's no other link.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="init-jobs">11. Init Containers &amp; Jobs/CronJobs</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>Two patterns backend engineers run into constantly but that don't fit the "long-running Deployment" model:</p>
+
+<table>
+  <tr><th>Object</th><th>Purpose</th></tr>
+  <tr><td><strong>Init Container</strong></td><td>Runs and must complete SUCCESSFULLY before the Pod's main container(s) start. Common use: run a DB migration, wait for a dependency to be reachable, or fetch a config file — all before the app itself boots.</td></tr>
+  <tr><td><strong>Job</strong></td><td>Runs a Pod to completion once (not continuously) — for one-off/batch tasks (e.g. a data backfill script). Kubernetes retries it if it fails, until it succeeds or hits a backoff limit.</td></tr>
+  <tr><td><strong>CronJob</strong></td><td>Creates a Job on a cron schedule — e.g. a nightly cleanup task or a periodic report generator.</td></tr>
+</table>
+
+<pre><code># Init container example — wait for Mongo to be reachable before the app starts
+spec:
+  initContainers:
+    - name: wait-for-mongo
+      image: busybox:1.36
+      command: ['sh', '-c', 'until nc -z mongo 27017; do sleep 2; done']
+  containers:
+    - name: di-jfrog
+      image: kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.0.0</code></pre>
+
+<pre><code>apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: di-jfrog-history-cleanup
+spec:
+  schedule: "0 2 * * *"   # every day at 02:00
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: cleanup
+              image: kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.0.0
+              command: ["./main", "--cleanup-history"]
+          restartPolicy: OnFailure</code></pre>
+
+<div class="callout">
+<strong>Interview point:</strong> An Init Container failing blocks the Pod from ever starting its main containers (Pod stays in <code>Init:Error</code>/<code>Init:CrashLoopBackOff</code> status) — this is a distinct failure mode from the main container crashing, and is a common thing to check first if a Pod "never even starts."
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="helm-basics">12. Helm Basics</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>Helm is a package manager for Kubernetes YAML — instead of hand-writing/duplicating YAML per environment, you template it. This workspace's <code>bdg-sw-devx-di-deploy/dash-chart</code> is exactly this: one umbrella chart composing 20+ subcharts (one per microservice, e.g. <code>di-jfrog</code>, <code>di-authorization</code>), with per-customer value overlays in <code>env-config/</code>.</p>
+
+<table>
+  <tr><th>Concept</th><th>Purpose</th></tr>
+  <tr><td><code>Chart.yaml</code></td><td>Chart metadata: name, version, appVersion, dependencies (subcharts).</td></tr>
+  <tr><td><code>values.yaml</code></td><td>Default configuration values (image repo/tag, replica count, resources, env vars) — this is what's overridden per environment.</td></tr>
+  <tr><td><code>templates/</code></td><td>YAML manifests with Go templating (<code>{{ .Values.xyz }}</code>) that get rendered using values.yaml.</td></tr>
+  <tr><td>Subchart</td><td>A nested chart (e.g. <code>di-jfrog/</code> under <code>deployments/charts/</code>) — a microservice's own Deployment/Service/ConfigMap templates, composed into the umbrella chart.</td></tr>
+</table>
+
+<pre><code>helm install dash ./dash-chart -f env-config/shared-prod/values.yaml
+helm upgrade dash ./dash-chart -f env-config/shared-prod/values.yaml
+helm rollback dash 3          # roll back to revision 3
+helm template ./dash-chart    # render final YAML locally without installing (great for debugging)
+helm get values dash          # see the values actually in use for a release</code></pre>
+
+<div class="callout">
+<strong>As a backend/full-stack dev, you mostly need to:</strong> understand how your service's own <code>values.yaml</code> (image repo/tag, env vars, resources, replica count) maps into the rendered Deployment/Service — not necessarily author brand-new charts from scratch.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="kubectl-commands">13. Daily-Driver kubectl Commands</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<pre><code>kubectl get pods                         # list Pods in current namespace
+kubectl get pods -n dash                 # list Pods in a specific namespace
+kubectl describe pod di-jfrog-abc123      # detailed status + recent Events (great for debugging)
+kubectl logs -f di-jfrog-abc123           # tail logs
+kubectl logs di-jfrog-abc123 --previous   # logs from the PREVIOUS (crashed) instance of the container
+kubectl exec -it di-jfrog-abc123 -- sh    # shell into a running Pod
+kubectl port-forward svc/di-jfrog-svc 8080:80   # tunnel a cluster Service to your local machine
+kubectl apply -f deployment.yaml         # create/update from a manifest
+kubectl delete pod di-jfrog-abc123        # delete a Pod (ReplicaSet will recreate it if managed)
+kubectl get events --sort-by='.lastTimestamp'   # cluster-wide recent events, newest last</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="debug-playbook">14. Debugging a Broken Pod — Playbook</h2>
+<span class="difficulty d-hard">HARD</span>
+
+<ol>
+  <li><strong>Check Pod status first:</strong> <code>kubectl get pods</code> — look at STATUS and RESTARTS columns.</li>
+  <li><strong><code>Pending</code></strong> — Pod hasn't been scheduled yet. Run <code>kubectl describe pod</code> and check Events — usually insufficient CPU/memory on any node, or an unsatisfied node selector/affinity rule.</li>
+  <li><strong><code>ImagePullBackOff</code> / <code>ErrImagePull</code></strong> — wrong image name/tag, private registry auth missing, or registry unreachable. Check <code>imagePullSecrets</code> and the exact image string.</li>
+  <li><strong><code>CrashLoopBackOff</code></strong> — the container starts then exits repeatedly. Check <code>kubectl logs &lt;pod&gt; --previous</code> (the crashed instance's logs, since the CURRENT instance may have just restarted with nothing logged yet).</li>
+  <li><strong><code>OOMKilled</code></strong> (visible in <code>kubectl describe pod</code> under "Last State") — container exceeded its memory limit. Either raise the limit or find/fix the memory leak.</li>
+  <li><strong>Pod is <code>Running</code> but Service isn't routing to it</strong> — check the readiness probe is passing (<code>kubectl describe pod</code> → Conditions → Ready), and that the Service's label selector actually matches the Pod's labels (<code>kubectl get endpoints &lt;svc-name&gt;</code> — empty endpoints means no Pod currently matches).</li>
+  <li><strong>Config/env var looks wrong at runtime</strong> — <code>kubectl exec</code> in and run <code>env</code>, or <code>kubectl describe pod</code> to confirm which ConfigMap/Secret is actually mounted, and diff against what you expect from the Helm values for that environment.</li>
+</ol>
+
+<div class="callout warning">
+<strong>Classic scenario asked in interviews:</strong> "Your service deploys fine but users get 502s intermittently right after a rollout." — Likely cause: readiness probe isn't strict enough (marks Pod ready before the app can truly serve traffic, e.g. before a DB connection pool warms up), so the rolling update routes traffic to a Pod that isn't actually ready yet. Fix: tighten the readiness check to reflect true readiness (e.g. verify DB connectivity), and/or increase <code>initialDelaySeconds</code>.
+</div>
+
+<div class="nav-links">
+  <a href="../docker/docker-visual-cheatsheet.html">← Docker Visual Cheatsheet</a>
+  <a href="kubernetes-phase2-interview-questions.html">Kubernetes Part 2 — Interview Questions →</a>
+</div>
+
+</main>
+</body>
+</html>

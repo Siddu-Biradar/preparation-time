@@ -1154,6 +1154,533 @@ console.log(extracted());             // ?</code></pre>
 <p><strong>Answers:</strong> "Batman", undefined (arrow inherits global this), undefined (inner = default binding), "Batman" (arrow inherits from getNameNestedArrow's this), undefined (lost implicit binding)</p>
 </div>
 
+<!-- ─── this Keyword: Interview Shortcut Table ─── -->
+<h3>⚡ 'this' — Interview Cheat Sheet (Quick Reference)</h3>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.95rem;">
+<thead style="background:#1a1a2e; color:#00d2ff;">
+<tr>
+  <th>Context / Call-site</th>
+  <th><code>this</code> Value</th>
+  <th>One-liner Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Global scope (browser)</td><td><code>window</code></td><td>Top-level this = global object</td></tr>
+<tr><td>Global scope (Node module)</td><td><code>{}</code> (module.exports)</td><td>Node modules wrap code in a function</td></tr>
+<tr><td><code>function()</code> standalone (non-strict)</td><td><code>window</code></td><td>Default binding = global</td></tr>
+<tr><td><code>function()</code> standalone (strict)</td><td><code>undefined</code></td><td>Strict mode kills default binding</td></tr>
+<tr><td><code>obj.method()</code></td><td><code>obj</code></td><td>Implicit binding — look LEFT of the dot</td></tr>
+<tr><td><code>obj.a.b.method()</code></td><td><code>b</code></td><td>Only the LAST/nearest object matters</td></tr>
+<tr><td><code>fn.call(ctx)</code> / <code>fn.apply(ctx)</code></td><td><code>ctx</code></td><td>Explicit binding — you choose this</td></tr>
+<tr><td><code>fn.bind(ctx)()</code></td><td><code>ctx</code> (permanent)</td><td>Hard binding — can't be overridden by call/apply</td></tr>
+<tr><td><code>new Fn()</code></td><td>New empty object <code>{}</code></td><td>new ALWAYS wins (highest priority)</td></tr>
+<tr><td>Arrow function <code>() => {}</code></td><td>Inherited from enclosing lexical scope</td><td>Arrow has NO own this — inherits at CREATION time</td></tr>
+<tr><td><code>setTimeout(function() {})</code></td><td><code>window</code> (non-strict) / <code>undefined</code> (strict)</td><td>Callback = standalone invocation</td></tr>
+<tr><td><code>setTimeout(() => {})</code> inside method</td><td>Same as enclosing method's <code>this</code></td><td>Arrow inherits from parent scope</td></tr>
+<tr><td>DOM event handler (regular fn)</td><td>The DOM element</td><td>addEventListener sets this = element</td></tr>
+<tr><td>DOM event handler (arrow fn)</td><td>Enclosing scope's this (usually <code>window</code>)</td><td>Arrow ignores addEventListener's binding</td></tr>
+<tr><td>Class method</td><td>Instance (when called as <code>this.method()</code>)</td><td>Classes are ALWAYS strict mode</td></tr>
+<tr><td>Class arrow property <code>method = () => {}</code></td><td>Instance (permanently)</td><td>Created per-instance in constructor, this bound forever</td></tr>
+</tbody>
+</table>
+
+<h4>🏆 Priority Order (memorize this!)</h4>
+<pre><code>new  >  bind  >  call/apply  >  implicit (obj.fn())  >  default (standalone)
+ ↑                                                           ↑
+HIGHEST                                                   LOWEST
+
+// Arrow functions SKIP all rules — they DON'T have their own 'this'</code></pre>
+
+<!-- ─── this Keyword: Hands-on Examples Table ─── -->
+<h3>🔬 'this' — Hands-on Examples (Copy & Run in Console)</h3>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.9rem;">
+<thead style="background:#1a1a2e; color:#00d2ff;">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:45%">Code</th>
+  <th style="width:20%">Output</th>
+  <th style="width:30%">Why?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  greet() { console.log(this.name); }
+};
+obj.greet();</code></pre></td>
+  <td><code>"Sid"</code></td>
+  <td>Implicit binding: <code>this</code> = object left of dot</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  greet() { console.log(this.name); }
+};
+const fn = obj.greet;
+fn();</code></pre></td>
+  <td><code>undefined</code></td>
+  <td>Implicit binding LOST — standalone call → default binding</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  greet: () => console.log(this.name)
+};
+obj.greet();</code></pre></td>
+  <td><code>undefined</code></td>
+  <td>Arrow fn has NO own this. Object literal is NOT a scope. Inherits from global/module.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><pre><code>function Person(name) {
+  this.name = name;
+}
+const p = new Person("Sid");
+console.log(p.name);</code></pre></td>
+  <td><code>"Sid"</code></td>
+  <td><code>new</code> creates fresh object, <code>this</code> = that object</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  outer() {
+    function inner() {
+      console.log(this.name);
+    }
+    inner();
+  }
+};
+obj.outer();</code></pre></td>
+  <td><code>undefined</code></td>
+  <td>inner() is standalone call inside outer — default binding kicks in</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  outer() {
+    const inner = () => console.log(this.name);
+    inner();
+  }
+};
+obj.outer();</code></pre></td>
+  <td><code>"Sid"</code></td>
+  <td>Arrow inherits <code>this</code> from outer() which has implicit binding to obj</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><pre><code>function greet() {
+  console.log(this.name);
+}
+const user = { name: "Sid" };
+greet.call(user);</code></pre></td>
+  <td><code>"Sid"</code></td>
+  <td>Explicit binding via <code>call()</code> sets this = user</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><pre><code>const bound = greet.bind({ name: "A" });
+bound.call({ name: "B" });</code></pre></td>
+  <td><code>"A"</code></td>
+  <td><code>bind()</code> creates HARD binding — call/apply can't override it</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><pre><code>function Foo(name) { this.name = name; }
+const bound = Foo.bind({ name: "ignored" });
+const obj = new bound("Winner");
+console.log(obj.name);</code></pre></td>
+  <td><code>"Winner"</code></td>
+  <td><code>new</code> OVERRIDES bind — highest priority always wins</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  start() {
+    setTimeout(function() {
+      console.log(this.name);
+    }, 0);
+  }
+};
+obj.start();</code></pre></td>
+  <td><code>undefined</code></td>
+  <td>setTimeout callback = standalone invocation → default binding</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  start() {
+    setTimeout(() => {
+      console.log(this.name);
+    }, 0);
+  }
+};
+obj.start();</code></pre></td>
+  <td><code>"Sid"</code></td>
+  <td>Arrow fn inside start() inherits this from start (which = obj)</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><pre><code>class Animal {
+  name = "Dog";
+  speak() { console.log(this.name); }
+  speakArrow = () => console.log(this.name);
+}
+const a = new Animal();
+const s1 = a.speak;
+const s2 = a.speakArrow;
+s1(); // ?
+s2(); // ?</code></pre></td>
+  <td><code>TypeError</code><br><code>"Dog"</code></td>
+  <td>s1: class = strict mode → this = undefined → error.<br>s2: arrow class field is bound to instance forever.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><pre><code>const obj = {
+  name: "Sid",
+  greet() { return this.name; }
+};
+const obj2 = { name: "Ram", greet: obj.greet };
+console.log(obj2.greet());</code></pre></td>
+  <td><code>"Ram"</code></td>
+  <td>Implicit binding: this = object LEFT of the dot at call-site (obj2)</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><pre><code>"use strict";
+function foo() { console.log(this); }
+foo();</code></pre></td>
+  <td><code>undefined</code></td>
+  <td>Strict mode: no default binding to window</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><pre><code>const obj = {
+  a: 10,
+  b: () => console.log(this.a, this),
+  c() {
+    const d = () => console.log(this.a, this);
+    d();
+  }
+};
+obj.b();
+obj.c();</code></pre></td>
+  <td><code>undefined, window</code><br><code>10, obj</code></td>
+  <td>b: arrow at object level → enclosing = global. c→d: arrow inside method → inherits from c's this = obj</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ─── this Keyword: ALL Gotchas E2E ─── -->
+<h3>🚨 'this' — ALL Gotchas & Traps (E2E)</h3>
+
+<h4>Gotcha 1: Implicit Binding Loss (Most Common Bug)</h4>
+<pre><code>const user = {
+  name: "Sid",
+  greet() { console.log(this.name); }
+};
+
+// ❌ TRAP: Extracting method loses 'this'
+const greet = user.greet;
+greet(); // undefined — no longer called ON user
+
+// ❌ TRAP: Passing method as callback
+setTimeout(user.greet, 100); // undefined
+[1].forEach(user.greet);     // undefined
+button.addEventListener('click', user.greet); // this = button, NOT user
+
+// ✅ FIX 1: bind
+setTimeout(user.greet.bind(user), 100);
+
+// ✅ FIX 2: Arrow wrapper
+setTimeout(() => user.greet(), 100);
+
+// ✅ FIX 3: Arrow class field
+class User {
+  name = "Sid";
+  greet = () => console.log(this.name); // bound forever
+}</code></pre>
+
+<h4>Gotcha 2: Arrow Function in Object Literal</h4>
+<pre><code>// ❌ NEVER use arrow functions as object methods
+const obj = {
+  name: "Sid",
+  // Arrow's 'this' = enclosing scope = GLOBAL (object literal is NOT a scope!)
+  greet: () => console.log(this.name) // undefined!
+};
+obj.greet(); // undefined — NOT "Sid"
+
+// ✅ USE regular function for object methods
+const obj2 = {
+  name: "Sid",
+  greet() { console.log(this.name); } // "Sid" ✓
+};</code></pre>
+
+<h4>Gotcha 3: Nested Functions Inside Methods</h4>
+<pre><code>const obj = {
+  count: 0,
+  increment() {
+    // ❌ Nested regular function = standalone call = default binding
+    function helper() {
+      this.count++; // this = window, NOT obj!
+    }
+    helper();
+
+    // ✅ FIX 1: Arrow function
+    const helperArrow = () => {
+      this.count++; // this = obj (inherited from increment)
+    };
+    helperArrow();
+
+    // ✅ FIX 2: const self = this (old pattern)
+    const self = this;
+    function helper2() {
+      self.count++; // works via closure
+    }
+    helper2();
+
+    // ✅ FIX 3: bind
+    function helper3() {
+      this.count++;
+    }
+    helper3.call(this); // or helper3.bind(this)()
+  }
+};</code></pre>
+
+<h4>Gotcha 4: 'this' in forEach/map/filter Callbacks</h4>
+<pre><code>const processor = {
+  prefix: "Item:",
+  items: [1, 2, 3],
+
+  // ❌ Regular function callback loses 'this'
+  processBad() {
+    return this.items.map(function(item) {
+      return this.prefix + item; // this = window → undefined + 1
+    });
+  },
+
+  // ✅ FIX 1: Arrow function
+  processGood() {
+    return this.items.map(item => this.prefix + item);
+  },
+
+  // ✅ FIX 2: thisArg parameter (2nd arg of map/forEach/filter)
+  processGood2() {
+    return this.items.map(function(item) {
+      return this.prefix + item;
+    }, this); // ← 2nd argument sets 'this' inside callback
+  }
+};</code></pre>
+
+<h4>Gotcha 5: 'this' with new vs bind (Priority Clash)</h4>
+<pre><code>function User(name) {
+  this.name = name;
+}
+
+const boundUser = User.bind({ name: "BoundValue" });
+
+// bind wins over call/apply:
+boundUser("CallValue");
+// this.name = "CallValue" NOPE → "BoundValue"? NOPE!
+// Actually: boundUser("CallValue") → this.name = "CallValue" 
+// because bind sets 'this' but 'new' overrides EVERYTHING:
+
+const instance = new boundUser("NewValue");
+console.log(instance.name); // "NewValue" — new ALWAYS wins over bind!</code></pre>
+
+<h4>Gotcha 6: Chained Object (Only Last Object Matters)</h4>
+<pre><code>const a = {
+  name: "A",
+  b: {
+    name: "B",
+    c: {
+      name: "C",
+      getName() { return this.name; }
+    }
+  }
+};
+
+console.log(a.b.c.getName()); // "C" — only LAST/nearest object before dot counts
+// NOT "A", NOT "B"</code></pre>
+
+<h4>Gotcha 7: 'this' in Prototype Chain</h4>
+<pre><code>const parent = {
+  name: "Parent",
+  greet() { return this.name; }
+};
+
+const child = Object.create(parent);
+child.name = "Child";
+
+console.log(child.greet()); // "Child" — NOT "Parent"!
+// Method found via prototype chain, but 'this' = calling object (child)</code></pre>
+
+<h4>Gotcha 8: return Overrides 'this' in Constructors</h4>
+<pre><code>// If constructor returns an OBJECT, 'this' is discarded!
+function Weird() {
+  this.name = "Original";
+  return { name: "Override" }; // ← returning object replaces 'this'
+}
+const w = new Weird();
+console.log(w.name); // "Override" — NOT "Original"!
+
+// But returning a PRIMITIVE is ignored:
+function Normal() {
+  this.name = "Original";
+  return 42; // ← primitive return is IGNORED
+}
+const n = new Normal();
+console.log(n.name); // "Original" — primitive return has no effect</code></pre>
+
+<h4>Gotcha 9: IIFE and 'this'</h4>
+<pre><code>const obj = {
+  name: "Sid",
+  method() {
+    // IIFE is a standalone invocation — default binding
+    (function() {
+      console.log(this.name); // undefined (strict) / window.name (non-strict)
+    })();
+
+    // Arrow IIFE inherits from method
+    (() => {
+      console.log(this.name); // "Sid" ✓
+    })();
+  }
+};
+obj.method();</code></pre>
+
+<h4>Gotcha 10: 'this' in Getter/Setter</h4>
+<pre><code>const obj = {
+  _name: "Sid",
+  get name() {
+    return this._name; // this = obj (implicit binding applies to getters)
+  },
+  set name(val) {
+    this._name = val; // this = obj
+  }
+};
+console.log(obj.name); // "Sid" — getter's this = obj</code></pre>
+
+<h4>Gotcha 11: 'this' with call/apply passing null or undefined</h4>
+<pre><code>function greet() {
+  console.log(this);
+}
+
+// Passing null/undefined to call/apply → falls to DEFAULT binding
+greet.call(null);      // window (non-strict) / TypeError (strict in some cases)
+greet.call(undefined); // window (non-strict) / undefined (strict)
+
+// ⚠️ SECURITY: This can accidentally modify global object!
+// ✅ Safe practice: use Object.create(null) as empty this
+greet.call(Object.create(null)); // {} — safe empty object</code></pre>
+
+<h4>Gotcha 12: 'this' in eval (Avoid in interviews, but know it)</h4>
+<pre><code>const obj = {
+  name: "Sid",
+  test() {
+    eval('console.log(this.name)'); // "Sid" — eval inherits enclosing this
+  }
+};
+obj.test();</code></pre>
+
+<h4>Gotcha 13: Class Fields vs Prototype Methods</h4>
+<pre><code>class Example {
+  // Class field: created on EACH instance (in constructor)
+  arrowMethod = () => {
+    console.log(this); // ALWAYS the instance — safe for callbacks
+  };
+
+  // Prototype method: shared across all instances
+  regularMethod() {
+    console.log(this); // depends on call-site — can lose binding
+  }
+}
+
+const e = new Example();
+const arrow = e.arrowMethod;
+const regular = e.regularMethod;
+
+arrow();   // Example instance ✓ (bound at creation)
+regular(); // undefined ✗ (strict mode, lost binding)
+
+// Trade-off: Arrow fields use MORE memory (one copy per instance)
+// Prototype methods use LESS memory (shared) but need .bind() for callbacks</code></pre>
+
+<h4>Gotcha 14: 'this' in Promise Callbacks</h4>
+<pre><code>const api = {
+  url: "/users",
+  fetch() {
+    // ❌ .then with regular function
+    return Promise.resolve().then(function() {
+      console.log(this.url); // undefined — standalone invocation
+    });
+
+    // ✅ .then with arrow function
+    return Promise.resolve().then(() => {
+      console.log(this.url); // "/users" — inherited from fetch()
+    });
+  }
+};</code></pre>
+
+<h4>Gotcha 15: Destructuring Loses 'this'</h4>
+<pre><code>const obj = {
+  name: "Sid",
+  greet() { return this.name; }
+};
+
+// ❌ Destructuring extracts the function reference — loses implicit binding
+const { greet } = obj;
+greet(); // undefined!
+
+// Same as: const greet = obj.greet; greet();
+// ✅ Fix: const greet = obj.greet.bind(obj);</code></pre>
+
+<!-- ─── this Keyword: Summary Comparison Table ─── -->
+<h3>📋 'this' Behavior Comparison — At a Glance</h3>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.9rem;">
+<thead style="background:#1a1a2e; color:#00d2ff;">
+<tr>
+  <th>Scenario</th>
+  <th>Regular Function</th>
+  <th>Arrow Function</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Object method</td><td>✅ <code>this</code> = object</td><td>❌ <code>this</code> = enclosing scope (NOT object)</td></tr>
+<tr><td>Nested inside method</td><td>❌ <code>this</code> = window/undefined</td><td>✅ <code>this</code> = enclosing method's this</td></tr>
+<tr><td>Event handler</td><td>✅ <code>this</code> = DOM element</td><td>❌ <code>this</code> = enclosing scope</td></tr>
+<tr><td>Constructor (new)</td><td>✅ <code>this</code> = new instance</td><td>❌ Cannot use with new (throws TypeError)</td></tr>
+<tr><td>call/apply/bind</td><td>✅ <code>this</code> = specified value</td><td>❌ Ignored — always lexical</td></tr>
+<tr><td>setTimeout callback</td><td>❌ <code>this</code> = window/undefined</td><td>✅ <code>this</code> = enclosing scope's this</td></tr>
+<tr><td>Class field</td><td>⚠️ Loses this if extracted</td><td>✅ Permanently bound to instance</td></tr>
+<tr><td>Prototype method</td><td>✅ Memory efficient (shared)</td><td>❌ Created per instance (wasteful)</td></tr>
+</tbody>
+</table>
+
+<h4>🎯 Golden Rules to Remember for Interviews</h4>
+<pre><code>/*
+  1️⃣  "this" is determined at CALL TIME, not DEFINITION TIME (except arrows)
+  2️⃣  Arrow functions → look UP (lexical scope at creation time)
+  3️⃣  Regular functions → look LEFT (what's before the dot at call-site)
+  4️⃣  No dot, no new, no call/apply/bind → DEFAULT (window or undefined)
+  5️⃣  new > bind > call/apply > implicit > default
+  6️⃣  Object literal {} is NOT a scope (arrows inside won't bind to it)
+  7️⃣  Classes are ALWAYS strict mode (no window fallback)
+  8️⃣  Returning an object from constructor REPLACES 'this'
+  9️⃣  bind() is permanent — call/apply can't override (but new can)
+  🔟  Destructuring/extracting a method = losing implicit binding
+*/</code></pre>
+
 <div class="interview">
 <h4>🎯 Interview Questions</h4>
 <p><span class="difficulty d-hard">Hard</span> Explain all 4 rules of 'this' binding with examples.</p>
@@ -1550,5 +2077,6 @@ trampolinedFactorial(100000); // Won't stack overflow!</code></pre>
 
 </main>
 <script src="js-notes-inline.js"></script>
+<script src="nav.js"></script>
 </body>
 </html>

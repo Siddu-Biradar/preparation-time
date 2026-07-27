@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accordion Component</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
+
+    .accordion {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .accordion-item { border-bottom: 1px solid #eee; }
+    .accordion-item:last-child { border-bottom: none; }
+
+    .accordion-header {
+      width: 100%;
+      padding: 18px 20px;
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      text-align: left;
+      transition: background 0.2s;
+      margin: 0;
+    }
+    .accordion-header:hover { background: #f8f9fa; }
+    .accordion-header[aria-expanded="true"] { color: #4a90d9; }
+
+    .accordion-icon {
+      width: 20px; height: 20px;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+    .accordion-header[aria-expanded="true"] .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+    .accordion-panel.open {
+      max-height: 500px;
+    }
+    .accordion-content {
+      padding: 0 20px 18px;
+      color: #555;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .controls {
+      text-align: center; margin-top: 20px;
+    }
+    .controls button {
+      padding: 8px 16px; margin: 4px; border: 1px solid #ddd;
+      border-radius: 6px; background: white; font-size: 13px;
+      cursor: pointer; font-weight: 600;
+    }
+    .controls button:hover { background: #f0f7ff; border-color: #4a90d9; }
+    .controls label { font-size: 13px; margin-left: 12px; color: #555; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📂 Accordion</h1>
+  <p class="subtitle">Click headers to expand/collapse. Toggle multi-open below.</p>
+
+  <div class="accordion" id="accordion" role="region"></div>
+
+  <div class="controls">
+    <button onclick="accordion.expandAll()">Expand All</button>
+    <button onclick="accordion.collapseAll()">Collapse All</button>
+    <label><input type="checkbox" id="multi-toggle" onchange="toggleMulti()"> Allow Multiple Open</label>
+  </div>
+</div>
+
+<script>
+class Accordion {
+  constructor(container, items, options = {}) {
+    this.container = container;
+    this.items = items;
+    this.allowMultiple = options.allowMultiple || false;
+    this.openSet = new Set(options.defaultOpen || []);
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = '';
+    this.items.forEach((item, index) => {
+      const isOpen = this.openSet.has(index);
+      const div = document.createElement('div');
+      div.className = 'accordion-item';
+      div.innerHTML = `
+        <button class="accordion-header" aria-expanded="${isOpen}" aria-controls="panel-${index}" id="header-${index}">
+          <span>${item.title}</span>
+          <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="accordion-panel ${isOpen ? 'open' : ''}" id="panel-${index}" role="region" aria-labelledby="header-${index}">
+          <div class="accordion-content">${item.content}</div>
+        </div>
+      `;
+      div.querySelector('.accordion-header').addEventListener('click', () => this.toggle(index));
+      this.container.appendChild(div);
+    });
+  }
+
+  toggle(index) {
+    if (this.openSet.has(index)) {
+      this.openSet.delete(index);
+    } else {
+      if (!this.allowMultiple) this.openSet.clear();
+      this.openSet.add(index);
+    }
+    this.updateDOM();
+  }
+
+  updateDOM() {
+    this.items.forEach((_, i) => {
+      const header = this.container.querySelector(`#header-${i}`);
+      const panel = this.container.querySelector(`#panel-${i}`);
+      const isOpen = this.openSet.has(i);
+      header.setAttribute('aria-expanded', isOpen);
+      panel.classList.toggle('open', isOpen);
+    });
+  }
+
+  expandAll() { this.items.forEach((_, i) => this.openSet.add(i)); this.updateDOM(); }
+  collapseAll() { this.openSet.clear(); this.updateDOM(); }
+}
+
+const faqData = [
+  { title: '🚀 What is debounce?', content: 'Debounce delays execution until N ms after the <strong>last</strong> call. Great for search inputs — waits until user stops typing before firing the API.' },
+  { title: '⚡ What is throttle?', content: 'Throttle ensures a function fires at most once every N ms. Ideal for scroll handlers, resize events, and mouse move tracking.' },
+  { title: '🔄 When to use which?', content: '<strong>Debounce:</strong> Search, autocomplete, form validation, window resize end.<br><strong>Throttle:</strong> Scroll position tracking, drag events, rate-limiting API calls, game loops.' },
+  { title: '📦 How does closure help here?', content: 'Both use closures to "remember" the timer ID between invocations. The returned function closes over the timerId variable, allowing cancel/reset without global state.' },
+  { title: '🎯 What about requestAnimationFrame?', content: 'rAF is a browser-native throttle at ~60fps (16.6ms). Use it for visual updates (animations, scroll effects) instead of setTimeout-based throttle for smoother rendering.' },
+];
+
+const accordion = new Accordion(
+  document.getElementById('accordion'),
+  faqData,
+  { defaultOpen: [0] }
+);
+
+function toggleMulti() {
+  accordion.allowMultiple = document.getElementById('multi-toggle').checked;
+  if (!accordion.allowMultiple && accordion.openSet.size > 1) {
+    const first = [...accordion.openSet][0];
+    accordion.openSet.clear();
+    accordion.openSet.add(first);
+    accordion.updateDOM();
+  }
+}
+</script>
+</body>
+</html>

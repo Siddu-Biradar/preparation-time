@@ -1,0 +1,3002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Phase 14: Senior Architect Patterns & Production Scale</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .architect-note { background: #f0e6ff; border: 1px solid #d4b5ff; border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 10pt; }
+    .architect-note strong { color: #5b2d8e; }
+    .interview-tip { background: #e8f8f0; border: 1px solid #b7e4c7; border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+    .interview-tip strong { color: #1b7340; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 14: Senior Architect Patterns & Production Scale</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (14 of 14)</p>
+  <div class="pill-row">
+    <span class="pill">Streaming & Backpressure</span>
+    <span class="pill">Microfrontends</span>
+    <span class="pill">Observability</span>
+    <span class="pill">Module Federation</span>
+    <span class="pill">Resilience Patterns</span>
+    <span class="pill">Production Debugging</span>
+    <span class="pill">TypeScript Architecture</span>
+    <span class="pill">Netflix/Meta Level</span>
+  </div>
+</div>
+
+<div class="callout warning">
+<strong>⚠️ This phase targets L5/L6 (Staff/Senior Staff) roles at Netflix, Meta, Google.</strong> These topics separate senior engineers from architects. You WILL be asked about scaling decisions, production incident patterns, and system thinking in senior rounds.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#streaming">Streaming, Backpressure & Data Pipelines</a></li>
+    <li><a href="#resilience">Resilience Patterns (Circuit Breaker, Bulkhead, Fallbacks)</a></li>
+    <li><a href="#microfrontends">Microfrontends & Module Federation</a></li>
+    <li><a href="#observability">Frontend Observability & Production Debugging</a></li>
+    <li><a href="#typescript-arch">TypeScript Architecture for Large Codebases</a></li>
+    <li><a href="#advanced-state">Advanced State Management at Scale</a></li>
+    <li><a href="#offline-sync">Offline-First, Sync & Conflict Resolution</a></li>
+    <li><a href="#a11y">Accessibility Engineering (WCAG 2.2 Mastery)</a></li>
+    <li><a href="#realtime">Real-Time Architecture (WebSocket, SSE, WebRTC)</a></li>
+    <li><a href="#perf-budget">Performance Budgets & CI/CD Integration</a></li>
+    <li><a href="#interview-scenarios">Architect Interview Scenarios & Trade-Off Questions</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="streaming">1. Streaming, Backpressure & Data Pipelines</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="architect-note">
+<strong>🏗️ Why Netflix Cares:</strong> Netflix streams terabytes of data to millions of clients simultaneously. Understanding how to handle data that arrives faster than you can process it is FUNDAMENTAL. This is the #1 gap in most frontend engineer's knowledge.
+</div>
+
+<h3>1.1 ReadableStream, WritableStream, TransformStream</h3>
+
+<p>The Streams API lets you process data chunk-by-chunk without buffering entire payloads in memory. Critical for: video players, large file uploads, server-sent data, AI token streaming.</p>
+
+<pre><code>// ═══ ReadableStream: Producing data ═══
+const stream = new ReadableStream({
+  start(controller) {
+    // Called once when stream is constructed
+    controller.enqueue('Hello');
+    controller.enqueue(' World');
+    controller.close(); // Signal no more data
+  },
+  pull(controller) {
+    // Called when consumer wants more data (backpressure signal)
+    // Only called when internal queue has space
+  },
+  cancel(reason) {
+    // Consumer cancelled the stream
+    console.log('Stream cancelled:', reason);
+  }
+}, new CountQueuingStrategy({ highWaterMark: 5 })); // Backpressure threshold
+
+// ═══ Consuming with Reader ═══
+const reader = stream.getReader();
+async function consume() {
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    console.log('Chunk:', value);
+  }
+}
+
+// ═══ TransformStream: Processing in-flight ═══
+const uppercaseTransform = new TransformStream({
+  transform(chunk, controller) {
+    controller.enqueue(chunk.toUpperCase());
+  },
+  flush(controller) {
+    // Called when input is done — emit final data
+    controller.enqueue('[END]');
+  }
+});
+
+// ═══ Pipe chain (like Unix pipes) ═══
+const response = await fetch('/api/large-data');
+const processed = response.body
+  .pipeThrough(new TextDecoderStream())
+  .pipeThrough(uppercaseTransform);
+
+const finalReader = processed.getReader();
+// Read processed chunks...</code></pre>
+
+<h3>1.2 Backpressure — The Most Important Concept</h3>
+
+<p><strong>Problem:</strong> Data arrives at 10MB/s, but you can only process at 2MB/s. Without backpressure, memory grows unbounded → crash.</p>
+
+<p><strong>Solution:</strong> The consumer signals to the producer: "slow down, I'm not ready."</p>
+
+<pre><code>// ═══ Backpressure in action ═══
+// ReadableStream with highWaterMark controls when pull() is called
+const dataSource = new ReadableStream({
+  start(controller) {
+    this.position = 0;
+  },
+  async pull(controller) {
+    // This is ONLY called when the internal queue has space!
+    // If desiredSize <= 0, pull() won't be called (backpressure!)
+    const chunk = await fetchNextChunk(this.position);
+    this.position += chunk.length;
+    
+    controller.enqueue(chunk);
+    
+    // Check backpressure manually
+    console.log('Desired size:', controller.desiredSize);
+    // > 0 means "I want more data"
+    // <= 0 means "I'm full, stop producing"
+  }
+}, new ByteLengthQueuingStrategy({ highWaterMark: 1024 * 64 })); // 64KB buffer
+
+// ═══ Manual backpressure with async generator ═══
+async function* generateWithBackpressure(source, batchSize = 100) {
+  let buffer = [];
+  for await (const item of source) {
+    buffer.push(item);
+    if (buffer.length >= batchSize) {
+      yield buffer; // Consumer controls when to call next()
+      buffer = [];
+    }
+  }
+  if (buffer.length > 0) yield buffer;
+}
+
+// Consumer controls pace:
+const gen = generateWithBackpressure(dataStream);
+for await (const batch of gen) {
+  await processBatch(batch); // Takes time → naturally creates backpressure
+  await updateUI(); // Give browser time to paint
+}</code></pre>
+
+<h3>1.3 Streaming Fetch (NDJSON, Server-Sent Events, AI Tokens)</h3>
+
+<pre><code>// ═══ Streaming NDJSON (Newline-Delimited JSON) ═══
+// Used by: Netflix for real-time metrics, ChatGPT for token streaming
+async function* streamNDJSON(url, signal) {
+  const response = await fetch(url, { signal });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop(); // Keep incomplete line in buffer
+    
+    for (const line of lines) {
+      if (line.trim()) {
+        yield JSON.parse(line);
+      }
+    }
+  }
+  // Process remaining buffer
+  if (buffer.trim()) {
+    yield JSON.parse(buffer);
+  }
+}
+
+// Usage with AbortController
+const controller = new AbortController();
+try {
+  for await (const event of streamNDJSON('/api/events', controller.signal)) {
+    renderEvent(event);
+    if (event.type === 'complete') {
+      controller.abort(); // Stop consuming
+      break;
+    }
+  }
+} catch (e) {
+  if (e.name !== 'AbortError') throw e;
+}
+
+// ═══ AI Token Streaming (ChatGPT/Claude style) ═══
+async function streamAIResponse(prompt, onToken) {
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+
+  const reader = response.body
+    .pipeThrough(new TextDecoderStream())
+    .getReader();
+  
+  let fullResponse = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    
+    // SSE format: "data: {json}\n\n"
+    const lines = value.split('\n');
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = JSON.parse(line.slice(6));
+        if (data.token) {
+          fullResponse += data.token;
+          onToken(data.token, fullResponse);
+        }
+      }
+    }
+  }
+  return fullResponse;
+}</code></pre>
+
+<h3>1.4 Large File Upload with Resumable Streaming</h3>
+
+<pre><code>// ═══ Chunked Upload with Resume (Netflix uses for content ingestion) ═══
+class ResumableUploader {
+  constructor(file, { chunkSize = 5 * 1024 * 1024, endpoint }) {
+    this.file = file;
+    this.chunkSize = chunkSize;
+    this.endpoint = endpoint;
+    this.uploadedBytes = 0;
+    this.uploadId = null;
+    this.abortController = new AbortController();
+  }
+
+  async start() {
+    // Initialize upload session
+    const initRes = await fetch(`${this.endpoint}/init`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: this.file.name,
+        size: this.file.size,
+        type: this.file.type
+      })
+    });
+    const { uploadId, resumeFrom } = await initRes.json();
+    this.uploadId = uploadId;
+    this.uploadedBytes = resumeFrom || 0;
+
+    // Stream chunks
+    while (this.uploadedBytes < this.file.size) {
+      const end = Math.min(this.uploadedBytes + this.chunkSize, this.file.size);
+      const chunk = this.file.slice(this.uploadedBytes, end);
+      
+      await this.uploadChunk(chunk, this.uploadedBytes, end);
+      this.uploadedBytes = end;
+      
+      this.onProgress?.(this.uploadedBytes / this.file.size);
+    }
+    
+    // Finalize
+    await fetch(`${this.endpoint}/complete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uploadId: this.uploadId })
+    });
+  }
+
+  async uploadChunk(chunk, start, end) {
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const res = await fetch(`${this.endpoint}/chunk`, {
+          method: 'PUT',
+          headers: {
+            'Content-Range': `bytes ${start}-${end - 1}/${this.file.size}`,
+            'X-Upload-Id': this.uploadId
+          },
+          body: chunk,
+          signal: this.abortController.signal
+        });
+        if (res.ok) return;
+        throw new Error(`Upload failed: ${res.status}`);
+      } catch (e) {
+        if (e.name === 'AbortError') throw e;
+        if (attempt === maxRetries - 1) throw e;
+        await new Promise(r => setTimeout(r, 1000 * 2 ** attempt));
+      }
+    }
+  }
+
+  pause() { this.abortController.abort(); }
+  resume() {
+    this.abortController = new AbortController();
+    return this.start(); // Resumes from uploadedBytes
+  }
+}</code></pre>
+
+<div class="interview-tip">
+<strong>💡 Interview Answer:</strong> "Backpressure is the mechanism where a slow consumer signals to a fast producer to reduce its rate. In the Streams API, this is managed via <code>highWaterMark</code> and <code>desiredSize</code>. When the internal queue fills up, <code>pull()</code> isn't called until the consumer reads data. This prevents OOM crashes when processing large datasets."
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="resilience">2. Resilience Patterns (Circuit Breaker, Bulkhead, Fallbacks)</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="architect-note">
+<strong>🏗️ Why Meta Cares:</strong> Facebook serves 3.7B users. A single API failing cannot crash the entire newsfeed. Resilience patterns ensure graceful degradation, not catastrophic failure.
+</div>
+
+<h3>2.1 Circuit Breaker Pattern (Complete Implementation)</h3>
+
+<pre><code>// ═══ Circuit Breaker: Prevents cascading failures ═══
+// States: CLOSED (normal) → OPEN (failing) → HALF_OPEN (testing recovery)
+class CircuitBreaker {
+  static CLOSED = 'CLOSED';
+  static OPEN = 'OPEN';
+  static HALF_OPEN = 'HALF_OPEN';
+
+  constructor(options = {}) {
+    this.failureThreshold = options.failureThreshold || 5;
+    this.resetTimeout = options.resetTimeout || 30000; // 30s
+    this.halfOpenMaxCalls = options.halfOpenMaxCalls || 3;
+    this.monitorInterval = options.monitorInterval || 10000;
+    
+    this.state = CircuitBreaker.CLOSED;
+    this.failureCount = 0;
+    this.successCount = 0;
+    this.halfOpenCalls = 0;
+    this.lastFailureTime = null;
+    this.listeners = new Map();
+  }
+
+  async execute(fn) {
+    if (this.state === CircuitBreaker.OPEN) {
+      if (Date.now() - this.lastFailureTime >= this.resetTimeout) {
+        this.transitionTo(CircuitBreaker.HALF_OPEN);
+      } else {
+        throw new CircuitBreakerOpenError(
+          `Circuit breaker is OPEN. Retry after ${this.resetTimeout - (Date.now() - this.lastFailureTime)}ms`
+        );
+      }
+    }
+
+    if (this.state === CircuitBreaker.HALF_OPEN) {
+      if (this.halfOpenCalls >= this.halfOpenMaxCalls) {
+        throw new CircuitBreakerOpenError('Half-open limit reached');
+      }
+      this.halfOpenCalls++;
+    }
+
+    try {
+      const result = await fn();
+      this.onSuccess();
+      return result;
+    } catch (error) {
+      this.onFailure(error);
+      throw error;
+    }
+  }
+
+  onSuccess() {
+    if (this.state === CircuitBreaker.HALF_OPEN) {
+      this.successCount++;
+      if (this.successCount >= this.halfOpenMaxCalls) {
+        this.transitionTo(CircuitBreaker.CLOSED);
+      }
+    }
+    this.failureCount = 0;
+  }
+
+  onFailure(error) {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+    
+    if (this.failureCount >= this.failureThreshold) {
+      this.transitionTo(CircuitBreaker.OPEN);
+    }
+    this.emit('failure', { error, failureCount: this.failureCount, state: this.state });
+  }
+
+  transitionTo(newState) {
+    const oldState = this.state;
+    this.state = newState;
+    
+    if (newState === CircuitBreaker.CLOSED) {
+      this.failureCount = 0;
+      this.successCount = 0;
+      this.halfOpenCalls = 0;
+    }
+    if (newState === CircuitBreaker.HALF_OPEN) {
+      this.halfOpenCalls = 0;
+      this.successCount = 0;
+    }
+    
+    this.emit('stateChange', { from: oldState, to: newState });
+  }
+
+  on(event, handler) {
+    if (!this.listeners.has(event)) this.listeners.set(event, []);
+    this.listeners.get(event).push(handler);
+  }
+  emit(event, data) {
+    (this.listeners.get(event) || []).forEach(h => h(data));
+  }
+
+  getState() {
+    return { state: this.state, failureCount: this.failureCount, lastFailure: this.lastFailureTime };
+  }
+}
+
+class CircuitBreakerOpenError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CircuitBreakerOpenError';
+  }
+}
+
+// ═══ Usage ═══
+const apiBreaker = new CircuitBreaker({
+  failureThreshold: 3,
+  resetTimeout: 10000
+});
+
+apiBreaker.on('stateChange', ({ from, to }) => {
+  console.log(`Circuit: ${from} → ${to}`);
+  if (to === 'OPEN') showFallbackUI();
+});
+
+async function fetchUserData(userId) {
+  return apiBreaker.execute(async () => {
+    const res = await fetch(`/api/users/${userId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  });
+}</code></pre>
+
+<h3>2.2 Bulkhead Pattern (Resource Isolation)</h3>
+
+<pre><code>// ═══ Bulkhead: Isolate failures to prevent total system collapse ═══
+// Like ship compartments — one flooding doesn't sink the whole ship
+class Bulkhead {
+  constructor(name, { maxConcurrent = 10, maxQueue = 50, timeout = 5000 }) {
+    this.name = name;
+    this.maxConcurrent = maxConcurrent;
+    this.maxQueue = maxQueue;
+    this.timeout = timeout;
+    this.active = 0;
+    this.queue = [];
+    this.metrics = { total: 0, rejected: 0, timedOut: 0, succeeded: 0, failed: 0 };
+  }
+
+  async execute(fn) {
+    if (this.active >= this.maxConcurrent) {
+      if (this.queue.length >= this.maxQueue) {
+        this.metrics.rejected++;
+        throw new BulkheadRejectError(`${this.name}: Queue full (${this.maxQueue})`);
+      }
+      // Wait in queue
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          const idx = this.queue.findIndex(q => q.resolve === resolve);
+          if (idx !== -1) this.queue.splice(idx, 1);
+          this.metrics.timedOut++;
+          reject(new BulkheadTimeoutError(`${this.name}: Queue timeout`));
+        }, this.timeout);
+        this.queue.push({ resolve, reject, timer });
+      });
+    }
+
+    this.active++;
+    this.metrics.total++;
+    try {
+      const result = await Promise.race([
+        fn(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new BulkheadTimeoutError('Execution timeout')), this.timeout)
+        )
+      ]);
+      this.metrics.succeeded++;
+      return result;
+    } catch (e) {
+      this.metrics.failed++;
+      throw e;
+    } finally {
+      this.active--;
+      this.dequeue();
+    }
+  }
+
+  dequeue() {
+    if (this.queue.length > 0 && this.active < this.maxConcurrent) {
+      const { resolve, timer } = this.queue.shift();
+      clearTimeout(timer);
+      resolve();
+    }
+  }
+
+  getMetrics() { return { ...this.metrics, active: this.active, queued: this.queue.length }; }
+}
+
+// ═══ Isolate different API calls ═══
+const criticalBulkhead = new Bulkhead('critical-api', { maxConcurrent: 20, maxQueue: 100 });
+const analyticsBulkhead = new Bulkhead('analytics', { maxConcurrent: 5, maxQueue: 10 });
+
+// Critical API (user data) gets more resources
+async function fetchUser(id) {
+  return criticalBulkhead.execute(() => fetch(`/api/users/${id}`).then(r => r.json()));
+}
+
+// Analytics can fail silently without affecting user experience
+async function trackEvent(event) {
+  try {
+    return await analyticsBulkhead.execute(() => 
+      fetch('/api/analytics', { method: 'POST', body: JSON.stringify(event) })
+    );
+  } catch (e) {
+    // Silently fail — analytics should never break UX
+    console.warn('Analytics dropped:', e.message);
+  }
+}</code></pre>
+
+<h3>2.3 Fallback Strategies (Graceful Degradation)</h3>
+
+<pre><code>// ═══ Multi-level Fallback Chain ═══
+class FallbackChain {
+  constructor(strategies) {
+    this.strategies = strategies; // Array of { name, execute, condition? }
+  }
+
+  async execute(context) {
+    const errors = [];
+    
+    for (const strategy of this.strategies) {
+      if (strategy.condition && !strategy.condition(context)) continue;
+      
+      try {
+        const result = await strategy.execute(context);
+        if (errors.length > 0) {
+          console.warn(`Degraded: using fallback "${strategy.name}" after ${errors.length} failures`);
+        }
+        return { result, strategy: strategy.name, degraded: errors.length > 0 };
+      } catch (e) {
+        errors.push({ strategy: strategy.name, error: e });
+      }
+    }
+    
+    throw new AggregateError(errors.map(e => e.error), 'All fallback strategies exhausted');
+  }
+}
+
+// ═══ Real-world: Image loading with progressive fallback ═══
+const imageLoader = new FallbackChain([
+  { 
+    name: 'cdn-webp',
+    execute: (ctx) => loadImage(`https://cdn.example.com/${ctx.id}.webp`)
+  },
+  { 
+    name: 'cdn-jpeg',
+    execute: (ctx) => loadImage(`https://cdn.example.com/${ctx.id}.jpg`)
+  },
+  { 
+    name: 'origin-server',
+    execute: (ctx) => loadImage(`https://origin.example.com/images/${ctx.id}`)
+  },
+  { 
+    name: 'cached-thumbnail',
+    execute: async (ctx) => {
+      const cached = await caches.match(`/thumbnails/${ctx.id}`);
+      if (!cached) throw new Error('No cache');
+      return cached;
+    }
+  },
+  { 
+    name: 'placeholder',
+    execute: (ctx) => Promise.resolve(generatePlaceholder(ctx.width, ctx.height))
+  }
+]);
+
+// ═══ Stale-While-Revalidate (SWR) Pattern ═══
+class SWRCache {
+  constructor({ maxAge = 60000, staleWhileRevalidate = 300000 }) {
+    this.maxAge = maxAge;
+    this.staleWhileRevalidate = staleWhileRevalidate;
+    this.cache = new Map();
+    this.revalidating = new Set();
+  }
+
+  async get(key, fetcher) {
+    const entry = this.cache.get(key);
+    const now = Date.now();
+
+    if (!entry) {
+      // Cache miss — fetch fresh
+      return this.fetchAndCache(key, fetcher);
+    }
+
+    const age = now - entry.timestamp;
+
+    if (age < this.maxAge) {
+      // Fresh — serve from cache
+      return entry.data;
+    }
+
+    if (age < this.staleWhileRevalidate) {
+      // Stale but acceptable — serve stale, revalidate in background
+      if (!this.revalidating.has(key)) {
+        this.revalidating.add(key);
+        this.fetchAndCache(key, fetcher).finally(() => this.revalidating.delete(key));
+      }
+      return entry.data; // Return stale immediately
+    }
+
+    // Too stale — must refetch
+    return this.fetchAndCache(key, fetcher);
+  }
+
+  async fetchAndCache(key, fetcher) {
+    const data = await fetcher();
+    this.cache.set(key, { data, timestamp: Date.now() });
+    return data;
+  }
+}
+
+// Usage:
+const userCache = new SWRCache({ maxAge: 30000, staleWhileRevalidate: 120000 });
+const user = await userCache.get(`user-${id}`, () => fetchUser(id));</code></pre>
+
+<div class="interview-tip">
+<strong>💡 Interview Answer:</strong> "I use the bulkhead pattern to isolate critical paths from non-critical ones. If our analytics service is overloaded, it shouldn't starve API calls that serve the user. Each subsystem gets its own concurrency pool with queue limits. Combined with circuit breakers, this prevents cascading failures — one bad dependency can't bring down the entire page."
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="microfrontends">3. Microfrontends & Module Federation</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="architect-note">
+<strong>🏗️ Why This Matters:</strong> At Meta's scale (30K+ engineers), you can't have everyone in one repo deploying together. Microfrontends let teams deploy independently. Module Federation (Webpack 5 / Vite) is the runtime mechanism.
+</div>
+
+<h3>3.1 Architecture Decision: When to Use Microfrontends</h3>
+
+<table>
+<tr><th>Factor</th><th>Monolith Better</th><th>Microfrontend Better</th></tr>
+<tr><td>Team Size</td><td>&lt; 5 frontend devs</td><td>&gt; 15 frontend devs, multiple teams</td></tr>
+<tr><td>Deploy Cadence</td><td>Weekly/bi-weekly</td><td>Multiple times/day per team</td></tr>
+<tr><td>Tech Stack</td><td>Single framework</td><td>Mixed or migration needed</td></tr>
+<tr><td>Domain Boundaries</td><td>Tightly coupled features</td><td>Clear bounded contexts</td></tr>
+<tr><td>Performance</td><td>Critical (bundle size matters)</td><td>Acceptable tradeoff for velocity</td></tr>
+<tr><td>Consistency</td><td>Pixel-perfect across app</td><td>Shared design system sufficient</td></tr>
+</table>
+
+<h3>3.2 Module Federation (Runtime Sharing)</h3>
+
+<pre><code>// ═══ Webpack 5 Module Federation Configuration ═══
+// Host Application (Shell)
+// webpack.config.js
+const { ModuleFederationPlugin } = require('webpack').container;
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'shell',
+      remotes: {
+        // Other apps exposed at runtime
+        userProfile: 'userProfile@https://profile.cdn.example.com/remoteEntry.js',
+        feed: 'feed@https://feed.cdn.example.com/remoteEntry.js',
+        messaging: 'messaging@https://messaging.cdn.example.com/remoteEntry.js',
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.0.0' },
+        'react-dom': { singleton: true },
+        '@company/design-system': { singleton: true, eager: true },
+      }
+    })
+  ]
+};
+
+// Remote Application (Profile Team)
+// webpack.config.js
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'userProfile',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './ProfileCard': './src/components/ProfileCard',
+        './ProfileSettings': './src/pages/Settings',
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.0.0' },
+        'react-dom': { singleton: true },
+      }
+    })
+  ]
+};
+
+// ═══ Dynamic Import in Shell ═══
+// Loading remote component at runtime
+const ProfileCard = React.lazy(() => import('userProfile/ProfileCard'));
+
+function App() {
+  return (
+    &lt;ErrorBoundary fallback={&lt;ProfileSkeleton /&gt;}&gt;
+      &lt;React.Suspense fallback={&lt;ProfileSkeleton /&gt;}&gt;
+        &lt;ProfileCard userId={currentUser.id} /&gt;
+      &lt;/React.Suspense&gt;
+    &lt;/ErrorBoundary&gt;
+  );
+}</code></pre>
+
+<h3>3.3 Communication Between Microfrontends</h3>
+
+<pre><code>// ═══ Event Bus for Cross-MFE Communication ═══
+// Shared library (loaded once via Module Federation shared)
+class MicroFrontendBus {
+  constructor() {
+    // Use CustomEvent on window for cross-framework compatibility
+    this.channel = new BroadcastChannel('mfe-bus');
+    this.subscriptions = new Map();
+  }
+
+  // Publish event to all MFEs (same tab)
+  emit(event, payload) {
+    const detail = { event, payload, source: this.appName, timestamp: Date.now() };
+    window.dispatchEvent(new CustomEvent('mfe:event', { detail }));
+    // Also broadcast to other tabs
+    this.channel.postMessage(detail);
+  }
+
+  // Subscribe to events from other MFEs
+  on(event, handler) {
+    const wrappedHandler = (e) => {
+      if (e.detail.event === event) {
+        handler(e.detail.payload, e.detail);
+      }
+    };
+    window.addEventListener('mfe:event', wrappedHandler);
+
+    if (!this.subscriptions.has(event)) this.subscriptions.set(event, []);
+    this.subscriptions.get(event).push({ handler, wrappedHandler });
+    
+    // Return unsubscribe function
+    return () => {
+      window.removeEventListener('mfe:event', wrappedHandler);
+      const subs = this.subscriptions.get(event);
+      const idx = subs.findIndex(s => s.handler === handler);
+      if (idx !== -1) subs.splice(idx, 1);
+    };
+  }
+
+  // Shared state (minimal — just for cross-cutting concerns)
+  setState(key, value) {
+    const prev = this.getState(key);
+    sessionStorage.setItem(`mfe:${key}`, JSON.stringify(value));
+    if (prev !== value) {
+      this.emit(`state:${key}`, { prev, next: value });
+    }
+  }
+
+  getState(key) {
+    const raw = sessionStorage.getItem(`mfe:${key}`);
+    return raw ? JSON.parse(raw) : null;
+  }
+}
+
+// Singleton across all MFEs
+window.__MFE_BUS__ = window.__MFE_BUS__ || new MicroFrontendBus();
+export const bus = window.__MFE_BUS__;
+
+// ═══ Usage in Profile MFE ═══
+bus.on('auth:logout', () => {
+  clearUserData();
+  redirectToLogin();
+});
+
+// ═══ Usage in Feed MFE ═══
+bus.emit('feed:new-post', { postId: '123', author: 'user-456' });</code></pre>
+
+<h3>3.4 Shared Dependencies & Version Conflicts</h3>
+
+<pre><code>// ═══ Import Map for Version Management (Native Browser) ═══
+// In production, use import maps for shared dependencies
+&lt;script type="importmap"&gt;
+{
+  "imports": {
+    "react": "https://cdn.example.com/react@18.2.0/esm/index.js",
+    "react-dom": "https://cdn.example.com/react-dom@18.2.0/esm/index.js",
+    "@design-system/": "https://cdn.example.com/ds@4.0.0/"
+  }
+}
+&lt;/script&gt;
+
+// ═══ Version Negotiation at Runtime ═══
+class SharedDependencyManager {
+  static registry = new Map();
+  
+  static register(name, version, module) {
+    if (!this.registry.has(name)) {
+      this.registry.set(name, []);
+    }
+    this.registry.get(name).push({ version, module });
+  }
+  
+  static resolve(name, requiredVersion) {
+    const versions = this.registry.get(name) || [];
+    // semver-compatible resolution
+    const compatible = versions.find(v => satisfies(v.version, requiredVersion));
+    if (!compatible) {
+      console.warn(`No compatible ${name}@${requiredVersion}. Loading isolated copy.`);
+      return null; // Will load its own copy
+    }
+    return compatible.module;
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="observability">4. Frontend Observability & Production Debugging</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="architect-note">
+<strong>🏗️ Why Netflix Cares:</strong> "You can't fix what you can't see." Netflix's frontend handles 200M+ subscribers across thousands of device types. Without observability, you're flying blind. This is a TOP interview topic for senior roles.
+</div>
+
+<h3>4.1 Error Tracking & Reporting Architecture</h3>
+
+<pre><code>// ═══ Production Error Reporter (Sentry-like) ═══
+class ErrorReporter {
+  constructor({ endpoint, appVersion, environment, sampleRate = 1.0 }) {
+    this.endpoint = endpoint;
+    this.appVersion = appVersion;
+    this.environment = environment;
+    this.sampleRate = sampleRate;
+    this.breadcrumbs = [];
+    this.maxBreadcrumbs = 50;
+    this.context = {};
+    
+    this.install();
+  }
+
+  install() {
+    // Capture unhandled errors
+    window.addEventListener('error', (event) => {
+      this.captureError(event.error || new Error(event.message), {
+        type: 'unhandled',
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      });
+    });
+
+    // Capture unhandled promise rejections
+    window.addEventListener('unhandledrejection', (event) => {
+      this.captureError(
+        event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
+        { type: 'unhandledrejection' }
+      );
+    });
+
+    // Capture console.error
+    const originalError = console.error;
+    console.error = (...args) => {
+      this.addBreadcrumb('console', 'error', args.map(String).join(' '));
+      originalError.apply(console, args);
+    };
+
+    // Capture XHR/Fetch failures
+    this.instrumentFetch();
+    
+    // Capture navigation
+    this.instrumentNavigation();
+  }
+
+  instrumentFetch() {
+    const originalFetch = window.fetch;
+    window.fetch = async (url, options) => {
+      const start = performance.now();
+      try {
+        const response = await originalFetch(url, options);
+        const duration = performance.now() - start;
+        this.addBreadcrumb('http', response.ok ? 'info' : 'error', 
+          `${options?.method || 'GET'} ${url} → ${response.status} (${Math.round(duration)}ms)`
+        );
+        if (!response.ok && response.status >= 500) {
+          this.captureError(new Error(`HTTP ${response.status}: ${url}`), {
+            type: 'http', status: response.status, duration
+          });
+        }
+        return response;
+      } catch (e) {
+        this.addBreadcrumb('http', 'error', `${options?.method || 'GET'} ${url} → NETWORK ERROR`);
+        throw e;
+      }
+    };
+  }
+
+  instrumentNavigation() {
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.entryType === 'navigation') {
+          this.addBreadcrumb('navigation', 'info', 
+            `${entry.type} → ${entry.name} (DOM: ${Math.round(entry.domContentLoadedEventEnd)}ms)`
+          );
+        }
+      }
+    });
+    observer.observe({ type: 'navigation', buffered: true });
+  }
+
+  addBreadcrumb(category, level, message) {
+    this.breadcrumbs.push({ category, level, message, timestamp: Date.now() });
+    if (this.breadcrumbs.length > this.maxBreadcrumbs) {
+      this.breadcrumbs.shift();
+    }
+  }
+
+  setContext(key, value) { this.context[key] = value; }
+
+  captureError(error, extra = {}) {
+    if (Math.random() > this.sampleRate) return;
+
+    const report = {
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: this.parseStack(error.stack)
+      },
+      breadcrumbs: [...this.breadcrumbs],
+      context: { ...this.context, ...extra },
+      environment: this.environment,
+      appVersion: this.appVersion,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+      // Performance context
+      memory: performance?.memory ? {
+        used: performance.memory.usedJSHeapSize,
+        total: performance.memory.totalJSHeapSize,
+        limit: performance.memory.jsHeapSizeLimit
+      } : null,
+      // Connection info
+      connection: navigator?.connection ? {
+        effectiveType: navigator.connection.effectiveType,
+        downlink: navigator.connection.downlink,
+        rtt: navigator.connection.rtt
+      } : null
+    };
+
+    // Send with beacon (survives page unload)
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(this.endpoint, JSON.stringify(report));
+    } else {
+      fetch(this.endpoint, {
+        method: 'POST',
+        body: JSON.stringify(report),
+        keepalive: true
+      }).catch(() => {}); // Silent fail
+    }
+  }
+
+  parseStack(stack) {
+    if (!stack) return [];
+    return stack.split('\n').slice(1).map(line => {
+      const match = line.match(/at\s+(.+?)\s+\((.+?):(\d+):(\d+)\)/);
+      if (match) {
+        return { function: match[1], file: match[2], line: +match[3], column: +match[4] };
+      }
+      return { raw: line.trim() };
+    });
+  }
+}
+
+// Initialize in your app
+const reporter = new ErrorReporter({
+  endpoint: '/api/errors',
+  appVersion: '2.5.1',
+  environment: 'production',
+  sampleRate: 0.1 // Only report 10% of errors to avoid overloading
+});</code></pre>
+
+<h3>4.2 Web Vitals Monitoring (Core Web Vitals)</h3>
+
+<pre><code>// ═══ Custom Web Vitals Collector ═══
+class WebVitalsCollector {
+  constructor(reportCallback) {
+    this.report = reportCallback;
+    this.metrics = {};
+    this.observe();
+  }
+
+  observe() {
+    this.observeLCP();
+    this.observeFID();
+    this.observeCLS();
+    this.observeINP();
+    this.observeTTFB();
+  }
+
+  // Largest Contentful Paint
+  observeLCP() {
+    const observer = new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      const lastEntry = entries[entries.length - 1];
+      this.metrics.lcp = {
+        value: lastEntry.startTime,
+        element: lastEntry.element?.tagName,
+        url: lastEntry.url,
+        rating: lastEntry.startTime <= 2500 ? 'good' : lastEntry.startTime <= 4000 ? 'needs-improvement' : 'poor'
+      };
+    });
+    observer.observe({ type: 'largest-contentful-paint', buffered: true });
+    
+    // Report on page hide (user navigates away)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && this.metrics.lcp) {
+        this.report('LCP', this.metrics.lcp);
+      }
+    }, { once: true });
+  }
+
+  // Interaction to Next Paint (replaces FID)
+  observeINP() {
+    let maxDuration = 0;
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.duration > maxDuration) {
+          maxDuration = entry.duration;
+          this.metrics.inp = {
+            value: entry.duration,
+            type: entry.name, // 'click', 'keydown', etc.
+            target: entry.target?.tagName,
+            rating: entry.duration <= 200 ? 'good' : entry.duration <= 500 ? 'needs-improvement' : 'poor'
+          };
+        }
+      }
+    });
+    observer.observe({ type: 'event', buffered: true, durationThreshold: 16 });
+  }
+
+  // Cumulative Layout Shift
+  observeCLS() {
+    let clsValue = 0;
+    let sessionValue = 0;
+    let sessionEntries = [];
+    
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (!entry.hadRecentInput) { // Ignore user-initiated shifts
+          const firstEntry = sessionEntries[0];
+          const lastEntry = sessionEntries[sessionEntries.length - 1];
+          
+          // Session window: gap < 1s, total < 5s
+          if (sessionEntries.length && 
+              entry.startTime - lastEntry.startTime < 1000 &&
+              entry.startTime - firstEntry.startTime < 5000) {
+            sessionValue += entry.value;
+            sessionEntries.push(entry);
+          } else {
+            sessionValue = entry.value;
+            sessionEntries = [entry];
+          }
+          
+          if (sessionValue > clsValue) {
+            clsValue = sessionValue;
+            this.metrics.cls = {
+              value: clsValue,
+              rating: clsValue <= 0.1 ? 'good' : clsValue <= 0.25 ? 'needs-improvement' : 'poor',
+              sources: sessionEntries.slice(-3).map(e => ({
+                node: e.sources?.[0]?.node?.tagName,
+                previousRect: e.sources?.[0]?.previousRect,
+                currentRect: e.sources?.[0]?.currentRect
+              }))
+            };
+          }
+        }
+      }
+    });
+    observer.observe({ type: 'layout-shift', buffered: true });
+  }
+
+  // First Input Delay
+  observeFID() {
+    const observer = new PerformanceObserver((list) => {
+      const entry = list.getEntries()[0];
+      this.metrics.fid = {
+        value: entry.processingStart - entry.startTime,
+        type: entry.name,
+        rating: entry.processingStart - entry.startTime <= 100 ? 'good' : 'poor'
+      };
+      this.report('FID', this.metrics.fid);
+    });
+    observer.observe({ type: 'first-input', buffered: true });
+  }
+
+  // Time to First Byte
+  observeTTFB() {
+    const observer = new PerformanceObserver((list) => {
+      const nav = list.getEntries()[0];
+      this.metrics.ttfb = {
+        value: nav.responseStart - nav.requestStart,
+        dns: nav.domainLookupEnd - nav.domainLookupStart,
+        tcp: nav.connectEnd - nav.connectStart,
+        tls: nav.secureConnectionStart ? nav.connectEnd - nav.secureConnectionStart : 0,
+        rating: nav.responseStart - nav.requestStart <= 800 ? 'good' : 'poor'
+      };
+      this.report('TTFB', this.metrics.ttfb);
+    });
+    observer.observe({ type: 'navigation', buffered: true });
+  }
+
+  getAll() { return { ...this.metrics }; }
+}
+
+// Usage:
+const vitals = new WebVitalsCollector((name, metric) => {
+  // Send to analytics
+  navigator.sendBeacon('/api/vitals', JSON.stringify({ name, ...metric, page: location.pathname }));
+});</code></pre>
+
+<h3>4.3 Distributed Tracing (Frontend → Backend Correlation)</h3>
+
+<pre><code>// ═══ Trace Context Propagation (W3C Trace Context) ═══
+class FrontendTracer {
+  constructor({ serviceName, endpoint, sampleRate = 0.01 }) {
+    this.serviceName = serviceName;
+    this.endpoint = endpoint;
+    this.sampleRate = sampleRate;
+    this.spans = [];
+  }
+
+  // Generate W3C trace-id (32 hex chars) and span-id (16 hex chars)
+  generateTraceId() {
+    return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  generateSpanId() {
+    return Array.from(crypto.getRandomValues(new Uint8Array(8)))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  startSpan(name, parentSpanId = null) {
+    const span = {
+      traceId: this.currentTraceId || this.generateTraceId(),
+      spanId: this.generateSpanId(),
+      parentSpanId,
+      name,
+      serviceName: this.serviceName,
+      startTime: performance.now(),
+      endTime: null,
+      attributes: {},
+      events: []
+    };
+    if (!this.currentTraceId) this.currentTraceId = span.traceId;
+    return span;
+  }
+
+  endSpan(span) {
+    span.endTime = performance.now();
+    span.duration = span.endTime - span.startTime;
+    this.spans.push(span);
+    
+    // Batch send
+    if (this.spans.length >= 10) this.flush();
+  }
+
+  // Inject trace context into outgoing fetch headers
+  injectHeaders(span) {
+    return {
+      'traceparent': `00-${span.traceId}-${span.spanId}-01`,
+      'tracestate': `${this.serviceName}=${span.spanId}`
+    };
+  }
+
+  // Traced fetch — correlates frontend request with backend processing
+  async tracedFetch(url, options = {}) {
+    const span = this.startSpan(`HTTP ${options.method || 'GET'} ${new URL(url, location.origin).pathname}`);
+    span.attributes = { 'http.url': url, 'http.method': options.method || 'GET' };
+
+    const headers = { ...options.headers, ...this.injectHeaders(span) };
+    
+    try {
+      const response = await fetch(url, { ...options, headers });
+      span.attributes['http.status_code'] = response.status;
+      span.attributes['http.response_size'] = response.headers.get('content-length');
+      this.endSpan(span);
+      return response;
+    } catch (error) {
+      span.attributes['error'] = true;
+      span.attributes['error.message'] = error.message;
+      span.events.push({ name: 'exception', timestamp: performance.now(), attributes: { message: error.message } });
+      this.endSpan(span);
+      throw error;
+    }
+  }
+
+  flush() {
+    if (this.spans.length === 0) return;
+    const batch = this.spans.splice(0);
+    navigator.sendBeacon(this.endpoint, JSON.stringify(batch));
+  }
+}
+
+// Usage — every fetch is automatically correlated with backend traces
+const tracer = new FrontendTracer({
+  serviceName: 'web-app',
+  endpoint: '/api/traces',
+  sampleRate: 0.05
+});
+
+// In your API layer:
+const data = await tracer.tracedFetch('/api/recommendations?user=123');</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="typescript-arch">5. TypeScript Architecture for Large Codebases</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="architect-note">
+<strong>🏗️ Why This Matters:</strong> Every major tech company uses TypeScript. But at Netflix/Meta scale, you need ADVANCED type patterns — not just <code>interface User { name: string }</code>. You'll be asked about type-level programming, branded types, and architecture-enforcing types.
+</div>
+
+<h3>5.1 Branded/Nominal Types (Preventing Bugs at Compile Time)</h3>
+
+<pre><code>// ═══ Problem: string is too loose ═══
+function getUser(userId: string) { /* ... */ }
+function getPost(postId: string) { /* ... */ }
+
+const userId = 'user-123';
+const postId = 'post-456';
+getUser(postId); // NO ERROR! But this is a bug!
+
+// ═══ Solution: Branded Types ═══
+type Brand&lt;T, B&gt; = T & { readonly __brand: B };
+
+type UserId = Brand&lt;string, 'UserId'&gt;;
+type PostId = Brand&lt;string, 'PostId'&gt;;
+type Email = Brand&lt;string, 'Email'&gt;;
+type ISO8601 = Brand&lt;string, 'ISO8601'&gt;;
+
+// Constructor functions that validate
+function UserId(id: string): UserId {
+  if (!id.startsWith('user-')) throw new Error(`Invalid UserId: ${id}`);
+  return id as UserId;
+}
+function PostId(id: string): PostId {
+  if (!id.startsWith('post-')) throw new Error(`Invalid PostId: ${id}`);
+  return id as PostId;
+}
+function Email(email: string): Email {
+  if (!email.includes('@')) throw new Error(`Invalid email: ${email}`);
+  return email as Email;
+}
+
+function getUser(userId: UserId) { /* ... */ }
+function getPost(postId: PostId) { /* ... */ }
+
+const uid = UserId('user-123');
+const pid = PostId('post-456');
+getUser(pid); // TS ERROR! Type 'PostId' is not assignable to 'UserId'
+getUser(uid); // ✅ Works!</code></pre>
+
+<h3>5.2 Discriminated Unions & Exhaustive Pattern Matching</h3>
+
+<pre><code>// ═══ State Machine with TypeScript (React/Angular state) ═══
+type AsyncState&lt;T, E = Error&gt; =
+  | { status: 'idle' }
+  | { status: 'loading'; requestId: string }
+  | { status: 'success'; data: T; fetchedAt: number }
+  | { status: 'error'; error: E; retryCount: number };
+
+// Exhaustive handler — compiler ensures ALL cases are handled
+function renderState&lt;T&gt;(state: AsyncState&lt;T&gt;): string {
+  switch (state.status) {
+    case 'idle': return 'Ready';
+    case 'loading': return `Loading (${state.requestId})...`;
+    case 'success': return `Data: ${JSON.stringify(state.data)}`;
+    case 'error': return `Error: ${state.error.message} (retry ${state.retryCount})`;
+    default: {
+      // Exhaustiveness check — if you add a new status, TS errors here
+      const _exhaustive: never = state;
+      throw new Error(`Unhandled state: ${JSON.stringify(_exhaustive)}`);
+    }
+  }
+}
+
+// ═══ API Response Typing ═══
+type ApiResponse&lt;T&gt; = 
+  | { ok: true; data: T; meta: { requestId: string; duration: number } }
+  | { ok: false; error: { code: string; message: string; field?: string } };
+
+async function fetchTyped&lt;T&gt;(url: string): Promise&lt;ApiResponse&lt;T&gt;&gt; {
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!res.ok) return { ok: false, error: data };
+    return { ok: true, data, meta: { requestId: res.headers.get('x-request-id')!, duration: 0 } };
+  } catch (e) {
+    return { ok: false, error: { code: 'NETWORK_ERROR', message: (e as Error).message } };
+  }
+}
+
+// Usage — TypeScript narrows correctly:
+const result = await fetchTyped&lt;User[]&gt;('/api/users');
+if (result.ok) {
+  console.log(result.data[0].name); // TS knows data is User[]
+} else {
+  console.error(result.error.code); // TS knows error shape
+}</code></pre>
+
+<h3>5.3 Builder Pattern with Type Safety</h3>
+
+<pre><code>// ═══ Type-safe Query Builder (prevents invalid queries at compile time) ═══
+type QueryConfig = {
+  table?: string;
+  conditions: string[];
+  orderBy?: { column: string; direction: 'ASC' | 'DESC' };
+  limit?: number;
+  joins: string[];
+};
+
+class QueryBuilder&lt;HasTable extends boolean = false, HasCondition extends boolean = false&gt; {
+  private config: QueryConfig = { conditions: [], joins: [] };
+
+  from(table: string): QueryBuilder&lt;true, HasCondition&gt; {
+    this.config.table = table;
+    return this as any;
+  }
+
+  where(condition: string): QueryBuilder&lt;HasTable, true&gt; {
+    this.config.conditions.push(condition);
+    return this as any;
+  }
+
+  orderBy(column: string, direction: 'ASC' | 'DESC' = 'ASC'): this {
+    this.config.orderBy = { column, direction };
+    return this;
+  }
+
+  limit(n: number): this {
+    this.config.limit = n;
+    return this;
+  }
+
+  // Can only call build() if table AND condition are set
+  build(this: QueryBuilder&lt;true, true&gt;): string {
+    let sql = `SELECT * FROM ${this.config.table}`;
+    if (this.config.conditions.length) {
+      sql += ` WHERE ${this.config.conditions.join(' AND ')}`;
+    }
+    if (this.config.orderBy) {
+      sql += ` ORDER BY ${this.config.orderBy.column} ${this.config.orderBy.direction}`;
+    }
+    if (this.config.limit) {
+      sql += ` LIMIT ${this.config.limit}`;
+    }
+    return sql;
+  }
+}
+
+// ✅ This works:
+new QueryBuilder().from('users').where('active = true').build();
+// ❌ TS Error: build() doesn't exist on QueryBuilder&lt;false, false&gt;
+// new QueryBuilder().build();
+// ❌ TS Error: build() doesn't exist on QueryBuilder&lt;true, false&gt; (no where clause)
+// new QueryBuilder().from('users').build();</code></pre>
+
+<h3>5.4 Conditional & Mapped Types for API Layers</h3>
+
+<pre><code>// ═══ Auto-generate API client types from route definitions ═══
+type ApiRoutes = {
+  'GET /users': { response: User[]; query: { page?: number; limit?: number } };
+  'GET /users/:id': { response: User; params: { id: string } };
+  'POST /users': { response: User; body: CreateUserDto };
+  'PUT /users/:id': { response: User; params: { id: string }; body: UpdateUserDto };
+  'DELETE /users/:id': { response: void; params: { id: string } };
+};
+
+// Extract method and path
+type ExtractMethod&lt;T&gt; = T extends `${infer M} ${string}` ? M : never;
+type ExtractPath&lt;T&gt; = T extends `${string} ${infer P}` ? P : never;
+
+// Type-safe API client
+type ApiClient = {
+  [Route in keyof ApiRoutes as `${Lowercase&lt;ExtractMethod&lt;Route & string&gt;&gt;}`]: 
+    (config: Omit&lt;ApiRoutes[Route], 'response'&gt;) => Promise&lt;ApiRoutes[Route]['response']&gt;;
+};
+
+// ═══ Utility Types for Real Apps ═══
+// DeepPartial — for form state (partially filled)
+type DeepPartial&lt;T&gt; = T extends object ? { [P in keyof T]?: DeepPartial&lt;T[P]&gt; } : T;
+
+// DeepReadonly — for immutable state
+type DeepReadonly&lt;T&gt; = T extends (infer U)[]
+  ? readonly DeepReadonly&lt;U&gt;[]
+  : T extends object
+  ? { readonly [P in keyof T]: DeepReadonly&lt;T[P]&gt; }
+  : T;
+
+// PathsOf — get all valid dot-notation paths of an object
+type PathsOf&lt;T, Prefix extends string = ''&gt; = T extends object
+  ? { [K in keyof T & string]: 
+      `${Prefix}${K}` | PathsOf&lt;T[K], `${Prefix}${K}.`&gt;
+    }[keyof T & string]
+  : never;
+
+type UserPaths = PathsOf&lt;User&gt;; // "name" | "email" | "address" | "address.street" | "address.city" | ...
+
+// Type-safe lodash.get
+function get&lt;T, P extends PathsOf&lt;T&gt;&gt;(obj: T, path: P): any {
+  return (path as string).split('.').reduce((acc: any, key) => acc?.[key], obj);
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="advanced-state">6. Advanced State Management at Scale</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h3>6.1 Normalized State (Like a Client-Side Database)</h3>
+
+<pre><code>// ═══ Entity Normalization (How Redux Toolkit / NgRx Entity works) ═══
+// Problem: Deeply nested state → update is expensive + inconsistent copies
+// Solution: Flat structure like a database table
+
+// Before (WRONG for large apps):
+const badState = {
+  posts: [
+    { id: '1', title: 'Hello', author: { id: 'u1', name: 'Alice' }, comments: [
+      { id: 'c1', text: 'Nice!', author: { id: 'u2', name: 'Bob' } }
+    ]}
+  ]
+};
+// If Alice changes her name → update in EVERY nested location!
+
+// After (CORRECT — normalized):
+const goodState = {
+  entities: {
+    users: {
+      'u1': { id: 'u1', name: 'Alice' },
+      'u2': { id: 'u2', name: 'Bob' }
+    },
+    posts: {
+      'p1': { id: 'p1', title: 'Hello', authorId: 'u1', commentIds: ['c1'] }
+    },
+    comments: {
+      'c1': { id: 'c1', text: 'Nice!', authorId: 'u2', postId: 'p1' }
+    }
+  },
+  ids: {
+    users: ['u1', 'u2'],
+    posts: ['p1'],
+    comments: ['c1']
+  }
+};
+// Alice changes name → ONE update in users['u1']
+
+// ═══ Entity Adapter (like @ngrx/entity) ═══
+class EntityAdapter {
+  constructor(selectId = (entity) => entity.id) {
+    this.selectId = selectId;
+  }
+
+  getInitialState(additionalState = {}) {
+    return { ids: [], entities: {}, ...additionalState };
+  }
+
+  addOne(state, entity) {
+    const id = this.selectId(entity);
+    if (state.entities[id]) return state; // Already exists
+    return {
+      ...state,
+      ids: [...state.ids, id],
+      entities: { ...state.entities, [id]: entity }
+    };
+  }
+
+  updateOne(state, { id, changes }) {
+    if (!state.entities[id]) return state;
+    return {
+      ...state,
+      entities: {
+        ...state.entities,
+        [id]: { ...state.entities[id], ...changes }
+      }
+    };
+  }
+
+  removeOne(state, id) {
+    const { [id]: removed, ...entities } = state.entities;
+    return {
+      ...state,
+      ids: state.ids.filter(i => i !== id),
+      entities
+    };
+  }
+
+  upsertMany(state, entities) {
+    let newState = state;
+    for (const entity of entities) {
+      const id = this.selectId(entity);
+      if (newState.entities[id]) {
+        newState = this.updateOne(newState, { id, changes: entity });
+      } else {
+        newState = this.addOne(newState, entity);
+      }
+    }
+    return newState;
+  }
+
+  // Selectors
+  selectAll(state) { return state.ids.map(id => state.entities[id]); }
+  selectById(state, id) { return state.entities[id]; }
+  selectTotal(state) { return state.ids.length; }
+}</code></pre>
+
+<h3>6.2 Signals (The Future of Reactivity)</h3>
+
+<pre><code>// ═══ Signals Implementation (Angular 16+ / SolidJS / Preact) ═══
+// Fine-grained reactivity WITHOUT virtual DOM diffing
+
+let currentEffect = null;
+
+function createSignal(initialValue) {
+  let value = initialValue;
+  const subscribers = new Set();
+
+  function read() {
+    // Track which effect is reading this signal
+    if (currentEffect) {
+      subscribers.add(currentEffect);
+    }
+    return value;
+  }
+
+  function write(newValue) {
+    if (Object.is(value, newValue)) return; // No change
+    value = newValue;
+    // Notify all subscribers (effects that depend on this signal)
+    for (const effect of subscribers) {
+      effect.execute();
+    }
+  }
+
+  return [read, write];
+}
+
+function createEffect(fn) {
+  const effect = {
+    execute() {
+      // Clean up old subscriptions
+      currentEffect = effect;
+      try {
+        fn(); // During execution, signals track this effect
+      } finally {
+        currentEffect = null;
+      }
+    }
+  };
+  effect.execute(); // Run immediately to establish subscriptions
+  return effect;
+}
+
+function createComputed(fn) {
+  const [get, set] = createSignal(undefined);
+  createEffect(() => set(fn()));
+  return get;
+}
+
+// ═══ Usage (like Angular Signals) ═══
+const [count, setCount] = createSignal(0);
+const [multiplier, setMultiplier] = createSignal(2);
+
+const doubled = createComputed(() => count() * multiplier());
+
+createEffect(() => {
+  console.log(`Count: ${count()}, Doubled: ${doubled()}`);
+  // Only re-runs when count OR multiplier changes
+  // NOT when unrelated signals change (unlike React re-renders!)
+});
+
+setCount(5);    // Logs: "Count: 5, Doubled: 10"
+setMultiplier(3); // Logs: "Count: 5, Doubled: 15"
+
+// ═══ Why Signals > useState + useMemo ═══
+// React: Component re-renders entirely, THEN diffs virtual DOM
+// Signals: Only the exact DOM nodes that depend on changed signals update
+// Result: O(1) updates instead of O(n) tree diffing</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="offline-sync">7. Offline-First, Sync & Conflict Resolution</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h3>7.1 Offline-First Architecture</h3>
+
+<pre><code>// ═══ IndexedDB + Service Worker + Sync Queue ═══
+class OfflineFirstStore {
+  constructor(dbName, storeName) {
+    this.dbName = dbName;
+    this.storeName = storeName;
+    this.syncQueue = 'sync-queue';
+    this.db = null;
+  }
+
+  async open() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, 1);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          db.createObjectStore(this.storeName, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(this.syncQueue)) {
+          const store = db.createObjectStore(this.syncQueue, { keyPath: 'id', autoIncrement: true });
+          store.createIndex('status', 'status');
+        }
+      };
+      request.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Write locally + queue for sync
+  async put(item) {
+    const tx = this.db.transaction([this.storeName, this.syncQueue], 'readwrite');
+    
+    // Save locally
+    const localItem = { ...item, _localUpdatedAt: Date.now(), _synced: false };
+    tx.objectStore(this.storeName).put(localItem);
+    
+    // Queue sync operation
+    tx.objectStore(this.syncQueue).add({
+      operation: 'PUT',
+      storeName: this.storeName,
+      data: item,
+      timestamp: Date.now(),
+      status: 'pending',
+      retries: 0
+    });
+
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+
+    // Try to sync immediately if online
+    if (navigator.onLine) {
+      this.processSyncQueue();
+    }
+  }
+
+  async get(id) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(this.storeName, 'readonly');
+      const request = tx.objectStore(this.storeName).get(id);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Process queued operations when back online
+  async processSyncQueue() {
+    const tx = this.db.transaction(this.syncQueue, 'readonly');
+    const index = tx.objectStore(this.syncQueue).index('status');
+    const pending = await this.getAllFromIndex(index, 'pending');
+
+    for (const op of pending) {
+      try {
+        await this.syncOperation(op);
+        await this.updateSyncStatus(op.id, 'synced');
+      } catch (e) {
+        if (op.retries >= 3) {
+          await this.updateSyncStatus(op.id, 'failed');
+        } else {
+          await this.incrementRetry(op.id);
+        }
+      }
+    }
+  }
+
+  async syncOperation(op) {
+    const response = await fetch(`/api/${op.storeName}`, {
+      method: op.operation === 'PUT' ? 'PUT' : 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(op.data)
+    });
+    if (!response.ok) throw new Error(`Sync failed: ${response.status}`);
+    return response.json();
+  }
+
+  getAllFromIndex(index, value) {
+    return new Promise((resolve) => {
+      const results = [];
+      const request = index.openCursor(IDBKeyRange.only(value));
+      request.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) { results.push(cursor.value); cursor.continue(); }
+        else resolve(results);
+      };
+    });
+  }
+
+  async updateSyncStatus(id, status) {
+    const tx = this.db.transaction(this.syncQueue, 'readwrite');
+    const store = tx.objectStore(this.syncQueue);
+    const item = await new Promise(r => { const req = store.get(id); req.onsuccess = () => r(req.result); });
+    item.status = status;
+    store.put(item);
+  }
+
+  async incrementRetry(id) {
+    const tx = this.db.transaction(this.syncQueue, 'readwrite');
+    const store = tx.objectStore(this.syncQueue);
+    const item = await new Promise(r => { const req = store.get(id); req.onsuccess = () => r(req.result); });
+    item.retries++;
+    store.put(item);
+  }
+}
+
+// Listen for connectivity changes
+window.addEventListener('online', () => store.processSyncQueue());
+</code></pre>
+
+<h3>7.2 Conflict Resolution Strategies</h3>
+
+<pre><code>// ═══ Last-Write-Wins (LWW) — Simplest strategy ═══
+function resolveConflictLWW(local, remote) {
+  return local._localUpdatedAt > remote.updatedAt ? local : remote;
+}
+
+// ═══ Three-Way Merge (like Git) ═══
+function threeWayMerge(base, local, remote) {
+  const result = { ...base };
+  const conflicts = [];
+
+  const allKeys = new Set([...Object.keys(local), ...Object.keys(remote)]);
+  
+  for (const key of allKeys) {
+    const baseVal = base[key];
+    const localVal = local[key];
+    const remoteVal = remote[key];
+    
+    if (JSON.stringify(localVal) === JSON.stringify(remoteVal)) {
+      // Both made same change — no conflict
+      result[key] = localVal;
+    } else if (JSON.stringify(localVal) === JSON.stringify(baseVal)) {
+      // Only remote changed — accept remote
+      result[key] = remoteVal;
+    } else if (JSON.stringify(remoteVal) === JSON.stringify(baseVal)) {
+      // Only local changed — accept local
+      result[key] = localVal;
+    } else {
+      // CONFLICT: both changed differently
+      conflicts.push({ key, base: baseVal, local: localVal, remote: remoteVal });
+      result[key] = remoteVal; // Default to remote, flag for user resolution
+    }
+  }
+
+  return { result, conflicts, hasConflicts: conflicts.length > 0 };
+}
+
+// ═══ CRDT: Counter (Conflict-free by design) ═══
+// CRDTs guarantee convergence without coordination
+class GCounter {
+  constructor(nodeId) {
+    this.nodeId = nodeId;
+    this.counts = {}; // { nodeId: count }
+  }
+
+  increment(amount = 1) {
+    this.counts[this.nodeId] = (this.counts[this.nodeId] || 0) + amount;
+  }
+
+  value() {
+    return Object.values(this.counts).reduce((sum, c) => sum + c, 0);
+  }
+
+  merge(other) {
+    // Take max of each node's counter — guarantees convergence
+    for (const [nodeId, count] of Object.entries(other.counts)) {
+      this.counts[nodeId] = Math.max(this.counts[nodeId] || 0, count);
+    }
+  }
+}
+
+// ═══ CRDT: LWW-Register (Last-Writer-Wins Register) ═══
+class LWWRegister {
+  constructor(nodeId) {
+    this.nodeId = nodeId;
+    this.value = null;
+    this.timestamp = 0;
+  }
+
+  set(value) {
+    this.value = value;
+    this.timestamp = Date.now();
+  }
+
+  merge(other) {
+    if (other.timestamp > this.timestamp) {
+      this.value = other.value;
+      this.timestamp = other.timestamp;
+    }
+    // If timestamps equal, use nodeId as tiebreaker (deterministic)
+    if (other.timestamp === this.timestamp && other.nodeId > this.nodeId) {
+      this.value = other.value;
+    }
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="a11y">8. Accessibility Engineering (WCAG 2.2 Mastery)</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="architect-note">
+<strong>🏗️ Why This Matters:</strong> Netflix was sued for inaccessible content. Meta has a11y as a P0 requirement. At senior level, you MUST know ARIA patterns, not just "add alt text." This is a HARD requirement for L5+ roles.
+</div>
+
+<h3>8.1 ARIA Patterns for Complex Widgets</h3>
+
+<pre><code>// ═══ Accessible Combobox (Autocomplete) — WAI-ARIA 1.2 ═══
+class AccessibleCombobox {
+  constructor(container) {
+    this.container = container;
+    this.input = container.querySelector('[role="combobox"]');
+    this.listbox = container.querySelector('[role="listbox"]');
+    this.activeIndex = -1;
+    this.options = [];
+    
+    this.setup();
+  }
+
+  setup() {
+    // Required ARIA attributes
+    this.input.setAttribute('aria-expanded', 'false');
+    this.input.setAttribute('aria-autocomplete', 'list');
+    this.input.setAttribute('aria-controls', this.listbox.id);
+    this.input.setAttribute('aria-activedescendant', '');
+    
+    this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+    this.input.addEventListener('input', (e) => this.handleInput(e));
+    this.input.addEventListener('focus', () => this.open());
+    this.input.addEventListener('blur', () => setTimeout(() => this.close(), 150));
+  }
+
+  handleKeydown(e) {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        this.moveActive(1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        this.moveActive(-1);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (this.activeIndex >= 0) this.selectOption(this.activeIndex);
+        break;
+      case 'Escape':
+        this.close();
+        this.input.value = '';
+        break;
+      case 'Home':
+        e.preventDefault();
+        this.moveActive(-Infinity);
+        break;
+      case 'End':
+        e.preventDefault();
+        this.moveActive(Infinity);
+        break;
+    }
+  }
+
+  moveActive(delta) {
+    const len = this.options.length;
+    if (len === 0) return;
+    
+    if (delta === -Infinity) this.activeIndex = 0;
+    else if (delta === Infinity) this.activeIndex = len - 1;
+    else this.activeIndex = Math.max(0, Math.min(len - 1, this.activeIndex + delta));
+    
+    // Update ARIA
+    this.options.forEach((opt, i) => {
+      opt.setAttribute('aria-selected', i === this.activeIndex ? 'true' : 'false');
+    });
+    
+    const activeOption = this.options[this.activeIndex];
+    this.input.setAttribute('aria-activedescendant', activeOption.id);
+    
+    // Scroll into view
+    activeOption.scrollIntoView({ block: 'nearest' });
+    
+    // Announce to screen reader
+    this.announce(`${activeOption.textContent}, ${this.activeIndex + 1} of ${len}`);
+  }
+
+  announce(message) {
+    // Live region for screen readers
+    let live = document.getElementById('combobox-live');
+    if (!live) {
+      live = document.createElement('div');
+      live.id = 'combobox-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.className = 'sr-only'; // Visually hidden
+      document.body.appendChild(live);
+    }
+    live.textContent = message;
+  }
+
+  open() {
+    this.input.setAttribute('aria-expanded', 'true');
+    this.listbox.hidden = false;
+  }
+
+  close() {
+    this.input.setAttribute('aria-expanded', 'false');
+    this.input.setAttribute('aria-activedescendant', '');
+    this.listbox.hidden = true;
+    this.activeIndex = -1;
+  }
+
+  selectOption(index) {
+    const option = this.options[index];
+    this.input.value = option.textContent;
+    this.close();
+    // Dispatch change event
+    this.input.dispatchEvent(new Event('change', { bubbles: true }));
+    this.announce(`${option.textContent} selected`);
+  }
+}</code></pre>
+
+<h3>8.2 Focus Management Patterns</h3>
+
+<pre><code>// ═══ Focus Trap (for Modals, Drawers) ═══
+class FocusTrap {
+  constructor(container) {
+    this.container = container;
+    this.previousFocus = null;
+  }
+
+  activate() {
+    this.previousFocus = document.activeElement;
+    
+    // Find all focusable elements
+    const focusable = this.getFocusableElements();
+    if (focusable.length === 0) return;
+    
+    // Focus first element
+    focusable[0].focus();
+    
+    // Trap focus within container
+    this.handleKeydown = (e) => {
+      if (e.key !== 'Tab') return;
+      
+      const focusable = this.getFocusableElements();
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    
+    document.addEventListener('keydown', this.handleKeydown);
+  }
+
+  deactivate() {
+    document.removeEventListener('keydown', this.handleKeydown);
+    // Return focus to trigger element
+    this.previousFocus?.focus();
+  }
+
+  getFocusableElements() {
+    const selector = [
+      'a[href]', 'button:not([disabled])', 'input:not([disabled])',
+      'select:not([disabled])', 'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])', '[contenteditable]'
+    ].join(',');
+    return [...this.container.querySelectorAll(selector)]
+      .filter(el => !el.closest('[hidden]') && !el.closest('[aria-hidden="true"]'));
+  }
+}
+
+// ═══ Roving Tabindex (for Toolbars, Tab Lists, Menus) ═══
+class RovingTabindex {
+  constructor(container, selector) {
+    this.container = container;
+    this.selector = selector;
+    this.items = [...container.querySelectorAll(selector)];
+    this.currentIndex = 0;
+    
+    this.init();
+  }
+
+  init() {
+    // Only first item is in tab order
+    this.items.forEach((item, i) => {
+      item.setAttribute('tabindex', i === 0 ? '0' : '-1');
+    });
+    
+    this.container.addEventListener('keydown', (e) => {
+      let handled = true;
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          this.move(1);
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          this.move(-1);
+          break;
+        case 'Home':
+          this.moveTo(0);
+          break;
+        case 'End':
+          this.moveTo(this.items.length - 1);
+          break;
+        default:
+          handled = false;
+      }
+      if (handled) e.preventDefault();
+    });
+  }
+
+  move(delta) {
+    const newIndex = (this.currentIndex + delta + this.items.length) % this.items.length;
+    this.moveTo(newIndex);
+  }
+
+  moveTo(index) {
+    this.items[this.currentIndex].setAttribute('tabindex', '-1');
+    this.currentIndex = index;
+    this.items[this.currentIndex].setAttribute('tabindex', '0');
+    this.items[this.currentIndex].focus();
+  }
+}</code></pre>
+
+<h3>8.3 Accessibility Testing Checklist (What Interviewers Ask)</h3>
+
+<table>
+<tr><th>Category</th><th>Requirement</th><th>How to Test</th></tr>
+<tr><td>Keyboard</td><td>All interactive elements reachable via Tab</td><td>Unplug mouse, navigate entire page</td></tr>
+<tr><td>Keyboard</td><td>Focus visible (no outline:none without replacement)</td><td>Tab through, verify focus indicator</td></tr>
+<tr><td>Screen Reader</td><td>All images have alt text (or alt="" for decorative)</td><td>axe-core, Lighthouse</td></tr>
+<tr><td>Screen Reader</td><td>Form inputs have labels (for/id or aria-labelledby)</td><td>Click label, verify focus moves</td></tr>
+<tr><td>Screen Reader</td><td>Dynamic content announced (aria-live regions)</td><td>VoiceOver/NVDA test</td></tr>
+<tr><td>Color</td><td>4.5:1 contrast ratio (normal text), 3:1 (large text)</td><td>Chrome DevTools contrast checker</td></tr>
+<tr><td>Color</td><td>Info not conveyed by color alone</td><td>Greyscale screenshot test</td></tr>
+<tr><td>Motion</td><td>Respect prefers-reduced-motion</td><td>Toggle in OS settings</td></tr>
+<tr><td>Structure</td><td>Heading hierarchy (h1 → h2 → h3, no skips)</td><td>HeadingsMap extension</td></tr>
+<tr><td>ARIA</td><td>Custom widgets follow WAI-ARIA patterns</td><td>ARIA Authoring Practices Guide</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="realtime">9. Real-Time Architecture (WebSocket, SSE, WebRTC)</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h3>9.1 Production WebSocket Manager</h3>
+
+<pre><code>// ═══ Enterprise WebSocket with Reconnection, Heartbeat, Message Queue ═══
+class WebSocketManager {
+  constructor(url, options = {}) {
+    this.url = url;
+    this.options = {
+      maxReconnectAttempts: 10,
+      baseReconnectDelay: 1000,
+      maxReconnectDelay: 30000,
+      heartbeatInterval: 30000,
+      heartbeatTimeout: 5000,
+      messageQueueSize: 1000,
+      protocols: [],
+      ...options
+    };
+    
+    this.ws = null;
+    this.reconnectAttempts = 0;
+    this.messageQueue = [];
+    this.subscriptions = new Map();
+    this.heartbeatTimer = null;
+    this.heartbeatTimeoutTimer = null;
+    this.state = 'disconnected'; // disconnected | connecting | connected | reconnecting
+    this.listeners = { open: [], close: [], error: [], message: [], stateChange: [] };
+  }
+
+  connect() {
+    if (this.state === 'connected' || this.state === 'connecting') return;
+    this.setState('connecting');
+    
+    try {
+      this.ws = new WebSocket(this.url, this.options.protocols);
+      this.ws.binaryType = 'arraybuffer';
+      
+      this.ws.onopen = () => {
+        this.setState('connected');
+        this.reconnectAttempts = 0;
+        this.startHeartbeat();
+        this.flushQueue();
+        this.emit('open');
+      };
+      
+      this.ws.onmessage = (event) => {
+        this.resetHeartbeatTimeout();
+        const message = this.deserialize(event.data);
+        
+        if (message.type === 'pong') return; // Heartbeat response
+        
+        // Route to subscribers
+        const handlers = this.subscriptions.get(message.type) || [];
+        handlers.forEach(handler => handler(message.payload, message));
+        
+        this.emit('message', message);
+      };
+      
+      this.ws.onclose = (event) => {
+        this.stopHeartbeat();
+        this.emit('close', { code: event.code, reason: event.reason });
+        
+        if (!event.wasClean && this.state !== 'disconnected') {
+          this.reconnect();
+        }
+      };
+      
+      this.ws.onerror = (error) => {
+        this.emit('error', error);
+      };
+    } catch (e) {
+      this.reconnect();
+    }
+  }
+
+  send(type, payload, options = {}) {
+    const message = { type, payload, id: crypto.randomUUID(), timestamp: Date.now() };
+    
+    if (this.state === 'connected' && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(this.serialize(message));
+    } else if (options.queue !== false) {
+      // Queue for when connection is restored
+      if (this.messageQueue.length >= this.options.messageQueueSize) {
+        this.messageQueue.shift(); // Drop oldest
+      }
+      this.messageQueue.push(message);
+    }
+    
+    return message.id;
+  }
+
+  subscribe(type, handler) {
+    if (!this.subscriptions.has(type)) this.subscriptions.set(type, []);
+    this.subscriptions.get(type).push(handler);
+    return () => {
+      const handlers = this.subscriptions.get(type);
+      const idx = handlers.indexOf(handler);
+      if (idx !== -1) handlers.splice(idx, 1);
+    };
+  }
+
+  reconnect() {
+    if (this.reconnectAttempts >= this.options.maxReconnectAttempts) {
+      this.setState('disconnected');
+      this.emit('error', new Error('Max reconnection attempts reached'));
+      return;
+    }
+    
+    this.setState('reconnecting');
+    this.reconnectAttempts++;
+    
+    // Exponential backoff with jitter
+    const delay = Math.min(
+      this.options.baseReconnectDelay * 2 ** (this.reconnectAttempts - 1),
+      this.options.maxReconnectDelay
+    );
+    const jitter = delay * 0.3 * Math.random();
+    
+    setTimeout(() => this.connect(), delay + jitter);
+  }
+
+  startHeartbeat() {
+    this.heartbeatTimer = setInterval(() => {
+      if (this.state === 'connected') {
+        this.ws.send(this.serialize({ type: 'ping', timestamp: Date.now() }));
+        this.heartbeatTimeoutTimer = setTimeout(() => {
+          // No pong received — connection is dead
+          this.ws.close(4000, 'Heartbeat timeout');
+        }, this.options.heartbeatTimeout);
+      }
+    }, this.options.heartbeatInterval);
+  }
+
+  resetHeartbeatTimeout() {
+    if (this.heartbeatTimeoutTimer) {
+      clearTimeout(this.heartbeatTimeoutTimer);
+      this.heartbeatTimeoutTimer = null;
+    }
+  }
+
+  stopHeartbeat() {
+    clearInterval(this.heartbeatTimer);
+    this.resetHeartbeatTimeout();
+  }
+
+  flushQueue() {
+    while (this.messageQueue.length > 0 && this.state === 'connected') {
+      const message = this.messageQueue.shift();
+      this.ws.send(this.serialize(message));
+    }
+  }
+
+  disconnect() {
+    this.setState('disconnected');
+    this.stopHeartbeat();
+    if (this.ws) {
+      this.ws.close(1000, 'Client disconnect');
+      this.ws = null;
+    }
+  }
+
+  setState(state) {
+    const prev = this.state;
+    this.state = state;
+    this.emit('stateChange', { from: prev, to: state });
+  }
+
+  serialize(data) { return JSON.stringify(data); }
+  deserialize(data) { return JSON.parse(data); }
+  
+  on(event, handler) { this.listeners[event]?.push(handler); }
+  emit(event, data) { (this.listeners[event] || []).forEach(h => h(data)); }
+}
+
+// Usage:
+const ws = new WebSocketManager('wss://api.example.com/ws');
+ws.connect();
+
+// Subscribe to specific message types
+const unsub = ws.subscribe('notification', (payload) => {
+  showNotification(payload.title, payload.body);
+});
+
+// Send messages (auto-queued if offline)
+ws.send('chat:message', { roomId: 'room-1', text: 'Hello!' });</code></pre>
+
+<h3>9.2 Server-Sent Events vs WebSocket (Decision Matrix)</h3>
+
+<table>
+<tr><th>Feature</th><th>SSE</th><th>WebSocket</th></tr>
+<tr><td>Direction</td><td>Server → Client only</td><td>Bidirectional</td></tr>
+<tr><td>Protocol</td><td>HTTP/1.1 or HTTP/2</td><td>WS protocol (TCP)</td></tr>
+<tr><td>Auto-reconnect</td><td>✅ Built-in</td><td>❌ Must implement</td></tr>
+<tr><td>Event IDs</td><td>✅ Built-in (resume from last)</td><td>❌ Must implement</td></tr>
+<tr><td>Binary data</td><td>❌ Text only</td><td>✅ ArrayBuffer, Blob</td></tr>
+<tr><td>HTTP/2 multiplexing</td><td>✅ Shares connection</td><td>❌ Separate TCP connection</td></tr>
+<tr><td>Proxy/CDN friendly</td><td>✅ Regular HTTP</td><td>⚠️ May need config</td></tr>
+<tr><td>Max connections (HTTP/1.1)</td><td>6 per domain</td><td>No limit (but 1 TCP per WS)</td></tr>
+<tr><td>Use when</td><td>Notifications, live feeds, stock prices</td><td>Chat, gaming, collaborative editing</td></tr>
+</table>
+
+<pre><code>// ═══ SSE with reconnection and last-event-id ═══
+class EventSourceManager {
+  constructor(url, options = {}) {
+    this.url = url;
+    this.lastEventId = options.lastEventId || null;
+    this.handlers = new Map();
+    this.connect();
+  }
+
+  connect() {
+    const url = new URL(this.url, location.origin);
+    if (this.lastEventId) url.searchParams.set('lastEventId', this.lastEventId);
+    
+    this.source = new EventSource(url.toString());
+    
+    this.source.onmessage = (e) => {
+      this.lastEventId = e.lastEventId;
+      this.dispatch('message', JSON.parse(e.data));
+    };
+    
+    // Named events
+    for (const [event, handlers] of this.handlers) {
+      this.source.addEventListener(event, (e) => {
+        this.lastEventId = e.lastEventId;
+        handlers.forEach(h => h(JSON.parse(e.data)));
+      });
+    }
+    
+    this.source.onerror = () => {
+      // EventSource auto-reconnects, but we track state
+      console.log('SSE reconnecting...');
+    };
+  }
+
+  on(event, handler) {
+    if (!this.handlers.has(event)) this.handlers.set(event, []);
+    this.handlers.get(event).push(handler);
+    
+    // Add to existing source
+    this.source.addEventListener(event, (e) => {
+      this.lastEventId = e.lastEventId;
+      handler(JSON.parse(e.data));
+    });
+  }
+
+  dispatch(event, data) {
+    (this.handlers.get(event) || []).forEach(h => h(data));
+  }
+
+  close() { this.source.close(); }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="perf-budget">10. Performance Budgets & CI/CD Integration</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h3>10.1 Defining Performance Budgets</h3>
+
+<pre><code>// ═══ performance-budget.json (committed to repo) ═══
+{
+  "budgets": [
+    {
+      "path": "/*",
+      "resourceSizes": [
+        { "resourceType": "script", "budget": 300000 },
+        { "resourceType": "stylesheet", "budget": 50000 },
+        { "resourceType": "image", "budget": 500000 },
+        { "resourceType": "total", "budget": 1000000 },
+        { "resourceType": "document", "budget": 50000 }
+      ],
+      "timings": [
+        { "metric": "first-contentful-paint", "budget": 1800 },
+        { "metric": "largest-contentful-paint", "budget": 2500 },
+        { "metric": "interactive", "budget": 3800 },
+        { "metric": "cumulative-layout-shift", "budget": 0.1 },
+        { "metric": "total-blocking-time", "budget": 300 }
+      ]
+    },
+    {
+      "path": "/checkout",
+      "timings": [
+        { "metric": "interactive", "budget": 2000 },
+        { "metric": "largest-contentful-paint", "budget": 1500 }
+      ]
+    }
+  ]
+}
+
+// ═══ CI Budget Checker (runs in GitHub Actions) ═══
+const puppeteer = require('puppeteer');
+const budgets = require('./performance-budget.json');
+
+async function checkBudgets(url, budgetConfig) {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+  
+  // Enable performance metrics
+  await page.setCacheEnabled(false);
+  
+  // Simulate 4G connection
+  const client = await page.target().createCDPSession();
+  await client.send('Network.emulateNetworkConditions', {
+    offline: false,
+    downloadThroughput: 4 * 1024 * 1024 / 8, // 4 Mbps
+    uploadThroughput: 3 * 1024 * 1024 / 8,
+    latency: 20
+  });
+
+  await page.goto(url, { waitUntil: 'networkidle0' });
+  
+  // Get resource sizes
+  const resources = await page.evaluate(() => {
+    const entries = performance.getEntriesByType('resource');
+    return entries.map(e => ({
+      name: e.name,
+      type: e.initiatorType,
+      size: e.transferSize
+    }));
+  });
+  
+  // Get timing metrics
+  const metrics = await page.evaluate(() => ({
+    fcp: performance.getEntriesByName('first-contentful-paint')[0]?.startTime,
+    lcp: new Promise(resolve => {
+      new PerformanceObserver(list => {
+        const entries = list.getEntries();
+        resolve(entries[entries.length - 1]?.startTime);
+      }).observe({ type: 'largest-contentful-paint', buffered: true });
+      setTimeout(() => resolve(null), 10000);
+    })
+  }));
+
+  // Check against budgets
+  const violations = [];
+  for (const budget of budgetConfig.resourceSizes || []) {
+    const total = resources
+      .filter(r => budget.resourceType === 'total' || r.type === budget.resourceType)
+      .reduce((sum, r) => sum + r.size, 0);
+    
+    if (total > budget.budget) {
+      violations.push({
+        type: 'resource',
+        metric: budget.resourceType,
+        actual: total,
+        budget: budget.budget,
+        overBy: ((total - budget.budget) / budget.budget * 100).toFixed(1) + '%'
+      });
+    }
+  }
+
+  await browser.close();
+  return { violations, pass: violations.length === 0 };
+}
+
+// In CI: exit with code 1 if budget exceeded
+const result = await checkBudgets('http://localhost:3000', budgets.budgets[0]);
+if (!result.pass) {
+  console.error('❌ Performance budget exceeded:');
+  result.violations.forEach(v => {
+    console.error(`  ${v.metric}: ${v.actual} > ${v.budget} (${v.overBy} over)`);
+  });
+  process.exit(1);
+}</code></pre>
+
+<h3>10.2 Bundle Analysis & Tree-Shaking Verification</h3>
+
+<pre><code>// ═══ Webpack Bundle Analyzer Integration ═══
+// webpack.config.js
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+
+module.exports = {
+  plugins: [
+    new BundleAnalyzerPlugin({
+      analyzerMode: process.env.CI ? 'json' : 'server',
+      reportFilename: 'bundle-report.json',
+      generateStatsFile: true
+    })
+  ]
+};
+
+// ═══ Custom Bundle Size Tracker (GitHub PR Comment) ═══
+async function compareBundles(baseStats, prStats) {
+  const changes = [];
+  
+  for (const [chunk, size] of Object.entries(prStats.chunks)) {
+    const baseSize = baseStats.chunks[chunk] || 0;
+    const diff = size - baseSize;
+    const percentChange = baseSize ? ((diff / baseSize) * 100).toFixed(1) : 'NEW';
+    
+    if (Math.abs(diff) > 1024) { // Only report > 1KB changes
+      changes.push({
+        chunk,
+        baseSize: formatBytes(baseSize),
+        prSize: formatBytes(size),
+        diff: formatBytes(diff),
+        percentChange,
+        status: diff > 0 ? '🔴' : '🟢'
+      });
+    }
+  }
+  
+  // Generate markdown table for PR comment
+  let report = '## Bundle Size Report\n\n';
+  report += '| Chunk | Base | PR | Diff | % |\n';
+  report += '|-------|------|----|------|---|\n';
+  changes.forEach(c => {
+    report += `| ${c.status} ${c.chunk} | ${c.baseSize} | ${c.prSize} | ${c.diff} | ${c.percentChange}% |\n`;
+  });
+  
+  const totalBase = Object.values(baseStats.chunks).reduce((s, v) => s + v, 0);
+  const totalPR = Object.values(prStats.chunks).reduce((s, v) => s + v, 0);
+  report += `\n**Total:** ${formatBytes(totalBase)} → ${formatBytes(totalPR)} (${formatBytes(totalPR - totalBase)})\n`;
+  
+  return { report, hasRegressions: changes.some(c => c.status === '🔴') };
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB'];
+  const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(k));
+  return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview-scenarios">11. Architect Interview Scenarios & Trade-Off Questions</h2>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="architect-note">
+<strong>🏗️ These are ACTUAL questions asked in Staff/Senior Engineer rounds at Netflix, Meta, Google.</strong> There's no single correct answer — interviewers evaluate your reasoning process, trade-off analysis, and ability to articulate constraints.
+</div>
+
+<h3>Scenario 1: "Design a Netflix-like Video Player UI"</h3>
+
+<p><strong>What they're testing:</strong> System thinking, performance awareness, accessibility, real-time state management.</p>
+
+<pre><code>// Key architectural decisions to discuss:
+
+// 1. State Machine for Player States
+// idle → loading → buffering → playing → paused → ended → error
+// Use XState or custom FSM — NOT boolean flags (isPlaying && !isBuffering && ...)
+
+// 2. Adaptive Bitrate (ABR) UI Integration
+// Player receives quality change events → update UI without re-render
+// Use requestAnimationFrame for progress bar (not setInterval!)
+
+// 3. Keyboard Accessibility
+// Space = play/pause, Arrow keys = seek, M = mute, F = fullscreen
+// Announce state changes to screen readers via aria-live
+
+// 4. Performance
+// - Overlay controls: opacity + pointer-events (not display:none — avoids layout)
+// - Progress bar: CSS transform (not width — avoids layout)
+// - Thumbnail previews: sprite sheets (not individual images)
+// - Time updates: requestAnimationFrame, NOT timeupdate event (fires too often)
+
+// 5. Memory Management
+// - Dispose MediaSource buffers when not needed
+// - Use WeakRef for event handler references
+// - Clean up blob URLs with URL.revokeObjectURL()
+
+// What NOT to say: "I'd use a library"
+// What TO say: "I'd model this as a state machine because..."</code></pre>
+
+<h3>Scenario 2: "How would you migrate 500 components from Angular to React (or vice versa)?"</h3>
+
+<p><strong>What they're testing:</strong> Incremental migration strategy, risk management, team coordination.</p>
+
+<pre><code>// ═══ Answer Framework ═══
+
+// Phase 1: Strangler Fig Pattern (Coexistence)
+// - Run both frameworks in same page (Angular Elements / Web Components boundary)
+// - New features built in target framework
+// - Shared state via Custom Events or message bus
+// - Shared design system via Web Components or CSS-only components
+
+// Phase 2: Bridge Layer
+class FrameworkBridge {
+  // Mount React component inside Angular
+  mountReactInAngular(containerElement, ReactComponent, props) {
+    const root = ReactDOM.createRoot(containerElement);
+    root.render(React.createElement(ReactComponent, props));
+    return { 
+      update: (newProps) => root.render(React.createElement(ReactComponent, newProps)),
+      destroy: () => root.unmount()
+    };
+  }
+  
+  // Shared state adapter
+  createSharedState(initialState) {
+    const listeners = new Set();
+    let state = initialState;
+    return {
+      getState: () => state,
+      setState: (update) => {
+        state = typeof update === 'function' ? update(state) : { ...state, ...update };
+        listeners.forEach(l => l(state));
+      },
+      subscribe: (listener) => { listeners.add(listener); return () => listeners.delete(listener); },
+      // Angular adapter (Observable)
+      asObservable: () => new Observable(sub => {
+        sub.next(state);
+        const unsub = this.subscribe(s => sub.next(s));
+        return unsub;
+      }),
+      // React adapter (useSyncExternalStore)
+      getSnapshot: () => state,
+    };
+  }
+}
+
+// Phase 3: Prioritized Migration
+// Priority matrix: (Business Impact × Technical Debt) / Migration Risk
+// Start with: leaf components → shared components → pages → routing
+
+// Key metrics to track:
+// - Bundle size (should decrease over time as old framework shrinks)
+// - Performance (CWV should not regress)
+// - Developer velocity (PRs/week should increase post-migration)
+// - Bug rate (should not spike)</code></pre>
+
+<h3>Scenario 3: "Your page loads in 8 seconds. Make it load in under 2 seconds."</h3>
+
+<pre><code>// ═══ Systematic Approach (What senior engineers do) ═══
+
+// Step 1: MEASURE (don't guess)
+// - Lighthouse audit (synthetic)
+// - Real User Monitoring (RUM) from production
+// - WebPageTest (waterfall analysis)
+// - Chrome DevTools Performance tab (flame chart)
+
+// Step 2: Identify bottlenecks (usually one of these)
+const commonBottlenecks = {
+  'Large JS bundle': {
+    diagnosis: 'Main thread blocked > 3s on script evaluation',
+    fix: [
+      'Code split routes (dynamic import)',
+      'Tree shake unused exports',
+      'Replace heavy libraries (moment → date-fns, lodash → lodash-es)',
+      'Defer non-critical JS (analytics, chat widgets)'
+    ]
+  },
+  'Render-blocking CSS': {
+    diagnosis: 'FCP delayed, large stylesheet in <head>',
+    fix: [
+      'Critical CSS inline (above-the-fold only)',
+      'Async load remaining CSS: <link rel="preload" as="style">',
+      'Remove unused CSS (PurgeCSS)'
+    ]
+  },
+  'Slow API (TTFB > 600ms)': {
+    diagnosis: 'Network waterfall shows server response time',
+    fix: [
+      'CDN for static content',
+      'Edge caching (Cloudflare Workers, Lambda@Edge)',
+      'Preconnect: <link rel="preconnect" href="https://api.example.com">',
+      'Stale-while-revalidate for non-critical data'
+    ]
+  },
+  'Too many requests': {
+    diagnosis: 'Waterfall shows 50+ requests before FCP',
+    fix: [
+      'HTTP/2 (multiplexing)',
+      'Bundle small files',
+      'Preload critical resources',
+      'Resource hints: preconnect, dns-prefetch, preload, prefetch'
+    ]
+  },
+  'Large images': {
+    diagnosis: 'Images > 500KB in waterfall',
+    fix: [
+      'WebP/AVIF format',
+      'Responsive images (srcset)',
+      'Lazy load below-fold images',
+      'Image CDN with auto-optimization (Cloudinary, imgix)'
+    ]
+  }
+};
+
+// Step 3: Implement in order of impact
+// Rule: 80/20 — first fix usually gives 60% improvement
+
+// Step 4: Verify with A/B test
+// Don't just measure in dev — validate in production with real users</code></pre>
+
+<h3>Scenario 4: "Design a Feature Flag System for Frontend"</h3>
+
+<pre><code>// ═══ Production Feature Flag Architecture ═══
+class FeatureFlagClient {
+  constructor({ endpoint, refreshInterval = 60000, userId }) {
+    this.endpoint = endpoint;
+    this.userId = userId;
+    this.flags = new Map();
+    this.overrides = new Map(); // Local dev overrides
+    this.listeners = new Map();
+    this.ready = this.initialize();
+    
+    // Periodic refresh
+    setInterval(() => this.refresh(), refreshInterval);
+    
+    // Real-time updates via SSE
+    this.connectSSE();
+  }
+
+  async initialize() {
+    try {
+      const response = await fetch(`${this.endpoint}/flags?userId=${this.userId}`);
+      const data = await response.json();
+      this.updateFlags(data.flags);
+    } catch (e) {
+      // Fall back to localStorage cache
+      const cached = localStorage.getItem('feature-flags');
+      if (cached) this.updateFlags(JSON.parse(cached));
+    }
+  }
+
+  isEnabled(flagName, defaultValue = false) {
+    // Dev override takes priority
+    if (this.overrides.has(flagName)) return this.overrides.get(flagName);
+    
+    const flag = this.flags.get(flagName);
+    if (!flag) return defaultValue;
+    
+    // Check targeting rules
+    return this.evaluateFlag(flag);
+  }
+
+  evaluateFlag(flag) {
+    if (!flag.enabled) return false;
+    
+    // Percentage rollout
+    if (flag.percentage !== undefined) {
+      const hash = this.hashUser(this.userId + flag.name);
+      return hash < flag.percentage;
+    }
+    
+    // User targeting
+    if (flag.targetUsers?.includes(this.userId)) return true;
+    
+    // Segment targeting
+    if (flag.segments) {
+      return flag.segments.some(segment => this.userMatchesSegment(segment));
+    }
+    
+    return flag.enabled;
+  }
+
+  // Deterministic hash (same user always gets same result)
+  hashUser(input) {
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+      const char = input.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash) % 100;
+  }
+
+  // Subscribe to flag changes (for reactive UI)
+  onChange(flagName, handler) {
+    if (!this.listeners.has(flagName)) this.listeners.set(flagName, []);
+    this.listeners.get(flagName).push(handler);
+    return () => {
+      const handlers = this.listeners.get(flagName);
+      const idx = handlers.indexOf(handler);
+      if (idx !== -1) handlers.splice(idx, 1);
+    };
+  }
+
+  updateFlags(newFlags) {
+    for (const [name, config] of Object.entries(newFlags)) {
+      const oldEnabled = this.isEnabled(name);
+      this.flags.set(name, config);
+      const newEnabled = this.isEnabled(name);
+      
+      if (oldEnabled !== newEnabled) {
+        (this.listeners.get(name) || []).forEach(h => h(newEnabled));
+      }
+    }
+    // Cache in localStorage
+    localStorage.setItem('feature-flags', JSON.stringify(Object.fromEntries(this.flags)));
+  }
+
+  connectSSE() {
+    const source = new EventSource(`${this.endpoint}/stream?userId=${this.userId}`);
+    source.addEventListener('flag-update', (e) => {
+      const update = JSON.parse(e.data);
+      this.updateFlags({ [update.name]: update.config });
+    });
+  }
+
+  // Development helpers
+  override(flagName, value) { this.overrides.set(flagName, value); }
+  clearOverrides() { this.overrides.clear(); }
+}
+
+// Usage:
+const flags = new FeatureFlagClient({
+  endpoint: '/api/features',
+  userId: currentUser.id
+});
+
+await flags.ready;
+
+if (flags.isEnabled('new-checkout-flow')) {
+  renderNewCheckout();
+} else {
+  renderLegacyCheckout();
+}</code></pre>
+
+<h3>Scenario 5: "How do you handle a production incident where users report the page is blank?"</h3>
+
+<pre><code>// ═══ Incident Response Framework for Frontend ═══
+
+// Step 1: Triage (first 5 minutes)
+const triageChecklist = {
+  scope: 'How many users affected? (check error reporting dashboard)',
+  impact: 'Which pages? All or specific routes?',
+  timing: 'When did it start? (correlate with recent deploys)',
+  pattern: 'All browsers? Specific device types? Geography?'
+};
+
+// Step 2: Common "White Screen" Causes & Fixes
+const whiteScreenDiagnosis = [
+  {
+    cause: 'JS bundle failed to load (CDN outage, CORS, CSP)',
+    check: 'Network tab → check if main bundle returns 200',
+    fix: 'Enable fallback CDN, check CSP headers, serve from origin'
+  },
+  {
+    cause: 'Uncaught exception in root component',
+    check: 'Console errors, error boundary didCatch',
+    fix: 'Deploy error boundary, fix root-level crash'
+  },
+  {
+    cause: 'API returns unexpected shape → crash during render',
+    check: 'Network tab → check API response, compare with expected schema',
+    fix: 'Add runtime type validation at boundary, add null checks'
+  },
+  {
+    cause: 'New browser API not supported (Safari, old Chrome)',
+    check: 'Check caniuse for recently used APIs',
+    fix: 'Add polyfill or feature detection with fallback'
+  },
+  {
+    cause: 'Circular dependency in module graph',
+    check: 'Build logs for circular import warnings',
+    fix: 'Restructure imports, use dynamic import to break cycle'
+  }
+];
+
+// Step 3: Prevention (what to implement BEFORE incidents)
+class ErrorBoundaryWithRecovery {
+  constructor() {
+    this.errorCount = 0;
+    this.maxRetries = 3;
+  }
+
+  // Catch render errors
+  handleError(error, errorInfo) {
+    this.errorCount++;
+    
+    // Report to monitoring
+    reporter.captureError(error, { 
+      componentStack: errorInfo.componentStack,
+      recoveryAttempt: this.errorCount
+    });
+    
+    // Auto-recovery strategies
+    if (this.errorCount <= this.maxRetries) {
+      // Strategy 1: Clear corrupted state
+      localStorage.removeItem('app-state');
+      sessionStorage.clear();
+      
+      // Strategy 2: Force re-fetch critical data
+      // Strategy 3: Redirect to safe route
+      if (this.errorCount === this.maxRetries) {
+        window.location.href = '/error?code=RENDER_CRASH';
+      }
+    }
+  }
+  
+  renderFallback() {
+    return `
+      <div role="alert" aria-live="assertive">
+        <h1>Something went wrong</h1>
+        <p>We're looking into it. Try refreshing the page.</p>
+        <button onclick="location.reload()">Refresh</button>
+        <button onclick="history.back()">Go Back</button>
+      </div>
+    `;
+  }
+}
+
+// Step 4: Post-incident (blameless postmortem)
+// - Timeline of events
+// - Root cause (5 Whys)
+// - What monitoring caught it / what didn't
+// - Action items to prevent recurrence
+// - Update runbook for on-call engineers</code></pre>
+
+<h3>Common Trade-Off Questions (How to Answer)</h3>
+
+<table>
+<tr><th>Question</th><th>Key Trade-offs to Discuss</th></tr>
+<tr><td>"SSR vs CSR vs SSG?"</td><td>SEO needs, TTFB, TTI, server cost, caching strategy, personalization</td></tr>
+<tr><td>"Monorepo vs Polyrepo?"</td><td>Code sharing, CI speed, team autonomy, dependency management, atomic commits</td></tr>
+<tr><td>"REST vs GraphQL?"</td><td>Over-fetching, caching (HTTP vs normalized), tooling, learning curve, N+1 problem</td></tr>
+<tr><td>"Micro vs Macro state?"</td><td>Component-local state vs global store, prop drilling, re-render scope, testing</td></tr>
+<tr><td>"Build own vs use library?"</td><td>Bundle size, maintenance, customization, security updates, learning curve</td></tr>
+<tr><td>"Optimistic vs Pessimistic UI?"</td><td>Perceived speed vs data consistency, rollback complexity, error UX</td></tr>
+<tr><td>"Polling vs WebSocket vs SSE?"</td><td>Real-time need, server load, connection limits, proxy compatibility</td></tr>
+<tr><td>"CSS-in-JS vs CSS Modules vs Tailwind?"</td><td>Runtime cost, DX, theming, dead code elimination, SSR hydration</td></tr>
+</table>
+
+<div class="interview-tip">
+<strong>💡 The Meta Pattern for Answering:</strong>
+<ol>
+<li><strong>Clarify requirements</strong> — "Before I decide, what's our scale? How many engineers? What's our deploy cadence?"</li>
+<li><strong>Present options</strong> — Show you know multiple approaches</li>
+<li><strong>State trade-offs explicitly</strong> — "Option A gives us X but costs us Y"</li>
+<li><strong>Make a recommendation</strong> — "Given these constraints, I'd choose A because..."</li>
+<li><strong>Acknowledge risks</strong> — "The main risk is Z, which we'd mitigate by..."</li>
+</ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2>Exercises</h2>
+
+<h3>Exercise 1: Implement a ReadableStream that streams a large JSON array item-by-item</h3>
+<pre><code>// Given: A 50MB JSON file at /api/large-data that returns [{...}, {...}, ...]
+// Task: Stream it and process each item without loading entire array into memory
+// Hint: Look for "[" at start, then parse each object between commas
+
+// Your implementation here...</code></pre>
+
+<h3>Exercise 2: Build a Circuit Breaker + Bulkhead for your API layer</h3>
+<pre><code>// Requirements:
+// - Critical APIs (auth, user data): Circuit breaker with 5 failures → open for 30s
+// - Non-critical APIs (analytics, recommendations): Bulkhead with max 3 concurrent
+// - If circuit opens, show cached data with "stale" indicator
+// - Track metrics: success rate, p95 latency, circuit state changes
+
+// Your implementation here...</code></pre>
+
+<h3>Exercise 3: Implement Offline-First Todo with Conflict Resolution</h3>
+<pre><code>// Requirements:
+// - Works completely offline (IndexedDB storage)
+// - Syncs when online (queue pending operations)
+// - Handles conflicts: if same todo edited offline on 2 devices, merge with LWW
+// - Shows sync status indicator (synced / pending / conflict)
+
+// Your implementation here...</code></pre>
+
+<h3>Exercise 4: Production Error Boundary with Auto-Recovery</h3>
+<pre><code>// Requirements:
+// - Catches render errors at route level
+// - Attempts recovery: clear state → re-render → force refresh
+// - Reports to monitoring with breadcrumbs
+// - Shows user-friendly error UI with retry button
+// - Respects accessibility (focus management, aria-live)
+
+// Your implementation here...</code></pre>
+
+<h3>Exercise 5: WebSocket Chat with Presence, Typing Indicators, and Reconnection</h3>
+<pre><code>// Requirements:
+// - Connect to ws://chat.example.com
+// - Show online users (presence)
+// - Show "User is typing..." (with debounce)
+// - Queue messages when offline, send on reconnect
+// - Exponential backoff reconnection with jitter
+// - Message ordering guarantee (sequence numbers)
+
+// Your implementation here...</code></pre>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase13-real-interview-questions.html">← Phase 13: Real Interview Questions</a>
+  <span style="color: var(--muted);">Final Phase — You're Ready! 🎯</span>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

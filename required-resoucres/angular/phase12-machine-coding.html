@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 12: Machine Coding Challenges</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 12: Machine Coding Challenges</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (12 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Live Coding</span>
+    <span class="pill">Component Design</span>
+    <span class="pill">Real-World Patterns</span>
+    <span class="pill">System Design</span>
+    <span class="pill">Performance</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>Machine Coding Round:</strong> You'll be asked to build a working Angular feature/component in 45-90 minutes. Focus on: component architecture, proper use of Angular features, clean code, edge cases, and performance.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Challenge 1: Autocomplete Search Component</h2>
+<p><span class="difficulty d-medium">MEDIUM</span> — 30 minutes</p>
+
+<h4>Requirements:</h4>
+<ul>
+  <li>Input field with debounced API search</li>
+  <li>Show dropdown with results</li>
+  <li>Keyboard navigation (arrow keys + Enter)</li>
+  <li>Click outside to close</li>
+  <li>Loading & empty states</li>
+  <li>Cancel previous requests on new input</li>
+</ul>
+
+<pre><code>@Component({
+  selector: 'app-autocomplete',
+  standalone: true,
+  imports: [ReactiveFormsModule],
+  template: `
+    &lt;div class="autocomplete" (clickOutside)="close()"&gt;
+      &lt;input 
+        [formControl]="searchControl"
+        (keydown)="onKeyDown($event)"
+        (focus)="open()"
+        placeholder="Search..."
+        [attr.aria-expanded]="isOpen()"
+        role="combobox"
+      &gt;
+      
+      @if (isOpen()) {
+        &lt;ul class="dropdown" role="listbox"&gt;
+          @if (loading()) {
+            &lt;li class="loading"&gt;Searching...&lt;/li&gt;
+          } @else if (results().length === 0) {
+            &lt;li class="empty"&gt;No results found&lt;/li&gt;
+          } @else {
+            @for (item of results(); track item.id; let i = $index) {
+              &lt;li 
+                [class.active]="i === activeIndex()"
+                (click)="select(item)"
+                (mouseenter)="activeIndex.set(i)"
+                role="option"
+              &gt;
+                {{ item.label }}
+              &lt;/li&gt;
+            }
+          }
+        &lt;/ul&gt;
+      }
+    &lt;/div&gt;
+  `
+})
+export class AutocompleteComponent {
+  searchControl = new FormControl('');
+  results = signal&lt;SearchResult[]&gt;([]);
+  loading = signal(false);
+  isOpen = signal(false);
+  activeIndex = signal(-1);
+
+  selected = output&lt;SearchResult&gt;();
+
+  private searchService = inject(SearchService);
+  private destroyRef = inject(DestroyRef);
+
+  constructor() {
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => { this.loading.set(true); this.activeIndex.set(-1); }),
+      switchMap(term => {
+        if (!term || term.length < 2) return of([]);
+        return this.searchService.search(term).pipe(
+          catchError(() => of([]))
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(results => {
+      this.results.set(results);
+      this.loading.set(false);
+      this.isOpen.set(true);
+    });
+  }
+
+  onKeyDown(event: KeyboardEvent): void {
+    const len = this.results().length;
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.activeIndex.update(i => (i + 1) % len);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.activeIndex.update(i => (i - 1 + len) % len);
+        break;
+      case 'Enter':
+        if (this.activeIndex() >= 0) {
+          this.select(this.results()[this.activeIndex()]);
+        }
+        break;
+      case 'Escape':
+        this.close();
+        break;
+    }
+  }
+
+  select(item: SearchResult): void {
+    this.searchControl.setValue(item.label, { emitEvent: false });
+    this.selected.emit(item);
+    this.close();
+  }
+
+  open() { this.isOpen.set(true); }
+  close() { this.isOpen.set(false); this.activeIndex.set(-1); }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Challenge 2: Data Table with Sort, Filter, Paginate</h2>
+<p><span class="difficulty d-hard">HARD</span> — 45 minutes</p>
+
+<h4>Requirements:</h4>
+<ul>
+  <li>Column sorting (asc/desc toggle)</li>
+  <li>Global text filter</li>
+  <li>Client-side pagination</li>
+  <li>Configurable columns</li>
+  <li>Row selection (single/multi)</li>
+  <li>OnPush change detection</li>
+</ul>
+
+<pre><code>interface Column&lt;T&gt; {
+  key: keyof T;
+  label: string;
+  sortable?: boolean;
+  template?: TemplateRef&lt;any&gt;;
+}
+
+@Component({
+  selector: 'app-data-table',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    &lt;div class="table-controls"&gt;
+      &lt;input placeholder="Search..." (input)="filterTerm.set($any($event.target).value)"&gt;
+      &lt;span&gt;{{ paginatedData().length }} of {{ filteredData().length }} items&lt;/span&gt;
+    &lt;/div&gt;
+    
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          @if (selectable()) {
+            &lt;th&gt;&lt;input type="checkbox" (change)="toggleAll($event)" [checked]="allSelected()"&gt;&lt;/th&gt;
+          }
+          @for (col of columns(); track col.key) {
+            &lt;th (click)="col.sortable !== false && toggleSort(col.key)"
+                [class.sortable]="col.sortable !== false"&gt;
+              {{ col.label }}
+              @if (sortKey() === col.key) {
+                &lt;span&gt;{{ sortDirection() === 'asc' ? '▲' : '▼' }}&lt;/span&gt;
+              }
+            &lt;/th&gt;
+          }
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        @for (row of paginatedData(); track trackFn()(row)) {
+          &lt;tr [class.selected]="isSelected(row)"&gt;
+            @if (selectable()) {
+              &lt;td&gt;&lt;input type="checkbox" [checked]="isSelected(row)" (change)="toggleRow(row)"&gt;&lt;/td&gt;
+            }
+            @for (col of columns(); track col.key) {
+              &lt;td&gt;{{ row[col.key] }}&lt;/td&gt;
+            }
+          &lt;/tr&gt;
+        }
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+    
+    &lt;div class="pagination"&gt;
+      &lt;button (click)="page.update(p => p - 1)" [disabled]="page() === 1"&gt;Prev&lt;/button&gt;
+      &lt;span&gt;Page {{ page() }} of {{ totalPages() }}&lt;/span&gt;
+      &lt;button (click)="page.update(p => p + 1)" [disabled]="page() === totalPages()"&gt;Next&lt;/button&gt;
+    &lt;/div&gt;
+  `
+})
+export class DataTableComponent&lt;T extends Record&lt;string, any&gt;&gt; {
+  data = input.required&lt;T[]&gt;();
+  columns = input.required&lt;Column&lt;T&gt;[]&gt;();
+  pageSize = input(10);
+  selectable = input(false);
+  trackFn = input&lt;(item: T) => any&gt;(() => (item: any) => item.id);
+
+  // State
+  filterTerm = signal('');
+  sortKey = signal&lt;keyof T | null&gt;(null);
+  sortDirection = signal&lt;'asc' | 'desc'&gt;('asc');
+  page = signal(1);
+  selectedRows = signal&lt;Set&lt;T&gt;&gt;(new Set());
+
+  // Derived
+  filteredData = computed(() => {
+    let result = this.data();
+    const term = this.filterTerm().toLowerCase();
+    if (term) {
+      result = result.filter(row =>
+        Object.values(row).some(val => 
+          String(val).toLowerCase().includes(term)
+        )
+      );
+    }
+    const key = this.sortKey();
+    if (key) {
+      const dir = this.sortDirection() === 'asc' ? 1 : -1;
+      result = [...result].sort((a, b) => {
+        if (a[key] < b[key]) return -1 * dir;
+        if (a[key] > b[key]) return 1 * dir;
+        return 0;
+      });
+    }
+    return result;
+  });
+
+  totalPages = computed(() => Math.ceil(this.filteredData().length / this.pageSize()));
+
+  paginatedData = computed(() => {
+    const start = (this.page() - 1) * this.pageSize();
+    return this.filteredData().slice(start, start + this.pageSize());
+  });
+
+  allSelected = computed(() => {
+    const current = this.paginatedData();
+    return current.length > 0 && current.every(r => this.selectedRows().has(r));
+  });
+
+  toggleSort(key: keyof T): void {
+    if (this.sortKey() === key) {
+      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortKey.set(key);
+      this.sortDirection.set('asc');
+    }
+    this.page.set(1);
+  }
+
+  toggleRow(row: T): void {
+    this.selectedRows.update(set => {
+      const newSet = new Set(set);
+      newSet.has(row) ? newSet.delete(row) : newSet.add(row);
+      return newSet;
+    });
+  }
+
+  toggleAll(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.selectedRows.update(set => {
+      const newSet = new Set(set);
+      this.paginatedData().forEach(row => checked ? newSet.add(row) : newSet.delete(row));
+      return newSet;
+    });
+  }
+
+  isSelected(row: T): boolean {
+    return this.selectedRows().has(row);
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Challenge 3: Multi-Step Form Wizard</h2>
+<p><span class="difficulty d-hard">HARD</span> — 45 minutes</p>
+
+<pre><code>@Component({
+  selector: 'app-form-wizard',
+  template: `
+    &lt;!-- Progress bar --&gt;
+    &lt;div class="steps"&gt;
+      @for (step of steps(); track $index; let i = $index) {
+        &lt;div [class.active]="i === currentStep()" [class.completed]="i &lt; currentStep()"&gt;
+          {{ i + 1 }}. {{ step.title }}
+        &lt;/div&gt;
+      }
+    &lt;/div&gt;
+
+    &lt;!-- Current step content --&gt;
+    &lt;form [formGroup]="currentFormGroup()"&gt;
+      @switch (currentStep()) {
+        @case (0) {
+          &lt;h3&gt;Personal Info&lt;/h3&gt;
+          &lt;input formControlName="firstName" placeholder="First Name"&gt;
+          &lt;input formControlName="lastName" placeholder="Last Name"&gt;
+          &lt;input formControlName="email" type="email" placeholder="Email"&gt;
+        }
+        @case (1) {
+          &lt;h3&gt;Address&lt;/h3&gt;
+          &lt;input formControlName="street" placeholder="Street"&gt;
+          &lt;input formControlName="city" placeholder="City"&gt;
+          &lt;input formControlName="zip" placeholder="ZIP"&gt;
+        }
+        @case (2) {
+          &lt;h3&gt;Review & Submit&lt;/h3&gt;
+          &lt;pre&gt;{{ formData() | json }}&lt;/pre&gt;
+        }
+      }
+    &lt;/form&gt;
+
+    &lt;!-- Navigation --&gt;
+    &lt;div class="actions"&gt;
+      &lt;button (click)="prev()" [disabled]="currentStep() === 0"&gt;Back&lt;/button&gt;
+      @if (currentStep() &lt; steps().length - 1) {
+        &lt;button (click)="next()" [disabled]="currentFormGroup().invalid"&gt;Next&lt;/button&gt;
+      } @else {
+        &lt;button (click)="submit()" [disabled]="!allValid()"&gt;Submit&lt;/button&gt;
+      }
+    &lt;/div&gt;
+  `
+})
+export class FormWizardComponent {
+  private fb = inject(FormBuilder);
+  
+  currentStep = signal(0);
+
+  steps = signal([
+    { title: 'Personal', form: this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
+    })},
+    { title: 'Address', form: this.fb.group({
+      street: ['', Validators.required],
+      city: ['', Validators.required],
+      zip: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]]
+    })},
+    { title: 'Review', form: this.fb.group({}) }
+  ]);
+
+  currentFormGroup = computed(() => this.steps()[this.currentStep()].form);
+
+  formData = computed(() => {
+    const data: any = {};
+    this.steps().forEach(step => Object.assign(data, step.form.value));
+    return data;
+  });
+
+  allValid = computed(() => 
+    this.steps().every(step => step.form.valid)
+  );
+
+  next(): void {
+    if (this.currentFormGroup().valid) {
+      this.currentStep.update(s => s + 1);
+    } else {
+      this.currentFormGroup().markAllAsTouched();
+    }
+  }
+
+  prev(): void {
+    this.currentStep.update(s => s - 1);
+  }
+
+  submit(): void {
+    if (this.allValid()) {
+      console.log('Submitting:', this.formData());
+    }
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Challenge 4: Real-time Chat Component</h2>
+<p><span class="difficulty d-expert">EXPERT</span> — 60 minutes</p>
+
+<h4>Requirements:</h4>
+<ul>
+  <li>WebSocket connection with auto-reconnect</li>
+  <li>Message list with virtual scrolling for performance</li>
+  <li>Typing indicators</li>
+  <li>Online/offline status</li>
+  <li>Unread message count</li>
+  <li>Signal-based state management</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Challenge 5: Drag & Drop Kanban Board</h2>
+<p><span class="difficulty d-expert">EXPERT</span> — 60 minutes</p>
+
+<h4>Requirements:</h4>
+<ul>
+  <li>Multiple columns (Todo, In Progress, Done)</li>
+  <li>Drag cards between columns</li>
+  <li>Reorder within columns</li>
+  <li>Add/edit/delete cards</li>
+  <li>Persist state</li>
+  <li>Use Angular CDK DragDrop</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>More Challenges (Practice These)</h2>
+
+<div class="exercise">
+<h4>✅ Machine Coding Practice List</h4>
+<ol>
+  <li><strong>Infinite Scroll Feed</strong> — Load more items on scroll with virtual scrolling</li>
+  <li><strong>File Upload with Progress</strong> — Drag & drop, progress bars, cancellation</li>
+  <li><strong>Modal/Dialog System</strong> — Service-based, stackable, keyboard accessible</li>
+  <li><strong>Toast Notification System</strong> — Auto-dismiss, stacking, different types</li>
+  <li><strong>Accordion/Tabs Component</strong> — Keyboard navigable, lazy-loaded content</li>
+  <li><strong>Shopping Cart</strong> — Add/remove items, quantity, total, persist to localStorage</li>
+  <li><strong>Star Rating Component</strong> — ControlValueAccessor, half-stars, readonly mode</li>
+  <li><strong>Tree View Component</strong> — Recursive, expand/collapse, checkbox selection</li>
+  <li><strong>Image Gallery/Carousel</strong> — Swipe, lazy loading, lightbox</li>
+  <li><strong>Multi-select Dropdown</strong> — Search, chip display, select all, ControlValueAccessor</li>
+  <li><strong>Date Picker</strong> — Calendar view, range selection, min/max dates</li>
+  <li><strong>CRUD with NgRx</strong> — Full entity management with effects and selectors</li>
+  <li><strong>Role-based Dashboard</strong> — Different layouts based on user role</li>
+  <li><strong>Real-time Polling Dashboard</strong> — Charts that update every N seconds with pause</li>
+  <li><strong>Undo/Redo System</strong> — Command pattern with state history</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase11-signals-modern-angular.html">← Phase 11: Signals</a>
+  <a href="phase13-interview-qa-masterclass.html">Phase 13: Interview Q&A →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

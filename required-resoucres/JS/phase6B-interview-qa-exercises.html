@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 6B: Interview Q&A, Exercises & Additional Browser APIs</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 6B: Interview Q&amp;A, Exercises &amp; Additional APIs</h1>
+  <p class="subtitle">JavaScript Mastery — Companion to Phase 6 (Filling the Gaps)</p>
+  <div class="pill-row">
+    <span class="pill">All Section Q&amp;A</span>
+    <span class="pill">Hands-on Exercises</span>
+    <span class="pill">ResizeObserver</span>
+    <span class="pill">Clipboard API</span>
+    <span class="pill">Drag &amp; Drop</span>
+    <span class="pill">postMessage</span>
+    <span class="pill">BroadcastChannel</span>
+    <span class="pill">Performance API</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#dom-qa">Interview Q&amp;A: DOM Tree &amp; Selectors</a></li>
+    <li><a href="#manipulation-qa">Interview Q&amp;A: DOM Manipulation</a></li>
+    <li><a href="#custom-events-qa">Interview Q&amp;A: Events, Custom Events &amp; EventEmitter</a></li>
+    <li><a href="#forms-qa">Interview Q&amp;A: Forms &amp; Validation</a></li>
+    <li><a href="#observer-qa">Interview Q&amp;A: Observers (Intersection, Mutation, Resize)</a></li>
+    <li><a href="#storage-qa">Interview Q&amp;A: Storage &amp; Cookies</a></li>
+    <li><a href="#fetch-qa">Interview Q&amp;A: Fetch &amp; Network</a></li>
+    <li><a href="#cross-origin">postMessage, BroadcastChannel &amp; Cross-Origin</a></li>
+    <li><a href="#clipboard-drag">Clipboard API &amp; Drag and Drop</a></li>
+    <li><a href="#performance-api">Performance API &amp; Metrics</a></li>
+    <li><a href="#rapid-fire">DOM Interview Rapid Fire — Output &amp; Gotchas</a></li>
+    <li><a href="#exercises">Comprehensive Exercises (8 Problems)</a></li>
+    <li><a href="#event-model-exercises">Hands-on: Event Model — Capturing, Bubbling, Delegation (4 Exercises)</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="dom-qa">1. Interview Q&amp;A: DOM Tree &amp; Selectors</h2>
+
+<div class="interview">
+<h4>🎯 DOM Tree Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What is the DOM?</p>
+<p><strong>Answer:</strong> The DOM (Document Object Model) is a tree-structured representation of an HTML document created by the browser. It's an API that lets JavaScript read and modify the page content, structure, and styles. The DOM is NOT the HTML source — it's what the browser builds after parsing HTML (includes elements added by JS, fixes invalid markup, etc.).</p>
+
+<p><span class="difficulty d-easy">Easy</span> What are the different node types in the DOM?</p>
+<p><strong>Answer:</strong> Main node types: Element (type 1) — HTML tags. Text (type 3) — text content between tags (including whitespace!). Comment (type 8) — HTML comments. Document (type 9) — the root. DocumentFragment (type 11) — lightweight container. Attribute (type 2, deprecated — use getAttribute). Check with node.nodeType or node instanceof Element.</p>
+
+<p><span class="difficulty d-easy">Easy</span> How do you traverse the DOM tree?</p>
+<p><strong>Answer:</strong> Parent: node.parentElement, node.parentNode. Children: node.children (elements only), node.childNodes (all nodes incl. text). Siblings: node.nextElementSibling, node.previousElementSibling. First/Last: node.firstElementChild, node.lastElementChild. Use Element variants to skip whitespace text nodes.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between querySelector and getElementById? Which is faster?</p>
+<p><strong>Answer:</strong> getElementById only selects by ID and returns a single element — it's the fastest DOM query because IDs are stored in a hash map (O(1) lookup). querySelector accepts any CSS selector (classes, attributes, pseudo-selectors) but is slightly slower because it traverses the tree. For IDs, use getElementById. For everything else, querySelector/querySelectorAll.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Difference between NodeList and HTMLCollection?</p>
+<p><strong>Answer:</strong> HTMLCollection (from getElementsBy*) is LIVE — automatically updates when DOM changes. NodeList from querySelectorAll is STATIC (snapshot). NodeList has forEach(); HTMLCollection doesn't (convert with Array.from()). NodeList can contain any node type; HTMLCollection only contains elements.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between parentNode and parentElement?</p>
+<p><strong>Answer:</strong> parentElement returns the parent only if it's an Element node. parentNode returns any parent node (including Document). Difference matters only at the top: document.documentElement.parentNode → #document; document.documentElement.parentElement → null (because Document isn't an Element). In practice they're interchangeable 99% of the time.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is the difference between children and childNodes?</p>
+<p><strong>Answer:</strong> children returns an HTMLCollection of Element children ONLY (skips text, comments). childNodes returns a NodeList of ALL child nodes (including whitespace text nodes and comments). Always use children unless you specifically need text/comment nodes. Common bug: childNodes.length &gt; expected because of whitespace text nodes between tags.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is the difference between document.querySelector('.item') and document.getElementsByClassName('item')[0]?</p>
+<p><strong>Answer:</strong> Functionally similar but: (1) querySelector returns null if not found; getElementsByClassName returns an empty live collection. (2) querySelector takes a snapshot; getElementsByClassName returns a LIVE reference that auto-updates. (3) querySelector is marginally slower (CSS selector parsing). (4) querySelector can use complex selectors (.item:not(.hidden)); getElementsByClassName cannot.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How does the DOM differ from the HTML source code?</p>
+<p><strong>Answer:</strong> Multiple differences: (1) Browser error-correction: missing &lt;html&gt;/&lt;body&gt;/&lt;head&gt; are auto-added, unclosed tags closed, invalid nesting fixed. (2) &lt;table&gt; without &lt;tbody&gt; gets one auto-inserted. (3) JS modifications: innerHTML changes, createElement + appendChild. (4) &lt;template&gt; content isn't in main DOM. (5) Shadow DOM isn't in light DOM. View-source shows original HTML; DevTools shows live DOM.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Explain the concept of "live" vs "static" collections with a bug example.</p>
+<p><strong>Answer:</strong> Live HTMLCollection from getElementsByClassName auto-updates when DOM changes. Bug: iterating forward while removing elements — the collection shrinks mid-loop, skipping every other element. Example: collection has [A, B, C, D], remove A → collection becomes [B, C, D], index moves to 1 → skips B. Fix: iterate backwards, or convert to array first with [...collection] or Array.from().</p>
+
+<p><span class="difficulty d-expert">Expert</span> What is the difference between document and window in terms of the DOM?</p>
+<p><strong>Answer:</strong> window is the global object (represents the browser window/tab) — contains setTimeout, fetch, location, history, navigator, and the document. document is the DOM entry point (represents the loaded HTML page) — contains querySelector, createElement, body, head. window.document === document. In a frame: window is the frame's window, document is the frame's document. In Web Workers: there is no window or document (self is the global).</p>
+
+<p><span class="difficulty d-expert">Expert</span> How does the browser handle duplicate IDs in the DOM?</p>
+<p><strong>Answer:</strong> HTML spec says IDs must be unique, but browsers DON'T throw errors for duplicates. getElementById returns the FIRST element with that ID. querySelectorAll("#myId") returns ALL matching elements. CSS #myId styles ALL elements with that ID. This causes bugs in: label[for], anchor links, aria-labelledby/describedby. Duplicate IDs are a common source of subtle accessibility bugs.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="manipulation-qa">2. Interview Q&amp;A: DOM Manipulation</h2>
+
+<div class="interview">
+<h4>🎯 DOM Manipulation Questions</h4>
+
+<p><span class="difficulty d-medium">Medium</span> innerHTML vs textContent vs innerText — when to use each?</p>
+<p><strong>Answer:</strong> <code>textContent</code>: sets/gets raw text, fastest, escapes HTML (XSS-safe), includes hidden elements' text. <code>innerText</code>: gets "visible" text only (triggers reflow to check visibility!), slower. <code>innerHTML</code>: parses/renders HTML — powerful but XSS risk with user input. Rule: use textContent for text, innerHTML only for trusted HTML, never innerText in hot paths.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you efficiently add 10,000 elements to the DOM?</p>
+<p><strong>Answer:</strong> Three techniques: (1) DocumentFragment — build all elements off-DOM in a fragment, then appendChild once (single reflow). (2) Build HTML string, set innerHTML once (faster than createElement loop). (3) Clone a template node. NEVER append elements one by one in a loop — each triggers a reflow. For truly massive lists, use virtual scrolling (only render visible items).</p>
+
+<pre><code>// Method 1: DocumentFragment
+const frag = document.createDocumentFragment();
+for (let i = 0; i &lt; 10000; i++) {
+  const div = document.createElement("div");
+  div.textContent = `Item ${i}`;
+  frag.appendChild(div);
+}
+container.appendChild(frag); // 1 reflow
+
+// Method 2: innerHTML batch (faster for simple markup)
+let html = "";
+for (let i = 0; i &lt; 10000; i++) {
+  html += `&lt;div&gt;Item ${i}&lt;/div&gt;`;
+}
+container.innerHTML = html; // 1 parse + 1 reflow
+
+// Method 3: Virtual scrolling (for infinite lists)
+// Only render ~20 visible items + buffer
+// Libraries: virtual-scroller, Angular CDK VirtualScrollViewport</code></pre>
+
+<p><span class="difficulty d-expert">Expert</span> Explain insertAdjacentHTML — why is it better than innerHTML for partial updates?</p>
+<p><strong>Answer:</strong> innerHTML replaces ALL children — the browser must serialize existing content, parse new HTML, and rebuild the entire subtree (destroying event listeners, losing state). insertAdjacentHTML inserts NEW HTML at a specific position without touching existing DOM nodes. Events, references, and state of existing elements are preserved. Positions: beforebegin, afterbegin, beforeend, afterend.</p>
+
+<p><span class="difficulty d-easy">Easy</span> How do you create and add elements to the DOM?</p>
+<p><strong>Answer:</strong> Use document.createElement("tag") to create an element. Set properties (textContent, className, id, dataset). Then insert with: parent.appendChild(element), parent.insertBefore(new, reference), parent.append(elements...), or element.before()/after()/replaceWith(). Append creates the element in memory first (no reflow until inserted).</p>
+
+<p><span class="difficulty d-easy">Easy</span> What's the difference between remove() and removeChild()?</p>
+<p><strong>Answer:</strong> element.remove() removes itself from the DOM (modern, clean). parent.removeChild(child) removes a child from its parent and returns the removed node. removeChild requires a reference to the parent. Both keep the element in memory (can re-insert later). The element reference remains valid — only detached from the DOM tree.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is a DocumentFragment and why use it?</p>
+<p><strong>Answer:</strong> DocumentFragment is a lightweight, "virtual" DOM node that exists only in memory (not part of the live DOM tree). You can append multiple children to it without triggering any reflows. When you insert the fragment into the DOM, only the fragment's CHILDREN are inserted (the fragment itself disappears). Result: only ONE reflow for multiple insertions.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Difference between append() and appendChild()?</p>
+<p><strong>Answer:</strong> appendChild: accepts only Node objects, returns the appended node, can only add one node at a time. append: accepts Nodes AND strings (auto-creates text nodes), returns undefined, can add multiple arguments at once. append is newer and more flexible. Also: prepend(), before(), after(), replaceWith() — same modern API family.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How does cloneNode work and what's the deep clone gotcha?</p>
+<p><strong>Answer:</strong> element.cloneNode(false) clones the element only (no children). element.cloneNode(true) clones the element AND all descendants (deep clone). Gotchas: (1) Event listeners are NOT cloned. (2) IDs are copied — duplicates in DOM! (3) form input values ARE copied. (4) Canvas content is NOT copied. Always fix IDs after cloning. Re-attach event listeners via delegation on a parent.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is the XSS risk with innerHTML and how do you prevent it?</p>
+<p><strong>Answer:</strong> If user input is put into innerHTML, an attacker can inject &lt;script&gt; tags, event handlers (onerror, onload), or &lt;img src=x onerror="steal()"&gt;. Prevention: (1) Use textContent for user data (auto-escapes HTML). (2) Use DOMPurify library to sanitize HTML. (3) CSP headers (Content-Security-Policy). (4) Angular/React auto-escape by default (Angular: [innerHTML] with DomSanitizer). Never concatenate user input into innerHTML.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What's the difference between setAttribute and direct property assignment?</p>
+<p><strong>Answer:</strong> Properties reflect attributes but aren't identical. element.id = "x" and element.setAttribute("id", "x") are equivalent for standard attributes. But: (1) Properties can have types (checked is boolean; getAttribute("checked") returns string or null). (2) Custom attributes need setAttribute (properties don't auto-create attributes). (3) Some names differ: class (attr) vs className (prop), for (attr) vs htmlFor (prop). (4) data-* uses dataset property.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Explain the difference between reflow, repaint, and composite. What triggers each?</p>
+<p><strong>Answer:</strong> Reflow (Layout): recalculates geometry (position, size) — triggered by width/height/margin/padding changes, DOM insertion, reading offsetWidth. Repaint: redraws pixels — triggered by color/background/shadow changes (no geometry shift). Composite: GPU combines layers — triggered by transform/opacity changes. Cost: Reflow &gt; Repaint &gt; Composite. transform/opacity are cheapest because they skip Layout and Paint entirely (GPU-only).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="custom-events-qa">3. Interview Q&amp;A: Custom Events &amp; EventEmitter</h2>
+
+<div class="interview">
+<h4>🎯 Custom Events Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What is event delegation and why use it?</p>
+<p><strong>Answer:</strong> Event delegation attaches ONE listener to a parent element instead of individual listeners on each child. It works because events bubble up the DOM. When clicked, check event.target or event.target.closest(selector) to identify which child was clicked. Benefits: (1) Works for dynamically added elements. (2) Less memory (1 listener vs 1000). (3) Less setup code. Used by jQuery, React synthetic events, Angular's event binding internally.</p>
+
+<p><span class="difficulty d-easy">Easy</span> What's the difference between event.target and event.currentTarget?</p>
+<p><strong>Answer:</strong> event.target: the element that TRIGGERED the event (what was actually clicked). event.currentTarget: the element the listener is ATTACHED to. With delegation: listener on &lt;ul&gt;, click on &lt;li&gt; → target is li, currentTarget is ul. In arrow functions inside class methods, this === the instance (not the element), so use event.currentTarget instead.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Explain event capturing vs bubbling. When would you use capturing?</p>
+<p><strong>Answer:</strong> Events go through 3 phases: (1) Capturing: window → document → ... → parent (top-down). (2) Target: event reaches the target element. (3) Bubbling: target → parent → ... → document → window (bottom-up). Use capturing (addEventListener's 3rd arg: true) when: you need to intercept BEFORE the target handles it (e.g., global click tracking, focus management). Most use cases need bubbling (default).</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between stopPropagation and stopImmediatePropagation?</p>
+<p><strong>Answer:</strong> stopPropagation: stops event from moving to the next element in the chain (no more capturing/bubbling), but OTHER listeners on the SAME element still fire. stopImmediatePropagation: stops propagation AND prevents other listeners on the SAME element from firing. Use stopImmediate when you want a handler to be the absolute last one to run.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How do you communicate between unrelated components without a framework?</p>
+<p><strong>Answer:</strong> (1) Custom Events on a shared DOM element (document): dispatch CustomEvent with detail data, any component can listen. (2) Event Emitter (pub/sub) pattern: a singleton bus with on/emit/off methods. (3) BroadcastChannel for cross-tab. (4) Window postMessage for cross-origin. Angular uses services with RxJS Subjects for the same purpose.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between CustomEvent and Event?</p>
+<p><strong>Answer:</strong> CustomEvent extends Event and adds a <code>detail</code> property for passing custom data. With plain <code>new Event("myevent")</code>, you can't attach payload data. With <code>new CustomEvent("myevent", { detail: { id: 1, name: "test" } })</code>, listeners access data via <code>e.detail</code>. Both support bubbles/cancelable/composed options.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Explain event.preventDefault() — which events are cancelable?</p>
+<p><strong>Answer:</strong> preventDefault() stops the browser's default behavior (form submit, link navigation, text selection). Only events with cancelable: true can be prevented. Non-cancelable examples: scroll, focus, blur (but focusin IS cancelable!). Check with event.cancelable before calling. If you preventDefault on wheel/touchmove, scrolling stops (use passive: true to tell browser you won't prevent, improving scroll performance).</p>
+
+<p><span class="difficulty d-hard">Hard</span> What are passive event listeners and why do they matter?</p>
+<p><strong>Answer:</strong> { passive: true } tells the browser "this listener will NOT call preventDefault()". This lets the browser start scrolling/painting IMMEDIATELY without waiting for your JS to execute. Without it, touch/wheel events block scrolling until the handler completes (causing jank). Chrome makes touchstart/touchmove passive by default on document/window. Use passive for scroll/touch handlers that don't need to prevent defaults.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Implement a type-safe EventEmitter with once() and wildcard support.</p>
+<pre><code>class EventBus {
+  #events = new Map();
+
+  on(event, fn) {
+    if (!this.#events.has(event)) this.#events.set(event, new Set());
+    this.#events.get(event).add(fn);
+    return () =&gt; this.off(event, fn); // Return unsubscribe function
+  }
+
+  once(event, fn) {
+    const wrapper = (...args) =&gt; { fn(...args); this.off(event, wrapper); };
+    wrapper._original = fn; // For off() to find it
+    return this.on(event, wrapper);
+  }
+
+  off(event, fn) {
+    const set = this.#events.get(event);
+    if (!set) return;
+    // Check for once() wrappers
+    for (const handler of set) {
+      if (handler === fn || handler._original === fn) {
+        set.delete(handler);
+        break;
+      }
+    }
+  }
+
+  emit(event, ...args) {
+    // Exact match
+    this.#events.get(event)?.forEach(fn =&gt; fn(...args));
+    // Wildcard listeners
+    this.#events.get("*")?.forEach(fn =&gt; fn(event, ...args));
+  }
+
+  clear() { this.#events.clear(); }
+}</code></pre>
+
+<p><span class="difficulty d-expert">Expert</span> What's the difference between composed: true and bubbles: true in events? When do you need both?</p>
+<p><strong>Answer:</strong> bubbles: true makes the event propagate up the DOM tree (child → parent → ... → document). composed: true makes the event cross Shadow DOM boundaries. Without composed: true, an event dispatched inside Shadow DOM stays trapped there — the host element's listeners won't see it. You need BOTH for Web Component events that should be observable by parents: <code>new CustomEvent("x", { bubbles: true, composed: true })</code>.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How would you implement debounce and throttle for DOM events from scratch?</p>
+<p><strong>Answer:</strong> Debounce: delays execution until N ms after the LAST call (good for search input). Throttle: executes at most once per N ms (good for scroll/resize). Key difference: debounce waits for inactivity; throttle limits rate. Debounce implementation: clearTimeout on each call, set new timeout. Throttle: check if enough time elapsed since last execution, or use requestAnimationFrame for visual changes.</p>
+
+<pre><code>// Debounce
+function debounce(fn, delay) {
+  let timer;
+  return (...args) =&gt; {
+    clearTimeout(timer);
+    timer = setTimeout(() =&gt; fn(...args), delay);
+  };
+}
+
+// Throttle (leading edge)
+function throttle(fn, limit) {
+  let lastCall = 0;
+  return (...args) =&gt; {
+    const now = Date.now();
+    if (now - lastCall &gt;= limit) {
+      lastCall = now;
+      fn(...args);
+    }
+  };
+}
+
+// Usage:
+input.addEventListener("input", debounce(search, 300));
+window.addEventListener("scroll", throttle(updateNav, 100));</code></pre>
+
+<p><span class="difficulty d-hard">Hard</span> How do you properly clean up event listeners to prevent memory leaks?</p>
+<p><strong>Answer:</strong> (1) Always store a reference to the handler function — anonymous functions can't be removed. (2) Use removeEventListener with the EXACT same function reference. (3) Use { once: true } for one-shot listeners (auto-removes). (4) Use AbortController signal — abort() removes ALL listeners attached with that signal at once. (5) In SPAs, clean up on route change/component destroy. (6) WeakRef for observer patterns (auto GC when target is gone).</p>
+
+<pre><code>// AbortController pattern (cleanest for bulk removal):
+const controller = new AbortController();
+element.addEventListener("click", handler, { signal: controller.signal });
+element.addEventListener("keydown", handler2, { signal: controller.signal });
+window.addEventListener("resize", handler3, { signal: controller.signal });
+
+// Remove ALL at once:
+controller.abort(); // All three listeners removed!</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="forms-qa">4. Interview Q&amp;A: Forms &amp; Validation</h2>
+
+<div class="interview">
+<h4>🎯 Form Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What's the difference between the 'input' and 'change' events?</p>
+<p><strong>Answer:</strong> 'input' fires on EVERY change (keystroke, paste, autofill) — real-time. 'change' fires only when the element LOSES FOCUS (blur) and the value has changed since gaining focus. Use 'input' for live search/validation. Use 'change' for final-value operations (like form save on blur). For checkboxes/radios/selects, 'change' fires immediately on selection.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How does FormData work and why is it useful?</p>
+<p><strong>Answer:</strong> FormData collects all form control values into key-value pairs automatically (respects name attributes, handles files, skips disabled inputs). Advantages: (1) No manual value collection from each input. (2) Handles file uploads natively (multipart/form-data). (3) Works with fetch() body directly. (4) Object.fromEntries(formData) gives a plain object. Angular's Reactive Forms do similar things with FormGroup.value.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How would you implement custom form validation without a framework?</p>
+<pre><code>// Use the Constraint Validation API
+function validateForm(form) {
+  const errors = {};
+
+  const email = form.querySelector("[name='email']");
+  if (email.validity.valueMissing) errors.email = "Email is required";
+  else if (email.validity.typeMismatch) errors.email = "Invalid email format";
+
+  const password = form.querySelector("[name='password']");
+  if (password.value.length &lt; 8) {
+    password.setCustomValidity("Password must be 8+ characters");
+    errors.password = "Password must be 8+ characters";
+  } else {
+    password.setCustomValidity(""); // Clear custom error
+  }
+
+  // Show errors
+  Object.entries(errors).forEach(([field, msg]) =&gt; {
+    form.querySelector(`[name='${field}'] + .error`).textContent = msg;
+  });
+
+  return Object.keys(errors).length === 0;
+}
+
+form.addEventListener("submit", (e) =&gt; {
+  e.preventDefault();
+  if (validateForm(form)) {
+    // Submit
+  }
+});
+
+// Real-time validation on input
+form.querySelectorAll("input").forEach(input =&gt; {
+  input.addEventListener("input", () =&gt; {
+    input.setCustomValidity("");
+    if (input.checkValidity()) {
+      input.classList.remove("invalid");
+    }
+  });
+  input.addEventListener("invalid", (e) =&gt; {
+    e.preventDefault(); // Suppress browser tooltip
+    input.classList.add("invalid");
+  });
+});</code></pre>
+
+<p><span class="difficulty d-easy">Easy</span> How do you prevent a form from submitting and refreshing the page?</p>
+<p><strong>Answer:</strong> Call event.preventDefault() in the submit event handler: <code>form.addEventListener("submit", (e) =&gt; { e.preventDefault(); // handle with JS })</code>. This stops the browser's default form submission behavior (which causes a full page reload). All modern SPAs (Angular, React) do this — forms are handled via fetch/HttpClient instead.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is the Constraint Validation API?</p>
+<p><strong>Answer:</strong> A built-in browser API for form validation without libraries. Key methods: element.checkValidity() (returns boolean), element.reportValidity() (shows browser tooltip), element.setCustomValidity("msg") (set custom error). Key properties: element.validity (ValidityState object with flags: valueMissing, typeMismatch, tooShort, patternMismatch, etc.). Works with required, type, min, max, pattern attributes.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you handle file uploads with preview before sending?</p>
+<p><strong>Answer:</strong> Use FileReader or URL.createObjectURL to preview: (1) Listen to input's 'change' event, get files from input.files. (2) For image preview: URL.createObjectURL(file) gives a blob URL for img.src (faster, auto-released) or FileReader.readAsDataURL(file) gives base64 string. (3) Validate file.type, file.size before upload. (4) Use FormData with fetch for multipart upload. (5) Revoke object URLs with URL.revokeObjectURL() to prevent memory leaks.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How would you implement real-time collaborative form editing?</p>
+<p><strong>Answer:</strong> (1) WebSocket connection to sync state. (2) On each 'input' event, debounce and send { field, value, cursor position } to server. (3) Server broadcasts to other clients. (4) Other clients update field values without triggering their own 'input' events (use element.value = x directly, or flag to ignore). (5) Handle conflicts with Operational Transform or CRDT. (6) Show other users' cursors/selections with custom highlights. Angular apps use RxJS webSocket subject for this.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="observer-qa">5. Interview Q&amp;A: Observers</h2>
+
+<div class="interview">
+<h4>🎯 Observer Questions</h4>
+
+<p><span class="difficulty d-medium">Medium</span> How would you implement lazy loading images without a library?</p>
+<p><strong>Answer:</strong> Use IntersectionObserver to watch images with data-src. When they enter the viewport (isIntersecting = true), set img.src = img.dataset.src and unobserve. Use rootMargin (e.g., "200px") to start loading before the image is visible. Modern approach: just use <code>loading="lazy"</code> attribute (native, no JS needed), but IntersectionObserver gives more control.</p>
+
+<pre><code>// Native (simplest): &lt;img src="photo.jpg" loading="lazy"&gt;
+
+// IntersectionObserver (full control):
+const io = new IntersectionObserver((entries) =&gt; {
+  entries.forEach(entry =&gt; {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+      img.src = img.dataset.src;
+      img.removeAttribute("data-src");
+      io.unobserve(img);
+    }
+  });
+}, { rootMargin: "200px" }); // Start 200px before viewport
+
+document.querySelectorAll("img[data-src]").forEach(img =&gt; io.observe(img));</code></pre>
+
+<p><span class="difficulty d-hard">Hard</span> How would you implement infinite scroll?</p>
+<p><strong>Answer:</strong> Place a sentinel element at the bottom of the list. Use IntersectionObserver to watch it. When visible → fetch next page, append items, re-position sentinel. Add a loading state to prevent duplicate fetches. Better than scroll events because: no throttling needed, more performant, works in nested scrollable containers.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between IntersectionObserver, MutationObserver, and ResizeObserver?</p>
+<p><strong>Answer:</strong> IntersectionObserver: watches elements entering/leaving viewport (or a scroll container) — lazy load, animations, infinite scroll. MutationObserver: watches DOM changes (child added/removed, attributes changed, text modified). ResizeObserver: watches elements being resized (responsive components, chart resizing). All three are async and non-blocking (batch callbacks in microtask-like timing).</p>
+
+<p><span class="difficulty d-easy">Easy</span> What is IntersectionObserver used for?</p>
+<p><strong>Answer:</strong> IntersectionObserver watches when elements enter or leave the viewport (or any scrollable container). Common uses: lazy loading images, infinite scroll, triggering animations on scroll, ad impression tracking, sticky header changes. Advantages over scroll event listeners: no manual throttling needed, works in nested containers, battery-efficient (browser-optimized).</p>
+
+<p><span class="difficulty d-medium">Medium</span> How does MutationObserver work and when would you use it?</p>
+<p><strong>Answer:</strong> MutationObserver watches for DOM changes: childList (elements added/removed), attributes (class/style changes), characterData (text content changes), subtree (deep watch). Callback receives MutationRecord[] with type, target, addedNodes, removedNodes, etc. Use cases: third-party widget integration (detect changes), auto-TOC generation, accessibility widgets, polyfills that need to detect new elements.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What are the performance implications of MutationObserver?</p>
+<p><strong>Answer:</strong> MutationObserver batches mutations and delivers them asynchronously (microtask timing), unlike the deprecated synchronous Mutation Events (which fired on every single change). But: (1) Observing subtree: true on document.body captures EVERYTHING — expensive callback processing. (2) Large DOM changes (innerHTML on big tree) produce massive mutation lists. (3) Callbacks that modify DOM can trigger cascading observations. Best practice: observe specific elements, not the entire document. Disconnect when done.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How would you build a container query polyfill using ResizeObserver?</p>
+<p><strong>Answer:</strong> ResizeObserver watches container size changes. When the container crosses a breakpoint threshold, toggle CSS classes on it (e.g., .container--compact, .container--wide). Child elements style themselves based on parent's class (proxy for container queries). This is exactly what CSS Container Queries now do natively (@container), but ResizeObserver gives the same power in JS with full browser support.</p>
+</div>
+
+<h3>ResizeObserver (Not in Main File)</h3>
+<pre><code>// ResizeObserver — watch when elements change size
+// Better than window.resize because it observes SPECIFIC elements
+// Works for: responsive components, auto-sizing textareas, chart libraries
+
+const resizeObserver = new ResizeObserver((entries) =&gt; {
+  for (const entry of entries) {
+    const { width, height } = entry.contentRect;
+    console.log(`Element resized: ${width}x${height}`);
+
+    // Example: switch component layout based on container width
+    if (width &lt; 400) {
+      entry.target.classList.add("compact");
+      entry.target.classList.remove("wide");
+    } else {
+      entry.target.classList.add("wide");
+      entry.target.classList.remove("compact");
+    }
+  }
+});
+
+resizeObserver.observe(document.querySelector(".card"));
+
+// entry.contentRect: { width, height, top, left, x, y }
+// entry.borderBoxSize: includes padding + border
+// entry.contentBoxSize: content only (default)
+
+// Use case: Auto-resize textarea
+const textarea = document.querySelector("textarea");
+const ro = new ResizeObserver(() =&gt; {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+});
+ro.observe(textarea);
+
+// Angular CDK has BreakpointObserver (uses ResizeObserver internally)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="storage-qa">6. Interview Q&amp;A: Storage &amp; Cookies</h2>
+
+<div class="interview">
+<h4>🎯 Storage Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What is localStorage and how do you use it?</p>
+<p><strong>Answer:</strong> localStorage is a synchronous key-value storage API (string→string) that persists across sessions. Methods: setItem(key, value), getItem(key), removeItem(key), clear(). Stores ~5-10MB per origin. Data survives browser close. Gotcha: stores strings only — JSON.stringify() for objects, JSON.parse() on retrieval. Blocking (synchronous) — don't use in performance-critical paths.</p>
+
+<p><span class="difficulty d-medium">Medium</span> localStorage vs sessionStorage vs cookies — when to use each?</p>
+<p><strong>Answer:</strong> localStorage: persistent data that shouldn't expire (user preferences, theme). sessionStorage: data for a single tab session (form draft, unsaved state) — cleared on tab close. Cookies: data that MUST be sent to server with every request (auth tokens, session IDs) — only 4KB but have HttpOnly/Secure/SameSite for security. For large data, use IndexedDB.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How does the 'storage' event enable cross-tab communication?</p>
+<p><strong>Answer:</strong> When localStorage changes in one tab, the 'storage' event fires in ALL OTHER same-origin tabs (not the one that made the change). This enables sync: logout in one tab → all tabs detect the change and redirect. Event provides: key, oldValue, newValue, url. Only works with localStorage (not sessionStorage).</p>
+
+<p><span class="difficulty d-medium">Medium</span> What are cookie attributes and their security implications?</p>
+<p><strong>Answer:</strong> HttpOnly: JS can't access (prevents XSS token theft). Secure: only sent over HTTPS. SameSite=Strict: never sent cross-site (prevents CSRF). SameSite=Lax: sent on top-level navigations only (default in modern browsers). Domain/Path: scope the cookie to specific subdomains/paths. Expires/Max-Age: when the cookie dies. Best practice: auth cookies should be HttpOnly + Secure + SameSite=Strict.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you handle localStorage in SSR (server-side rendering)?</p>
+<p><strong>Answer:</strong> localStorage doesn't exist on the server (no window/document). Solutions: (1) Guard with <code>typeof window !== 'undefined'</code>. (2) Use Angular's isPlatformBrowser(platformId). (3) Create an abstract StorageService that returns no-op on server. (4) Use transfer state (TransferState in Angular) to pass initial values from server to client without localStorage.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What are the security implications of storing auth tokens in localStorage?</p>
+<p><strong>Answer:</strong> localStorage is accessible by ANY JS on the same origin — if an XSS attack injects script, they can read all tokens. Cookies with HttpOnly flag are NOT accessible via JS (document.cookie can't see them) — safer for auth tokens. Best practice: store refresh tokens in HttpOnly Secure cookies (server-side), store short-lived access tokens in memory (JS variable). Never store sensitive data in localStorage.</p>
+
+<p><span class="difficulty d-hard">Hard</span> When would you use IndexedDB over localStorage?</p>
+<p><strong>Answer:</strong> IndexedDB when: (1) Storing &gt;5MB data (IndexedDB allows hundreds of MB). (2) Storing complex objects (no serialization needed — stores JS objects directly). (3) Need indexes for querying/searching. (4) Need transactions (atomic multi-operation writes). (5) Binary data (Blob, ArrayBuffer). (6) Offline-first apps (Service Worker + IndexedDB). localStorage is simpler for small key-value data (&lt;5MB strings).</p>
+
+<p><span class="difficulty d-expert">Expert</span> Explain the Storage Quota API and how browsers manage storage limits.</p>
+<p><strong>Answer:</strong> navigator.storage.estimate() returns { quota, usage } in bytes. Browsers typically allow 50-80% of disk per origin. Storage is divided into "Best Effort" (can be evicted under pressure: Cache API, IndexedDB, localStorage) and "Persistent" (never evicted without user action: request with navigator.storage.persist()). Under memory pressure, browsers evict LRU origins' best-effort storage. Service Worker caches and IndexedDB share the same quota pool.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="fetch-qa">7. Interview Q&amp;A: Fetch &amp; Network</h2>
+
+<div class="interview">
+<h4>🎯 Fetch Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What is the Fetch API and how does it differ from XMLHttpRequest?</p>
+<p><strong>Answer:</strong> Fetch is a modern Promise-based API for network requests. Differences from XHR: (1) Returns Promises (no callback hell). (2) Cleaner API (Request/Response objects). (3) Supports streaming (response.body is a ReadableStream). (4) Better CORS handling. (5) No upload progress (XHR has it). (6) Doesn't reject on HTTP errors (only network failures). (7) Can't abort without AbortController (XHR has abort()). (8) No built-in timeout.</p>
+
+<p><span class="difficulty d-easy">Easy</span> Why does fetch not reject on 404 or 500 errors?</p>
+<p><strong>Answer:</strong> fetch only rejects on NETWORK failures (no internet, DNS failure, CORS blocked). HTTP errors (400, 404, 500) are valid responses from the server — the request succeeded in reaching the server and getting a response. You must check response.ok (true for 200-299) or response.status manually. This is a common bug when migrating from axios (which throws on HTTP errors).</p>
+
+<p><span class="difficulty d-medium">Medium</span> How do you cancel a fetch request?</p>
+<p><strong>Answer:</strong> Use AbortController: create controller, pass controller.signal to fetch options, call controller.abort() to cancel. Fetch rejects with AbortError (catch it: if (err.name === "AbortError")). Use cases: cancel on component unmount, cancel previous request on new search input, timeout implementation. AbortSignal.timeout(5000) creates a signal that auto-aborts after 5s.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How do you handle file uploads with progress tracking?</p>
+<pre><code>// fetch doesn't natively support upload progress
+// Use XMLHttpRequest for upload progress:
+function uploadWithProgress(file, onProgress) {
+  return new Promise((resolve, reject) =&gt; {
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append("file", file);
+
+    xhr.upload.addEventListener("progress", (e) =&gt; {
+      if (e.lengthComputable) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    });
+
+    xhr.addEventListener("load", () =&gt; {
+      if (xhr.status &gt;= 200 &amp;&amp; xhr.status &lt; 300) {
+        resolve(JSON.parse(xhr.responseText));
+      } else {
+        reject(new Error(`HTTP ${xhr.status}`));
+      }
+    });
+
+    xhr.addEventListener("error", () =&gt; reject(new Error("Network error")));
+    xhr.open("POST", "/api/upload");
+    xhr.send(formData);
+  });
+}
+
+// Download progress WITH fetch (streaming body):
+async function downloadWithProgress(url) {
+  const response = await fetch(url);
+  const total = +response.headers.get("Content-Length");
+  const reader = response.body.getReader();
+  let received = 0;
+  const chunks = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    console.log(`${((received / total) * 100).toFixed(1)}%`);
+  }
+
+  return new Blob(chunks);
+}</code></pre>
+
+<p><span class="difficulty d-hard">Hard</span> Explain CORS. Why does it exist and how do you fix CORS errors?</p>
+<p><strong>Answer:</strong> CORS (Cross-Origin Resource Sharing) is a browser security mechanism that blocks JS from reading responses from a different origin (protocol + domain + port). It exists to prevent malicious sites from reading data from your APIs using your cookies. The SERVER must send <code>Access-Control-Allow-Origin</code> headers to permit cross-origin access. "Preflight" OPTIONS requests happen for non-simple requests (custom headers, PUT/DELETE). Fixes: server adds CORS headers, or use a proxy (Angular: proxy.conf.json in dev).</p>
+
+<p><span class="difficulty d-expert">Expert</span> What's the difference between CORS and CSP?</p>
+<p><strong>Answer:</strong> CORS controls which origins can READ your server's responses (server-side protection, configured via response headers). CSP (Content Security Policy) controls what resources YOUR page can load/execute (client-side protection, configured via response headers too). CORS answers: "Who can call my API?" CSP answers: "What can run on my page?" CSP prevents inline scripts, unauthorized sources — blocks XSS. CORS prevents data theft from other origins.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between fetch credentials options: 'same-origin', 'include', 'omit'?</p>
+<p><strong>Answer:</strong> credentials: "omit" — never send cookies/auth headers (default for cross-origin). credentials: "same-origin" — send cookies only to same origin (default for same-origin). credentials: "include" — always send cookies even cross-origin (requires server CORS header: Access-Control-Allow-Credentials: true AND specific origin, not wildcard *). Angular HttpClient sends cookies for same-origin by default; use withCredentials: true for cross-origin.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you implement request timeout, retry, and caching in a fetch wrapper?</p>
+<p><strong>Answer:</strong> Timeout: AbortSignal.timeout(ms) or race fetch against a timer. Retry: catch errors, loop with exponential backoff (wait 1s, 2s, 4s), skip retry on 4xx (client errors). Cache: Map with URL as key, store { data, timestamp }, check TTL before returning cached data. Also deduplicate: if same request is in-flight, return the same Promise. Production: use libraries like ky, axios, or Angular's HttpInterceptor chain.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Explain Streaming with fetch — ReadableStream and NDJSON.</p>
+<p><strong>Answer:</strong> response.body is a ReadableStream. You can read it chunk-by-chunk without waiting for the full response (useful for SSE alternatives, large downloads, AI streaming). Use response.body.getReader(), loop with reader.read() until done. NDJSON (Newline-Delimited JSON): server sends one JSON object per line — client parses each line as it arrives. This is how ChatGPT streaming works. TextDecoderStream converts bytes to text for line-by-line processing.</p>
+
+<p><span class="difficulty d-expert">Expert</span> What is a Service Worker and how does it intercept fetch requests?</p>
+<p><strong>Answer:</strong> A Service Worker is a background script (separate thread, no DOM access) that acts as a programmable network proxy. It intercepts ALL fetch requests from its scope via the 'fetch' event. It can: serve from cache (offline support), modify requests/responses, implement custom caching strategies (cache-first, network-first, stale-while-revalidate). Lifecycle: install → activate → idle (with fetch/message events). Registered with navigator.serviceWorker.register().</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cross-origin">8. postMessage, BroadcastChannel &amp; Cross-Origin Communication</h2>
+
+<h3>window.postMessage — Cross-Origin Communication</h3>
+<pre><code>// postMessage: ONLY safe way to communicate between different origins
+// Use cases: iframe communication, window.open() popups, cross-origin widgets
+
+// ─── Sending (from parent to iframe) ─────────────────────
+const iframe = document.querySelector("iframe");
+iframe.contentWindow.postMessage(
+  { type: "THEME_CHANGE", theme: "dark" }, // Data (structured clone)
+  "https://widget.example.com"              // Target origin (NEVER use "*" in production!)
+);
+
+// ─── Receiving ───────────────────────────────────────────
+window.addEventListener("message", (event) =&gt; {
+  // CRITICAL: Always validate origin!
+  if (event.origin !== "https://trusted-parent.com") return;
+
+  // Validate data structure
+  if (event.data?.type === "THEME_CHANGE") {
+    applyTheme(event.data.theme);
+  }
+
+  // Reply back:
+  event.source.postMessage({ type: "ACK" }, event.origin);
+});
+
+// ⚠️ SECURITY:
+// 1. ALWAYS check event.origin — never trust messages from unknown origins
+// 2. NEVER use targetOrigin "*" — anyone can intercept
+// 3. Validate message structure — don't execute arbitrary code from messages
+// 4. Use structured data (not eval-able strings)</code></pre>
+
+<h3>BroadcastChannel — Same-Origin Cross-Tab</h3>
+<pre><code>// BroadcastChannel: communicate between tabs/windows of SAME origin
+// Simpler than localStorage 'storage' event — purpose-built for messaging
+
+// Tab 1:
+const channel = new BroadcastChannel("app_events");
+channel.postMessage({ type: "LOGOUT" });
+
+// Tab 2 (same origin):
+const channel = new BroadcastChannel("app_events");
+channel.onmessage = (event) =&gt; {
+  if (event.data.type === "LOGOUT") {
+    // User logged out in another tab — redirect to login
+    window.location.href = "/login";
+  }
+};
+
+// Close when done:
+channel.close();
+
+// Use cases:
+// - Sync auth state (logout from all tabs)
+// - Sync shopping cart
+// - Leader election (only one tab does polling)
+// - Shared notifications (only show once across tabs)
+
+// Leader Election pattern:
+const bc = new BroadcastChannel("leader");
+let isLeader = false;
+
+bc.postMessage({ type: "ELECTION" });
+setTimeout(() =&gt; {
+  if (!isLeader) {
+    isLeader = true;
+    bc.postMessage({ type: "LEADER_CLAIM" });
+    startPolling(); // Only leader polls
+  }
+}, Math.random() * 100);
+
+bc.onmessage = (e) =&gt; {
+  if (e.data.type === "LEADER_CLAIM") isLeader = false;
+};</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How do you communicate between iframes from different origins?</p>
+<p><strong>Answer:</strong> Use window.postMessage(data, targetOrigin). The parent sends to iframe.contentWindow.postMessage(); the iframe sends to window.parent.postMessage(). Both sides must validate event.origin to prevent security issues. Never use "*" as targetOrigin in production. This is the only browser-sanctioned way to pass data between different origins on the client side.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How would you synchronize state across browser tabs?</p>
+<p><strong>Answer:</strong> Three approaches: (1) BroadcastChannel — purpose-built, clean API, same origin only. (2) localStorage + 'storage' event — works in older browsers, same origin, fires in other tabs on change. (3) SharedWorker — a single Web Worker shared across tabs (can hold state centrally). (4) Service Worker + postMessage — the SW persists across tabs and can relay messages. For auth sync, BroadcastChannel is simplest.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="clipboard-drag">9. Clipboard API &amp; Drag and Drop</h2>
+
+<h3>Clipboard API</h3>
+<pre><code>// Modern Clipboard API (async, permission-based)
+// Requires HTTPS (or localhost) and user gesture
+
+// Copy to clipboard
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("Copied!");
+  } catch (err) {
+    // Fallback for older browsers
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy"); // Deprecated but works everywhere
+    textarea.remove();
+  }
+}
+
+// Read from clipboard
+async function pasteText() {
+  const text = await navigator.clipboard.readText();
+  return text;
+}
+
+// Copy rich content (HTML, images)
+async function copyRichContent() {
+  const blob = new Blob(["&lt;b&gt;Bold text&lt;/b&gt;"], { type: "text/html" });
+  await navigator.clipboard.write([
+    new ClipboardItem({
+      "text/html": blob,
+      "text/plain": new Blob(["Bold text"], { type: "text/plain" })
+    })
+  ]);
+}
+
+// Intercept paste event (custom paste handling)
+document.addEventListener("paste", (e) =&gt; {
+  e.preventDefault();
+  const text = e.clipboardData.getData("text/plain");
+  const html = e.clipboardData.getData("text/html");
+  const files = [...e.clipboardData.files]; // Pasted images!
+
+  if (files.length) {
+    handlePastedImage(files[0]);
+  } else {
+    insertPlainText(text); // Paste as plain text (remove formatting)
+  }
+});</code></pre>
+
+<h3>Drag and Drop API</h3>
+<pre><code>// Native HTML5 Drag &amp; Drop
+// 1. Make element draggable
+// &lt;div draggable="true" id="item1"&gt;Drag me&lt;/div&gt;
+
+// 2. Drag source events
+const draggable = document.querySelector("#item1");
+
+draggable.addEventListener("dragstart", (e) =&gt; {
+  e.dataTransfer.setData("text/plain", e.target.id);
+  e.dataTransfer.effectAllowed = "move"; // move, copy, link, all
+  e.target.classList.add("dragging");
+});
+
+draggable.addEventListener("dragend", (e) =&gt; {
+  e.target.classList.remove("dragging");
+});
+
+// 3. Drop target events (the zone where items can be dropped)
+const dropZone = document.querySelector("#drop-zone");
+
+dropZone.addEventListener("dragover", (e) =&gt; {
+  e.preventDefault(); // REQUIRED! Default is to reject drops
+  e.dataTransfer.dropEffect = "move";
+  dropZone.classList.add("drag-over");
+});
+
+dropZone.addEventListener("dragleave", () =&gt; {
+  dropZone.classList.remove("drag-over");
+});
+
+dropZone.addEventListener("drop", (e) =&gt; {
+  e.preventDefault();
+  dropZone.classList.remove("drag-over");
+
+  const id = e.dataTransfer.getData("text/plain");
+  const element = document.getElementById(id);
+  dropZone.appendChild(element);
+});
+
+// ─── Sortable List (drag to reorder) ─────────────────────
+
+function makeSortable(container) {
+  let draggedItem = null;
+
+  container.addEventListener("dragstart", (e) =&gt; {
+    draggedItem = e.target.closest("li");
+    draggedItem.classList.add("dragging");
+  });
+
+  container.addEventListener("dragend", () =&gt; {
+    draggedItem.classList.remove("dragging");
+    draggedItem = null;
+  });
+
+  container.addEventListener("dragover", (e) =&gt; {
+    e.preventDefault();
+    const afterElement = getDragAfterElement(container, e.clientY);
+    if (afterElement) {
+      container.insertBefore(draggedItem, afterElement);
+    } else {
+      container.appendChild(draggedItem);
+    }
+  });
+
+  function getDragAfterElement(container, y) {
+    const items = [...container.querySelectorAll("li:not(.dragging)")];
+    return items.reduce((closest, child) =&gt; {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset &lt; 0 &amp;&amp; offset &gt; closest.offset) {
+        return { offset, element: child };
+      }
+      return closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+}
+
+// File drop zone:
+dropZone.addEventListener("drop", (e) =&gt; {
+  e.preventDefault();
+  const files = [...e.dataTransfer.files];
+  files.forEach(file =&gt; uploadFile(file));
+});</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> Why must you call preventDefault() in dragover?</p>
+<p><strong>Answer:</strong> By default, the browser REJECTS drops (the default dragover behavior is "no drop allowed"). Calling preventDefault() tells the browser "this element accepts drops." Without it, the drop event never fires. This is the #1 reason beginners can't get drag-and-drop to work.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="performance-api">10. Performance API &amp; Metrics</h2>
+
+<pre><code>// ─── Performance Timing API ──────────────────────────────
+
+// Navigation Timing (page load metrics)
+const timing = performance.getEntriesByType("navigation")[0];
+console.log({
+  dns: timing.domainLookupEnd - timing.domainLookupStart,
+  tcp: timing.connectEnd - timing.connectStart,
+  ttfb: timing.responseStart - timing.requestStart,       // Time to First Byte
+  domParse: timing.domInteractive - timing.responseEnd,   // DOM parsing
+  domReady: timing.domContentLoadedEventEnd - timing.fetchStart, // DOMContentLoaded
+  fullLoad: timing.loadEventEnd - timing.fetchStart,      // Full page load
+});
+
+// ─── Custom Marks &amp; Measures ─────────────────────────────
+
+performance.mark("render-start");
+renderExpensiveComponent();
+performance.mark("render-end");
+
+performance.measure("render-time", "render-start", "render-end");
+const measure = performance.getEntriesByName("render-time")[0];
+console.log(`Render took: ${measure.duration.toFixed(2)}ms`);
+
+// ─── Resource Timing (every network request) ─────────────
+
+const resources = performance.getEntriesByType("resource");
+resources.forEach(r =&gt; {
+  console.log(`${r.name}: ${r.duration.toFixed(0)}ms (${r.transferSize} bytes)`);
+});
+
+// Find slow resources:
+const slow = resources.filter(r =&gt; r.duration &gt; 1000);
+
+// ─── Long Tasks API (detect main thread blocking) ────────
+
+const observer = new PerformanceObserver((list) =&gt; {
+  list.getEntries().forEach(entry =&gt; {
+    console.warn(`Long task detected: ${entry.duration}ms`, entry);
+    // Any task &gt; 50ms blocks user interaction
+  });
+});
+observer.observe({ type: "longtask", buffered: true });
+
+// ─── Web Vitals (Core Web Vitals) ────────────────────────
+
+// LCP (Largest Contentful Paint) — when largest visible content renders
+new PerformanceObserver((list) =&gt; {
+  const entries = list.getEntries();
+  const lcp = entries[entries.length - 1]; // Last one is the largest
+  console.log("LCP:", lcp.startTime);
+  // Good: &lt; 2.5s | Needs work: 2.5-4s | Poor: &gt; 4s
+}).observe({ type: "largest-contentful-paint", buffered: true });
+
+// FID (First Input Delay) — time between first interaction and response
+new PerformanceObserver((list) =&gt; {
+  list.getEntries().forEach(entry =&gt; {
+    console.log("FID:", entry.processingStart - entry.startTime);
+    // Good: &lt; 100ms | Needs work: 100-300ms | Poor: &gt; 300ms
+  });
+}).observe({ type: "first-input", buffered: true });
+
+// CLS (Cumulative Layout Shift) — visual stability
+let clsScore = 0;
+new PerformanceObserver((list) =&gt; {
+  list.getEntries().forEach(entry =&gt; {
+    if (!entry.hadRecentInput) { // Ignore user-initiated shifts
+      clsScore += entry.value;
+    }
+  });
+  console.log("CLS:", clsScore);
+  // Good: &lt; 0.1 | Needs work: 0.1-0.25 | Poor: &gt; 0.25
+}).observe({ type: "layout-shift", buffered: true });
+
+// ─── Quick Performance Auditing ──────────────────────────
+
+// Memory (Chrome only):
+console.log(performance.memory); // jsHeapSizeLimit, totalJSHeapSize, usedJSHeapSize
+
+// Frame rate monitoring:
+let frames = 0, lastTime = performance.now();
+function countFrames() {
+  frames++;
+  const now = performance.now();
+  if (now - lastTime &gt;= 1000) {
+    console.log(`FPS: ${frames}`);
+    frames = 0;
+    lastTime = now;
+  }
+  requestAnimationFrame(countFrames);
+}
+requestAnimationFrame(countFrames);</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What are Core Web Vitals and why do they matter?</p>
+<p><strong>Answer:</strong> Core Web Vitals are Google's metrics for user experience: LCP (loading — largest content paint &lt; 2.5s), FID/INP (interactivity — response to first input &lt; 100ms), CLS (stability — layout shifts &lt; 0.1). They affect SEO ranking directly. Measured in the field (real users via Chrome UX Report) not just lab. Angular provides tools: lazy loading, OnPush change detection, trackBy to address these.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you measure and fix CLS (Cumulative Layout Shift)?</p>
+<p><strong>Answer:</strong> Measure with PerformanceObserver for 'layout-shift' entries. Common causes: (1) Images without width/height attributes (browser doesn't know size until loaded). (2) Ads/embeds injected without reserved space. (3) Web fonts causing text reflow (use font-display: swap + size-adjust). (4) Dynamic content inserted above the fold. Fix: always set explicit dimensions, use aspect-ratio, preload fonts, use CSS contain for dynamic sections.</p>
+
+<p><span class="difficulty d-easy">Easy</span> What is the Performance API used for?</p>
+<p><strong>Answer:</strong> The Performance API measures timing precisely: performance.now() gives high-resolution timestamps (microsecond precision). performance.mark()/measure() create custom timing markers. performance.getEntriesByType("resource") lists all network requests with timing. Used for: benchmarking code, measuring page load, tracking user experience metrics (Core Web Vitals).</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is a Long Task and why does it matter?</p>
+<p><strong>Answer:</strong> A Long Task is any JavaScript execution that blocks the main thread for &gt;50ms. During a Long Task, the browser can't respond to clicks, scrolling, or painting — the page feels "frozen." Detected via PerformanceObserver with type: "longtask". Common causes: large JS bundles executing, heavy computations, deep DOM manipulation. Fix: break work into chunks with scheduler.yield(), requestIdleCallback, or move to Web Worker.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you implement performance budgets and monitoring?</p>
+<p><strong>Answer:</strong> Performance budgets are thresholds that trigger alerts: bundle size &lt; 200KB, LCP &lt; 2.5s, FID &lt; 100ms, CLS &lt; 0.1. Implementation: (1) Build tools: webpack-bundle-analyzer, size-limit, bundlephobia. (2) CI checks: fail build if budget exceeded. (3) Real User Monitoring (RUM): collect performance.getEntriesByType("navigation") data from real users. (4) Synthetic monitoring: Lighthouse CI on every PR. Angular CLI has budgets in angular.json.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Explain the difference between FID, INP, and TBT.</p>
+<p><strong>Answer:</strong> FID (First Input Delay): measures delay between first user interaction and when browser starts processing it — only captures the FIRST interaction. INP (Interaction to Next Paint): measures responsiveness of ALL interactions throughout the page's lifetime (replaced FID as Core Web Vital in 2024). TBT (Total Blocking Time): sum of all Long Task durations beyond 50ms between FCP and TTI — lab metric correlating with INP. INP is the real-world metric; TBT predicts it in lab tests.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rapid-fire">11. DOM Interview Rapid Fire — Output Prediction &amp; Gotchas</h2>
+
+<div class="interview">
+<h4>🎯 Rapid Fire Questions (Often Asked in Interviews)</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What does document.querySelectorAll("div") return if there are no divs?</p>
+<p><strong>Answer:</strong> An empty NodeList (NOT null). Length is 0. forEach loop runs 0 times. Always safe to iterate — no null check needed. This is different from querySelector which returns null when no match.</p>
+
+<p><span class="difficulty d-easy">Easy</span> What's the difference between window.onload and document.addEventListener("DOMContentLoaded")?</p>
+<p><strong>Answer:</strong> window.onload waits for ALL resources (images, CSS, frames). DOMContentLoaded fires when HTML is parsed (DOM ready, images may still be loading). Also: onload is a single handler (overwritten by re-assignment); addEventListener can stack multiple handlers. For modern code, always use addEventListener("DOMContentLoaded") or defer scripts.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What happens when you set element.style.display = "none" and then read element.offsetHeight?</p>
+<p><strong>Answer:</strong> Returns 0. Elements with display:none have no box in the layout tree — no dimensions, no position. This is different from visibility:hidden (still has dimensions, offsetHeight returns actual height) and opacity:0 (same as visibility — takes space). Trick: to measure a hidden element, temporarily show it off-screen (position:absolute, left:-9999px).</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the output of: document.body.children[0] vs document.body.childNodes[0]?</p>
+<p><strong>Answer:</strong> children[0] returns the first Element child (skips whitespace text nodes). childNodes[0] returns the first Node — which is often a whitespace Text node (the newline/indentation between &lt;body&gt; and the first element). This is why childNodes is surprising — HTML whitespace creates text nodes.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Can you explain getBoundingClientRect() and when to use it?</p>
+<p><strong>Answer:</strong> Returns a DOMRect with: top, right, bottom, left (relative to viewport), width, height. Use for: tooltip positioning, collision detection, checking if element is in viewport (before IntersectionObserver), calculating scroll distances. Gotcha: returns fractional pixels. Triggers a forced layout if styles are dirty (reading geometry = forced synchronous layout).</p>
+
+<p><span class="difficulty d-medium">Medium</span> What happens to event listeners when you remove an element from the DOM?</p>
+<p><strong>Answer:</strong> Listeners remain on the element object in memory. If you have a reference to the element, you can re-insert it and listeners still work. If no references exist, the element is garbage collected (listeners freed automatically). BUT: if a listener references a closure that references the element → circular reference (modern engines handle this, but it's a code smell). Best practice: removeEventListener before remove() for clarity.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Explain the "Virtual DOM" concept — how does it differ from the real DOM?</p>
+<p><strong>Answer:</strong> Virtual DOM (React's approach) is a lightweight JS object tree mirroring the real DOM. On state change: (1) New virtual tree created. (2) Diff against previous virtual tree. (3) Minimal patches applied to real DOM. Benefits: batched updates, less direct DOM manipulation. Angular does NOT use virtual DOM — it uses change detection + direct DOM updates via Renderer2. Svelte compiles to direct DOM manipulation (no VDOM overhead). VDOM has overhead (diffing isn't free) — it's a tradeoff, not universally better.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is requestAnimationFrame and how is it different from setTimeout?</p>
+<p><strong>Answer:</strong> requestAnimationFrame (rAF) schedules a callback before the browser's next paint (typically 60fps = every 16.6ms). Unlike setTimeout(fn, 16): (1) rAF syncs with the display refresh rate (adaptive: 120Hz monitors get 120fps). (2) rAF pauses when tab is hidden (saves battery). (3) rAF batches with other visual updates (avoids partial frames). (4) Provides a high-precision timestamp argument. Use rAF for visual changes; setTimeout/setInterval for non-visual delays.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is the difference between HTMLElement and Element?</p>
+<p><strong>Answer:</strong> Element is the base class for ALL elements (HTML, SVG, MathML). HTMLElement extends Element specifically for HTML elements — adds: style property, dataset, contentEditable, draggable, hidden, click(), focus(), blur(). SVGElement extends Element differently. When working with SVG inside HTML, querySelector returns SVGElement (no .style.width — use setAttribute). Type narrowing: instanceof HTMLElement to check.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why is accessing offsetWidth/offsetHeight expensive?</p>
+<p><strong>Answer:</strong> These properties force a SYNCHRONOUS LAYOUT (reflow) if the DOM has been modified since the last layout. The browser must calculate the entire layout tree to give you an accurate answer. If you're in a read-write loop (layout thrashing), each read forces a full recalculation. Solution: batch reads first, then writes. Or cache the values. In DevTools Performance tab, these show up as "Forced reflow" purple warnings.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Explain document.createTreeWalker — when would you use it?</p>
+<p><strong>Answer:</strong> TreeWalker traverses DOM efficiently with filtering. Much faster than recursive querySelector for specific traversal patterns. You define: rootNode, whatToShow filter (SHOW_ELEMENT, SHOW_TEXT, SHOW_COMMENT), and an optional NodeFilter function. Use cases: finding all text nodes for syntax highlighting, accessibility tree walking, custom DOM serializers, content extraction (ignoring scripts/styles). Performance: O(n) single pass vs querySelectorAll which creates a full list.</p>
+
+<p><span class="difficulty d-expert">Expert</span> What is the Range and Selection API?</p>
+<p><strong>Answer:</strong> Range represents a fragment of the document (between two boundary points — start/end containers + offsets). Selection represents what the user has selected. Use cases: rich text editors (bold selected text), highlight search results, programmatic text selection. Key methods: document.createRange(), window.getSelection(), range.surroundContents(). Gotcha: Range can span across elements — partial selections are tricky. Libraries like Quill, ProseMirror, TipTap use these extensively.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="exercises">12. Comprehensive Exercises</h2>
+
+<div class="exercise">
+<h4>🏋️ Exercise 1: Virtual Scroll (DOM Performance)</h4>
+<p><span class="difficulty d-hard">Hard</span> Render 100,000 items with only ~20 visible at a time:</p>
+<pre><code>class VirtualScroll {
+  constructor(container, items, itemHeight = 40) {
+    this.container = container;
+    this.items = items;
+    this.itemHeight = itemHeight;
+    this.visibleCount = Math.ceil(container.clientHeight / itemHeight) + 2; // buffer
+
+    // Total scrollable height
+    this.container.style.overflow = "auto";
+    this.container.style.position = "relative";
+
+    this.content = document.createElement("div");
+    this.content.style.height = `${items.length * itemHeight}px`;
+    this.content.style.position = "relative";
+    this.container.appendChild(this.content);
+
+    this.container.addEventListener("scroll", () =&gt; this.render());
+    this.render();
+  }
+
+  render() {
+    const scrollTop = this.container.scrollTop;
+    const startIndex = Math.floor(scrollTop / this.itemHeight);
+    const endIndex = Math.min(startIndex + this.visibleCount, this.items.length);
+
+    // Clear and re-render only visible items
+    this.content.innerHTML = "";
+    for (let i = startIndex; i &lt; endIndex; i++) {
+      const el = document.createElement("div");
+      el.textContent = this.items[i];
+      el.style.position = "absolute";
+      el.style.top = `${i * this.itemHeight}px`;
+      el.style.height = `${this.itemHeight}px`;
+      el.style.width = "100%";
+      el.style.borderBottom = "1px solid #eee";
+      el.style.display = "flex";
+      el.style.alignItems = "center";
+      el.style.padding = "0 12px";
+      this.content.appendChild(el);
+    }
+  }
+}
+
+// Usage:
+const items = Array.from({ length: 100000 }, (_, i) =&gt; `Item #${i + 1}`);
+new VirtualScroll(document.querySelector("#list"), items);</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 2: Intersection-Based Fade-In Animations</h4>
+<p><span class="difficulty d-medium">Medium</span> Elements fade in and slide up when they enter viewport:</p>
+<pre><code>// CSS:
+// .fade-in { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+// .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+const observer = new IntersectionObserver((entries) =&gt; {
+  entries.forEach(entry =&gt; {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+      observer.unobserve(entry.target); // Animate only once
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll(".fade-in").forEach(el =&gt; observer.observe(el));</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 3: localStorage with Expiry</h4>
+<p><span class="difficulty d-medium">Medium</span> localStorage doesn't have built-in expiry. Build one:</p>
+<pre><code>const storage = {
+  set(key, value, ttlMs) {
+    const item = {
+      value,
+      expiry: ttlMs ? Date.now() + ttlMs : null
+    };
+    localStorage.setItem(key, JSON.stringify(item));
+  },
+
+  get(key) {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+
+    const item = JSON.parse(raw);
+    if (item.expiry &amp;&amp; Date.now() &gt; item.expiry) {
+      localStorage.removeItem(key);
+      return null; // Expired
+    }
+    return item.value;
+  },
+
+  remove(key) { localStorage.removeItem(key); },
+  clear() { localStorage.clear(); }
+};
+
+// Usage:
+storage.set("token", "abc123", 3600000); // Expires in 1 hour
+storage.get("token"); // "abc123" (or null if expired)</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 4: Event Delegation — Dynamic Table</h4>
+<p><span class="difficulty d-medium">Medium</span> Build a sortable, filterable table with ONE event listener:</p>
+<pre><code>const table = document.querySelector("#data-table");
+
+table.addEventListener("click", (e) =&gt; {
+  // Sort by column
+  const th = e.target.closest("th[data-sort]");
+  if (th) {
+    const column = th.dataset.sort;
+    const direction = th.dataset.direction === "asc" ? "desc" : "asc";
+    th.dataset.direction = direction;
+    sortTable(column, direction);
+    return;
+  }
+
+  // Delete row
+  const deleteBtn = e.target.closest("[data-action='delete']");
+  if (deleteBtn) {
+    deleteBtn.closest("tr").remove();
+    return;
+  }
+
+  // Edit cell (inline editing)
+  const cell = e.target.closest("td[contenteditable]");
+  if (cell) {
+    cell.focus();
+  }
+});
+
+function sortTable(column, direction) {
+  const tbody = table.querySelector("tbody");
+  const rows = [...tbody.querySelectorAll("tr")];
+  const multiplier = direction === "asc" ? 1 : -1;
+
+  rows.sort((a, b) =&gt; {
+    const aVal = a.querySelector(`td[data-col="${column}"]`).textContent;
+    const bVal = b.querySelector(`td[data-col="${column}"]`).textContent;
+    return aVal.localeCompare(bVal, undefined, { numeric: true }) * multiplier;
+  });
+
+  tbody.append(...rows); // Re-appending moves elements (no clone needed)
+}</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 5: Custom Tooltip (Positioning)</h4>
+<p><span class="difficulty d-hard">Hard</span> Position a tooltip that stays in viewport:</p>
+<pre><code>function createTooltip(target, text) {
+  const tooltip = document.createElement("div");
+  tooltip.className = "tooltip";
+  tooltip.textContent = text;
+  tooltip.style.cssText = `
+    position: absolute; background: #333; color: white; padding: 6px 10px;
+    border-radius: 4px; font-size: 12px; z-index: 9999; pointer-events: none;
+    white-space: nowrap; opacity: 0; transition: opacity 0.2s;
+  `;
+  document.body.appendChild(tooltip);
+
+  const rect = target.getBoundingClientRect();
+  const tipRect = tooltip.getBoundingClientRect();
+
+  // Try positioning above
+  let top = rect.top - tipRect.height - 8 + window.scrollY;
+  let left = rect.left + (rect.width - tipRect.width) / 2 + window.scrollX;
+
+  // Flip below if above viewport
+  if (top &lt; window.scrollY) {
+    top = rect.bottom + 8 + window.scrollY;
+  }
+
+  // Keep within horizontal bounds
+  left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+
+  tooltip.style.top = `${top}px`;
+  tooltip.style.left = `${left}px`;
+  tooltip.style.opacity = "1";
+
+  return tooltip;
+}
+
+// Usage with delegation:
+document.addEventListener("mouseenter", (e) =&gt; {
+  const el = e.target.closest("[data-tooltip]");
+  if (!el) return;
+  const tip = createTooltip(el, el.dataset.tooltip);
+  el._tooltip = tip;
+}, true); // Capture phase (mouseenter doesn't bubble!)
+
+document.addEventListener("mouseleave", (e) =&gt; {
+  const el = e.target.closest("[data-tooltip]");
+  if (!el || !el._tooltip) return;
+  el._tooltip.remove();
+  el._tooltip = null;
+}, true);</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 6: MutationObserver — Auto Dark Mode</h4>
+<p><span class="difficulty d-medium">Medium</span> Watch for class changes and sync theme:</p>
+<pre><code>// Automatically detect when a CMS/framework changes body class
+// and sync with localStorage + other tabs
+
+const themeObserver = new MutationObserver((mutations) =&gt; {
+  mutations.forEach(mutation =&gt; {
+    if (mutation.attributeName === "class") {
+      const isDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+
+      // Sync to other tabs
+      const bc = new BroadcastChannel("theme_sync");
+      bc.postMessage({ theme: isDark ? "dark" : "light" });
+      bc.close();
+    }
+  });
+});
+
+themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 7: Fetch Wrapper with Retry, Cache &amp; Cancel</h4>
+<p><span class="difficulty d-expert">Expert</span> Production-grade fetch utility:</p>
+<pre><code>class HttpClient {
+  #cache = new Map();
+  #pending = new Map();
+
+  async request(url, options = {}) {
+    const {
+      method = "GET",
+      body,
+      headers = {},
+      retries = 2,
+      timeout = 10000,
+      cache = false,
+      cacheTTL = 60000,
+      signal,
+    } = options;
+
+    // Check cache
+    const cacheKey = `${method}:${url}`;
+    if (cache &amp;&amp; method === "GET") {
+      const cached = this.#cache.get(cacheKey);
+      if (cached &amp;&amp; Date.now() - cached.time &lt; cacheTTL) {
+        return cached.data;
+      }
+    }
+
+    // Deduplicate in-flight requests
+    if (method === "GET" &amp;&amp; this.#pending.has(cacheKey)) {
+      return this.#pending.get(cacheKey);
+    }
+
+    const fetchPromise = this.#fetchWithRetry(url, {
+      method,
+      headers: { "Content-Type": "application/json", ...headers },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: signal || AbortSignal.timeout(timeout),
+    }, retries);
+
+    if (method === "GET") {
+      this.#pending.set(cacheKey, fetchPromise);
+    }
+
+    try {
+      const data = await fetchPromise;
+      if (cache &amp;&amp; method === "GET") {
+        this.#cache.set(cacheKey, { data, time: Date.now() });
+      }
+      return data;
+    } finally {
+      this.#pending.delete(cacheKey);
+    }
+  }
+
+  async #fetchWithRetry(url, options, retries) {
+    for (let attempt = 0; attempt &lt;= retries; attempt++) {
+      try {
+        const res = await fetch(url, options);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        if (err.name === "AbortError") throw err; // Don't retry aborts
+        if (attempt === retries) throw err;
+        await new Promise(r =&gt; setTimeout(r, 1000 * 2 ** attempt));
+      }
+    }
+  }
+
+  clearCache() { this.#cache.clear(); }
+}
+
+// Usage:
+const http = new HttpClient();
+const users = await http.request("/api/users", { cache: true, retries: 3 });</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 8: Drag &amp; Drop Kanban Board</h4>
+<p><span class="difficulty d-hard">Hard</span> Build a simple Trello-like board:</p>
+<pre><code>// HTML structure:
+// &lt;div class="board"&gt;
+//   &lt;div class="column" data-status="todo"&gt;&lt;h3&gt;To Do&lt;/h3&gt;&lt;div class="cards"&gt;...&lt;/div&gt;&lt;/div&gt;
+//   &lt;div class="column" data-status="doing"&gt;&lt;h3&gt;Doing&lt;/h3&gt;&lt;div class="cards"&gt;...&lt;/div&gt;&lt;/div&gt;
+//   &lt;div class="column" data-status="done"&gt;&lt;h3&gt;Done&lt;/h3&gt;&lt;div class="cards"&gt;...&lt;/div&gt;&lt;/div&gt;
+// &lt;/div&gt;
+
+const board = document.querySelector(".board");
+let draggedCard = null;
+
+board.addEventListener("dragstart", (e) =&gt; {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  draggedCard = card;
+  card.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "move";
+});
+
+board.addEventListener("dragend", () =&gt; {
+  if (draggedCard) draggedCard.classList.remove("dragging");
+  draggedCard = null;
+  document.querySelectorAll(".column.drag-over").forEach(c =&gt;
+    c.classList.remove("drag-over")
+  );
+});
+
+board.addEventListener("dragover", (e) =&gt; {
+  e.preventDefault();
+  const column = e.target.closest(".column");
+  if (!column) return;
+
+  // Highlight drop target
+  document.querySelectorAll(".column.drag-over").forEach(c =&gt;
+    c.classList.remove("drag-over")
+  );
+  column.classList.add("drag-over");
+
+  // Position card within column
+  const cards = column.querySelector(".cards");
+  const afterCard = getCardAfter(cards, e.clientY);
+  if (afterCard) {
+    cards.insertBefore(draggedCard, afterCard);
+  } else {
+    cards.appendChild(draggedCard);
+  }
+});
+
+board.addEventListener("drop", (e) =&gt; {
+  e.preventDefault();
+  const column = e.target.closest(".column");
+  if (!column || !draggedCard) return;
+
+  // Update data model
+  const newStatus = column.dataset.status;
+  draggedCard.dataset.status = newStatus;
+  saveState(); // Persist to localStorage or API
+});
+
+function getCardAfter(container, y) {
+  const cards = [...container.querySelectorAll(".card:not(.dragging)")];
+  return cards.reduce((closest, card) =&gt; {
+    const box = card.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset &lt; 0 &amp;&amp; offset &gt; closest.offset) {
+      return { offset, element: card };
+    }
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════ EVENT MODEL EXERCISES ══════════════════════════ -->
+<h3 id="event-model-exercises">🎯 Hands-on: Event Model (Capturing, Bubbling, Delegation)</h3>
+
+<div class="exercise">
+<h4>🏋️ Exercise 9: Propagation Phase Visualizer <span class="difficulty d-easy">Easy</span></h4>
+<p>Build a nested element tree that logs all three propagation phases so you can SEE the order events fire. Run in browser console or a live HTML file.</p>
+<pre><code>// HTML:
+// &lt;div id="grandparent"&gt;
+//   &lt;div id="parent"&gt;
+//     &lt;button id="child"&gt;Click me&lt;/button&gt;
+//   &lt;/div&gt;
+// &lt;/div&gt;
+
+const log = (phase, el) =&gt;
+  console.log(`%c[${phase}] ${el}`, "color:" + (phase === "CAPTURE" ? "#3498db" : phase === "TARGET" ? "#2ecc71" : "#e74c3c"));
+
+["grandparent", "parent", "child"].forEach(id =&gt; {
+  const el = document.getElementById(id);
+
+  // Capture phase (3rd arg = true)
+  el.addEventListener("click", () =&gt; log("CAPTURE", id), true);
+
+  // Bubble phase (default)
+  el.addEventListener("click", () =&gt; log(id === "child" ? "TARGET" : "BUBBLE", id), false);
+});
+
+/*
+ Expected output when button is clicked:
+ [CAPTURE] grandparent
+ [CAPTURE] parent
+ [TARGET]  child        ← same element fires BOTH capture &amp; bubble listeners
+ [BUBBLE]  parent
+ [BUBBLE]  grandparent
+
+ Key insight: at the TARGET element, order depends on which listener
+ was registered first, NOT on the capture/bubble flag.
+*/</code></pre>
+<p><strong>What to observe:</strong> Capture fires top → down, target fires both, bubble fires bottom → up. The <code>capture: true</code> listener on the target element fires BEFORE the <code>capture: false</code> one <em>only if registered first</em>.</p>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 10: stopPropagation vs stopImmediatePropagation <span class="difficulty d-medium">Medium</span></h4>
+<p>Understand the subtle difference — critical for senior interviews.</p>
+<pre><code>const btn = document.querySelector("#btn");
+const parent = document.querySelector("#parent");
+
+// ── Scenario A: stopPropagation ───────────────────────────
+btn.addEventListener("click", (e) =&gt; {
+  console.log("btn: handler 1 runs");
+  e.stopPropagation(); // Stops bubbling to parent. BUT...
+});
+
+btn.addEventListener("click", () =&gt; {
+  console.log("btn: handler 2 STILL runs"); // ← This runs!
+});
+
+parent.addEventListener("click", () =&gt; {
+  console.log("parent: NEVER runs"); // ← Blocked by stopPropagation
+});
+
+/*
+ stopPropagation:   stops the event from traveling to OTHER elements,
+                    but all handlers on the SAME element still fire.
+*/
+
+// ── Scenario B: stopImmediatePropagation ─────────────────
+btn.addEventListener("click", (e) =&gt; {
+  console.log("btn: handler 1 runs");
+  e.stopImmediatePropagation(); // Stops propagation AND remaining handlers
+});
+
+btn.addEventListener("click", () =&gt; {
+  console.log("btn: handler 2 NEVER runs"); // ← Also blocked!
+});
+
+parent.addEventListener("click", () =&gt; {
+  console.log("parent: NEVER runs"); // ← Also blocked
+});
+
+/*
+ stopImmediatePropagation: stops everything — no other handlers on
+ the same element, and no bubbling to parents.
+
+ Interview answer: Use stopPropagation when you want to cancel bubbling
+ but let other listeners on the same element run. Use
+ stopImmediatePropagation when you want to cancel absolutely everything.
+*/</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 11: Accordion Built with a Single Delegated Listener <span class="difficulty d-medium">Medium</span></h4>
+<p>Build a multi-panel accordion with <strong>one</strong> event listener that handles all panels — including panels added after page load.</p>
+<pre><code>// HTML structure:
+// &lt;div id="accordion"&gt;
+//   &lt;div class="panel"&gt;
+//     &lt;button class="panel-header" data-panel="1"&gt;Section 1 ▼&lt;/button&gt;
+//     &lt;div class="panel-body" id="panel-1"&gt;Content 1&lt;/div&gt;
+//   &lt;/div&gt;
+//   &lt;!-- more panels... --&gt;
+// &lt;/div&gt;
+// &lt;button id="add-panel"&gt;Add new panel&lt;/button&gt;
+
+const accordion = document.getElementById("accordion");
+
+// ONE listener handles all current and future panels
+accordion.addEventListener("click", (e) =&gt; {
+  const header = e.target.closest(".panel-header");
+  if (!header) return; // Click wasn't on a header
+
+  const panelId = header.dataset.panel;
+  const body = document.getElementById(`panel-${panelId}`);
+  const isOpen = body.style.maxHeight;
+
+  // Collapse all (optional: comment out for multi-open)
+  accordion.querySelectorAll(".panel-body").forEach(b =&gt; {
+    b.style.maxHeight = "";
+    b.style.opacity = "0";
+  });
+  accordion.querySelectorAll(".panel-header").forEach(h =&gt;
+    h.textContent = h.textContent.replace("▲", "▼")
+  );
+
+  // Expand clicked panel if it was closed
+  if (!isOpen) {
+    body.style.maxHeight = body.scrollHeight + "px";
+    body.style.opacity = "1";
+    header.textContent = header.textContent.replace("▼", "▲");
+  }
+});
+
+// Dynamic panel — delegation handles it automatically
+let panelCount = 3;
+document.getElementById("add-panel").addEventListener("click", () =&gt; {
+  panelCount++;
+  const panel = document.createElement("div");
+  panel.className = "panel";
+  panel.innerHTML = `
+    &lt;button class="panel-header" data-panel="${panelCount}"&gt;Section ${panelCount} ▼&lt;/button&gt;
+    &lt;div class="panel-body" id="panel-${panelCount}" style="max-height:0;opacity:0;overflow:hidden;transition:all 0.3s"&gt;
+      Dynamic content ${panelCount}
+    &lt;/div&gt;`;
+  accordion.appendChild(panel);
+  // No new listener needed — the delegated listener on #accordion covers it!
+});
+
+/*
+ Key interview points:
+ 1. e.target.closest(".panel-header") safely walks up the DOM tree.
+ 2. Works for any panel added at any time — no re-registration.
+ 3. N panels = 1 listener (vs N listeners with direct binding).
+*/</code></pre>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Exercise 12: Capture-Phase Global Analytics Tracker <span class="difficulty d-hard">Hard</span></h4>
+<p>Use the <strong>capture phase</strong> to intercept ALL interactions across the page for analytics — without touching existing event handlers, and even catching events where a child calls <code>stopPropagation()</code>.</p>
+<pre><code>// ── Why capture phase for analytics? ─────────────────────
+// If a child element calls e.stopPropagation(), the bubble phase
+// never reaches the document. Capture phase fires BEFORE any
+// child handler, so it can't be silenced by child code.
+
+const Analytics = (() =&gt; {
+  const events = [];
+
+  function track(type, target) {
+    const entry = {
+      type,
+      tag: target.tagName,
+      id: target.id || null,
+      classes: [...target.classList].join(" ") || null,
+      text: target.innerText?.slice(0, 60) || null,
+      timestamp: Date.now(),
+      path: target.closest("[data-track]")?.dataset.track || null,
+    };
+    events.push(entry);
+    console.log("[Analytics]", entry);
+  }
+
+  // Attach in CAPTURE phase so nothing can block us
+  document.addEventListener("click",   (e) =&gt; track("click", e.target), true);
+  document.addEventListener("focus",   (e) =&gt; track("focus", e.target), true);
+  document.addEventListener("submit",  (e) =&gt; track("submit", e.target), true);
+  document.addEventListener("keydown", (e) =&gt; {
+    if (e.key === "Enter") track("enter-key", e.target);
+  }, true);
+
+  return {
+    getEvents: () =&gt; [...events],
+    clearEvents: () =&gt; events.length = 0,
+    flush: () =&gt; {
+      // In production: POST to analytics endpoint, then clear
+      console.table(events);
+      events.length = 0;
+    },
+  };
+})();
+
+// ── Demonstrate that capture fires even when child blocks bubble ──
+const innerBtn = document.getElementById("inner-btn");
+innerBtn.addEventListener("click", (e) =&gt; {
+  e.stopPropagation(); // Bubble is stopped — but Analytics already ran!
+  console.log("inner-btn: my handler runs, propagation stopped");
+});
+
+// In production: flush analytics on page unload
+window.addEventListener("visibilitychange", () =&gt; {
+  if (document.visibilityState === "hidden") Analytics.flush();
+});
+
+/*
+ Interview points:
+ - Capture phase: addEventListener(type, handler, { capture: true })
+ - Fires window → document → html → body → target (before any child handler)
+ - stopPropagation in a child's bubble-phase handler cannot block capture
+ - Focus/blur don't bubble — but focusin/focusout do (or use capture)
+ - Use { passive: true } with scroll/touch listeners to unblock rendering
+*/</code></pre>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase6A-rendering-webcomponents-lifecycle.html">← Phase 6A: CRP &amp; Web Components</a>
+  <a href="phase7-es6-design-patterns.html">Phase 7: ES6+ &amp; Design Patterns →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

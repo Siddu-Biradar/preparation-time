@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 7: Forms & Validation</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 7: Forms & Validation</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (7 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Template-driven Forms</span>
+    <span class="pill">Reactive Forms</span>
+    <span class="pill">Custom Validators</span>
+    <span class="pill">Async Validators</span>
+    <span class="pill">Dynamic Forms</span>
+    <span class="pill">Typed Forms</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Template-driven vs Reactive Forms</h2>
+
+<table>
+<tr><th>Aspect</th><th>Template-driven</th><th>Reactive</th></tr>
+<tr><td>Setup</td><td>FormsModule</td><td>ReactiveFormsModule</td></tr>
+<tr><td>Model creation</td><td>In template (directives)</td><td>In component class</td></tr>
+<tr><td>Data flow</td><td>Two-way (ngModel)</td><td>Immutable, observable-based</td></tr>
+<tr><td>Validation</td><td>Template directives</td><td>Functions in class</td></tr>
+<tr><td>Testing</td><td>Requires DOM</td><td>No DOM needed (unit test friendly)</td></tr>
+<tr><td>Dynamic forms</td><td>Difficult</td><td>Easy (FormArray, dynamic controls)</td></tr>
+<tr><td>Best for</td><td>Simple forms, prototypes</td><td>Complex forms, production apps</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. Reactive Forms — Complete Guide</h2>
+
+<h3>Form Building</h3>
+<pre><code>import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+
+@Component({
+  imports: [ReactiveFormsModule],
+  template: `
+    &lt;form [formGroup]="userForm" (ngSubmit)="onSubmit()"&gt;
+      &lt;!-- Simple controls --&gt;
+      &lt;input formControlName="name" placeholder="Name"&gt;
+      &lt;input formControlName="email" type="email" placeholder="Email"&gt;
+      
+      &lt;!-- Nested FormGroup --&gt;
+      &lt;div formGroupName="address"&gt;
+        &lt;input formControlName="street"&gt;
+        &lt;input formControlName="city"&gt;
+        &lt;input formControlName="zip"&gt;
+      &lt;/div&gt;
+      
+      &lt;!-- FormArray --&gt;
+      &lt;div formArrayName="skills"&gt;
+        @for (skill of skillControls.controls; track $index; let i = $index) {
+          &lt;div&gt;
+            &lt;input [formControlName]="i"&gt;
+            &lt;button type="button" (click)="removeSkill(i)"&gt;Remove&lt;/button&gt;
+          &lt;/div&gt;
+        }
+        &lt;button type="button" (click)="addSkill()"&gt;Add Skill&lt;/button&gt;
+      &lt;/div&gt;
+      
+      &lt;button type="submit" [disabled]="userForm.invalid"&gt;Save&lt;/button&gt;
+    &lt;/form&gt;
+    
+    &lt;!-- Error display --&gt;
+    @if (userForm.get('email')?.hasError('email') && userForm.get('email')?.touched) {
+      &lt;span class="error"&gt;Invalid email format&lt;/span&gt;
+    }
+  `
+})
+export class UserFormComponent {
+  private fb = inject(FormBuilder);
+
+  userForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    age: [null as number | null, [Validators.min(18), Validators.max(120)]],
+    address: this.fb.group({
+      street: ['', Validators.required],
+      city: ['', Validators.required],
+      zip: ['', [Validators.required, Validators.pattern(/^\d{5}(-\d{4})?$/)]]
+    }),
+    skills: this.fb.array([
+      this.fb.control('', Validators.required)
+    ])
+  });
+
+  get skillControls(): FormArray {
+    return this.userForm.get('skills') as FormArray;
+  }
+
+  addSkill(): void {
+    this.skillControls.push(this.fb.control('', Validators.required));
+  }
+
+  removeSkill(index: number): void {
+    this.skillControls.removeAt(index);
+  }
+
+  onSubmit(): void {
+    if (this.userForm.valid) {
+      console.log(this.userForm.value);  // Typed!
+      console.log(this.userForm.getRawValue());  // Includes disabled controls
+    } else {
+      this.userForm.markAllAsTouched();  // Show all errors
+    }
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. Typed Forms (Angular 14+)</h2>
+
+<pre><code>// Strictly typed form — compiler catches errors!
+interface UserFormValue {
+  name: string;
+  email: string;
+  age: number | null;
+  address: {
+    street: string;
+    city: string;
+  };
+}
+
+// FormGroup is now generic
+userForm = new FormGroup({
+  name: new FormControl('', { nonNullable: true }),  // Type: FormControl&lt;string&gt;
+  email: new FormControl('', { nonNullable: true }),
+  age: new FormControl&lt;number | null&gt;(null),
+  address: new FormGroup({
+    street: new FormControl('', { nonNullable: true }),
+    city: new FormControl('', { nonNullable: true })
+  })
+});
+
+// Type-safe access:
+const name: string = this.userForm.controls.name.value;  // ✓ Typed!
+this.userForm.controls.nonexistent;  // ✗ Compile error!
+
+// NonNullable forms (reset returns to initial value, not null)
+const form = this.fb.nonNullable.group({
+  name: ['John'],  // Always string, never null
+  email: ['']
+});
+form.reset();  // Values reset to 'John' and '', NOT null</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>4. Custom Validators</h2>
+
+<h3>Synchronous Validators</h3>
+<pre><code>// Validator function signature: (control: AbstractControl) => ValidationErrors | null
+export function noWhitespace(control: AbstractControl): ValidationErrors | null {
+  if (control.value && control.value.trim().length === 0) {
+    return { whitespace: true };  // Error key
+  }
+  return null;  // Valid
+}
+
+// Validator with parameters (factory function)
+export function minAge(age: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (value !== null && value < age) {
+      return { minAge: { required: age, actual: value } };
+    }
+    return null;
+  };
+}
+
+// Cross-field validator (applied to FormGroup)
+export function passwordMatch(control: AbstractControl): ValidationErrors | null {
+  const form = control as FormGroup;
+  const password = form.get('password')?.value;
+  const confirm = form.get('confirmPassword')?.value;
+
+  if (password && confirm && password !== confirm) {
+    return { passwordMismatch: true };
+  }
+  return null;
+}
+
+// Usage:
+this.fb.group({
+  name: ['', [Validators.required, noWhitespace]],
+  age: [null, [minAge(18)]],
+  password: ['', Validators.required],
+  confirmPassword: ['', Validators.required]
+}, { validators: [passwordMatch] })  // Group-level validator</code></pre>
+
+<h3>Async Validators</h3>
+<pre><code>// Check if username/email is taken (calls API)
+export function uniqueEmail(userService: UserService): AsyncValidatorFn {
+  return (control: AbstractControl): Observable&lt;ValidationErrors | null&gt; => {
+    if (!control.value) return of(null);
+    
+    return userService.checkEmailExists(control.value).pipe(
+      debounceTime(300),
+      map(exists => exists ? { emailTaken: true } : null),
+      catchError(() => of(null))  // Don't block form on API error
+    );
+  };
+}
+
+// Usage:
+email: ['', {
+  validators: [Validators.required, Validators.email],
+  asyncValidators: [uniqueEmail(this.userService)],
+  updateOn: 'blur'  // Only validate on blur (not every keystroke)
+}]
+
+// In template:
+@if (emailControl.pending) {
+  &lt;span&gt;Checking availability...&lt;/span&gt;
+}
+@if (emailControl.hasError('emailTaken')) {
+  &lt;span class="error"&gt;This email is already registered&lt;/span&gt;
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>5. Dynamic Forms</h2>
+
+<pre><code>// Generate form from configuration
+interface FieldConfig {
+  key: string;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'checkbox' | 'textarea';
+  validators?: ValidatorFn[];
+  options?: { value: string; label: string }[];  // For select
+}
+
+@Component({
+  template: `
+    &lt;form [formGroup]="dynamicForm" (ngSubmit)="submit()"&gt;
+      @for (field of fields; track field.key) {
+        &lt;div class="form-field"&gt;
+          &lt;label&gt;{{ field.label }}&lt;/label&gt;
+          
+          @switch (field.type) {
+            @case ('text') {
+              &lt;input type="text" [formControlName]="field.key"&gt;
+            }
+            @case ('number') {
+              &lt;input type="number" [formControlName]="field.key"&gt;
+            }
+            @case ('select') {
+              &lt;select [formControlName]="field.key"&gt;
+                @for (opt of field.options; track opt.value) {
+                  &lt;option [value]="opt.value"&gt;{{ opt.label }}&lt;/option&gt;
+                }
+              &lt;/select&gt;
+            }
+            @case ('textarea') {
+              &lt;textarea [formControlName]="field.key"&gt;&lt;/textarea&gt;
+            }
+          }
+          
+          @if (dynamicForm.get(field.key)?.invalid && dynamicForm.get(field.key)?.touched) {
+            &lt;span class="error"&gt;{{ field.label }} is invalid&lt;/span&gt;
+          }
+        &lt;/div&gt;
+      }
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
+  `
+})
+export class DynamicFormComponent implements OnInit {
+  @Input() fields: FieldConfig[] = [];
+  dynamicForm!: FormGroup;
+
+  private fb = inject(FormBuilder);
+
+  ngOnInit() {
+    const group: Record&lt;string, FormControl&gt; = {};
+    this.fields.forEach(field => {
+      group[field.key] = new FormControl('', field.validators || []);
+    });
+    this.dynamicForm = new FormGroup(group);
+  }
+
+  submit() {
+    if (this.dynamicForm.valid) {
+      console.log(this.dynamicForm.value);
+    }
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>6. Form Control States & CSS Classes</h2>
+
+<pre><code>// Angular automatically adds CSS classes to form controls:
+// .ng-valid / .ng-invalid
+// .ng-pristine / .ng-dirty (user has changed value)
+// .ng-untouched / .ng-touched (user has focused and left field)
+// .ng-pending (async validation in progress)
+
+// SCSS for form validation styling:
+input.ng-invalid.ng-touched {
+  border-color: red;
+}
+
+input.ng-valid.ng-touched {
+  border-color: green;
+}
+
+// Programmatic state checks:
+const ctrl = this.form.get('email');
+ctrl.valid        // passes all validators
+ctrl.invalid      // fails at least one validator
+ctrl.pristine     // value not changed by user
+ctrl.dirty        // value changed by user
+ctrl.touched      // field has been focused and blurred
+ctrl.untouched    // field never focused
+ctrl.pending      // async validation running
+ctrl.disabled     // control is disabled
+ctrl.enabled      // control is enabled
+ctrl.errors       // object of current errors or null
+ctrl.value        // current value
+
+// Control manipulation:
+ctrl.setValue('new value');           // Set exact value (must match structure for groups)
+ctrl.patchValue({ name: 'partial' }); // Partial update (groups only)
+ctrl.reset();                         // Reset to initial value
+ctrl.disable();                       // Disable (excluded from form.value)
+ctrl.enable();
+ctrl.markAsTouched();
+ctrl.markAllAsTouched();             // Mark all children touched (show all errors)
+ctrl.updateValueAndValidity();        // Re-run validators</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>7. ControlValueAccessor — Custom Form Controls</h2>
+
+<pre><code>// Create a custom component that works with formControlName and ngModel
+@Component({
+  selector: 'app-star-rating',
+  standalone: true,
+  template: `
+    @for (star of stars; track $index; let i = $index) {
+      &lt;span 
+        [class.filled]="i &lt; value"
+        (click)="rate(i + 1)"
+      &gt;★&lt;/span&gt;
+    }
+  `,
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => StarRatingComponent),
+    multi: true
+  }]
+})
+export class StarRatingComponent implements ControlValueAccessor {
+  stars = [1, 2, 3, 4, 5];
+  value = 0;
+  disabled = false;
+
+  private onChange: (value: number) => void = () => {};
+  private onTouched: () => void = () => {};
+
+  // Called by Angular to write value to component
+  writeValue(value: number): void {
+    this.value = value || 0;
+  }
+
+  // Register callback for when value changes
+  registerOnChange(fn: (value: number) => void): void {
+    this.onChange = fn;
+  }
+
+  // Register callback for when control is touched
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  // Called when control is disabled/enabled
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+
+  rate(stars: number): void {
+    if (this.disabled) return;
+    this.value = stars;
+    this.onChange(stars);  // Notify form of change
+    this.onTouched();     // Mark as touched
+  }
+}
+
+// Usage — works with reactive forms AND template-driven:
+&lt;app-star-rating formControlName="rating" /&gt;
+&lt;app-star-rating [(ngModel)]="myRating" /&gt;</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 7</h4>
+<ol>
+  <li>What's the difference between template-driven and reactive forms? When use which?</li>
+  <li>How do typed forms work in Angular 14+? What is nonNullable?</li>
+  <li>How do you create cross-field validators? Give an example.</li>
+  <li>Explain async validators. How would you check if a username is taken?</li>
+  <li>What is ControlValueAccessor? How do you create custom form controls?</li>
+  <li>How do you build dynamic forms from a JSON configuration?</li>
+  <li>What's the difference between setValue and patchValue?</li>
+  <li>How do FormArrays work? Give a practical example.</li>
+  <li>What are the form control states (touched, dirty, etc.)? How do you use them for UX?</li>
+  <li>How would you implement a multi-step wizard form with validation per step?</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase6-routing-navigation.html">← Phase 6: Routing</a>
+  <a href="phase8-state-management.html">Phase 8: State Management →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

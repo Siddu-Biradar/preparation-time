@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification Center Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f9fa; padding: 24px; }
+    h2 { margin-bottom: 16px; color: #1a2530; }
+    .notif-wrapper { position: relative; display: inline-block; }
+    .bell-btn { background: white; border: 1px solid #ddd; border-radius: 50%; width: 48px; height: 48px; font-size: 22px; cursor: pointer; position: relative; transition: all 0.2s; }
+    .bell-btn:hover { background: #f0f7fc; border-color: #1a5276; }
+    .badge { position: absolute; top: -2px; right: -2px; background: #e74c3c; color: white; font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+    .notif-dropdown { position: absolute; top: 56px; right: 0; width: 360px; background: white; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: none; z-index: 100; overflow: hidden; }
+    .notif-dropdown.open { display: block; }
+    .notif-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #eee; }
+    .notif-header h4 { font-size: 15px; }
+    .mark-all-btn { background: none; border: none; color: #1a5276; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .mark-all-btn:hover { text-decoration: underline; }
+    .notif-list { max-height: 360px; overflow-y: auto; }
+    .notif-item { display: flex; gap: 12px; padding: 12px 16px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f5f5f5; }
+    .notif-item:hover { background: #f8f9fa; }
+    .notif-item.unread { background: #f0f7fc; }
+    .notif-item.unread:hover { background: #d6eaf8; }
+    .notif-icon { font-size: 20px; flex-shrink: 0; }
+    .notif-content { flex: 1; }
+    .notif-content p { font-size: 13px; margin: 0; color: #333; }
+    .notif-time { font-size: 11px; color: #999; }
+    .empty { text-align: center; padding: 30px; color: #999; }
+    .controls { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .controls button { padding: 8px 14px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .controls button:hover { background: #f0f7fc; border-color: #1a5276; }
+  </style>
+</head>
+<body>
+  <h2>🔔 Notification Center</h2>
+  <div id="notif-container"></div>
+  <div class="controls">
+    <button onclick="addRandom()">+ Add Random Notification</button>
+    <button onclick="addBurst()">+ Add 5 Notifications</button>
+  </div>
+
+  <script>
+    class NotificationCenter {
+      constructor(container) {
+        this.container = container;
+        this.notifications = [];
+        this.isOpen = false;
+        this.render();
+      }
+
+      get unreadCount() { return this.notifications.filter(n => !n.read).length; }
+
+      render() {
+        this.container.innerHTML = `
+          <div class="notif-wrapper">
+            <button class="bell-btn">🔔${this.unreadCount > 0 ? `<span class="badge">${this.unreadCount}</span>` : ''}</button>
+            <div class="notif-dropdown ${this.isOpen ? 'open' : ''}">
+              <div class="notif-header"><h4>Notifications</h4><button class="mark-all-btn">Mark all read</button></div>
+              <div class="notif-list">
+                ${this.notifications.length === 0 ? '<p class="empty">No notifications yet</p>' :
+                  this.notifications.map(n => `
+                    <div class="notif-item ${n.read ? '' : 'unread'}" data-id="${n.id}">
+                      <span class="notif-icon">${n.icon}</span>
+                      <div class="notif-content"><p>${n.message}</p><span class="notif-time">${this.timeAgo(n.timestamp)}</span></div>
+                    </div>
+                  `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        this.container.querySelector('.bell-btn').addEventListener('click', () => { this.isOpen = !this.isOpen; this.render(); });
+        this.container.querySelector('.mark-all-btn')?.addEventListener('click', () => { this.notifications.forEach(n => n.read = true); this.render(); });
+        this.container.querySelectorAll('.notif-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const n = this.notifications.find(n => n.id === item.dataset.id);
+            if (n) n.read = true;
+            this.render();
+          });
+        });
+        document.addEventListener('click', (e) => {
+          if (!this.container.contains(e.target) && this.isOpen) { this.isOpen = false; this.render(); }
+        });
+      }
+
+      add(notification) {
+        this.notifications.unshift({ ...notification, id: Date.now().toString() + Math.random(), read: false, timestamp: Date.now() });
+        this.render();
+      }
+
+      timeAgo(ts) {
+        const diff = Date.now() - ts;
+        const m = Math.floor(diff / 60000);
+        if (m < 1) return 'Just now';
+        if (m < 60) return `${m}m ago`;
+        const h = Math.floor(m / 60);
+        if (h < 24) return `${h}h ago`;
+        return `${Math.floor(h / 24)}d ago`;
+      }
+    }
+
+    const center = new NotificationCenter(document.getElementById('notif-container'));
+
+    const samples = [
+      { icon: '💬', message: 'John commented on your pull request' },
+      { icon: '❤️', message: 'Sarah liked your post about React hooks' },
+      { icon: '👤', message: 'Alex started following you' },
+      { icon: '📦', message: 'Your order #4521 has been shipped!' },
+      { icon: '⚙️', message: 'System maintenance scheduled for tonight' },
+      { icon: '🎉', message: 'Congratulations! You earned a new badge' },
+      { icon: '📧', message: 'New message from recruiting team' },
+      { icon: '🔔', message: 'Reminder: Team standup in 15 minutes' },
+    ];
+
+    function addRandom() {
+      center.add(samples[Math.floor(Math.random() * samples.length)]);
+    }
+    function addBurst() { for (let i = 0; i < 5; i++) setTimeout(addRandom, i * 200); }
+
+    // Add initial notifications
+    center.add({ icon: '👋', message: 'Welcome! Click the bell to see notifications' });
+    center.add({ icon: '💡', message: 'Try adding notifications with the buttons below' });
+  </script>
+</body>
+</html>

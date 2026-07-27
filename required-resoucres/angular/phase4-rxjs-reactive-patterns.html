@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 4: RxJS & Reactive Patterns</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 4: RxJS & Reactive Patterns</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (4 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Observables</span>
+    <span class="pill">Operators</span>
+    <span class="pill">Subjects</span>
+    <span class="pill">Error Handling</span>
+    <span class="pill">Higher-Order Observables</span>
+    <span class="pill">Patterns</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#observables">Observables — The Foundation</a></li>
+    <li><a href="#subjects">Subjects — All Types Explained</a></li>
+    <li><a href="#operators-creation">Creation Operators</a></li>
+    <li><a href="#operators-transformation">Transformation Operators</a></li>
+    <li><a href="#operators-filtering">Filtering Operators</a></li>
+    <li><a href="#operators-combination">Combination Operators</a></li>
+    <li><a href="#higher-order">Higher-Order Mapping (switchMap, mergeMap, concatMap, exhaustMap)</a></li>
+    <li><a href="#error-handling">Error Handling Strategies</a></li>
+    <li><a href="#unsubscribe">Unsubscription Patterns</a></li>
+    <li><a href="#real-patterns">Real-World Angular RxJS Patterns</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="observables">1. Observables — The Foundation</h2>
+
+<h3>Observable vs Promise</h3>
+<table>
+<tr><th>Feature</th><th>Promise</th><th>Observable</th></tr>
+<tr><td>Values</td><td>Single value</td><td>Multiple values over time</td></tr>
+<tr><td>Execution</td><td>Eager (executes immediately)</td><td>Lazy (only when subscribed)</td></tr>
+<tr><td>Cancellation</td><td>Not cancellable</td><td>Cancellable (unsubscribe)</td></tr>
+<tr><td>Operators</td><td>.then(), .catch(), .finally()</td><td>100+ pipeable operators</td></tr>
+<tr><td>Multicast</td><td>Always shared</td><td>Unicast by default (each subscriber gets own execution)</td></tr>
+</table>
+
+<h4>Creating Observables</h4>
+<pre><code>import { Observable } from 'rxjs';
+
+// Custom Observable
+const custom$ = new Observable&lt;number&gt;(subscriber => {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.next(3);
+
+  // Async
+  setTimeout(() => {
+    subscriber.next(4);
+    subscriber.complete();  // Signal completion
+  }, 1000);
+
+  // Teardown logic (cleanup when unsubscribed)
+  return () => {
+    console.log('Unsubscribed! Cleanup here.');
+  };
+});
+
+// Subscribe
+const subscription = custom$.subscribe({
+  next: value => console.log('Value:', value),
+  error: err => console.error('Error:', err),
+  complete: () => console.log('Done!')
+});
+
+// Unsubscribe (triggers teardown)
+subscription.unsubscribe();</code></pre>
+
+<h4>Hot vs Cold Observables</h4>
+<pre><code>// COLD Observable — creates new execution for each subscriber
+// Like a YouTube video — each viewer starts from the beginning
+const cold$ = new Observable(sub => {
+  sub.next(Math.random());  // Each subscriber gets different random number
+});
+
+cold$.subscribe(v => console.log('A:', v));  // A: 0.123
+cold$.subscribe(v => console.log('B:', v));  // B: 0.789 (different!)
+
+// HOT Observable — shares execution among all subscribers
+// Like a live stream — everyone sees the same thing
+const subject = new Subject&lt;number&gt;();
+subject.subscribe(v => console.log('A:', v));
+subject.subscribe(v => console.log('B:', v));
+subject.next(42);  // A: 42, B: 42 (same!)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="subjects">2. Subjects — All Types Explained</h2>
+
+<table>
+<tr><th>Subject Type</th><th>Behavior</th><th>Use Case</th></tr>
+<tr><td><code>Subject</code></td><td>No initial value, no replay</td><td>Event bus, actions</td></tr>
+<tr><td><code>BehaviorSubject</code></td><td>Requires initial value, replays LAST value to new subscribers</td><td>Current state, "current user"</td></tr>
+<tr><td><code>ReplaySubject</code></td><td>Replays N values to new subscribers</td><td>Cache last N events</td></tr>
+<tr><td><code>AsyncSubject</code></td><td>Only emits LAST value, only on complete</td><td>HTTP-like (one response)</td></tr>
+</table>
+
+<pre><code>// BehaviorSubject — MOST USED in Angular services
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  // Must have initial value (null = not logged in)
+  private currentUserSubject = new BehaviorSubject&lt;User | null&gt;(null);
+
+  // Public observable (consumers can't call .next())
+  currentUser$ = this.currentUserSubject.asObservable();
+
+  // Synchronous access to current value
+  get currentUser(): User | null {
+    return this.currentUserSubject.getValue();
+  }
+
+  login(credentials: LoginCredentials): Observable&lt;User&gt; {
+    return this.http.post&lt;User&gt;('/api/login', credentials).pipe(
+      tap(user => this.currentUserSubject.next(user))
+    );
+  }
+
+  logout(): void {
+    this.currentUserSubject.next(null);
+  }
+}
+
+// ReplaySubject — replay last N emissions
+const replay$ = new ReplaySubject&lt;string&gt;(3);  // Buffer size = 3
+replay$.next('A');
+replay$.next('B');
+replay$.next('C');
+replay$.next('D');
+
+replay$.subscribe(v => console.log(v));
+// Outputs: B, C, D (last 3 values replayed)
+
+// ReplaySubject with time window
+const timed$ = new ReplaySubject&lt;string&gt;(Infinity, 5000);  // Replay all within last 5 seconds</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="operators-creation">3. Creation Operators</h2>
+
+<pre><code>import { of, from, interval, timer, fromEvent, EMPTY, NEVER, throwError, defer } from 'rxjs';
+
+// of — emit fixed values synchronously
+of(1, 2, 3).subscribe(v => console.log(v));  // 1, 2, 3, complete
+
+// from — convert array/promise/iterable to observable
+from([10, 20, 30]).subscribe();
+from(fetch('/api/data')).subscribe();  // Promise → Observable
+from('hello').subscribe(v => console.log(v));  // h, e, l, l, o
+
+// interval — emit incrementing numbers at interval
+interval(1000).subscribe(n => console.log(n));  // 0, 1, 2, ... every second
+
+// timer — wait, then emit (or start interval after delay)
+timer(3000).subscribe(() => console.log('3 seconds passed'));
+timer(2000, 1000).subscribe(n => console.log(n));  // Wait 2s, then emit every 1s
+
+// fromEvent — DOM events as observable
+fromEvent(document, 'click').subscribe(event => console.log(event));
+fromEvent(inputElement, 'input').pipe(
+  debounceTime(300),
+  map((e: Event) => (e.target as HTMLInputElement).value)
+).subscribe(value => this.search(value));
+
+// defer — create observable lazily (new observable per subscriber)
+const deferred$ = defer(() => {
+  const random = Math.random();
+  return of(random);  // Each subscriber gets fresh random
+});
+
+// EMPTY — completes immediately with no values
+// NEVER — never emits, never completes
+// throwError — immediately errors
+const error$ = throwError(() => new Error('Something went wrong'));</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="operators-transformation">4. Transformation Operators</h2>
+
+<pre><code>import { map, pluck, scan, reduce, buffer, bufferTime, toArray, groupBy } from 'rxjs/operators';
+
+// map — transform each value
+source$.pipe(
+  map(user => user.name.toUpperCase())
+);
+
+// scan — running accumulator (like reduce but emits each step)
+clicks$.pipe(
+  scan((count, click) => count + 1, 0)  // Running click counter: 1, 2, 3...
+);
+
+// reduce — accumulate all values, emit on complete
+of(1, 2, 3, 4, 5).pipe(
+  reduce((sum, val) => sum + val, 0)
+).subscribe(total => console.log(total));  // 15
+
+// buffer / bufferTime — collect emissions into arrays
+source$.pipe(
+  bufferTime(2000)  // Emit array of all values received in last 2 seconds
+);
+
+// toArray — collect all emissions into single array on complete
+source$.pipe(toArray()).subscribe(arr => console.log(arr));
+
+// groupBy — split into grouped observables
+users$.pipe(
+  groupBy(user => user.department),
+  mergeMap(group$ => group$.pipe(
+    toArray(),
+    map(users => ({ department: group$.key, users }))
+  ))
+);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="operators-filtering">5. Filtering Operators</h2>
+
+<pre><code>import { filter, first, last, take, takeUntil, takeWhile, skip, 
+         distinctUntilChanged, debounceTime, throttleTime, auditTime } from 'rxjs/operators';
+
+// filter — only pass values meeting condition
+source$.pipe(filter(x => x > 10));
+
+// distinctUntilChanged — only emit when value CHANGES
+source$.pipe(distinctUntilChanged());  // [1,1,2,2,3,1] → [1,2,3,1]
+
+// With comparison function (for objects)
+users$.pipe(
+  distinctUntilChanged((prev, curr) => prev.id === curr.id)
+);
+
+// debounceTime — wait for silence, then emit last value
+searchInput$.pipe(
+  debounceTime(300),           // Wait 300ms of no typing
+  distinctUntilChanged(),       // Don't search same term twice
+  filter(term => term.length >= 2)  // Min 2 chars
+);
+
+// throttleTime — emit first value, then ignore for duration
+scroll$.pipe(throttleTime(100));  // At most 1 scroll event per 100ms
+
+// auditTime — like throttle but emits LAST value in window
+resize$.pipe(auditTime(200));
+
+// take — take first N values then complete
+source$.pipe(take(5));  // Only first 5 emissions
+
+// takeUntil — take values until notifier emits (CRITICAL for cleanup)
+source$.pipe(takeUntil(this.destroy$));
+
+// first / last — take first/last matching value
+users$.pipe(first(u => u.role === 'admin'));  // First admin, then complete
+
+// skip — skip first N values
+source$.pipe(skip(3));  // Ignore first 3, then pass through</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="operators-combination">6. Combination Operators</h2>
+
+<pre><code>import { combineLatest, forkJoin, merge, concat, zip, race, withLatestFrom } from 'rxjs';
+
+// combineLatest — emit when ANY source emits (after all have emitted at least once)
+combineLatest([filters$, page$, sort$]).pipe(
+  map(([filters, page, sort]) => ({ filters, page, sort }))
+).subscribe(params => this.loadData(params));
+
+// forkJoin — wait for ALL observables to COMPLETE, emit last values as array
+// Like Promise.all() for observables
+forkJoin({
+  users: this.http.get&lt;User[]&gt;('/api/users'),
+  roles: this.http.get&lt;Role[]&gt;('/api/roles'),
+  settings: this.http.get&lt;Settings&gt;('/api/settings')
+}).subscribe(({ users, roles, settings }) => {
+  // All three requests completed
+});
+
+// merge — combine multiple observables, emit as they come (interleaved)
+merge(
+  fromEvent(saveBtn, 'click').pipe(map(() => 'save')),
+  fromEvent(deleteBtn, 'click').pipe(map(() => 'delete')),
+  fromEvent(document, 'keydown').pipe(
+    filter((e: KeyboardEvent) => e.ctrlKey && e.key === 's'),
+    map(() => 'save')
+  )
+).subscribe(action => this.handleAction(action));
+
+// concat — subscribe to observables IN ORDER (next starts when previous completes)
+concat(
+  this.validateForm(),
+  this.uploadFile(),
+  this.saveRecord()
+).subscribe();
+
+// withLatestFrom — combine with latest value from another observable
+saveClicks$.pipe(
+  withLatestFrom(formValue$, user$),
+  map(([click, formData, user]) => ({ ...formData, updatedBy: user.id }))
+).subscribe(data => this.save(data));
+
+// zip — pair emissions by index (1st with 1st, 2nd with 2nd)
+zip(request$, timer(1000)).pipe(
+  map(([response, _]) => response)  // Ensure minimum 1s loading time
+);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="higher-order">7. Higher-Order Mapping Operators</h2>
+
+<div class="callout">
+<strong>THE most important RxJS concept for interviews.</strong> These operators handle "Observable of Observables" — when an outer observable triggers an inner observable (e.g., click → HTTP request).
+</div>
+
+<table>
+<tr><th>Operator</th><th>Behavior</th><th>Use Case</th></tr>
+<tr><td><code>switchMap</code></td><td>Cancel previous inner, subscribe to new</td><td>Search typeahead, route params → data load</td></tr>
+<tr><td><code>mergeMap</code></td><td>Run all inner observables concurrently</td><td>Parallel file uploads, likes/favorites</td></tr>
+<tr><td><code>concatMap</code></td><td>Queue: wait for previous to complete</td><td>Sequential writes, ordered operations</td></tr>
+<tr><td><code>exhaustMap</code></td><td>Ignore new until current completes</td><td>Login button (prevent double-submit)</td></tr>
+</table>
+
+<pre><code>// switchMap — MOST USED: Cancel previous, use latest
+// Perfect for: search, autocomplete, route-based data loading
+this.searchControl.valueChanges.pipe(
+  debounceTime(300),
+  distinctUntilChanged(),
+  switchMap(term => this.searchService.search(term))
+  // If user types "ang" then quickly "angular":
+  // Request for "ang" is CANCELLED, only "angular" request runs
+).subscribe(results => this.results = results);
+
+// Route params → load data
+this.route.params.pipe(
+  map(params => params['id']),
+  switchMap(id => this.userService.getUser(id))
+  // When URL changes from /users/1 to /users/2:
+  // Request for user 1 cancelled, request for user 2 starts
+).subscribe(user => this.user = user);
+
+// mergeMap — Run ALL concurrently (order not guaranteed)
+// Perfect for: parallel uploads, independent actions
+this.filesToUpload$.pipe(
+  mergeMap(file => this.uploadService.upload(file), 3)  // Max 3 concurrent
+).subscribe(response => this.uploadedFiles.push(response));
+
+// concatMap — Queue: execute one at a time, in ORDER
+// Perfect for: sequential API calls, ordered writes
+this.saveActions$.pipe(
+  concatMap(action => this.api.save(action))
+  // Actions queued: save1 → wait → save2 → wait → save3
+).subscribe();
+
+// exhaustMap — Ignore new emissions while current is running
+// Perfect for: login button, refresh button (prevent spam)
+this.loginButton$.pipe(
+  exhaustMap(() => this.authService.login(this.credentials))
+  // User clicks 5 times rapidly: only FIRST click triggers login
+  // Subsequent clicks ignored until login request completes
+).subscribe(user => this.router.navigate(['/dashboard']));</code></pre>
+
+<h4>Visual Comparison</h4>
+<pre><code>// Source emits: --A-----B-----C--|
+// Inner takes 3 units: ===|
+
+// switchMap:  --===      ===  (A cancelled by B, B cancelled by C, only C completes)
+//            --A-----B--C--|  → gets C's result
+
+// mergeMap:   --===---===---===  (all run, results interleaved)
+//            --A-----B-----C--| → gets A,B,C results (any order)
+
+// concatMap:  --===---===---===  (queued, sequential)
+//            --A-----B-----C--| → gets A,B,C results (guaranteed order)
+
+// exhaustMap: --===         ===  (B ignored because A still running)
+//            --A-----B-----C--| → gets A,C results (B skipped)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="error-handling">8. Error Handling Strategies</h2>
+
+<pre><code>import { catchError, retry, retryWhen, throwError, EMPTY, of } from 'rxjs';
+
+// catchError — handle error, return fallback observable
+this.http.get&lt;User[]&gt;('/api/users').pipe(
+  catchError(error => {
+    console.error('Failed to load users:', error);
+    return of([]);  // Return empty array as fallback
+  })
+);
+
+// retry — retry N times on error
+this.http.get('/api/data').pipe(
+  retry({ count: 3, delay: 1000 }),  // Retry 3 times with 1s delay
+  catchError(err => {
+    this.notification.show('Failed after 3 retries');
+    return EMPTY;
+  })
+);
+
+// Exponential backoff retry
+this.http.get('/api/data').pipe(
+  retry({
+    count: 3,
+    delay: (error, retryCount) => timer(Math.pow(2, retryCount) * 1000)
+    // 2s, 4s, 8s delays
+  })
+);
+
+// Error handling in switchMap (CRITICAL: prevent stream death)
+this.searchControl.valueChanges.pipe(
+  debounceTime(300),
+  switchMap(term => 
+    this.searchService.search(term).pipe(
+      catchError(err => {
+        // Handle error INSIDE switchMap so outer stream survives
+        this.showError('Search failed');
+        return of([]);  // Fallback value
+      })
+    )
+  )
+).subscribe(results => this.results = results);
+// If catchError was OUTSIDE switchMap, one error would kill the whole stream!</code></pre>
+
+<div class="callout warning">
+<strong>Critical Rule:</strong> Always put <code>catchError</code> INSIDE the inner observable (inside switchMap/mergeMap) to prevent the outer stream from completing on error. If the outer stream errors, the subscription is dead — no more emissions!
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="unsubscribe">9. Unsubscription Patterns</h2>
+
+<h3>Why Unsubscribe?</h3>
+<p>Failing to unsubscribe from observables that don't complete (intervals, subjects, event listeners) causes <strong>memory leaks</strong> — the component is destroyed but the subscription keeps running, holding references to the destroyed component.</p>
+
+<h4>Pattern 1: takeUntilDestroyed (Angular 16+ — BEST)</h4>
+<pre><code>import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+export class MyComponent {
+  private data$ = inject(DataService).getData().pipe(
+    takeUntilDestroyed()  // Automatically unsubscribes when component destroyed
+  );
+
+  constructor() {
+    // Must be called in injection context (constructor or field initializer)
+    this.data$.subscribe(data => this.processData(data));
+  }
+}</code></pre>
+
+<h4>Pattern 2: DestroyRef (Angular 16+)</h4>
+<pre><code>export class MyComponent {
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit() {
+    this.someService.data$.pipe(
+      takeUntilDestroyed(this.destroyRef)  // Pass DestroyRef explicitly
+    ).subscribe();
+  }
+}</code></pre>
+
+<h4>Pattern 3: takeUntil + Subject (Pre-Angular 16)</h4>
+<pre><code>export class MyComponent implements OnDestroy {
+  private destroy$ = new Subject&lt;void&gt;();
+
+  ngOnInit() {
+    this.service.data$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(data => this.data = data);
+
+    this.anotherService.events$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(event => this.handleEvent(event));
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}</code></pre>
+
+<h4>Pattern 4: async pipe (BEST for templates)</h4>
+<pre><code>// The async pipe automatically subscribes AND unsubscribes
+@Component({
+  template: `
+    @if (user$ | async; as user) {
+      &lt;h1&gt;{{ user.name }}&lt;/h1&gt;
+    }
+    
+    @for (item of items$ | async; track item.id) {
+      &lt;app-item [data]="item" /&gt;
+    }
+  `
+})
+export class MyComponent {
+  user$ = this.userService.currentUser$;
+  items$ = this.itemService.getItems();
+  // NO manual subscription! NO manual unsubscription! 
+}</code></pre>
+
+<h4>When You DON'T Need to Unsubscribe</h4>
+<ul>
+  <li><strong>HTTP requests</strong> — Complete after single response (but cancel if you switchMap)</li>
+  <li><strong>Finite observables</strong> — <code>of()</code>, <code>from([])</code>, <code>take(5)</code> — complete on their own</li>
+  <li><strong>async pipe</strong> — Handles subscription lifecycle</li>
+  <li><strong>Router observables</strong> — Cleaned up by Angular automatically in routed components</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="real-patterns">10. Real-World Angular RxJS Patterns</h2>
+
+<h3>Pattern: Smart Autocomplete Search</h3>
+<pre><code>export class SearchComponent {
+  searchControl = new FormControl('');
+  results$ = this.searchControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter(term => term.length >= 2),
+    switchMap(term => this.searchService.search(term).pipe(
+      startWith(null),  // Show loading state
+      catchError(() => of([]))
+    )),
+    shareReplay(1)
+  );
+  
+  isLoading$ = this.results$.pipe(map(r => r === null));
+}</code></pre>
+
+<h3>Pattern: Polling with Pause/Resume</h3>
+<pre><code>export class DashboardComponent {
+  private pause$ = new BehaviorSubject&lt;boolean&gt;(false);
+
+  data$ = this.pause$.pipe(
+    switchMap(paused => paused ? EMPTY : timer(0, 5000)),
+    switchMap(() => this.api.getData()),
+    shareReplay(1)
+  );
+
+  pause() { this.pause$.next(true); }
+  resume() { this.pause$.next(false); }
+}</code></pre>
+
+<h3>Pattern: Combine Multiple API Calls for Page Data</h3>
+<pre><code>export class ProfilePageComponent {
+  private userId$ = this.route.params.pipe(map(p => p['id']));
+
+  vm$ = this.userId$.pipe(
+    switchMap(id => forkJoin({
+      user: this.userService.getUser(id),
+      posts: this.postService.getUserPosts(id),
+      followers: this.socialService.getFollowers(id)
+    })),
+    shareReplay(1)
+  );
+}</code></pre>
+
+<h3>Pattern: Optimistic UI Update with Rollback</h3>
+<pre><code>toggleLike(postId: string) {
+  // Immediately update UI
+  this.post.liked = !this.post.liked;
+  this.post.likeCount += this.post.liked ? 1 : -1;
+
+  this.api.toggleLike(postId).pipe(
+    catchError(err => {
+      // Rollback on failure
+      this.post.liked = !this.post.liked;
+      this.post.likeCount += this.post.liked ? 1 : -1;
+      this.notification.show('Failed to update');
+      return EMPTY;
+    })
+  ).subscribe();
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 4</h4>
+<ol>
+  <li>What is the difference between Observable and Promise?</li>
+  <li>Explain hot vs cold observables with examples.</li>
+  <li>What are the different types of Subjects? When would you use each?</li>
+  <li>Explain switchMap vs mergeMap vs concatMap vs exhaustMap. Give real use cases.</li>
+  <li>How do you prevent memory leaks from observables in Angular?</li>
+  <li>Why should catchError be placed inside switchMap, not outside?</li>
+  <li>What is shareReplay? When would you use it?</li>
+  <li>How would you implement a search autocomplete with debouncing?</li>
+  <li>What is the difference between combineLatest and forkJoin?</li>
+  <li>How would you implement retry with exponential backoff?</li>
+  <li>What does distinctUntilChanged do? How does it compare objects?</li>
+  <li>Explain the takeUntilDestroyed pattern. Why is it better than manual unsubscription?</li>
+</ol>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase3-dependency-injection.html">← Phase 3: DI & Services</a>
+  <a href="phase5-change-detection-performance.html">Phase 5: Change Detection →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

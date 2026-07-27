@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 1: Angular Fundamentals & Architecture</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 1: Angular Fundamentals & Architecture</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (1 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Angular Architecture</span>
+    <span class="pill">Modules & Standalone</span>
+    <span class="pill">Component Lifecycle</span>
+    <span class="pill">Angular CLI</span>
+    <span class="pill">TypeScript Essentials</span>
+    <span class="pill">Decorators</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#history">Angular History & Evolution</a></li>
+    <li><a href="#architecture">Angular Architecture Overview</a></li>
+    <li><a href="#cli">Angular CLI Deep Dive</a></li>
+    <li><a href="#modules">NgModules vs Standalone Components</a></li>
+    <li><a href="#components-basics">Components — The Building Blocks</a></li>
+    <li><a href="#lifecycle">Component Lifecycle Hooks</a></li>
+    <li><a href="#decorators">Decorators & Metadata</a></li>
+    <li><a href="#typescript">TypeScript Essentials for Angular</a></li>
+    <li><a href="#compilation">Compilation: JIT vs AOT</a></li>
+    <li><a href="#project-structure">Project Structure Best Practices</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="history">1. Angular History & Evolution</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Ata9cSC2WpM" target="_blank">Angular in 100 Seconds — Fireship</a></li>
+  <li><a href="https://www.youtube.com/watch?v=k5E2AVpwsko" target="_blank">Angular Course for Beginners — Programming with Mosh</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p><strong>AngularJS (2010)</strong>: Created by Miško Hevery at Google. Two-way data binding, MVC architecture. Written in JavaScript. Had performance issues with large apps due to dirty checking ($digest cycle).</p>
+
+<p><strong>Angular 2+ (2016)</strong>: Complete rewrite. TypeScript-based, component architecture, unidirectional data flow, ahead-of-time compilation. No backward compatibility with AngularJS.</p>
+
+<table>
+<tr><th>Version</th><th>Year</th><th>Key Features</th></tr>
+<tr><td>Angular 2</td><td>2016</td><td>Complete rewrite, TypeScript, Components, Modules, DI</td></tr>
+<tr><td>Angular 4</td><td>2017</td><td>Smaller bundles, Animation package, *ngIf else</td></tr>
+<tr><td>Angular 5</td><td>2017</td><td>Build Optimizer, HttpClient, AOT by default</td></tr>
+<tr><td>Angular 6</td><td>2018</td><td>Angular Elements, Tree-shakable providers, ng update/add</td></tr>
+<tr><td>Angular 7</td><td>2018</td><td>Virtual Scrolling, Drag & Drop, Bundle budgets</td></tr>
+<tr><td>Angular 8</td><td>2019</td><td>Differential Loading, Lazy loading with import(), Ivy preview</td></tr>
+<tr><td>Angular 9</td><td>2020</td><td>Ivy renderer default, smaller bundles, faster testing</td></tr>
+<tr><td>Angular 10-12</td><td>2020-21</td><td>Strict mode, Tailwind support, Nullish coalescing in templates</td></tr>
+<tr><td>Angular 13</td><td>2021</td><td>View Engine removed, IE11 dropped, dynamic components simplified</td></tr>
+<tr><td>Angular 14</td><td>2022</td><td>Standalone Components, Typed Reactive Forms, inject() function</td></tr>
+<tr><td>Angular 15</td><td>2022</td><td>Standalone APIs stable, Directive composition API, Image directive</td></tr>
+<tr><td>Angular 16</td><td>2023</td><td>Signals (developer preview), Required inputs, SSR improvements</td></tr>
+<tr><td>Angular 17</td><td>2023</td><td>New control flow (@if, @for, @switch), Deferrable views (@defer), New branding</td></tr>
+<tr><td>Angular 18</td><td>2024</td><td>Zoneless change detection (experimental), Stable signals</td></tr>
+<tr><td>Angular 19</td><td>2024</td><td>Incremental hydration, Resource API, linkedSignal</td></tr>
+</table>
+
+<div class="callout">
+<strong>Key Insight:</strong> Angular follows semantic versioning with major releases every 6 months. The framework has evolved from heavy module-based architecture to lightweight standalone components with signals-based reactivity.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="architecture">2. Angular Architecture Overview</h2>
+
+<h3>The Big Picture</h3>
+<p>Angular is an <strong>opinionated, batteries-included framework</strong> — unlike React (library), Angular provides everything out of the box: routing, forms, HTTP client, testing utilities, animations, i18n, and build tooling.</p>
+
+<h4>Core Building Blocks</h4>
+<table>
+<tr><th>Building Block</th><th>Purpose</th><th>Example</th></tr>
+<tr><td><strong>Components</strong></td><td>UI building blocks with template + logic + styles</td><td><code>@Component({...})</code></td></tr>
+<tr><td><strong>Templates</strong></td><td>HTML with Angular syntax (bindings, directives)</td><td><code>{{ title }}, [disabled], (click)</code></td></tr>
+<tr><td><strong>Directives</strong></td><td>Extend HTML behavior</td><td><code>*ngIf, *ngFor, [ngClass]</code></td></tr>
+<tr><td><strong>Services</strong></td><td>Business logic, data access, shared state</td><td><code>@Injectable({...})</code></td></tr>
+<tr><td><strong>Dependency Injection</strong></td><td>Provide and inject services</td><td><code>constructor(private svc: MyService)</code></td></tr>
+<tr><td><strong>Modules</strong></td><td>Organize related code (legacy approach)</td><td><code>@NgModule({...})</code></td></tr>
+<tr><td><strong>Pipes</strong></td><td>Transform data in templates</td><td><code>{{ date | date:'short' }}</code></td></tr>
+<tr><td><strong>Guards</strong></td><td>Protect routes</td><td><code>canActivate, canDeactivate</code></td></tr>
+<tr><td><strong>Interceptors</strong></td><td>Modify HTTP requests/responses</td><td><code>HttpInterceptor</code></td></tr>
+</table>
+
+<h4>How Angular Bootstraps</h4>
+<pre><code>// main.ts (Modern Angular 17+)
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
+
+bootstrapApplication(AppComponent, appConfig)
+  .catch(err => console.error(err));
+
+// app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(),
+  ]
+};</code></pre>
+
+<h4>Bootstrap Flow (What happens when Angular app loads)</h4>
+<ol>
+  <li><strong>Browser loads index.html</strong> — Contains <code>&lt;app-root&gt;</code> placeholder</li>
+  <li><strong>main.ts executes</strong> — Calls <code>bootstrapApplication()</code> or <code>platformBrowserDynamic().bootstrapModule()</code></li>
+  <li><strong>Angular creates platform</strong> — Sets up Zone.js, change detection, DI container</li>
+  <li><strong>Root component instantiated</strong> — AppComponent created, template compiled</li>
+  <li><strong>Component tree renders</strong> — Recursively creates child components</li>
+  <li><strong>Change detection runs</strong> — Initial data binding, DOM updated</li>
+  <li><strong>App is interactive</strong> — Event listeners attached, Zone.js monitoring</li>
+</ol>
+
+<div class="callout">
+<strong>Interview Gold:</strong> "Angular uses a hierarchical dependency injection system where each component can have its own injector. The component tree parallels the injector tree."
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cli">3. Angular CLI Deep Dive</h2>
+
+<h3>Essential Commands</h3>
+<pre><code># Create new project
+ng new my-app --standalone --routing --style=scss --ssr=false
+
+# Generate components, services, etc.
+ng generate component features/user-profile --standalone
+ng generate service core/services/auth
+ng generate pipe shared/pipes/truncate
+ng generate directive shared/directives/highlight
+ng generate guard core/guards/auth --implements CanActivate
+ng generate interceptor core/interceptors/auth
+ng generate interface models/user
+ng generate enum models/role
+ng generate module features/admin --routing
+
+# Build & Serve
+ng serve --port 4200 --open
+ng build --configuration=production
+ng build --stats-json  # for bundle analysis
+
+# Testing
+ng test --watch=false --code-coverage
+ng e2e
+
+# Analyze
+ng analytics
+npx webpack-bundle-analyzer dist/my-app/stats.json</code></pre>
+
+<h4>angular.json — Key Configuration</h4>
+<pre><code>{
+  "projects": {
+    "my-app": {
+      "architect": {
+        "build": {
+          "options": {
+            "outputPath": "dist/my-app",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": ["src/favicon.ico", "src/assets"],
+            "styles": ["src/styles.scss"],
+            "scripts": [],
+            "budgets": [
+              { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" },
+              { "type": "anyComponentStyle", "maximumWarning": "2kb", "maximumError": "4kb" }
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="modules">4. NgModules vs Standalone Components</h2>
+
+<h3>NgModules (Legacy but still in production codebases)</h3>
+<pre><code>@NgModule({
+  declarations: [    // Components, Directives, Pipes OWNED by this module
+    UserListComponent,
+    UserCardComponent,
+    HighlightDirective,
+    TruncatePipe
+  ],
+  imports: [         // Other modules whose exports this module needs
+    CommonModule,
+    FormsModule,
+    RouterModule.forChild(routes)
+  ],
+  exports: [         // What other modules can use when they import this module
+    UserListComponent,
+    UserCardComponent
+  ],
+  providers: [       // Services available in this module's injector
+    UserService
+  ]
+})
+export class UsersModule { }</code></pre>
+
+<h3>Standalone Components (Modern Angular 14+)</h3>
+<pre><code>@Component({
+  selector: 'app-user-list',
+  standalone: true,    // No NgModule needed!
+  imports: [           // Directly import what you need
+    CommonModule,
+    UserCardComponent,
+    HighlightDirective,
+    TruncatePipe,
+    RouterLink
+  ],
+  template: `
+    &lt;div *ngFor="let user of users"&gt;
+      &lt;app-user-card [user]="user" /&gt;
+    &lt;/div&gt;
+  `
+})
+export class UserListComponent {
+  users = inject(UserService).getUsers();
+}</code></pre>
+
+<div class="callout">
+<strong>When to use what:</strong>
+<ul>
+  <li><strong>New projects (Angular 17+)</strong>: Always use standalone components. No NgModules needed.</li>
+  <li><strong>Existing projects</strong>: Gradually migrate to standalone. Both can coexist.</li>
+  <li><strong>Libraries</strong>: Still use NgModules for backward compatibility (or provide standalone exports).</li>
+</ul>
+</div>
+
+<h4>Key Differences</h4>
+<table>
+<tr><th>Aspect</th><th>NgModule</th><th>Standalone</th></tr>
+<tr><td>Declaration</td><td><code>declarations: [...]</code> in module</td><td><code>standalone: true</code> in component</td></tr>
+<tr><td>Dependencies</td><td>Module imports shared across all declarations</td><td>Each component imports its own deps</td></tr>
+<tr><td>Tree-shaking</td><td>Entire module bundled if any part used</td><td>Only used components bundled</td></tr>
+<tr><td>Lazy Loading</td><td><code>loadChildren: () => import(...).then(m => m.Module)</code></td><td><code>loadComponent: () => import(...)</code></td></tr>
+<tr><td>Boilerplate</td><td>High (module file per feature)</td><td>Low (component is self-contained)</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="components-basics">5. Components — The Building Blocks</h2>
+
+<h3>Component Anatomy</h3>
+<pre><code>import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-user-card',          // CSS selector for this component
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './user-card.component.html',  // or inline template
+  styleUrls: ['./user-card.component.scss'],  // or inline styles
+  // Encapsulation modes:
+  encapsulation: ViewEncapsulation.Emulated,  // Default — scoped CSS
+  // ViewEncapsulation.None — global CSS
+  // ViewEncapsulation.ShadowDom — real Shadow DOM
+  changeDetection: ChangeDetectionStrategy.OnPush  // Performance optimization
+})
+export class UserCardComponent {
+  // Inputs — data from parent
+  @Input({ required: true }) user!: User;
+  @Input() showAvatar = true;
+
+  // Outputs — events to parent
+  @Output() selected = new EventEmitter&lt;User&gt;();
+  @Output() deleted = new EventEmitter&lt;string&gt;();
+
+  // Dependency Injection
+  private readonly userService = inject(UserService);
+
+  // Methods
+  onSelect(): void {
+    this.selected.emit(this.user);
+  }
+
+  onDelete(): void {
+    this.deleted.emit(this.user.id);
+  }
+}</code></pre>
+
+<h4>Template Syntax Quick Reference</h4>
+<pre><code>&lt;!-- Interpolation --&gt;
+&lt;h1&gt;{{ title }}&lt;/h1&gt;
+&lt;p&gt;{{ user.name | uppercase }}&lt;/p&gt;
+
+&lt;!-- Property Binding --&gt;
+&lt;img [src]="imageUrl" [alt]="imageAlt"&gt;
+&lt;button [disabled]="isLoading"&gt;Submit&lt;/button&gt;
+
+&lt;!-- Event Binding --&gt;
+&lt;button (click)="handleClick($event)"&gt;Click&lt;/button&gt;
+&lt;input (keyup.enter)="search()"&gt;
+
+&lt;!-- Two-way Binding --&gt;
+&lt;input [(ngModel)]="searchTerm"&gt;
+
+&lt;!-- Attribute Binding --&gt;
+&lt;td [attr.colspan]="colSpan"&gt;&lt;/td&gt;
+
+&lt;!-- Class Binding --&gt;
+&lt;div [class.active]="isActive"&gt;&lt;/div&gt;
+&lt;div [ngClass]="{'active': isActive, 'disabled': !isEnabled}"&gt;&lt;/div&gt;
+
+&lt;!-- Style Binding --&gt;
+&lt;div [style.color]="textColor"&gt;&lt;/div&gt;
+&lt;div [ngStyle]="{'font-size': fontSize + 'px'}"&gt;&lt;/div&gt;
+
+&lt;!-- Template Reference Variables --&gt;
+&lt;input #searchInput&gt;
+&lt;button (click)="search(searchInput.value)"&gt;Search&lt;/button&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="lifecycle">6. Component Lifecycle Hooks</h2>
+
+<h3>Complete Lifecycle (in execution order)</h3>
+<table>
+<tr><th>Hook</th><th>When Called</th><th>Use Case</th></tr>
+<tr><td><code>ngOnChanges()</code></td><td>Before ngOnInit AND every time @Input changes</td><td>React to input changes, compare previous/current values</td></tr>
+<tr><td><code>ngOnInit()</code></td><td>Once, after first ngOnChanges</td><td>Initialize data, API calls, setup subscriptions</td></tr>
+<tr><td><code>ngDoCheck()</code></td><td>Every change detection cycle</td><td>Custom change detection logic (USE CAREFULLY — runs very often)</td></tr>
+<tr><td><code>ngAfterContentInit()</code></td><td>Once, after ng-content projected</td><td>Access @ContentChild references</td></tr>
+<tr><td><code>ngAfterContentChecked()</code></td><td>After every check of projected content</td><td>React to projected content changes</td></tr>
+<tr><td><code>ngAfterViewInit()</code></td><td>Once, after view (template) initialized</td><td>Access @ViewChild, DOM manipulation, 3rd party lib init</td></tr>
+<tr><td><code>ngAfterViewChecked()</code></td><td>After every check of view</td><td>React to view changes (USE CAREFULLY)</td></tr>
+<tr><td><code>ngOnDestroy()</code></td><td>Before component is destroyed</td><td>Unsubscribe observables, detach event listeners, cleanup</td></tr>
+</table>
+
+<h4>Lifecycle in Code</h4>
+<pre><code>export class UserProfileComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+  @Input() userId!: string;
+  @ViewChild('chart') chartElement!: ElementRef;
+
+  private destroy$ = new Subject&lt;void&gt;();
+  user: User | null = null;
+
+  private userService = inject(UserService);
+
+  // 1. Called BEFORE ngOnInit and on every @Input change
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['userId'] && !changes['userId'].firstChange) {
+      // Input changed after initialization — reload data
+      this.loadUser(changes['userId'].currentValue);
+    }
+    // Access previous value:
+    // changes['userId'].previousValue
+  }
+
+  // 2. Called ONCE after first ngOnChanges
+  ngOnInit(): void {
+    this.loadUser(this.userId);
+  }
+
+  // 3. Called ONCE after template is rendered
+  ngAfterViewInit(): void {
+    // Safe to access @ViewChild here
+    this.initChart(this.chartElement.nativeElement);
+  }
+
+  // 4. Called when component is destroyed
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadUser(id: string): void {
+    this.userService.getUser(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => this.user = user);
+  }
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Question: What's the difference between constructor and ngOnInit?</h4>
+<p><strong>Constructor</strong>: TypeScript/JavaScript class feature. Called when class is instantiated. DI happens here. At this point, @Input values are NOT yet available (they're undefined). Use only for DI.</p>
+<p><strong>ngOnInit</strong>: Angular lifecycle hook. Called AFTER Angular sets @Input properties. Use for initialization logic, API calls, setting up subscriptions.</p>
+<pre><code>export class MyComponent implements OnInit {
+  @Input() data!: string;  // undefined in constructor!
+
+  constructor(private service: MyService) {
+    console.log(this.data); // undefined ❌
+  }
+
+  ngOnInit() {
+    console.log(this.data); // has value ✓
+    this.service.load(this.data);
+  }
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="decorators">7. Decorators & Metadata</h2>
+
+<h3>What are Decorators?</h3>
+<p>Decorators are <strong>TypeScript features</strong> (stage 3 proposal in JS) that Angular uses extensively. They are functions that modify classes, properties, methods, or parameters by adding metadata that Angular reads at compile time.</p>
+
+<h4>Class Decorators</h4>
+<pre><code>@Component({...})    // Defines a component
+@Directive({...})    // Defines a directive
+@Pipe({...})         // Defines a pipe
+@Injectable({...})   // Marks class for DI
+@NgModule({...})     // Defines a module (legacy)</code></pre>
+
+<h4>Property Decorators</h4>
+<pre><code>@Input()             // Accept data from parent
+@Input({ required: true, transform: booleanAttribute })
+@Output()            // Emit events to parent
+@ViewChild(ref)      // Access child component/element
+@ViewChildren(ref)   // Access QueryList of children
+@ContentChild(ref)   // Access projected content
+@ContentChildren(ref)// Access QueryList of projected content
+@HostBinding('class.active')  // Bind to host element property
+@HostListener('click', ['$event'])  // Listen to host events</code></pre>
+
+<h4>How Decorators Work Under the Hood</h4>
+<pre><code>// What @Component actually does (simplified):
+function Component(metadata: ComponentMetadata) {
+  return function(target: Function) {
+    // Attaches metadata to the class
+    Reflect.defineMetadata('annotations', metadata, target);
+    // Angular compiler reads this metadata to:
+    // 1. Generate component factory
+    // 2. Set up change detection
+    // 3. Create template instructions
+    // 4. Wire up DI
+  };
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="typescript">8. TypeScript Essentials for Angular</h2>
+
+<h3>Critical TypeScript Features Used in Angular</h3>
+
+<h4>Interfaces & Types</h4>
+<pre><code>// Interfaces — define shape of data
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'user' | 'moderator';  // Union literal types
+  preferences?: UserPreferences;  // Optional property
+}
+
+// Generic interfaces
+interface ApiResponse&lt;T&gt; {
+  data: T;
+  status: number;
+  message: string;
+}
+
+// Utility types
+type Partial&lt;T&gt;  // All properties optional
+type Required&lt;T&gt; // All properties required
+type Pick&lt;T, K&gt;  // Select specific properties
+type Omit&lt;T, K&gt;  // Exclude specific properties
+type Record&lt;K, V&gt;// Key-value map</code></pre>
+
+<h4>Generics (used heavily in Angular)</h4>
+<pre><code>// Generic service
+@Injectable({ providedIn: 'root' })
+export class StorageService {
+  get&lt;T&gt;(key: string): T | null {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) as T : null;
+  }
+
+  set&lt;T&gt;(key: string, value: T): void {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+}
+
+// Usage
+const user = this.storage.get&lt;User&gt;('currentUser');</code></pre>
+
+<h4>Enums</h4>
+<pre><code>enum UserRole {
+  Admin = 'ADMIN',
+  User = 'USER',
+  Moderator = 'MODERATOR'
+}
+
+// Const enums (inlined at compile time — no runtime object)
+const enum HttpStatus {
+  OK = 200,
+  NotFound = 404,
+  ServerError = 500
+}</code></pre>
+
+<h4>Access Modifiers</h4>
+<pre><code>export class UserService {
+  public users: User[] = [];           // Accessible everywhere
+  protected baseUrl = '/api/users';    // Accessible in class + subclasses
+  private http = inject(HttpClient);   // Only in this class
+  readonly API_VERSION = 'v2';         // Cannot be reassigned
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="compilation">9. Compilation: JIT vs AOT</h2>
+
+<h3>JIT (Just-in-Time) Compilation</h3>
+<ul>
+  <li>Templates compiled <strong>in the browser at runtime</strong></li>
+  <li>Used during development (<code>ng serve</code>)</li>
+  <li>Slower initial load (compiler shipped to browser)</li>
+  <li>Errors caught at runtime</li>
+  <li>Larger bundle (includes Angular compiler)</li>
+</ul>
+
+<h3>AOT (Ahead-of-Time) Compilation</h3>
+<ul>
+  <li>Templates compiled <strong>at build time</strong></li>
+  <li>Used in production (<code>ng build</code>)</li>
+  <li>Faster initial load (pre-compiled, no compiler in bundle)</li>
+  <li>Template errors caught during build</li>
+  <li>Smaller bundles (compiler tree-shaken)</li>
+  <li><strong>Security</strong>: Template injection attacks prevented</li>
+</ul>
+
+<h4>What AOT Actually Does</h4>
+<pre><code>// Your template:
+&lt;h1&gt;{{ title }}&lt;/h1&gt;
+&lt;button (click)="increment()"&gt;{{ count }}&lt;/button&gt;
+
+// AOT compiles to something like:
+function MyComponent_Template(rf, ctx) {
+  if (rf & 1) {  // Creation mode
+    ɵɵelementStart(0, "h1");
+    ɵɵtext(1);
+    ɵɵelementEnd();
+    ɵɵelementStart(2, "button");
+    ɵɵlistener("click", function() { return ctx.increment(); });
+    ɵɵtext(3);
+    ɵɵelementEnd();
+  }
+  if (rf & 2) {  // Update mode
+    ɵɵadvance(1);
+    ɵɵtextInterpolate(ctx.title);
+    ɵɵadvance(2);
+    ɵɵtextInterpolate(ctx.count);
+  }
+}</code></pre>
+
+<div class="callout warning">
+<strong>Interview Trap:</strong> "Is Angular compiled or interpreted?" — Angular templates are COMPILED (to JavaScript instructions). The rendering is NOT DOM string parsing like innerHTML. This is why Angular is secure against XSS by default — it never uses innerHTML for bindings.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="project-structure">10. Project Structure Best Practices</h2>
+
+<h3>Recommended Folder Structure</h3>
+<pre><code>src/
+├── app/
+│   ├── core/                    # Singleton services, guards, interceptors
+│   │   ├── services/
+│   │   │   ├── auth.service.ts
+│   │   │   ├── api.service.ts
+│   │   │   └── notification.service.ts
+│   │   ├── guards/
+│   │   │   └── auth.guard.ts
+│   │   ├── interceptors/
+│   │   │   ├── auth.interceptor.ts
+│   │   │   └── error.interceptor.ts
+│   │   └── models/
+│   │       ├── user.model.ts
+│   │       └── api-response.model.ts
+│   ├── shared/                  # Reusable components, directives, pipes
+│   │   ├── components/
+│   │   │   ├── button/
+│   │   │   ├── modal/
+│   │   │   └── data-table/
+│   │   ├── directives/
+│   │   │   └── highlight.directive.ts
+│   │   └── pipes/
+│   │       └── truncate.pipe.ts
+│   ├── features/                # Feature modules (lazy-loaded)
+│   │   ├── dashboard/
+│   │   │   ├── dashboard.component.ts
+│   │   │   ├── dashboard.routes.ts
+│   │   │   └── components/
+│   │   ├── users/
+│   │   │   ├── user-list/
+│   │   │   ├── user-detail/
+│   │   │   └── users.routes.ts
+│   │   └── settings/
+│   ├── layouts/                 # Layout components (header, sidebar, footer)
+│   │   ├── main-layout/
+│   │   └── auth-layout/
+│   ├── app.component.ts
+│   ├── app.config.ts
+│   └── app.routes.ts
+├── assets/
+├── environments/
+│   ├── environment.ts
+│   └── environment.prod.ts
+├── styles/
+│   ├── _variables.scss
+│   ├── _mixins.scss
+│   └── _reset.scss
+├── index.html
+├── main.ts
+└── styles.scss</code></pre>
+
+<div class="exercise">
+<h4>✅ Practice Exercise: Scaffold an Angular App</h4>
+<ol>
+  <li>Create a new Angular 17+ app with standalone components and SCSS</li>
+  <li>Set up the core/shared/features folder structure</li>
+  <li>Create a basic AuthService with login/logout/isAuthenticated</li>
+  <li>Create a shared ButtonComponent with size and variant inputs</li>
+  <li>Set up environment files for dev/staging/production</li>
+  <li>Configure bundle budgets in angular.json</li>
+</ol>
+</div>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 1</h4>
+<ol>
+  <li>What is the difference between AngularJS and Angular 2+?</li>
+  <li>Explain Angular's compilation process (JIT vs AOT). Why is AOT preferred?</li>
+  <li>What are the advantages of standalone components over NgModules?</li>
+  <li>Explain the Angular bootstrap process step by step.</li>
+  <li>What is ViewEncapsulation? Explain all three modes.</li>
+  <li>What's the difference between constructor and ngOnInit?</li>
+  <li>In what order do lifecycle hooks execute? When would you use each?</li>
+  <li>What happens when you use OnPush change detection strategy?</li>
+  <li>How does Angular's DI system work at a high level?</li>
+  <li>What is the purpose of the angular.json file?</li>
+</ol>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <span></span>
+  <a href="phase2-components-templates.html">Phase 2: Components & Templates →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

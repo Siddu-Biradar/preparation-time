@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Coding Demos - Index</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Georgia', serif; padding: 40px; background: #f4f1ea; min-height: 100vh; }
+    
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { 
+      font-family: 'Avenir Next', sans-serif; 
+      text-align: center; margin-bottom: 8px; color: #1a5276; 
+    }
+    .subtitle { text-align: center; color: #666; margin-bottom: 32px; font-size: 15px; }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .demo-card {
+      background: #fffdf8;
+      border: 1px solid #e8e4dc;
+      border-radius: 12px;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: block;
+    }
+    .demo-card:hover { 
+      transform: translateY(-3px); 
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+    }
+    .demo-card h3 { 
+      font-family: 'Avenir Next', sans-serif;
+      font-size: 16px; margin-bottom: 6px; color: #1a5276; 
+    }
+    .demo-card p { font-size: 13px; color: #666; line-height: 1.5; }
+    .demo-card .tech-tags {
+      margin-top: 10px;
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 11px; padding: 2px 8px; background: #e8f4fd;
+      color: #1a5276; border-radius: 4px; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🛠️ Machine Coding Demos</h1>
+  <p class="subtitle">Standalone runnable components — open any file directly in browser</p>
+
+  <div class="demo-grid">
+    <a class="demo-card" href="star-rating.html">
+      <h3>⭐ Star Rating</h3>
+      <p>Click/hover star rating with half-star support, keyboard a11y, read-only mode</p>
+      <div class="tech-tags"><span class="tag">CSS Transitions</span><span class="tag">A11Y</span></div>
+    </a>
+
+    <a class="demo-card" href="autocomplete.html">
+      <h3>🔍 Autocomplete</h3>
+      <p>Debounced search with keyboard nav, highlight matching, ARIA combobox</p>
+      <div class="tech-tags"><span class="tag">Debounce</span><span class="tag">Keyboard Nav</span></div>
+    </a>
+
+    <a class="demo-card" href="infinite-scroll.html">
+      <h3>📱 Infinite Scroll</h3>
+      <p>IntersectionObserver-based feed with fake API, loading states, end detection</p>
+      <div class="tech-tags"><span class="tag">IntersectionObserver</span><span class="tag">Async</span></div>
+    </a>
+
+    <a class="demo-card" href="modal.html">
+      <h3>🪟 Modal / Dialog</h3>
+      <p>Focus trap, backdrop close, Escape key, stacking, form modal</p>
+      <div class="tech-tags"><span class="tag">Focus Trap</span><span class="tag">ARIA</span></div>
+    </a>
+
+    <a class="demo-card" href="toast.html">
+      <h3>🔔 Toast Notifications</h3>
+      <p>Auto-dismiss with progress bar, pause on hover, stacking, 4 types</p>
+      <div class="tech-tags"><span class="tag">Animation</span><span class="tag">Timer</span></div>
+    </a>
+
+    <a class="demo-card" href="tabs.html">
+      <h3>📑 Accessible Tabs</h3>
+      <p>Roving tabindex, ARIA roles, arrow/Home/End keys, fade transitions</p>
+      <div class="tech-tags"><span class="tag">WAI-ARIA</span><span class="tag">Roving Tabindex</span></div>
+    </a>
+
+    <a class="demo-card" href="countdown-timer.html">
+      <h3>⏱️ Timer & Stopwatch</h3>
+      <p>rAF-based precision, stopwatch + countdown modes, lap tracking</p>
+      <div class="tech-tags"><span class="tag">requestAnimationFrame</span><span class="tag">State</span></div>
+    </a>
+
+    <a class="demo-card" href="drag-drop.html">
+      <h3>🔀 Drag & Drop Sortable</h3>
+      <p>HTML5 Drag API sortable list with touch support, live order output</p>
+      <div class="tech-tags"><span class="tag">Drag API</span><span class="tag">Touch</span></div>
+    </a>
+
+    <a class="demo-card" href="form-validation.html">
+      <h3>📝 Form Validation</h3>
+      <p>Real-time validation, password strength meter, disabled submit until valid</p>
+      <div class="tech-tags"><span class="tag">Validation</span><span class="tag">UX</span></div>
+    </a>
+
+    <a class="demo-card" href="debounce-throttle.html">
+      <h3>⚡ Debounce & Throttle</h3>
+      <p>Live keystroke vs API call counter, rapid-click throttle with visual logs</p>
+      <div class="tech-tags"><span class="tag">Debounce</span><span class="tag">Throttle</span></div>
+    </a>
+
+    <a class="demo-card" href="accordion.html">
+      <h3>📂 Accordion</h3>
+      <p>Expand/collapse, single or multi-open mode, animated transitions</p>
+      <div class="tech-tags"><span class="tag">Animation</span><span class="tag">State</span></div>
+    </a>
+
+    <a class="demo-card" href="carousel.html">
+      <h3>🖼️ Image Carousel</h3>
+      <p>Auto-play, arrows, dots, keyboard nav, touch swipe, infinite loop</p>
+      <div class="tech-tags"><span class="tag">Touch</span><span class="tag">Auto-play</span></div>
+    </a>
+
+    <a class="demo-card" href="promise-impl.html">
+      <h3>🔗 Promise from Scratch</h3>
+      <p>Custom Promise + all/race/allSettled/any — real-time resolve/reject logs</p>
+      <div class="tech-tags"><span class="tag">Promise</span><span class="tag">Polyfill</span></div>
+    </a>
+
+    <a class="demo-card" href="async-patterns.html">
+      <h3>⚡ Async Patterns</h3>
+      <p>Retry + backoff, concurrency pool, sequential vs parallel, task queue</p>
+      <div class="tech-tags"><span class="tag">Retry</span><span class="tag">Concurrency</span></div>
+    </a>
+
+    <a class="demo-card" href="event-loop-quiz.html">
+      <h3>🧠 Event Loop Quiz</h3>
+      <p>5 output prediction questions with reveal answers and step-by-step explanations</p>
+      <div class="tech-tags"><span class="tag">Microtask</span><span class="tag">Macrotask</span></div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Complete Interview Preparation</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 32pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    p { margin: 0 0 10px; }
+    .hero { padding: 24px 24px 18px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 50%, #f8bbd0 100%); border-radius: 14px; margin-bottom: 30px; text-align: center; }
+    .hero h1 { font-size: 34pt; color: #880e4f; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 12pt; margin-bottom: 12px; }
+    .stats { display: flex; justify-content: center; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-number { font-size: 24pt; font-weight: 800; color: var(--accent); font-family: "Avenir Next", sans-serif; }
+    .stat-label { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-family: "Avenir Next", sans-serif; }
+    .phase-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 20px 0; }
+    .phase-card { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); transition: all 0.2s; background: white; }
+    .phase-card:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateX(4px); }
+    .phase-num { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-family: "Avenir Next", sans-serif; font-weight: 800; font-size: 14pt; flex-shrink: 0; }
+    .phase-info { flex: 1; }
+    .phase-title { font-family: "Avenir Next", sans-serif; font-weight: 700; font-size: 11.5pt; margin: 0 0 2px; color: #1a2530; }
+    .phase-desc { font-size: 9.5pt; color: var(--muted); margin: 0; }
+    .phase-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .mini-pill { padding: 2px 7px; border-radius: 4px; background: var(--accent-soft); font-size: 8pt; font-family: "Avenir Next", sans-serif; color: #880e4f; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>🅰️ Angular Mastery</h1>
+  <p class="subtitle">Complete End-to-End Interview Preparation — From Fundamentals to Expert</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-number">16</div><div class="stat-label">Phases</div></div>
+    <div class="stat"><div class="stat-number">150+</div><div class="stat-label">Interview Questions</div></div>
+    <div class="stat"><div class="stat-number">50+</div><div class="stat-label">Code Examples</div></div>
+    <div class="stat"><div class="stat-number">15</div><div class="stat-label">Machine Coding</div></div>
+  </div>
+</div>
+
+<div class="callout">
+<strong>How to use this:</strong> Work through each phase sequentially. Each phase builds on the previous. Focus on understanding concepts deeply — don't just memorize. Practice the machine coding challenges with a timer. Angular interviews test depth of understanding, not just surface knowledge.
+</div>
+
+<h2>📚 All Phases</h2>
+
+<div class="phase-grid">
+  <a href="phase1-angular-fundamentals.html" class="phase-card">
+    <div class="phase-num">1</div>
+    <div class="phase-info">
+      <p class="phase-title">Angular Fundamentals & Architecture</p>
+      <p class="phase-desc">History, Architecture, CLI, Modules vs Standalone, Lifecycle Hooks, Decorators, JIT/AOT</p>
+    </div>
+  </a>
+
+  <a href="phase2-components-templates.html" class="phase-card">
+    <div class="phase-num">2</div>
+    <div class="phase-info">
+      <p class="phase-title">Components & Templates Deep Dive</p>
+      <p class="phase-desc">Data Binding, Directives, New Control Flow, Pipes, Content Projection, ViewChild, Dynamic Components</p>
+    </div>
+  </a>
+
+  <a href="phase3-dependency-injection.html" class="phase-card">
+    <div class="phase-num">3</div>
+    <div class="phase-info">
+      <p class="phase-title">Dependency Injection & Services</p>
+      <p class="phase-desc">DI System, Providers, InjectionTokens, Hierarchical Injectors, inject(), Interceptors</p>
+    </div>
+  </a>
+
+  <a href="phase4-rxjs-reactive-patterns.html" class="phase-card">
+    <div class="phase-num">4</div>
+    <div class="phase-info">
+      <p class="phase-title">RxJS & Reactive Patterns</p>
+      <p class="phase-desc">Observables, Subjects, Operators, Higher-Order Mapping, Error Handling, Real-World Patterns</p>
+    </div>
+  </a>
+
+  <a href="phase5-change-detection-performance.html" class="phase-card">
+    <div class="phase-num">5</div>
+    <div class="phase-info">
+      <p class="phase-title">Change Detection & Performance</p>
+      <p class="phase-desc">Zone.js, CD Mechanism, OnPush, Zoneless, Lazy Loading, @defer, Virtual Scrolling, Optimization</p>
+    </div>
+  </a>
+
+  <a href="phase6-routing-navigation.html" class="phase-card">
+    <div class="phase-num">6</div>
+    <div class="phase-info">
+      <p class="phase-title">Routing & Navigation</p>
+      <p class="phase-desc">Router Config, Guards, Resolvers, Nested Routes, Layouts, Route Events, Programmatic Navigation</p>
+    </div>
+  </a>
+
+  <a href="phase7-forms-validation.html" class="phase-card">
+    <div class="phase-num">7</div>
+    <div class="phase-info">
+      <p class="phase-title">Forms & Validation</p>
+      <p class="phase-desc">Template-driven, Reactive Forms, Typed Forms, Custom/Async Validators, Dynamic Forms, ControlValueAccessor</p>
+    </div>
+  </a>
+
+  <a href="phase8-state-management.html" class="phase-card">
+    <div class="phase-num">8</div>
+    <div class="phase-info">
+      <p class="phase-title">State Management</p>
+      <p class="phase-desc">Service + BehaviorSubject, Signal Store, NgRx (Store/Effects/Selectors), SignalStore, Patterns</p>
+    </div>
+  </a>
+
+  <a href="phase9-testing.html" class="phase-card">
+    <div class="phase-num">9</div>
+    <div class="phase-info">
+      <p class="phase-title">Testing in Angular</p>
+      <p class="phase-desc">Unit Testing, Component Testing, Service Testing, Mocking, fakeAsync, HttpTestingController</p>
+    </div>
+  </a>
+
+  <a href="phase10-advanced-patterns.html" class="phase-card">
+    <div class="phase-num">10</div>
+    <div class="phase-info">
+      <p class="phase-title">Advanced Patterns & Architecture</p>
+      <p class="phase-desc">Smart/Dumb Components, SSR & Hydration, Angular Elements, Micro Frontends, Security, Monorepo</p>
+    </div>
+  </a>
+
+  <a href="phase11-signals-modern-angular.html" class="phase-card">
+    <div class="phase-num">11</div>
+    <div class="phase-info">
+      <p class="phase-title">Signals & Modern Angular (v16-19)</p>
+      <p class="phase-desc">signal(), computed(), effect(), Signal Inputs, model(), linkedSignal, Resource API, RxJS Interop</p>
+    </div>
+  </a>
+
+  <a href="phase12-machine-coding.html" class="phase-card">
+    <div class="phase-num">12</div>
+    <div class="phase-info">
+      <p class="phase-title">Machine Coding Challenges</p>
+      <p class="phase-desc">Autocomplete, Data Table, Form Wizard, Chat, Kanban Board, and 15+ more challenges</p>
+    </div>
+  </a>
+
+  <a href="phase13-interview-qa-masterclass.html" class="phase-card">
+    <div class="phase-num">13</div>
+    <div class="phase-info">
+      <p class="phase-title">Interview Q&A Masterclass</p>
+      <p class="phase-desc">150+ Questions with Expert Answers, Tricky Edge Cases, Architecture, Quick-Fire Round</p>
+    </div>
+  </a>
+
+  <a href="phase14-advanced-topics.html" class="phase-card">
+    <div class="phase-num">14</div>
+    <div class="phase-info">
+      <p class="phase-title">Advanced Topics — Animations, CDK, i18n, a11y, PWA</p>
+      <p class="phase-desc">Angular Animations, CDK Overlay/Portal, Accessibility, Internationalization, Service Workers, HttpClient Advanced, E2E Testing, Migration, DevTools, Web Workers</p>
+    </div>
+  </a>
+
+  <a href="phase15-internals-output-prediction.html" class="phase-card">
+    <div class="phase-num">15</div>
+    <div class="phase-info">
+      <p class="phase-title">Angular Internals & Output Prediction</p>
+      <p class="phase-desc">Compiler Pipeline, Ivy Instructions, afterRender hooks, Directive Composition API, Microsyntax, Recursive Templates, inject() edge cases, 10+ output prediction challenges</p>
+    </div>
+  </a>
+
+  <a href="phase16-ngrx-rxjs-advanced.html" class="phase-card">
+    <div class="phase-num">16</div>
+    <div class="phase-info">
+      <p class="phase-title">NgRx Enterprise & RxJS Advanced</p>
+      <p class="phase-desc">Entity Adapter, Router Store, Meta-Reducers, Advanced Effects, SignalStore Features, Custom Operators, RxJS Schedulers, Marble Testing, Request Deduplication</p>
+    </div>
+  </a>
+</div>
+
+<h2>🎯 Study Plan</h2>
+<table style="width:100%; border-collapse:collapse; font-size:10.4pt;">
+  <tr style="background:#fce4ec;"><th style="padding:8px; border:1px solid #d8d0c3;">Week</th><th style="padding:8px; border:1px solid #d8d0c3;">Phases</th><th style="padding:8px; border:1px solid #d8d0c3;">Focus</th></tr>
+  <tr><td style="padding:8px; border:1px solid #d8d0c3;">Week 1</td><td style="padding:8px; border:1px solid #d8d0c3;">Phase 1-3</td><td style="padding:8px; border:1px solid #d8d0c3;">Fundamentals, Components, DI — The foundation</td></tr>
+  <tr><td style="padding:8px; border:1px solid #d8d0c3;">Week 2</td><td style="padding:8px; border:1px solid #d8d0c3;">Phase 4-5</td><td style="padding:8px; border:1px solid #d8d0c3;">RxJS & Performance — The differentiators</td></tr>
+  <tr><td style="padding:8px; border:1px solid #d8d0c3;">Week 3</td><td style="padding:8px; border:1px solid #d8d0c3;">Phase 6-8</td><td style="padding:8px; border:1px solid #d8d0c3;">Routing, Forms, State — Production features</td></tr>
+  <tr><td style="padding:8px; border:1px solid #d8d0c3;">Week 4</td><td style="padding:8px; border:1px solid #d8d0c3;">Phase 9-11</td><td style="padding:8px; border:1px solid #d8d0c3;">Testing, Advanced, Modern Angular</td></tr>
+  <tr><td style="padding:8px; border:1px solid #d8d0c3;">Week 5</td><td style="padding:8px; border:1px solid #d8d0c3;">Phase 12-13</td><td style="padding:8px; border:1px solid #d8d0c3;">Machine coding practice + Q&A revision</td></tr>
+  <tr><td style="padding:8px; border:1px solid #d8d0c3;">Week 6</td><td style="padding:8px; border:1px solid #d8d0c3;">Phase 14</td><td style="padding:8px; border:1px solid #d8d0c3;">Animations, CDK, i18n, a11y, PWA — Senior-level differentiators</td></tr>
+  <tr><td style="padding:8px; border:1px solid #d8d0c3;">Week 7</td><td style="padding:8px; border:1px solid #d8d0c3;">Phase 15-16</td><td style="padding:8px; border:1px solid #d8d0c3;">Internals, Output Prediction, NgRx Enterprise, Advanced RxJS — Expert level</td></tr>
+</table>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

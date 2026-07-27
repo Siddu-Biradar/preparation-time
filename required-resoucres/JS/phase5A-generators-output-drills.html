@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 5A: Generators, Async Iterators & Output Prediction Drills</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .output-drill { background: #f8f0ff; border: 1px solid #d8c4f0; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .output-drill h4 { color: #5b21b6; margin-top: 0; }
+    details.answer { margin-top: 8px; } details.answer summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 10pt; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 5A: Generators, Async Iterators &amp; Output Prediction</h1>
+  <p class="subtitle">JavaScript Mastery — Companion to Phase 5 (Async Deep Dive)</p>
+  <div class="pill-row">
+    <span class="pill">Generators</span>
+    <span class="pill">yield / yield*</span>
+    <span class="pill">Async Iterators</span>
+    <span class="pill">for await...of</span>
+    <span class="pill">Output Prediction (15 Drills)</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Why this file?</strong> Generators are how async/await works internally. Understanding them shows deep knowledge in senior interviews. The Output Prediction section is the #1 most common async interview format — you MUST be able to trace through these without running the code.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#generators">Generators &amp; Iterators (Complete)</a></li>
+    <li><a href="#async-generators">Async Generators &amp; for-await-of</a></li>
+    <li><a href="#async-await-generators">How async/await Works (Generator + Promise)</a></li>
+    <li><a href="#output-drills">Output Prediction Drills (15 Questions)</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="generators">1. Generators &amp; Iterators (Complete)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=gu3FfmgkwUc" target="_blank">Generators in JavaScript — Fun Fun Function</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IJ6EgdiI_wU" target="_blank">JavaScript Generators Explained — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>What is a Generator?</h3>
+<p>A generator is a function that can <strong>pause its execution</strong> and <strong>resume later</strong>. Unlike normal functions that run to completion, generators yield values one at a time, maintaining their internal state between calls.</p>
+
+<div class="callout">
+  <strong>Mental Model:</strong> Think of a generator as a <em>bookmark in a book</em>. Each time you call <code>.next()</code>, you read until the next bookmark (<code>yield</code>), return what's on that page, and pause. The function doesn't lose its place — local variables, loops, everything is preserved.
+</div>
+
+<h3>The Iterator Protocol</h3>
+<p>Before generators, let's understand what they implement — the <strong>Iterator Protocol</strong>:</p>
+
+<pre><code>// Any object with a next() method that returns { value, done } is an iterator
+const myIterator = {
+  current: 1,
+  next() {
+    if (this.current &lt;= 3) {
+      return { value: this.current++, done: false };
+    }
+    return { value: undefined, done: true };
+  }
+};
+
+console.log(myIterator.next()); // { value: 1, done: false }
+console.log(myIterator.next()); // { value: 2, done: false }
+console.log(myIterator.next()); // { value: 3, done: false }
+console.log(myIterator.next()); // { value: undefined, done: true }
+
+// An ITERABLE is an object with [Symbol.iterator]() that returns an iterator
+const myIterable = {
+  [Symbol.iterator]() {
+    let n = 0;
+    return {
+      next() {
+        return n &lt; 3 ? { value: ++n, done: false } : { done: true };
+      }
+    };
+  }
+};
+
+for (const val of myIterable) console.log(val); // 1, 2, 3
+// Also works with: [...spread], Array.from(), destructuring</code></pre>
+
+<h3>Generator Function Syntax</h3>
+<pre><code>// function* declares a generator
+function* countUp() {
+  console.log("Start");
+  yield 1;           // Pause here, return 1
+  console.log("After first yield");
+  yield 2;           // Pause here, return 2
+  console.log("After second yield");
+  yield 3;           // Pause here, return 3
+  console.log("End");
+  return "done";     // Final value (done: true)
+}
+
+const gen = countUp(); // Does NOT execute the body! Returns a generator object.
+
+console.log(gen.next()); // "Start" → { value: 1, done: false }
+console.log(gen.next()); // "After first yield" → { value: 2, done: false }
+console.log(gen.next()); // "After second yield" → { value: 3, done: false }
+console.log(gen.next()); // "End" → { value: "done", done: true }
+console.log(gen.next()); // { value: undefined, done: true } (already finished)</code></pre>
+
+<h3>Two-Way Communication: Passing Values INTO Generators</h3>
+<p>This is the killer feature. <code>yield</code> is not just an output — it's also an <strong>input slot</strong>. Whatever you pass to <code>.next(value)</code> becomes the result of the <code>yield</code> expression.</p>
+
+<pre><code>function* conversation() {
+  const name = yield "What is your name?";       // Pauses, returns question
+  const age = yield `Hello ${name}! How old?`;   // Receives name, asks age
+  return `${name} is ${age} years old`;           // Receives age, returns
+}
+
+const talk = conversation();
+console.log(talk.next());           // { value: "What is your name?", done: false }
+console.log(talk.next("Siddu"));    // { value: "Hello Siddu! How old?", done: false }
+console.log(talk.next(25));         // { value: "Siddu is 25 years old", done: true }
+
+// KEY INSIGHT: The FIRST .next() call cannot pass a value (it starts execution)
+// Values passed to next() replace the yield expression on the LEFT side</code></pre>
+
+<h3>yield* — Delegating to Another Generator</h3>
+<pre><code>function* inner() {
+  yield "a";
+  yield "b";
+  return "inner-done"; // return value of yield*
+}
+
+function* outer() {
+  yield 1;
+  const result = yield* inner(); // Delegates: yields "a", "b" from inner
+  console.log("inner returned:", result); // "inner-done"
+  yield 2;
+}
+
+console.log([...outer()]); // [1, "a", "b", 2]
+// Note: return value of inner ("inner-done") is NOT yielded, but IS the result of yield*</code></pre>
+
+<h3>Infinite Generators (Lazy Evaluation)</h3>
+<pre><code>// Infinite sequence — only computed on demand (lazy!)
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+// Take first 10 fibonacci numbers
+function take(gen, n) {
+  const result = [];
+  for (const val of gen) {
+    result.push(val);
+    if (result.length === n) break;
+  }
+  return result;
+}
+
+console.log(take(fibonacci(), 10)); // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+
+// ID generator
+function* idGenerator(prefix = "id") {
+  let id = 0;
+  while (true) {
+    yield `${prefix}_${++id}`;
+  }
+}
+const genId = idGenerator("user");
+console.log(genId.next().value); // "user_1"
+console.log(genId.next().value); // "user_2"</code></pre>
+
+<h3>Generator Error Handling</h3>
+<pre><code>function* safeDivide() {
+  try {
+    const a = yield "Enter numerator";
+    const b = yield "Enter denominator";
+    if (b === 0) throw new Error("Division by zero!");
+    yield a / b;
+  } catch (e) {
+    yield `Error: ${e.message}`;
+  } finally {
+    console.log("Generator cleanup");
+  }
+}
+
+const div = safeDivide();
+div.next();         // { value: "Enter numerator" }
+div.next(10);       // { value: "Enter denominator" }
+div.next(0);        // throws internally → { value: "Error: Division by zero!" }
+
+// You can also THROW into a generator from outside:
+function* gen() {
+  try {
+    const val = yield 1;
+    console.log("Got:", val); // Never reached
+  } catch (e) {
+    console.log("Caught:", e.message);
+  }
+}
+const g = gen();
+g.next();                   // { value: 1, done: false }
+g.throw(new Error("Oops")); // "Caught: Oops" → { value: undefined, done: true }
+
+// .return() forces generator to finish
+g.return("forced"); // { value: "forced", done: true } — finally block still runs</code></pre>
+
+<h3>Practical Use Cases</h3>
+<pre><code>// 1. Stateful iteration (paginated data)
+function* paginate(items, pageSize) {
+  for (let i = 0; i &lt; items.length; i += pageSize) {
+    yield items.slice(i, i + pageSize);
+  }
+}
+const pages = paginate([1,2,3,4,5,6,7,8,9,10], 3);
+console.log(pages.next().value); // [1,2,3]
+console.log(pages.next().value); // [4,5,6]
+
+// 2. Tree traversal (recursive generator)
+function* traverseTree(node) {
+  yield node.value;
+  if (node.children) {
+    for (const child of node.children) {
+      yield* traverseTree(child); // Delegate recursively
+    }
+  }
+}
+
+// 3. Cooperative multitasking (round-robin scheduler)
+function* task(name, steps) {
+  for (let i = 1; i &lt;= steps; i++) {
+    console.log(`${name}: step ${i}`);
+    yield; // Give up control
+  }
+}
+
+function runScheduler(tasks) {
+  const generators = tasks.map(([name, steps]) =&gt; task(name, steps));
+  while (generators.length &gt; 0) {
+    for (let i = generators.length - 1; i &gt;= 0; i--) {
+      const { done } = generators[i].next();
+      if (done) generators.splice(i, 1);
+    }
+  }
+}
+runScheduler([["Download", 3], ["Parse", 2], ["Render", 4]]);</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What's the difference between a generator and a normal function?</p>
+<p><strong>Answer:</strong> A normal function runs to completion when called. A generator (function*) returns an iterator object without executing the body. Each .next() call executes until the next yield, pauses, preserves local state, and returns {value, done}. Generators implement both the Iterator and Iterable protocols.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How does yield work as both input and output?</p>
+<p><strong>Answer:</strong> <code>yield</code> is a two-way channel: (1) It outputs the value to the right of yield to the caller via .next().value. (2) It receives the value passed to the NEXT .next(val) call, which becomes the result of the yield expression. The first .next() starts execution — its argument is discarded because there's no yield waiting to receive it yet.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How would you implement a cancellable async flow using generators?</p>
+<p><strong>Answer:</strong> Wrap the generator in a runner that calls .next() with resolved Promise values. To cancel, call generator.return() which triggers the finally block for cleanup. This is exactly how libraries like co.js worked before async/await existed, and how Babel transpiles async/await.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="async-generators">2. Async Generators &amp; for-await-of</h2>
+
+<h3>The Problem: Async + Iteration</h3>
+<p>Regular generators yield values synchronously. But what if each value requires an async operation (API call, file read, WebSocket message)? You need <strong>async generators</strong>.</p>
+
+<div class="callout">
+  <strong>Mental Model:</strong> A regular generator is like a vending machine — press button, get item immediately. An async generator is like ordering food on Swiggy — you request the next item, but you have to <em>wait</em> for it to arrive before asking for the next one.
+</div>
+
+<h3>Async Iterator Protocol</h3>
+<pre><code>// Regular Iterator:    { next() → { value, done } }
+// Async Iterator:      { next() → Promise&lt;{ value, done }&gt; }
+
+// Regular Iterable:    { [Symbol.iterator]() → Iterator }
+// Async Iterable:      { [Symbol.asyncIterator]() → AsyncIterator }
+
+// Consumed with: for await (const item of asyncIterable) { ... }</code></pre>
+
+<h3>async function* Syntax</h3>
+<pre><code>// Async generator: can use both yield AND await
+async function* fetchPages(url, maxPages = 5) {
+  let page = 1;
+  let hasMore = true;
+
+  while (hasMore &amp;&amp; page &lt;= maxPages) {
+    const response = await fetch(`${url}?page=${page}`);
+    const data = await response.json();
+
+    yield data.items; // Yield this page's results
+
+    hasMore = data.hasNextPage;
+    page++;
+  }
+}
+
+// Consuming with for-await-of
+async function loadAllProducts() {
+  const allProducts = [];
+
+  for await (const pageItems of fetchPages("/api/products")) {
+    allProducts.push(...pageItems);
+    console.log(`Loaded ${allProducts.length} products so far...`);
+  }
+
+  return allProducts;
+}</code></pre>
+
+<h3>Real-World Patterns</h3>
+<pre><code>// 1. Polling with backoff (async generator)
+async function* poll(fn, { interval = 1000, maxAttempts = Infinity } = {}) {
+  let attempt = 0;
+  while (attempt &lt; maxAttempts) {
+    const result = await fn();
+    yield result;
+    attempt++;
+    await new Promise((r) =&gt; setTimeout(r, interval));
+  }
+}
+
+// Usage
+for await (const status of poll(() =&gt; fetch("/api/status").then(r =&gt; r.json()), { interval: 3000 })) {
+  console.log("Status:", status);
+  if (status.complete) break; // Exit when done
+}
+
+// 2. WebSocket message stream
+async function* wsMessages(url) {
+  const ws = new WebSocket(url);
+
+  const messages = [];
+  let resolve;
+  let done = false;
+
+  ws.onmessage = (e) =&gt; {
+    messages.push(e.data);
+    if (resolve) { resolve(); resolve = null; }
+  };
+  ws.onclose = () =&gt; { done = true; if (resolve) resolve(); };
+
+  try {
+    while (!done) {
+      if (messages.length === 0) {
+        await new Promise((r) =&gt; { resolve = r; });
+      }
+      while (messages.length &gt; 0) {
+        yield JSON.parse(messages.shift());
+      }
+    }
+  } finally {
+    ws.close(); // Cleanup on break/return
+  }
+}
+
+// Usage
+for await (const msg of wsMessages("wss://chat.example.com")) {
+  console.log("Message:", msg);
+  if (msg.type === "end") break; // Generator's finally{} closes WebSocket
+}
+
+// 3. File line reader (Node.js)
+async function* readLines(filePath) {
+  const fileStream = require("fs").createReadStream(filePath);
+  const rl = require("readline").createInterface({ input: fileStream });
+
+  for await (const line of rl) {
+    yield line;
+  }
+}
+
+// 4. Batch processor
+async function* batchProcess(items, batchSize, processFn) {
+  for (let i = 0; i &lt; items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const results = await Promise.all(batch.map(processFn));
+    yield* results; // Yield each result individually
+  }
+}</code></pre>
+
+<h3>Custom Async Iterables</h3>
+<pre><code>// Make any object async-iterable
+class EventStream {
+  constructor(target, eventName) {
+    this.target = target;
+    this.eventName = eventName;
+  }
+
+  [Symbol.asyncIterator]() {
+    const queue = [];
+    let resolve = null;
+    let done = false;
+
+    const handler = (event) =&gt; {
+      queue.push(event);
+      if (resolve) { resolve(); resolve = null; }
+    };
+
+    this.target.addEventListener(this.eventName, handler);
+
+    return {
+      next() {
+        if (queue.length &gt; 0) {
+          return Promise.resolve({ value: queue.shift(), done: false });
+        }
+        if (done) return Promise.resolve({ done: true });
+        return new Promise((r) =&gt; {
+          resolve = () =&gt; r({ value: queue.shift(), done: false });
+        });
+      },
+      return() {
+        done = true;
+        this.target.removeEventListener(this.eventName, handler);
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+}
+
+// Usage: iterate over DOM events!
+for await (const event of new EventStream(button, "click")) {
+  console.log("Clicked at:", event.clientX, event.clientY);
+  if (event.shiftKey) break; // Shift+Click to stop
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> When would you use an async generator over Promise.all?</p>
+<p><strong>Answer:</strong> Use async generators when: (1) you have an unknown/infinite number of items (streaming), (2) you want to process results as they arrive (not wait for all), (3) you need backpressure (consumer controls the pace), (4) resources should be cleaned up on break/error (finally block). Use Promise.all when you have a fixed set of independent tasks you want to run in parallel.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How does for-await-of handle errors in async generators?</p>
+<p><strong>Answer:</strong> If the awaited promise rejects inside the generator, the error propagates out of the for-await-of loop (can be caught with try/catch around it). The generator's finally block runs for cleanup. If the consumer breaks out of the loop, generator.return() is called implicitly, triggering finally{} — this is how resource cleanup (closing connections, streams) happens automatically.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="async-await-generators">3. How async/await Works Internally (Generator + Promise)</h2>
+
+<div class="callout warning">
+  <strong>Senior Interview Gold:</strong> "Can you implement async/await using generators?" separates mid-level from senior engineers. Understanding this shows you truly grasp the language, not just its syntax.
+</div>
+
+<h3>The Transformation</h3>
+<p>Every <code>async function</code> is syntactic sugar over a generator wrapped in a Promise-based runner. Here's the mental model:</p>
+
+<pre><code>// What you write:
+async function fetchUser(id) {
+  const response = await fetch(`/api/users/${id}`);
+  const user = await response.json();
+  return user;
+}
+
+// What the engine conceptually does:
+function fetchUser(id) {
+  return spawn(function* () {
+    const response = yield fetch(`/api/users/${id}`);
+    const user = yield response.json();
+    return user;
+  });
+}
+
+// The "spawn" runner that makes it all work:
+function spawn(generatorFn) {
+  return new Promise((resolve, reject) =&gt; {
+    const gen = generatorFn();
+
+    function step(method, value) {
+      let result;
+      try {
+        result = gen[method](value); // gen.next(value) or gen.throw(error)
+      } catch (err) {
+        return reject(err); // Unhandled error → reject outer promise
+      }
+
+      if (result.done) {
+        return resolve(result.value); // Generator finished → resolve
+      }
+
+      // Not done: result.value is a Promise (the awaited thing)
+      Promise.resolve(result.value).then(
+        (val) =&gt; step("next", val),     // Resolved → resume with value
+        (err) =&gt; step("throw", err)     // Rejected → throw into generator
+      );
+    }
+
+    step("next", undefined); // Start the generator
+  });
+}</code></pre>
+
+<h3>Step-by-Step Trace</h3>
+<pre><code>// Tracing fetchUser("123"):
+// 1. spawn() is called, creates the generator
+// 2. step("next", undefined) → gen.next() → executes until first yield
+// 3. yield fetch("/api/users/123") → result = { value: fetchPromise, done: false }
+// 4. Promise.resolve(fetchPromise).then(val =&gt; step("next", val))
+//    ↳ When fetch resolves with Response object...
+// 5. step("next", response) → gen.next(response) → resumes, "response" variable is set
+// 6. yield response.json() → result = { value: jsonPromise, done: false }
+// 7. Promise.resolve(jsonPromise).then(val =&gt; step("next", val))
+//    ↳ When json() resolves with user object...
+// 8. step("next", user) → gen.next(user) → resumes, "user" variable is set
+// 9. return user → result = { value: user, done: true }
+// 10. resolve(user) → outer promise resolves with user
+
+// KEY INSIGHT: Each "await" is just "yield" that automatically chains .then()!</code></pre>
+
+<h3>Production-Grade Runner (Like co.js)</h3>
+<pre><code>// Handles: Promises, arrays (parallel), nested generators
+function co(generatorFn) {
+  const ctx = this;
+  const args = Array.from(arguments).slice(1);
+
+  return new Promise((resolve, reject) =&gt; {
+    const gen = generatorFn.apply(ctx, args);
+
+    function onFulfilled(value) {
+      let result;
+      try { result = gen.next(value); }
+      catch (e) { return reject(e); }
+      next(result);
+    }
+
+    function onRejected(err) {
+      let result;
+      try { result = gen.throw(err); }
+      catch (e) { return reject(e); }
+      next(result);
+    }
+
+    function next(result) {
+      if (result.done) return resolve(result.value);
+
+      // Convert yielded value to Promise
+      const value = toPromise(result.value);
+      if (value) return value.then(onFulfilled, onRejected);
+
+      return onRejected(new TypeError("Cannot yield non-Promise value"));
+    }
+
+    function toPromise(obj) {
+      if (!obj) return obj;
+      if (obj instanceof Promise) return obj;
+      if (typeof obj.then === "function") return new Promise(obj.then.bind(obj));
+      if (Array.isArray(obj)) return Promise.all(obj.map(toPromise));
+      if (typeof obj === "function") {
+        // Thunk support
+        return new Promise((res, rej) =&gt; obj((err, val) =&gt; err ? rej(err) : res(val)));
+      }
+      return Promise.resolve(obj);
+    }
+
+    onFulfilled(undefined); // Start
+  });
+}
+
+// Usage (how people wrote async code before async/await existed):
+co(function* () {
+  const user = yield fetch("/api/user").then(r =&gt; r.json());
+  const [posts, friends] = yield [  // Parallel! (array = Promise.all)
+    fetch(`/api/posts/${user.id}`).then(r =&gt; r.json()),
+    fetch(`/api/friends/${user.id}`).then(r =&gt; r.json()),
+  ];
+  console.log(user, posts, friends);
+});</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-expert">Expert</span> Implement a basic async/await runner using generators.</p>
+<p><strong>Answer:</strong> Create a function that takes a generator function, iterates it with .next(), wraps each yielded value in Promise.resolve().then(), and chains .next(resolvedValue) on resolution or .throw(error) on rejection. The outer function returns a Promise that resolves with the generator's return value. This is the "spawn" pattern shown above.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why can't the first .next() call pass a value to a generator?</p>
+<p><strong>Answer:</strong> The first .next() starts execution from the beginning of the function body. There's no yield expression waiting to receive a value yet — execution hasn't reached any yield. The value goes nowhere. Subsequent .next(val) calls resume from a paused yield, so val becomes the yield expression's result.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="output-drills">4. Output Prediction Drills (15 Questions)</h2>
+
+<div class="callout warning">
+  <strong>THE Most Common Format:</strong> "What will this code output and in what order?" is asked in 80%+ of JS interviews. Practice tracing through these without running the code. Focus on: call stack, microtask queue, macrotask queue, and execution order.
+</div>
+
+<h3>Rules to Remember:</h3>
+<ol>
+  <li><strong>Synchronous code ALWAYS runs first</strong> (call stack drains completely)</li>
+  <li><strong>Microtasks drain completely</strong> before ANY macrotask (Promise.then, queueMicrotask, MutationObserver)</li>
+  <li><strong>Each macrotask runs one at a time</strong> (setTimeout, setInterval, I/O), then microtask queue drains again</li>
+  <li><strong>await splits the function</strong> — code after await goes to microtask queue</li>
+  <li><strong>Promise executor is synchronous</strong> — the function passed to <code>new Promise(fn)</code> runs immediately</li>
+</ol>
+
+<!-- Drill 1 -->
+<div class="output-drill">
+<h4>Drill 1: Basic Event Loop</h4>
+<pre><code>console.log("1");
+
+setTimeout(() =&gt; console.log("2"), 0);
+
+Promise.resolve().then(() =&gt; console.log("3"));
+
+console.log("4");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> 1, 4, 3, 2</p>
+<p><strong>Trace:</strong> Sync: log "1", schedule setTimeout (macrotask), schedule .then (microtask), log "4". Microtask queue: log "3". Macrotask queue: log "2".</p>
+</details>
+</div>
+
+<!-- Drill 2 -->
+<div class="output-drill">
+<h4>Drill 2: Promise Executor is Synchronous</h4>
+<pre><code>console.log("A");
+
+new Promise((resolve) =&gt; {
+  console.log("B");
+  resolve();
+  console.log("C");
+}).then(() =&gt; console.log("D"));
+
+console.log("E");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> A, B, C, E, D</p>
+<p><strong>Trace:</strong> Sync: log "A", Promise executor runs synchronously: log "B", resolve() (schedules .then to microtask queue), log "C" (resolve doesn't stop execution!), log "E". Microtask: log "D".</p>
+</details>
+</div>
+
+<!-- Drill 3 -->
+<div class="output-drill">
+<h4>Drill 3: Nested Microtasks</h4>
+<pre><code>Promise.resolve().then(() =&gt; {
+  console.log("1");
+  Promise.resolve().then(() =&gt; console.log("2"));
+}).then(() =&gt; console.log("3"));
+
+Promise.resolve().then(() =&gt; console.log("4"));</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> 1, 4, 2, 3</p>
+<p><strong>Trace:</strong> Initial microtask queue: [callback-for-"1", callback-for-"4"]. Process "1": logs "1", schedules inner .then("2"), and the .then("3") is scheduled (chained). Process "4": logs "4". Now queue has: [callback-for-"2", callback-for-"3"]. Process "2": logs "2". Process "3": logs "3".</p>
+</details>
+</div>
+
+<!-- Drill 4 -->
+<div class="output-drill">
+<h4>Drill 4: async/await Transformation</h4>
+<pre><code>async function foo() {
+  console.log("foo start");
+  await Promise.resolve();
+  console.log("foo end");
+}
+
+console.log("script start");
+foo();
+console.log("script end");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> script start, foo start, script end, foo end</p>
+<p><strong>Trace:</strong> log "script start". Call foo(): log "foo start", await splits — everything after await ("foo end") goes to microtask queue, foo() returns. log "script end". Microtask: log "foo end".</p>
+</details>
+</div>
+
+<!-- Drill 5 -->
+<div class="output-drill">
+<h4>Drill 5: setTimeout vs Promise vs await</h4>
+<pre><code>async function async1() {
+  console.log("async1 start");
+  await async2();
+  console.log("async1 end");
+}
+
+async function async2() {
+  console.log("async2");
+}
+
+console.log("script start");
+setTimeout(() =&gt; console.log("setTimeout"), 0);
+async1();
+new Promise((resolve) =&gt; {
+  console.log("promise1");
+  resolve();
+}).then(() =&gt; console.log("promise2"));
+console.log("script end");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> script start, async1 start, async2, promise1, script end, async1 end, promise2, setTimeout</p>
+<p><strong>Trace:</strong> Sync: "script start", schedule setTimeout. Call async1: "async1 start", call async2: "async2", await splits (schedules "async1 end" as microtask). Promise executor: "promise1", resolve (schedules "promise2"). "script end". Microtasks in order: "async1 end", "promise2". Macrotask: "setTimeout".</p>
+</details>
+</div>
+
+<!-- Drill 6 -->
+<div class="output-drill">
+<h4>Drill 6: Promise.resolve vs new Promise</h4>
+<pre><code>const p = Promise.resolve();
+
+p.then(() =&gt; console.log("1"));
+p.then(() =&gt; console.log("2"));
+
+const p2 = p.then(() =&gt; console.log("3"));
+p2.then(() =&gt; console.log("4"));
+
+console.log("5");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> 5, 1, 2, 3, 4</p>
+<p><strong>Trace:</strong> All .then() calls on already-resolved promise 'p' schedule microtasks immediately. "5" is sync. Microtasks: "1", "2", "3" (all from p). Then "4" (from p2, which resolved when "3"'s callback ran).</p>
+</details>
+</div>
+
+<!-- Drill 7 -->
+<div class="output-drill">
+<h4>Drill 7: setTimeout Nesting</h4>
+<pre><code>setTimeout(() =&gt; {
+  console.log("T1");
+  Promise.resolve().then(() =&gt; console.log("P1"));
+}, 0);
+
+setTimeout(() =&gt; {
+  console.log("T2");
+  Promise.resolve().then(() =&gt; console.log("P2"));
+}, 0);
+
+Promise.resolve().then(() =&gt; console.log("P3"));</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> P3, T1, P1, T2, P2</p>
+<p><strong>Trace:</strong> Sync done. Microtask: "P3". Macrotask 1 (T1): "T1", schedules P1. Drain microtasks: "P1". Macrotask 2 (T2): "T2", schedules P2. Drain microtasks: "P2". KEY: Microtask queue drains completely between EACH macrotask!</p>
+</details>
+</div>
+
+<!-- Drill 8 -->
+<div class="output-drill">
+<h4>Drill 8: await in a Loop</h4>
+<pre><code>async function process() {
+  const items = [1, 2, 3];
+
+  console.log("start");
+
+  items.forEach(async (item) =&gt; {
+    const result = await item;
+    console.log(result);
+  });
+
+  console.log("end");
+}
+
+process();</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> start, end, 1, 2, 3</p>
+<p><strong>Trace:</strong> "start" is sync. forEach launches 3 async callbacks — each hits await immediately, scheduling their continuations as microtasks. forEach itself is sync and doesn't await anything. "end" is sync. Then microtasks run: 1, 2, 3. THIS IS THE forEach+async BUG — use for...of instead!</p>
+</details>
+</div>
+
+<!-- Drill 9 -->
+<div class="output-drill">
+<h4>Drill 9: Thenable (Non-Promise Object)</h4>
+<pre><code>const thenable = {
+  then(resolve) {
+    console.log("then called");
+    resolve(42);
+  }
+};
+
+async function test() {
+  console.log("before");
+  const val = await thenable;
+  console.log("after:", val);
+}
+
+console.log("script start");
+test();
+console.log("script end");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> script start, before, then called, script end, after: 42</p>
+<p><strong>Trace:</strong> "script start". Call test(): "before". await thenable → engine calls thenable.then(resolve): "then called", resolve(42). Code after await is scheduled as microtask. test() returns. "script end". Microtask: "after: 42".</p>
+</details>
+</div>
+
+<!-- Drill 10 -->
+<div class="output-drill">
+<h4>Drill 10: Promise Chain vs Separate .then()</h4>
+<pre><code>const p = new Promise((resolve) =&gt; {
+  resolve(1);
+});
+
+// Chain
+p.then((v) =&gt; {
+  console.log("A:", v);
+  return v + 1;
+}).then((v) =&gt; {
+  console.log("B:", v);
+});
+
+// Separate (both from same p)
+p.then((v) =&gt; {
+  console.log("C:", v);
+});
+
+p.then((v) =&gt; {
+  console.log("D:", v);
+});</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> A: 1, C: 1, D: 1, B: 2</p>
+<p><strong>Trace:</strong> p resolves with 1. Three .then() are registered on p: A's callback, C's callback, D's callback. These go to microtask queue: [A, C, D]. Process A: log "A: 1", return 2 (schedules B). Process C: log "C: 1". Process D: log "D: 1". Now queue has [B]. Process B: log "B: 2".</p>
+</details>
+</div>
+
+<!-- Drill 11 -->
+<div class="output-drill">
+<h4>Drill 11: queueMicrotask vs setTimeout vs Promise</h4>
+<pre><code>console.log("1");
+
+queueMicrotask(() =&gt; console.log("2"));
+
+setTimeout(() =&gt; console.log("3"), 0);
+
+Promise.resolve().then(() =&gt; {
+  console.log("4");
+  queueMicrotask(() =&gt; console.log("5"));
+});
+
+queueMicrotask(() =&gt; console.log("6"));
+
+console.log("7");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> 1, 7, 2, 4, 6, 5, 3</p>
+<p><strong>Trace:</strong> Sync: "1", "7". Microtask queue: [qM-"2", .then-"4", qM-"6"]. Process: "2", "4" (schedules qM-"5"), "6". New microtask: "5". Process: "5". Macrotask: "3".</p>
+</details>
+</div>
+
+<!-- Drill 12 -->
+<div class="output-drill">
+<h4>Drill 12: Multiple Awaits</h4>
+<pre><code>async function a() {
+  console.log("a1");
+  await b();
+  console.log("a2");
+}
+
+async function b() {
+  console.log("b1");
+  await c();
+  console.log("b2");
+}
+
+async function c() {
+  console.log("c1");
+}
+
+console.log("start");
+a();
+console.log("end");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> start, a1, b1, c1, end, b2, a2</p>
+<p><strong>Trace:</strong> "start". Call a(): "a1". await b() → call b(): "b1". await c() → call c(): "c1" (c completes sync). await in b() splits: "b2" → microtask. b() returns promise, await in a() splits: "a2" → microtask (but must wait for b's promise). "end". Microtask: "b2" (b's promise resolves). Then "a2" (a's await on b resolves).</p>
+</details>
+</div>
+
+<!-- Drill 13 -->
+<div class="output-drill">
+<h4>Drill 13: Error Handling Order</h4>
+<pre><code>async function failing() {
+  console.log("failing start");
+  throw new Error("oops");
+}
+
+console.log("1");
+
+failing()
+  .then(() =&gt; console.log("2"))
+  .catch(() =&gt; console.log("3"));
+
+Promise.resolve()
+  .then(() =&gt; console.log("4"))
+  .then(() =&gt; console.log("5"));
+
+console.log("6");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> 1, failing start, 6, 3, 4, 5</p>
+<p><strong>Trace:</strong> "1". Call failing(): "failing start", throws → promise rejects, .catch("3") scheduled. Schedule .then("4"). "6". Microtasks: "3" (catch), "4" (then). "4" resolves → schedules "5". Process: "5". Note: "2" never runs because the promise rejected.</p>
+</details>
+</div>
+
+<!-- Drill 14 -->
+<div class="output-drill">
+<h4>Drill 14: return vs return await</h4>
+<pre><code>async function noAwait() {
+  try {
+    return Promise.reject("error");
+  } catch (e) {
+    console.log("caught in noAwait:", e);
+  }
+}
+
+async function withAwait() {
+  try {
+    return await Promise.reject("error");
+  } catch (e) {
+    console.log("caught in withAwait:", e);
+  }
+}
+
+noAwait().catch((e) =&gt; console.log("outer catch:", e));
+withAwait().then(() =&gt; console.log("withAwait resolved"));</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> caught in withAwait: error, outer catch: error, withAwait resolved</p>
+<p><strong>Trace:</strong> noAwait: return Promise.reject("error") — the rejection is NOT awaited, so try/catch doesn't see it. The rejected promise propagates to the caller. withAwait: return await Promise.reject("error") — the await unwraps the rejection, catch DOES fire. KEY LESSON: Always use "return await" inside try/catch to catch rejections!</p>
+</details>
+</div>
+
+<!-- Drill 15 -->
+<div class="output-drill">
+<h4>Drill 15: The Ultimate Challenge</h4>
+<pre><code>console.log("1");
+
+setTimeout(() =&gt; console.log("2"));
+
+new Promise((resolve) =&gt; {
+  console.log("3");
+  resolve();
+}).then(() =&gt; {
+  console.log("4");
+  setTimeout(() =&gt; console.log("5"));
+  return new Promise((resolve) =&gt; {
+    console.log("6");
+    resolve();
+  }).then(() =&gt; console.log("7"));
+}).then(() =&gt; console.log("8"));
+
+setTimeout(() =&gt; {
+  console.log("9");
+  Promise.resolve().then(() =&gt; console.log("10"));
+});
+
+console.log("11");</code></pre>
+<details class="answer"><summary>Click to reveal answer</summary>
+<p><strong>Output:</strong> 1, 3, 11, 4, 6, 7, 8, 2, 9, 10, 5</p>
+<p><strong>Trace:</strong></p>
+<ul>
+  <li>Sync: "1", schedule T1("2"). Promise executor: "3", resolve. Schedule T2("9"). "11".</li>
+  <li>Microtask round 1: First .then: "4", schedule T3("5"). Inner Promise executor: "6", resolve. Inner .then schedules "7".</li>
+  <li>Microtask round 2 (inner .then resolves): "7". First .then chain resolves → schedules "8".</li>
+  <li>Microtask round 3: "8".</li>
+  <li>Macrotask T1: "2".</li>
+  <li>Macrotask T2: "9", schedule microtask "10". Drain microtasks: "10".</li>
+  <li>Macrotask T3: "5".</li>
+</ul>
+</details>
+</div>
+
+<div class="exercise">
+<h4>🏋️ Practice Strategy</h4>
+<ol>
+  <li>Cover the answers, trace through each drill on paper</li>
+  <li>Draw two columns: "Microtask Queue" and "Macrotask Queue"</li>
+  <li>After sync code finishes, process microtasks until empty, then take ONE macrotask</li>
+  <li>After each macrotask, drain microtasks again</li>
+  <li>Time yourself: you should solve each in under 60 seconds in interviews</li>
+</ol>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase5-async-event-loop.html">← Phase 5: Main File</a>
+  <a href="phase5B-interview-qa-nodejs.html">Phase 5B: Interview Q&A & Node.js →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

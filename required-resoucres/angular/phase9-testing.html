@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 9: Testing in Angular</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 9: Testing in Angular</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (9 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Unit Testing</span>
+    <span class="pill">Component Testing</span>
+    <span class="pill">Service Testing</span>
+    <span class="pill">Mocking & Spies</span>
+    <span class="pill">TestBed</span>
+    <span class="pill">Integration Tests</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Testing Pyramid in Angular</h2>
+
+<pre><code>// Testing pyramid:
+//          /\
+//         /  \  E2E (Cypress/Playwright) — few, slow, expensive
+//        /    \
+//       /------\  Integration (TestBed + DOM) — moderate
+//      /        \
+//     /----------\  Unit Tests (isolated, no DOM) — many, fast, cheap
+//    /____________\
+
+// Tools:
+// - Jasmine: Test framework (describe, it, expect)
+// - Karma: Test runner (executes in browser) — being replaced by:
+// - Jest: Alternative test runner (faster, jsdom)
+// - Angular Testing Library: Component testing utilities
+// - Cypress/Playwright: E2E testing</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. Service Testing (Unit Tests)</h2>
+
+<pre><code>// Pure service test — no TestBed needed for simple services
+describe('CalculatorService', () => {
+  let service: CalculatorService;
+
+  beforeEach(() => {
+    service = new CalculatorService();
+  });
+
+  it('should add two numbers', () => {
+    expect(service.add(2, 3)).toBe(5);
+  });
+
+  it('should handle negative numbers', () => {
+    expect(service.add(-1, -2)).toBe(-3);
+  });
+});
+
+// Service with dependencies — mock the deps
+describe('UserService', () => {
+  let service: UserService;
+  let httpMock: jest.Mocked&lt;HttpClient&gt;;
+
+  beforeEach(() => {
+    httpMock = {
+      get: jest.fn(),
+      post: jest.fn(),
+      put: jest.fn(),
+      delete: jest.fn()
+    } as any;
+
+    TestBed.configureTestingModule({
+      providers: [
+        UserService,
+        { provide: HttpClient, useValue: httpMock }
+      ]
+    });
+    service = TestBed.inject(UserService);
+  });
+
+  it('should fetch users', () => {
+    const mockUsers: User[] = [
+      { id: '1', name: 'Alice', email: 'alice@test.com' }
+    ];
+    httpMock.get.mockReturnValue(of(mockUsers));
+
+    service.getUsers().subscribe(users => {
+      expect(users).toEqual(mockUsers);
+      expect(users.length).toBe(1);
+    });
+
+    expect(httpMock.get).toHaveBeenCalledWith('/api/users');
+  });
+
+  it('should handle errors', () => {
+    httpMock.get.mockReturnValue(throwError(() => new Error('Server error')));
+
+    service.getUsers().subscribe({
+      error: err => expect(err.message).toBe('Server error')
+    });
+  });
+});
+
+// Testing with HttpClientTestingModule (Angular's built-in)
+describe('UserService with HttpTestingController', () => {
+  let service: UserService;
+  let httpTestingController: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        UserService,
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
+    });
+    service = TestBed.inject(UserService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTestingController.verify();  // Ensure no outstanding requests
+  });
+
+  it('should GET users', () => {
+    const mockUsers = [{ id: '1', name: 'Test' }];
+
+    service.getUsers().subscribe(users => {
+      expect(users).toEqual(mockUsers);
+    });
+
+    const req = httpTestingController.expectOne('/api/users');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockUsers);  // Respond with mock data
+  });
+
+  it('should POST new user', () => {
+    const newUser = { name: 'Alice', email: 'alice@test.com' };
+
+    service.createUser(newUser).subscribe(user => {
+      expect(user.id).toBeDefined();
+    });
+
+    const req = httpTestingController.expectOne('/api/users');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(newUser);
+    req.flush({ ...newUser, id: '123' });
+  });
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. Component Testing</h2>
+
+<pre><code>describe('UserCardComponent', () => {
+  let component: UserCardComponent;
+  let fixture: ComponentFixture&lt;UserCardComponent&gt;;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [UserCardComponent]  // Standalone component
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(UserCardComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should display user name', () => {
+    component.user = { id: '1', name: 'Alice', email: 'alice@test.com' };
+    fixture.detectChanges();  // Trigger change detection
+
+    const el = fixture.nativeElement;
+    expect(el.querySelector('h2').textContent).toContain('Alice');
+  });
+
+  it('should emit selected event on click', () => {
+    component.user = { id: '1', name: 'Alice', email: 'alice@test.com' };
+    fixture.detectChanges();
+
+    jest.spyOn(component.selected, 'emit');
+    
+    const button = fixture.nativeElement.querySelector('.select-btn');
+    button.click();
+
+    expect(component.selected.emit).toHaveBeenCalledWith(component.user);
+  });
+
+  it('should show loading state', () => {
+    component.loading = true;
+    fixture.detectChanges();
+
+    const spinner = fixture.nativeElement.querySelector('app-spinner');
+    expect(spinner).toBeTruthy();
+  });
+});
+
+// Testing with mocked child components
+describe('ParentComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ParentComponent],
+      // Override child component with a stub
+    })
+    .overrideComponent(ParentComponent, {
+      remove: { imports: [HeavyChartComponent] },
+      add: { imports: [MockChartComponent] }  // Lightweight mock
+    })
+    .compileComponents();
+  });
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>4. Testing Observables & Async</h2>
+
+<pre><code>// fakeAsync + tick — control time in tests
+it('should debounce search', fakeAsync(() => {
+  const searchSpy = jest.spyOn(component, 'performSearch');
+  
+  component.searchControl.setValue('ang');
+  tick(100);  // Only 100ms passed
+  expect(searchSpy).not.toHaveBeenCalled();
+
+  tick(200);  // Now 300ms total (debounce complete)
+  expect(searchSpy).toHaveBeenCalledWith('ang');
+}));
+
+// waitForAsync — for real async (Promises)
+it('should load data on init', waitForAsync(() => {
+  fixture.detectChanges();  // Triggers ngOnInit
+
+  fixture.whenStable().then(() => {
+    fixture.detectChanges();
+    expect(component.data.length).toBeGreaterThan(0);
+  });
+}));
+
+// Testing observables directly
+it('should emit filtered results', (done) => {
+  service.search('angular').subscribe(results => {
+    expect(results.length).toBe(3);
+    expect(results[0].title).toContain('Angular');
+    done();
+  });
+});
+
+// Testing with marbles (for complex observable chains)
+import { TestScheduler } from 'rxjs/testing';
+
+it('should debounce and switchMap', () => {
+  const scheduler = new TestScheduler((actual, expected) => {
+    expect(actual).toEqual(expected);
+  });
+
+  scheduler.run(({ cold, expectObservable }) => {
+    const input = cold('  a-b-c---|');
+    const expected = '    ------c-|';
+    const result = input.pipe(debounceTime(3, scheduler));
+    expectObservable(result).toBe(expected);
+  });
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>5. Testing Pipes, Directives, Guards</h2>
+
+<pre><code>// Pipe testing (simplest — no TestBed)
+describe('TruncatePipe', () => {
+  const pipe = new TruncatePipe();
+
+  it('should truncate long strings', () => {
+    expect(pipe.transform('Hello World', 5)).toBe('Hello...');
+  });
+
+  it('should not truncate short strings', () => {
+    expect(pipe.transform('Hi', 5)).toBe('Hi');
+  });
+
+  it('should handle empty strings', () => {
+    expect(pipe.transform('', 5)).toBe('');
+  });
+});
+
+// Guard testing
+describe('authGuard', () => {
+  let authService: jest.Mocked&lt;AuthService&gt;;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: { isAuthenticated: jest.fn() } }
+      ]
+    });
+    authService = TestBed.inject(AuthService) as jest.Mocked&lt;AuthService&gt;;
+  });
+
+  it('should allow access when authenticated', () => {
+    authService.isAuthenticated.mockReturnValue(true);
+    
+    const result = TestBed.runInInjectionContext(() => 
+      authGuard({} as any, {} as any)
+    );
+    
+    expect(result).toBe(true);
+  });
+
+  it('should redirect to login when not authenticated', () => {
+    authService.isAuthenticated.mockReturnValue(false);
+    
+    const result = TestBed.runInInjectionContext(() => 
+      authGuard({} as any, { url: '/dashboard' } as any)
+    );
+    
+    expect(result).toBeInstanceOf(UrlTree);
+  });
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>6. Marble Testing — Deep Dive</h2>
+
+<p>Marble testing allows testing time-based RxJS logic without actual waiting. The TestScheduler virtualizes time.</p>
+
+<h3>Marble Syntax Reference</h3>
+<table>
+  <tr><th>Symbol</th><th>Meaning</th></tr>
+  <tr><td><code>-</code></td><td>1 frame of virtual time (1ms in TestScheduler.run)</td></tr>
+  <tr><td><code>a-z, 0-9</code></td><td>Emission (value from values map)</td></tr>
+  <tr><td><code>|</code></td><td>Observable completes</td></tr>
+  <tr><td><code>#</code></td><td>Observable errors</td></tr>
+  <tr><td><code>(abc)</code></td><td>Synchronous emissions (same frame)</td></tr>
+  <tr><td><code>^</code></td><td>Subscription point (hot observables)</td></tr>
+  <tr><td><code>!</code></td><td>Unsubscription point</td></tr>
+  <tr><td><code>10ms a</code></td><td>Time progression (10ms then emit a)</td></tr>
+</table>
+
+<h3>Testing a debounced search service</h3>
+<pre><code>import { TestScheduler } from 'rxjs/testing';
+
+describe('SearchService', () => {
+  let scheduler: TestScheduler;
+
+  beforeEach(() => {
+    scheduler = new TestScheduler((actual, expected) => {
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  it('should debounce search input by 300ms', () => {
+    scheduler.run(({ cold, expectObservable }) => {
+      const input$  = cold('a-b-c---------|');
+      const values = { a: 'A', b: 'An', c: 'Ang' };
+      
+      const result$ = input$.pipe(
+        debounceTime(3)  // 3 frames in test
+      );
+
+      // a at 0, debounce 3: would emit at 3 but b arrives at 2
+      // b at 2, debounce 3: would emit at 5 but c arrives at 4
+      // c at 4, debounce 3: emits at 7
+      expectObservable(result$).toBe('-------c------|', values);
+    });
+  });
+
+  it('should cancel in-flight search with switchMap', () => {
+    scheduler.run(({ cold, hot, expectObservable }) => {
+      const search$ = hot('--a------b----|');
+      const apiA    = cold('  ---x|');
+      const apiB    = cold('         --y|');
+      
+      let callCount = 0;
+      const result$ = search$.pipe(
+        switchMap(term => {
+          callCount++;
+          return callCount === 1 ? apiA : apiB;
+        })
+      );
+
+      expectObservable(result$).toBe('-----------y--|');
+    });
+  });
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>7. Component Testing — Advanced Patterns</h2>
+
+<h3>Testing OnPush Components</h3>
+<pre><code>it('should update when input reference changes (OnPush)', () => {
+  const fixture = TestBed.createComponent(OnPushChildComponent);
+  
+  fixture.componentRef.setInput('items', [{ id: 1, name: 'A' }]);
+  fixture.detectChanges();
+  expect(fixture.nativeElement.textContent).toContain('A');
+  
+  // Mutation WON'T update (OnPush!):
+  fixture.componentInstance.items.push({ id: 2, name: 'B' });
+  fixture.detectChanges();
+  expect(fixture.nativeElement.textContent).not.toContain('B');
+  
+  // New reference WILL update:
+  fixture.componentRef.setInput('items', [...fixture.componentInstance.items]);
+  fixture.detectChanges();
+  expect(fixture.nativeElement.textContent).toContain('B');
+});
+
+// Testing signal-based components:
+it('should react to signal changes', () => {
+  const fixture = TestBed.createComponent(SignalComponent);
+  fixture.detectChanges();
+  
+  fixture.componentInstance.count.set(5);
+  fixture.detectChanges();
+  
+  expect(fixture.nativeElement.querySelector('.count').textContent).toBe('5');
+});</code></pre>
+
+<h3>Testing with Angular Testing Library</h3>
+<pre><code>import { render, screen, fireEvent } from '@testing-library/angular';
+
+it('should show search results', async () => {
+  await render(SearchComponent, {
+    imports: [HttpClientTestingModule],
+    providers: [{ provide: SearchService, useValue: mockSearchService }]
+  });
+  
+  const input = screen.getByRole('searchbox');
+  fireEvent.input(input, { target: { value: 'angular' } });
+  
+  const results = await screen.findAllByRole('listitem');
+  expect(results.length).toBe(3);
+  expect(screen.getByText('Angular Tutorial')).toBeTruthy();
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>8. Testing Best Practices</h2>
+
+<div class="callout">
+<strong>Key Principles:</strong>
+<ul>
+  <li><strong>Test behavior, not implementation</strong> — Test what the component does, not how</li>
+  <li><strong>Arrange-Act-Assert</strong> — Setup → Execute → Verify</li>
+  <li><strong>One assertion per test</strong> (ideally) — Easy to identify failures</li>
+  <li><strong>Mock external dependencies</strong> — Don't test Angular/RxJS, test YOUR code</li>
+  <li><strong>Use fixture.detectChanges() explicitly</strong> — Control when CD runs</li>
+  <li><strong>Test the DOM for components</strong> — Users interact with DOM, not properties</li>
+  <li><strong>Prefer testing-library or spectator</strong> — Less boilerplate than raw TestBed</li>
+  <li><strong>Use marble testing for time-dependent logic</strong> — Debounce, retry, polling</li>
+</ul>
+</div>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 9</h4>
+<ol>
+  <li>What is TestBed? How does it work?</li>
+  <li>How do you test a service that makes HTTP calls?</li>
+  <li>What's the difference between fakeAsync/tick and waitForAsync?</li>
+  <li>Explain marble testing syntax — what does <code>--a--(b|)</code> mean?</li>
+  <li>How do you test OnPush components? → New input reference or trigger event</li>
+  <li>How do you test observable-based services?</li>
+  <li>What is fixture.detectChanges()? When should you call it?</li>
+  <li>How do you test route guards?</li>
+  <li>What is cold() vs hot() in marble testing? → cold starts fresh; hot has subscription point (^)</li>
+  <li>How would you test a debounced search? → TestScheduler virtualizes time</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase8-state-management.html">← Phase 8: State Management</a>
+  <a href="phase10-advanced-patterns.html">Phase 10: Advanced Patterns →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker Interview Questions — Backend &amp; Full-Stack Engineers (Part 2)</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 17pt; margin-top: 30px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 12.5pt; margin-top: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; margin-left: 6px; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .qa { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 0 0 14px; background: #fffefb; }
+    .qa .q { font-family: "Avenir Next", sans-serif; font-weight: 700; margin-bottom: 6px; }
+    .qa .a { margin: 0; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Docker Interview Questions</h1>
+  <p class="subtitle">Part 2 — Backend &amp; Full-Stack Rounds (Theory + Scenario-Based, NOT DevOps/SRE cluster-admin questions)</p>
+  <div class="pill-row">
+    <span class="pill">Fundamentals</span>
+    <span class="pill">Dockerfile</span>
+    <span class="pill">Volumes</span>
+    <span class="pill">Networking</span>
+    <span class="pill">Compose</span>
+    <span class="pill">Security Basics</span>
+    <span class="pill">Debugging Scenarios</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>How to use this:</strong> Each answer is written the way you should say it out loud in an interview — concise first, with a one-line "why" if pushed for depth. Companion theory file: <a href="docker-phase1-fundamentals-theory.html">Docker Part 1 — Fundamentals</a>.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#core-concepts">Core Concepts</a></li>
+    <li><a href="#dockerfile-images">Dockerfile &amp; Images</a></li>
+    <li><a href="#volumes-data">Volumes &amp; Data Persistence</a></li>
+    <li><a href="#networking-q">Networking</a></li>
+    <li><a href="#compose-q">Docker Compose</a></li>
+    <li><a href="#security-q">Security Basics</a></li>
+    <li><a href="#scenario">Scenario-Based / Debugging</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="core-concepts">1. Core Concepts</h2>
+
+<div class="qa">
+  <p class="q">Q1. What is the difference between an image and a container? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">An image is an immutable, read-only template (layered filesystem + metadata). A container is a running instance of an image with its own writable layer and process namespace. One image → many independent containers.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q2. Is Docker a lightweight VM? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">No. Containers share the host kernel and are isolated via Linux namespaces (PID/NET/MNT/etc.) and cgroups (resource limits) — there's no separate guest kernel like a VM has, which is why containers start in milliseconds and are much smaller.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q3. What happens to the container's filesystem when it stops vs when it's removed? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Stopping preserves the container and its writable layer (you can restart it, data is still there). Removing (<code>docker rm</code>) deletes the writable layer permanently — any data not in a volume/bind mount is gone.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q4. What is the union/overlay filesystem and why does Docker use it? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">It stacks multiple read-only image layers plus one writable container layer on top, presenting them as a single merged filesystem view. This lets images share common base layers (saving disk/network) while each container still sees an independent writable surface (copy-on-write).</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="dockerfile-images">2. Dockerfile &amp; Images</h2>
+
+<div class="qa">
+  <p class="q">Q5. CMD vs ENTRYPOINT — what's the difference and when would you use both together? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">ENTRYPOINT is the fixed executable that always runs; CMD supplies default arguments that a caller CAN override at <code>docker run</code>. Using both (<code>ENTRYPOINT ["./main"]</code> + <code>CMD ["--port=8080"]</code>) gives you a fixed binary with overridable default flags — the most common real-world pattern.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q6. COPY vs ADD — which should you prefer and why? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">Prefer COPY for local files — it's explicit and predictable. ADD has "magic" behavior (auto-extracts tar archives, can fetch remote URLs) that makes builds less predictable and is a common source of bugs/security issues; only use ADD when you specifically need its extraction behavior.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q7. What is a multi-stage build and why use it? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">It lets you use a heavy "builder" stage (with compilers/toolchain) to produce an artifact, then COPY only that artifact into a slim final stage. Result: smaller final image, no build tools/source code shipped to production, smaller attack surface.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q8. How does Docker layer caching work, and how do you write a Dockerfile to take advantage of it? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Each instruction produces a layer; if an instruction and everything before it is unchanged (same instruction text + same input files' checksums), Docker reuses the cached layer instead of re-executing. Order instructions from least-frequently-changing to most-frequently-changing — e.g. copy <code>package.json</code>/<code>go.mod</code> and install deps BEFORE copying the rest of the source, so dependency installation is cached across most code edits.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q9. How would you reduce the size of a production Docker image? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Use a small/minimal base image (alpine, distroless), multi-stage builds to drop build tools, combine RUN commands to reduce layer count where it matters, add a proper <code>.dockerignore</code>, and avoid installing unnecessary packages (no <code>-dev</code> tools in the final stage).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q10. What's the purpose of <code>.dockerignore</code>? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">It excludes files/dirs from the build context sent to the Docker daemon (e.g. <code>node_modules</code>, <code>.git</code>, <code>.env</code>) — speeds up builds, avoids accidentally baking secrets or huge irrelevant folders into layers.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q11. What's the difference between <code>ENV</code> and <code>ARG</code> in a Dockerfile? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a"><code>ARG</code> is only available during the build (e.g. to parametrize a version number) and is NOT present in the running container unless you also assign it to an ENV. <code>ENV</code> is baked into the image and persists into the running container, visible via <code>docker inspect</code>.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="volumes-data">3. Volumes &amp; Data Persistence</h2>
+
+<div class="qa">
+  <p class="q">Q12. Volumes vs bind mounts — what's the difference? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">A volume is managed entirely by Docker (stored under Docker's own directory) — portable, backup-friendly, ideal for persistent app data like a database. A bind mount maps an arbitrary host path directly into the container — typically used in local dev to live-mount your source code.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q13. If you don't mount a volume for your database container, what happens to the data when the container is removed? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">It's permanently lost — the writable layer that held it is deleted with the container. This is the classic "why did my local Mongo lose all its data" bug.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q14. When would you use tmpfs instead of a volume? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">When data is sensitive and short-lived and should never be written to disk at all (e.g. a decrypted secret used only during process runtime) — tmpfs lives purely in host RAM and disappears when the container stops.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="networking-q">4. Networking</h2>
+
+<div class="qa">
+  <p class="q">Q15. Explain <code>-p 8080:80</code>. <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">Maps host port 8080 to container port 80 — traffic hitting the host on 8080 is forwarded into the container's port 80. Format is <code>host:container</code>.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q16. Can two containers on the default bridge network reach each other by container name? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">No — the default bridge network doesn't provide automatic DNS resolution by name (only by IP). You need a user-defined bridge network (or Docker Compose, which creates one automatically per project) to resolve other containers by name.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q17. Your app binds to <code>127.0.0.1</code> inside the container instead of <code>0.0.0.0</code> — what breaks? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a"><code>127.0.0.1</code> only accepts connections from within the same network namespace (i.e. only from inside that exact container). Even with <code>-p</code> port mapping, external traffic (and other containers) can't reach it, because from the container's perspective the request doesn't originate from localhost. The app must bind to <code>0.0.0.0</code> (all interfaces) to be reachable.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="compose-q">5. Docker Compose</h2>
+
+<div class="qa">
+  <p class="q">Q18. Does <code>depends_on</code> guarantee the dependency service is ready to accept connections? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">No — it only guarantees start ORDER of containers, not application readiness. E.g. a Mongo container might be "started" but not yet accepting connections. Use a <code>healthcheck</code> + <code>condition: service_healthy</code>, or retry/backoff logic in your app's DB connection code.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q19. How would you run the same Compose stack with different environment values for local dev vs a shared dev environment? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Use an override file (e.g. <code>docker-compose.override.yml</code>, merged automatically) or multiple <code>-f</code> files (<code>docker compose -f docker-compose.yml -f docker-compose.dev.yml up</code>), combined with <code>.env</code> files for variable substitution.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="security-q">6. Security Basics</h2>
+
+<div class="qa">
+  <p class="q">Q20. Why should containers run as a non-root user? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">If an attacker exploits the app process and it's running as root inside the container, a container-escape vulnerability could grant root on the host. Adding a dedicated <code>USER</code> in the Dockerfile limits the blast radius even though it doesn't eliminate escape risk entirely.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q21. Why shouldn't you put secrets in an <code>ENV</code> instruction in a Dockerfile? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Anything set via <code>ENV</code> (or a build ARG that leaks into a layer) is baked into the image and visible to anyone who can pull/inspect it or view its layer history — secrets should be injected at runtime (env var at <code>docker run</code>/Compose, or better, a mounted secret file) rather than baked into the image itself.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q22. What's the risk of using the <code>latest</code> tag in production? <span class="difficulty d-easy">EASY</span></p>
+  <p class="a">It's mutable and non-reproducible — the same tag can point to different content over time, making rollbacks and debugging inconsistent behavior across environments much harder. Pin explicit versions/digests in production.</p>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="scenario">7. Scenario-Based / Debugging</h2>
+
+<div class="qa">
+  <p class="q">Q23. Your container exits immediately with code 0 right after starting — what do you check? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">Check whether the main process (PID 1) actually blocks/runs forever — a common bug is CMD/ENTRYPOINT running a script that spawns a background process and then exits itself, so Docker sees the foreground process finish and stops the container. Fix by making the long-running process itself PID 1 (or using <code>exec</code> in a shell script, or a minimal init like <code>tini</code>).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q24. Your container keeps exiting with code 137 — what does that mean and how do you confirm the cause? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">137 = 128 + 9 (SIGKILL) — very commonly caused by the OOM killer terminating the process because it exceeded a memory limit. Confirm via <code>docker inspect</code> (<code>OOMKilled: true</code>) and check/raise memory limits or fix a memory leak.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q25. How do you debug a container that keeps restarting so fast you can't <code>exec</code> into it? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">Override the entrypoint to drop into a shell instead of running the normal command: <code>docker run -it --entrypoint sh myimage</code>. This lets you inspect the filesystem/env/config without the crash loop, then manually run the original command to see the actual error.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q26. How would you containerize a Go backend service and an Angular frontend differently, and why? <span class="difficulty d-medium">MEDIUM</span></p>
+  <p class="a">Go compiles to a single static binary — final image can be a minimal/distroless base with just that binary (no runtime needed). Angular builds to static HTML/JS/CSS — final image typically uses a lightweight web server (nginx/alpine) to serve the compiled <code>dist/</code> output; neither ships Node.js or the Go toolchain in the final image (multi-stage build for both).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Q27. How do you pass build-time configuration (e.g. an API base URL baked into a frontend bundle) without hardcoding it in source? <span class="difficulty d-hard">HARD</span></p>
+  <p class="a">Use a Dockerfile <code>ARG</code> passed via <code>--build-arg</code> at build time (e.g. <code>docker build --build-arg API_URL=https://... .</code>), consumed by the build step (e.g. an Angular environment file generated at build time) — keeping the same Dockerfile reusable across environments without editing source.</p>
+</div>
+
+<div class="nav-links">
+  <a href="docker-phase1-fundamentals-theory.html">← Docker Part 1 — Fundamentals</a>
+  <a href="docker-commands-cheatsheet.html">Docker Commands Cheatsheet →</a>
+</div>
+
+</main>
+</body>
+</html>

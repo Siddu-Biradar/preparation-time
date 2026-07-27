@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Mastery — Machine Coding Part 7: Production-Scale Challenges</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Machine Coding Part 7: Production-Scale Challenges</h1>
+  <p class="subtitle">JavaScript Mastery — Commonly asked at Netflix, Meta, Google, Uber (Staff+ Level)</p>
+  <div class="pill-row">
+    <span class="pill">Virtual Scroll 10K+ rows</span>
+    <span class="pill">Optimistic UI</span>
+    <span class="pill">Request Deduplication</span>
+    <span class="pill">Safe Expression Parser</span>
+    <span class="pill">Undo/Redo with CRDT</span>
+    <span class="pill">Intersection-based Lazy</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#virtual-scroll">Virtual Scroll (Variable Height, 100K rows)</a></li>
+    <li><a href="#optimistic-ui">Optimistic UI Updates with Rollback</a></li>
+    <li><a href="#request-dedup">Request Deduplication & Coalescing</a></li>
+    <li><a href="#expression-parser">Safe Expression Parser (No eval/Function)</a></li>
+    <li><a href="#collaborative-text">Collaborative Text Editor (OT-based)</a></li>
+    <li><a href="#scheduler">Task Scheduler with Priority & Time-Slicing</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="virtual-scroll">1. Virtual Scroll (Variable Height, 100K rows)</h2>
+<span class="difficulty d-expert">EXPERT</span>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>Asked at:</strong> Google (Frontend Infrastructure), Meta (Marketplace), Uber (Driver Dashboard).<br>
+<strong>Why:</strong> Rendering 100K DOM nodes crashes the browser. You MUST virtualize.
+</div>
+
+<pre><code>// ═══ Variable-Height Virtual List ═══
+// Handles items with UNKNOWN heights (measured dynamically)
+class VirtualList {
+  constructor(container, { estimatedItemHeight = 50, overscan = 5, getItemCount, renderItem }) {
+    this.container = container;
+    this.estimatedHeight = estimatedItemHeight;
+    this.overscan = overscan;
+    this.getItemCount = getItemCount;
+    this.renderItem = renderItem;
+    
+    // Height cache: measured heights of rendered items
+    this.heightCache = new Map();
+    // Position cache: cumulative offset positions
+    this.positionCache = [];
+    
+    this.scrollTop = 0;
+    this.containerHeight = container.clientHeight;
+    
+    this.setup();
+  }
+
+  setup() {
+    // Create DOM structure
+    this.container.style.overflow = 'auto';
+    this.container.style.position = 'relative';
+    
+    // Spacer element (total scrollable height)
+    this.spacer = document.createElement('div');
+    this.spacer.style.width = '100%';
+    this.container.appendChild(this.spacer);
+    
+    // Content container (positioned items)
+    this.content = document.createElement('div');
+    this.content.style.position = 'absolute';
+    this.content.style.top = '0';
+    this.content.style.left = '0';
+    this.content.style.width = '100%';
+    this.container.appendChild(this.content);
+    
+    // Scroll handler with rAF debounce
+    let ticking = false;
+    this.container.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          this.scrollTop = this.container.scrollTop;
+          this.render();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+    
+    // ResizeObserver for container size changes
+    this.resizeObserver = new ResizeObserver(entries => {
+      this.containerHeight = entries[0].contentRect.height;
+      this.render();
+    });
+    this.resizeObserver.observe(this.container);
+    
+    // Initial render
+    this.buildPositionCache();
+    this.render();
+  }
+
+  buildPositionCache() {
+    const count = this.getItemCount();
+    this.positionCache = new Array(count);
+    let offset = 0;
+    
+    for (let i = 0; i < count; i++) {
+      const height = this.heightCache.get(i) || this.estimatedHeight;
+      this.positionCache[i] = { offset, height };
+      offset += height;
+    }
+    
+    this.totalHeight = offset;
+    this.spacer.style.height = `${this.totalHeight}px`;
+  }
+
+  // Binary search for first visible item
+  findStartIndex(scrollTop) {
+    let low = 0;
+    let high = this.positionCache.length - 1;
+    
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const pos = this.positionCache[mid];
+      
+      if (pos.offset + pos.height <= scrollTop) {
+        low = mid + 1;
+      } else if (pos.offset > scrollTop) {
+        high = mid - 1;
+      } else {
+        return mid;
+      }
+    }
+    return low;
+  }
+
+  getVisibleRange() {
+    const startIndex = Math.max(0, this.findStartIndex(this.scrollTop) - this.overscan);
+    
+    let endIndex = startIndex;
+    let offset = this.positionCache[startIndex]?.offset || 0;
+    const viewEnd = this.scrollTop + this.containerHeight;
+    
+    while (endIndex < this.getItemCount() && offset < viewEnd + this.overscan * this.estimatedHeight) {
+      offset += this.positionCache[endIndex]?.height || this.estimatedHeight;
+      endIndex++;
+    }
+    
+    return { startIndex, endIndex: Math.min(endIndex, this.getItemCount()) };
+  }
+
+  render() {
+    const { startIndex, endIndex } = this.getVisibleRange();
+    
+    // Clear and re-render visible items
+    this.content.innerHTML = '';
+    
+    for (let i = startIndex; i < endIndex; i++) {
+      const item = this.renderItem(i);
+      item.style.position = 'absolute';
+      item.style.top = `${this.positionCache[i].offset}px`;
+      item.style.width = '100%';
+      item.dataset.index = i;
+      
+      this.content.appendChild(item);
+    }
+    
+    // Measure actual heights (post-render)
+    requestAnimationFrame(() => this.measureHeights());
+  }
+
+  measureHeights() {
+    let needsRebuild = false;
+    
+    for (const child of this.content.children) {
+      const index = parseInt(child.dataset.index);
+      const measuredHeight = child.getBoundingClientRect().height;
+      const cachedHeight = this.heightCache.get(index);
+      
+      if (cachedHeight !== measuredHeight) {
+        this.heightCache.set(index, measuredHeight);
+        needsRebuild = true;
+      }
+    }
+    
+    if (needsRebuild) {
+      this.buildPositionCache();
+      // Re-position items with corrected offsets
+      for (const child of this.content.children) {
+        const index = parseInt(child.dataset.index);
+        child.style.top = `${this.positionCache[index].offset}px`;
+      }
+    }
+  }
+
+  // Scroll to specific item
+  scrollToIndex(index, align = 'start') {
+    const pos = this.positionCache[index];
+    if (!pos) return;
+    
+    let scrollTop;
+    switch (align) {
+      case 'start': scrollTop = pos.offset; break;
+      case 'center': scrollTop = pos.offset - (this.containerHeight - pos.height) / 2; break;
+      case 'end': scrollTop = pos.offset - this.containerHeight + pos.height; break;
+    }
+    this.container.scrollTop = Math.max(0, scrollTop);
+  }
+
+  // Update when data changes
+  refresh() {
+    this.buildPositionCache();
+    this.render();
+  }
+
+  destroy() {
+    this.resizeObserver.disconnect();
+  }
+}
+
+// ═══ Usage ═══
+const data = Array.from({ length: 100000 }, (_, i) => ({
+  id: i,
+  text: `Item ${i} — ${'Lorem ipsum '.repeat(Math.floor(Math.random() * 5 + 1))}`,
+}));
+
+const list = new VirtualList(document.getElementById('list-container'), {
+  estimatedItemHeight: 60,
+  overscan: 10,
+  getItemCount: () => data.length,
+  renderItem: (index) => {
+    const el = document.createElement('div');
+    el.className = 'list-item';
+    el.textContent = data[index].text;
+    el.style.padding = '12px';
+    el.style.borderBottom = '1px solid #eee';
+    return el;
+  }
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="optimistic-ui">2. Optimistic UI Updates with Rollback</h2>
+<span class="difficulty d-hard">HARD</span>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>Asked at:</strong> Meta (Newsfeed likes/comments), Uber (ride acceptance), Slack (message sending).<br>
+<strong>Why:</strong> Users expect instant response. Don't wait for API to confirm — update UI immediately, rollback on failure.
+</div>
+
+<pre><code>// ═══ Optimistic Update Manager ═══
+class OptimisticUpdateManager {
+  constructor() {
+    this.pendingUpdates = new Map(); // id → { optimisticState, rollbackFn, retries }
+    this.state = {};
+    this.listeners = new Set();
+  }
+
+  getState() { return this.state; }
+  
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  notify() { this.listeners.forEach(l => l(this.state)); }
+
+  // Perform optimistic update
+  async optimistic({ id, optimisticUpdate, apiCall, rollback, maxRetries = 2 }) {
+    const previousState = structuredClone(this.state);
+    const updateId = id || crypto.randomUUID();
+    
+    // Step 1: Apply optimistic update IMMEDIATELY
+    this.state = optimisticUpdate(this.state);
+    this.notify();
+    
+    // Track pending update
+    this.pendingUpdates.set(updateId, {
+      previousState,
+      rollback: rollback || (() => previousState),
+      retries: 0,
+      maxRetries
+    });
+
+    // Step 2: Execute API call in background
+    try {
+      const serverResult = await apiCall();
+      
+      // Step 3a: Success — reconcile with server response
+      this.pendingUpdates.delete(updateId);
+      
+      // If server returns different data, merge it
+      if (serverResult) {
+        this.state = this.reconcile(this.state, serverResult);
+        this.notify();
+      }
+      
+      return { success: true, data: serverResult };
+    } catch (error) {
+      const pending = this.pendingUpdates.get(updateId);
+      
+      if (pending && pending.retries < pending.maxRetries) {
+        // Retry
+        pending.retries++;
+        return this.retryUpdate(updateId, apiCall);
+      }
+      
+      // Step 3b: Failure — ROLLBACK
+      this.state = pending.rollback(this.state, previousState);
+      this.pendingUpdates.delete(updateId);
+      this.notify();
+      
+      return { success: false, error, rolledBack: true };
+    }
+  }
+
+  async retryUpdate(updateId, apiCall) {
+    await new Promise(r => setTimeout(r, 1000)); // Wait before retry
+    try {
+      const result = await apiCall();
+      this.pendingUpdates.delete(updateId);
+      return { success: true, data: result };
+    } catch (error) {
+      const pending = this.pendingUpdates.get(updateId);
+      if (pending.retries < pending.maxRetries) {
+        pending.retries++;
+        return this.retryUpdate(updateId, apiCall);
+      }
+      // Final failure → rollback
+      this.state = pending.previousState;
+      this.pendingUpdates.delete(updateId);
+      this.notify();
+      return { success: false, error, rolledBack: true };
+    }
+  }
+
+  reconcile(localState, serverState) {
+    // Default: server wins for confirmed fields
+    // Override this for custom merge logic
+    return { ...localState, ...serverState };
+  }
+
+  // Check if an entity has pending updates
+  isPending(id) { return this.pendingUpdates.has(id); }
+  
+  // Get all pending update IDs
+  getPendingIds() { return [...this.pendingUpdates.keys()]; }
+}
+
+// ═══ Real-World Usage: Like/Unlike a Post ═══
+const manager = new OptimisticUpdateManager();
+manager.state = {
+  posts: {
+    'post-1': { id: 'post-1', likes: 42, likedByMe: false },
+    'post-2': { id: 'post-2', likes: 10, likedByMe: true }
+  }
+};
+
+async function toggleLike(postId) {
+  const post = manager.getState().posts[postId];
+  const newLiked = !post.likedByMe;
+  
+  const result = await manager.optimistic({
+    id: `like-${postId}`,
+    
+    // Instant UI update
+    optimisticUpdate: (state) => ({
+      ...state,
+      posts: {
+        ...state.posts,
+        [postId]: {
+          ...state.posts[postId],
+          likedByMe: newLiked,
+          likes: state.posts[postId].likes + (newLiked ? 1 : -1)
+        }
+      }
+    }),
+    
+    // Background API call
+    apiCall: () => fetch(`/api/posts/${postId}/like`, {
+      method: newLiked ? 'POST' : 'DELETE'
+    }).then(r => {
+      if (!r.ok) throw new Error('Like failed');
+      return r.json();
+    }),
+    
+    // Explicit rollback (optional — default uses previousState)
+    rollback: (currentState, previousState) => ({
+      ...currentState,
+      posts: {
+        ...currentState.posts,
+        [postId]: previousState.posts[postId] // Revert just this post
+      }
+    })
+  });
+  
+  if (!result.success) {
+    showToast('Failed to update. Please try again.');
+  }
+}
+
+// UI shows like instantly, reverts if API fails</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="request-dedup">3. Request Deduplication & Coalescing</h2>
+<span class="difficulty d-hard">HARD</span>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>Asked at:</strong> Google, Meta, Netflix.<br>
+<strong>Why:</strong> Multiple components requesting same data simultaneously → only make ONE network call. This is how React Query / Apollo Client work internally.
+</div>
+
+<pre><code>// ═══ Request Deduplication (Inflight Coalescing) ═══
+class RequestDeduplicator {
+  constructor() {
+    this.inflight = new Map(); // key → Promise
+    this.cache = new Map(); // key → { data, timestamp }
+    this.defaultTTL = 30000; // 30 seconds
+  }
+
+  // Generate cache key from request config
+  getKey(url, options = {}) {
+    const method = options.method || 'GET';
+    const body = options.body ? JSON.stringify(options.body) : '';
+    return `${method}:${url}:${body}`;
+  }
+
+  async fetch(url, options = {}) {
+    const key = this.getKey(url, options);
+    const ttl = options._ttl || this.defaultTTL;
+    
+    // 1. Check cache (if GET request)
+    if (!options.method || options.method === 'GET') {
+      const cached = this.cache.get(key);
+      if (cached && Date.now() - cached.timestamp < ttl) {
+        return structuredClone(cached.data); // Return clone to prevent mutation
+      }
+    }
+    
+    // 2. Check if same request is already in-flight
+    if (this.inflight.has(key)) {
+      // Wait for existing request instead of making a duplicate
+      return this.inflight.get(key);
+    }
+    
+    // 3. Make the actual request
+    const promise = this.executeRequest(url, options, key);
+    this.inflight.set(key, promise);
+    
+    try {
+      const result = await promise;
+      return result;
+    } finally {
+      this.inflight.delete(key);
+    }
+  }
+
+  async executeRequest(url, options, key) {
+    const response = await window.fetch(url, options);
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
+    
+    const data = await response.json();
+    
+    // Cache successful GET responses
+    if (!options.method || options.method === 'GET') {
+      this.cache.set(key, { data, timestamp: Date.now() });
+    }
+    
+    return structuredClone(data);
+  }
+
+  // Invalidate cache for a key pattern
+  invalidate(pattern) {
+    for (const key of this.cache.keys()) {
+      if (key.includes(pattern)) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  // Clear all cache
+  clear() { this.cache.clear(); }
+}
+
+// ═══ Request Batching (Coalesce multiple requests into one) ═══
+// Example: 10 components each request a different user → batch into ONE call
+class RequestBatcher {
+  constructor(batchFn, { maxBatchSize = 25, maxWaitTime = 10 } = {}) {
+    this.batchFn = batchFn; // (keys[]) => Promise<Map<key, result>>
+    this.maxBatchSize = maxBatchSize;
+    this.maxWaitTime = maxWaitTime;
+    this.queue = [];
+    this.timer = null;
+  }
+
+  // Add a request to the batch queue
+  load(key) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ key, resolve, reject });
+      
+      if (this.queue.length >= this.maxBatchSize) {
+        this.flush();
+      } else if (!this.timer) {
+        // Wait a tick to collect more requests
+        this.timer = setTimeout(() => this.flush(), this.maxWaitTime);
+      }
+    });
+  }
+
+  async flush() {
+    clearTimeout(this.timer);
+    this.timer = null;
+    
+    const batch = this.queue.splice(0); // Take all queued
+    if (batch.length === 0) return;
+    
+    const keys = batch.map(b => b.key);
+    
+    try {
+      const results = await this.batchFn(keys);
+      
+      for (const { key, resolve, reject } of batch) {
+        if (results.has(key)) {
+          resolve(results.get(key));
+        } else {
+          reject(new Error(`No result for key: ${key}`));
+        }
+      }
+    } catch (error) {
+      // If batch fails, reject all
+      batch.forEach(({ reject }) => reject(error));
+    }
+  }
+}
+
+// ═══ Usage: User Loader (DataLoader pattern) ═══
+const userBatcher = new RequestBatcher(
+  async (userIds) => {
+    // Single API call for all users
+    const response = await fetch('/api/users/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: userIds })
+    });
+    const users = await response.json();
+    return new Map(users.map(u => [u.id, u]));
+  },
+  { maxBatchSize: 50, maxWaitTime: 16 } // Wait 1 frame to collect requests
+);
+
+// Multiple components call this independently:
+// Component A: userBatcher.load('user-1')
+// Component B: userBatcher.load('user-2')  
+// Component C: userBatcher.load('user-1') // Duplicate!
+// → Results in ONE API call: POST /api/users/batch { ids: ['user-1', 'user-2'] }
+// Both Component A and C get the same user-1 data</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="expression-parser">4. Safe Expression Parser (No eval/Function)</h2>
+<span class="difficulty d-expert">EXPERT</span>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>Asked at:</strong> Google (Sheets), Atlassian (Jira computed fields), Microsoft (Excel Online).<br>
+<strong>Why:</strong> Using <code>eval()</code> or <code>new Function()</code> is a SECURITY VULNERABILITY (XSS). Build a safe parser instead.
+</div>
+
+<pre><code>// ═══ Safe Math Expression Parser (AST-based) ═══
+// Supports: +, -, *, /, %, ^, parentheses, variables, functions
+// Does NOT use eval() — immune to code injection
+
+class ExpressionParser {
+  constructor(variables = {}, functions = {}) {
+    this.variables = variables;
+    this.functions = {
+      // Built-in safe functions
+      abs: Math.abs,
+      ceil: Math.ceil,
+      floor: Math.floor,
+      round: Math.round,
+      min: Math.min,
+      max: Math.max,
+      sqrt: Math.sqrt,
+      pow: Math.pow,
+      log: Math.log,
+      sin: Math.sin,
+      cos: Math.cos,
+      ...functions
+    };
+  }
+
+  // Tokenizer
+  tokenize(expr) {
+    const tokens = [];
+    let i = 0;
+    
+    while (i < expr.length) {
+      const ch = expr[i];
+      
+      // Skip whitespace
+      if (/\s/.test(ch)) { i++; continue; }
+      
+      // Number (integer or float)
+      if (/\d/.test(ch) || (ch === '.' && /\d/.test(expr[i + 1]))) {
+        let num = '';
+        while (i < expr.length && (/\d/.test(expr[i]) || expr[i] === '.')) {
+          num += expr[i++];
+        }
+        tokens.push({ type: 'number', value: parseFloat(num) });
+        continue;
+      }
+      
+      // Identifier (variable or function name)
+      if (/[a-zA-Z_]/.test(ch)) {
+        let id = '';
+        while (i < expr.length && /[a-zA-Z_0-9]/.test(expr[i])) {
+          id += expr[i++];
+        }
+        tokens.push({ type: 'identifier', value: id });
+        continue;
+      }
+      
+      // Operators
+      if ('+-*/%^'.includes(ch)) {
+        tokens.push({ type: 'operator', value: ch });
+        i++;
+        continue;
+      }
+      
+      // Parentheses and comma
+      if ('(),'.includes(ch)) {
+        tokens.push({ type: ch === ',' ? 'comma' : 'paren', value: ch });
+        i++;
+        continue;
+      }
+      
+      // Comparison operators
+      if ('<>=!'.includes(ch)) {
+        let op = ch;
+        if (expr[i + 1] === '=') { op += '='; i++; }
+        tokens.push({ type: 'operator', value: op });
+        i++;
+        continue;
+      }
+      
+      throw new SyntaxError(`Unexpected character: '${ch}' at position ${i}`);
+    }
+    
+    return tokens;
+  }
+
+  // Parser (Recursive Descent — respects operator precedence)
+  parse(expr) {
+    this.tokens = this.tokenize(expr);
+    this.pos = 0;
+    const ast = this.parseExpression();
+    
+    if (this.pos < this.tokens.length) {
+      throw new SyntaxError(`Unexpected token: ${this.tokens[this.pos].value}`);
+    }
+    return ast;
+  }
+
+  peek() { return this.tokens[this.pos]; }
+  consume() { return this.tokens[this.pos++]; }
+
+  // Precedence levels (lowest to highest):
+  // comparison < addition < multiplication < exponent < unary < primary
+
+  parseExpression() { return this.parseComparison(); }
+
+  parseComparison() {
+    let left = this.parseAddition();
+    while (this.peek() && this.peek().type === 'operator' && 
+           ['<', '>', '<=', '>=', '==', '!='].includes(this.peek().value)) {
+      const op = this.consume().value;
+      const right = this.parseAddition();
+      left = { type: 'binary', op, left, right };
+    }
+    return left;
+  }
+
+  parseAddition() {
+    let left = this.parseMultiplication();
+    while (this.peek() && this.peek().type === 'operator' && '+-'.includes(this.peek().value)) {
+      const op = this.consume().value;
+      const right = this.parseMultiplication();
+      left = { type: 'binary', op, left, right };
+    }
+    return left;
+  }
+
+  parseMultiplication() {
+    let left = this.parseExponent();
+    while (this.peek() && this.peek().type === 'operator' && '*/%'.includes(this.peek().value)) {
+      const op = this.consume().value;
+      const right = this.parseExponent();
+      left = { type: 'binary', op, left, right };
+    }
+    return left;
+  }
+
+  parseExponent() {
+    let left = this.parseUnary();
+    // Right-associative: 2^3^2 = 2^(3^2) = 512
+    if (this.peek() && this.peek().type === 'operator' && this.peek().value === '^') {
+      this.consume();
+      const right = this.parseExponent(); // Recurse for right-associativity
+      return { type: 'binary', op: '^', left, right };
+    }
+    return left;
+  }
+
+  parseUnary() {
+    if (this.peek() && this.peek().type === 'operator' && '+-'.includes(this.peek().value)) {
+      const op = this.consume().value;
+      const operand = this.parseUnary();
+      return { type: 'unary', op, operand };
+    }
+    return this.parsePrimary();
+  }
+
+  parsePrimary() {
+    const token = this.peek();
+    
+    if (!token) throw new SyntaxError('Unexpected end of expression');
+    
+    // Number literal
+    if (token.type === 'number') {
+      this.consume();
+      return { type: 'literal', value: token.value };
+    }
+    
+    // Parenthesized expression
+    if (token.type === 'paren' && token.value === '(') {
+      this.consume(); // (
+      const expr = this.parseExpression();
+      if (!this.peek() || this.peek().value !== ')') {
+        throw new SyntaxError('Expected closing parenthesis');
+      }
+      this.consume(); // )
+      return expr;
+    }
+    
+    // Identifier (variable or function call)
+    if (token.type === 'identifier') {
+      this.consume();
+      
+      // Function call: identifier followed by (
+      if (this.peek() && this.peek().type === 'paren' && this.peek().value === '(') {
+        this.consume(); // (
+        const args = [];
+        
+        if (this.peek() && this.peek().value !== ')') {
+          args.push(this.parseExpression());
+          while (this.peek() && this.peek().type === 'comma') {
+            this.consume(); // ,
+            args.push(this.parseExpression());
+          }
+        }
+        
+        if (!this.peek() || this.peek().value !== ')') {
+          throw new SyntaxError('Expected closing parenthesis in function call');
+        }
+        this.consume(); // )
+        return { type: 'call', name: token.value, args };
+      }
+      
+      // Variable reference
+      return { type: 'variable', name: token.value };
+    }
+    
+    throw new SyntaxError(`Unexpected token: ${token.value}`);
+  }
+
+  // Evaluator (walks the AST)
+  evaluate(ast) {
+    switch (ast.type) {
+      case 'literal':
+        return ast.value;
+      
+      case 'variable': {
+        if (!(ast.name in this.variables)) {
+          throw new ReferenceError(`Undefined variable: ${ast.name}`);
+        }
+        return this.variables[ast.name];
+      }
+      
+      case 'unary': {
+        const val = this.evaluate(ast.operand);
+        return ast.op === '-' ? -val : +val;
+      }
+      
+      case 'binary': {
+        const left = this.evaluate(ast.left);
+        const right = this.evaluate(ast.right);
+        
+        switch (ast.op) {
+          case '+': return left + right;
+          case '-': return left - right;
+          case '*': return left * right;
+          case '/': 
+            if (right === 0) throw new Error('Division by zero');
+            return left / right;
+          case '%': return left % right;
+          case '^': return Math.pow(left, right);
+          case '<': return left < right ? 1 : 0;
+          case '>': return left > right ? 1 : 0;
+          case '<=': return left <= right ? 1 : 0;
+          case '>=': return left >= right ? 1 : 0;
+          case '==': return left === right ? 1 : 0;
+          case '!=': return left !== right ? 1 : 0;
+          default: throw new Error(`Unknown operator: ${ast.op}`);
+        }
+      }
+      
+      case 'call': {
+        const fn = this.functions[ast.name];
+        if (!fn) throw new ReferenceError(`Undefined function: ${ast.name}`);
+        const args = ast.args.map(a => this.evaluate(a));
+        return fn(...args);
+      }
+      
+      default:
+        throw new Error(`Unknown AST node: ${ast.type}`);
+    }
+  }
+
+  // Convenience: parse + evaluate in one call
+  exec(expr) {
+    return this.evaluate(this.parse(expr));
+  }
+}
+
+// ═══ Usage (Safe — no eval!) ═══
+const parser = new ExpressionParser(
+  { x: 10, y: 5, pi: Math.PI },  // Variables
+  { double: (n) => n * 2 }        // Custom functions
+);
+
+console.log(parser.exec('2 + 3 * 4'));           // 14 (respects precedence)
+console.log(parser.exec('(2 + 3) * 4'));         // 20
+console.log(parser.exec('x^2 + y'));             // 105
+console.log(parser.exec('sqrt(x * x + y * y)')); // 11.18...
+console.log(parser.exec('max(x, y, 20)'));       // 20
+console.log(parser.exec('2^3^2'));               // 512 (right-associative)
+
+// Security: This CANNOT execute arbitrary code
+// parser.exec('alert("XSS")') → SyntaxError: Unexpected character '('
+// parser.exec('constructor.constructor("malicious")()') → Undefined variable</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="collaborative-text">5. Collaborative Text Editor (Operational Transform)</h2>
+<span class="difficulty d-expert">EXPERT</span>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>Asked at:</strong> Google (Docs), Meta (Workplace), Atlassian (Confluence).<br>
+<strong>Why:</strong> The hardest real-time problem in frontend. How do you handle 2 users typing at position 5 simultaneously?
+</div>
+
+<pre><code>// ═══ Operational Transform (OT) for Collaborative Text ═══
+// Operations: insert(pos, char) and delete(pos)
+// OT ensures: if two users make concurrent edits, both converge to same document
+
+class OTDocument {
+  constructor(text = '') {
+    this.text = text;
+    this.revision = 0;
+    this.history = []; // All applied operations
+  }
+
+  apply(operation) {
+    switch (operation.type) {
+      case 'insert':
+        this.text = this.text.slice(0, operation.position) + 
+                    operation.char + 
+                    this.text.slice(operation.position);
+        break;
+      case 'delete':
+        if (operation.position >= 0 && operation.position < this.text.length) {
+          this.text = this.text.slice(0, operation.position) + 
+                      this.text.slice(operation.position + 1);
+        }
+        break;
+    }
+    this.revision++;
+    this.history.push(operation);
+  }
+
+  getText() { return this.text; }
+}
+
+// ═══ Transform Function (Heart of OT) ═══
+// transform(op1, op2) → [op1', op2']
+// Guarantees: apply(apply(doc, op1), op2') === apply(apply(doc, op2), op1')
+function transform(op1, op2) {
+  // Both inserts
+  if (op1.type === 'insert' && op2.type === 'insert') {
+    if (op1.position < op2.position || 
+        (op1.position === op2.position && op1.clientId < op2.clientId)) {
+      // op1 goes first → op2 shifts right
+      return [
+        { ...op1 },
+        { ...op2, position: op2.position + 1 }
+      ];
+    } else {
+      // op2 goes first → op1 shifts right
+      return [
+        { ...op1, position: op1.position + 1 },
+        { ...op2 }
+      ];
+    }
+  }
+
+  // Both deletes
+  if (op1.type === 'delete' && op2.type === 'delete') {
+    if (op1.position < op2.position) {
+      return [
+        { ...op1 },
+        { ...op2, position: op2.position - 1 }
+      ];
+    } else if (op1.position > op2.position) {
+      return [
+        { ...op1, position: op1.position - 1 },
+        { ...op2 }
+      ];
+    } else {
+      // Same position — both delete same char → one becomes noop
+      return [
+        { type: 'noop' },
+        { type: 'noop' }
+      ];
+    }
+  }
+
+  // Insert vs Delete
+  if (op1.type === 'insert' && op2.type === 'delete') {
+    if (op1.position <= op2.position) {
+      return [
+        { ...op1 },
+        { ...op2, position: op2.position + 1 }
+      ];
+    } else {
+      return [
+        { ...op1, position: op1.position - 1 },
+        { ...op2 }
+      ];
+    }
+  }
+
+  // Delete vs Insert
+  if (op1.type === 'delete' && op2.type === 'insert') {
+    if (op2.position <= op1.position) {
+      return [
+        { ...op1, position: op1.position + 1 },
+        { ...op2 }
+      ];
+    } else {
+      return [
+        { ...op1 },
+        { ...op2, position: op2.position - 1 }
+      ];
+    }
+  }
+
+  return [op1, op2];
+}
+
+// ═══ OT Client (handles local edits + server sync) ═══
+class OTClient {
+  constructor(clientId, document, sendToServer) {
+    this.clientId = clientId;
+    this.document = document;
+    this.sendToServer = sendToServer;
+    this.pendingOps = []; // Sent but not acknowledged
+    this.buffer = []; // Not yet sent
+    this.serverRevision = 0;
+  }
+
+  // User makes a local edit
+  localEdit(operation) {
+    operation.clientId = this.clientId;
+    operation.revision = this.serverRevision;
+    
+    // Apply locally immediately
+    this.document.apply(operation);
+    
+    if (this.pendingOps.length === 0) {
+      // Nothing pending — send directly
+      this.pendingOps.push(operation);
+      this.sendToServer(operation);
+    } else {
+      // Queue until pending is acknowledged
+      this.buffer.push(operation);
+    }
+  }
+
+  // Server acknowledged our operation
+  serverAck() {
+    this.serverRevision++;
+    this.pendingOps.shift();
+    
+    if (this.buffer.length > 0) {
+      // Send next buffered operation
+      const next = this.buffer.shift();
+      this.pendingOps.push(next);
+      this.sendToServer(next);
+    }
+  }
+
+  // Received operation from another client (via server)
+  receiveRemote(serverOp) {
+    this.serverRevision++;
+    
+    // Transform against pending operations
+    let transformedOp = serverOp;
+    
+    for (let i = 0; i < this.pendingOps.length; i++) {
+      const [newPending, newRemote] = transform(this.pendingOps[i], transformedOp);
+      this.pendingOps[i] = newPending;
+      transformedOp = newRemote;
+    }
+    
+    for (let i = 0; i < this.buffer.length; i++) {
+      const [newBuffer, newRemote] = transform(this.buffer[i], transformedOp);
+      this.buffer[i] = newBuffer;
+      transformedOp = newRemote;
+    }
+    
+    // Apply transformed operation to local document
+    if (transformedOp.type !== 'noop') {
+      this.document.apply(transformedOp);
+    }
+  }
+}
+
+// ═══ Demo: Two users editing simultaneously ═══
+const doc1 = new OTDocument('Hello');
+const doc2 = new OTDocument('Hello');
+
+// User 1 inserts "!" at end (position 5)
+const op1 = { type: 'insert', position: 5, char: '!', clientId: 'user1' };
+// User 2 inserts " World" starting at position 5
+const op2 = { type: 'insert', position: 5, char: ' ', clientId: 'user2' };
+
+// Without OT: both get different results (conflict!)
+// With OT: transform ensures convergence
+const [op1Prime, op2Prime] = transform(op1, op2);
+
+// Apply: doc1 sees op1 then op2'
+doc1.apply(op1);      // "Hello!"
+doc1.apply(op2Prime); // "Hello !" (op2 shifted right)
+
+// Apply: doc2 sees op2 then op1'  
+doc2.apply(op2);      // "Hello "
+doc2.apply(op1Prime); // "Hello !" (op1 shifted right)
+
+// Both converge: "Hello !" ✅</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="scheduler">6. Task Scheduler with Priority & Time-Slicing</h2>
+<span class="difficulty d-hard">HARD</span>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="callout">
+<strong>Asked at:</strong> Meta (React Scheduler internals), Google (Chrome DevTools).<br>
+<strong>Why:</strong> React's concurrent mode uses a priority-based scheduler. Understanding this = understanding React internals at a deep level.
+</div>
+
+<pre><code>// ═══ Priority Scheduler (inspired by React Scheduler) ═══
+// Tasks are executed in priority order, yielding to the browser between chunks
+
+const Priority = {
+  IMMEDIATE: 1,   // Synchronous, blocking (user input response)
+  USER_BLOCKING: 2, // 250ms deadline (hover, click feedback)
+  NORMAL: 3,      // 5000ms deadline (data fetching, rendering)
+  LOW: 4,         // 10000ms deadline (analytics, prefetch)
+  IDLE: 5         // No deadline (logging, cleanup)
+};
+
+const PRIORITY_TIMEOUTS = {
+  [Priority.IMMEDIATE]: -1,    // Sync
+  [Priority.USER_BLOCKING]: 250,
+  [Priority.NORMAL]: 5000,
+  [Priority.LOW]: 10000,
+  [Priority.IDLE]: Infinity
+};
+
+class Scheduler {
+  constructor() {
+    this.taskQueue = [];  // Sorted by expiration time
+    this.isPerformingWork = false;
+    this.currentTask = null;
+    this.frameDeadline = 0;
+    this.frameLength = 5; // 5ms per frame (yield to browser for 60fps)
+    
+    // Use MessageChannel for scheduling (not setTimeout which has 4ms minimum)
+    this.channel = new MessageChannel();
+    this.channel.port1.onmessage = () => this.performWork();
+  }
+
+  scheduleTask(callback, priority = Priority.NORMAL) {
+    const currentTime = performance.now();
+    const timeout = PRIORITY_TIMEOUTS[priority];
+    const expirationTime = timeout === -1 ? -1 : currentTime + timeout;
+    
+    const task = {
+      id: crypto.randomUUID(),
+      callback,
+      priority,
+      expirationTime,
+      startTime: currentTime,
+      cancelled: false
+    };
+    
+    // Insert in sorted order (earliest expiration first)
+    this.insertTask(task);
+    
+    if (!this.isPerformingWork) {
+      this.requestCallback();
+    }
+    
+    // Return cancel function
+    return () => { task.cancelled = true; };
+  }
+
+  insertTask(task) {
+    const idx = this.taskQueue.findIndex(t => t.expirationTime > task.expirationTime);
+    if (idx === -1) {
+      this.taskQueue.push(task);
+    } else {
+      this.taskQueue.splice(idx, 0, task);
+    }
+  }
+
+  requestCallback() {
+    // Use MessageChannel (fires before next paint, ~0ms delay)
+    this.channel.port2.postMessage(null);
+  }
+
+  performWork() {
+    this.isPerformingWork = true;
+    this.frameDeadline = performance.now() + this.frameLength;
+    
+    try {
+      let hasMoreWork = this.flushWork();
+      if (hasMoreWork) {
+        // More tasks remain — schedule next chunk
+        this.requestCallback();
+      }
+    } finally {
+      this.isPerformingWork = false;
+      this.currentTask = null;
+    }
+  }
+
+  flushWork() {
+    while (this.taskQueue.length > 0) {
+      const task = this.taskQueue[0];
+      
+      if (task.cancelled) {
+        this.taskQueue.shift();
+        continue;
+      }
+      
+      // Check if we should yield to browser
+      if (this.shouldYield() && !this.isExpired(task)) {
+        return true; // More work remains
+      }
+      
+      this.currentTask = task;
+      
+      // Execute task — if it returns a continuation, re-schedule
+      const continuationCallback = task.callback(this.shouldYield.bind(this));
+      
+      if (typeof continuationCallback === 'function') {
+        // Task yielded — it has more work, keep it in queue
+        task.callback = continuationCallback;
+      } else {
+        // Task completed — remove from queue
+        this.taskQueue.shift();
+      }
+    }
+    
+    return false; // No more work
+  }
+
+  shouldYield() {
+    return performance.now() >= this.frameDeadline;
+  }
+
+  isExpired(task) {
+    return task.expirationTime !== Infinity && 
+           task.expirationTime <= performance.now();
+  }
+
+  // Get current scheduler status
+  getStatus() {
+    return {
+      queueLength: this.taskQueue.length,
+      isWorking: this.isPerformingWork,
+      currentPriority: this.currentTask?.priority,
+      tasks: this.taskQueue.map(t => ({ id: t.id, priority: t.priority, expired: this.isExpired(t) }))
+    };
+  }
+}
+
+// ═══ Usage: Cooperative Scheduling ═══
+const scheduler = new Scheduler();
+
+// High priority: User clicked a button → respond ASAP
+scheduler.scheduleTask(() => {
+  updateButtonState(); // Runs immediately
+}, Priority.IMMEDIATE);
+
+// Normal priority: Render a list of 10,000 items (time-sliced)
+scheduler.scheduleTask((shouldYield) => {
+  // Process items until we need to yield
+  while (currentIndex < items.length) {
+    renderItem(items[currentIndex]);
+    currentIndex++;
+    
+    if (shouldYield()) {
+      // Yield to browser — return continuation
+      return (shouldYield) => {
+        // Continue from where we left off
+        while (currentIndex < items.length) {
+          renderItem(items[currentIndex]);
+          currentIndex++;
+          if (shouldYield()) return arguments.callee; // Yield again
+        }
+      };
+    }
+  }
+}, Priority.NORMAL);
+
+// Low priority: Send analytics (can wait)
+scheduler.scheduleTask(() => {
+  sendAnalyticsEvent({ page: 'home', action: 'view' });
+}, Priority.LOW);
+
+// Idle priority: Prefetch next page data
+scheduler.scheduleTask(() => {
+  prefetchRoute('/next-page');
+}, Priority.IDLE);</code></pre>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="machine-coding-part6-utilities.html">← Part 6: Data Table & Utilities</a>
+  <a href="phase14-senior-architect-patterns.html">Phase 14: Architect Patterns →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

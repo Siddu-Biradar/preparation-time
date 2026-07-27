@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 14: Advanced Topics (Animations, CDK, i18n, a11y, PWA)</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .interview { border-left: 4px solid #1565c0; background: #e8f0fe; padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+    .exercise { border-left: 4px solid #2e7d32; background: #e8f5e9; padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10.2pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; } th { background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .toc { background: #f9f6f0; border: 1px solid var(--line); padding: 16px 20px; border-radius: 10px; margin-bottom: 24px; }
+    .toc ol { margin: 8px 0 0 18px; } .toc li { margin-bottom: 4px; } .toc a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 14: Advanced Topics</h1>
+  <p class="subtitle">Angular Mastery — Animations, CDK, i18n, Accessibility, PWA & More (14 of 14)</p>
+  <div class="pill-row">
+    <span class="pill">Animations</span>
+    <span class="pill">Angular CDK</span>
+    <span class="pill">Accessibility</span>
+    <span class="pill">i18n</span>
+    <span class="pill">PWA</span>
+    <span class="pill">HttpClient Advanced</span>
+    <span class="pill">Migration</span>
+    <span class="pill">DevTools</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h3 style="margin-top:0;">Table of Contents</h3>
+  <ol>
+    <li><a href="#animations">Angular Animations — Complete Guide</a></li>
+    <li><a href="#cdk">Angular CDK — Overlay, Portal, Layout & More</a></li>
+    <li><a href="#a11y">Accessibility (a11y) Deep Dive</a></li>
+    <li><a href="#i18n">Internationalization (i18n)</a></li>
+    <li><a href="#pwa">PWA & Service Workers</a></li>
+    <li><a href="#http-advanced">HttpClient Advanced Patterns</a></li>
+    <li><a href="#e2e">E2E Testing — Cypress & Playwright</a></li>
+    <li><a href="#migration">Migration Strategies</a></li>
+    <li><a href="#devtools">Angular DevTools & Debugging</a></li>
+    <li><a href="#web-workers">Web Workers in Angular</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="animations">1. Angular Animations — Complete Guide</h2>
+
+<p>Angular's animation system (<code>@angular/animations</code>) builds on the Web Animations API. It allows declaring complex state-based transitions that Angular manages during component lifecycle and route changes.</p>
+
+<h3>Core Concepts</h3>
+<table>
+  <tr><th>Concept</th><th>Purpose</th><th>Function</th></tr>
+  <tr><td>Trigger</td><td>Names the animation, attached to element via <code>@triggerName</code></td><td><code>trigger()</code></td></tr>
+  <tr><td>State</td><td>Defines styles for a named state</td><td><code>state()</code></td></tr>
+  <tr><td>Transition</td><td>Defines animation between states</td><td><code>transition()</code></td></tr>
+  <tr><td>Animate</td><td>Specifies duration, delay, easing</td><td><code>animate()</code></td></tr>
+  <tr><td>Keyframes</td><td>Multi-step animations</td><td><code>keyframes()</code></td></tr>
+  <tr><td>Group</td><td>Run animations in parallel</td><td><code>group()</code></td></tr>
+  <tr><td>Sequence</td><td>Run animations sequentially</td><td><code>sequence()</code></td></tr>
+  <tr><td>Query</td><td>Target child elements</td><td><code>query()</code></td></tr>
+  <tr><td>Stagger</td><td>Delay between queried element animations</td><td><code>stagger()</code></td></tr>
+</table>
+
+<h3>Setup</h3>
+<pre><code>// app.config.ts
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideAnimationsAsync()] // Lazy-loads animation code
+};
+
+// Alternative: provideAnimations() for eager loading</code></pre>
+
+<h3>Basic State-based Animation</h3>
+<pre><code>import { trigger, state, transition, animate, style } from '@angular/animations';
+
+@Component({
+  selector: 'app-toggle-panel',
+  template: `
+    &lt;button (click)="isOpen = !isOpen"&gt;Toggle&lt;/button&gt;
+    &lt;div [@expandCollapse]="isOpen ? 'expanded' : 'collapsed'"&gt;
+      Panel content here
+    &lt;/div&gt;
+  `,
+  animations: [
+    trigger('expandCollapse', [
+      state('collapsed', style({
+        height: '0px',
+        opacity: 0,
+        overflow: 'hidden'
+      })),
+      state('expanded', style({
+        height: '*',        // '*' = auto (natural height)
+        opacity: 1,
+        overflow: 'visible'
+      })),
+      transition('collapsed => expanded', [
+        animate('300ms ease-out')
+      ]),
+      transition('expanded => collapsed', [
+        animate('250ms ease-in')
+      ]),
+    ])
+  ]
+})
+export class TogglePanelComponent {
+  isOpen = false;
+}</code></pre>
+
+<h3>Enter/Leave Animations (void state)</h3>
+<pre><code>// void = element not in DOM, * = any state
+// :enter = void => *  |  :leave = * => void
+
+trigger('fadeInOut', [
+  transition(':enter', [
+    style({ opacity: 0, transform: 'translateY(-20px)' }),
+    animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+  ]),
+  transition(':leave', [
+    animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.95)' }))
+  ])
+])</code></pre>
+
+<h3>List Animations with stagger()</h3>
+<pre><code>trigger('listAnimation', [
+  transition('* => *', [ // runs when list changes
+    // Animate entering items
+    query(':enter', [
+      style({ opacity: 0, transform: 'translateX(-30px)' }),
+      stagger('50ms', [
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+      ])
+    ], { optional: true }),
+
+    // Animate leaving items
+    query(':leave', [
+      stagger('30ms', [
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateX(30px)' }))
+      ])
+    ], { optional: true })
+  ])
+])
+
+// Template:
+// &lt;div [@listAnimation]="items.length"&gt;
+//   @for (item of items; track item.id) { &lt;div&gt;{{ item.name }}&lt;/div&gt; }
+// &lt;/div&gt;</code></pre>
+
+<h3>Route Transition Animations</h3>
+<pre><code>// route-animations.ts
+export const routeAnimations = trigger('routeAnimations', [
+  transition('* &lt;=&gt; *', [
+    // Query outgoing route's component
+    query(':leave', [
+      style({ position: 'absolute', width: '100%' }),
+      animate('200ms ease-in', style({ opacity: 0, transform: 'translateX(-20px)' }))
+    ], { optional: true }),
+    // Query incoming route's component
+    query(':enter', [
+      style({ position: 'absolute', width: '100%', opacity: 0, transform: 'translateX(20px)' }),
+      animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+    ], { optional: true })
+  ])
+]);
+
+// app.component.ts
+@Component({
+  template: `
+    &lt;div [@routeAnimations]="getRouteAnimationData()"&gt;
+      &lt;router-outlet /&gt;
+    &lt;/div&gt;
+  `,
+  animations: [routeAnimations]
+})
+export class AppComponent {
+  getRouteAnimationData() {
+    return this.route.snapshot.firstChild?.data?.['animation'];
+  }
+}
+
+// routes
+{ path: 'home', component: HomeComponent, data: { animation: 'home' } },
+{ path: 'about', component: AboutComponent, data: { animation: 'about' } }</code></pre>
+
+<h3>Reusable Animations</h3>
+<pre><code>// animations/shared.ts
+import { animation, useAnimation } from '@angular/animations';
+
+export const fadeIn = animation([
+  style({ opacity: 0 }),
+  animate('{{ duration }}', style({ opacity: 1 }))
+], { params: { duration: '300ms' } });
+
+export const slideIn = animation([
+  style({ transform: 'translateX({{ from }})' }),
+  animate('{{ duration }} {{ easing }}', style({ transform: 'translateX(0)' }))
+], { params: { from: '-100%', duration: '400ms', easing: 'ease-out' } });
+
+// Using in component:
+trigger('myTrigger', [
+  transition(':enter', useAnimation(fadeIn, { params: { duration: '500ms' } }))
+])</code></pre>
+
+<h3>Animation Callbacks</h3>
+<pre><code>&lt;div [@myAnimation]="state"
+     (@myAnimation.start)="onAnimStart($event)"
+     (@myAnimation.done)="onAnimDone($event)"&gt;
+&lt;/div&gt;
+
+onAnimDone(event: AnimationEvent) {
+  console.log(event.fromState, '→', event.toState);
+  console.log('Total time:', event.totalTime, 'ms');
+}</code></pre>
+
+<h3>Disable Animations</h3>
+<pre><code>// Per element: [@.disabled]="true"
+&lt;div [@.disabled]="reduceMotion"&gt;
+  &lt;div @childAnimation&gt;This won't animate if disabled&lt;/div&gt;
+&lt;/div&gt;
+
+// Global: provideNoopAnimations() for testing or prefers-reduced-motion
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+
+// Respect user preference:
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+providers: [prefersReducedMotion ? provideNoopAnimations() : provideAnimationsAsync()]</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>How do <code>void</code> and <code>*</code> states work? What are <code>:enter</code> and <code>:leave</code> aliases?</li>
+  <li>How would you animate a list of items appearing one by one? → <code>query(':enter') + stagger()</code></li>
+  <li>How do you animate route transitions? → trigger on router-outlet wrapper, query :enter/:leave</li>
+  <li>How to disable animations for a11y? → <code>@.disabled</code>, <code>prefers-reduced-motion</code>, <code>provideNoopAnimations()</code></li>
+  <li>What's the difference between <code>group()</code> and <code>sequence()</code>? → parallel vs sequential</li>
+  <li><code>provideAnimations()</code> vs <code>provideAnimationsAsync()</code>? → Async lazy-loads the animation engine</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cdk">2. Angular CDK — Overlay, Portal, Layout & More</h2>
+
+<p>The Component Dev Kit (CDK) provides behavior primitives that Material components build upon. Senior engineers should know these for building custom component libraries without Material.</p>
+
+<h3>CDK Modules Overview</h3>
+<table>
+  <tr><th>Module</th><th>Purpose</th><th>Use Cases</th></tr>
+  <tr><td><code>@angular/cdk/overlay</code></td><td>Floating panels positioned relative to elements</td><td>Dropdowns, tooltips, dialogs, popovers</td></tr>
+  <tr><td><code>@angular/cdk/portal</code></td><td>Render dynamic content into a DOM location</td><td>Modals, sidebars, tab content</td></tr>
+  <tr><td><code>@angular/cdk/drag-drop</code></td><td>Drag & drop with sortable lists</td><td>Kanban boards, reorder lists</td></tr>
+  <tr><td><code>@angular/cdk/a11y</code></td><td>Accessibility utilities</td><td>Focus trapping, live announcer, focus monitor</td></tr>
+  <tr><td><code>@angular/cdk/layout</code></td><td>Responsive breakpoint detection</td><td>Adapt UI to screen sizes</td></tr>
+  <tr><td><code>@angular/cdk/clipboard</code></td><td>Copy to clipboard</td><td>Copy buttons</td></tr>
+  <tr><td><code>@angular/cdk/scrolling</code></td><td>Virtual scrolling</td><td>Long lists</td></tr>
+  <tr><td><code>@angular/cdk/text-field</code></td><td>Auto-resize textarea</td><td>Chat inputs, comments</td></tr>
+</table>
+
+<h3>Overlay — Building a Custom Dropdown</h3>
+<pre><code>import { Overlay, OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+
+@Directive({ selector: '[appDropdown]', standalone: true })
+export class DropdownDirective {
+  private overlay = inject(Overlay);
+  private elementRef = inject(ElementRef);
+  private overlayRef: OverlayRef | null = null;
+
+  @HostListener('click')
+  toggle() {
+    this.overlayRef ? this.close() : this.open();
+  }
+
+  private open() {
+    const config: OverlayConfig = {
+      hasBackdrop: true,
+      backdropClass: 'cdk-overlay-transparent-backdrop',
+      positionStrategy: this.overlay
+        .position()
+        .flexibleConnectedTo(this.elementRef)
+        .withPositions([
+          { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+          { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' }, // fallback
+        ]),
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+    };
+
+    this.overlayRef = this.overlay.create(config);
+    const portal = new ComponentPortal(DropdownMenuComponent);
+    this.overlayRef.attach(portal);
+
+    this.overlayRef.backdropClick().subscribe(() => this.close());
+  }
+
+  private close() {
+    this.overlayRef?.dispose();
+    this.overlayRef = null;
+  }
+}</code></pre>
+
+<h3>Portal — Dynamic Content Rendering</h3>
+<pre><code>import { CdkPortalOutlet, TemplatePortal, ComponentPortal } from '@angular/cdk/portal';
+
+@Component({
+  template: `
+    &lt;!-- Define a template portal --&gt;
+    &lt;ng-template cdkPortal #myPortal="cdkPortal"&gt;
+      &lt;p&gt;This content can be rendered anywhere!&lt;/p&gt;
+    &lt;/ng-template&gt;
+
+    &lt;!-- Outlet where portals render --&gt;
+    &lt;div cdkPortalOutlet&gt;&lt;/div&gt;
+
+    &lt;button (click)="attachTemplate()"&gt;Attach&lt;/button&gt;
+  `
+})
+export class PortalExampleComponent {
+  @ViewChild('myPortal') portal!: TemplatePortal;
+  @ViewChild(CdkPortalOutlet) outlet!: CdkPortalOutlet;
+
+  attachTemplate() {
+    this.outlet.attachTemplatePortal(this.portal);
+  }
+}</code></pre>
+
+<h3>Layout — Responsive Breakpoints</h3>
+<pre><code>import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+
+@Component({ ... })
+export class NavComponent {
+  private breakpointObserver = inject(BreakpointObserver);
+
+  isMobile$ = this.breakpointObserver
+    .observe([Breakpoints.Handset])
+    .pipe(map(result => result.matches));
+
+  // Custom breakpoints
+  isNarrow$ = this.breakpointObserver
+    .observe(['(max-width: 768px)'])
+    .pipe(map(r => r.matches));
+}</code></pre>
+
+<h3>Clipboard</h3>
+<pre><code>import { Clipboard } from '@angular/cdk/clipboard';
+
+@Component({
+  template: `&lt;button (click)="copy()"&gt;Copy Code&lt;/button&gt;`
+})
+export class CopyButtonComponent {
+  private clipboard = inject(Clipboard);
+
+  copy() {
+    const success = this.clipboard.copy('text to copy');
+    // or for large text: this.clipboard.beginCopy(text).copy();
+  }
+}</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>How would you build a tooltip/popover without Angular Material? → CDK Overlay + position strategy</li>
+  <li>What are Overlay position strategies? → <code>flexibleConnectedTo()</code> (relative to element) vs <code>global()</code> (centered/fixed)</li>
+  <li>What scroll strategies are available? → <code>reposition</code> (move with scroll), <code>close</code> (close on scroll), <code>block</code> (prevent scroll), <code>noop</code></li>
+  <li>How does CDK virtual scrolling work? → <code>cdk-virtual-scroll-viewport</code> renders only visible items + buffer</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="a11y">3. Accessibility (a11y) Deep Dive</h2>
+
+<p>Accessibility is a frequently asked topic in senior interviews — especially at enterprise companies. Angular provides robust a11y tools through the CDK.</p>
+
+<h3>CDK a11y Utilities</h3>
+<pre><code>import { A11yModule, LiveAnnouncer, FocusTrap, FocusMonitor } from '@angular/cdk/a11y';
+
+// 1. LiveAnnouncer — Screen reader announcements
+@Component({ ... })
+export class SearchComponent {
+  private announcer = inject(LiveAnnouncer);
+
+  onSearchResults(count: number) {
+    this.announcer.announce(`${count} results found`, 'polite');
+    // 'polite' waits for current speech; 'assertive' interrupts
+  }
+}
+
+// 2. FocusTrap — Trap focus within a modal/dialog
+@Component({
+  template: `
+    &lt;div cdkTrapFocus [cdkTrapFocusAutoCapture]="true"&gt;
+      &lt;input placeholder="First focusable" /&gt;
+      &lt;button&gt;Action&lt;/button&gt;
+      &lt;button (click)="close()"&gt;Close&lt;/button&gt;
+    &lt;/div&gt;
+  `
+})
+
+// 3. FocusMonitor — Track how an element was focused
+export class ButtonComponent implements OnInit, OnDestroy {
+  private focusMonitor = inject(FocusMonitor);
+  private el = inject(ElementRef);
+
+  ngOnInit() {
+    this.focusMonitor.monitor(this.el).subscribe(origin => {
+      // origin: 'mouse' | 'keyboard' | 'touch' | 'program' | null
+      if (origin === 'keyboard') {
+        // Show focus ring only for keyboard users
+      }
+    });
+  }
+  ngOnDestroy() { this.focusMonitor.stopMonitoring(this.el); }
+}</code></pre>
+
+<h3>ARIA Patterns in Angular</h3>
+<pre><code>// Dynamic ARIA attributes
+&lt;button [attr.aria-expanded]="isOpen()"
+        [attr.aria-controls]="panelId"
+        [attr.aria-label]="'Toggle ' + sectionName"&gt;
+  {{ isOpen() ? 'Collapse' : 'Expand' }}
+&lt;/button&gt;
+
+&lt;div [id]="panelId" role="region" [attr.aria-hidden]="!isOpen()"&gt;
+  ...content...
+&lt;/div&gt;
+
+// Keyboard navigation for custom components
+@HostListener('keydown', ['$event'])
+onKeydown(event: KeyboardEvent) {
+  switch (event.key) {
+    case 'ArrowDown': this.focusNext(); event.preventDefault(); break;
+    case 'ArrowUp':   this.focusPrev(); event.preventDefault(); break;
+    case 'Enter':
+    case ' ':         this.select(); event.preventDefault(); break;
+    case 'Escape':    this.close(); break;
+  }
+}</code></pre>
+
+<h3>a11y Checklist for Angular Components</h3>
+<table>
+  <tr><th>Requirement</th><th>Implementation</th></tr>
+  <tr><td>Focus management on route change</td><td>Focus main content heading or use <code>cdkTrapFocus</code></td></tr>
+  <tr><td>Skip navigation link</td><td><code>&lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;</code></td></tr>
+  <tr><td>Form error announcements</td><td><code>LiveAnnouncer</code> or <code>aria-live="polite"</code> region</td></tr>
+  <tr><td>Loading states</td><td><code>aria-busy="true"</code>, announce loading/complete</td></tr>
+  <tr><td>Custom controls</td><td>Proper ARIA roles + keyboard support</td></tr>
+  <tr><td>Color contrast</td><td>WCAG 2.1 AA: 4.5:1 for text, 3:1 for large text</td></tr>
+  <tr><td>Reduced motion</td><td><code>@media (prefers-reduced-motion)</code> + disable animations</td></tr>
+  <tr><td>Image alt text</td><td><code>alt=""</code> for decorative, descriptive for meaningful</td></tr>
+</table>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>How do you handle focus management in an SPA? → Focus main content on route change, trap focus in modals, restore focus after close</li>
+  <li>How do you make a custom dropdown accessible? → <code>role="listbox"</code>, <code>aria-expanded</code>, keyboard navigation (arrows, enter, escape), <code>aria-activedescendant</code></li>
+  <li>How do you announce dynamic content to screen readers? → <code>LiveAnnouncer</code> or <code>aria-live</code> regions</li>
+  <li>What is <code>cdkTrapFocus</code>? → Keeps Tab/Shift+Tab within a container (used in modals/dialogs)</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="i18n">4. Internationalization (i18n)</h2>
+
+<h3>Angular's Built-in i18n (Compile-time)</h3>
+<p>Angular's native i18n is <strong>compile-time</strong>: it generates a separate build per locale. Pros: zero runtime cost, full AOT optimization. Cons: separate deployments per language.</p>
+
+<pre><code>// Step 1: Mark text for translation
+&lt;h1 i18n="site header|Main page greeting"&gt;Welcome to our app&lt;/h1&gt;
+&lt;p i18n="@@introMessage"&gt;This app helps you learn Angular.&lt;/p&gt;
+
+// With ICU expressions for plurals/select
+&lt;span i18n&gt;{count, plural,
+  =0 {No items}
+  =1 {One item}
+  other {{{count}} items}
+}&lt;/span&gt;
+
+&lt;span i18n&gt;{gender, select,
+  male {He}
+  female {She}
+  other {They}
+} logged in.&lt;/span&gt;
+
+// Attributes
+&lt;img [src]="logo" i18n-alt alt="Company logo" /&gt;
+
+// In TypeScript
+import { $localize } from '@angular/localize';
+const msg = $localize`Hello ${name}:name:, welcome!`;</code></pre>
+
+<pre><code>// Step 2: Extract messages
+ng extract-i18n --output-path src/locale --format xlf2
+
+// Generates messages.xlf → translate to messages.fr.xlf, messages.de.xlf
+
+// Step 3: Build per locale (angular.json)
+"i18n": {
+  "sourceLocale": "en-US",
+  "locales": {
+    "fr": "src/locale/messages.fr.xlf",
+    "de": "src/locale/messages.de.xlf"
+  }
+},
+"architect": {
+  "build": {
+    "options": { "localize": true }  // builds ALL locales
+  }
+}</code></pre>
+
+<h3>Runtime i18n with @ngx-translate or Transloco</h3>
+<pre><code>// Transloco (modern, recommended for runtime)
+// Translations loaded lazily per route as JSON
+
+import { TranslocoModule, provideTransloco } from '@jsverse/transloco';
+
+// app.config.ts
+provideTransloco({
+  config: {
+    availableLangs: ['en', 'fr', 'de'],
+    defaultLang: 'en',
+    reRenderOnLangChange: true,
+    prodMode: !isDevMode()
+  },
+  loader: TranslocoHttpLoader
+})
+
+// Template usage
+&lt;h1&gt;{{ 'home.title' | transloco }}&lt;/h1&gt;
+&lt;p transloco="home.description"&gt;&lt;/p&gt;
+
+// Switch language
+translocoService.setActiveLang('fr');</code></pre>
+
+<h3>Compile-time vs Runtime i18n</h3>
+<table>
+  <tr><th>Aspect</th><th>Built-in (compile-time)</th><th>Transloco/ngx-translate (runtime)</th></tr>
+  <tr><td>Bundle size</td><td>Optimal (dead code eliminated)</td><td>Slightly larger (runtime engine)</td></tr>
+  <tr><td>Performance</td><td>Best (no runtime processing)</td><td>Good (lazy-load translations)</td></tr>
+  <tr><td>Language switch</td><td>Full page reload (different build)</td><td>Instant (no reload)</td></tr>
+  <tr><td>Deployment</td><td>One build per locale</td><td>Single build, all locales</td></tr>
+  <tr><td>Best for</td><td>Static sites, max performance</td><td>Dynamic apps, user-selectable language</td></tr>
+</table>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>Explain Angular's i18n approach. Why is it compile-time? → Each locale has pre-compiled templates, zero runtime translation overhead</li>
+  <li>How do you handle plurals/gender in i18n? → ICU message format expressions</li>
+  <li>When would you use runtime i18n (Transloco) over built-in? → When users need to switch languages without page reload</li>
+  <li>What is <code>$localize</code>? → Tagged template function for marking TypeScript strings for translation</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="pwa">5. PWA & Service Workers</h2>
+
+<h3>Adding PWA Support</h3>
+<pre><code>// Angular's PWA package
+ng add @angular/pwa
+
+// This generates:
+// - ngsw-config.json (service worker config)
+// - manifest.webmanifest (PWA manifest)
+// - Service worker registration in app
+
+// ngsw-config.json
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",       // Cache on install
+      "resources": {
+        "files": ["/favicon.ico", "/index.html", "/*.css", "/*.js"]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",           // Cache on first request
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/assets/**", "/*.(svg|cur|jpg|jpeg|png|apng|webp|gif)"]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-freshness",
+      "urls": ["/api/realtime/**"],
+      "cacheConfig": {
+        "strategy": "freshness",       // Network first, fallback to cache
+        "maxSize": 100,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "api-performance",
+      "urls": ["/api/static/**"],
+      "cacheConfig": {
+        "strategy": "performance",     // Cache first, background refresh
+        "maxSize": 200,
+        "maxAge": "1d"
+      }
+    }
+  ]
+}</code></pre>
+
+<h3>SwUpdate — Managing App Updates</h3>
+<pre><code>import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
+
+@Component({ ... })
+export class AppComponent {
+  private swUpdate = inject(SwUpdate);
+
+  constructor() {
+    if (this.swUpdate.isEnabled) {
+      // Check for updates periodically
+      interval(6 * 60 * 60 * 1000).subscribe(() => this.swUpdate.checkForUpdate());
+
+      // Notify user when update is available
+      this.swUpdate.versionUpdates
+        .pipe(filter((e): e is VersionReadyEvent => e.type === 'VERSION_READY'))
+        .subscribe(() => {
+          if (confirm('New version available. Update now?')) {
+            window.location.reload();
+          }
+        });
+    }
+  }
+}
+
+// SwPush — Push Notifications
+import { SwPush } from '@angular/service-worker';
+
+export class NotificationService {
+  private swPush = inject(SwPush);
+
+  subscribeToPush() {
+    this.swPush.requestSubscription({ serverPublicKey: VAPID_PUBLIC_KEY })
+      .then(sub => this.sendToServer(sub))
+      .catch(err => console.error('Push denied', err));
+  }
+
+  messages$ = this.swPush.messages; // Observable of push messages
+}</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>What caching strategies does Angular's service worker support? → <code>freshness</code> (network-first) and <code>performance</code> (cache-first)</li>
+  <li>How do you handle app updates with service workers? → <code>SwUpdate.versionUpdates</code> → notify user → reload</li>
+  <li>Difference between <code>prefetch</code> and <code>lazy</code> installMode? → prefetch downloads on SW install; lazy downloads on first request</li>
+  <li>Can Angular service workers work with server-side rendering? → SW intercepts requests after first load; SSR handles initial HTML</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="http-advanced">6. HttpClient Advanced Patterns</h2>
+
+<h3>Request Caching with Interceptor</h3>
+<pre><code>// cache.interceptor.ts
+const cache = new Map&lt;string, { response: HttpResponse&lt;unknown&gt;; expiry: number }&gt;();
+
+export const cacheInterceptor: HttpInterceptorFn = (req, next) => {
+  // Only cache GET requests
+  if (req.method !== 'GET') {
+    return next(req);
+  }
+
+  const cached = cache.get(req.urlWithParams);
+  if (cached && cached.expiry > Date.now()) {
+    return of(cached.response.clone());
+  }
+
+  return next(req).pipe(
+    filter(event => event instanceof HttpResponse),
+    tap(response => {
+      if (response instanceof HttpResponse && response.ok) {
+        cache.set(req.urlWithParams, {
+          response: response.clone(),
+          expiry: Date.now() + 5 * 60 * 1000 // 5 min TTL
+        });
+      }
+    })
+  );
+};</code></pre>
+
+<h3>Retry with Exponential Backoff</h3>
+<pre><code>import { retry, timer } from 'rxjs';
+
+export const retryInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    retry({
+      count: 3,
+      delay: (error, retryCount) => {
+        // Only retry 5xx and network errors
+        if (error.status >= 400 && error.status < 500) {
+          throw error; // Don't retry client errors
+        }
+        const delayMs = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+        console.log(`Retry #${retryCount} in ${delayMs}ms`);
+        return timer(delayMs);
+      }
+    })
+  );
+};</code></pre>
+
+<h3>Transfer State (SSR → Client Hydration)</h3>
+<pre><code>// Avoid duplicate HTTP requests during SSR hydration
+// Angular 17+ does this automatically with provideClientHydration(withHttpTransferCacheOptions(...))
+
+import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
+
+// app.config.ts
+providers: [
+  provideClientHydration(
+    withHttpTransferCacheOptions({
+      includePostRequests: true,          // Cache POST responses too
+      filter: (req) => !req.url.includes('/auth'), // Skip auth endpoints
+    })
+  )
+]
+
+// How it works:
+// 1. SSR makes HTTP requests, stores responses in TransferState (embedded in HTML)
+// 2. Client hydration reads from TransferState instead of making duplicate requests
+// 3. After hydration, requests go to network normally</code></pre>
+
+<h3>Progress Events & Upload Tracking</h3>
+<pre><code>upload(file: File): Observable&lt;number | string&gt; {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return this.http.post('/api/upload', formData, {
+    reportProgress: true,
+    observe: 'events',
+  }).pipe(
+    map(event => {
+      switch (event.type) {
+        case HttpEventType.UploadProgress:
+          return Math.round((100 * (event.loaded ?? 0)) / (event.total ?? 1));
+        case HttpEventType.Response:
+          return event.body as string;
+        default:
+          return 0;
+      }
+    }),
+    distinctUntilChanged()
+  );
+}</code></pre>
+
+<h3>Interceptor Ordering & Chaining</h3>
+<pre><code>// Interceptors execute in ORDER for requests, REVERSE order for responses
+provideHttpClient(
+  withInterceptors([
+    loggingInterceptor,    // 1st for request, last for response
+    cacheInterceptor,      // 2nd for request
+    authInterceptor,       // 3rd for request
+    retryInterceptor,      // 4th for request, 1st for response (wraps retry around auth errors)
+  ])
+)
+
+// To conditionally skip interceptors:
+export const skipCache = new HttpContextToken&lt;boolean&gt;(() => false);
+
+// In service:
+this.http.get('/api/data', { context: new HttpContext().set(skipCache, true) });
+
+// In interceptor:
+if (req.context.get(skipCache)) return next(req);</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>How would you implement HTTP caching in Angular? → Interceptor + Map/WeakMap with TTL, only for GET, use HttpContext to skip</li>
+  <li>How does TransferState prevent duplicate requests in SSR? → Server stores responses in HTML; client reads from TransferState during hydration</li>
+  <li>What is <code>HttpContext</code>? → Per-request metadata that interceptors can read (Angular 12+)</li>
+  <li>How do interceptors execute? → Request: in order. Response: reverse order (onion model).</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="e2e">7. E2E Testing — Cypress & Playwright</h2>
+
+<h3>Playwright (Recommended for Angular)</h3>
+<pre><code>// Install: ng add @playwright/test (or npx playwright install)
+
+// e2e/login.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Login Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+  });
+
+  test('should login with valid credentials', async ({ page }) => {
+    await page.getByLabel('Email').fill('user@example.com');
+    await page.getByLabel('Password').fill('password123');
+    await page.getByRole('button', { name: 'Sign In' }).click();
+
+    // Wait for navigation
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByRole('heading', { name: 'Welcome' })).toBeVisible();
+  });
+
+  test('should show error for invalid credentials', async ({ page }) => {
+    await page.getByLabel('Email').fill('wrong@example.com');
+    await page.getByLabel('Password').fill('wrong');
+    await page.getByRole('button', { name: 'Sign In' }).click();
+
+    await expect(page.getByRole('alert')).toContainText('Invalid credentials');
+    await expect(page).toHaveURL('/login'); // Should NOT navigate
+  });
+
+  test('should be accessible', async ({ page }) => {
+    // Axe accessibility testing
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations).toEqual([]);
+  });
+});</code></pre>
+
+<h3>Cypress</h3>
+<pre><code>// cypress/e2e/todo.cy.ts
+describe('Todo App', () => {
+  beforeEach(() => {
+    cy.intercept('GET', '/api/todos', { fixture: 'todos.json' }).as('getTodos');
+    cy.visit('/todos');
+    cy.wait('@getTodos');
+  });
+
+  it('adds a new todo', () => {
+    cy.intercept('POST', '/api/todos', { id: 4, title: 'New todo', done: false }).as('addTodo');
+
+    cy.get('[data-testid="todo-input"]').type('New todo');
+    cy.get('[data-testid="add-btn"]').click();
+    cy.wait('@addTodo');
+
+    cy.get('[data-testid="todo-list"]').should('contain', 'New todo');
+  });
+
+  it('handles offline gracefully', () => {
+    cy.intercept('GET', '/api/todos', { forceNetworkError: true });
+    cy.visit('/todos');
+    cy.get('[data-testid="error-message"]').should('contain', 'offline');
+  });
+});</code></pre>
+
+<h3>E2E Best Practices</h3>
+<ul>
+  <li>Use <code>data-testid</code> attributes for selectors (not CSS classes or text that changes)</li>
+  <li>Use <code>getByRole</code> / <code>getByLabel</code> in Playwright for accessible selectors</li>
+  <li>Mock API responses (<code>cy.intercept</code> / <code>page.route</code>) for deterministic tests</li>
+  <li>Use Page Object Model for reusable navigation/interaction patterns</li>
+  <li>Run in CI with headless browsers</li>
+  <li>Test critical user journeys, not individual components (use unit tests for that)</li>
+</ul>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>Playwright vs Cypress vs Protractor? → Protractor deprecated; Playwright is fastest (parallel, auto-wait); Cypress has better DX for simpler apps</li>
+  <li>How do you handle flaky E2E tests? → Auto-wait (Playwright), retry, deterministic data (mocked APIs), avoid sleep()</li>
+  <li>How do you test an Angular app with E2E? → Serve app → hit real browser → interact as user → assert DOM state + URL</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="migration">8. Migration Strategies</h2>
+
+<h3>Modules → Standalone (Angular 14+)</h3>
+<pre><code>// Automated migration
+ng generate @angular/core:standalone
+
+// Three phases:
+// 1. Convert declarations to standalone
+// 2. Remove NgModules
+// 3. Bootstrap with standalone API
+
+// BEFORE: Module-based
+@NgModule({
+  declarations: [AppComponent, HeaderComponent],
+  imports: [BrowserModule, RouterModule.forRoot(routes), HttpClientModule],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
+
+// AFTER: Standalone
+// main.ts
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    provideAnimationsAsync()
+  ]
+});
+
+// Each component:
+@Component({
+  standalone: true,  // default in Angular 19
+  imports: [RouterOutlet, HeaderComponent, AsyncPipe],
+  template: `...`
+})
+export class AppComponent {}</code></pre>
+
+<h3>AngularJS (1.x) → Angular Migration</h3>
+<pre><code>// Strategy: Hybrid app with @angular/upgrade
+
+// 1. Prepare AngularJS app
+//    - Use component() instead of directive() for UI
+//    - Use TypeScript, classes, DI patterns
+//    - Organize into feature modules
+
+// 2. Bootstrap hybrid
+import { UpgradeModule } from '@angular/upgrade/static';
+
+@NgModule({ imports: [UpgradeModule] })
+export class AppModule {
+  constructor(private upgrade: UpgradeModule) {}
+  ngDoBootstrap() {
+    this.upgrade.bootstrap(document.body, ['legacyApp']);
+  }
+}
+
+// 3. Downgrade Angular components for use in AngularJS templates
+import { downgradeComponent } from '@angular/upgrade/static';
+angular.module('legacyApp')
+  .directive('appNewHeader', downgradeComponent({ component: HeaderComponent }));
+
+// 4. Upgrade AngularJS components for use in Angular templates
+import { UpgradeComponent } from '@angular/upgrade/static';
+@Directive({ selector: 'legacy-widget' })
+export class LegacyWidgetWrapper extends UpgradeComponent {
+  constructor(ref: ElementRef, injector: Injector) {
+    super('legacyWidget', ref, injector);
+  }
+}
+
+// 5. Gradually migrate route by route, component by component</code></pre>
+
+<h3>RxJS → Signals Migration</h3>
+<pre><code>// Gradual migration - they coexist perfectly
+
+// BEFORE: BehaviorSubject + async pipe
+@Component({
+  template: `{{ count$ | async }}`
+})
+export class CounterComponent {
+  private countSubject = new BehaviorSubject(0);
+  count$ = this.countSubject.asObservable();
+  increment() { this.countSubject.next(this.countSubject.value + 1); }
+}
+
+// AFTER: Signal
+@Component({
+  template: `{{ count() }}`
+})
+export class CounterComponent {
+  count = signal(0);
+  increment() { this.count.update(c => c + 1); }
+}
+
+// Interop bridges for gradual migration:
+// Observable → Signal:  const sig = toSignal(obs$, { initialValue: 0 })
+// Signal → Observable:  const obs$ = toObservable(sig)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="devtools">9. Angular DevTools & Debugging</h2>
+
+<h3>Angular DevTools (Chrome Extension)</h3>
+<ul>
+  <li><strong>Component Explorer:</strong> View component tree, inspect @Input/@Output values, see injected services</li>
+  <li><strong>Profiler:</strong> Record change detection cycles, see which components were checked, how long each took</li>
+  <li><strong>Directive Explorer:</strong> View directives applied to elements</li>
+  <li><strong>Router Tree:</strong> Visualize route configuration and active routes</li>
+</ul>
+
+<h3>Console Debugging Tricks</h3>
+<pre><code>// Access component instance from browser console:
+// 1. Select element in Elements tab
+// 2. In console:
+ng.getComponent($0)           // Get component instance
+ng.getOwningComponent($0)     // Get parent component
+ng.getDirectives($0)          // Get directives on element
+
+// Force change detection on a component:
+const comp = ng.getComponent($0);
+ng.applyChanges(comp);
+
+// Get injector and services:
+const injector = ng.getInjector($0);
+const router = injector.get(ng.coreTokens.Router);</code></pre>
+
+<h3>Performance Profiling</h3>
+<pre><code>// Enable detailed CD logging:
+// In main.ts (dev only):
+if (isDevMode()) {
+  // Shows which component triggered CD and why
+  enableProdMode(); // Actually reduces overhead
+}
+
+// Profile with Angular DevTools:
+// 1. Open DevTools → Angular tab → Profiler
+// 2. Click Record
+// 3. Interact with app
+// 4. Stop recording
+// 5. Analyze: Look for components checked unnecessarily (OnPush candidates)
+
+// Measure with Performance API:
+performance.mark('start-render');
+// ... operation ...
+performance.mark('end-render');
+performance.measure('render-time', 'start-render', 'end-render');
+
+// Zone.js task tracking (debug only):
+(window as any).Zone.current.get('TaskTrackingZone')?.macroTasks;</code></pre>
+
+<h3>Common Debugging Patterns</h3>
+<pre><code>// Debug RxJS streams without breaking the chain:
+import { tap } from 'rxjs';
+
+this.data$.pipe(
+  tap(v => console.log('[before map]', v)),
+  map(transform),
+  tap(v => console.log('[after map]', v)),
+).subscribe();
+
+// Debug Change Detection — which component re-rendered:
+ngDoCheck() {
+  console.log(`${this.constructor.name} checked`);
+}
+
+// Debug Dependency Injection — what's provided where:
+constructor(private injector: Injector) {
+  console.log('All providers:', injector); // Inspect in DevTools
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="web-workers">10. Web Workers in Angular</h2>
+
+<h3>When to Use Web Workers</h3>
+<ul>
+  <li>CPU-intensive calculations (encryption, parsing large JSON, image processing)</li>
+  <li>Operations that would block the main thread and cause jank</li>
+  <li>Background data processing while UI stays responsive</li>
+</ul>
+
+<h3>Creating a Web Worker</h3>
+<pre><code>// Generate:
+ng generate web-worker heavy-computation
+
+// heavy-computation.worker.ts
+/// &lt;reference lib="webworker" /&gt;
+addEventListener('message', ({ data }) => {
+  const result = performHeavyCalculation(data);
+  postMessage(result);
+});
+
+function performHeavyCalculation(input: number[]): number {
+  // Simulate expensive work
+  return input.reduce((sum, n) => sum + fibonacci(n), 0);
+}
+
+function fibonacci(n: number): number {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+// component using the worker:
+@Component({ ... })
+export class CalculationComponent {
+  result = signal&lt;number | null&gt;(null);
+  loading = signal(false);
+
+  calculate(data: number[]) {
+    this.loading.set(true);
+
+    if (typeof Worker !== 'undefined') {
+      const worker = new Worker(new URL('./heavy-computation.worker', import.meta.url));
+      worker.onmessage = ({ data: result }) => {
+        this.result.set(result);
+        this.loading.set(false);
+        worker.terminate(); // Clean up
+      };
+      worker.postMessage(data);
+    } else {
+      // Fallback for environments without Worker support
+      this.result.set(performHeavyCalculation(data));
+      this.loading.set(false);
+    }
+  }
+}</code></pre>
+
+<h3>Comlink for Ergonomic Worker Communication</h3>
+<pre><code>// Using Comlink library for cleaner API
+// worker.ts
+import { expose } from 'comlink';
+
+const api = {
+  async processData(items: Item[]): Promise&lt;ProcessedItem[]&gt; {
+    return items.map(item => heavyTransform(item));
+  },
+  async sortLargeDataset(data: any[], key: string): Promise&lt;any[]&gt; {
+    return data.sort((a, b) => a[key] - b[key]);
+  }
+};
+
+expose(api);
+
+// component.ts
+import { wrap } from 'comlink';
+
+const worker = new Worker(new URL('./worker', import.meta.url));
+const api = wrap&lt;typeof import('./worker').api&gt;(worker);
+
+// Use like a normal async function!
+const result = await api.processData(largeArray);</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>When would you use a Web Worker in Angular? → CPU-intensive tasks that would block UI (>50ms)</li>
+  <li>Can Web Workers access the DOM? → No. Workers run in separate thread with no DOM access</li>
+  <li>How do you communicate with Web Workers? → <code>postMessage</code> / <code>onmessage</code> (or Comlink for ergonomic async APIs)</li>
+  <li>What's the difference between Web Workers and Service Workers? → Web Workers: compute tasks. Service Workers: network proxy, caching, push notifications</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Bonus: Frequently Asked Senior-Level Questions</h2>
+
+<div class="callout">
+<strong>These topics span across phases but are specifically asked in tough interviews:</strong>
+</div>
+
+<h3>Angular Compiler — Deep Understanding</h3>
+<pre><code>// What does the Angular compiler actually do?
+
+// 1. Template Parsing → AST (Abstract Syntax Tree)
+//    - {{ expr }} → BoundText node
+//    - [prop]="expr" → BoundAttribute node
+//    - (event)="handler()" → BoundEvent node
+
+// 2. Type Checking (strictTemplates)
+//    - Generates a "type check block" (TCB) per component
+//    - Feeds it to TypeScript compiler for type errors in templates
+//    - Catches: wrong property names, type mismatches, missing inputs
+
+// 3. Code Generation
+//    - Generates component definition: ɵcmp
+//    - Template function with instructions: ɵɵelement(), ɵɵtext(), ɵɵproperty()
+//    - Each instruction = one DOM operation
+
+// Why does this matter?
+// - Understanding why AOT catches errors that JIT doesn't
+// - Why strictTemplates improves reliability
+// - How Angular achieves 0-overhead template rendering</code></pre>
+
+<h3>Dependency Injection — Resolution Order (Trick Question)</h3>
+<pre><code>// Q: In which order does Angular search for a provider?
+
+// Answer: TWO parallel hierarchies searched in order:
+
+// 1. Element Injector Hierarchy (component tree):
+//    Current component → parent component → ... → root component
+
+// 2. Module Injector Hierarchy (only if not found above):
+//    Lazy-loaded module injector → root module injector → platform injector → null injector
+
+// The NULL injector throws "NullInjectorError: No provider for X"
+// UNLESS you use @Optional() → returns null
+
+// Resolution Modifiers change this:
+// @Self()      → Only check current element injector
+// @SkipSelf()  → Skip current, start from parent
+// @Host()      → Stop at host component boundary
+// @Optional()  → Return null instead of error</code></pre>
+
+<h3>Zone.js Internals — What Gets Monkey-Patched?</h3>
+<pre><code>// Zone.js patches 200+ APIs. Key ones:
+// - setTimeout / setInterval / requestAnimationFrame
+// - Promise.then / catch / finally
+// - addEventListener (all DOM events)
+// - XMLHttpRequest / fetch
+// - MutationObserver / IntersectionObserver
+// - WebSocket.onmessage
+
+// Zone.js hooks:
+// onInvokeTask → "something async completed" → trigger CD
+// onInvoke → synchronous function execution tracked
+
+// Why Angular is moving to Zoneless:
+// 1. Zone.js patches EVERYTHING (performance cost)
+// 2. Can't distinguish "relevant" async from "irrelevant"
+// 3. 100KB+ added to bundle
+// 4. Signals give Angular precise knowledge of what changed</code></pre>
+
+<h3>Content Projection Edge Cases</h3>
+<pre><code>// Multi-slot projection with fallback content (Angular 18+)
+@Component({
+  selector: 'app-card',
+  template: `
+    &lt;div class="card"&gt;
+      &lt;header&gt;
+        &lt;ng-content select="[card-header]"&gt;
+          &lt;!-- Fallback if no header projected --&gt;
+          &lt;h3&gt;Default Header&lt;/h3&gt;
+        &lt;/ng-content&gt;
+      &lt;/header&gt;
+      &lt;main&gt;
+        &lt;ng-content /&gt;  &lt;!-- Default slot --&gt;
+      &lt;/main&gt;
+      &lt;footer&gt;
+        &lt;ng-content select="[card-footer]" /&gt;
+      &lt;/footer&gt;
+    &lt;/div&gt;
+  `
+})
+
+// Conditional content projection (lazy render projected content)
+@Component({
+  selector: 'app-accordion',
+  template: `
+    &lt;button (click)="isOpen = !isOpen"&gt;Toggle&lt;/button&gt;
+    @if (isOpen) {
+      &lt;ng-container [ngTemplateOutlet]="contentTemplate" /&gt;
+    }
+  `
+})
+export class AccordionComponent {
+  @ContentChild(TemplateRef) contentTemplate!: TemplateRef&lt;unknown&gt;;
+  isOpen = false;
+}
+
+// Usage — content is LAZILY rendered (not created until opened):
+&lt;app-accordion&gt;
+  &lt;ng-template&gt;
+    &lt;app-expensive-component /&gt;
+  &lt;/ng-template&gt;
+&lt;/app-accordion&gt;</code></pre>
+
+<h3>Signals — Gotchas & Edge Cases</h3>
+<pre><code>// 1. effect() doesn't track signals called conditionally
+const a = signal(1);
+const b = signal(2);
+const showB = signal(false);
+
+effect(() => {
+  console.log(a()); // Always tracked
+  if (showB()) {
+    console.log(b()); // Only tracked when showB is true!
+  }
+});
+
+// 2. Equality checking — signals use Object.is by default
+const obj = signal({ name: 'A' });
+obj.set({ name: 'A' }); // DOES trigger (different reference!)
+
+// Custom equality:
+const obj2 = signal({ name: 'A' }, { equal: (a, b) => a.name === b.name });
+obj2.set({ name: 'A' }); // Does NOT trigger (custom equality says equal)
+
+// 3. computed() is lazy — only evaluates when read
+const expensive = computed(() => heavyWork(source())); // Not called until expensive() is read
+
+// 4. untracked() — read signal without creating dependency
+effect(() => {
+  console.log(tracked());          // dependency
+  console.log(untracked(notTracked)); // NOT a dependency
+});</code></pre>
+
+<h3>NgZone Escape Patterns</h3>
+<pre><code>// Running outside Angular's zone for performance
+@Component({ ... })
+export class CanvasComponent {
+  private ngZone = inject(NgZone);
+
+  ngOnInit() {
+    // Animation loop — don't trigger CD on every frame!
+    this.ngZone.runOutsideAngular(() => {
+      this.animate();
+    });
+  }
+
+  private animate() {
+    // This runs 60fps WITHOUT triggering change detection
+    this.drawFrame();
+    requestAnimationFrame(() => this.animate());
+  }
+
+  // When you DO need to update the UI:
+  onSignificantChange(data: any) {
+    this.ngZone.run(() => {
+      this.displayData.set(data); // This triggers CD
+    });
+  }
+}</code></pre>
+
+<div class="nav-links">
+  <a href="phase13-interview-qa-masterclass.html">← Phase 13: Interview Q&A Masterclass</a>
+  <a href="phase15-internals-output-prediction.html">Phase 15: Internals & Output Prediction →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

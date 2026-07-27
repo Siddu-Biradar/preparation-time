@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JavaScript Mastery — Phase 3: Objects & Arrays Deep Dive</title>
+  <title>JavaScript Mastery — Phase 3: Objects & Arrays — Complete E2E</title>
   <style>
     @page { size: A4; margin: 18mm 16mm; }
     :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
@@ -27,21 +27,30 @@
     .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
     .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
     .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .output-q { background: #f8f4ff; border: 1px solid #d0b8f0; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .output-q h4 { color: #4a1580; margin-top: 0; }
+    .output-answer { background: #1a2530; color: #f0f7fc; border-radius: 6px; padding: 10px 14px; margin-top: 8px; font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; font-size: 9.6pt; white-space: pre-wrap; }
   </style>
 </head>
 <body>
 <main>
 
 <div class="hero">
-  <h1>Phase 3: Objects & Arrays Deep Dive</h1>
-  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (3 of 8)</p>
+  <h1>Phase 3: Objects &amp; Arrays — Complete E2E</h1>
+  <p class="subtitle">JavaScript Mastery — Zero to Hero Series (3 of 8) · Interview Ready · Angular-Aware</p>
   <div class="pill-row">
     <span class="pill">Object Creation</span>
     <span class="pill">Property Descriptors</span>
     <span class="pill">Destructuring</span>
+    <span class="pill">Map &amp; WeakMap</span>
+    <span class="pill">Set &amp; WeakSet</span>
     <span class="pill">Array Methods</span>
+    <span class="pill">Advanced Arrays</span>
     <span class="pill">Immutability</span>
-    <span class="pill">Shallow vs Deep Copy</span>
+    <span class="pill">Deep Copy</span>
+    <span class="pill">Equality</span>
+    <span class="pill">Type Coercion</span>
+    <span class="pill">Output Prediction</span>
   </div>
 </div>
 
@@ -49,16 +58,24 @@
   <strong>Table of Contents</strong>
   <ol>
     <li><a href="#object-creation">Object Creation Patterns</a></li>
-    <li><a href="#property-access">Property Access, Computed Keys & Shorthand</a></li>
-    <li><a href="#descriptors">Property Descriptors & Object.defineProperty</a></li>
-    <li><a href="#object-methods">Object Static Methods (keys, values, entries, assign, freeze)</a></li>
-    <li><a href="#destructuring">Destructuring (Objects & Arrays)</a></li>
-    <li><a href="#spread-rest-objects">Spread/Rest with Objects</a></li>
-    <li><a href="#array-methods">Array Methods Complete Reference</a></li>
-    <li><a href="#iteration">Iterating Objects & Arrays</a></li>
+    <li><a href="#property-access">Property Access, Computed Keys &amp; Shorthand</a></li>
+    <li><a href="#descriptors">Property Descriptors &amp; Object.defineProperty</a></li>
+    <li><a href="#object-methods">Object Static Methods</a></li>
+    <li><a href="#destructuring">Destructuring (Objects &amp; Arrays)</a></li>
+    <li><a href="#spread-rest-objects">Spread / Rest with Objects</a></li>
+    <li><a href="#array-methods">Array Methods — Complete Reference</a></li>
+    <li><a href="#iteration">Iterating Objects &amp; Arrays</a></li>
     <li><a href="#copy">Shallow Copy vs Deep Copy</a></li>
-    <li><a href="#json">JSON (parse, stringify, reviver, replacer)</a></li>
+    <li><a href="#json">JSON — parse, stringify, reviver, replacer</a></li>
     <li><a href="#immutability">Immutability Patterns</a></li>
+    <li><a href="#map-weakmap">Map &amp; WeakMap</a> ⭐ NEW</li>
+    <li><a href="#set-weakset">Set &amp; WeakSet</a> ⭐ NEW</li>
+    <li><a href="#array-advanced">Advanced Array Patterns &amp; Algorithms</a> ⭐ NEW</li>
+    <li><a href="#array-like">Array-like Objects &amp; Sparse Arrays</a> ⭐ NEW</li>
+    <li><a href="#equality">Object Equality &amp; Comparison</a> ⭐ NEW</li>
+    <li><a href="#coercion">Type Coercion with Objects</a> ⭐ NEW</li>
+    <li><a href="#patterns">Common Interview Patterns &amp; Challenges</a> ⭐ NEW</li>
+    <li><a href="#output-prediction">Output Prediction — Tricky Questions</a> ⭐ NEW</li>
   </ol>
 </div>
 
@@ -1013,12 +1030,1145 @@ const newState = updateNestedState(state, "user.profile.settings.theme", "light"
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
 
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="map-weakmap">12. Map &amp; WeakMap ⭐ NEW</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=hLgUTM3FOII" target="_blank">Map &amp; WeakMap — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=TkTf1MMRT0U" target="_blank">Map vs Object — Fireship</a></li>
+</ul></details>
+
+<h3>Map</h3>
+<p>Map is a key-value structure where <strong>any value</strong> (objects, functions, primitives) can be a key. Unlike plain objects, Map preserves insertion order for ALL key types.</p>
+
+<pre><code>// Creating a Map
+const map = new Map();
+const map2 = new Map([["name","Sid"], ["age",25], [42,"number key"]]);
+
+// Core operations
+map.set("name", "Sid");    // Set key-value (chainable: map.set().set())
+map.set("name", "Ram");    // Updates existing key
+map.get("name");           // "Ram"
+map.has("name");           // true
+map.has("unknown");        // false
+map.delete("name");        // true (false if not found)
+map.size;                  // NOT .length! Map uses .size
+map.clear();               // Remove ALL entries
+
+// ANY type as key — this is the key difference from plain objects
+const objKey = { id: 1 };
+const fnKey  = () => {};
+map.set(objKey, "user data");
+map.set(fnKey,  "fn data");
+map.set(NaN,    "NaN key");  // Even NaN works!
+map.get(objKey);             // "user data"
+map.get({ id: 1 });          // undefined! (different reference)
+
+// Iteration — guaranteed insertion order
+const scores = new Map([["Alice",90],["Bob",85],["Charlie",92]]);
+for (const [name, score] of scores) console.log(name, score);
+scores.keys();      // Iterator of keys
+scores.values();    // Iterator of values
+scores.entries();   // Iterator of [key,value] — same as for...of
+scores.forEach((value, key) => {}); // NOTE: value first, then key (unlike object)
+
+// Convert Map ↔ Object / Array
+const obj = { a: 1, b: 2 };
+const mapFromObj  = new Map(Object.entries(obj));  // Object → Map
+const objFromMap  = Object.fromEntries(map2);      // Map → Object
+const arrFromMap  = [...scores];                   // Map → array of entries
+const keysArr     = [...scores.keys()];            // Map → keys array</code></pre>
+
+<h4>Map vs Object — Decision Table</h4>
+<table>
+<tr><th>Feature</th><th>Map</th><th>Object ({})</th></tr>
+<tr><td>Key types</td><td>Any value (object, fn, primitive)</td><td>String or Symbol only</td></tr>
+<tr><td>Key order</td><td>Insertion order — guaranteed</td><td>Integers first, then insertion</td></tr>
+<tr><td>Size</td><td>.size (direct)</td><td>Object.keys(o).length</td></tr>
+<tr><td>Prototype pollution</td><td>None</td><td>Has inherited prototype keys</td></tr>
+<tr><td>Directly iterable</td><td>✅ for...of</td><td>❌ Needs Object.entries()</td></tr>
+<tr><td>JSON support</td><td>❌ Becomes {} in JSON</td><td>✅ Native</td></tr>
+<tr><td>Frequent add/delete perf</td><td>✅ Optimised</td><td>Slower for frequent changes</td></tr>
+</table>
+
+<pre><code>// ── COMMON MAP PATTERNS ─────────────────────────────────────────
+
+// 1. Memoization / Cache
+function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+// 2. Frequency counter (interview classic — O(n) not O(n²))
+function charFrequency(str) {
+  return [...str].reduce((map, char) =>
+    map.set(char, (map.get(char) || 0) + 1), new Map());
+}
+charFrequency("hello"); // Map { h→1, e→1, l→2, o→1 }
+
+// 3. Two-Sum with Map — O(n)
+function twoSum(nums, target) {
+  const seen = new Map(); // value → index
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (seen.has(complement)) return [seen.get(complement), i];
+    seen.set(nums[i], i);
+  }
+  return null;
+}
+twoSum([2, 7, 11, 15], 9); // [0, 1]
+
+// 4. LRU Cache — classic interview question
+class LRUCache {
+  #capacity;
+  #cache = new Map(); // Map preserves insertion order
+
+  constructor(capacity) { this.#capacity = capacity; }
+
+  get(key) {
+    if (!this.#cache.has(key)) return -1;
+    const value = this.#cache.get(key);
+    this.#cache.delete(key);
+    this.#cache.set(key, value); // move to end = most recently used
+    return value;
+  }
+
+  put(key, value) {
+    if (this.#cache.has(key)) this.#cache.delete(key);
+    else if (this.#cache.size >= this.#capacity) {
+      // Delete first entry = least recently used
+      this.#cache.delete(this.#cache.keys().next().value);
+    }
+    this.#cache.set(key, value);
+  }
+}</code></pre>
+
+<h3>WeakMap</h3>
+<pre><code>// WeakMap: keys MUST be objects; held WEAKLY (don't prevent GC)
+// Has NO: .size, .clear(), .keys(), .values(), iteration
+// When the key object is garbage collected, the entry vanishes automatically
+
+const weakMap = new WeakMap();
+let key = { id: 1 };
+weakMap.set(key, "data");
+weakMap.get(key);   // "data"
+weakMap.has(key);   // true
+key = null;         // GC can now collect the key + associated "data"!
+
+// Use Case 1: Private class data (pre-# private fields)
+const _private = new WeakMap();
+class User {
+  constructor(name, password) {
+    _private.set(this, { password, loginCount: 0 });
+    this.name = name;
+  }
+  verifyPassword(pwd) { return _private.get(this).password === pwd; }
+}
+const u = new User("Sid", "secret");
+u.verifyPassword("secret"); // true
+u.password;                 // undefined
+
+// Use Case 2: DOM metadata without memory leak
+const domMeta = new WeakMap();
+function attachMeta(element, data) { domMeta.set(element, data); }
+// When element removed from DOM and GC'd, its meta is auto-cleaned
+
+// Use Case 3: Track seen objects in algorithms
+function deepClone(obj, seen = new WeakMap()) {
+  if (obj === null || typeof obj !== "object") return obj;
+  if (seen.has(obj)) return seen.get(obj); // circular reference guard
+  const clone = Array.isArray(obj) ? [] : {};
+  seen.set(obj, clone);
+  for (const key in obj) if (Object.hasOwn(obj, key)) clone[key] = deepClone(obj[key], seen);
+  return clone;
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> When would you use Map over a plain object?</p>
+<p><strong>Answer:</strong> (1) Non-string keys needed, (2) Frequent add/delete operations, (3) Need .size without manual counting, (4) Avoid prototype pollution, (5) Need guaranteed insertion order for all key types. Use plain objects when JSON serialization needed or keys are always strings.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why can't WeakMap be iterated?</p>
+<p><strong>Answer:</strong> WeakMap keys are held weakly — a key can be garbage collected at any point. Iteration would require enumerating all keys, but a key might vanish mid-iteration. This non-determinism makes iteration semantically unsafe by design, not a limitation.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="set-weakset">13. Set &amp; WeakSet ⭐ NEW</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=hLgUTM3FOII" target="_blank">Set &amp; WeakSet — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IRi1v9SiExM" target="_blank">JavaScript Set — Fireship</a></li>
+</ul></details>
+
+<h3>Set</h3>
+<p>Set stores <strong>unique values</strong> of any type. Duplicates are silently ignored. Insertion order is preserved.</p>
+
+<pre><code>// Creating a Set
+const set = new Set([1, 2, 3, 2, 1]); // Set {1, 2, 3} — duplicates gone!
+
+// Core operations
+set.add(4).add(5); // Chainable — returns the Set
+set.has(2);        // true  — O(1) lookup!
+set.delete(2);     // true (false if not found)
+set.size;          // NOT .length!
+set.clear();
+
+// SameValueZero equality (like ===, but NaN === NaN, +0 === -0)
+const s = new Set([NaN, NaN, +0, -0]); // Set {NaN, 0} — one NaN, one 0
+
+// Iteration
+const nums = new Set([1,2,3,4]);
+for (const n of nums) console.log(n);
+[...nums];         // [1,2,3,4]
+Array.from(nums);  // [1,2,3,4]
+nums.forEach((val, val2, set) => {}); // val === val2 in Set (no distinct key)
+
+// ── ESSENTIAL PATTERNS ──────────────────────────────────────────
+
+// 1. Array deduplication (most common use)
+const arr = [1,2,2,3,3,3,4];
+const unique = [...new Set(arr)];   // [1,2,3,4]
+
+// 2. Set operations
+const A = new Set([1,2,3,4]);
+const B = new Set([3,4,5,6]);
+
+const union        = new Set([...A, ...B]);                      // {1,2,3,4,5,6}
+const intersection = new Set([...A].filter(x => B.has(x)));     // {3,4}
+const difference   = new Set([...A].filter(x => !B.has(x)));    // {1,2}
+const symDiff      = new Set([
+  ...[...A].filter(x => !B.has(x)),
+  ...[...B].filter(x => !A.has(x))
+]);  // {1,2,5,6}
+const isSubset = (sub, sup) => [...sub].every(x => sup.has(x));
+
+// 3. First duplicate — O(n) with Set
+function firstDuplicate(arr) {
+  const seen = new Set();
+  for (const val of arr) {
+    if (seen.has(val)) return val;
+    seen.add(val);
+  }
+  return null;
+}
+firstDuplicate([3,1,4,1,5,9]); // 1
+
+// 4. Deduplicate objects by property
+function deduplicateById(items) {
+  const seen = new Set();
+  return items.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+}</code></pre>
+
+<table>
+<tr><th>Feature</th><th>Set</th><th>Array</th></tr>
+<tr><td>Unique values</td><td>✅ Automatic</td><td>❌ Manual filtering</td></tr>
+<tr><td>Membership check</td><td>O(1) — .has()</td><td>O(n) — .includes()</td></tr>
+<tr><td>Index access</td><td>❌ No index</td><td>✅ arr[i]</td></tr>
+<tr><td>Duplicates</td><td>Ignored</td><td>Allowed</td></tr>
+<tr><td>Size</td><td>.size</td><td>.length</td></tr>
+</table>
+
+<h3>WeakSet</h3>
+<pre><code>// WeakSet: values MUST be objects, held weakly
+// No .size, no iteration, no .values()
+const weakSet = new WeakSet();
+const obj1 = { id: 1 };
+weakSet.add(obj1);
+weakSet.has(obj1);    // true
+weakSet.delete(obj1); // true
+
+// Use Case 1: Guard against processing same object twice (circular refs)
+const processed = new WeakSet();
+function processNode(node) {
+  if (processed.has(node)) return;
+  processed.add(node);
+  if (node.children) node.children.forEach(processNode);
+}
+
+// Use Case 2: Mark DOM elements as initialised without memory leak
+const initialised = new WeakSet();
+function initWidget(el) {
+  if (initialised.has(el)) return; // already done
+  initialised.add(el);
+  // ... setup
+}
+// When el removed from DOM and GC'd, WeakSet entry vanishes too</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> How do you remove duplicates from an array?</p>
+<p><strong>Answer:</strong> <code>[...new Set(arr)]</code> or <code>Array.from(new Set(arr))</code> — both O(n). For objects by a property: use a Map or a Set of IDs with .filter().</p>
+
+<p><span class="difficulty d-medium">Medium</span> Time complexity of Set.has() vs Array.includes()?</p>
+<p><strong>Answer:</strong> Set.has() = O(1) — hash table lookup. Array.includes() = O(n) — linear scan. For frequent membership tests on large collections, Set is dramatically faster. Classic interview optimisation: replace an array lookup with a Set.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Implement Set union, intersection, and difference.</p>
+<p><strong>Answer:</strong> Union: <code>new Set([...A,...B])</code>. Intersection: <code>new Set([...A].filter(x=>B.has(x)))</code>. Difference (A−B): <code>new Set([...A].filter(x=>!B.has(x)))</code>. All O(n) because Set.has() is O(1).</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="array-advanced">14. Advanced Array Patterns &amp; Algorithms ⭐ NEW</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=JgWm6sQwS_I" target="_blank">Two Pointers &amp; Sliding Window — NeetCode</a></li>
+  <li><a href="https://www.youtube.com/watch?v=GhuEpYxKekw" target="_blank">Sorting Algorithms — Traversy Media</a></li>
+</ul></details>
+
+<h3>Sorting Deep Dive</h3>
+<pre><code>// Default sort() uses LEXICOGRAPHIC (string) comparison — classic trap!
+[10, 9, 2, 100].sort();              // [10, 100, 2, 9] WRONG!
+[10, 9, 2, 100].sort((a, b) => a - b); // [2, 9, 10, 100] ✅ numeric
+
+// Sort objects by property
+const users = [{name:"Charlie",age:30},{name:"Alice",age:25},{name:"Bob",age:28}];
+users.sort((a, b) => a.age - b.age);               // ascending by age
+users.sort((a, b) => b.age - a.age);               // descending by age
+users.sort((a, b) => a.name.localeCompare(b.name)); // alphabetical
+
+// Multi-key sort
+users.sort((a, b) => {
+  if (a.dept !== b.dept) return a.dept.localeCompare(b.dept);
+  return a.name.localeCompare(b.name); // secondary sort within dept
+});
+
+// Fisher-Yates Shuffle (unbiased)
+function shuffle(arr) {
+  const result = [...arr]; // immutable — don't mutate original
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}</code></pre>
+
+<h3>Two-Pointer Technique</h3>
+<pre><code>// Use when: sorted array, pair-finding, palindrome, partitioning
+
+// Find pair summing to target (sorted array) — O(n)
+function twoSumSorted(arr, target) {
+  let left = 0, right = arr.length - 1;
+  while (left < right) {
+    const sum = arr[left] + arr[right];
+    if (sum === target) return [left, right];
+    sum < target ? left++ : right--;
+  }
+  return null;
+}
+twoSumSorted([1, 2, 3, 4, 6], 6); // [1, 3]
+
+// Palindrome check
+function isPalindrome(str) {
+  let l = 0, r = str.length - 1;
+  while (l < r) if (str[l++] !== str[r--]) return false;
+  return true;
+}
+
+// Remove duplicates from sorted array in-place
+function removeDuplicates(arr) {
+  let write = 1;
+  for (let read = 1; read < arr.length; read++) {
+    if (arr[read] !== arr[read - 1]) arr[write++] = arr[read];
+  }
+  return arr.slice(0, write);
+}</code></pre>
+
+<h3>Sliding Window Technique</h3>
+<pre><code>// Use when: max/min subarray, longest substring, contiguous sequence
+
+// Maximum sum subarray of size k — O(n)
+function maxSumSubarray(arr, k) {
+  let windowSum = arr.slice(0, k).reduce((a, b) => a + b, 0);
+  let maxSum = windowSum;
+  for (let i = k; i < arr.length; i++) {
+    windowSum += arr[i] - arr[i - k]; // slide: add new, remove old
+    maxSum = Math.max(maxSum, windowSum);
+  }
+  return maxSum;
+}
+maxSumSubarray([2, 1, 5, 1, 3, 2], 3); // 9 (5+1+3)
+
+// Longest substring without repeating characters
+function longestUniqueSubstring(s) {
+  const seen = new Map(); // char → last index
+  let maxLen = 0, start = 0;
+  for (let end = 0; end < s.length; end++) {
+    if (seen.has(s[end]) && seen.get(s[end]) >= start) {
+      start = seen.get(s[end]) + 1; // shrink window
+    }
+    seen.set(s[end], end);
+    maxLen = Math.max(maxLen, end - start + 1);
+  }
+  return maxLen;
+}
+longestUniqueSubstring("abcabcbb"); // 3 ("abc")</code></pre>
+
+<h3>Frequency Counter Pattern</h3>
+<pre><code>// Replaces O(n²) nested loops with O(n) by counting in a Map/object
+
+// Check anagram — O(n)
+function isAnagram(s1, s2) {
+  if (s1.length !== s2.length) return false;
+  const freq = {};
+  for (const c of s1) freq[c] = (freq[c] || 0) + 1;
+  for (const c of s2) {
+    if (!freq[c]) return false;
+    freq[c]--;
+  }
+  return true;
+}
+
+// Group anagrams — O(n * k log k) where k = avg string length
+function groupAnagrams(strs) {
+  const map = new Map();
+  for (const str of strs) {
+    const key = [...str].sort().join("");
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(str);
+  }
+  return [...map.values()];
+}
+groupAnagrams(["eat","tea","tan","ate","nat","bat"]);
+// [["eat","tea","ate"], ["tan","nat"], ["bat"]]</code></pre>
+
+<h3>Classic Coding Problems</h3>
+<pre><code>// Kadane's Algorithm — Maximum subarray sum
+function maxSubarraySum(nums) {
+  let maxSum = nums[0], currentSum = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    currentSum = Math.max(nums[i], currentSum + nums[i]);
+    maxSum = Math.max(maxSum, currentSum);
+  }
+  return maxSum;
+}
+maxSubarraySum([-2,1,-3,4,-1,2,1,-5,4]); // 6 ([4,-1,2,1])
+
+// Product of array except self — O(n), no division
+function productExceptSelf(nums) {
+  const n = nums.length;
+  const result = new Array(n).fill(1);
+  let left = 1;
+  for (let i = 0; i < n; i++) { result[i] = left; left *= nums[i]; }
+  let right = 1;
+  for (let i = n - 1; i >= 0; i--) { result[i] *= right; right *= nums[i]; }
+  return result;
+}
+productExceptSelf([1,2,3,4]); // [24,12,8,6]
+
+// Merge intervals
+function mergeIntervals(intervals) {
+  intervals.sort((a, b) => a[0] - b[0]);
+  const result = [intervals[0]];
+  for (let i = 1; i < intervals.length; i++) {
+    const last = result[result.length - 1];
+    if (intervals[i][0] <= last[1]) last[1] = Math.max(last[1], intervals[i][1]);
+    else result.push(intervals[i]);
+  }
+  return result;
+}
+mergeIntervals([[1,3],[2,6],[8,10],[15,18]]); // [[1,6],[8,10],[15,18]]
+
+// Chunk array (interview favourite)
+function chunk(arr, size) {
+  return arr.reduce((chunks, item, i) => {
+    const idx = Math.floor(i / size);
+    if (!chunks[idx]) chunks[idx] = [];
+    chunks[idx].push(item);
+    return chunks;
+  }, []);
+}
+chunk([1,2,3,4,5,6,7], 3); // [[1,2,3],[4,5,6],[7]]
+
+// Rotate array right by k positions
+function rotateRight(arr, k) {
+  const n = arr.length;
+  k = k % n;
+  return [...arr.slice(n - k), ...arr.slice(0, n - k)];
+}
+rotateRight([1,2,3,4,5], 2); // [4,5,1,2,3]
+
+// Transpose matrix
+const matrix = [[1,2,3],[4,5,6],[7,8,9]];
+const transpose = matrix[0].map((_, i) => matrix.map(row => row[i]));
+// [[1,4,7],[2,5,8],[3,6,9]]</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="array-like">15. Array-like Objects &amp; Sparse Arrays ⭐ NEW</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=BMUiFMZr7vk" target="_blank">arguments Object — Fun Fun Function</a></li>
+</ul></details>
+
+<h3>Array-like Objects</h3>
+<p>Array-like objects have indexed elements and a <code>length</code> property but are <strong>NOT</strong> arrays — they have no array methods.</p>
+
+<pre><code>// Common array-like objects:
+// arguments, NodeList, HTMLCollection, String
+
+// arguments — avoid in modern code; use rest params instead
+function sum() {
+  console.log(Array.isArray(arguments)); // false!
+  // arguments.map(...)                 // TypeError — no array methods!
+
+  // Convert to real array:
+  const args1 = Array.from(arguments);
+  const args2 = [...arguments];           // spread works
+  const args3 = Array.prototype.slice.call(arguments); // old way
+  return args1.reduce((a, b) => a + b, 0);
+}
+sum(1, 2, 3); // 6
+
+// ⚠️ Arrow functions do NOT have 'arguments':
+const arrowFn = () => {
+  // arguments here refers to outer scope's arguments, or ReferenceError
+};
+// Fix: use rest parameters
+const modern = (...nums) => nums.reduce((a, b) => a + b, 0);
+
+// NodeList (querySelectorAll) — has forEach but NOT map/filter/reduce
+const divs = document.querySelectorAll("div");
+Array.isArray(divs);         // false
+divs.forEach(d => {});       // ✅ NodeList has forEach
+// divs.map(d => d.id);      // ❌ TypeError
+[...divs].map(d => d.id);    // ✅ Convert first
+Array.from(divs, d => d.id); // ✅ Convert + map in one step
+
+// HTMLCollection (getElementsBy*) — no forEach, no spread-friendly
+const items = document.getElementsByClassName("item");
+Array.from(items).forEach(item => {}); // always convert first
+
+// Check if value is array-like
+function isArrayLike(obj) {
+  return obj != null && typeof obj === "object" &&
+    Number.isInteger(obj.length) && obj.length >= 0;
+}
+
+// Array.from with mapping (powerful pattern)
+Array.from({length: 5}, (_, i) => i * 2); // [0, 2, 4, 6, 8]
+Array.from("hello", c => c.toUpperCase()); // ["H","E","L","L","O"]</code></pre>
+
+<h3>Sparse Arrays (Holey Arrays)</h3>
+<pre><code>// Sparse arrays have "holes" — empty slots are NOT the same as undefined
+const sparse = [1, , 3, , 5]; // length=5, indices 1 & 3 are holes
+const holes  = new Array(5);   // [,,,,] — all holes, length=5
+
+sparse[1];          // undefined (holes read as undefined)
+1 in sparse;        // false (the index doesn't truly exist)
+0 in sparse;        // true
+
+// Different methods handle holes differently:
+const arr = [1, , 3];
+arr.map(x => x * 2);       // [2, empty, 6]  — skips holes, preserves gap
+arr.filter(x => true);     // [1, 3]          — removes holes!
+arr.forEach(x => {});      // Skips holes silently
+arr.includes(undefined);   // false            — holes NOT counted
+
+// fill removes holes:
+new Array(3).fill(0);      // [0, 0, 0] — no holes
+
+// Array.from gives dense arrays (no holes):
+Array.from({length: 3});   // [undefined, undefined, undefined] — dense
+[...new Array(3)];         // [undefined, undefined, undefined] — spread also fills</code></pre>
+
+<div class="callout warning">
+<strong>⚠️ Pitfall:</strong> <code>new Array(5)</code> creates 5 holes — NOT <code>[undefined, undefined, undefined, undefined, undefined]</code>. Methods like <code>.map()</code> will silently skip the holes. Always use <code>Array.from({length:5}, fn)</code> or <code>Array(5).fill(0)</code> if you want a dense array.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="equality">16. Object Equality &amp; Comparison ⭐ NEW</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=C5ZVC4HHgIg" target="_blank">Object Equality — Web Dev Simplified</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ndaS9eTHEDg" target="_blank">Equality Deep Dive — Akshay Saini</a></li>
+</ul></details>
+
+<h3>Reference Equality</h3>
+<pre><code>// Objects are compared by REFERENCE, not value
+const a = { x: 1 };
+const b = { x: 1 };
+const c = a;
+
+a === b;  // false — different memory references, even same content
+a === c;  // true  — same reference
+a == b;   // false — same result, == also compares by ref for objects
+
+// Primitives compared by VALUE:
+1 === 1;       // true
+"hi" === "hi"; // true
+
+// Object.is — like ===, but special cases:
+Object.is(NaN, NaN);  // true  (=== returns false!)
+Object.is(+0, -0);    // false (=== returns true!)
+Object.is(1, 1);      // true</code></pre>
+
+<h3>Shallow Equality</h3>
+<pre><code>// Check if two objects have same own enumerable props with === values
+function shallowEqual(obj1, obj2) {
+  if (obj1 === obj2) return true;                  // same reference
+  if (typeof obj1 !== "object" || obj1 === null) return false;
+  if (typeof obj2 !== "object" || obj2 === null) return false;
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  if (keys1.length !== keys2.length) return false;
+
+  return keys1.every(key =>
+    Object.hasOwn(obj2, key) && obj1[key] === obj2[key]
+  );
+}
+
+shallowEqual({ a:1, b:2 }, { a:1, b:2 });          // true
+shallowEqual({ a:1, b:{c:2} }, { a:1, b:{c:2} });  // false! nested ref</code></pre>
+
+<h3>Deep Equality</h3>
+<pre><code>function deepEqual(a, b, seen = new Map()) {
+  if (a === b) return true;
+  if (a === null || b === null) return a === b;
+  if (typeof a !== "object" || typeof b !== "object") return false;
+
+  // Circular reference guard
+  if (seen.has(a)) return seen.get(a) === b;
+  seen.set(a, b);
+
+  // Type mismatch
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
+  if (a instanceof RegExp && b instanceof RegExp) return a.toString() === b.toString();
+  if (a instanceof Map && b instanceof Map) {
+    if (a.size !== b.size) return false;
+    for (const [k, v] of a) {
+      if (!b.has(k) || !deepEqual(v, b.get(k), seen)) return false;
+    }
+    return true;
+  }
+  if (a instanceof Set && b instanceof Set) {
+    if (a.size !== b.size) return false;
+    for (const v of a) if (!b.has(v)) return false;
+    return true;
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+
+  return keysA.every(key =>
+    Object.hasOwn(b, key) && deepEqual(a[key], b[key], seen)
+  );
+}
+
+deepEqual({ a:1, b:{ c:2 } }, { a:1, b:{ c:2 } }); // true
+deepEqual([1, { x:2 }], [1, { x:2 }]);              // true</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> Why does <code>{} === {}</code> return false?</p>
+<p><strong>Answer:</strong> Objects are reference types. Each literal creates a new object at a different memory address. <code>===</code> compares addresses, not content. To compare content use shallowEqual or deepEqual.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Difference between <code>==</code> and <code>===</code> for objects?</p>
+<p><strong>Answer:</strong> For objects, both compare references — no difference. Coercion in <code>==</code> only matters when comparing different types. But <code>[] == false</code> is true ([] → "" → 0, false → 0), while <code>[] === false</code> is false. Always use <code>===</code> to avoid coercion surprises.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="coercion">17. Type Coercion with Objects ⭐ NEW</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=AJ9t_lMznl8" target="_blank">Type Coercion — Akshay Saini</a></li>
+  <li><a href="https://www.youtube.com/watch?v=exrc_rLj5iw" target="_blank">JavaScript Type Conversion — Web Dev Simplified</a></li>
+</ul></details>
+
+<h3>Object-to-Primitive Conversion</h3>
+<p>Three hints: <code>"number"</code> (arithmetic), <code>"string"</code> (template literals/String()), <code>"default"</code> (+ operator, ==).</p>
+
+<pre><code>// 1. Symbol.toPrimitive — highest priority, receives the hint
+const user = {
+  name: "Sid",
+  balance: 1000,
+  [Symbol.toPrimitive](hint) {
+    if (hint === "string")  return this.name;
+    if (hint === "number")  return this.balance;
+    return this.name;        // "default"
+  }
+};
+
+`${user}`;     // "Sid"   — string hint
++user;         // 1000    — number hint
+user + "";     // "Sid"   — default hint
+user > 500;    // true    — number hint (1000 > 500)
+
+// 2. valueOf() and toString() — fallback when no Symbol.toPrimitive
+const money = {
+  amount: 42,
+  toString() { return `${this.amount} USD`; },
+  valueOf()  { return this.amount; }
+};
+
+`${money}`;        // "42 USD"  (string hint → toString first)
+money * 2;         // 84        (number hint → valueOf first)
+money + 10;        // 52        (default hint → valueOf)
+money + " total";  // "42 total" (valueOf → 42, then 42 + " total")
+
+// 3. Plain object defaults
+({}).toString();  // "[object Object]"
++{};              // NaN  (valueOf → object, toString → "[object Object]", NaN)
++[];              // 0    (toString → "", Number("") = 0)
++[1];             // 1    (toString → "1", Number("1") = 1)
++[1,2];           // NaN  (toString → "1,2", Number("1,2") = NaN)</code></pre>
+
+<h4>Classic Coercion Traps (Interview Favourites)</h4>
+<pre><code>[] + [];    // ""                    (both → "")
+[] + {};   // "[object Object]"      ([] → "", {} → "[object Object]")
+{} + [];   // 0  when STATEMENT      ({} = empty block, +[] = 0)
+({}) + []; // "[object Object]"      when EXPRESSION
+
+// ⚠️ {} context matters — STATEMENT vs EXPRESSION
+// In a statement: {} is an empty block, not an object literal!
+
+// Loose equality coercion traps:
+null == undefined;  // true (only equal to each other)
+null == 0;          // false
+NaN == NaN;         // false (NaN is never equal to anything)
+[] == false;        // true  ([] → "" → 0, false → 0)
+"" == false;        // true  ("" → 0, false → 0)
+"1" == true;        // true  ("1" → 1, true → 1)</code></pre>
+
+<h4>Object.prototype.toString — Reliable Type Detection</h4>
+<pre><code>// typeof has holes — use Object.prototype.toString.call() for accuracy
+typeof null;       // "object" — famous JS bug!
+typeof [];         // "object"
+typeof new Date(); // "object"
+
+// Reliable type check:
+function getType(val) {
+  return Object.prototype.toString.call(val).slice(8, -1);
+}
+getType([]);           // "Array"
+getType({});           // "Object"
+getType(null);         // "Null"
+getType(undefined);    // "Undefined"
+getType(new Date());   // "Date"
+getType(new Map());    // "Map"
+getType(new Set());    // "Set"
+getType(/regex/);      // "RegExp"
+getType(42n);          // "BigInt"</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> What is Symbol.toPrimitive and when is it called?</p>
+<p><strong>Answer:</strong> Called when JS coerces an object to a primitive. Receives a hint: "number" for arithmetic, "string" for template literals/String(), "default" for + operator and ==. Takes priority over valueOf/toString. Used in value objects (e.g. Money, Date) to control coercion behaviour.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is the output of <code>[] + {}</code> vs <code>{} + []</code>?</p>
+<p><strong>Answer:</strong> <code>[] + {}</code>: [] → "", {} → "[object Object]" → <strong>"[object Object]"</strong>. <code>{} + []</code> as a <em>statement</em>: {} is an empty block, +[] = 0 → <strong>0</strong>. As an expression <code>({} + [])</code>: {} → "[object Object]", [] → "" → <strong>"[object Object]"</strong>. The parsing context (statement vs expression) changes the result.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="patterns">18. Common Interview Patterns &amp; Challenges ⭐ NEW</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/watch?v=Qr_6T6OhqQ0" target="_blank">Common JavaScript Patterns — Traversy Media</a></li>
+</ul></details>
+
+<h3>Object Transformation Patterns</h3>
+<pre><code>// ── FLATTEN NESTED OBJECT ────────────────────────────────────────
+// { a: { b: { c: 1 }, d: 2 } } → { "a.b.c": 1, "a.d": 2 }
+function flattenObject(obj, prefix = "") {
+  return Object.entries(obj).reduce((acc, [key, val]) => {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    if (val && typeof val === "object" && !Array.isArray(val)) {
+      Object.assign(acc, flattenObject(val, fullKey));
+    } else {
+      acc[fullKey] = val;
+    }
+    return acc;
+  }, {});
+}
+flattenObject({ a: { b: { c: 1 }, d: 2 }, e: 3 });
+// { "a.b.c": 1, "a.d": 2, "e": 3 }
+
+// ── UNFLATTEN ──────────────────────────────────────────────────
+function unflattenObject(flat) {
+  return Object.entries(flat).reduce((acc, [key, val]) => {
+    const keys = key.split(".");
+    let cur = acc;
+    for (let i = 0; i < keys.length - 1; i++) {
+      cur[keys[i]] = cur[keys[i]] || {};
+      cur = cur[keys[i]];
+    }
+    cur[keys.at(-1)] = val;
+    return acc;
+  }, {});
+}
+
+// ── PICK / OMIT ────────────────────────────────────────────────
+function pick(obj, keys) {
+  return keys.reduce((acc, k) => {
+    if (Object.hasOwn(obj, k)) acc[k] = obj[k];
+    return acc;
+  }, {});
+}
+function omit(obj, keys) {
+  const s = new Set(keys);
+  return Object.fromEntries(Object.entries(obj).filter(([k]) => !s.has(k)));
+}
+const user = { id:1, name:"Sid", password:"x", role:"admin" };
+pick(user, ["id","name"]);       // { id:1, name:"Sid" }
+omit(user, ["password","role"]); // { id:1, name:"Sid" }
+
+// ── TRANSFORM OBJECT VALUES ────────────────────────────────────
+const prices = { apple:1.5, banana:0.75 };
+const doubled = Object.fromEntries(
+  Object.entries(prices).map(([k, v]) => [k, v * 2])
+);  // { apple:3, banana:1.5 }
+
+// ── MEMOIZE ────────────────────────────────────────────────────
+function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+const fib = memoize(function f(n) { return n <= 1 ? n : fib(n-1) + fib(n-2); });
+
+// ── OBJECT DIFF (before/after) ─────────────────────────────────
+function objectDiff(before, after) {
+  const allKeys = new Set([...Object.keys(before), ...Object.keys(after)]);
+  const diff = {};
+  for (const key of allKeys) {
+    if (before[key] !== after[key]) diff[key] = { before: before[key], after: after[key] };
+  }
+  return diff;
+}
+objectDiff({a:1,b:2,c:3},{a:1,b:9,d:4}); // {b:{before:2,after:9},c:{before:3,after:undefined},d:{before:undefined,after:4}}</code></pre>
+
+<h3>Functional Patterns</h3>
+<pre><code>// ── PIPE (left-to-right composition) ──────────────────────────
+const pipe = (...fns) => x => fns.reduce((v, f) => f(v), x);
+const processUser = pipe(
+  u => ({ ...u, name: u.name.trim() }),
+  u => ({ ...u, email: u.email.toLowerCase() }),
+  u => ({ ...u, updatedAt: new Date() })
+);
+
+// ── DEBOUNCE (Angular search input pattern) ────────────────────
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// ── THROTTLE ───────────────────────────────────────────────────
+function throttle(fn, interval) {
+  let lastTime = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - lastTime >= interval) { lastTime = now; return fn.apply(this, args); }
+  };
+}
+
+// ── DEEP NESTED UPDATE (immutable, generic) ────────────────────
+function setIn(obj, [key, ...rest], value) {
+  if (rest.length === 0) return { ...obj, [key]: value };
+  return { ...obj, [key]: setIn(obj[key] || {}, rest, value) };
+}
+const state = { user: { profile: { theme: "dark" } } };
+setIn(state, ["user","profile","theme"], "light");
+// Original unchanged; new state has theme: "light"
+
+// ── OBSERVABLE / SIGNAL PATTERN ───────────────────────────────
+function createSignal(initialValue) {
+  let value = initialValue;
+  const subscribers = new Set();
+  return {
+    get() { return value; },
+    set(newValue) {
+      if (newValue !== value) { value = newValue; subscribers.forEach(fn => fn(value)); }
+    },
+    subscribe(fn) { subscribers.add(fn); return () => subscribers.delete(fn); }
+  };
+}
+const count = createSignal(0);
+const unsub = count.subscribe(v => console.log("count:", v));
+count.set(1); // "count: 1"
+unsub();      // stop listening</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="output-prediction">19. Output Prediction — Tricky Questions ⭐ NEW</h2>
+
+<p>Understand the <strong>WHY</strong>, not just the answer. These cover the most-asked output questions for tough rounds.</p>
+
+<div class="output-q">
+<h4>🔮 Q1 — Object Reference Trap</h4>
+<pre><code>const a = { x: 1 };
+const b = a;
+b.x = 99;
+console.log(a.x);</code></pre>
+<div class="output-answer">99
+// b is a REFERENCE to the same object. Modifying b.x modifies the shared object.
+// Fix for independent copy: const b = { ...a };</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q2 — Default Parameter Evaluation</h4>
+<pre><code>function addItem(arr = []) {
+  arr.push("item");
+  return arr;
+}
+console.log(addItem());
+console.log(addItem());</code></pre>
+<div class="output-answer">["item"]
+["item"]
+// Default [] is evaluated FRESH on every call — each call gets a NEW array.
+// Compare: if you did const D = []; function addItem(arr = D) — D would grow each call.</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q3 — Array Sort Without Comparator</h4>
+<pre><code>const nums = [10, 9, 2, 21, 3];
+nums.sort();
+console.log(nums);</code></pre>
+<div class="output-answer">[10, 2, 21, 3, 9]  ← WRONG lexicographic order
+// sort() without comparator converts to strings: "10" &lt; "2" because "1" &lt; "2"
+// Fix: nums.sort((a, b) => a - b) → [2, 3, 9, 10, 21]</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q4 — Object as Property Key</h4>
+<pre><code>const obj = {};
+const key1 = {};
+const key2 = {};
+obj[key1] = "value1";
+obj[key2] = "value2";
+console.log(obj[key1]);
+console.log(Object.keys(obj));</code></pre>
+<div class="output-answer">"value2"
+["[object Object]"]
+// Object keys must be strings. key1 and key2 both .toString() to "[object Object]"
+// They overwrite each other! Only one entry.
+// Fix: use a Map — map.set(key1, "value1"); map.set(key2, "value2");</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q5 — delete on Array</h4>
+<pre><code>const arr = [1, 2, 3];
+delete arr[1];
+console.log(arr);
+console.log(arr.length);</code></pre>
+<div class="output-answer">[1, empty, 3]  ← HOLE created, NOT removed
+3              ← length unchanged!
+// delete creates a SPARSE hole — it does NOT shift elements or update length.
+// Fix to remove: arr.splice(1, 1) → [1, 3], length becomes 2.</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q6 — for...in on Array</h4>
+<pre><code>Array.prototype.custom = function() {};
+const arr = [1, 2, 3];
+const result = [];
+for (const key in arr) result.push(key);
+console.log(result);</code></pre>
+<div class="output-answer">["0", "1", "2", "custom"]
+// for...in on arrays: gives STRING indices + inherited enumerable prototype methods!
+// Always use for...of or forEach for arrays. Never for...in on arrays.</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q7 — Spread Shallow Copy Trap</h4>
+<pre><code>const original = { level1: { level2: { value: "original" } } };
+const copy = { ...original };
+copy.level1.level2.value = "modified";
+console.log(original.level1.level2.value);</code></pre>
+<div class="output-answer">"modified"
+// Spread is SHALLOW. copy.level1 is the SAME reference as original.level1.
+// Fix: const copy = structuredClone(original);
+// OR: { ...original, level1: { ...original.level1, level2: { ...original.level1.level2 }}}</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q8 — Destructuring null Trap</h4>
+<pre><code>const data = { user: null };
+const { user: { name } = {} } = data;
+console.log(name);</code></pre>
+<div class="output-answer">TypeError: Cannot destructure property 'name' of null
+// Default { } ONLY fires when user === undefined. null IS defined (it's null).
+// So the default is skipped and JS tries to destructure null → TypeError.
+// Fix: const name = data?.user?.name;</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q9 — Map JSON Serialisation</h4>
+<pre><code>const map = new Map([["a",1],["b",2]]);
+console.log(JSON.stringify(map));
+console.log(JSON.stringify(Object.fromEntries(map)));</code></pre>
+<div class="output-answer">"{}"
+'{"a":1,"b":2}'
+// Map has no built-in JSON serialisation → becomes empty object {}
+// Fix: Object.fromEntries(map) converts Map to plain object, then stringify works</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q10 — typeof null and Arrays</h4>
+<pre><code>console.log(typeof null);
+console.log(typeof []);
+console.log(typeof {});
+console.log(Array.isArray([]));</code></pre>
+<div class="output-answer">"object"   ← historic JS bug!
+"object"   ← arrays are objects
+"object"
+true
+// typeof can't distinguish null/array/object/date.
+// Use: Array.isArray(), instanceof, Object.prototype.toString.call()</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q11 — Object.freeze Shallow Trap</h4>
+<pre><code>const config = Object.freeze({ api: { timeout: 3000 }, debug: false });
+config.debug = true;
+config.api.timeout = 9000;
+console.log(config.debug);
+console.log(config.api.timeout);</code></pre>
+<div class="output-answer">false   ← top-level blocked by freeze
+9000    ← nested object is NOT frozen! Mutation succeeds!
+// Object.freeze is SHALLOW — only the top level is frozen.
+// Fix: use recursive deepFreeze() function (see Section 15)</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q12 — Symbol Key Visibility</h4>
+<pre><code>const id = Symbol("id");
+const user = { name: "Sid", [id]: 42, age: 25 };
+console.log(Object.keys(user));
+console.log(JSON.stringify(user));
+console.log(user[id]);</code></pre>
+<div class="output-answer">["name", "age"]           ← Symbol keys excluded from Object.keys!
+'{"name":"Sid","age":25}'  ← Symbol keys excluded from JSON!
+42                         ← direct access via Symbol works fine
+// Object.getOwnPropertySymbols(user) → [Symbol(id)]
+// Reflect.ownKeys(user) → ["name","age",Symbol(id)]</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q13 — Set SameValueZero</h4>
+<pre><code>const s = new Set([1, "1", true, 1, "1", NaN, NaN, +0, -0]);
+console.log(s.size);
+console.log([...s]);</code></pre>
+<div class="output-answer">5
+[1, "1", true, NaN, 0]
+// 1 and "1" are different types → both kept
+// 1 and true: SameValueZero — 1 !== true (different types) → both kept
+// NaN === NaN in Set (special case) → one NaN
+// +0 and -0 are SAME in Set (SameValueZero) → one 0</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q14 — Constructor Return Override</h4>
+<pre><code>function Foo() { this.name = "Foo"; return { name: "Override" }; }
+function Bar() { this.name = "Bar"; return 42; }
+const f = new Foo();
+const b = new Bar();
+console.log(f.name, b.name);</code></pre>
+<div class="output-answer">"Override"  "Bar"
+// If constructor returns an OBJECT → that object is the result of new.
+// If constructor returns a PRIMITIVE (or nothing) → 'this' is returned.
+// Foo returns an object → f is that object. Bar returns 42 (primitive) → f is 'this'.</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q15 — Object.assign Deep Merge Trap</h4>
+<pre><code>const defaults = { db: { host: "localhost", port: 5432 } };
+const overrides = { db: { host: "prod.db.com" } };
+const config = Object.assign({}, defaults, overrides);
+console.log(config.db);</code></pre>
+<div class="output-answer">{ host: "prod.db.com" }  ← port is LOST!
+// Object.assign is SHALLOW. overrides.db REPLACES defaults.db entirely.
+// Fix: { ...defaults, db: { ...defaults.db, ...overrides.db } }
+// Result: { host: "prod.db.com", port: 5432 }</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q16 — Array Sparse Holes &amp; Methods</h4>
+<pre><code>const arr = [1, , 3];
+console.log(arr.map(x => x * 2));
+console.log(arr.filter(x => true));
+console.log(arr.includes(undefined));</code></pre>
+<div class="output-answer">[2, empty, 6]   ← map SKIPS holes, preserves gap position
+[1, 3]          ← filter REMOVES holes
+false           ← holes are NOT counted as undefined by includes()
+// arr[1] reads as undefined, but holes don't truly exist as entries.</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q17 — Shorthand Property Copies Value</h4>
+<pre><code>let x = 1, y = 2;
+const obj = { x, y };
+x = 10;
+console.log(obj.x);</code></pre>
+<div class="output-answer">1
+// Shorthand { x, y } copies the VALUE at time of creation (primitives are copied by value).
+// Later reassigning x does not affect obj.x.
+// If x were an object: const arr = []; const o = { arr }; arr.push(1); o.arr → [1] (same ref)</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q18 — arguments vs Arrow Function</h4>
+<pre><code>function outer() {
+  const inner = () => {
+    console.log(arguments[0]);
+  };
+  inner(99);
+}
+outer(42);</code></pre>
+<div class="output-answer">42
+// Arrow functions do NOT have their own 'arguments'.
+// They inherit 'arguments' from the nearest non-arrow enclosing function (outer).
+// So arguments[0] is 42 (outer's argument), NOT 99 (inner's argument).
+// Fix: use rest params: const inner = (...args) => { console.log(args[0]); };</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q19 — Object.keys Key Ordering</h4>
+<pre><code>const obj = { b: 2, a: 1, "3": "three", "1": "one", c: 3 };
+console.log(Object.keys(obj));</code></pre>
+<div class="output-answer">["1", "3", "b", "a", "c"]
+// Key ordering: integer-like keys first (ascending), then string keys (insertion order).
+// "1" and "3" are integer-like → sorted numerically first.
+// "b", "a", "c" are non-integer strings → insertion order preserved.</div>
+</div>
+
+<div class="output-q">
+<h4>🔮 Q20 — flatMap vs map + flat</h4>
+<pre><code>const arr = [[1,2],[3,4]];
+console.log(arr.flatMap(x => x));
+console.log(arr.flatMap(x => [[x]]));
+console.log(arr.flat(Infinity));</code></pre>
+<div class="output-answer">[1, 2, 3, 4]      ← flatMap = map + flat(1)
+[[[1,2]], [[3,4]]] ← flatMap wraps each element, then flattens 1 level only
+[1, 2, 3, 4]      ← flat(Infinity) flattens all nesting
+// flatMap always only flattens ONE level regardless of what mapper returns.
+// For multi-level: use .map(...).flat(depth)</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
 <div class="nav-links">
-  <a href="phase2-functions-scope-closures.html">← Phase 2: Functions & Closures</a>
-  <a href="phase4-prototypes-classes-oop.html">Phase 4: Prototypes & OOP →</a>
+  <a href="phase2-functions-scope-closures.html">← Phase 2: Functions &amp; Closures</a>
+  <a href="phase4-prototypes-classes-oop.html">Phase 4: Prototypes &amp; OOP →</a>
 </div>
 
 </main>
 <script src="js-notes-inline.js"></script>
+<script src="nav.js"></script>
 </body>
 </html>
