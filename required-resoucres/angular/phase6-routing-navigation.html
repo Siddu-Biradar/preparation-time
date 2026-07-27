@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 6: Routing & Navigation</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 6: Routing & Navigation</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (6 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Router Configuration</span>
+    <span class="pill">Route Guards</span>
+    <span class="pill">Resolvers</span>
+    <span class="pill">Lazy Loading</span>
+    <span class="pill">Nested Routes</span>
+    <span class="pill">Route Params</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Router Configuration</h2>
+
+<pre><code>// app.routes.ts
+export const routes: Routes = [
+  // Static route
+  { path: '', component: HomeComponent },
+  
+  // Route with params
+  { path: 'users/:id', component: UserDetailComponent },
+  
+  // Route with multiple params
+  { path: 'projects/:projectId/tasks/:taskId', component: TaskDetailComponent },
+  
+  // Redirect
+  { path: 'home', redirectTo: '', pathMatch: 'full' },
+  
+  // Lazy-loaded standalone component
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./features/dashboard/dashboard.component')
+      .then(m => m.DashboardComponent),
+    canActivate: [authGuard]
+  },
+  
+  // Lazy-loaded child routes
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes')
+      .then(m => m.ADMIN_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'admin' }
+  },
+
+  // Route with resolver
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    resolve: { user: userResolver }
+  },
+
+  // Wildcard (404) — MUST be last
+  { path: '**', component: NotFoundComponent }
+];
+
+// app.config.ts
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(
+      routes,
+      withPreloading(PreloadAllModules),
+      withComponentInputBinding(),      // Bind route params to @Input()
+      withRouterConfig({ onSameUrlNavigation: 'reload' }),
+      withHashLocation()                // Use # in URLs (optional)
+    )
+  ]
+};</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. Accessing Route Data</h2>
+
+<pre><code>// Method 1: withComponentInputBinding() — MODERN (Angular 16+)
+// Route params automatically bound to @Input with same name!
+@Component({ ... })
+export class UserDetailComponent {
+  @Input() id!: string;  // Automatically bound from :id in URL
+  // Works for route params, query params, data, and resolve
+}
+
+// Method 2: ActivatedRoute (traditional)
+export class UserDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  ngOnInit() {
+    // Route params (observable — reacts to URL changes)
+    this.route.params.subscribe(params => {
+      this.userId = params['id'];
+    });
+
+    // Snapshot (one-time, no reactivity)
+    const id = this.route.snapshot.params['id'];
+
+    // Query params: /users?page=2&sort=name
+    this.route.queryParams.subscribe(params => {
+      this.page = +params['page'] || 1;
+      this.sort = params['sort'] || 'name';
+    });
+
+    // Fragment: /users#section1
+    this.route.fragment.subscribe(f => this.fragment = f);
+
+    // Route data (static data defined in route config)
+    this.route.data.subscribe(data => {
+      this.role = data['role'];
+      this.resolvedUser = data['user'];  // From resolver
+    });
+
+    // URL segments
+    this.route.url.subscribe(segments => { ... });
+  }
+
+  // Programmatic navigation
+  goToUser(id: string) {
+    this.router.navigate(['/users', id]);
+    this.router.navigate(['/users', id], { queryParams: { tab: 'posts' } });
+    this.router.navigate(['/users', id], { 
+      queryParams: { page: 2 },
+      queryParamsHandling: 'merge'  // Keep existing query params
+    });
+    this.router.navigateByUrl('/users/123?tab=posts');
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. Route Guards (Functional — Modern)</h2>
+
+<pre><code>// auth.guard.ts — canActivate
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (authService.isAuthenticated()) {
+    return true;
+  }
+  
+  // Store attempted URL for redirect after login
+  return router.createUrlTree(['/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+};
+
+// role.guard.ts — role-based access
+export const roleGuard: CanActivateFn = (route) => {
+  const authService = inject(AuthService);
+  const requiredRole = route.data['role'] as string;
+  
+  return authService.hasRole(requiredRole);
+};
+
+// unsaved-changes.guard.ts — canDeactivate
+export interface HasUnsavedChanges {
+  hasUnsavedChanges(): boolean;
+}
+
+export const unsavedChangesGuard: CanDeactivateFn&lt;HasUnsavedChanges&gt; = 
+  (component) => {
+    if (component.hasUnsavedChanges()) {
+      return confirm('You have unsaved changes. Leave anyway?');
+    }
+    return true;
+  };
+
+// canMatch — prevent route from matching (useful for feature flags)
+export const featureFlagGuard: CanMatchFn = (route) => {
+  const featureService = inject(FeatureFlagService);
+  return featureService.isEnabled(route.data?.['feature']);
+};
+
+// Usage in routes:
+{
+  path: 'admin',
+  canActivate: [authGuard, roleGuard],
+  canDeactivate: [unsavedChangesGuard],
+  canMatch: [featureFlagGuard],
+  data: { role: 'admin', feature: 'admin-panel' },
+  loadComponent: () => import('./admin.component')
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>4. Resolvers</h2>
+
+<pre><code>// user.resolver.ts — Fetch data BEFORE navigation
+export const userResolver: ResolveFn&lt;User&gt; = (route) => {
+  const userService = inject(UserService);
+  const router = inject(Router);
+  const id = route.params['id'];
+
+  return userService.getUser(id).pipe(
+    catchError(() => {
+      router.navigate(['/not-found']);
+      return EMPTY;
+    })
+  );
+};
+
+// Usage:
+{ 
+  path: 'users/:id', 
+  component: UserDetailComponent,
+  resolve: { user: userResolver }
+}
+
+// Component receives resolved data via route data or @Input
+@Component({ ... })
+export class UserDetailComponent {
+  @Input() user!: User;  // With withComponentInputBinding()
+  // OR
+  user = inject(ActivatedRoute).snapshot.data['user'];
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>5. Nested Routes & Layouts</h2>
+
+<pre><code>// Multi-layout pattern
+export const routes: Routes = [
+  // Auth layout (no sidebar/header)
+  {
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent }
+    ]
+  },
+  // Main layout (with sidebar/header)
+  {
+    path: '',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: 'dashboard', component: DashboardComponent },
+      { 
+        path: 'users',
+        children: [
+          { path: '', component: UserListComponent },
+          { path: ':id', component: UserDetailComponent },
+          { path: ':id/edit', component: UserEditComponent }
+        ]
+      }
+    ]
+  }
+];
+
+// Layout component
+@Component({
+  template: `
+    &lt;app-header /&gt;
+    &lt;div class="layout"&gt;
+      &lt;app-sidebar /&gt;
+      &lt;main&gt;
+        &lt;router-outlet /&gt;  &lt;!-- Child routes render here --&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  `
+})
+export class MainLayoutComponent { }
+
+// Named outlets (auxiliary routes)
+// URL: /dashboard(chat:open)
+{ path: 'open', component: ChatPanelComponent, outlet: 'chat' }
+// Template: &lt;router-outlet name="chat" /&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>6. Router Events</h2>
+
+<pre><code>export class AppComponent {
+  private router = inject(Router);
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => 
+        event instanceof NavigationStart ||
+        event instanceof NavigationEnd ||
+        event instanceof NavigationError
+      )
+    ).subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.showLoading();
+      }
+      if (event instanceof NavigationEnd) {
+        this.hideLoading();
+        this.trackPageView(event.urlAfterRedirects);
+      }
+      if (event instanceof NavigationError) {
+        this.hideLoading();
+        this.handleError(event.error);
+      }
+    });
+  }
+}
+
+// All router events:
+// NavigationStart → RoutesRecognized → GuardsCheckStart → 
+// ChildActivationStart → ActivationStart → GuardsCheckEnd →
+// ResolveStart → ResolveEnd → ActivationEnd → 
+// ChildActivationEnd → NavigationEnd/NavigationCancel/NavigationError</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>7. View Transitions API (withViewTransitions)</h2>
+
+<p>Angular 17+ integrates the browser's View Transitions API for smooth page-to-page animations during navigation — no manual animation code needed.</p>
+
+<pre><code>// Enable view transitions:
+provideRouter(routes,
+  withViewTransitions({
+    skipInitialTransition: true,  // Don't animate first page load
+    onViewTransitionCreated: (info) => {
+      // info.transition: ViewTransition object
+      // info.from: ActivatedRouteSnapshot
+      // info.to: ActivatedRouteSnapshot
+      
+      // Custom logic: skip transition for back navigation
+      if (info.from.url.toString() > info.to.url.toString()) {
+        info.transition.skipTransition();
+      }
+    }
+  })
+)
+
+// CSS for transitions (in global styles):
+::view-transition-old(root) {
+  animation: slide-out 0.3s ease-in;
+}
+::view-transition-new(root) {
+  animation: slide-in 0.3s ease-out;
+}
+
+// Per-element transitions (shared element animation):
+// Component A:
+&lt;img [src]="product.image" style="view-transition-name: product-hero" /&gt;
+// Component B (same view-transition-name):
+&lt;img [src]="product.image" style="view-transition-name: product-hero" /&gt;
+// → Browser animates the image smoothly between pages!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>8. Advanced Preloading Strategies</h2>
+
+<pre><code>// Built-in strategies:
+provideRouter(routes,
+  withPreloading(PreloadAllModules)  // Preload all lazy routes after initial load
+)
+
+// Custom strategy — preload based on route data:
+@Injectable({ providedIn: 'root' })
+class SelectivePreloadStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable&lt;any&gt;): Observable&lt;any&gt; {
+    // Only preload routes marked with data.preload = true
+    return route.data?.['preload'] ? load() : of(null);
+  }
+}
+
+// Routes:
+{ path: 'dashboard', loadComponent: ..., data: { preload: true } },  // ← preloaded
+{ path: 'admin', loadComponent: ... }  // ← NOT preloaded (loads on navigate)
+
+// Network-aware preloading (only on fast connections):
+@Injectable({ providedIn: 'root' })
+class NetworkAwarePreload implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable&lt;any&gt;): Observable&lt;any&gt; {
+    const conn = (navigator as any).connection;
+    const dominated = conn?.saveData || conn?.effectiveType === '2g';
+    return dominated ? of(null) : load();
+  }
+}
+
+provideRouter(routes, withPreloading(NetworkAwarePreload))</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>9. Other Functional Router Features</h2>
+
+<pre><code>provideRouter(routes,
+  withComponentInputBinding(),       // Bind route params to @Input / input()
+  withViewTransitions(),             // Smooth page transitions
+  withPreloading(PreloadAllModules), // Background preloading
+  withNavigationErrorHandler((err) => {
+    // Global handler for navigation errors (replaces NavigationError subscription)
+    inject(Router).navigate(['/error'], { state: { error: err } });
+  }),
+  withHashLocation(),                // Use hash-based URLs (#/path)
+  withRouterConfig({
+    onSameUrlNavigation: 'reload',   // Allow re-triggering same route
+    paramsInheritanceStrategy: 'always', // Children inherit parent params
+    urlUpdateStrategy: 'eager'       // Update URL before guards resolve
+  }),
+  withInMemoryScrolling({
+    scrollPositionRestoration: 'enabled',  // Restore scroll on back/forward
+    anchorScrolling: 'enabled'             // Scroll to #anchors
+  }),
+  withDebugTracing()                 // Log all router events (dev only)
+)</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 6</h4>
+<ol>
+  <li>Explain the difference between canActivate, canDeactivate, and canMatch guards.</li>
+  <li>How does lazy loading work with the Angular router?</li>
+  <li>What are resolvers? When would you use them vs loading data in ngOnInit?</li>
+  <li>How do you implement role-based route protection?</li>
+  <li>What's the difference between route.params (observable) and route.snapshot.params?</li>
+  <li>How do you implement multiple layouts (auth layout vs main layout)?</li>
+  <li>What is withComponentInputBinding()? How does it simplify route data access?</li>
+  <li>What is withViewTransitions()? How does it work? → Browser View Transitions API, per-element animations via view-transition-name</li>
+  <li>How would you implement a custom preloading strategy? → Implement PreloadingStrategy interface, use route data to decide</li>
+  <li>What is withNavigationErrorHandler? → Global error handler for failed navigations (replaces subscribing to router.events)</li>
+  <li>How do you restore scroll position in an SPA? → withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })</li>
+</ol>
+</div>
+
+<div class="nav-links">
+  <a href="phase5-change-detection-performance.html">← Phase 5: Change Detection</a>
+  <a href="phase7-forms-validation.html">Phase 7: Forms & Validation →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

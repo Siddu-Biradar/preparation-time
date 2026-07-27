@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Palette Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1e1e2e; color: #cdd6f4; padding: 24px; min-height: 100vh; }
+    h2 { margin-bottom: 8px; color: #89b4fa; }
+    .hint { font-size: 13px; color: #a6adc8; margin-bottom: 20px; }
+    .hint kbd { background: #313244; padding: 2px 8px; border-radius: 4px; font-size: 12px; border: 1px solid #45475a; }
+    .cmd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-start; justify-content: center; padding-top: 15vh; z-index: 100; }
+    .cmd-overlay.visible { display: flex; }
+    .cmd-palette { width: 500px; max-width: 90vw; background: #1e1e2e; border: 1px solid #45475a; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; }
+    .cmd-input { width: 100%; padding: 14px 18px; background: #1e1e2e; border: none; border-bottom: 1px solid #45475a; color: #cdd6f4; font-size: 15px; outline: none; }
+    .cmd-input::placeholder { color: #6c7086; }
+    .cmd-results { max-height: 300px; overflow-y: auto; }
+    .cmd-item { display: flex; align-items: center; padding: 10px 18px; cursor: pointer; transition: background 0.1s; }
+    .cmd-item:hover, .cmd-item.active { background: #313244; }
+    .cmd-label { flex: 1; font-size: 14px; }
+    .cmd-item kbd { background: #45475a; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #a6adc8; margin-left: 8px; }
+    .cmd-cat { font-size: 11px; color: #6c7086; margin-left: 12px; }
+    .cmd-empty { padding: 20px; text-align: center; color: #6c7086; }
+    .output { margin-top: 20px; padding: 12px; background: #313244; border-radius: 8px; font-size: 13px; min-height: 40px; }
+  </style>
+</head>
+<body>
+  <h2>⌨️ Command Palette (VS Code-style)</h2>
+  <p class="hint">Press <kbd>⌘</kbd> + <kbd>K</kbd> to open (or click below)</p>
+  <button onclick="palette.open()" style="padding:10px 20px; background:#89b4fa; color:#1e1e2e; border:none; border-radius:8px; cursor:pointer; font-weight:600; margin-top:8px">Open Command Palette</button>
+  <div class="output" id="output">Execute a command to see output here...</div>
+
+  <script>
+    class CommandPalette {
+      constructor(options = {}) {
+        this.commands = options.commands || [];
+        this.isOpen = false;
+        this.query = '';
+        this.activeIndex = 0;
+        this.filteredCommands = [];
+        this.createDOM();
+        this.bindGlobalShortcut();
+      }
+
+      createDOM() {
+        this.overlay = document.createElement('div');
+        this.overlay.className = 'cmd-overlay';
+        this.overlay.innerHTML = `
+          <div class="cmd-palette">
+            <input class="cmd-input" placeholder="Type a command..." autocomplete="off">
+            <div class="cmd-results"></div>
+          </div>
+        `;
+        document.body.appendChild(this.overlay);
+        this.input = this.overlay.querySelector('.cmd-input');
+        this.results = this.overlay.querySelector('.cmd-results');
+        this.bindEvents();
+      }
+
+      bindGlobalShortcut() {
+        document.addEventListener('keydown', (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); this.toggle(); }
+          if (e.key === 'Escape' && this.isOpen) this.close();
+        });
+      }
+
+      bindEvents() {
+        this.input.addEventListener('input', () => { this.query = this.input.value; this.activeIndex = 0; this.search(); });
+        this.input.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowDown') { e.preventDefault(); this.moveActive(1); }
+          if (e.key === 'ArrowUp') { e.preventDefault(); this.moveActive(-1); }
+          if (e.key === 'Enter') { this.executeActive(); }
+        });
+        this.overlay.addEventListener('click', (e) => { if (e.target === this.overlay) this.close(); });
+      }
+
+      search() {
+        const q = this.query.toLowerCase();
+        if (!q) { this.filteredCommands = [...this.commands]; }
+        else {
+          this.filteredCommands = this.commands
+            .map(cmd => ({ ...cmd, score: this.fuzzyScore(cmd.label.toLowerCase(), q) }))
+            .filter(cmd => cmd.score > 0)
+            .sort((a, b) => b.score - a.score);
+        }
+        this.renderResults();
+      }
+
+      fuzzyScore(str, query) {
+        let score = 0, qi = 0;
+        for (let i = 0; i < str.length && qi < query.length; i++) {
+          if (str[i] === query[qi]) { score += (i === 0 || str[i-1] === ' ' ? 10 : 1); qi++; }
+        }
+        return qi === query.length ? score : 0;
+      }
+
+      renderResults() {
+        this.results.innerHTML = this.filteredCommands.slice(0, 8).map((cmd, i) => `
+          <div class="cmd-item ${i === this.activeIndex ? 'active' : ''}" data-index="${i}">
+            <span class="cmd-label">${cmd.label}</span>
+            ${cmd.shortcut ? `<kbd>${cmd.shortcut}</kbd>` : ''}
+            ${cmd.category ? `<span class="cmd-cat">${cmd.category}</span>` : ''}
+          </div>
+        `).join('') || '<div class="cmd-empty">No results</div>';
+
+        this.results.querySelectorAll('.cmd-item').forEach(item => {
+          item.addEventListener('click', () => { this.activeIndex = +item.dataset.index; this.executeActive(); });
+        });
+      }
+
+      moveActive(dir) {
+        this.activeIndex = (this.activeIndex + dir + this.filteredCommands.length) % this.filteredCommands.length;
+        this.renderResults();
+      }
+
+      executeActive() {
+        const cmd = this.filteredCommands[this.activeIndex];
+        if (cmd) { this.close(); cmd.action(); }
+      }
+
+      toggle() { this.isOpen ? this.close() : this.open(); }
+      open() {
+        this.isOpen = true; this.overlay.classList.add('visible');
+        this.input.value = ''; this.query = ''; this.activeIndex = 0;
+        this.search();
+        setTimeout(() => this.input.focus(), 50);
+      }
+      close() { this.isOpen = false; this.overlay.classList.remove('visible'); }
+    }
+
+    const output = document.getElementById('output');
+    const palette = new CommandPalette({
+      commands: [
+        { label: 'Toggle Dark Mode', shortcut: '⌘D', category: 'Appearance', action: () => { document.body.style.background = document.body.style.background === 'white' ? '#1e1e2e' : 'white'; output.textContent = '🌙 Toggled dark mode'; }},
+        { label: 'New File', shortcut: '⌘N', category: 'File', action: () => output.textContent = '📄 Created new file' },
+        { label: 'Save All', shortcut: '⌘⇧S', category: 'File', action: () => output.textContent = '💾 All files saved' },
+        { label: 'Open Settings', shortcut: '⌘,', category: 'Preferences', action: () => output.textContent = '⚙️ Settings opened' },
+        { label: 'Search in Files', shortcut: '⌘⇧F', category: 'Search', action: () => output.textContent = '🔍 Search panel opened' },
+        { label: 'Format Document', shortcut: '⌥⇧F', category: 'Editor', action: () => output.textContent = '✨ Document formatted' },
+        { label: 'Toggle Terminal', shortcut: '⌘`', category: 'View', action: () => output.textContent = '💻 Terminal toggled' },
+        { label: 'Git: Commit', shortcut: null, category: 'Git', action: () => output.textContent = '📦 Changes committed' },
+        { label: 'Run Tests', shortcut: '⌘⇧T', category: 'Testing', action: () => output.textContent = '✅ Tests running...' },
+        { label: 'Zoom In', shortcut: '⌘+', category: 'View', action: () => output.textContent = '🔎 Zoomed in' },
+      ]
+    });
+  </script>
+</body>
+</html>

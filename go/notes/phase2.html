@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Phase 2 Notes — Intermediate Go</title>
+<style>
+  :root {
+    --bg: #f7f9fc; --panel: #ffffff; --text: #1b2330; --muted: #5b6675;
+    --accent: #00ADD8; --accent-dark: #0082a3; --accent2: #1a7f72;
+    --border: #e3e8ef; --success: #16a34a; --warn-bg: #fff8eb;
+    --warn-border: #f5d69a; --warn-text: #7a4a05;
+    --code-bg: #eef3f8; --code-border: #cfd6df; --shadow: 0 1px 4px rgba(16,24,40,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px; }
+  .layout { display: flex; min-height: 100vh; }
+  nav.sidebar { width: 230px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav.sidebar .logo { padding: 0 18px 16px; font-weight: 700; font-size: 14px; color: var(--accent-dark); border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  nav.sidebar .logo a { color: inherit; text-decoration: none; }
+  nav.sidebar ul { list-style: none; padding: 0 10px; }
+  nav.sidebar li a { display: block; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--muted); text-decoration: none; transition: background .15s, color .15s; }
+  nav.sidebar li a:hover { background: #eaf9fc; color: var(--accent-dark); }
+  nav.sidebar li a.active { background: #eaf9fc; color: var(--accent-dark); font-weight: 600; }
+  nav.sidebar .phase-links { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  nav.sidebar .phase-links a { display: block; padding: 5px 10px; font-size: 12px; color: var(--muted); text-decoration: none; }
+  nav.sidebar .phase-links a:hover { color: var(--accent-dark); }
+  main { flex: 1; max-width: 860px; padding: 32px 28px; }
+  header.page-header { margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  header.page-header h1 { font-size: 26px; color: #0f1621; }
+  header.page-header h1 span { color: var(--accent); }
+  header.page-header p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+  .section { margin: 0 0 48px; scroll-margin-top: 20px; }
+  .section-header { background: linear-gradient(135deg, #eaf9fc 0%, #f0fdf4 100%); border: 1px solid rgba(0,173,216,.25); border-radius: 12px 12px 0 0; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+  .section-header h2 { font-size: 19px; color: #0f1621; }
+  .section-header .badge { font-size: 11px; background: var(--accent); color: #fff; padding: 3px 10px; border-radius: 6px; font-weight: 700; }
+  .section-body { background: var(--panel); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; padding: 20px 22px; box-shadow: var(--shadow); }
+  .topic { margin: 16px 0; }
+  .topic-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--accent2); margin: 0 0 8px; }
+  pre { background: #1e2533; color: #e6edf3; border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 8px 0; border: 1px solid #2d3748; }
+  code { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; }
+  p code, li code { background: var(--code-bg); color: #0b5d73; padding: 2px 6px; border-radius: 4px; font-size: 13px; border: 1px solid var(--code-border); }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 10px 0; }
+  .card { background: #f3f6fb; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .card h4 { font-size: 13px; color: var(--accent2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .card ul { padding-left: 18px; }
+  .card li { margin: 5px 0; font-size: 14px; }
+  .callout { background: #eaf9fc; border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; }
+  .callout b { color: var(--accent-dark); }
+  .warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; color: var(--warn-text); }
+  .warn b { color: #92400e; }
+  .qa-item { border: 1px solid var(--border); border-radius: 8px; margin: 8px 0; overflow: hidden; }
+  .qa-q { background: #f3f6fb; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none; }
+  .qa-q::before { content: "Q: "; color: var(--accent-dark); }
+  .qa-a { padding: 10px 14px; font-size: 14px; display: none; border-top: 1px solid var(--border); background: #fff; }
+  .qa-item.open .qa-a { display: block; }
+  .qa-item.open .qa-q { color: var(--accent-dark); }
+  .note-editor { min-height: 80px; border: 2px dashed var(--border); border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.6; background: #fffef7; color: var(--text); outline: none; transition: border-color .2s; }
+  .note-editor:focus { border-color: var(--accent); }
+  .note-editor:empty::before { content: attr(data-placeholder); color: #aab0bb; pointer-events: none; }
+  .note-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .note-label { font-size: 12px; color: var(--muted); }
+  .note-saved { font-size: 11px; color: var(--success); opacity: 0; transition: opacity .3s; }
+  .note-saved.show { opacity: 1; }
+  .note-clear { font-size: 11px; color: #e53e3e; cursor: pointer; background: none; border: none; padding: 2px 6px; border-radius: 4px; }
+  .note-clear:hover { background: #fff5f5; }
+  hr { border: none; border-top: 1px dashed var(--border); margin: 18px 0; }
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 13px; color: var(--muted); text-decoration: none; margin-bottom: 20px; transition: all .15s; }
+  .back-btn:hover { color: var(--accent-dark); border-color: var(--accent); }
+  @media (max-width: 700px) { nav.sidebar { display: none; } main { padding: 18px 16px; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <div class="logo"><a href="../go-roadmap.html">← Go Roadmap</a></div>
+  <ul>
+    <li><a href="#generics">Generics</a></li>
+    <li><a href="#context">Context Package</a></li>
+    <li><a href="#stdlib">JSON, Time &amp; Stdlib</a></li>
+    <li><a href="#slog">Structured Logging (slog)</a></li>
+    <li><a href="#tooling">Go Tooling</a></li>
+    <li><a href="#io">io.Reader / io.Writer</a></li>
+    <li><a href="#reflection">Reflection &amp; JSON</a></li>
+  </ul>
+  <div class="phase-links">
+    <a href="phase1.html">← Phase 1 Notes</a>
+    <a href="phase3.html">→ Phase 3 Notes</a>
+  </div>
+</nav>
+
+<main>
+  <a href="../go-roadmap.html" class="back-btn">← Back to Roadmap</a>
+  <header class="page-header">
+    <h1>Phase 2 — <span>Intermediate Go</span></h1>
+    <p>Generics · Context · Stdlib · slog · Tooling · io · Reflection — with code, gotchas, Q&amp;A &amp; personal notes.</p>
+  </header>
+
+  <!-- ═══ GENERICS -->
+  <section class="section" id="generics">
+    <div class="section-header"><span class="badge">P2</span><h2>Generics (Go 1.18+)</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Type Parameters</h4>
+            <ul>
+              <li><code>func F[T any](v T) T</code> — T is a type parameter</li>
+              <li>Square brackets after function/type name</li>
+              <li>Type inferred at call site usually</li>
+              <li>Can be on functions AND types (structs)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Constraints</h4>
+            <ul>
+              <li><code>any</code> — any type (no operations allowed)</li>
+              <li><code>comparable</code> — supports == and !=</li>
+              <li><code>constraints.Ordered</code> — supports &lt;, &gt; etc.</li>
+              <li><code>~int</code> — int or any type with underlying int</li>
+              <li>Interface as constraint: must have specific methods</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>When to Use</h4>
+            <ul>
+              <li>✅ Generic data structures (stack, queue, set)</li>
+              <li>✅ Generic algorithms (Map, Filter, Reduce)</li>
+              <li>✅ Replace repetitive type-specific code</li>
+              <li>❌ Not for runtime polymorphism — use interfaces</li>
+              <li>❌ Don't over-generalize: wait until needed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Generic function ──────────────────────────────
+func Map[T, U any](s []T, f func(T) U) []U {
+    result := make([]U, len(s))
+    for i, v := range s { result[i] = f(v) }
+    return result
+}
+nums := []int{1, 2, 3}
+doubled := Map(nums, func(n int) int { return n * 2 }) // [2, 4, 6]
+strs := Map(nums, strconv.Itoa)                         // ["1", "2", "3"]
+
+// ── Generic type (stack) ──────────────────────────
+type Stack[T any] struct { items []T }
+func (s *Stack[T]) Push(v T)      { s.items = append(s.items, v) }
+func (s *Stack[T]) Pop() (T, bool) {
+    var zero T
+    if len(s.items) == 0 { return zero, false }
+    n := len(s.items) - 1
+    v := s.items[n]
+    s.items = s.items[:n]
+    return v, true
+}
+
+intStack := Stack[int]{}
+intStack.Push(1); intStack.Push(2)
+
+// ── Constraints ────────────────────────────────────
+type Number interface { ~int | ~int64 | ~float64 }
+
+func Sum[T Number](nums []T) T {
+    var total T
+    for _, n := range nums { total += n }
+    return total
+}
+
+// ── Union constraint with ~ (underlying type) ──────
+type MyInt int
+Sum([]MyInt{1, 2, 3}) // works! ~int matches MyInt</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Generics add complexity</b> — only add when the benefit is clear. Don't make everything generic just because you can.</div>
+        <div class="warn"><b>Cannot use generic types as map keys with any constraint</b> — need <code>comparable</code> constraint to use as map key or with ==.</div>
+        <div class="warn"><b>Zero value of type param</b> — use <code>var zero T</code> to get the zero value. You can't use <code>nil</code> unless T is constrained to allow it.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">When should you use generics vs interfaces?</div>
+          <div class="qa-a">Use interfaces for runtime polymorphism (passing different types that share behaviour at runtime). Use generics for compile-time type safety on algorithms/data structures where you want to avoid code duplication without sacrificing type info. Generics eliminate the need for type assertions; interfaces support dynamic dispatch.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What does the ~ (tilde) operator mean in type constraints?</div>
+          <div class="qa-a"><code>~T</code> means "T or any type whose underlying type is T". So <code>~int</code> matches <code>int</code>, <code>type MyInt int</code>, <code>type UserID int</code>, etc. Without ~, only the exact type matches.</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-generics">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('generics')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-generics" contenteditable="true" data-key="go-p2-generics" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTEXT -->
+  <section class="section" id="context">
+    <div class="section-header"><span class="badge">P2 ★</span><h2>Context Package</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>What is Context?</h4>
+            <ul>
+              <li>Carries deadlines, cancellation signals, and request-scoped values</li>
+              <li>Passed as first argument: <code>func F(ctx context.Context, ...)</code></li>
+              <li>Forms a tree: child inherits parent's deadline/cancel</li>
+              <li>Cancelling parent cancels all children</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Types</h4>
+            <ul>
+              <li><code>context.Background()</code> — root, never cancels</li>
+              <li><code>context.TODO()</code> — placeholder when unsure</li>
+              <li><code>context.WithCancel(parent)</code> → (ctx, cancelFn)</li>
+              <li><code>context.WithTimeout(parent, d)</code> — deadline from now</li>
+              <li><code>context.WithDeadline(parent, t)</code> — absolute time</li>
+              <li><code>context.WithValue(parent, key, val)</code> — carry values</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>5 Rules</h4>
+            <ul>
+              <li>1. Always first parameter, never in struct</li>
+              <li>2. Never pass nil context — use Background/TODO</li>
+              <li>3. Always call cancel() — prevents goroutine leaks</li>
+              <li>4. Context values for request-scoped data only</li>
+              <li>5. Check <code>ctx.Done()</code> in long-running loops</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── WithTimeout — most common ─────────────────────
+func fetchUser(ctx context.Context, id int) (*User, error) {
+    ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+    defer cancel() // ALWAYS defer cancel to prevent leaks
+
+    req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        if errors.Is(err, context.DeadlineExceeded) {
+            return nil, fmt.Errorf("fetchUser: timeout: %w", err)
+        }
+        return nil, err
+    }
+    defer resp.Body.Close()
+    // ...
+}
+
+// ── WithCancel — manual cancellation ─────────────
+func worker(ctx context.Context) {
+    for {
+        select {
+        case <-ctx.Done():
+            fmt.Println("worker stopped:", ctx.Err())
+            return
+        default:
+            doWork()
+        }
+    }
+}
+
+ctx, cancel := context.WithCancel(context.Background())
+go worker(ctx)
+time.Sleep(5 * time.Second)
+cancel() // stop the worker
+
+// ── WithValue — request-scoped data ─────────────
+type ctxKey string
+const RequestIDKey ctxKey = "requestID"
+
+ctx = context.WithValue(ctx, RequestIDKey, "req-123")
+rid := ctx.Value(RequestIDKey).(string) // type assert</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Forgetting cancel() leaks goroutines</b> — WithTimeout/WithCancel allocate resources. If cancel() is never called (even after timeout), the internal timer goroutine leaks. Always <code>defer cancel()</code>.</div>
+        <div class="warn"><b>Context values are not for function parameters</b> — don't pass database connections, loggers, or function args via context. Only use for request-scoped metadata: request ID, auth user, trace ID.</div>
+        <div class="warn"><b>Type the context key</b> — use a custom unexported type for context keys to prevent collisions between packages. <code>type ctxKey string</code> instead of plain <code>string</code>.</div>
+        <div class="warn"><b>Cancelled context error propagation</b> — always check <code>ctx.Err()</code> or <code>errors.Is(err, context.Canceled)</code> to give meaningful error messages upstream.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">Why must you always call the cancel function returned by WithTimeout?</div>
+          <div class="qa-a">Even if the timeout fires and the context is automatically cancelled, the internal timer goroutine is not released until cancel() is called. Failing to call cancel() causes a goroutine leak. Always: <code>ctx, cancel := context.WithTimeout(...); defer cancel()</code>.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What should you store in context values?</div>
+          <div class="qa-a">Only request-scoped data that crosses API boundaries: request ID, trace ID, authenticated user identity, locale. Do NOT store function arguments, database connections, loggers, or anything that should be explicit in function signatures.</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-context">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('context')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-context" contenteditable="true" data-key="go-p2-context" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STDLIB -->
+  <section class="section" id="stdlib">
+    <div class="section-header"><span class="badge">P2</span><h2>JSON, Time, Strings &amp; Stdlib</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>encoding/json</h4>
+            <ul>
+              <li><code>json.Marshal(v)</code> → <code>[]byte, error</code></li>
+              <li><code>json.Unmarshal(data, &v)</code> — decode</li>
+              <li><code>json.NewEncoder(w).Encode(v)</code> — streaming</li>
+              <li>Struct tags: <code>json:"field,omitempty"</code></li>
+              <li>Unexported fields are ignored</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>time Package</h4>
+            <ul>
+              <li>Reference time: <code>Mon Jan 2 15:04:05 MST 2006</code></li>
+              <li><code>time.Now()</code>, <code>time.Since(t)</code>, <code>time.Until(t)</code></li>
+              <li><code>t.Format("2006-01-02")</code> — custom format</li>
+              <li><code>time.Parse("2006-01-02", s)</code></li>
+              <li><code>time.Duration</code> — nanosecond units</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>strings &amp; strconv</h4>
+            <ul>
+              <li><code>strings.Contains/HasPrefix/HasSuffix</code></li>
+              <li><code>strings.Split/Join/TrimSpace/ToLower</code></li>
+              <li><code>strings.Builder</code> — efficient string concat</li>
+              <li><code>strconv.Itoa/Atoi</code> — int↔string</li>
+              <li><code>strconv.ParseFloat/ParseBool</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Key Stdlib Packages</h4>
+            <ul>
+              <li><code>os</code> — files, env vars, process</li>
+              <li><code>io</code> — Reader/Writer/Closer interfaces</li>
+              <li><code>bufio</code> — buffered I/O</li>
+              <li><code>net/http</code> — HTTP client + server</li>
+              <li><code>sync</code> — Mutex, WaitGroup, Once</li>
+              <li><code>math/rand/v2</code> (Go 1.22+)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── JSON ──────────────────────────────────────────
+type User struct {
+    ID        int       `json:"id"`
+    Name      string    `json:"name"`
+    CreatedAt time.Time `json:"created_at"`
+    Internal  string    `json:"-"`          // always omit
+    Bio       *string   `json:"bio,omitempty"` // omit if nil
+}
+
+u := User{ID: 1, Name: "Alice"}
+data, _ := json.Marshal(u)
+fmt.Println(string(data))
+
+var decoded User
+json.Unmarshal(data, &decoded)
+
+// Streaming (preferred for HTTP):
+json.NewEncoder(w).Encode(u)
+json.NewDecoder(r.Body).Decode(&u)
+
+// ── time ──────────────────────────────────────────
+now := time.Now()
+fmt.Println(now.Format("2006-01-02 15:04:05"))
+
+t, err := time.Parse("2006-01-02", "2024-01-15")
+fmt.Println(time.Since(t))
+
+deadline := time.Now().Add(30 * time.Second)
+time.Sleep(100 * time.Millisecond)
+
+// ── strings.Builder (efficient concatenation) ─────
+var sb strings.Builder
+for i := 0; i < 100; i++ {
+    sb.WriteString("word ")
+}
+result := sb.String() // single allocation
+
+// ── strconv ───────────────────────────────────────
+n, err := strconv.Atoi("42")
+s := strconv.Itoa(42)
+f, err := strconv.ParseFloat("3.14", 64)
+b, err := strconv.ParseBool("true")</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>The "mysterious" time format</b> — Go uses the reference time <code>Mon Jan 2 15:04:05 MST 2006</code> as a template. The numbers are fixed (month=1, day=2, hour=15, min=4, sec=5, year=2006). Use this exact reference, not strftime patterns.</div>
+        <div class="warn"><b>json.Number for large numbers</b> — by default, JSON numbers decode to <code>float64</code> which loses precision for large int64. Use <code>json.Decoder.UseNumber()</code> for large IDs.</div>
+        <div class="warn"><b>String concatenation with + in loops</b> — creates a new string each iteration (O(n²)). Always use <code>strings.Builder</code> or <code>fmt.Sprintf</code> for loop concatenation.</div>
+        <div class="warn"><b>time.Time is a value type</b> — it's safe to copy. But <code>time.Time{}</code> is the zero time (Jan 1, year 1), not "not set". Use <code>*time.Time</code> or check <code>t.IsZero()</code>.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">Why does Go's time package use a specific reference date instead of format codes like %Y-%m-%d?</div>
+          <div class="qa-a">Go uses the reference time "Mon Jan 2 15:04:05 MST 2006" because each component has a unique value (month=01, day=02, year=2006, hour=15, min=04, sec=05). You format by showing how the reference time should look. It's more readable than memorizing strftime codes, but requires knowing the reference date.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">How do you handle the omitempty tag with struct fields?</div>
+          <div class="qa-a"><code>omitempty</code> omits the field if it has its zero value: 0 for numbers, "" for strings, false for bool, nil for pointers/slices/maps. To optionally omit a struct field, make it a pointer (*int, *string) so nil = "not set".</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-stdlib">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('stdlib')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-stdlib" contenteditable="true" data-key="go-p2-stdlib" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SLOG -->
+  <section class="section" id="slog">
+    <div class="section-header"><span class="badge">P2</span><h2>Structured Logging (slog)</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>What is slog?</h4>
+            <ul>
+              <li>Standard library logger since Go 1.21</li>
+              <li>Structured: key-value pairs, not plain strings</li>
+              <li>JSON or text output handlers built-in</li>
+              <li>Levels: Debug, Info, Warn, Error</li>
+              <li>Replaces log package for production code</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Key Features</h4>
+            <ul>
+              <li><code>slog.With(k, v)</code> — add persistent attrs</li>
+              <li><code>slog.WithGroup(name)</code> — namespace attrs</li>
+              <li>Logger is a value — embed in structs, pass around</li>
+              <li>Custom handlers (e.g., OpenTelemetry bridge)</li>
+              <li>Context-aware: <code>slog.InfoContext(ctx, ...)</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Basic usage ───────────────────────────────────
+slog.Info("user logged in", "user_id", 123, "method", "oauth")
+slog.Warn("slow query", "duration_ms", 4500, "query", sql)
+slog.Error("db failed", "error", err)
+
+// ── JSON handler (production) ─────────────────────
+logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+    Level: slog.LevelInfo,
+}))
+slog.SetDefault(logger) // make it the global default
+
+// ── With — add persistent context ─────────────────
+reqLogger := logger.With("request_id", "abc-123", "user_id", 42)
+reqLogger.Info("processing request")  // always has request_id + user_id
+reqLogger.Info("request complete", "duration_ms", 120)
+
+// ── Context-aware ─────────────────────────────────
+slog.InfoContext(ctx, "event", "key", "value")
+
+// ── WithGroup — namespace ─────────────────────────
+logger.WithGroup("db").Info("query", "sql", q, "rows", n)</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Odd number of key-value args</b> — slog expects pairs: <code>slog.Info("msg", "key", val)</code>. Odd count silently emits a <code>!BADKEY</code> attribute.</div>
+        <div class="warn"><b>slog.Any for complex types</b> — for non-primitive values, use <code>slog.Any("user", u)</code> to ensure proper marshalling.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-slog">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('slog')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-slog" contenteditable="true" data-key="go-p2-slog" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ TOOLING -->
+  <section class="section" id="tooling">
+    <div class="section-header"><span class="badge">P2</span><h2>Go Tooling — Test, Vet, Build, Generate</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory &amp; Cheatsheet</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Testing Patterns</h4>
+            <ul>
+              <li>File: <code>xxx_test.go</code>, func: <code>TestXxx(t *testing.T)</code></li>
+              <li><code>t.Errorf</code> — fail but continue</li>
+              <li><code>t.Fatalf</code> — fail and stop test</li>
+              <li><code>t.Run("name", func)</code> — subtests</li>
+              <li>Table-driven tests: slice of structs</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Benchmarks</h4>
+            <ul>
+              <li>Func: <code>BenchmarkXxx(b *testing.B)</code></li>
+              <li>Loop: <code>for i := 0; i &lt; b.N; i++</code></li>
+              <li><code>go test -bench=. -benchmem</code></li>
+              <li><code>b.ResetTimer()</code> — exclude setup time</li>
+              <li>Reports: ns/op, B/op, allocs/op</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>go:generate</h4>
+            <ul>
+              <li><code>//go:generate command args</code> in source</li>
+              <li><code>go generate ./...</code> — runs all directives</li>
+              <li>Common: mockgen, stringer, protoc, sqlc</li>
+              <li>Commit generated files to git</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Table-driven test ─────────────────────────────
+func TestAdd(t *testing.T) {
+    tests := []struct {
+        name     string
+        a, b     int
+        expected int
+    }{
+        {"positive", 2, 3, 5},
+        {"negative", -1, 1, 0},
+        {"zeros", 0, 0, 0},
+    }
+
+    for _, tc := range tests {
+        t.Run(tc.name, func(t *testing.T) {
+            got := Add(tc.a, tc.b)
+            if got != tc.expected {
+                t.Errorf("Add(%d,%d) = %d, want %d", tc.a, tc.b, got, tc.expected)
+            }
+        })
+    }
+}
+
+// ── Benchmark ─────────────────────────────────────
+func BenchmarkAdd(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        Add(100, 200)
+    }
+}
+
+// ── go:generate example ───────────────────────────
+//go:generate stringer -type=Status
+//go:generate mockgen -source=repo.go -destination=mocks/repo_mock.go
+
+type Status int
+const (
+    Active Status = iota
+    Inactive
+    Banned
+)</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-tooling">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('tooling')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-tooling" contenteditable="true" data-key="go-p2-tooling" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ IO -->
+  <section class="section" id="io">
+    <div class="section-header"><span class="badge">P2 ★</span><h2>io.Reader / io.Writer</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Core Interfaces</h4>
+            <ul>
+              <li><code>io.Reader</code>: <code>Read(p []byte) (n int, err error)</code></li>
+              <li><code>io.Writer</code>: <code>Write(p []byte) (n int, err error)</code></li>
+              <li><code>io.Closer</code>: <code>Close() error</code></li>
+              <li><code>io.ReadWriter</code>: composed Reader+Writer</li>
+              <li><code>io.EOF</code> — signal end of input (not a real error)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Key Functions</h4>
+            <ul>
+              <li><code>io.Copy(dst, src)</code> — stream src to dst</li>
+              <li><code>io.TeeReader(r, w)</code> — read AND write to w</li>
+              <li><code>io.LimitReader(r, n)</code> — cap reads at n bytes</li>
+              <li><code>io.ReadAll(r)</code> — read everything into []byte</li>
+              <li><code>io.Discard</code> — /dev/null equivalent</li>
+              <li><code>bytes.Buffer</code>, <code>strings.Reader</code> — in-memory</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── io.Copy — streaming (no full load into memory) ─
+func uploadFile(dst io.Writer, src io.Reader) error {
+    _, err := io.Copy(dst, src)
+    return err
+}
+
+// Works with: files, HTTP bodies, buffers, network conns
+
+// ── LimitReader — DoS prevention ──────────────────
+http.HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
+    // Limit request body to 10MB to prevent DoS
+    limited := io.LimitReader(r.Body, 10<<20)
+    data, err := io.ReadAll(limited)
+    // ...
+})
+
+// ── TeeReader — read + log simultaneously ─────────
+var debugBuf bytes.Buffer
+tee := io.TeeReader(r.Body, &debugBuf)
+json.NewDecoder(tee).Decode(&req) // reads from body AND writes to debugBuf
+
+// ── Custom Reader ─────────────────────────────────
+type CountingReader struct {
+    r     io.Reader
+    count int64
+}
+func (c *CountingReader) Read(p []byte) (int, error) {
+    n, err := c.r.Read(p)
+    c.count += int64(n)
+    return n, err
+}
+
+// ── Pipe — connect writer to reader ───────────────
+pr, pw := io.Pipe()
+go func() {
+    defer pw.Close()
+    json.NewEncoder(pw).Encode(data)
+}()
+io.Copy(uploadDest, pr) // stream without buffering all in memory</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>io.EOF is not an error</b> — it signals successful end of input. After <code>Read</code> returns <code>0, io.EOF</code> you're done. Don't return or log it as an error.</div>
+        <div class="warn"><b>io.ReadAll reads everything into memory</b> — fine for small payloads, dangerous for large ones. Use <code>io.LimitReader</code> + streaming for user-uploaded content.</div>
+        <div class="warn"><b>Always close Readers/Writers</b> — especially HTTP response bodies and files. Use <code>defer r.Close()</code>. Not closing leaks file descriptors and HTTP connections.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">Why are io.Reader and io.Writer so important in Go?</div>
+          <div class="qa-a">They're the fundamental I/O abstractions. Any source of bytes (file, network, buffer, string, gzip, crypto) implements Reader; any sink implements Writer. Functions accepting these interfaces work with any I/O source/sink without knowing the concrete type — enabling composition (TeeReader, LimitReader, bufio.Scanner, etc.).</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-io">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('io')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-io" contenteditable="true" data-key="go-p2-io" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ REFLECTION -->
+  <section class="section" id="reflection">
+    <div class="section-header"><span class="badge">P2</span><h2>Reflection &amp; Custom JSON</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>reflect Package</h4>
+            <ul>
+              <li><code>reflect.TypeOf(v)</code> — returns Type</li>
+              <li><code>reflect.ValueOf(v)</code> — returns Value</li>
+              <li><code>Type.Kind()</code> — underlying kind (Struct, Ptr, Slice...)</li>
+              <li>Can inspect struct fields, tags, methods</li>
+              <li>Can set values via <code>Value.Set()</code> (must be addressable)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Custom JSON</h4>
+            <ul>
+              <li>Implement <code>json.Marshaler</code>: <code>MarshalJSON() ([]byte, error)</code></li>
+              <li>Implement <code>json.Unmarshaler</code>: <code>UnmarshalJSON([]byte) error</code></li>
+              <li>Use for: custom formats, Unix timestamps, enums</li>
+              <li>Always validate in UnmarshalJSON</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>When NOT to use reflect</h4>
+            <ul>
+              <li>❌ Hot paths — 10-100x slower than direct access</li>
+              <li>❌ When generics or interfaces work</li>
+              <li>✅ ORMs, validators, JSON encoders</li>
+              <li>✅ Debug/testing utilities</li>
+              <li>✅ Serialization frameworks</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Custom JSON marshaling ─────────────────────────
+type UnixTime time.Time
+
+func (t UnixTime) MarshalJSON() ([]byte, error) {
+    return []byte(strconv.FormatInt(time.Time(t).Unix(), 10)), nil
+}
+
+func (t *UnixTime) UnmarshalJSON(data []byte) error {
+    var unix int64
+    if err := json.Unmarshal(data, &unix); err != nil { return err }
+    *t = UnixTime(time.Unix(unix, 0))
+    return nil
+}
+
+// ── Struct tag inspection ──────────────────────────
+type User struct {
+    Name string `json:"name" validate:"required,min=2"`
+}
+
+func getTags(v any) {
+    t := reflect.TypeOf(v)
+    if t.Kind() == reflect.Ptr { t = t.Elem() }
+    for i := 0; i < t.NumField(); i++ {
+        f := t.Field(i)
+        fmt.Printf("Field: %s, json: %s, validate: %s\n",
+            f.Name, f.Tag.Get("json"), f.Tag.Get("validate"))
+    }
+}
+
+// ── reflect.DeepEqual in tests ────────────────────
+if !reflect.DeepEqual(got, want) {
+    t.Errorf("got %+v, want %+v", got, want)
+}</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>reflect is slow</b> — avoid in hot paths. Profile first. Frameworks use reflect at startup and cache results.</div>
+        <div class="warn"><b>Panic on non-addressable values</b> — <code>Value.Set()</code> panics if the value isn't addressable. Pass a pointer and dereference: <code>reflect.ValueOf(&x).Elem()</code>.</div>
+        <div class="warn"><b>Custom UnmarshalJSON must handle all cases</b> — JSON null, wrong type, invalid values. Always validate. Never trust user JSON input.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-reflection">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('reflection')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-reflection" contenteditable="true" data-key="go-p2-reflection" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+const SECTIONS = ['generics','context','stdlib','slog','tooling','io','reflection'];
+
+document.addEventListener('DOMContentLoaded', () => {
+  SECTIONS.forEach(id => {
+    const el = document.getElementById('note-' + id);
+    if (!el) return;
+    const saved = localStorage.getItem(el.dataset.key);
+    if (saved) el.innerHTML = saved;
+  });
+  updateActiveNav();
+});
+
+let saveTimers = {};
+document.querySelectorAll('.note-editor').forEach(el => {
+  el.addEventListener('input', () => {
+    const key = el.dataset.key;
+    const id = el.id.replace('note-', '');
+    clearTimeout(saveTimers[id]);
+    saveTimers[id] = setTimeout(() => {
+      localStorage.setItem(key, el.innerHTML);
+      showSaved(id);
+    }, 500);
+  });
+});
+
+function showSaved(id) {
+  const indicator = document.getElementById('saved-' + id);
+  if (!indicator) return;
+  indicator.classList.add('show');
+  setTimeout(() => indicator.classList.remove('show'), 2000);
+}
+
+function clearNote(id) {
+  if (!confirm('Clear notes for this section?')) return;
+  const el = document.getElementById('note-' + id);
+  if (!el) return;
+  el.innerHTML = '';
+  localStorage.removeItem(el.dataset.key);
+}
+
+document.querySelectorAll('.qa-q').forEach(q => {
+  q.addEventListener('click', () => q.closest('.qa-item').classList.toggle('open'));
+});
+
+function updateActiveNav() {
+  const navLinks = document.querySelectorAll('nav.sidebar li a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav.sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+}
+</script>
+</body>
+</html>

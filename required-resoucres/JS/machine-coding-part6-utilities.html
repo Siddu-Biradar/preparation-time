@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Coding Round — Part 6: Data Table, Transfer List & Utilities</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .companies { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+    .live-demo { border: 2px solid var(--accent-soft); border-radius: 12px; margin: 14px 0 18px; overflow: hidden; background: #fff; }
+    .live-demo-header { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); }
+    .live-demo iframe { width: 100%; height: 420px; border: none; display: block; }
+    details.html-source { margin: -10px 0 18px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    details.html-source summary { padding: 10px 14px; background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); cursor: pointer; user-select: none; }
+    details.html-source summary:hover { background: #d6eaf8; }
+    details.html-source pre { margin: 0; border: none; border-radius: 0; max-height: 400px; overflow-y: auto; font-size: 9pt; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Machine Coding — Part 6</h1>
+  <p class="subtitle">Utility Implementations — EventEmitter, Deep Clone, Virtual Scroll & More</p>
+  <div class="pill-row">
+    <span class="pill">Atlassian Core</span>
+    <span class="pill">Google Utility</span>
+    <span class="pill">Flipkart Must</span>
+    <span class="pill">12 Problems</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#data-table">Data Table (Sort, Filter, Paginate)</a></li>
+    <li><a href="#transfer-list">Transfer List (Dual Listbox)</a></li>
+    <li><a href="#memoize">Memoize (with LRU + TTL)</a></li>
+    <li><a href="#deep-get-set">lodash.get &amp; lodash.set</a></li>
+    <li><a href="#event-emitter">EventEmitter (Node.js style)</a></li>
+    <li><a href="#pubsub">PubSub Pattern</a></li>
+    <li><a href="#deep-clone">Deep Clone (Circular References)</a></li>
+    <li><a href="#json-formatter">JSON Formatter / Tree Viewer</a></li>
+    <li><a href="#undo-redo">Undo/Redo Stack (Command Pattern)</a></li>
+    <li><a href="#localstorage-wrapper">localStorage Wrapper (TTL + Namespace)</a></li>
+    <li><a href="#curry-compose">Curry & Compose</a></li>
+    <li><a href="#virtual-list">Virtual Scroll / Windowed List</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="data-table">1. Data Table (Sort, Filter, Paginate)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Atlassian, Flipkart, Razorpay, Microsoft, Zoho, Salesforce</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class DataTable {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.columns = options.columns || []; // [{ key, label, sortable?, filterable?, width? }]
+    this.data = options.data || [];
+    this.pageSize = options.pageSize || 10;
+    this.onRowClick = options.onRowClick || null;
+    this.selectable = options.selectable || false;
+
+    this.currentPage = 1;
+    this.sortKey = null;
+    this.sortDir = "asc"; // asc | desc | null
+    this.filters = {}; // { columnKey: filterValue }
+    this.searchTerm = "";
+    this.selectedRows = new Set();
+
+    this.render();
+  }
+
+  getProcessedData() {
+    let result = [...this.data];
+
+    // Global search
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter((row) =&gt;
+        this.columns.some((col) =&gt;
+          String(row[col.key] || "").toLowerCase().includes(term)
+        )
+      );
+    }
+
+    // Column filters
+    Object.entries(this.filters).forEach(([key, value]) =&gt; {
+      if (!value) return;
+      result = result.filter((row) =&gt;
+        String(row[key] || "").toLowerCase().includes(value.toLowerCase())
+      );
+    });
+
+    // Sort
+    if (this.sortKey) {
+      result.sort((a, b) =&gt; {
+        const aVal = a[this.sortKey] ?? "";
+        const bVal = b[this.sortKey] ?? "";
+        let cmp = 0;
+        if (typeof aVal === "number" &amp;&amp; typeof bVal === "number") {
+          cmp = aVal - bVal;
+        } else {
+          cmp = String(aVal).localeCompare(String(bVal));
+        }
+        return this.sortDir === "desc" ? -cmp : cmp;
+      });
+    }
+
+    return result;
+  }
+
+  getPageData() {
+    const processed = this.getProcessedData();
+    const start = (this.currentPage - 1) * this.pageSize;
+    return {
+      rows: processed.slice(start, start + this.pageSize),
+      total: processed.length,
+      totalPages: Math.ceil(processed.length / this.pageSize),
+    };
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "font-family:sans-serif;font-size:13px";
+
+    const { rows, total, totalPages } = this.getPageData();
+
+    // Toolbar (search + page size)
+    const toolbar = document.createElement("div");
+    toolbar.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;flex-wrap:wrap";
+
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "Search all columns...";
+    searchInput.value = this.searchTerm;
+    searchInput.style.cssText = "padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:250px;outline:none";
+    searchInput.addEventListener("input", (e) =&gt; {
+      this.searchTerm = e.target.value;
+      this.currentPage = 1;
+      this.render();
+    });
+    toolbar.appendChild(searchInput);
+
+    const info = document.createElement("span");
+    info.textContent = `${total} results | Page ${this.currentPage} of ${totalPages || 1}`;
+    info.style.cssText = "color:#6b7280;font-size:12px";
+    toolbar.appendChild(info);
+
+    this.container.appendChild(toolbar);
+
+    // Table
+    const tableWrapper = document.createElement("div");
+    tableWrapper.style.cssText = "overflow-x:auto;border:1px solid #e5e7eb;border-radius:8px";
+
+    const table = document.createElement("table");
+    table.style.cssText = "width:100%;border-collapse:collapse;font-size:13px";
+
+    // Header
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    if (this.selectable) {
+      const th = document.createElement("th");
+      th.style.cssText = "padding:10px;background:#f9fafb;border-bottom:2px solid #e5e7eb;width:40px";
+      const selectAll = document.createElement("input");
+      selectAll.type = "checkbox";
+      selectAll.checked = rows.length &gt; 0 &amp;&amp; rows.every((r) =&gt; this.selectedRows.has(r.id));
+      selectAll.addEventListener("change", () =&gt; {
+        if (selectAll.checked) rows.forEach((r) =&gt; this.selectedRows.add(r.id));
+        else rows.forEach((r) =&gt; this.selectedRows.delete(r.id));
+        this.render();
+      });
+      th.appendChild(selectAll);
+      headerRow.appendChild(th);
+    }
+
+    this.columns.forEach((col) =&gt; {
+      const th = document.createElement("th");
+      th.style.cssText = `
+        padding:10px 12px;background:#f9fafb;border-bottom:2px solid #e5e7eb;
+        text-align:left;font-weight:600;white-space:nowrap;
+        ${col.width ? `width:${col.width}` : ""};
+        ${col.sortable !== false ? "cursor:pointer;user-select:none" : ""};
+      `;
+
+      const labelWrap = document.createElement("div");
+      labelWrap.style.cssText = "display:flex;align-items:center;gap:4px";
+      const label = document.createElement("span");
+      label.textContent = col.label;
+      labelWrap.appendChild(label);
+
+      // Sort indicator
+      if (col.sortable !== false) {
+        const arrow = document.createElement("span");
+        arrow.style.cssText = "font-size:10px;color:#9ca3af";
+        if (this.sortKey === col.key) {
+          arrow.textContent = this.sortDir === "asc" ? " \u25b2" : " \u25bc";
+          arrow.style.color = "#2563eb";
+        } else {
+          arrow.textContent = " \u2195";
+        }
+        labelWrap.appendChild(arrow);
+
+        th.addEventListener("click", () =&gt; {
+          if (this.sortKey === col.key) {
+            this.sortDir = this.sortDir === "asc" ? "desc" : this.sortDir === "desc" ? null : "asc";
+            if (!this.sortDir) this.sortKey = null;
+          } else {
+            this.sortKey = col.key;
+            this.sortDir = "asc";
+          }
+          this.render();
+        });
+      }
+
+      th.appendChild(labelWrap);
+
+      // Column filter
+      if (col.filterable !== false) {
+        const filterInput = document.createElement("input");
+        filterInput.type = "text";
+        filterInput.placeholder = "Filter...";
+        filterInput.value = this.filters[col.key] || "";
+        filterInput.style.cssText = "width:100%;padding:4px 6px;border:1px solid #e5e7eb;border-radius:3px;font-size:11px;margin-top:4px;outline:none";
+        filterInput.addEventListener("click", (e) =&gt; e.stopPropagation()); // Don't trigger sort
+        filterInput.addEventListener("input", (e) =&gt; {
+          this.filters[col.key] = e.target.value;
+          this.currentPage = 1;
+          this.render();
+        });
+        th.appendChild(filterInput);
+      }
+
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Body
+    const tbody = document.createElement("tbody");
+    if (rows.length === 0) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = this.columns.length + (this.selectable ? 1 : 0);
+      td.textContent = "No data found";
+      td.style.cssText = "padding:24px;text-align:center;color:#9ca3af";
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    } else {
+      rows.forEach((row) =&gt; {
+        const tr = document.createElement("tr");
+        tr.style.cssText = `
+          border-bottom:1px solid #f3f4f6;transition:background 0.1s;
+          ${this.selectedRows.has(row.id) ? "background:#eff6ff" : ""}
+        `;
+        tr.addEventListener("mouseenter", () =&gt; { if (!this.selectedRows.has(row.id)) tr.style.background = "#f9fafb"; });
+        tr.addEventListener("mouseleave", () =&gt; { if (!this.selectedRows.has(row.id)) tr.style.background = ""; });
+
+        if (this.onRowClick) {
+          tr.style.cursor = "pointer";
+          tr.addEventListener("click", () =&gt; this.onRowClick(row));
+        }
+
+        if (this.selectable) {
+          const td = document.createElement("td");
+          td.style.cssText = "padding:10px;text-align:center";
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.checked = this.selectedRows.has(row.id);
+          cb.addEventListener("click", (e) =&gt; e.stopPropagation());
+          cb.addEventListener("change", () =&gt; {
+            if (cb.checked) this.selectedRows.add(row.id);
+            else this.selectedRows.delete(row.id);
+            this.render();
+          });
+          td.appendChild(cb);
+          tr.appendChild(td);
+        }
+
+        this.columns.forEach((col) =&gt; {
+          const td = document.createElement("td");
+          td.style.cssText = "padding:10px 12px";
+          td.textContent = row[col.key] ?? "";
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+    table.appendChild(tbody);
+    tableWrapper.appendChild(table);
+    this.container.appendChild(tableWrapper);
+
+    // Pagination
+    if (totalPages &gt; 1) {
+      const pager = document.createElement("div");
+      pager.style.cssText = "display:flex;justify-content:center;gap:4px;margin-top:12px";
+
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "\u2190";
+      prevBtn.disabled = this.currentPage === 1;
+      prevBtn.style.cssText = "padding:6px 10px;border:1px solid #d1d5db;border-radius:4px;background:white;cursor:pointer";
+      prevBtn.addEventListener("click", () =&gt; { this.currentPage--; this.render(); });
+      pager.appendChild(prevBtn);
+
+      for (let i = 1; i &lt;= Math.min(totalPages, 7); i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        btn.style.cssText = `
+          padding:6px 10px;border:1px solid ${i === this.currentPage ? "#2563eb" : "#d1d5db"};
+          border-radius:4px;cursor:pointer;font-weight:${i === this.currentPage ? "700" : "400"};
+          background:${i === this.currentPage ? "#2563eb" : "white"};
+          color:${i === this.currentPage ? "white" : "#333"};
+        `;
+        btn.addEventListener("click", () =&gt; { this.currentPage = i; this.render(); });
+        pager.appendChild(btn);
+      }
+
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "\u2192";
+      nextBtn.disabled = this.currentPage === totalPages;
+      nextBtn.style.cssText = "padding:6px 10px;border:1px solid #d1d5db;border-radius:4px;background:white;cursor:pointer";
+      nextBtn.addEventListener("click", () =&gt; { this.currentPage++; this.render(); });
+      pager.appendChild(nextBtn);
+
+      this.container.appendChild(pager);
+    }
+
+    // Selected count
+    if (this.selectable &amp;&amp; this.selectedRows.size &gt; 0) {
+      const selection = document.createElement("div");
+      selection.textContent = `${this.selectedRows.size} row(s) selected`;
+      selection.style.cssText = "margin-top:8px;font-size:12px;color:#2563eb;font-weight:500";
+      this.container.appendChild(selection);
+    }
+  }
+
+  getSelected() { return [...this.selectedRows]; }
+  clearSelection() { this.selectedRows.clear(); this.render(); }
+  setData(data) { this.data = data; this.currentPage = 1; this.render(); }
+}
+
+// Usage:
+const table = new DataTable(document.getElementById("employees-table"), {
+  selectable: true,
+  pageSize: 5,
+  columns: [
+    { key: "name", label: "Name", sortable: true },
+    { key: "email", label: "Email", sortable: true },
+    { key: "department", label: "Department", sortable: true },
+    { key: "salary", label: "Salary (\u20b9)", sortable: true, width: "120px" },
+  ],
+  data: [
+    { id: 1, name: "Alice", email: "alice@co.in", department: "Engineering", salary: 1200000 },
+    { id: 2, name: "Bob", email: "bob@co.in", department: "Design", salary: 900000 },
+    { id: 3, name: "Charlie", email: "charlie@co.in", department: "Engineering", salary: 1500000 },
+    // ... more rows
+  ],
+  onRowClick: (row) =&gt; console.log("Clicked:", row),
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Virtual scrolling:</strong> For 100K+ rows, only render visible rows (combine with Virtual List)</li>
+  <li><strong>Server-side pagination:</strong> Send page/sort/filter params to API, don't load all data</li>
+  <li><strong>Column resize:</strong> Drag handle on column borders to resize widths</li>
+  <li><strong>Column reorder:</strong> Drag columns to rearrange them</li>
+  <li><strong>Export:</strong> Export filtered data as CSV</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="transfer-list">2. Transfer List (Dual Listbox)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Atlassian, Microsoft, Flipkart, Salesforce, Zoho</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class TransferList {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.leftTitle = options.leftTitle || "Available";
+    this.rightTitle = options.rightTitle || "Selected";
+    this.leftItems = options.leftItems || [];
+    this.rightItems = options.rightItems || [];
+    this.onChange = options.onChange || (() =&gt; {});
+
+    this.leftSelected = new Set();
+    this.rightSelected = new Set();
+    this.leftSearch = "";
+    this.rightSearch = "";
+
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "display:flex;gap:12px;align-items:stretch;font-family:sans-serif";
+
+    // Left panel
+    const leftPanel = this.renderPanel("left", this.leftTitle, this.leftItems, this.leftSelected, this.leftSearch);
+    this.container.appendChild(leftPanel);
+
+    // Transfer buttons
+    const btnCol = document.createElement("div");
+    btnCol.style.cssText = "display:flex;flex-direction:column;justify-content:center;gap:8px";
+
+    const moveRight = this.createBtn("\u25b6", "Move selected right", () =&gt; this.transferRight());
+    const moveAllRight = this.createBtn("\u25b6\u25b6", "Move all right", () =&gt; this.transferAllRight());
+    const moveLeft = this.createBtn("\u25c0", "Move selected left", () =&gt; this.transferLeft());
+    const moveAllLeft = this.createBtn("\u25c0\u25c0", "Move all left", () =&gt; this.transferAllLeft());
+
+    moveRight.disabled = this.leftSelected.size === 0;
+    moveLeft.disabled = this.rightSelected.size === 0;
+
+    btnCol.appendChild(moveAllRight);
+    btnCol.appendChild(moveRight);
+    btnCol.appendChild(moveLeft);
+    btnCol.appendChild(moveAllLeft);
+    this.container.appendChild(btnCol);
+
+    // Right panel
+    const rightPanel = this.renderPanel("right", this.rightTitle, this.rightItems, this.rightSelected, this.rightSearch);
+    this.container.appendChild(rightPanel);
+  }
+
+  renderPanel(side, title, items, selected, searchTerm) {
+    const panel = document.createElement("div");
+    panel.style.cssText = "flex:1;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;min-width:200px";
+
+    // Header with count
+    const header = document.createElement("div");
+    header.style.cssText = "padding:10px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center";
+
+    const titleEl = document.createElement("span");
+    titleEl.textContent = title;
+    titleEl.style.cssText = "font-weight:600;font-size:13px";
+    header.appendChild(titleEl);
+
+    const count = document.createElement("span");
+    count.textContent = `${selected.size}/${items.length}`;
+    count.style.cssText = "font-size:11px;color:#6b7280;background:#e5e7eb;padding:2px 6px;border-radius:10px";
+    header.appendChild(count);
+    panel.appendChild(header);
+
+    // Search
+    const searchWrap = document.createElement("div");
+    searchWrap.style.cssText = "padding:8px";
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "Search...";
+    searchInput.value = searchTerm;
+    searchInput.style.cssText = "width:100%;padding:6px 10px;border:1px solid #e5e7eb;border-radius:4px;font-size:12px;outline:none";
+    searchInput.addEventListener("input", (e) =&gt; {
+      if (side === "left") this.leftSearch = e.target.value;
+      else this.rightSearch = e.target.value;
+      this.render();
+    });
+    searchWrap.appendChild(searchInput);
+    panel.appendChild(searchWrap);
+
+    // Select All
+    const selectAllWrap = document.createElement("div");
+    selectAllWrap.style.cssText = "padding:4px 12px;border-bottom:1px solid #f3f4f6";
+    const selectAllLabel = document.createElement("label");
+    selectAllLabel.style.cssText = "display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:#6b7280";
+    const selectAllCb = document.createElement("input");
+    selectAllCb.type = "checkbox";
+    const filtered = this.getFiltered(items, searchTerm);
+    selectAllCb.checked = filtered.length &gt; 0 &amp;&amp; filtered.every((item) =&gt; selected.has(item.id));
+    selectAllCb.indeterminate = filtered.some((item) =&gt; selected.has(item.id)) &amp;&amp; !selectAllCb.checked;
+    selectAllCb.addEventListener("change", () =&gt; {
+      if (selectAllCb.checked) filtered.forEach((item) =&gt; selected.add(item.id));
+      else filtered.forEach((item) =&gt; selected.delete(item.id));
+      this.render();
+    });
+    selectAllLabel.appendChild(selectAllCb);
+    selectAllLabel.appendChild(document.createTextNode("Select All"));
+    selectAllWrap.appendChild(selectAllLabel);
+    panel.appendChild(selectAllWrap);
+
+    // Items list
+    const list = document.createElement("div");
+    list.style.cssText = "max-height:250px;overflow-y:auto";
+
+    if (filtered.length === 0) {
+      const empty = document.createElement("div");
+      empty.textContent = searchTerm ? "No matches" : "Empty";
+      empty.style.cssText = "padding:20px;text-align:center;color:#9ca3af;font-size:12px";
+      list.appendChild(empty);
+    } else {
+      filtered.forEach((item) =&gt; {
+        const row = document.createElement("label");
+        row.style.cssText = `
+          display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;
+          transition:background 0.1s;font-size:13px;
+          background:${selected.has(item.id) ? "#eff6ff" : "transparent"};
+        `;
+        row.addEventListener("mouseenter", () =&gt; { if (!selected.has(item.id)) row.style.background = "#f9fafb"; });
+        row.addEventListener("mouseleave", () =&gt; { if (!selected.has(item.id)) row.style.background = ""; });
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = selected.has(item.id);
+        cb.addEventListener("change", () =&gt; {
+          if (cb.checked) selected.add(item.id);
+          else selected.delete(item.id);
+          this.render();
+        });
+        row.appendChild(cb);
+
+        const label = document.createElement("span");
+        label.textContent = item.label;
+        row.appendChild(label);
+
+        list.appendChild(row);
+      });
+    }
+    panel.appendChild(list);
+
+    return panel;
+  }
+
+  createBtn(text, ariaLabel, onClick) {
+    const btn = document.createElement("button");
+    btn.textContent = text;
+    btn.setAttribute("aria-label", ariaLabel);
+    btn.style.cssText = "padding:8px 12px;border:1px solid #d1d5db;border-radius:4px;background:white;cursor:pointer;font-size:12px";
+    btn.addEventListener("click", onClick);
+    return btn;
+  }
+
+  getFiltered(items, search) {
+    if (!search) return items;
+    return items.filter((item) =&gt; item.label.toLowerCase().includes(search.toLowerCase()));
+  }
+
+  transferRight() {
+    const toMove = this.leftItems.filter((item) =&gt; this.leftSelected.has(item.id));
+    this.leftItems = this.leftItems.filter((item) =&gt; !this.leftSelected.has(item.id));
+    this.rightItems.push(...toMove);
+    this.leftSelected.clear();
+    this.onChange({ left: this.leftItems, right: this.rightItems });
+    this.render();
+  }
+
+  transferLeft() {
+    const toMove = this.rightItems.filter((item) =&gt; this.rightSelected.has(item.id));
+    this.rightItems = this.rightItems.filter((item) =&gt; !this.rightSelected.has(item.id));
+    this.leftItems.push(...toMove);
+    this.rightSelected.clear();
+    this.onChange({ left: this.leftItems, right: this.rightItems });
+    this.render();
+  }
+
+  transferAllRight() {
+    this.rightItems.push(...this.leftItems);
+    this.leftItems = [];
+    this.leftSelected.clear();
+    this.onChange({ left: this.leftItems, right: this.rightItems });
+    this.render();
+  }
+
+  transferAllLeft() {
+    this.leftItems.push(...this.rightItems);
+    this.rightItems = [];
+    this.rightSelected.clear();
+    this.onChange({ left: this.leftItems, right: this.rightItems });
+    this.render();
+  }
+
+  getResult() { return { left: this.leftItems, right: this.rightItems }; }
+}
+
+// Usage:
+const transfer = new TransferList(document.getElementById("permissions"), {
+  leftTitle: "Available Permissions",
+  rightTitle: "Assigned Permissions",
+  leftItems: [
+    { id: 1, label: "Read" }, { id: 2, label: "Write" },
+    { id: 3, label: "Delete" }, { id: 4, label: "Admin" },
+    { id: 5, label: "Export" }, { id: 6, label: "Import" },
+    { id: 7, label: "Audit Log" }, { id: 8, label: "Settings" },
+  ],
+  rightItems: [],
+  onChange: ({ left, right }) =&gt; console.log("Assigned:", right.map((r) =&gt; r.label)),
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Keyboard nav:</strong> Tab between panels, Space to toggle, Shift+click for range select</li>
+  <li><strong>Drag between panels:</strong> Drag items from one list to another (more complex but asked at Atlassian)</li>
+  <li><strong>Async loading:</strong> Load items from API with pagination in each panel</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="memoize">3. Memoize (with LRU + TTL)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Amazon, Flipkart, Microsoft, Uber</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>// ─── Basic Memoize ───
+function memoize(fn, options = {}) {
+  const {
+    maxSize = Infinity,      // LRU cache max entries
+    ttl = 0,                 // Time-to-live in ms (0 = no expiry)
+    keyResolver = (...args) =&gt; JSON.stringify(args), // Custom key
+  } = options;
+
+  const cache = new Map(); // Map preserves insertion order (useful for LRU)
+
+  function memoized(...args) {
+    const key = keyResolver(...args);
+
+    if (cache.has(key)) {
+      const entry = cache.get(key);
+
+      // Check TTL
+      if (ttl &gt; 0 &amp;&amp; Date.now() - entry.timestamp &gt; ttl) {
+        cache.delete(key);
+      } else {
+        // Move to end (most recently used) for LRU
+        cache.delete(key);
+        cache.set(key, entry);
+        return entry.value;
+      }
+    }
+
+    // Compute
+    const value = fn.apply(this, args);
+
+    // Store
+    cache.set(key, { value, timestamp: Date.now() });
+
+    // Evict LRU if over maxSize
+    if (cache.size &gt; maxSize) {
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+
+    return value;
+  }
+
+  // API
+  memoized.cache = cache;
+  memoized.clear = () =&gt; cache.clear();
+  memoized.delete = (...args) =&gt; cache.delete(keyResolver(...args));
+  memoized.has = (...args) =&gt; {
+    const key = keyResolver(...args);
+    if (!cache.has(key)) return false;
+    if (ttl &gt; 0 &amp;&amp; Date.now() - cache.get(key).timestamp &gt; ttl) {
+      cache.delete(key);
+      return false;
+    }
+    return true;
+  };
+
+  return memoized;
+}
+
+// ─── Async Memoize (for API calls) ───
+function memoizeAsync(fn, options = {}) {
+  const { maxSize = 100, ttl = 60000, keyResolver = (...args) =&gt; JSON.stringify(args) } = options;
+  const cache = new Map();
+  const pending = new Map(); // Avoid duplicate in-flight requests
+
+  async function memoized(...args) {
+    const key = keyResolver(...args);
+
+    // Return cached value
+    if (cache.has(key)) {
+      const entry = cache.get(key);
+      if (ttl &gt; 0 &amp;&amp; Date.now() - entry.timestamp &gt; ttl) {
+        cache.delete(key);
+      } else {
+        cache.delete(key);
+        cache.set(key, entry); // LRU refresh
+        return entry.value;
+      }
+    }
+
+    // Return pending promise (dedup)
+    if (pending.has(key)) {
+      return pending.get(key);
+    }
+
+    // Execute and cache
+    const promise = fn.apply(this, args).then((value) =&gt; {
+      cache.set(key, { value, timestamp: Date.now() });
+      pending.delete(key);
+
+      if (cache.size &gt; maxSize) {
+        const firstKey = cache.keys().next().value;
+        cache.delete(firstKey);
+      }
+
+      return value;
+    }).catch((err) =&gt; {
+      pending.delete(key);
+      throw err;
+    });
+
+    pending.set(key, promise);
+    return promise;
+  }
+
+  memoized.cache = cache;
+  memoized.clear = () =&gt; { cache.clear(); pending.clear(); };
+  memoized.invalidate = (...args) =&gt; cache.delete(keyResolver(...args));
+
+  return memoized;
+}
+
+// ─── WeakMap Memoize (for object arguments — avoids memory leaks) ───
+function memoizeWeak(fn) {
+  const cache = new WeakMap();
+
+  return function (obj, ...rest) {
+    if (!cache.has(obj)) {
+      cache.set(obj, new Map());
+    }
+    const innerCache = cache.get(obj);
+    const key = JSON.stringify(rest);
+
+    if (innerCache.has(key)) return innerCache.get(key);
+
+    const result = fn.call(this, obj, ...rest);
+    innerCache.set(key, result);
+    return result;
+  };
+}
+
+// ─── Usage Examples ───
+
+// 1. Basic memoize with LRU
+const fibonacci = memoize((n) =&gt; {
+  if (n &lt;= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}, { maxSize: 100 });
+
+console.log(fibonacci(40)); // Instant after first call
+
+// 2. API memoize with TTL
+const fetchUser = memoizeAsync(
+  (id) =&gt; fetch(`/api/users/${id}`).then((r) =&gt; r.json()),
+  { ttl: 30000, maxSize: 50 } // Cache for 30s, max 50 users
+);
+
+// Multiple simultaneous calls → only 1 network request
+const [user1, user2] = await Promise.all([fetchUser(1), fetchUser(1)]);
+
+// 3. Custom key resolver (for object args)
+const getPrice = memoize(
+  (product, currency) =&gt; expensiveCalculation(product, currency),
+  { keyResolver: (product, currency) =&gt; `${product.id}_${currency}` }
+);
+
+// 4. WeakMap for DOM elements (no memory leaks)
+const getRect = memoizeWeak((element) =&gt; element.getBoundingClientRect());</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Why Map over Object?</strong> Map preserves insertion order (needed for LRU), handles any key type, better perf for frequent adds/deletes</li>
+  <li><strong>LRU eviction:</strong> Delete + re-insert on access moves entry to end; evict first key (oldest)</li>
+  <li><strong>Async deduplication:</strong> Store pending Promises to avoid duplicate in-flight requests for the same key</li>
+  <li><strong>WeakMap:</strong> Keys are weakly held — when object is GC'd, cache entry is auto-removed. Prevents memory leaks with DOM refs</li>
+  <li><strong>Cache invalidation patterns:</strong> TTL, manual invalidate, event-based (invalidate on write), stale-while-revalidate</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="deep-get-set">4. lodash.get &amp; lodash.set (Deep Property Access)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Amazon, Google, Uber, Atlassian</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>// ─── lodash.get ───
+function get(obj, path, defaultValue = undefined) {
+  // Handle null/undefined object
+  if (obj == null) return defaultValue;
+
+  // Normalize path: "a.b[0].c" or ["a", "b", "0", "c"]
+  const keys = Array.isArray(path) ? path : parsePath(path);
+
+  let result = obj;
+  for (const key of keys) {
+    if (result == null) return defaultValue;
+    result = result[key];
+  }
+
+  return result === undefined ? defaultValue : result;
+}
+
+// ─── lodash.set ───
+function set(obj, path, value) {
+  if (obj == null || typeof obj !== "object") return obj;
+
+  const keys = Array.isArray(path) ? path : parsePath(path);
+
+  let current = obj;
+  for (let i = 0; i &lt; keys.length - 1; i++) {
+    const key = keys[i];
+    const nextKey = keys[i + 1];
+
+    // Create intermediate if doesn't exist or isn't an object
+    if (current[key] == null || typeof current[key] !== "object") {
+      // Determine if next level should be array or object
+      current[key] = isArrayIndex(nextKey) ? [] : {};
+    }
+
+    current = current[key];
+  }
+
+  current[keys[keys.length - 1]] = value;
+  return obj;
+}
+
+// ─── Path Parser ───
+function parsePath(path) {
+  if (typeof path !== "string") return [];
+
+  const keys = [];
+  // Match: word, [0], ["key"], ['key']
+  const regex = /[^.[\]]+|\[(\d+|"[^"]*"|'[^']*')\]/g;
+  let match;
+
+  while ((match = regex.exec(path)) !== null) {
+    if (match[1] !== undefined) {
+      // Strip quotes from bracket notation
+      const inner = match[1];
+      if ((inner.startsWith('"') &amp;&amp; inner.endsWith('"')) ||
+          (inner.startsWith("'") &amp;&amp; inner.endsWith("'"))) {
+        keys.push(inner.slice(1, -1));
+      } else {
+        keys.push(inner); // numeric index as string
+      }
+    } else {
+      keys.push(match[0]);
+    }
+  }
+
+  return keys;
+}
+
+function isArrayIndex(key) {
+  return /^\d+$/.test(key);
+}
+
+// ─── lodash.has ───
+function has(obj, path) {
+  if (obj == null) return false;
+  const keys = Array.isArray(path) ? path : parsePath(path);
+
+  let current = obj;
+  for (const key of keys) {
+    if (current == null || !Object.prototype.hasOwnProperty.call(current, key)) {
+      return false;
+    }
+    current = current[key];
+  }
+  return true;
+}
+
+// ─── lodash.unset (delete deep property) ───
+function unset(obj, path) {
+  if (obj == null) return true;
+  const keys = Array.isArray(path) ? path : parsePath(path);
+
+  let current = obj;
+  for (let i = 0; i &lt; keys.length - 1; i++) {
+    if (current[keys[i]] == null) return true; // Already doesn't exist
+    current = current[keys[i]];
+  }
+
+  const lastKey = keys[keys.length - 1];
+  if (Array.isArray(current)) {
+    current.splice(Number(lastKey), 1);
+  } else {
+    delete current[lastKey];
+  }
+  return true;
+}
+
+// ─── Usage Examples ───
+
+const data = {
+  user: {
+    name: "Siddu",
+    addresses: [
+      { city: "Bangalore", zip: "560001" },
+      { city: "Mumbai", zip: "400001" },
+    ],
+    settings: {
+      theme: { mode: "dark", accent: "#2563eb" },
+    },
+  },
+};
+
+// get examples
+console.log(get(data, "user.name"));                    // "Siddu"
+console.log(get(data, "user.addresses[0].city"));       // "Bangalore"
+console.log(get(data, "user.addresses[1].zip"));        // "400001"
+console.log(get(data, 'user.settings.theme.mode'));     // "dark"
+console.log(get(data, "user.phone", "N/A"));            // "N/A" (default)
+console.log(get(null, "a.b", "fallback"));              // "fallback"
+
+// set examples
+set(data, "user.addresses[2].city", "Delhi");
+console.log(data.user.addresses[2]);                    // { city: "Delhi" }
+
+set(data, "user.settings.notifications.email", true);
+console.log(data.user.settings.notifications);          // { email: true }
+
+// Edge cases
+const empty = {};
+set(empty, "a.b.c", 42);
+console.log(empty);                                     // { a: { b: { c: 42 } } }
+
+set(empty, "arr[0][1]", "nested");
+console.log(empty.arr);                                 // [[ , "nested"]]
+
+// has examples
+console.log(has(data, "user.name"));                    // true
+console.log(has(data, "user.age"));                     // false
+
+// unset example
+unset(data, "user.settings.theme.accent");
+console.log(data.user.settings.theme);                  // { mode: "dark" }</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Path parsing complexity:</strong> Must handle dot notation, bracket notation (numeric + quoted), mixed: <code>a.b[0]["c.d"].e</code></li>
+  <li><strong>Array vs Object decision in set():</strong> If next key is numeric → create array, otherwise → create object</li>
+  <li><strong>Immutable version:</strong> Return new object instead of mutating (using spread at each level)</li>
+  <li><strong>Performance:</strong> Cache parsed paths if same path is used repeatedly</li>
+  <li><strong>Prototype pollution:</strong> Reject keys like <code>__proto__</code>, <code>constructor</code>, <code>prototype</code> for security</li>
+</ul>
+
+<div class="callout warning">
+  <strong>Security Note:</strong> In production, always validate paths against prototype pollution. Reject any path containing <code>__proto__</code>, <code>constructor</code>, or <code>prototype</code> segments.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-emitter">5. EventEmitter (Node.js style)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Amazon, Flipkart, Razorpay, Microsoft</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class EventEmitter {
+  constructor() {
+    this.events = new Map();
+    this.maxListeners = 10;
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    const listeners = this.events.get(event);
+    
+    if (listeners.length >= this.maxListeners) {
+      console.warn(`MaxListenersExceededWarning: ${event} has ${listeners.length} listeners`);
+    }
+    listeners.push({ fn: listener, once: false });
+    return this; // chainable
+  }
+
+  once(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push({ fn: listener, once: true });
+    return this;
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return false;
+    const listeners = this.events.get(event);
+    
+    // Filter out 'once' listeners after execution
+    const remaining = [];
+    for (const entry of listeners) {
+      entry.fn(...args);
+      if (!entry.once) remaining.push(entry);
+    }
+    this.events.set(event, remaining);
+    return true;
+  }
+
+  off(event, listener) {
+    if (!this.events.has(event)) return this;
+    if (!listener) {
+      this.events.delete(event); // Remove all
+    } else {
+      const filtered = this.events.get(event).filter(e => e.fn !== listener);
+      filtered.length ? this.events.set(event, filtered) : this.events.delete(event);
+    }
+    return this;
+  }
+
+  listenerCount(event) {
+    return this.events.get(event)?.length || 0;
+  }
+
+  eventNames() {
+    return [...this.events.keys()];
+  }
+
+  removeAllListeners(event) {
+    event ? this.events.delete(event) : this.events.clear();
+    return this;
+  }
+
+  setMaxListeners(n) { this.maxListeners = n; return this; }
+
+  // Async version — waits for all async listeners
+  async emitAsync(event, ...args) {
+    if (!this.events.has(event)) return false;
+    const listeners = this.events.get(event);
+    await Promise.all(listeners.map(entry => entry.fn(...args)));
+    this.events.set(event, listeners.filter(e => !e.once));
+    return true;
+  }
+}
+
+// Usage:
+const emitter = new EventEmitter();
+emitter.on('data', (payload) => console.log('Got:', payload));
+emitter.once('connect', () => console.log('Connected!'));
+emitter.emit('connect');
+emitter.emit('data', { id: 1 });
+emitter.emit('connect'); // Won't fire — was 'once'</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Wildcard events:</strong> Support <code>*</code> pattern to listen to all events</li>
+  <li><strong>Priority listeners:</strong> Allow specifying execution order</li>
+  <li><strong>Memory leaks:</strong> Warn when listeners exceed threshold (maxListeners)</li>
+  <li><strong>Error handling:</strong> If 'error' event has no listeners, throw</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="pubsub">6. PubSub Pattern</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Amazon, Atlassian, Freshworks</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class PubSub {
+  constructor() {
+    this.topics = {};
+    this.subId = 0;
+  }
+
+  subscribe(topic, callback) {
+    if (!this.topics[topic]) this.topics[topic] = {};
+    const id = `sub_${++this.subId}`;
+    this.topics[topic][id] = callback;
+    
+    // Return unsubscribe function
+    return {
+      unsubscribe: () => { delete this.topics[topic][id]; },
+      id,
+    };
+  }
+
+  publish(topic, data) {
+    if (!this.topics[topic]) return 0;
+    const subscribers = Object.values(this.topics[topic]);
+    subscribers.forEach(cb => {
+      try { cb(data); } catch (err) { console.error(`PubSub error in ${topic}:`, err); }
+    });
+    return subscribers.length;
+  }
+
+  // Pattern-based subscription (e.g., "user.*" matches "user.login", "user.logout")
+  subscribePattern(pattern, callback) {
+    const regex = new RegExp('^' + pattern.replace(/\*/g, '[^.]+').replace(/\#/g, '.*') + '$');
+    return this.subscribe('__pattern__', (msg) => {
+      if (regex.test(msg.topic)) callback(msg.data, msg.topic);
+    });
+  }
+
+  publishWithPattern(topic, data) {
+    // Publish to exact subscribers
+    this.publish(topic, data);
+    // Publish to pattern subscribers
+    if (this.topics['__pattern__']) {
+      Object.values(this.topics['__pattern__']).forEach(cb => cb({ topic, data }));
+    }
+  }
+
+  unsubscribeAll(topic) {
+    if (topic) delete this.topics[topic];
+    else this.topics = {};
+  }
+
+  getSubscribers(topic) {
+    return Object.keys(this.topics[topic] || {}).length;
+  }
+}
+
+// Usage:
+const bus = new PubSub();
+const sub = bus.subscribe('user:login', (user) => console.log('Logged in:', user));
+bus.publish('user:login', { name: 'Alice' });
+sub.unsubscribe();</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="deep-clone">7. Deep Clone (Handles Circular References)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Amazon, Flipkart, Microsoft, Razorpay</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>function deepClone(obj, seen = new WeakMap()) {
+  // Primitives and null
+  if (obj === null || typeof obj !== 'object') return obj;
+  
+  // Circular reference detection
+  if (seen.has(obj)) return seen.get(obj);
+  
+  // Date
+  if (obj instanceof Date) return new Date(obj.getTime());
+  
+  // RegExp
+  if (obj instanceof RegExp) return new RegExp(obj.source, obj.flags);
+  
+  // Map
+  if (obj instanceof Map) {
+    const clone = new Map();
+    seen.set(obj, clone);
+    obj.forEach((val, key) => clone.set(deepClone(key, seen), deepClone(val, seen)));
+    return clone;
+  }
+  
+  // Set
+  if (obj instanceof Set) {
+    const clone = new Set();
+    seen.set(obj, clone);
+    obj.forEach(val => clone.add(deepClone(val, seen)));
+    return clone;
+  }
+  
+  // ArrayBuffer
+  if (obj instanceof ArrayBuffer) return obj.slice(0);
+  
+  // TypedArrays
+  if (ArrayBuffer.isView(obj)) return new obj.constructor(obj.buffer.slice(0));
+  
+  // Array or Object
+  const clone = Array.isArray(obj) ? [] : Object.create(Object.getPrototypeOf(obj));
+  seen.set(obj, clone);
+  
+  // Copy all own properties (including symbols)
+  const keys = [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
+  for (const key of keys) {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, key);
+    if (descriptor.value !== undefined) {
+      descriptor.value = deepClone(descriptor.value, seen);
+    }
+    Object.defineProperty(clone, key, descriptor);
+  }
+  
+  return clone;
+}
+
+// structuredClone alternative (modern browsers):
+// const clone = structuredClone(obj);
+
+// Test with circular reference:
+const a = { name: 'test' };
+a.self = a;
+const b = deepClone(a);
+console.log(b.self === b); // true (circular preserved)
+console.log(b !== a);      // true (different object)</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Performance:</strong> For large objects, structuredClone() is 2-10x faster (native)</li>
+  <li><strong>Limitations:</strong> Functions, WeakMap, WeakSet, DOM nodes cannot be cloned</li>
+  <li><strong>Immutable approach:</strong> Libraries like Immer use Proxy for structural sharing</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="json-formatter">8. JSON Formatter / Tree Viewer</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Postman, Atlassian, Google DevTools, Flipkart</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Edit JSON on left, click Format to see tree view</div>
+  <iframe src="demos/json-formatter.html" loading="lazy" style="height:520px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class JSONViewer {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.theme = options.theme || 'light';
+    this.collapsed = options.collapsed || false;
+    this.maxDepth = options.maxDepth || Infinity;
+  }
+
+  render(data) {
+    try {
+      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+      this.container.innerHTML = `&lt;div class="json-viewer ${this.theme}"&gt;${this.renderNode(parsed, 0, 'root')}&lt;/div&gt;`;
+      this.bindEvents();
+    } catch (e) {
+      this.container.innerHTML = `&lt;div class="json-error"&gt;Invalid JSON: ${e.message}&lt;/div&gt;`;
+    }
+  }
+
+  renderNode(value, depth, key) {
+    const type = this.getType(value);
+    
+    switch (type) {
+      case 'null': return `&lt;span class="json-null"&gt;null&lt;/span&gt;`;
+      case 'boolean': return `&lt;span class="json-bool"&gt;${value}&lt;/span&gt;`;
+      case 'number': return `&lt;span class="json-num"&gt;${value}&lt;/span&gt;`;
+      case 'string': return `&lt;span class="json-str"&gt;"${this.escapeHtml(value)}"&lt;/span&gt;`;
+      case 'array':
+      case 'object':
+        return this.renderCollapsible(value, type, depth);
+    }
+  }
+
+  renderCollapsible(value, type, depth) {
+    const isArray = type === 'array';
+    const entries = isArray ? value : Object.entries(value);
+    const count = isArray ? value.length : Object.keys(value).length;
+    const collapsed = this.collapsed || depth >= this.maxDepth;
+    
+    const open = isArray ? '[' : '{';
+    const close = isArray ? ']' : '}';
+    const preview = count === 0 ? `${open}${close}` : `${open}...${close} // ${count} items`;
+
+    let html = `&lt;span class="json-toggle ${collapsed ? 'collapsed' : ''}"&gt;${collapsed ? '▸' : '▾'}&lt;/span&gt;`;
+    html += `&lt;span class="json-bracket"&gt;${open}&lt;/span&gt;`;
+    html += `&lt;span class="json-preview" ${collapsed ? '' : 'style="display:none"'}&gt;${preview.slice(1)}&lt;/span&gt;`;
+    html += `&lt;div class="json-content" ${collapsed ? 'style="display:none"' : ''}&gt;`;
+
+    if (isArray) {
+      value.forEach((item, i) => {
+        html += `&lt;div class="json-line"&gt;${this.renderNode(item, depth + 1, i)}${i < count - 1 ? ',' : ''}&lt;/div&gt;`;
+      });
+    } else {
+      Object.entries(value).forEach(([k, v], i) => {
+        html += `&lt;div class="json-line"&gt;&lt;span class="json-key"&gt;"${k}"&lt;/span&gt;: ${this.renderNode(v, depth + 1, k)}${i < count - 1 ? ',' : ''}&lt;/div&gt;`;
+      });
+    }
+
+    html += `&lt;/div&gt;&lt;span class="json-bracket"&gt;${close}&lt;/span&gt;`;
+    return html;
+  }
+
+  bindEvents() {
+    this.container.querySelectorAll('.json-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const isCollapsed = toggle.classList.toggle('collapsed');
+        const content = toggle.parentElement.querySelector('.json-content');
+        const preview = toggle.parentElement.querySelector('.json-preview');
+        content.style.display = isCollapsed ? 'none' : '';
+        preview.style.display = isCollapsed ? '' : 'none';
+        toggle.textContent = isCollapsed ? '▸' : '▾';
+      });
+    });
+  }
+
+  getType(value) {
+    if (value === null) return 'null';
+    if (Array.isArray(value)) return 'array';
+    return typeof value;
+  }
+
+  escapeHtml(str) {
+    return str.replace(/&/g,'&amp;amp;').replace(/</g,'&amp;lt;').replace(/>/g,'&amp;gt;');
+  }
+}</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="undo-redo">9. Undo/Redo Stack (Command Pattern)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google Docs, Notion, Figma, Microsoft, Atlassian</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class UndoRedoManager {
+  constructor(options = {}) {
+    this.undoStack = [];
+    this.redoStack = [];
+    this.maxHistory = options.maxHistory || 100;
+    this.onChange = options.onChange || (() => {});
+  }
+
+  execute(command) {
+    // command = { execute(), undo(), description }
+    command.execute();
+    this.undoStack.push(command);
+    this.redoStack = []; // Clear redo on new action
+    
+    if (this.undoStack.length > this.maxHistory) this.undoStack.shift();
+    this.onChange(this.getState());
+  }
+
+  undo() {
+    if (!this.canUndo()) return null;
+    const command = this.undoStack.pop();
+    command.undo();
+    this.redoStack.push(command);
+    this.onChange(this.getState());
+    return command;
+  }
+
+  redo() {
+    if (!this.canRedo()) return null;
+    const command = this.redoStack.pop();
+    command.execute();
+    this.undoStack.push(command);
+    this.onChange(this.getState());
+    return command;
+  }
+
+  canUndo() { return this.undoStack.length > 0; }
+  canRedo() { return this.redoStack.length > 0; }
+
+  getState() {
+    return {
+      canUndo: this.canUndo(),
+      canRedo: this.canRedo(),
+      undoCount: this.undoStack.length,
+      redoCount: this.redoStack.length,
+      lastAction: this.undoStack[this.undoStack.length - 1]?.description,
+    };
+  }
+
+  clear() { this.undoStack = []; this.redoStack = []; }
+
+  // Batch multiple commands into one undo step
+  batch(commands) {
+    const batchCmd = {
+      description: `Batch (${commands.length} actions)`,
+      execute: () => commands.forEach(c => c.execute()),
+      undo: () => [...commands].reverse().forEach(c => c.undo()),
+    };
+    this.execute(batchCmd);
+  }
+}
+
+// Usage with a text editor:
+class TextCommand {
+  constructor(editor, index, inserted, removed) {
+    this.editor = editor;
+    this.index = index;
+    this.inserted = inserted;
+    this.removed = removed;
+    this.description = inserted ? `Insert "${inserted}"` : `Delete "${removed}"`;
+  }
+  execute() {
+    if (this.inserted) this.editor.splice(this.index, 0, this.inserted);
+    if (this.removed) this.editor.splice(this.index, this.removed.length);
+  }
+  undo() {
+    if (this.inserted) this.editor.splice(this.index, this.inserted.length);
+    if (this.removed) this.editor.splice(this.index, 0, this.removed);
+  }
+}
+
+// Keyboard binding:
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+    e.preventDefault();
+    e.shiftKey ? manager.redo() : manager.undo();
+  }
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="localstorage-wrapper">10. localStorage Wrapper (TTL + Namespace)</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Flipkart, Amazon, Razorpay, Paytm</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Storage {
+  constructor(namespace = 'app', options = {}) {
+    this.namespace = namespace;
+    this.defaultTTL = options.defaultTTL || null; // ms, null = no expiry
+    this.storage = options.storage || localStorage;
+    this.encryptionKey = options.encrypt ? options.encryptionKey : null;
+  }
+
+  _key(key) { return `${this.namespace}:${key}`; }
+
+  set(key, value, ttl = this.defaultTTL) {
+    const entry = {
+      value,
+      created: Date.now(),
+      expires: ttl ? Date.now() + ttl : null,
+    };
+    try {
+      this.storage.setItem(this._key(key), JSON.stringify(entry));
+      return true;
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        this.evict(); // Remove expired items
+        try {
+          this.storage.setItem(this._key(key), JSON.stringify(entry));
+          return true;
+        } catch { return false; }
+      }
+      return false;
+    }
+  }
+
+  get(key, defaultValue = null) {
+    const raw = this.storage.getItem(this._key(key));
+    if (!raw) return defaultValue;
+    
+    try {
+      const entry = JSON.parse(raw);
+      if (entry.expires && Date.now() > entry.expires) {
+        this.remove(key); // Lazy expiration
+        return defaultValue;
+      }
+      return entry.value;
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  remove(key) { this.storage.removeItem(this._key(key)); }
+
+  has(key) { return this.get(key) !== null; }
+
+  // Get all keys in this namespace
+  keys() {
+    const prefix = this.namespace + ':';
+    const keys = [];
+    for (let i = 0; i < this.storage.length; i++) {
+      const k = this.storage.key(i);
+      if (k.startsWith(prefix)) keys.push(k.slice(prefix.length));
+    }
+    return keys;
+  }
+
+  clear() { this.keys().forEach(k => this.remove(k)); }
+
+  // Remove expired entries
+  evict() {
+    this.keys().forEach(key => this.get(key)); // Triggers lazy expiration
+  }
+
+  // Get remaining TTL in ms
+  ttl(key) {
+    const raw = this.storage.getItem(this._key(key));
+    if (!raw) return -2; // Key doesn't exist
+    const entry = JSON.parse(raw);
+    if (!entry.expires) return -1; // No expiry
+    const remaining = entry.expires - Date.now();
+    return remaining > 0 ? remaining : 0;
+  }
+
+  // Get storage usage info
+  info() {
+    let totalSize = 0;
+    this.keys().forEach(key => {
+      totalSize += this.storage.getItem(this._key(key)).length * 2; // UTF-16
+    });
+    return { keys: this.keys().length, bytes: totalSize, namespace: this.namespace };
+  }
+}
+
+// Usage:
+const cache = new Storage('myApp', { defaultTTL: 3600000 }); // 1 hour
+cache.set('user', { name: 'Alice' });
+cache.set('token', 'abc123', 900000); // 15-min TTL
+cache.get('user'); // { name: 'Alice' }
+cache.ttl('token'); // remaining ms</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="curry-compose">11. Curry & Compose (Functional Utilities)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Amazon, Flipkart, Microsoft, Goldman Sachs</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>// ──── CURRY ────
+// Transforms f(a, b, c) into f(a)(b)(c) or f(a, b)(c), etc.
+function curry(fn) {
+  const arity = fn.length;
+  
+  return function curried(...args) {
+    if (args.length >= arity) {
+      return fn.apply(this, args);
+    }
+    return function(...moreArgs) {
+      return curried.apply(this, [...args, ...moreArgs]);
+    };
+  };
+}
+
+// With placeholder support (like lodash _.curry with _)
+const _ = Symbol('placeholder');
+
+function curryWithPlaceholder(fn) {
+  const arity = fn.length;
+  
+  return function curried(...args) {
+    // Replace placeholders with new args
+    const complete = args.length >= arity && !args.slice(0, arity).includes(_);
+    if (complete) return fn.apply(this, args);
+    
+    return function(...moreArgs) {
+      const merged = args.map(a => a === _ && moreArgs.length ? moreArgs.shift() : a);
+      return curried.apply(this, [...merged, ...moreArgs]);
+    };
+  };
+}
+
+// ──── COMPOSE (right-to-left) ────
+function compose(...fns) {
+  if (fns.length === 0) return (x) => x;
+  if (fns.length === 1) return fns[0];
+  
+  return function composed(...args) {
+    return fns.reduceRight((result, fn, i) => {
+      return i === fns.length - 1 ? fn(...result) : fn(result);
+    }, args);
+  };
+}
+
+// ──── PIPE (left-to-right) — more readable ────
+function pipe(...fns) {
+  return function piped(...args) {
+    return fns.reduce((result, fn, i) => {
+      return i === 0 ? fn(...result) : fn(result);
+    }, args);
+  };
+}
+
+// ──── ASYNC COMPOSE ────
+function composeAsync(...fns) {
+  return function(input) {
+    return fns.reduceRight((chain, fn) => chain.then(fn), Promise.resolve(input));
+  };
+}
+
+// Usage:
+const add = curry((a, b) => a + b);
+const add5 = add(5);
+add5(3); // 8
+add(2, 3); // 5
+
+const transform = pipe(
+  (x) => x * 2,
+  (x) => x + 1,
+  (x) => `Result: ${x}`
+);
+transform(5); // "Result: 11"
+
+// Async pipeline:
+const process = composeAsync(
+  async (data) => await fetch(data.url),
+  async (res) => await res.json(),
+  (json) => json.results,
+);
+</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="virtual-list">12. Virtual Scroll / Windowed List</h2>
+<span class="difficulty d-expert">EXPERT</span>
+<p class="companies">Asked at: Google, Meta, Flipkart, Amazon, LinkedIn</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Scroll through 100K items, only visible rows rendered</div>
+  <iframe src="demos/virtual-scroll.html" loading="lazy" style="height:560px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class VirtualList {
+  constructor(container, options) {
+    this.container = container;
+    this.items = options.items || []; // Array of data
+    this.itemHeight = options.itemHeight || 40; // Fixed row height
+    this.renderItem = options.renderItem; // (item, index) => HTML string
+    this.bufferSize = options.bufferSize || 5; // Extra items above/below viewport
+    this.overscan = options.overscan || 3;
+    
+    this.scrollTop = 0;
+    this.containerHeight = container.clientHeight;
+    
+    this.setup();
+    this.render();
+  }
+
+  setup() {
+    this.container.style.overflow = 'auto';
+    this.container.style.position = 'relative';
+    
+    // Spacer to set total scroll height
+    this.spacer = document.createElement('div');
+    this.spacer.style.height = `${this.items.length * this.itemHeight}px`;
+    this.spacer.style.position = 'relative';
+    
+    // Viewport that holds visible items
+    this.viewport = document.createElement('div');
+    this.viewport.style.position = 'absolute';
+    this.viewport.style.left = '0';
+    this.viewport.style.right = '0';
+    
+    this.spacer.appendChild(this.viewport);
+    this.container.appendChild(this.spacer);
+    
+    // Scroll listener with rAF throttling
+    let ticking = false;
+    this.container.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          this.scrollTop = this.container.scrollTop;
+          this.render();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  }
+
+  render() {
+    const startIndex = Math.max(0, Math.floor(this.scrollTop / this.itemHeight) - this.overscan);
+    const visibleCount = Math.ceil(this.containerHeight / this.itemHeight) + this.overscan * 2;
+    const endIndex = Math.min(this.items.length, startIndex + visibleCount);
+    
+    this.viewport.style.top = `${startIndex * this.itemHeight}px`;
+    
+    let html = '';
+    for (let i = startIndex; i < endIndex; i++) {
+      html += `&lt;div class="virtual-item" style="height:${this.itemHeight}px" data-index="${i}"&gt;${this.renderItem(this.items[i], i)}&lt;/div&gt;`;
+    }
+    this.viewport.innerHTML = html;
+  }
+
+  // Dynamic updates
+  setItems(items) {
+    this.items = items;
+    this.spacer.style.height = `${items.length * this.itemHeight}px`;
+    this.render();
+  }
+
+  scrollToIndex(index) {
+    this.container.scrollTop = index * this.itemHeight;
+  }
+
+  // Variable height support (more complex)
+  // Would need a height cache + binary search for start index
+}
+
+// Usage:
+const list = new VirtualList(document.getElementById('list-container'), {
+  items: Array.from({ length: 100000 }, (_, i) => ({ id: i, name: `Item ${i}` })),
+  itemHeight: 50,
+  renderItem: (item, i) => `&lt;span&gt;#${item.id}&lt;/span&gt; ${item.name}`,
+});</code></pre>
+</details>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Variable heights:</strong> Measure + cache heights, use binary search to find start index</li>
+  <li><strong>Infinite scroll:</strong> Trigger fetch when scrolled near bottom, append to items</li>
+  <li><strong>Sticky headers:</strong> Group items by category, pin headers to top during scroll</li>
+  <li><strong>Performance:</strong> Use <code>will-change: transform</code> on viewport, avoid layout thrashing</li>
+</ul>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="machine-coding-part5-games-utilities.html">← Part 5: Games & More</a>
+  <a href="machine-coding-part1-ui-components.html">Back to Part 1 →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

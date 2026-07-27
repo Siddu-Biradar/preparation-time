@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Phase 3 Notes — Go Concurrency</title>
+<style>
+  :root {
+    --bg: #f7f9fc; --panel: #ffffff; --text: #1b2330; --muted: #5b6675;
+    --accent: #00ADD8; --accent-dark: #0082a3; --accent2: #1a7f72;
+    --border: #e3e8ef; --success: #16a34a; --warn-bg: #fff8eb;
+    --warn-border: #f5d69a; --warn-text: #7a4a05;
+    --code-bg: #eef3f8; --code-border: #cfd6df; --shadow: 0 1px 4px rgba(16,24,40,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px; }
+  .layout { display: flex; min-height: 100vh; }
+  nav.sidebar { width: 230px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav.sidebar .logo { padding: 0 18px 16px; font-weight: 700; font-size: 14px; color: var(--accent-dark); border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  nav.sidebar .logo a { color: inherit; text-decoration: none; }
+  nav.sidebar ul { list-style: none; padding: 0 10px; }
+  nav.sidebar li a { display: block; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--muted); text-decoration: none; transition: background .15s, color .15s; }
+  nav.sidebar li a:hover { background: #eaf9fc; color: var(--accent-dark); }
+  nav.sidebar li a.active { background: #eaf9fc; color: var(--accent-dark); font-weight: 600; }
+  nav.sidebar .phase-links { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  nav.sidebar .phase-links a { display: block; padding: 5px 10px; font-size: 12px; color: var(--muted); text-decoration: none; }
+  nav.sidebar .phase-links a:hover { color: var(--accent-dark); }
+  main { flex: 1; max-width: 860px; padding: 32px 28px; }
+  header.page-header { margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  header.page-header h1 { font-size: 26px; color: #0f1621; }
+  header.page-header h1 span { color: var(--accent); }
+  header.page-header p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+  .section { margin: 0 0 48px; scroll-margin-top: 20px; }
+  .section-header { background: linear-gradient(135deg, #eaf9fc 0%, #f0fdf4 100%); border: 1px solid rgba(0,173,216,.25); border-radius: 12px 12px 0 0; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+  .section-header h2 { font-size: 19px; color: #0f1621; }
+  .section-header .badge { font-size: 11px; background: var(--accent); color: #fff; padding: 3px 10px; border-radius: 6px; font-weight: 700; }
+  .section-body { background: var(--panel); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; padding: 20px 22px; box-shadow: var(--shadow); }
+  .topic { margin: 16px 0; }
+  .topic-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--accent2); margin: 0 0 8px; }
+  pre { background: #1e2533; color: #e6edf3; border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 8px 0; border: 1px solid #2d3748; }
+  code { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; }
+  p code, li code { background: var(--code-bg); color: #0b5d73; padding: 2px 6px; border-radius: 4px; font-size: 13px; border: 1px solid var(--code-border); }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 10px 0; }
+  .card { background: #f3f6fb; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .card h4 { font-size: 13px; color: var(--accent2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .card ul { padding-left: 18px; }
+  .card li { margin: 5px 0; font-size: 14px; }
+  .warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; color: var(--warn-text); }
+  .warn b { color: #92400e; }
+  .callout { background: #eaf9fc; border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; }
+  .callout b { color: var(--accent-dark); }
+  .qa-item { border: 1px solid var(--border); border-radius: 8px; margin: 8px 0; overflow: hidden; }
+  .qa-q { background: #f3f6fb; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none; }
+  .qa-q::before { content: "Q: "; color: var(--accent-dark); }
+  .qa-a { padding: 10px 14px; font-size: 14px; display: none; border-top: 1px solid var(--border); background: #fff; }
+  .qa-item.open .qa-a { display: block; }
+  .qa-item.open .qa-q { color: var(--accent-dark); }
+  .note-editor { min-height: 80px; border: 2px dashed var(--border); border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.6; background: #fffef7; color: var(--text); outline: none; transition: border-color .2s; }
+  .note-editor:focus { border-color: var(--accent); }
+  .note-editor:empty::before { content: attr(data-placeholder); color: #aab0bb; pointer-events: none; }
+  .note-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .note-label { font-size: 12px; color: var(--muted); }
+  .note-saved { font-size: 11px; color: var(--success); opacity: 0; transition: opacity .3s; }
+  .note-saved.show { opacity: 1; }
+  .note-clear { font-size: 11px; color: #e53e3e; cursor: pointer; background: none; border: none; padding: 2px 6px; border-radius: 4px; }
+  .note-clear:hover { background: #fff5f5; }
+  hr { border: none; border-top: 1px dashed var(--border); margin: 18px 0; }
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 13px; color: var(--muted); text-decoration: none; margin-bottom: 20px; transition: all .15s; }
+  .back-btn:hover { color: var(--accent-dark); border-color: var(--accent); }
+  @media (max-width: 700px) { nav.sidebar { display: none; } main { padding: 18px 16px; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <div class="logo"><a href="../go-roadmap.html">← Go Roadmap</a></div>
+  <ul>
+    <li><a href="#goroutines">Goroutines &amp; Scheduler</a></li>
+    <li><a href="#channels">Channels &amp; Select</a></li>
+    <li><a href="#sync">sync Package</a></li>
+    <li><a href="#patterns">Worker Pool &amp; Fan-Out/In</a></li>
+    <li><a href="#errgroup">errgroup</a></li>
+    <li><a href="#race">Race Detector</a></li>
+    <li><a href="#leaks">Goroutine Leaks</a></li>
+    <li><a href="#atomic">sync/atomic &amp; sync.Pool</a></li>
+    <li><a href="#pipeline">Pipeline Pattern</a></li>
+  </ul>
+  <div class="phase-links">
+    <a href="phase1.html">← Phase 1 Notes</a>
+    <a href="phase2.html">← Phase 2 Notes</a>
+  </div>
+</nav>
+
+<main>
+  <a href="../go-roadmap.html" class="back-btn">← Back to Roadmap</a>
+  <header class="page-header">
+    <h1>Phase 3 — <span>Concurrency Deep Dive</span></h1>
+    <p>Goroutines · Channels · sync · Patterns · errgroup · Race Detector · Leaks · atomic · Pipeline</p>
+  </header>
+
+  <!-- ═══ GOROUTINES -->
+  <section class="section" id="goroutines">
+    <div class="section-header"><span class="badge">P3 ★</span><h2>Goroutines &amp; Scheduler</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>What is a Goroutine?</h4>
+            <ul>
+              <li>Lightweight thread managed by Go runtime (not OS)</li>
+              <li>Initial stack ~2KB (grows as needed)</li>
+              <li><code>go f()</code> — starts a goroutine</li>
+              <li>Multiplexed onto OS threads (M:N threading)</li>
+              <li>Can run millions concurrently</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>G-M-P Model</h4>
+            <ul>
+              <li><b>G</b> — Goroutine (the task)</li>
+              <li><b>M</b> — OS Thread (the worker)</li>
+              <li><b>P</b> — Processor (the scheduler, has a run queue)</li>
+              <li>GOMAXPROCS Ps running at once (default = # CPUs)</li>
+              <li>Work-stealing: idle P steals from busy P's queue</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>GOMAXPROCS</h4>
+            <ul>
+              <li>Max OS threads running Go code simultaneously</li>
+              <li>Defaults to <code>runtime.NumCPU()</code></li>
+              <li>In containers: reads wrong CPU count — set manually!</li>
+              <li><code>GOMAXPROCS=4</code> env or <code>runtime.GOMAXPROCS(4)</code></li>
+              <li>Use <code>automaxprocs</code> library for containers</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Basic goroutine ───────────────────────────────
+go func() {
+    fmt.Println("running in goroutine")
+}()
+
+// ── Don't fire-and-forget without WaitGroup ───────
+var wg sync.WaitGroup
+for i := 0; i < 5; i++ {
+    wg.Add(1)
+    go func(n int) {
+        defer wg.Done()
+        fmt.Println("goroutine", n)
+    }(i) // pass i as argument — avoid loop-var capture
+}
+wg.Wait() // blocks until all goroutines finish
+
+// ── Container k8s gotcha ──────────────────────────
+import _ "go.uber.org/automaxprocs" // auto-detects container CPU quota
+// OR:
+func main() {
+    runtime.GOMAXPROCS(runtime.NumCPU())
+}</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Goroutines are NOT free</b> — each has stack overhead. Thousands are fine; leaking millions will OOM. Always ensure goroutines can exit.</div>
+        <div class="warn"><b>main() exits = all goroutines killed</b> — if main returns before goroutines finish, the program exits without letting them complete. Use WaitGroup or channel to block main.</div>
+        <div class="warn"><b>GOMAXPROCS in containers</b> — Kubernetes containers may show the host CPU count, not the container's limit. Use <code>go.uber.org/automaxprocs</code>.</div>
+        <div class="warn"><b>Goroutines share memory</b> — concurrent access to shared state causes data races. Use channels or sync primitives to coordinate.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between a goroutine and an OS thread?</div>
+          <div class="qa-a">OS threads are heavy (~1-8MB stack, expensive context switch managed by the OS kernel). Goroutines are lightweight (~2KB initial stack, managed by Go runtime's M:N scheduler). Millions of goroutines can exist simultaneously. The runtime multiplexes goroutines onto a small pool of OS threads using the G-M-P scheduler.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What does GOMAXPROCS control?</div>
+          <div class="qa-a">The number of OS threads that can execute Go code simultaneously. It equals the number of P (Processor) schedulers. Default is runtime.NumCPU(). In containers, this may report the host CPU count rather than the container's CPU limit — use automaxprocs to fix this.</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-goroutines">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('goroutines')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-goroutines" contenteditable="true" data-key="go-p3-goroutines" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CHANNELS -->
+  <section class="section" id="channels">
+    <div class="section-header"><span class="badge">P3 ★</span><h2>Channels &amp; Select</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Channels</h4>
+            <ul>
+              <li>Typed conduit for goroutine communication</li>
+              <li>Unbuffered: send blocks until receiver ready</li>
+              <li>Buffered: send blocks only when buffer full</li>
+              <li><code>make(chan T)</code> / <code>make(chan T, n)</code></li>
+              <li><code>close(ch)</code> — signals no more sends</li>
+              <li>Receive from closed: returns zero val + ok=false</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Direction</h4>
+            <ul>
+              <li><code>chan T</code> — bidirectional</li>
+              <li><code>chan&lt;- T</code> — send-only</li>
+              <li><code>-&gt;chan T</code> — receive-only (typo-safe in func sigs)</li>
+              <li>Enforce at function boundaries for clarity</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>select</h4>
+            <ul>
+              <li>Wait on multiple channel operations</li>
+              <li>Picks a ready case at random (if multiple)</li>
+              <li><code>default:</code> — non-blocking</li>
+              <li>Use with <code>ctx.Done()</code> for cancellation</li>
+              <li>Empty select <code>select{}</code> blocks forever</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Unbuffered channel — synchronization ──────────
+ch := make(chan int)
+go func() { ch <- 42 }() // blocks until received
+v := <-ch                 // blocks until sent
+fmt.Println(v)            // 42
+
+// ── Buffered channel ──────────────────────────────
+ch := make(chan string, 3) // capacity=3, won't block until full
+ch <- "a"; ch <- "b"; ch <- "c"
+// ch <- "d" would block now
+
+// ── Range over channel (drain until closed) ───────
+gen := func(nums ...int) <-chan int {
+    out := make(chan int)
+    go func() {
+        defer close(out) // MUST close to end range loop
+        for _, n := range nums { out <- n }
+    }()
+    return out
+}
+for n := range gen(2, 3, 5, 7) { fmt.Println(n) }
+
+// ── select with timeout ───────────────────────────
+select {
+case result := <-ch:
+    fmt.Println("got:", result)
+case <-time.After(3 * time.Second):
+    fmt.Println("timeout")
+case <-ctx.Done():
+    fmt.Println("cancelled:", ctx.Err())
+}
+
+// ── Non-blocking with default ─────────────────────
+select {
+case v := <-ch:
+    process(v)
+default:
+    // channel empty, don't block
+}</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Sending on a closed channel panics</b> — only the sender should close. Never close from the receiver side or from multiple goroutines.</div>
+        <div class="warn"><b>Receiving from a nil channel blocks forever</b> — a nil channel in a select case is never selected. Useful trick: set a channel to nil after close to disable that case.</div>
+        <div class="warn"><b>Forgetting to close causes range deadlock</b> — if you range over a channel and never close it, the range loop blocks forever.</div>
+        <div class="warn"><b>time.After leaks in long-running loops</b> — each call creates a new timer that can't be GC'd until it fires. Use <code>time.NewTimer</code> + <code>timer.Reset()</code> instead.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between buffered and unbuffered channels?</div>
+          <div class="qa-a">Unbuffered: send blocks until a receiver is ready — provides synchronization (both sides must be ready simultaneously). Buffered: send only blocks when the buffer is full — decouples producer and consumer speed. Use unbuffered for synchronization, buffered for queuing/pipelining.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What happens when you receive from a closed channel?</div>
+          <div class="qa-a">You receive the remaining buffered values first, then zero values of the channel's type. The comma-ok idiom tells you: <code>v, ok := &lt;-ch</code> — ok is false when the channel is closed and empty. range automatically stops when the channel closes.</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-channels">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('channels')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-channels" contenteditable="true" data-key="go-p3-channels" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SYNC -->
+  <section class="section" id="sync">
+    <div class="section-header"><span class="badge">P3 ★</span><h2>sync Package</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>sync.Mutex</h4>
+            <ul>
+              <li>Mutual exclusion — only one goroutine in critical section</li>
+              <li><code>mu.Lock()</code> / <code>mu.Unlock()</code></li>
+              <li>Always <code>defer mu.Unlock()</code> after Lock</li>
+              <li>Zero value is valid (don't copy after first use)</li>
+              <li>Never embed by value if copied elsewhere</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>sync.RWMutex</h4>
+            <ul>
+              <li>Multiple readers OR one writer</li>
+              <li><code>RLock/RUnlock</code> for readers</li>
+              <li><code>Lock/Unlock</code> for writers</li>
+              <li>Use when reads >> writes</li>
+              <li>Writer starvation possible — benchmark!</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>sync.WaitGroup</h4>
+            <ul>
+              <li>Wait for a collection of goroutines to finish</li>
+              <li><code>wg.Add(n)</code> — before launching goroutines</li>
+              <li><code>wg.Done()</code> — in each goroutine (defer it)</li>
+              <li><code>wg.Wait()</code> — blocks until count reaches 0</li>
+              <li>Don't copy a WaitGroup</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>sync.Once</h4>
+            <ul>
+              <li>Executes a function exactly once</li>
+              <li>Even with concurrent callers</li>
+              <li>Use for: lazy init, singletons</li>
+              <li><code>once.Do(func)</code></li>
+              <li>Panics in Do don't reset the once</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Mutex — safe counter ──────────────────────────
+type SafeCounter struct {
+    mu    sync.Mutex
+    value int
+}
+func (c *SafeCounter) Inc() {
+    c.mu.Lock()
+    defer c.mu.Unlock()
+    c.value++
+}
+func (c *SafeCounter) Get() int {
+    c.mu.Lock()
+    defer c.mu.Unlock()
+    return c.value
+}
+
+// ── RWMutex — read-heavy cache ────────────────────
+type Cache struct {
+    mu    sync.RWMutex
+    items map[string]string
+}
+func (c *Cache) Get(k string) (string, bool) {
+    c.mu.RLock(); defer c.mu.RUnlock()
+    v, ok := c.items[k]; return v, ok
+}
+func (c *Cache) Set(k, v string) {
+    c.mu.Lock(); defer c.mu.Unlock()
+    c.items[k] = v
+}
+
+// ── sync.Once — singleton init ────────────────────
+var (
+    instance *DB
+    once     sync.Once
+)
+func GetDB() *DB {
+    once.Do(func() {
+        instance = &DB{} // runs exactly once
+    })
+    return instance
+}
+
+// ── sync.WaitGroup ────────────────────────────────
+var wg sync.WaitGroup
+results := make([]int, 10)
+for i := 0; i < 10; i++ {
+    wg.Add(1)
+    go func(idx int) {
+        defer wg.Done()
+        results[idx] = idx * idx // safe: each goroutine writes different index
+    }(i)
+}
+wg.Wait()</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Never copy a Mutex after first use</b> — copying a locked mutex copies the lock state. Embed mutex by value in a struct, but never copy the struct that contains it.</div>
+        <div class="warn"><b>Deadlock: locking twice in same goroutine</b> — Go's Mutex is NOT reentrant. Calling Lock() twice in the same goroutine without Unlock will deadlock forever.</div>
+        <div class="warn"><b>RLock + Lock in same goroutine = deadlock</b> — a goroutine holding RLock cannot also acquire Lock (would wait for itself).</div>
+        <div class="warn"><b>sync.Map is not a drop-in replacement</b> — use sync.Map only for specific patterns (infrequent writes, disjoint key sets per goroutine). For most cases, a regular map + sync.Mutex is faster and more readable.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">When should you use channels vs mutexes?</div>
+          <div class="qa-a">Channels: communicate data between goroutines, pipeline patterns, fan-out, signalling. Mutexes: protect shared state (counters, caches, maps). Rob Pike's rule: "Don't communicate by sharing memory; share memory by communicating." But both are valid — use whichever makes the code clearer.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">What is the difference between sync.Mutex and sync.RWMutex?</div>
+          <div class="qa-a">Mutex: exclusive lock — only one goroutine (reader or writer) at a time. RWMutex: multiple concurrent readers allowed, but only one exclusive writer. Use RWMutex when reads vastly outnumber writes (e.g., config cache, read-heavy in-memory store).</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-sync">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('sync')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-sync" contenteditable="true" data-key="go-p3-sync" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PATTERNS -->
+  <section class="section" id="patterns">
+    <div class="section-header"><span class="badge">P3</span><h2>Worker Pool &amp; Fan-Out/Fan-In</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Worker Pool</h4>
+            <ul>
+              <li>Fixed number of goroutines processing from a shared job queue</li>
+              <li>Bounds concurrency — prevents resource exhaustion</li>
+              <li>Pattern: input channel → N workers → output channel</li>
+              <li>Alternative: buffered channel as semaphore</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Fan-Out</h4>
+            <ul>
+              <li>One input distributed to multiple goroutines</li>
+              <li>Parallelizes CPU-bound or I/O-bound work</li>
+              <li>Each worker gets a copy of the same input OR different items</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Fan-In (merge)</h4>
+            <ul>
+              <li>Merge multiple channels into one</li>
+              <li>One goroutine per input channel, all send to merged channel</li>
+              <li>Close merged when all inputs done (WaitGroup)</li>
+              <li>Result order not guaranteed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Worker Pool ───────────────────────────────────
+func workerPool(jobs <-chan int, results chan<- int, workers int) {
+    var wg sync.WaitGroup
+    for i := 0; i < workers; i++ {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            for job := range jobs {
+                results <- heavyWork(job) // process job
+            }
+        }()
+    }
+    go func() {
+        wg.Wait()
+        close(results)
+    }()
+}
+
+jobs := make(chan int, 100)
+results := make(chan int, 100)
+workerPool(jobs, results, 5) // 5 workers
+
+for j := 0; j < 100; j++ { jobs <- j }
+close(jobs) // signal no more jobs
+
+for r := range results { fmt.Println(r) }
+
+// ── Semaphore pattern (simpler) ───────────────────
+sem := make(chan struct{}, 10) // max 10 concurrent
+for _, url := range urls {
+    sem <- struct{}{}          // acquire
+    go func(u string) {
+        defer func() { <-sem }() // release
+        fetch(u)
+    }(url)
+}
+// drain semaphore
+for i := 0; i < 10; i++ { sem <- struct{}{} }
+
+// ── Fan-In (merge) ────────────────────────────────
+func merge(cs ...<-chan int) <-chan int {
+    out := make(chan int)
+    var wg sync.WaitGroup
+    wg.Add(len(cs))
+    for _, c := range cs {
+        go func(ch <-chan int) {
+            defer wg.Done()
+            for v := range ch { out <- v }
+        }(c)
+    }
+    go func() { wg.Wait(); close(out) }()
+    return out
+}</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-patterns">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('patterns')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-patterns" contenteditable="true" data-key="go-p3-patterns" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ERRGROUP -->
+  <section class="section" id="errgroup">
+    <div class="section-header"><span class="badge">P3</span><h2>errgroup &amp; Advanced Patterns</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory &amp; Code</div>
+        <p style="margin-bottom:10px;">
+          <code>golang.org/x/sync/errgroup</code> — run goroutines, collect first error, cancel on failure.
+          Replaces WaitGroup when you need error propagation.
+        </p>
+<pre><code>// ── Basic errgroup ────────────────────────────────
+g, ctx := errgroup.WithContext(context.Background())
+
+g.Go(func() error { return fetchA(ctx) })
+g.Go(func() error { return fetchB(ctx) })
+g.Go(func() error { return fetchC(ctx) })
+
+if err := g.Wait(); err != nil {
+    log.Fatal(err) // first error from any goroutine
+}
+// ctx is cancelled automatically when any goroutine returns error
+
+// ── With SetLimit (Go 1.21+) ──────────────────────
+g.SetLimit(5) // max 5 goroutines at a time
+
+for _, url := range urls {
+    url := url
+    g.Go(func() error { return fetch(ctx, url) })
+}
+g.Wait()
+
+// ── Collect all errors with errors.Join ──────────
+var mu sync.Mutex
+var errs []error
+var wg sync.WaitGroup
+for _, task := range tasks {
+    task := task
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+        if err := task.Run(ctx); err != nil {
+            mu.Lock(); errs = append(errs, err); mu.Unlock()
+        }
+    }()
+}
+wg.Wait()
+if len(errs) > 0 { return errors.Join(errs...) }</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>errgroup cancels context on FIRST error</b> — all other goroutines should check ctx.Done(). This is a fail-fast model. If you need all errors, collect them manually with errors.Join.</div>
+        <div class="warn"><b>Loop variable capture</b> — in Go &lt;1.22, you must shadow loop variables inside the goroutine: <code>url := url</code>.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-errgroup">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('errgroup')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-errgroup" contenteditable="true" data-key="go-p3-errgroup" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ RACE -->
+  <section class="section" id="race">
+    <div class="section-header"><span class="badge">P3 ★</span><h2>Race Detector &amp; Memory Model</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory</div>
+        <div class="grid">
+          <div class="card">
+            <h4>Race Condition</h4>
+            <ul>
+              <li>Two goroutines access same memory concurrently</li>
+              <li>At least one is a write</li>
+              <li>No synchronization between them</li>
+              <li>Result: undefined behaviour, random crashes</li>
+              <li>Often reproduces rarely — hard to debug</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Race Detector</h4>
+            <ul>
+              <li><code>go test -race ./...</code></li>
+              <li><code>go run -race main.go</code></li>
+              <li>~2x CPU, 5-10x memory overhead</li>
+              <li>Reports goroutine stacks at conflict point</li>
+              <li>Run in CI on every PR</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Memory Model</h4>
+            <ul>
+              <li>Happens-before: guarantee A's writes visible to B</li>
+              <li>Established by: channel ops, mutex lock/unlock, goroutine start, sync.Once</li>
+              <li>Without happens-before, read may see stale data</li>
+              <li>Don't assume sequential consistency across goroutines</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Code Examples</div>
+<pre><code>// ── Race condition example ─────────────────────────
+var counter int
+for i := 0; i < 1000; i++ {
+    go func() { counter++ }() // DATA RACE: concurrent writes
+}
+// counter value is undefined
+
+// Fix with Mutex:
+var mu sync.Mutex
+var counter int
+for i := 0; i < 1000; i++ {
+    go func() { mu.Lock(); counter++; mu.Unlock() }()
+}
+
+// Fix with atomic:
+var counter int64
+for i := 0; i < 1000; i++ {
+    go func() { atomic.AddInt64(&counter, 1) }()
+}
+
+// ── Run race detector ─────────────────────────────
+// go test -race ./...
+// go build -race -o app && ./app
+
+// ── goleak in tests ───────────────────────────────
+import "go.uber.org/goleak"
+
+func TestFoo(t *testing.T) {
+    defer goleak.VerifyNone(t) // fails if goroutines leaked
+    // test code...
+}</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Race detector can't catch all races</b> — it's dynamic: only detects races that actually occur in a given run. A race that requires specific timing might not appear every run.</div>
+        <div class="warn"><b>Not all concurrent reads are races</b> — concurrent reads of the same value with no writes are safe. Only concurrent read+write or write+write are races.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-race">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('race')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-race" contenteditable="true" data-key="go-p3-race" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LEAKS -->
+  <section class="section" id="leaks">
+    <div class="section-header"><span class="badge">P3</span><h2>Goroutine Leaks</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">5 Leak Patterns &amp; Fixes</div>
+        <div class="grid">
+          <div class="card">
+            <h4>1. Blocked send on unbuffered channel</h4>
+            <ul>
+              <li>Goroutine sends but receiver never starts / exits early</li>
+              <li>Fix: use buffered channel or ensure receiver always runs</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>2. Blocked receive — channel never closes</h4>
+            <ul>
+              <li>Goroutine waits on channel that sender never closes</li>
+              <li>Fix: always close channels from sender side when done</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>3. No context cancellation</h4>
+            <ul>
+              <li>Goroutine runs forever, ignores ctx.Done()</li>
+              <li>Fix: always check ctx.Done() in long-running goroutines</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>4. Goroutine stuck on mutex</h4>
+            <ul>
+              <li>Mutex never unlocked — waiter blocked forever</li>
+              <li>Fix: always defer Unlock immediately after Lock</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>5. Timer/ticker not stopped</h4>
+            <ul>
+              <li>time.After in a loop allocates a new timer each iteration</li>
+              <li>Fix: use time.NewTimer and call timer.Stop() + timer.Reset()</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Detection &amp; Code</div>
+<pre><code>// ── Detect leaks with pprof ───────────────────────
+// In your HTTP server:
+import _ "net/http/pprof"
+// curl http://localhost:6060/debug/pprof/goroutine?debug=2
+
+// Count goroutines:
+fmt.Println(runtime.NumGoroutine())
+
+// ── goleak in tests ───────────────────────────────
+func TestMyFunc(t *testing.T) {
+    defer goleak.VerifyNone(t)
+    // any leaked goroutines will fail the test
+}
+
+// ── Context-aware goroutine ───────────────────────
+func longRunning(ctx context.Context) error {
+    ticker := time.NewTicker(time.Second)
+    defer ticker.Stop() // prevents timer leak
+    for {
+        select {
+        case <-ctx.Done(): return ctx.Err()
+        case <-ticker.C:   doWork()
+        }
+    }
+}</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-leaks">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('leaks')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-leaks" contenteditable="true" data-key="go-p3-leaks" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ATOMIC -->
+  <section class="section" id="atomic">
+    <div class="section-header"><span class="badge">P3</span><h2>sync/atomic &amp; sync.Pool</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory &amp; Code</div>
+        <div class="grid">
+          <div class="card">
+            <h4>sync/atomic</h4>
+            <ul>
+              <li>Lock-free operations on primitive types</li>
+              <li>Faster than mutex for simple counters/flags</li>
+              <li><code>atomic.AddInt64(&n, 1)</code></li>
+              <li><code>atomic.LoadInt64(&n)</code></li>
+              <li><code>atomic.StoreInt64(&n, v)</code></li>
+              <li><code>atomic.CompareAndSwapInt64(&n, old, new)</code></li>
+              <li>Go 1.19+: typed <code>atomic.Int64</code> struct</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>sync.Pool</h4>
+            <ul>
+              <li>Reuse temporary objects — reduces GC pressure</li>
+              <li>Pool is cleared between GC cycles</li>
+              <li><code>pool.Get()</code> — returns any or calls New</li>
+              <li><code>pool.Put(v)</code> — return object to pool</li>
+              <li>Use for: buffers, byte slices, struct allocations</li>
+              <li>Always reset object state before Put</li>
+            </ul>
+          </div>
+        </div>
+<pre><code>// ── atomic.Int64 (Go 1.19+) ───────────────────────
+var hits atomic.Int64
+hits.Add(1)
+fmt.Println(hits.Load())
+
+// ── sync.Pool — bytes.Buffer pool ─────────────────
+var bufPool = sync.Pool{
+    New: func() any { return new(bytes.Buffer) },
+}
+
+func encode(data any) ([]byte, error) {
+    buf := bufPool.Get().(*bytes.Buffer)
+    defer func() {
+        buf.Reset()     // clear before returning
+        bufPool.Put(buf)
+    }()
+    if err := json.NewEncoder(buf).Encode(data); err != nil {
+        return nil, err
+    }
+    return append([]byte{}, buf.Bytes()...), nil // copy out before return
+}</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>sync.Pool objects can be GC'd anytime</b> — never store objects you need to persist. Pool is a cache, not a store.</div>
+        <div class="warn"><b>Must copy data before returning buffer to pool</b> — if you Put a buffer back and still hold a reference to its bytes, the next Get may overwrite them.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-atomic">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('atomic')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-atomic" contenteditable="true" data-key="go-p3-atomic" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PIPELINE -->
+  <section class="section" id="pipeline">
+    <div class="section-header"><span class="badge">P3</span><h2>Pipeline Pattern</h2></div>
+    <div class="section-body">
+      <div class="topic">
+        <div class="topic-title">Theory &amp; Code</div>
+        <div class="callout">
+          <b>Pipeline:</b> A series of stages where each stage receives data from upstream via a channel, transforms it, and sends results downstream. Each stage runs in its own goroutine.
+        </div>
+<pre><code>// ── 3-stage pipeline: generate → square → print ───
+
+// Stage 1: generate numbers
+func generate(ctx context.Context, nums ...int) <-chan int {
+    out := make(chan int)
+    go func() {
+        defer close(out)
+        for _, n := range nums {
+            select {
+            case out <- n:
+            case <-ctx.Done(): return // cancellation contract
+            }
+        }
+    }()
+    return out
+}
+
+// Stage 2: square each number
+func square(ctx context.Context, in <-chan int) <-chan int {
+    out := make(chan int)
+    go func() {
+        defer close(out)
+        for n := range in {
+            select {
+            case out <- n * n:
+            case <-ctx.Done(): return
+            }
+        }
+    }()
+    return out
+}
+
+// Wire pipeline:
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+c := generate(ctx, 2, 3, 4, 5)
+sq := square(ctx, c)
+for n := range sq { fmt.Println(n) } // 4, 9, 16, 25</code></pre>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">⚠️ Gotchas</div>
+        <div class="warn"><b>Cancellation contract</b> — every stage must handle ctx.Done() and close its output channel. If a downstream stage exits early, upstream may block forever without cancellation.</div>
+        <div class="warn"><b>Backpressure</b> — an unbuffered pipeline only processes at the speed of the slowest stage. Use buffered channels between stages to add slack and improve throughput.</div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">Interview Q&amp;A</div>
+        <div class="qa-item">
+          <div class="qa-q">How do you handle early exit/cancellation in a pipeline?</div>
+          <div class="qa-a">Each stage should select on both its input channel and ctx.Done(). When ctx is cancelled, the stage stops sending/receiving and closes its output channel. This cascades downstream, allowing all goroutines to exit cleanly without leaking.</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="topic">
+        <div class="topic-title">✏️ My Notes</div>
+        <div class="note-meta">
+          <span class="note-label">Editable — auto-saved</span>
+          <span class="note-saved" id="saved-pipeline">✓ Saved</span>
+          <button class="note-clear" onclick="clearNote('pipeline')">Clear</button>
+        </div>
+        <div class="note-editor" id="note-pipeline" contenteditable="true" data-key="go-p3-pipeline" data-placeholder="Type your notes here..."></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+const SECTIONS = ['goroutines','channels','sync','patterns','errgroup','race','leaks','atomic','pipeline'];
+
+document.addEventListener('DOMContentLoaded', () => {
+  SECTIONS.forEach(id => {
+    const el = document.getElementById('note-' + id);
+    if (!el) return;
+    const saved = localStorage.getItem(el.dataset.key);
+    if (saved) el.innerHTML = saved;
+  });
+  updateActiveNav();
+});
+
+let saveTimers = {};
+document.querySelectorAll('.note-editor').forEach(el => {
+  el.addEventListener('input', () => {
+    const key = el.dataset.key;
+    const id = el.id.replace('note-', '');
+    clearTimeout(saveTimers[id]);
+    saveTimers[id] = setTimeout(() => {
+      localStorage.setItem(key, el.innerHTML);
+      showSaved(id);
+    }, 500);
+  });
+});
+
+function showSaved(id) {
+  const indicator = document.getElementById('saved-' + id);
+  if (!indicator) return;
+  indicator.classList.add('show');
+  setTimeout(() => indicator.classList.remove('show'), 2000);
+}
+
+function clearNote(id) {
+  if (!confirm('Clear notes for this section?')) return;
+  const el = document.getElementById('note-' + id);
+  if (!el) return;
+  el.innerHTML = '';
+  localStorage.removeItem(el.dataset.key);
+}
+
+document.querySelectorAll('.qa-q').forEach(q => {
+  q.addEventListener('click', () => q.closest('.qa-item').classList.toggle('open'));
+});
+
+function updateActiveNav() {
+  const navLinks = document.querySelectorAll('nav.sidebar li a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav.sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+}
+</script>
+</body>
+</html>

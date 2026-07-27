@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Uploader Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f9fa; padding: 24px; }
+    h2 { margin-bottom: 16px; color: #1a2530; }
+    .uploader-dropzone {
+      border: 2px dashed #b3d4e8; border-radius: 12px; padding: 40px 20px;
+      text-align: center; cursor: pointer; transition: all 0.2s;
+      background: #f0f7fc;
+    }
+    .uploader-dropzone.drag-over { border-color: #1a5276; background: #d6eaf8; transform: scale(1.01); }
+    .drop-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+    .drop-hint { font-size: 12px; color: #888; }
+    .browse-btn { background: #1a5276; color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .browse-btn:hover { background: #154360; }
+    .file-list { margin-top: 16px; }
+    .file-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: white; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; }
+    .file-name { flex: 1; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size { font-size: 11px; color: #888; min-width: 60px; }
+    .progress-bar { width: 120px; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #27ae60; border-radius: 3px; transition: width 0.2s; width: 0%; }
+    .file-item.complete .progress-fill { background: #27ae60; }
+    .file-item.error .progress-fill { background: #e74c3c; }
+    .file-item.error .file-size { color: #e74c3c; }
+    .remove-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #999; padding: 4px 8px; border-radius: 4px; }
+    .remove-btn:hover { background: #fee; color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <h2>📁 File Uploader (Drag & Drop + Progress)</h2>
+  <div id="uploader"></div>
+
+  <script>
+    class FileUploader {
+      constructor(container, options = {}) {
+        this.container = container;
+        this.maxSize = options.maxSize || 10 * 1024 * 1024;
+        this.allowedTypes = options.allowedTypes || ['image/*', 'application/pdf', '.doc', '.docx'];
+        this.multiple = options.multiple !== false;
+        this.maxFiles = options.maxFiles || 5;
+        this.files = [];
+        this.render();
+        this.bindEvents();
+      }
+
+      render() {
+        this.container.innerHTML = `
+          <div class="uploader-dropzone" id="dropzone">
+            <input type="file" id="file-input" ${this.multiple ? 'multiple' : ''} hidden>
+            <div class="drop-content">
+              <span class="drop-icon">📁</span>
+              <p>Drag files here or <button class="browse-btn">Browse</button></p>
+              <span class="drop-hint">Max ${this.maxFiles} files, ${this.formatSize(this.maxSize)} each</span>
+            </div>
+          </div>
+          <div class="file-list" id="file-list"></div>
+        `;
+      }
+
+      bindEvents() {
+        const dropzone = this.container.querySelector('#dropzone');
+        const input = this.container.querySelector('#file-input');
+        const browseBtn = this.container.querySelector('.browse-btn');
+
+        browseBtn.addEventListener('click', () => input.click());
+        input.addEventListener('change', (e) => this.handleFiles(e.target.files));
+
+        ['dragenter', 'dragover'].forEach(event => {
+          dropzone.addEventListener(event, (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+        });
+        ['dragleave', 'drop'].forEach(event => {
+          dropzone.addEventListener(event, (e) => { e.preventDefault(); dropzone.classList.remove('drag-over'); });
+        });
+        dropzone.addEventListener('drop', (e) => this.handleFiles(e.dataTransfer.files));
+      }
+
+      handleFiles(fileList) {
+        for (const file of Array.from(fileList)) {
+          if (this.files.length >= this.maxFiles) break;
+          if (file.size > this.maxSize) continue;
+          const entry = { file, id: Date.now() + Math.random(), progress: 0, status: 'pending' };
+          this.files.push(entry);
+          this.renderFileItem(entry);
+          this.uploadFile(entry);
+        }
+      }
+
+      async uploadFile(entry) {
+        entry.status = 'uploading';
+        const bar = this.container.querySelector(`[data-id="${entry.id}"] .progress-fill`);
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 18;
+          if (progress >= 100) {
+            clearInterval(interval);
+            if (bar) bar.style.width = '100%';
+            entry.status = 'complete';
+            const item = this.container.querySelector(`[data-id="${entry.id}"]`);
+            if (item) item.classList.add('complete');
+          } else {
+            if (bar) bar.style.width = Math.min(progress, 99) + '%';
+          }
+        }, 150 + Math.random() * 100);
+      }
+
+      renderFileItem(entry) {
+        const list = this.container.querySelector('#file-list');
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.dataset.id = entry.id;
+        div.innerHTML = `
+          <span class="file-name">${entry.file.name}</span>
+          <span class="file-size">${this.formatSize(entry.file.size)}</span>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <button class="remove-btn" onclick="this.closest('.file-item').remove()">✕</button>
+        `;
+        list.appendChild(div);
+      }
+
+      formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      }
+    }
+
+    new FileUploader(document.getElementById('uploader'));
+  </script>
+</body>
+</html>

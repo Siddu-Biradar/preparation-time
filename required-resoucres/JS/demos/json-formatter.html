@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Formatter / Tree Viewer Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1e1e2e; color: #cdd6f4; padding: 24px; }
+    h2 { margin-bottom: 16px; color: #89b4fa; }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    textarea { width: 100%; height: 400px; background: #313244; color: #cdd6f4; border: 1px solid #45475a; border-radius: 10px; padding: 14px; font-family: 'SF Mono', monospace; font-size: 12px; resize: none; outline: none; }
+    textarea:focus { border-color: #89b4fa; }
+    .viewer { background: #313244; border: 1px solid #45475a; border-radius: 10px; padding: 14px; overflow: auto; max-height: 400px; font-family: 'SF Mono', monospace; font-size: 12px; line-height: 1.6; }
+    .json-toggle { cursor: pointer; user-select: none; margin-right: 4px; color: #6c7086; }
+    .json-toggle:hover { color: #89b4fa; }
+    .json-key { color: #89b4fa; }
+    .json-str { color: #a6e3a1; }
+    .json-num { color: #fab387; }
+    .json-bool { color: #cba6f7; }
+    .json-null { color: #f38ba8; }
+    .json-bracket { color: #6c7086; }
+    .json-content { padding-left: 20px; }
+    .json-line { }
+    .json-preview { color: #6c7086; font-style: italic; }
+    .json-error { color: #f38ba8; padding: 12px; }
+    .btn-row { margin-top: 12px; display: flex; gap: 8px; }
+    .btn-row button { padding: 8px 14px; background: #45475a; color: #cdd6f4; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .btn-row button:hover { background: #585b70; }
+  </style>
+</head>
+<body>
+  <h2>🌳 JSON Formatter / Tree Viewer</h2>
+  <div class="layout">
+    <div>
+      <textarea id="input" placeholder="Paste JSON here...">{
+  "name": "JavaScript Interview Prep",
+  "version": "2.0",
+  "topics": ["closures", "prototypes", "async/await", "event-loop"],
+  "author": {
+    "name": "Developer",
+    "experience": 5,
+    "skills": {
+      "frontend": ["React", "Angular", "Vue"],
+      "backend": ["Node.js", "Express"],
+      "databases": ["MongoDB", "PostgreSQL"]
+    }
+  },
+  "problems": [
+    {"id": 1, "title": "Debounce", "difficulty": "medium", "solved": true},
+    {"id": 2, "title": "Promise.all", "difficulty": "hard", "solved": false},
+    {"id": 3, "title": "Virtual DOM", "difficulty": "expert", "solved": null}
+  ],
+  "stats": {
+    "totalProblems": 72,
+    "solved": 45,
+    "accuracy": 0.89,
+    "streakDays": 14
+  },
+  "active": true,
+  "lastLogin": null
+}</textarea>
+      <div class="btn-row">
+        <button onclick="renderJSON()">Format & View →</button>
+        <button onclick="document.getElementById('input').value = JSON.stringify(JSON.parse(document.getElementById('input').value), null, 2)">Pretty Print</button>
+        <button onclick="document.getElementById('input').value = JSON.stringify(JSON.parse(document.getElementById('input').value))">Minify</button>
+      </div>
+    </div>
+    <div class="viewer" id="viewer"></div>
+  </div>
+
+  <script>
+    class JSONViewer {
+      constructor(container) { this.container = container; }
+
+      render(data) {
+        try {
+          const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+          this.container.innerHTML = this.renderNode(parsed, 0);
+          this.bindEvents();
+        } catch (e) {
+          this.container.innerHTML = `<div class="json-error">❌ Invalid JSON: ${e.message}</div>`;
+        }
+      }
+
+      renderNode(value, depth) {
+        if (value === null) return `<span class="json-null">null</span>`;
+        if (typeof value === 'boolean') return `<span class="json-bool">${value}</span>`;
+        if (typeof value === 'number') return `<span class="json-num">${value}</span>`;
+        if (typeof value === 'string') return `<span class="json-str">"${this.escape(value)}"</span>`;
+        if (Array.isArray(value)) return this.renderCollapsible(value, 'array', depth);
+        return this.renderCollapsible(value, 'object', depth);
+      }
+
+      renderCollapsible(value, type, depth) {
+        const isArray = type === 'array';
+        const entries = isArray ? value : Object.entries(value);
+        const count = isArray ? value.length : Object.keys(value).length;
+        const open = isArray ? '[' : '{';
+        const close = isArray ? ']' : '}';
+        const collapsed = depth > 3;
+
+        let html = `<span class="json-toggle ${collapsed ? 'collapsed' : ''}">${collapsed ? '▸' : '▾'}</span>`;
+        html += `<span class="json-bracket">${open}</span>`;
+        html += `<span class="json-preview" style="${collapsed ? '' : 'display:none'}">${count} ${isArray ? 'items' : 'keys'}${close}</span>`;
+        html += `<div class="json-content" style="${collapsed ? 'display:none' : ''}">`;
+
+        if (isArray) {
+          value.forEach((item, i) => {
+            html += `<div class="json-line">${this.renderNode(item, depth + 1)}${i < count - 1 ? ',' : ''}</div>`;
+          });
+        } else {
+          Object.entries(value).forEach(([k, v], i) => {
+            html += `<div class="json-line"><span class="json-key">"${k}"</span>: ${this.renderNode(v, depth + 1)}${i < count - 1 ? ',' : ''}</div>`;
+          });
+        }
+        html += `</div><span class="json-bracket" style="${collapsed ? 'display:none' : ''}">${close}</span>`;
+        return html;
+      }
+
+      bindEvents() {
+        this.container.querySelectorAll('.json-toggle').forEach(toggle => {
+          toggle.addEventListener('click', () => {
+            const isCollapsed = toggle.classList.toggle('collapsed');
+            const parent = toggle.parentElement;
+            const content = parent.querySelector('.json-content');
+            const preview = parent.querySelector('.json-preview');
+            const closeBracket = parent.querySelectorAll('.json-bracket')[1];
+            content.style.display = isCollapsed ? 'none' : '';
+            preview.style.display = isCollapsed ? '' : 'none';
+            if (closeBracket) closeBracket.style.display = isCollapsed ? 'none' : '';
+            toggle.textContent = isCollapsed ? '▸' : '▾';
+          });
+        });
+      }
+
+      escape(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    }
+
+    const viewer = new JSONViewer(document.getElementById('viewer'));
+    function renderJSON() { viewer.render(document.getElementById('input').value); }
+    renderJSON(); // Initial render
+  </script>
+</body>
+</html>

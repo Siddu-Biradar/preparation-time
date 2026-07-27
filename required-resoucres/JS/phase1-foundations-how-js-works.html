@@ -136,6 +136,80 @@
   <li><strong>Prototype-based inheritance</strong> — No classical inheritance (classes are syntactic sugar)</li>
 </ul>
 
+<h4>What Each of These Actually Means (Deep Explanation)</h4>
+
+<p><strong>1. Interpreted + JIT Compiled — What does this mean?</strong></p>
+<p>In old days, languages were either <em>compiled</em> (like C — entire source converted to machine code BEFORE running, resulting in a fast .exe file) or <em>interpreted</em> (like old PHP — each line read and executed one at a time, slower but instant startup). JavaScript started as purely interpreted — Brendan Eich's first engine just read each line and executed it.</p>
+<p>Modern JS engines like V8 use a <strong>hybrid approach called JIT (Just-In-Time) compilation</strong>. Here's what happens: When your code first runs, the engine interprets it to bytecode (like a simplified instruction set) using the <strong>Ignition interpreter</strong>. This gives you fast startup. While running, the engine monitors which functions get called repeatedly ("hot" code). These hot functions are then sent to the <strong>TurboFan compiler</strong> which generates highly optimized machine code (like C would produce). The result? You get the convenience of not needing a compile step, BUT your code runs nearly as fast as compiled languages after it "warms up."</p>
+<p><em>Real-world impact:</em> The first time a function runs, it's slow (interpreted). By the 100th call, it's blazing fast (compiled). This is why benchmarks should include "warm-up" runs.</p>
+
+<p><strong>2. Single-threaded — What does this mean?</strong></p>
+<p>A "thread" is like a worker that can execute instructions. Languages like Java or C++ can create multiple threads (multiple workers doing tasks simultaneously). JavaScript has <strong>only ONE thread</strong> — meaning only ONE piece of code executes at any given moment. There is only ONE call stack.</p>
+<p><strong>So how does JS handle async operations like fetching data or timers?</strong> Through the <strong>Event Loop</strong>. When you call <code>setTimeout</code> or <code>fetch</code>, JS doesn't actually execute it itself — it hands it off to the <strong>Browser/Node.js runtime</strong> (written in C++) which handles it in a separate thread. When the async work completes, the callback is placed in a <strong>queue</strong>. The Event Loop checks: "Is the call stack empty? If yes, pick the next task from the queue and push it onto the stack."</p>
+<p><em>Why single-threaded?</em> It avoids complex bugs like race conditions and deadlocks. The tradeoff: CPU-intensive work (like image processing) blocks the UI. Solution: Web Workers (separate threads for heavy computation that can't access DOM).</p>
+
+<p><strong>3. Dynamically typed — What does this mean?</strong></p>
+<p>In <em>statically typed</em> languages (Java, TypeScript, C), you declare a variable's type and it CANNOT change: <code>int x = 5; x = "hello";</code> → compile error. The compiler catches type mistakes before code runs.</p>
+<p>In JavaScript, variables have NO fixed type. The same variable can hold a number, then a string, then an object:</p>
+<pre><code>let x = 42;        // x is a number right now
+x = "hello";      // now x is a string — no error!
+x = { age: 25 };  // now x is an object — still fine!
+x = true;         // now a boolean</code></pre>
+<p>The <strong>type belongs to the VALUE, not the variable</strong>. The variable is just a label pointing to whatever value. Types are only checked when code actually <em>runs</em> (runtime), not before. This gives flexibility but also causes bugs that TypeScript solves by adding static type checking on top of JavaScript.</p>
+
+<p><strong>4. Multi-paradigm — What does this mean?</strong></p>
+<p>A "paradigm" is a style of programming. Most languages strongly favor one style. JavaScript supports ALL three major ones:</p>
+<ul>
+  <li><strong>Imperative/Procedural:</strong> Step-by-step instructions. "Do this, then do that." (<code>for</code> loops, <code>if</code> statements, sequential code)</li>
+  <li><strong>Object-Oriented (OOP):</strong> Organize code into objects with properties and methods. JavaScript uses prototypes (not classes under the hood — <code>class</code> is syntactic sugar over prototypal inheritance).</li>
+  <li><strong>Functional:</strong> Treat computation as evaluation of mathematical functions. No side effects, immutable data. (<code>map</code>, <code>filter</code>, <code>reduce</code>, pure functions, higher-order functions)</li>
+</ul>
+<p><em>In practice:</em> Angular uses OOP heavily (classes, decorators, dependency injection). React leans functional (hooks, pure components). You can mix paradigms in the same project — this is JavaScript's superpower AND its chaos.</p>
+
+<p><strong>5. First-class functions — What does this mean?</strong></p>
+<p>"First-class" means functions are treated exactly like any other value (numbers, strings, objects). Specifically:</p>
+<pre><code>// 1. Assign to a variable
+const greet = function(name) { return `Hello ${name}`; };
+
+// 2. Pass as an argument to another function
+function repeat(fn, times) {
+  for (let i = 0; i < times; i++) fn();
+}
+repeat(() => console.log("Hi"), 3);
+
+// 3. Return from another function (closure/factory)
+function multiplier(factor) {
+  return function(num) { return num * factor; }; // returns a function!
+}
+const double = multiplier(2);
+double(5); // 10
+
+// 4. Store in data structures
+const actions = [
+  () => console.log("action 1"),
+  () => console.log("action 2"),
+];
+actions[0](); // "action 1"</code></pre>
+<p><em>Why this matters:</em> This enables callbacks, Promises, higher-order functions (map/filter/reduce), closures, decorators, middleware, and event handlers. Without first-class functions, patterns like <code>array.map(x => x * 2)</code> or <code>onClick={handleClick}</code> wouldn't exist.</p>
+
+<p><strong>6. Prototype-based inheritance — What does this mean?</strong></p>
+<p>In Java/C++, you have <strong>classes</strong> as blueprints and create objects from them. There's a clear hierarchy: Class → Subclass → Instance.</p>
+<p>JavaScript does NOT have real classes. It has <strong>prototypes</strong>. Every object has a hidden link (<code>__proto__</code>) to another object called its "prototype." When you access a property that doesn't exist on an object, JS looks UP the prototype chain until it finds it or reaches <code>null</code>:</p>
+<pre><code>const animal = { eats: true, walk() { return "walking"; } };
+const dog = Object.create(animal); // dog's prototype = animal
+dog.barks = true;
+
+dog.barks;  // true (own property)
+dog.eats;   // true (found on prototype — animal)
+dog.walk(); // "walking" (found on prototype)
+dog.fly;    // undefined (not found anywhere in chain)
+
+// The ES6 "class" keyword:
+class Dog extends Animal { }
+// This is SYNTACTIC SUGAR — underneath, it still sets up
+// prototype links. Dog.prototype.__proto__ === Animal.prototype</code></pre>
+<p><em>Key insight for interviews:</em> When someone says "JavaScript classes," understand that <code>class</code> is just prettier syntax for prototype chain setup + constructor functions. There's no class-based instantiation like Java — it's prototypal delegation all the way down.</p>
+
 <div class="interview">
 <h4>🎯 Interview Questions</h4>
 <p><span class="difficulty d-easy">Easy</span> What is the difference between JavaScript and ECMAScript?</p>
@@ -180,9 +254,53 @@
     ↓ (deoptimization if assumptions fail)
 [Back to Ignition]</code></pre>
 
-<div class="callout">
-<strong>Key Insight:</strong> V8 uses <em>speculative optimization</em>. If a function is always called with numbers, TurboFan optimizes it for numbers. If suddenly called with a string — it <em>deoptimizes</em> (bails out back to bytecode). This is why consistent types improve performance.
-</div>
+<h4>What Each Step Actually Does (Step-by-Step Walkthrough)</h4>
+
+<p>Let's trace what happens when V8 executes <code>function add(a, b) { return a + b; } add(5, 3);</code>:</p>
+
+<p><strong>Step 1: Scanner/Lexer (Tokenization)</strong></p>
+<p>The scanner reads your raw source code character by character and breaks it into meaningful chunks called <strong>tokens</strong>. Think of it like splitting a sentence into words. The code <code>let x = 5 + 3;</code> becomes tokens: <code>[LET] [IDENTIFIER:"x"] [EQUALS] [NUMBER:5] [PLUS] [NUMBER:3] [SEMICOLON]</code>. This step strips whitespace, comments, and validates that the characters form valid tokens. If you write <code>let 123abc</code>, the scanner catches it here.</p>
+
+<p><strong>Step 2: Parser (AST Generation)</strong></p>
+<p>The parser takes the flat list of tokens and builds a tree structure called an <strong>Abstract Syntax Tree (AST)</strong>. The AST represents the grammatical structure of your code. For <code>let x = 5 + 3</code>, the AST looks like:</p>
+<pre><code>VariableDeclaration (let)
+  └── Declarator
+        ├── Identifier: "x"
+        └── BinaryExpression (+)
+              ├── Literal: 5
+              └── Literal: 3</code></pre>
+<p>The parser knows that <code>+</code> binds <code>5</code> and <code>3</code> before assigning to <code>x</code> (operator precedence). If your code has a syntax error (like missing brackets), the parser throws a SyntaxError here. V8 uses "lazy parsing" — it only fully parses functions when they're actually called, not when defined (saves startup time).</p>
+
+<p><strong>Step 3: Ignition Interpreter (Bytecode Generation)</strong></p>
+<p>Ignition walks the AST and generates <strong>bytecode</strong> — a compact, low-level instruction set that's between source code and machine code. It's like a simplified assembly language that V8's virtual machine understands. For our <code>add(5, 3)</code>:</p>
+<pre><code>// Simplified bytecode representation:
+LdaSmi [5]          // Load small integer 5 into accumulator
+Star r0             // Store in register 0
+LdaSmi [3]          // Load 3
+Add r0              // Add register 0 to accumulator
+Return              // Return result (8)</code></pre>
+<p><em>Why not compile directly to machine code?</em> Because compilation is slow. Ignition gives you <strong>fast startup</strong> — code starts executing immediately. Most code runs only once or twice (initialization, imports), so optimizing it would waste time. Only "hot" code deserves full optimization.</p>
+
+<p><strong>Step 4: Profiler/Feedback Collector</strong></p>
+<p>While Ignition runs bytecode, a profiler monitors execution. It tracks: How many times each function is called? What types of arguments are passed? Which branches are taken? This information is called <strong>type feedback</strong>. If <code>add()</code> is always called with two numbers, the profiler notes: "this function always receives Number, Number." After a function is called enough times (the "hot" threshold, typically ~1000 calls), it's flagged for optimization.</p>
+
+<p><strong>Step 5: TurboFan Optimizing Compiler</strong></p>
+<p>TurboFan takes the bytecode + type feedback and generates <strong>optimized machine code</strong> (actual CPU instructions: x86, ARM, etc.). Because the profiler said "add() always gets numbers," TurboFan can skip type checks and generate a single CPU <code>ADD</code> instruction instead of a generic "check type, coerce if needed, then add" routine. This makes hot functions run 10-100x faster than interpreted bytecode.</p>
+
+<p><strong>Step 6: Deoptimization (Bail-out)</strong></p>
+<p>What if TurboFan assumed <code>add()</code> always gets numbers, but then you call <code>add("hello", "world")</code>? The optimized code can't handle strings. V8 performs a <strong>deoptimization</strong>: it throws away the optimized machine code and falls back to the Ignition bytecode. The function runs correctly (but slower). The profiler starts collecting new feedback, and TurboFan may try again with broader type assumptions.</p>
+
+<pre><code>// This causes deoptimization:
+function add(a, b) { return a + b; }
+
+// First 1000 calls — all numbers, gets optimized
+for (let i = 0; i < 1000; i++) add(i, i);  // TurboFan optimizes for numbers
+
+// Then suddenly:
+add("hello", "world");  // 💥 Deoptimization! Assumptions violated.
+// V8 drops back to bytecode, re-profiles, may re-optimize later
+
+// LESSON: Keep your function arguments consistent in type!</code></pre>
 
 <h4>Memory Management</h4>
 <ul>
@@ -190,6 +308,48 @@
   <li><strong>Heap</strong> — Stores objects, arrays, functions. Dynamically allocated. Managed by Garbage Collector.</li>
   <li><strong>Garbage Collection</strong> — V8 uses "Mark-and-Sweep" + "Generational GC" (Young Generation with Scavenger, Old Generation with Mark-Compact).</li>
 </ul>
+
+<h4>How Memory Actually Works in JavaScript</h4>
+
+<p><strong>Stack Memory — Fast, Small, Automatic</strong></p>
+<p>The stack is like a notepad where JS writes temporary notes. Every time you create a primitive variable (<code>let x = 5</code>), the value <code>5</code> is written directly on the stack. Every time a function is called, a new "frame" (section of the notepad) is added with that function's local variables. When the function returns, that frame is erased automatically. Stack memory is <strong>fast</strong> because access is predictable (just move a pointer up/down), <strong>small</strong> (typically 1-8MB), and <strong>self-cleaning</strong> (no garbage collection needed).</p>
+
+<p><strong>Heap Memory — Large, Slow, Manual Cleanup</strong></p>
+<p>The heap is like a warehouse where JS stores large, complex things (objects, arrays, closures). When you write <code>let obj = { name: "Sid" }</code>, the object <code>{ name: "Sid" }</code> goes to the heap, and the stack stores only a <strong>reference</strong> (a memory address like <code>0x7f3a2b</code>) pointing to where the object lives in the heap. Heap access is slower because the computer must follow the pointer to find the data.</p>
+
+<p><strong>Garbage Collection — How JS Cleans Up</strong></p>
+<p>Since you can't manually free memory in JS (unlike C's <code>free()</code>), the engine must figure out what's no longer needed and clean it up automatically. V8's GC works in two generations:</p>
+
+<p><em>Young Generation (Scavenger / Minor GC):</em> Most objects die young (temporary variables in a loop, intermediate calculations). The young generation is a small memory space (~1-8MB). When it fills up, the Scavenger runs: it copies surviving objects to a second space and discards everything else. Objects that survive two scavenge cycles are "promoted" to the Old Generation. This runs frequently but is very fast (1-2ms).</p>
+
+<p><em>Old Generation (Mark-Compact / Major GC):</em> Long-lived objects (module-level data, cached values, app state). When old space fills up, Mark-and-Sweep runs: (1) Mark — start from "roots" (global object, call stack references), follow all references, mark everything reachable as "alive." (2) Sweep — anything NOT marked is garbage, free that memory. (3) Compact — defragment by moving objects together. This is slower (10-50ms) but runs infrequently.</p>
+
+<pre><code>// What causes memory leaks (GC CAN'T clean these):
+
+// 1. Forgotten event listeners
+element.addEventListener('click', handler);
+// If element is removed from DOM but listener isn't removed,
+// handler (and everything it references) stays in memory.
+
+// 2. Closures holding references
+function createLeak() {
+  const hugeArray = new Array(1000000).fill('x');
+  return function() {
+    // This closure keeps hugeArray alive forever!
+    console.log(hugeArray.length);
+  };
+}
+const leak = createLeak(); // hugeArray can never be GC'd
+
+// 3. Global variables
+window.cache = fetchedData; // Lives forever until page reload
+
+// 4. Detached DOM nodes
+const div = document.createElement('div');
+document.body.appendChild(div);
+const ref = div;
+document.body.removeChild(div);
+// div is removed from DOM but `ref` still points to it → leak!</code></pre>
 
 <pre><code>// Stack vs Heap visualization
 let name = "Sid";      // "Sid" stored in STACK (primitive)
@@ -233,6 +393,90 @@ console.log(person.name); // "Ram" — both reference same object!</code></pre>
 │  └──────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────┘
 </code></pre>
+
+<h4>How the Runtime Environment Actually Works (Component by Component)</h4>
+
+<p>The diagram above shows the COMPLETE picture of how JavaScript runs in a browser. Let's break down each component and how they work together:</p>
+
+<p><strong>1. Call Stack — The Single Thread of Execution</strong></p>
+<p>The Call Stack is where JavaScript actually executes code. It's a LIFO (Last In, First Out) data structure — like a stack of plates. When you call a function, a new "frame" (execution context) is pushed ON TOP. When that function returns, its frame is popped OFF the top. <strong>Only the TOPMOST frame is actively running at any time.</strong> This is why JS is "single-threaded" — there's only ONE call stack, executing ONE function at a time.</p>
+<pre><code>function multiply(a, b) { return a * b; }
+function square(n) { return multiply(n, n); }
+function printSquare(n) { console.log(square(n)); }
+printSquare(5);
+
+// Call Stack progression:
+// 1. [printSquare(5)]           — pushed
+// 2. [printSquare] [square(5)]  — square pushed on top
+// 3. [printSquare] [square] [multiply(5,5)] — multiply pushed
+// 4. [printSquare] [square]     — multiply returns 25, popped
+// 5. [printSquare]              — square returns 25, popped
+// 6. []                         — printSquare done, popped</code></pre>
+
+<p><strong>2. Memory Heap — Where Objects Live</strong></p>
+<p>The Heap is a large, unstructured region of memory where <strong>objects, arrays, and functions are stored</strong>. Unlike the stack (organized, fixed-size), the heap is dynamically allocated — objects can grow/shrink. The stack stores <em>references</em> (pointers) to heap objects. The Garbage Collector periodically scans the heap, finds objects that no variable references anymore, and frees that memory.</p>
+
+<p><strong>3. Web APIs — The Browser's Superpowers (NOT part of JavaScript!)</strong></p>
+<p>This is the most misunderstood part. <code>setTimeout</code>, <code>fetch</code>, <code>DOM manipulation</code>, <code>localStorage</code> — <strong>these are NOT JavaScript features</strong>. They're provided by the browser's C++ runtime. The JavaScript spec defines NONE of these. They're given to JS as "gifts" through the global <code>window</code> object.</p>
+<p>When you call <code>setTimeout(callback, 1000)</code>, here's what happens:</p>
+<ol>
+  <li>JS calls the Web API: "Hey browser, set a timer for 1000ms, and here's a callback."</li>
+  <li>The browser's timer runs <strong>in a separate thread</strong> (C++ thread, NOT JS thread).</li>
+  <li>JS call stack is now FREE to continue executing other code.</li>
+  <li>After 1000ms, the browser moves the callback to the Task Queue.</li>
+</ol>
+<p><em>This is how JS appears to do async work while being single-threaded — it delegates to the multi-threaded browser runtime!</em></p>
+
+<p><strong>4. Task Queue (Macrotask Queue) — Waiting Room for Callbacks</strong></p>
+<p>When a Web API completes its work (timer expires, network response arrives, click happens), the callback function is placed in the <strong>Task Queue</strong>. It waits here until the Call Stack is completely empty. Tasks include: <code>setTimeout</code>/<code>setInterval</code> callbacks, DOM event callbacks (<code>click</code>, <code>scroll</code>), <code>MessageChannel</code>, I/O callbacks.</p>
+
+<p><strong>5. Microtask Queue — The VIP Fast Lane</strong></p>
+<p>The Microtask Queue has <strong>HIGHER PRIORITY</strong> than the Task Queue. After EACH task completes (and call stack is empty), ALL microtasks are processed before the next macrotask. Microtasks include: <code>Promise.then()</code>/<code>.catch()</code>/<code>.finally()</code>, <code>queueMicrotask()</code>, <code>MutationObserver</code>, <code>async/await</code> continuations.</p>
+
+<p><strong>6. Event Loop — The Traffic Controller</strong></p>
+<p>The Event Loop is a continuously running process that coordinates everything. Here's its algorithm:</p>
+<pre><code>// Event Loop (simplified pseudocode):
+while (true) {
+  // 1. Execute all synchronous code on Call Stack until stack is empty
+  
+  // 2. Process ALL microtasks (drain the microtask queue completely)
+  while (microtaskQueue.hasItems()) {
+    callStack.push(microtaskQueue.dequeue());
+    execute();
+  }
+  
+  // 3. Render/Paint if needed (requestAnimationFrame callbacks here)
+  
+  // 4. Pick ONE task from Task Queue (if any)
+  if (taskQueue.hasItems()) {
+    callStack.push(taskQueue.dequeue());
+    execute();
+  }
+  
+  // 5. Go back to step 2 (check microtasks again!)
+}</code></pre>
+
+<p><strong>Complete Example — Putting It All Together:</strong></p>
+<pre><code>console.log("1: Start");                    // Synchronous → Call Stack
+
+setTimeout(() => console.log("2: Timeout"), 0); // → Web API → Task Queue
+
+Promise.resolve().then(() => console.log("3: Promise")); // → Microtask Queue
+
+console.log("4: End");                      // Synchronous → Call Stack
+
+// OUTPUT:
+// "1: Start"     ← sync (executed immediately)
+// "4: End"       ← sync (executed immediately)
+// "3: Promise"   ← microtask (runs before ANY macrotask)
+// "2: Timeout"   ← macrotask (runs last, even though timeout is 0ms!)
+
+// WHY? After sync code finishes, Event Loop drains microtasks FIRST
+// (Promise), then picks one macrotask (setTimeout).</code></pre>
+
+<div class="callout">
+<strong>Key Takeaway:</strong> JavaScript itself is single-threaded (one call stack). But the RUNTIME (browser/Node.js) is multi-threaded. Async operations are handled by the runtime's C++ threads. The Event Loop is just the bridge that moves completed callbacks back into JS's single thread in the right order: sync → microtasks → render → macrotask → repeat.
+</div>
 
 <div class="interview">
 <h4>🎯 Interview Questions</h4>
@@ -1407,5 +1651,6 @@ let static, yield;                  // SyntaxError</code></pre>
 
 </main>
 <script src="js-notes-inline.js"></script>
+<script src="nav.js"></script>
 </body>
 </html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 3: Dependency Injection & Services</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 3: Dependency Injection & Services</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (3 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">DI System</span>
+    <span class="pill">Providers</span>
+    <span class="pill">Injection Tokens</span>
+    <span class="pill">Hierarchical Injectors</span>
+    <span class="pill">inject() function</span>
+    <span class="pill">Multi Providers</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#what-is-di">What is Dependency Injection?</a></li>
+    <li><a href="#how-di-works">How Angular's DI Works Under the Hood</a></li>
+    <li><a href="#providers">Providers — All Registration Methods</a></li>
+    <li><a href="#hierarchical">Hierarchical Injectors</a></li>
+    <li><a href="#injection-tokens">InjectionToken & Custom Tokens</a></li>
+    <li><a href="#inject-function">inject() Function vs Constructor Injection</a></li>
+    <li><a href="#multi-providers">Multi Providers</a></li>
+    <li><a href="#tree-shakable">Tree-shakable Providers</a></li>
+    <li><a href="#interceptors">HTTP Interceptors (DI in Action)</a></li>
+    <li><a href="#patterns">Advanced DI Patterns</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="what-is-di">1. What is Dependency Injection?</h2>
+
+<h3>The Problem DI Solves</h3>
+<pre><code>// WITHOUT DI — tightly coupled, untestable
+class UserComponent {
+  private userService: UserService;
+  private http: HttpClient;
+  
+  constructor() {
+    this.http = new HttpClient(/* what params?? */);  // How to create?
+    this.userService = new UserService(this.http);    // Creates its own dependency!
+  }
+}
+// Problems:
+// 1. Component decides HOW to create dependencies
+// 2. Can't swap implementations (testing, mocking)
+// 3. If UserService constructor changes, ALL consumers break
+// 4. No singleton sharing — each component creates new instances
+
+// WITH DI — loosely coupled, testable
+class UserComponent {
+  // Angular PROVIDES the dependency — component just declares what it needs
+  constructor(private userService: UserService) {}
+  // OR modern approach:
+  private userService = inject(UserService);
+}</code></pre>
+
+<h3>DI Terminology</h3>
+<table>
+<tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+<tr><td><strong>Provider</strong></td><td>Recipe for creating a dependency</td><td><code>{ provide: UserService, useClass: UserService }</code></td></tr>
+<tr><td><strong>Token</strong></td><td>Key used to look up the provider</td><td><code>UserService</code> (class), <code>InjectionToken</code></td></tr>
+<tr><td><strong>Injector</strong></td><td>Container that holds providers and creates instances</td><td>Root injector, component injector</td></tr>
+<tr><td><strong>Consumer</strong></td><td>Class that receives the dependency</td><td>Component, Directive, Service, Pipe</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="how-di-works">2. How Angular's DI Works Under the Hood</h2>
+
+<h3>The Resolution Algorithm</h3>
+<p>When Angular needs to inject a dependency, it follows this process:</p>
+<ol>
+  <li><strong>Look at the injection token</strong> — What class/token is requested?</li>
+  <li><strong>Check component's own injector</strong> — Was it provided in this component's <code>providers</code>?</li>
+  <li><strong>Walk UP the injector tree</strong> — Check parent component → grandparent → ... → root</li>
+  <li><strong>Check Element Injector hierarchy first</strong>, then <strong>Module Injector hierarchy</strong></li>
+  <li><strong>If found</strong> — Return existing instance (or create if first request)</li>
+  <li><strong>If NOT found</strong> — Throw <code>NullInjectorError</code> (unless <code>@Optional()</code>)</li>
+</ol>
+
+<h4>Two Injector Hierarchies</h4>
+<pre><code>// Angular maintains TWO parallel injector trees:
+
+// 1. Element Injector Tree (component/directive providers)
+// Follows the DOM/component tree structure
+AppComponent
+  └── HeaderComponent (providers: [HeaderService])
+        └── NavComponent
+              └── NavItemComponent
+
+// 2. Module Injector Tree (NgModule providers or providedIn)
+// Flat (mostly) — root → lazy-loaded module injectors
+PlatformInjector (built-in: DomSanitizer, etc.)
+  └── RootInjector (providedIn: 'root' services)
+        └── LazyModuleInjector (services in lazy-loaded modules)
+
+// Resolution order:
+// Component's Element Injector → Parent Element → ... → Root Element
+// THEN: Component's Module Injector → Parent Module → Root Module → Platform</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="providers">3. Providers — All Registration Methods</h2>
+
+<h3>Where to Register Providers</h3>
+<pre><code>// 1. providedIn: 'root' — RECOMMENDED for most services (singleton, tree-shakable)
+@Injectable({ providedIn: 'root' })
+export class AuthService { }
+
+// 2. providedIn: 'platform' — shared across multiple Angular apps on same page
+@Injectable({ providedIn: 'platform' })
+export class AnalyticsService { }
+
+// 3. Component-level providers — NEW instance per component
+@Component({
+  providers: [UserService]  // Each component instance gets its own UserService
+})
+export class UserListComponent { }
+
+// 4. Route-level providers (Angular 14+)
+export const routes: Routes = [
+  {
+    path: 'admin',
+    providers: [AdminService],  // Only available in this route subtree
+    loadComponent: () => import('./admin.component')
+  }
+];
+
+// 5. bootstrapApplication providers
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    { provide: API_URL, useValue: 'https://api.example.com' }
+  ]
+});</code></pre>
+
+<h3>Provider Types</h3>
+<pre><code>// useClass — Create instance of a different class
+{ provide: LoggerService, useClass: AdvancedLoggerService }
+
+// useClass with deps
+{ provide: LoggerService, useClass: AdvancedLoggerService, deps: [HttpClient] }
+
+// useValue — Provide a static value
+{ provide: API_URL, useValue: 'https://api.example.com' }
+{ provide: APP_CONFIG, useValue: { production: true, apiVersion: 'v2' } }
+
+// useFactory — Create dependency using a factory function
+{
+  provide: DataService,
+  useFactory: (http: HttpClient, config: AppConfig) => {
+    return config.useMock 
+      ? new MockDataService() 
+      : new RealDataService(http);
+  },
+  deps: [HttpClient, APP_CONFIG]
+}
+
+// useExisting — Alias to another token (both resolve to same instance)
+{ provide: AbstractLogger, useExisting: ConsoleLoggerService }
+
+// Example: implementing multiple interfaces with one service
+@Injectable({ providedIn: 'root' })
+class FullLoggerService implements Logger, ErrorHandler { }
+
+providers: [
+  FullLoggerService,
+  { provide: Logger, useExisting: FullLoggerService },
+  { provide: ErrorHandler, useExisting: FullLoggerService }
+]</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="hierarchical">4. Hierarchical Injectors</h2>
+
+<h3>Component-Level Providers Create New Instances</h3>
+<pre><code>// Scenario: Shopping cart for different users in an admin panel
+@Injectable()  // NOT providedIn: 'root' — we want multiple instances
+export class CartService {
+  items: CartItem[] = [];
+  
+  addItem(item: CartItem) { this.items.push(item); }
+  getTotal() { return this.items.reduce((sum, i) => sum + i.price, 0); }
+  clear() { this.items = []; }
+}
+
+// Each UserCartComponent gets its OWN CartService instance
+@Component({
+  selector: 'app-user-cart',
+  providers: [CartService],  // New instance for each component
+  template: `
+    &lt;h3&gt;{{ userName }}'s Cart ({{ cart.items.length }} items)&lt;/h3&gt;
+    &lt;!-- child components also get THIS CartService instance --&gt;
+    &lt;app-cart-items /&gt;
+    &lt;app-cart-summary /&gt;
+  `
+})
+export class UserCartComponent {
+  @Input() userName = '';
+  cart = inject(CartService);
+}</code></pre>
+
+<h3>viewProviders vs providers</h3>
+<pre><code>@Component({
+  selector: 'app-parent',
+  providers: [ServiceA],       // Available to this component + ALL children (including projected)
+  viewProviders: [ServiceB],   // Available to this component + VIEW children ONLY (not projected content)
+  template: `
+    &lt;app-view-child /&gt;          &lt;!-- Can access ServiceA AND ServiceB --&gt;
+    &lt;ng-content&gt;&lt;/ng-content&gt;  &lt;!-- Can access ServiceA but NOT ServiceB --&gt;
+  `
+})
+export class ParentComponent { }
+
+// Usage:
+&lt;app-parent&gt;
+  &lt;app-projected-child /&gt;  &lt;!-- This is projected content — NO access to ServiceB --&gt;
+&lt;/app-parent&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="injection-tokens">5. InjectionToken & Custom Tokens</h2>
+
+<h3>Why InjectionToken?</h3>
+<p>You can't use interfaces or primitive values as DI tokens because they don't exist at runtime (TypeScript interfaces are erased during compilation). <code>InjectionToken</code> creates a unique runtime token.</p>
+
+<pre><code>// Create tokens for non-class dependencies
+export const API_URL = new InjectionToken&lt;string&gt;('API_URL');
+export const APP_CONFIG = new InjectionToken&lt;AppConfig&gt;('APP_CONFIG');
+export const IS_PRODUCTION = new InjectionToken&lt;boolean&gt;('IS_PRODUCTION');
+export const WINDOW = new InjectionToken&lt;Window&gt;('WINDOW');
+
+// With factory (tree-shakable default)
+export const LOGGER = new InjectionToken&lt;Logger&gt;('LOGGER', {
+  providedIn: 'root',
+  factory: () => {
+    const isProd = inject(IS_PRODUCTION);
+    return isProd ? new ProductionLogger() : new ConsoleLogger();
+  }
+});
+
+// Provide the tokens
+bootstrapApplication(AppComponent, {
+  providers: [
+    { provide: API_URL, useValue: environment.apiUrl },
+    { provide: IS_PRODUCTION, useValue: environment.production },
+    { provide: WINDOW, useFactory: () => window },
+    { provide: APP_CONFIG, useValue: { theme: 'dark', locale: 'en-US' } }
+  ]
+});
+
+// Inject the tokens
+export class ApiService {
+  private apiUrl = inject(API_URL);
+  private config = inject(APP_CONFIG);
+  private window = inject(WINDOW);
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="inject-function">6. inject() Function vs Constructor Injection</h2>
+
+<h3>Modern inject() Function (Angular 14+)</h3>
+<pre><code>// Constructor injection (traditional)
+@Component({...})
+export class OldStyleComponent {
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    @Inject(API_URL) private apiUrl: string,
+    @Optional() private analytics?: AnalyticsService
+  ) {}
+}
+
+// inject() function (modern — preferred)
+@Component({...})
+export class ModernComponent {
+  private userService = inject(UserService);
+  private router = inject(Router);
+  private apiUrl = inject(API_URL);
+  private analytics = inject(AnalyticsService, { optional: true });
+}
+
+// Advantages of inject():
+// 1. Less boilerplate (no constructor parameter list)
+// 2. Works in functions (not just classes)
+// 3. Easier refactoring (no constructor signature changes)
+// 4. Can be used in inheritance without super() headaches</code></pre>
+
+<h4>inject() in Functions (Powerful Pattern)</h4>
+<pre><code>// Create reusable injection-based utilities
+export function injectDestroy() {
+  const destroy$ = new Subject&lt;void&gt;();
+  const destroyRef = inject(DestroyRef);
+  destroyRef.onDestroy(() => {
+    destroy$.next();
+    destroy$.complete();
+  });
+  return destroy$;
+}
+
+// Usage in component:
+export class MyComponent {
+  private destroy$ = injectDestroy();
+
+  ngOnInit() {
+    this.someService.data$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => { ... });
+  }
+}
+
+// Another pattern: custom inject helper
+export function injectParams&lt;T&gt;(key: string): Signal&lt;T&gt; {
+  const route = inject(ActivatedRoute);
+  return toSignal(
+    route.params.pipe(map(p => p[key] as T)),
+    { requireSync: true }
+  );
+}</code></pre>
+
+<h4>Resolution Modifiers</h4>
+<pre><code>// @Optional / { optional: true } — don't throw if not found
+private analytics = inject(AnalyticsService, { optional: true });
+
+// @Self / { self: true } — only look in THIS component's injector
+private service = inject(MyService, { self: true });
+
+// @SkipSelf / { skipSelf: true } — skip THIS injector, start from parent
+private parentService = inject(MyService, { skipSelf: true });
+
+// @Host / { host: true } — search up to host component only
+private hostService = inject(MyService, { host: true });
+
+// Combine:
+private service = inject(MyService, { optional: true, skipSelf: true });</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="multi-providers">7. Multi Providers</h2>
+
+<pre><code>// Multi providers — multiple values registered under the same token
+// All values are injected as an array
+
+export const HTTP_INTERCEPTORS = new InjectionToken&lt;HttpInterceptor[]&gt;('HTTP_INTERCEPTORS');
+
+// Register multiple interceptors
+providers: [
+  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+  { provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true },
+  { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+]
+
+// Custom multi-provider example: Validators
+export const FORM_VALIDATORS = new InjectionToken&lt;Validator[]&gt;('FORM_VALIDATORS');
+
+providers: [
+  { provide: FORM_VALIDATORS, useClass: RequiredValidator, multi: true },
+  { provide: FORM_VALIDATORS, useClass: EmailValidator, multi: true },
+  { provide: FORM_VALIDATORS, useClass: MinLengthValidator, multi: true },
+]
+
+// Inject as array:
+export class FormComponent {
+  private validators = inject(FORM_VALIDATORS);  // Validator[] — all three!
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="tree-shakable">8. Tree-shakable Providers</h2>
+
+<pre><code>// NOT tree-shakable (old way) — service always in bundle even if unused
+// Module registers the service
+@NgModule({
+  providers: [NeverUsedService]  // Always bundled!
+})
+
+// TREE-SHAKABLE (modern way) — service only in bundle if actually injected
+@Injectable({ providedIn: 'root' })
+export class OnlyIfUsedService { }
+// If no component/service injects this, it's removed from bundle!
+
+// Tree-shakable with factory
+export const FEATURE_FLAG = new InjectionToken&lt;boolean&gt;('FEATURE_FLAG', {
+  providedIn: 'root',
+  factory: () => inject(EnvironmentService).getFlag('newDashboard')
+});
+
+// Why this matters for bundle size:
+// A library can export 50 services all with providedIn: 'root'
+// But if your app only uses 3 of them, only those 3 are bundled!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interceptors">9. HTTP Interceptors (DI in Action)</h2>
+
+<h3>Functional Interceptors (Angular 15+ — Modern)</h3>
+<pre><code>// auth.interceptor.ts
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const token = authService.getToken();
+
+  if (token) {
+    const clonedReq = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+    return next(clonedReq);
+  }
+  return next(req);
+};
+
+// error.interceptor.ts
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
+  const notification = inject(NotificationService);
+
+  return next(req).pipe(
+    retry({ count: 2, delay: 1000 }),
+    catchError((error: HttpErrorResponse) => {
+      switch (error.status) {
+        case 401:
+          router.navigate(['/login']);
+          break;
+        case 403:
+          notification.show('Access denied', 'error');
+          break;
+        case 500:
+          notification.show('Server error. Please try again.', 'error');
+          break;
+      }
+      return throwError(() => error);
+    })
+  );
+};
+
+// loading.interceptor.ts
+export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
+  const loading = inject(LoadingService);
+  loading.show();
+
+  return next(req).pipe(
+    finalize(() => loading.hide())
+  );
+};
+
+// Register in app.config.ts
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(
+      withInterceptors([authInterceptor, loadingInterceptor, errorInterceptor])
+    )
+  ]
+};</code></pre>
+
+<h3>Class-based Interceptors (Legacy but still in production)</h3>
+<pre><code>@Injectable()
+export class CacheInterceptor implements HttpInterceptor {
+  private cache = new Map&lt;string, HttpResponse&lt;any&gt;&gt;();
+
+  intercept(req: HttpRequest&lt;any&gt;, next: HttpHandler): Observable&lt;HttpEvent&lt;any&gt;&gt; {
+    // Only cache GET requests
+    if (req.method !== 'GET') {
+      return next.handle(req);
+    }
+
+    const cached = this.cache.get(req.urlWithParams);
+    if (cached) {
+      return of(cached.clone());
+    }
+
+    return next.handle(req).pipe(
+      tap(event => {
+        if (event instanceof HttpResponse) {
+          this.cache.set(req.urlWithParams, event.clone());
+        }
+      })
+    );
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="patterns">10. Advanced DI Patterns</h2>
+
+<h3>Strategy Pattern with DI</h3>
+<pre><code>// Define strategy interface
+export interface PaymentStrategy {
+  pay(amount: number): Observable&lt;PaymentResult&gt;;
+}
+
+export const PAYMENT_STRATEGY = new InjectionToken&lt;PaymentStrategy&gt;('PAYMENT_STRATEGY');
+
+// Implementations
+@Injectable()
+export class StripePaymentStrategy implements PaymentStrategy {
+  pay(amount: number) { /* Stripe logic */ }
+}
+
+@Injectable()
+export class PayPalPaymentStrategy implements PaymentStrategy {
+  pay(amount: number) { /* PayPal logic */ }
+}
+
+// Provide based on config
+{
+  provide: PAYMENT_STRATEGY,
+  useFactory: (config: AppConfig) => {
+    switch (config.paymentProvider) {
+      case 'stripe': return inject(StripePaymentStrategy);
+      case 'paypal': return inject(PayPalPaymentStrategy);
+    }
+  },
+  deps: [APP_CONFIG]
+}</code></pre>
+
+<h3>Abstract Class as Token</h3>
+<pre><code>// Abstract class works as both interface AND DI token (interfaces can't)
+export abstract class DataSource&lt;T&gt; {
+  abstract getAll(): Observable&lt;T[]&gt;;
+  abstract getById(id: string): Observable&lt;T&gt;;
+  abstract create(item: T): Observable&lt;T&gt;;
+  abstract update(id: string, item: Partial&lt;T&gt;): Observable&lt;T&gt;;
+  abstract delete(id: string): Observable&lt;void&gt;;
+}
+
+// Concrete implementation
+@Injectable({ providedIn: 'root' })
+export class HttpDataSource&lt;T&gt; extends DataSource&lt;T&gt; {
+  private http = inject(HttpClient);
+  private apiUrl = inject(API_URL);
+
+  getAll(): Observable&lt;T[]&gt; {
+    return this.http.get&lt;T[]&gt;(this.apiUrl);
+  }
+  // ... other methods
+}
+
+// For testing
+@Injectable()
+export class MockDataSource&lt;T&gt; extends DataSource&lt;T&gt; {
+  private data: T[] = [];
+  getAll(): Observable&lt;T[]&gt; { return of(this.data); }
+  // ... other methods
+}
+
+// Provide
+{ provide: DataSource, useClass: HttpDataSource }</code></pre>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 3</h4>
+<ol>
+  <li>Explain how Angular's Dependency Injection system works. What is the injector hierarchy?</li>
+  <li>What is the difference between providedIn: 'root' and providing in a component?</li>
+  <li>What is an InjectionToken? When would you use one instead of a class?</li>
+  <li>Explain the difference between providers and viewProviders.</li>
+  <li>What are multi providers? Give a real-world example.</li>
+  <li>What is tree-shaking in context of DI? How does providedIn enable it?</li>
+  <li>What's the difference between useClass, useValue, useFactory, and useExisting?</li>
+  <li>Explain @Optional, @Self, @SkipSelf, and @Host decorators.</li>
+  <li>How do HTTP interceptors work? How would you implement auth token refresh?</li>
+  <li>How would you create a service that has a different instance per lazy-loaded route?</li>
+  <li>What's the inject() function? How is it different from constructor injection?</li>
+  <li>How would you implement the Strategy pattern using Angular DI?</li>
+</ol>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase2-components-templates.html">← Phase 2: Components & Templates</a>
+  <a href="phase4-rxjs-reactive-patterns.html">Phase 4: RxJS & Reactive Patterns →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

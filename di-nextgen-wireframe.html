@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DevOps Intelligence — Next Generation Vision 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#07080f;--bg2:#0d0f1a;--bg3:#12152b;--bg4:#181c33;
+  --border:#1e2340;--border2:#252b4a;
+  --text:#e8eaf6;--text2:#9099c4;--text3:#5a6390;
+  --purple:#7c6af7;--purple2:#9d8ff7;--purple3:#5847d4;
+  --blue:#4a9eff;--blue2:#2979e8;
+  --green:#2ecc71;--green2:#27ae60;
+  --red:#e74c3c;--red2:#c0392b;
+  --orange:#f39c12;--yellow:#f1c40f;
+  --teal:#1abc9c;--pink:#e91e8c;
+  --ai-grad:linear-gradient(135deg,#7c6af7 0%,#4a9eff 100%);
+  --card-shadow:0 2px 20px rgba(0,0,0,.4);
+  --radius:12px;--radius-sm:8px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;overflow:hidden;}
+
+/* ── LAYOUT ────────────────────────────────── */
+.shell{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:56px;min-height:56px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;}
+.content{flex:1;overflow-y:auto;padding:24px;}
+
+/* ── SIDEBAR ───────────────────────────────── */
+.sb-logo{padding:20px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.sb-logo .logo-mark{width:32px;height:32px;border-radius:8px;background:var(--ai-grad);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;letter-spacing:-1px;}
+.sb-logo .brand{font-size:13px;font-weight:700;color:var(--text);}
+.sb-logo .brand span{color:var(--purple2);}
+.sb-health-pill{margin:12px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:default;}
+.health-ring{width:36px;height:36px;position:relative;flex-shrink:0;}
+.health-ring svg{transform:rotate(-90deg);}
+.health-ring .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text);}
+.sb-health-info{flex:1;}
+.sb-health-info .label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.sb-health-info .val{font-size:14px;font-weight:700;color:var(--green);}
+.sb-health-info .delta{font-size:10px;color:var(--green);}
+.sb-section{padding:8px 16px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;border-radius:0;transition:all .15s;color:var(--text2);font-size:13px;font-weight:500;position:relative;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(124,106,247,.12);color:var(--purple2);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--purple);border-radius:0 2px 2px 0;}
+.nav-item .icon{width:16px;height:16px;opacity:.8;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;}
+.nav-badge.blue{background:var(--blue2);}
+.nav-badge.green{background:var(--green2);}
+.sb-divider{height:1px;background:var(--border);margin:8px 0;}
+
+/* ── TOPBAR ────────────────────────────────── */
+.topbar-title{font-size:15px;font-weight:600;color:var(--text);flex:1;}
+.topbar-sub{font-size:12px;color:var(--text3);}
+.tb-chip{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px;}
+.tb-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.tb-btn{background:var(--purple3);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;}
+.tb-btn:hover{opacity:.85;}
+.tb-avatar{width:30px;height:30px;border-radius:50%;background:var(--ai-grad);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+.tb-notif{width:30px;height:30px;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.tb-notif-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1px solid var(--bg2);}
+
+/* ── SCREENS ───────────────────────────────── */
+.screen{display:none;animation:fadeIn .2s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── CARDS ─────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--card-shadow);}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:12px;}
+.card-value{font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text);}
+.card-delta{font-size:12px;font-weight:600;}
+.delta-up{color:var(--green);}
+.delta-down{color:var(--red);}
+.delta-neutral{color:var(--text3);}
+
+/* ── GRID HELPERS ───────────────────────────── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start;}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;align-items:start;}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;align-items:start;}
+.chart-wrap{position:relative;}
+.flex{display:flex;gap:12px;}
+.flex-col{display:flex;flex-direction:column;gap:12px;}
+.flex-1{flex:1;}
+.mt12{margin-top:12px;}
+.mt16{margin-top:16px;}
+.mb8{margin-bottom:8px;}
+.mb12{margin-bottom:12px;}
+
+/* ── PAGE HEADER ────────────────────────────── */
+.page-header{margin-bottom:20px;}
+.page-title{font-size:20px;font-weight:800;letter-spacing:-.5px;color:var(--text);}
+.page-sub{font-size:13px;color:var(--text3);margin-top:2px;}
+
+/* ── DORA CARD ──────────────────────────────── */
+.dora-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;flex-direction:column;gap:10px;}
+.dora-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.dora-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);}
+.dora-val{font-size:26px;font-weight:800;letter-spacing:-1px;}
+.dora-tier{padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.tier-elite{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.3);}
+.tier-high{background:rgba(74,158,255,.15);color:var(--blue);border:1px solid rgba(74,158,255,.3);}
+.tier-medium{background:rgba(243,156,18,.15);color:var(--orange);border:1px solid rgba(243,156,18,.3);}
+.tier-low{background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.3);}
+.sparkline{height:48px;width:100%;display:block;max-height:48px;}
+
+/* ── INSIGHT CARD ───────────────────────────── */
+.insight-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;}
+.insight-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.insight-icon.ai{background:rgba(124,106,247,.2);}
+.insight-icon.warn{background:rgba(243,156,18,.15);}
+.insight-icon.success{background:rgba(46,204,113,.15);}
+.insight-icon.danger{background:rgba(231,76,60,.15);}
+.insight-text .title{font-size:13px;font-weight:600;color:var(--text);}
+.insight-text .desc{font-size:12px;color:var(--text2);margin-top:3px;}
+.insight-text .action{font-size:11px;color:var(--purple2);margin-top:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+
+/* ── AI CHAT ────────────────────────────────── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 160px);gap:0;}
+.chat-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px;padding:0 0 16px;}
+.chat-msg{display:flex;gap:10px;max-width:80%;}
+.chat-msg.ai{align-self:flex-start;}
+.chat-msg.user{align-self:flex-end;flex-direction:row-reverse;}
+.chat-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.chat-avatar.ai{background:var(--ai-grad);color:#fff;}
+.chat-avatar.user{background:var(--bg4);border:1px solid var(--border2);color:var(--text2);}
+.chat-bubble{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--text);}
+.chat-bubble.user{background:var(--purple3);border-color:var(--purple);color:#fff;}
+.chat-bubble strong{color:var(--purple2);}
+.chat-bubble.ai strong{color:var(--blue);}
+.chat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chat-chip{background:rgba(124,106,247,.15);border:1px solid rgba(124,106,247,.3);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--purple2);cursor:pointer;transition:all .15s;}
+.chat-chip:hover{background:rgba(124,106,247,.3);}
+.chat-input-bar{display:flex;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:8px 12px;align-items:center;}
+.chat-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;}
+.chat-input::placeholder{color:var(--text3);}
+.chat-send{width:32px;height:32px;border-radius:8px;background:var(--ai-grad);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;}
+.chat-metrics-row{display:flex;gap:8px;margin-top:8px;}
+.chat-metric{background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:11px;}
+.chat-metric .mk{color:var(--text3);}
+.chat-metric .mv{color:var(--text);font-weight:600;}
+
+/* ── HEALTH SCORE ───────────────────────────── */
+.health-main{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:20px;}
+.health-score-big{font-size:72px;font-weight:900;letter-spacing:-4px;background:var(--ai-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.health-label{font-size:13px;color:var(--text3);}
+.health-delta{font-size:14px;color:var(--green);font-weight:600;}
+.radar-wrap{position:relative;height:240px;}
+.hex-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.hex-item{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;text-align:center;}
+.hex-item .h-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.hex-item .h-val{font-size:20px;font-weight:800;margin:4px 0;}
+.hex-item .h-bar{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.hex-item .h-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+.rec-item{background:var(--bg3);border:1px solid var(--border2);border-left:3px solid;border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);}
+.rec-item.danger{border-left-color:var(--red);}
+.rec-item.warn{border-left-color:var(--orange);}
+.rec-item.info{border-left-color:var(--blue);}
+.rec-item .rt{font-weight:600;margin-bottom:3px;}
+
+/* ── PREDICTIVE RELEASE ─────────────────────── */
+.risk-score-wrap{display:flex;align-items:center;gap:20px;padding:16px 0;}
+.risk-donut{position:relative;width:100px;height:100px;flex-shrink:0;}
+.risk-donut .risk-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.risk-num .rn{font-size:24px;font-weight:900;color:var(--orange);}
+.risk-num .rl{font-size:9px;color:var(--text3);text-transform:uppercase;}
+.risk-factors{flex:1;display:flex;flex-direction:column;gap:6px;}
+.rf-row{display:flex;align-items:center;gap:8px;}
+.rf-label{font-size:12px;color:var(--text2);width:160px;flex-shrink:0;}
+.rf-bar{flex:1;height:6px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.rf-fill{height:100%;border-radius:3px;}
+.rf-fill.high{background:var(--red);}
+.rf-fill.med{background:var(--orange);}
+.rf-fill.low{background:var(--green);}
+.rf-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;text-transform:uppercase;flex-shrink:0;}
+.rf-badge.high{background:rgba(231,76,60,.2);color:var(--red);}
+.rf-badge.med{background:rgba(243,156,18,.2);color:var(--orange);}
+.rf-badge.low{background:rgba(46,204,113,.2);color:var(--green);}
+.ai-rec-box{background:rgba(124,106,247,.08);border:1px solid rgba(124,106,247,.25);border-radius:10px;padding:14px;}
+.ai-rec-box .ai-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(124,106,247,.2);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--purple2);font-weight:600;margin-bottom:8px;}
+.ai-rec-box p{font-size:13px;color:var(--text2);line-height:1.6;}
+.ai-rec-box strong{color:var(--text);}
+
+/* ── TEAM TOPOLOGY ──────────────────────────── */
+.topo-canvas{width:100%;height:320px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;position:relative;overflow:hidden;}
+.topo-node{position:absolute;transform:translate(-50%,-50%);text-align:center;cursor:pointer;}
+.topo-node .node-circle{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 auto 4px;border:2px solid;transition:all .2s;}
+.topo-node .node-label{font-size:10px;color:var(--text3);white-space:nowrap;}
+.node-platform{background:rgba(124,106,247,.2);border-color:var(--purple)!important;color:var(--purple2);}
+.node-stream{background:rgba(74,158,255,.15);border-color:var(--blue)!important;color:var(--blue);}
+.node-bottleneck{background:rgba(231,76,60,.2);border-color:var(--red)!important;color:var(--red);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.4)}50%{box-shadow:0 0 0 8px rgba(231,76,60,0)}}
+.topo-line{position:absolute;background:var(--border2);transform-origin:left center;}
+.topology-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;}
+.tl-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);}
+.tl-dot{width:10px;height:10px;border-radius:50%;}
+.wait-table{width:100%;border-collapse:collapse;font-size:12px;}
+.wait-table th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:8px;border-bottom:1px solid var(--border);}
+.wait-table td{padding:8px;border-bottom:1px solid var(--border);color:var(--text2);}
+.wait-table tr:last-child td{border:none;}
+.wait-table .team-name{color:var(--text);font-weight:500;}
+.wait-table .wait-high{color:var(--red);font-weight:600;}
+.wait-table .wait-ok{color:var(--green);font-weight:600;}
+
+/* ── DEVEX ──────────────────────────────────── */
+.devex-score-row{display:flex;gap:12px;align-items:stretch;}
+.devex-big{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:160px;}
+.devex-big .score{font-size:48px;font-weight:900;color:var(--blue);}
+.devex-big .label{font-size:11px;color:var(--text3);text-transform:uppercase;}
+.devex-metrics{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.devex-metric{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px;}
+.devex-metric .dm-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;}
+.devex-metric .dm-val{font-size:20px;font-weight:800;margin:4px 0;}
+.devex-metric .dm-sub{font-size:11px;color:var(--text3);}
+.friction-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.friction-item:last-child{border:none;}
+.friction-rank{width:20px;font-size:12px;font-weight:700;color:var(--text3);}
+.friction-info{flex:1;}
+.friction-info .fi-name{font-size:13px;font-weight:500;color:var(--text);}
+.friction-info .fi-sub{font-size:11px;color:var(--text3);}
+.friction-impact{text-align:right;}
+.friction-impact .fi-time{font-size:13px;font-weight:700;color:var(--red);}
+.friction-impact .fi-label{font-size:10px;color:var(--text3);}
+
+/* ── SBOM / SUPPLY CHAIN ────────────────────── */
+.sbom-header{display:flex;gap:16px;align-items:center;padding:14px 0;}
+.slsa-badge{background:var(--bg3);border:2px solid var(--blue);border-radius:10px;padding:10px 16px;text-align:center;}
+.slsa-badge .slsa-level{font-size:28px;font-weight:900;color:var(--blue);}
+.slsa-badge .slsa-label{font-size:10px;color:var(--text3);text-transform:uppercase;}
+.cve-row{display:flex;gap:10px;align-items:center;margin:8px 0;}
+.cve-pill{padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;}
+.cve-crit{background:rgba(231,76,60,.2);color:var(--red);}
+.cve-high{background:rgba(243,156,18,.2);color:var(--orange);}
+.cve-med{background:rgba(241,196,15,.2);color:var(--yellow);}
+.cve-low{background:rgba(46,204,113,.2);color:var(--green);}
+.dep-tree{font-family:monospace;font-size:11px;color:var(--text2);line-height:1.8;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px;max-height:200px;overflow-y:auto;}
+.dep-tree .cve-flag{color:var(--red);font-size:10px;}
+.dep-tree .ok-flag{color:var(--green);font-size:10px;}
+.sc-risk{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px;margin:8px 0;}
+.sc-risk .scr-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.sc-risk .scr-val{font-size:22px;font-weight:800;}
+
+/* ── BUSINESS INTEL ─────────────────────────── */
+.biz-kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;}
+.biz-kpi .bk-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.biz-kpi .bk-info .bk-metric{font-size:11px;color:var(--text3);}
+.biz-kpi .bk-info .bk-biz{font-size:13px;font-weight:600;color:var(--text);margin:4px 0;}
+.biz-kpi .bk-info .bk-impact{font-size:12px;font-weight:700;}
+.okr-item{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:8px;}
+.okr-item .okr-title{font-size:13px;font-weight:600;color:var(--text);}
+.okr-item .okr-sub{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.okr-progress{height:6px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.okr-fill{height:100%;border-radius:3px;background:var(--ai-grad);}
+.okr-pct{font-size:11px;color:var(--text3);margin-top:4px;}
+.roi-table{width:100%;border-collapse:collapse;font-size:12px;}
+.roi-table th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:8px 10px;border-bottom:1px solid var(--border);}
+.roi-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text2);}
+.roi-table tr:last-child td{border:none;}
+.roi-table .pos{color:var(--green);font-weight:700;}
+.roi-table .neg{color:var(--red);font-weight:700;}
+
+/* ── COST INTEL ─────────────────────────────── */
+.cost-big{font-size:36px;font-weight:900;letter-spacing:-2px;}
+.cost-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(46,204,113,.15);border:1px solid rgba(46,204,113,.3);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;color:var(--green);}
+.cost-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.cost-item:last-child{border:none;}
+.cost-item .ci-name{flex:1;font-size:12px;color:var(--text);}
+.cost-item .ci-bar{width:120px;height:5px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.cost-item .ci-fill{height:100%;border-radius:3px;background:var(--blue);}
+.cost-item .ci-val{width:70px;text-align:right;font-size:12px;font-weight:600;color:var(--text);}
+.ci-delta{font-size:11px;}
+.saving-item{background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--green);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.saving-item .si-title{font-size:13px;font-weight:600;color:var(--text);}
+.saving-item .si-save{font-size:12px;color:var(--green);font-weight:600;margin-top:2px;}
+.saving-item .si-desc{font-size:11px;color:var(--text3);}
+
+/* ── BENCHMARKING ───────────────────────────── */
+.bench-tier{background:rgba(46,204,113,.1);border:2px solid var(--green);border-radius:12px;padding:16px;text-align:center;}
+.bench-tier .bt-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);}
+.bench-tier .bt-tier{font-size:32px;font-weight:900;color:var(--green);}
+.bench-tier .bt-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+.bench-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.bench-row:last-child{border:none;}
+.bench-row .br-metric{flex:1;font-size:12px;color:var(--text);}
+.bench-row .br-yours{width:80px;text-align:center;font-size:12px;font-weight:700;color:var(--text);}
+.bench-row .br-median{width:80px;text-align:center;font-size:12px;color:var(--text3);}
+.bench-row .br-elite{width:80px;text-align:center;font-size:12px;color:var(--green);}
+.bench-row .br-pct{width:100px;text-align:right;font-size:11px;font-weight:600;}
+.bench-row .br-pct.top{color:var(--green);}
+.bench-row .br-pct.mid{color:var(--orange);}
+.bench-row .br-pct.low{color:var(--red);}
+.roadmap-step{display:flex;gap:12px;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-bottom:8px;}
+.roadmap-step .rs-num{width:24px;height:24px;border-radius:50%;background:var(--purple3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.roadmap-step .rs-info .rs-title{font-size:12px;font-weight:600;color:var(--text);}
+.roadmap-step .rs-info .rs-sub{font-size:11px;color:var(--text3);}
+
+/* ── INCIDENT INTEL ─────────────────────────── */
+.incident-timeline{display:flex;flex-direction:column;gap:0;}
+.it-item{display:flex;gap:12px;position:relative;padding-bottom:16px;}
+.it-item::after{content:'';position:absolute;left:12px;top:26px;bottom:0;width:1px;background:var(--border2);}
+.it-item:last-child::after{display:none;}
+.it-icon{width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;z-index:1;}
+.it-icon.deploy{background:rgba(74,158,255,.2);color:var(--blue);}
+.it-icon.incident{background:rgba(231,76,60,.2);color:var(--red);}
+.it-icon.alert{background:rgba(243,156,18,.2);color:var(--orange);}
+.it-icon.resolved{background:rgba(46,204,113,.2);color:var(--green);}
+.it-info .it-time{font-size:10px;color:var(--text3);}
+.it-info .it-title{font-size:12px;font-weight:500;color:var(--text);}
+.it-info .it-sub{font-size:11px;color:var(--text2);}
+.postmortem-box{background:rgba(124,106,247,.05);border:1px solid rgba(124,106,247,.2);border-radius:10px;padding:14px;margin-top:8px;}
+.pm-section{margin-bottom:12px;}
+.pm-section .pm-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--purple2);margin-bottom:6px;}
+.pm-section p{font-size:12px;color:var(--text2);line-height:1.6;}
+.pm-section ul{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.pm-section ul li::before{content:'•';color:var(--purple2);margin-right:6px;}
+.pm-section ul li{font-size:12px;color:var(--text2);}
+
+/* ── COMMAND CENTER ─────────────────────────── */
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border:none;}
+.a-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.a-icon.git{background:rgba(46,204,113,.15);}
+.a-icon.deploy{background:rgba(74,158,255,.15);}
+.a-icon.incident{background:rgba(231,76,60,.15);}
+.a-icon.security{background:rgba(243,156,18,.15);}
+.a-icon.build{background:rgba(26,188,156,.15);}
+.a-info{flex:1;}
+.a-info .a-title{font-size:12px;color:var(--text);}
+.a-info .a-sub{font-size:11px;color:var(--text3);}
+.a-time{font-size:10px;color:var(--text3);white-space:nowrap;}
+.alert-banner{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.alert-banner .ab-icon{font-size:16px;}
+.alert-banner .ab-text{flex:1;font-size:12px;color:var(--text);}
+.alert-banner .ab-action{font-size:11px;color:var(--red);cursor:pointer;font-weight:600;}
+.mini-chart{height:36px;}
+
+/* ── TABS ───────────────────────────────────── */
+.tab-row{display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:4px;margin-bottom:16px;width:fit-content;}
+.tab-btn{padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);border:none;background:none;transition:all .15s;}
+.tab-btn.active{background:var(--purple3);color:#fff;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* ── BADGES / MISC ──────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.badge-new{background:rgba(124,106,247,.2);color:var(--purple2);border:1px solid rgba(124,106,247,.3);}
+.badge-ai{background:var(--ai-grad);color:#fff;}
+.badge-beta{background:rgba(243,156,18,.2);color:var(--orange);border:1px solid rgba(243,156,18,.3);}
+.section-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.section-title{font-size:14px;font-weight:700;color:var(--text);flex:1;}
+.section-action{font-size:11px;color:var(--purple2);cursor:pointer;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:var(--bg4);color:var(--text3);border:1px solid var(--border2);}
+.coming-soon{opacity:.5;pointer-events:none;}
+.new-tag{background:var(--ai-grad);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;}
+
+/* ── AI COPILOT TABS ────────────────────────── */
+.ai-tab{padding:8px 18px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.ai-tab:hover{color:var(--text);}
+.ai-tab.active{color:var(--purple2);border-bottom-color:var(--purple);}
+
+/* ── RAG FLOW ───────────────────────────────── */
+.rag-flow{display:flex;align-items:stretch;gap:4px;flex-wrap:wrap;}
+.rag-step{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;flex:1;min-width:100px;text-align:center;}
+.rag-icon{font-size:18px;margin-bottom:4px;}
+.rag-label{font-size:11px;font-weight:700;color:var(--text);}
+.rag-sub{font-size:9px;color:var(--text3);margin-top:3px;line-height:1.4;}
+.rag-arrow{display:flex;align-items:center;color:var(--text3);font-size:16px;flex-shrink:0;}
+
+/* ── ARCH WHY GRID ──────────────────────────── */
+.arch-callout{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:14px;}
+.arch-why-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.arch-why-item{font-size:11px;padding:6px 8px;border-radius:5px;line-height:1.5;}
+.arch-good{background:rgba(46,204,113,.08);color:var(--text2);}
+.arch-bad{background:rgba(231,76,60,.08);color:var(--text2);}
+
+/* ── ARCH TABLE ─────────────────────────────── */
+.arch-table{width:100%;border-collapse:collapse;font-size:11px;}
+.arch-table th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:8px 10px;border-bottom:1px solid var(--border);}
+.arch-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);}
+.arch-table tr:last-child td{border:none;}
+.intent-badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.3px;}
+.kw-list{font-size:10px;color:var(--text3);font-style:italic;}
+.api-code{font-family:monospace;font-size:10px;color:var(--blue);line-height:1.8;}
+
+/* ── CODE BLOCK ─────────────────────────────── */
+.code-block{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:14px;font-family:monospace;font-size:11px;color:var(--text2);line-height:1.9;white-space:pre-wrap;}
+.code-key{color:var(--purple2);font-weight:700;}
+.code-comment{color:var(--text3);}
+
+/* ── FLOW STEP ──────────────────────────────── */
+.flow-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.flow-step:last-child{border:none;}
+.fs-num{width:20px;height:20px;border-radius:50%;background:var(--purple3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
+.flow-step code{font-size:10px;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;color:var(--teal);display:inline-block;margin-top:2px;}
+.flow-step div{font-size:12px;color:var(--text2);}
+
+/* ── SOURCE TAGS on responses ───────────────── */
+.source-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07);}
+.src-tag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--bg4);border:1px solid var(--border2);color:var(--text3);}
+.src-tag.api{background:rgba(74,158,255,.1);border-color:rgba(74,158,255,.2);color:var(--blue);}
+.confidence-tag{font-size:9px;padding:2px 7px;border-radius:4px;margin-left:auto;}
+.conf-high{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.2);}
+.conf-med{background:rgba(243,156,18,.1);color:var(--orange);border:1px solid rgba(243,156,18,.2);}
+
+/* ── THINKING INDICATOR ─────────────────────── */
+.thinking-dots{display:flex;gap:4px;align-items:center;padding:4px 0;}
+.thinking-dots span{width:6px;height:6px;border-radius:50%;background:var(--purple2);animation:thinkPulse 1.2s ease-in-out infinite;}
+.thinking-dots span:nth-child(2){animation-delay:.2s;}
+.thinking-dots span:nth-child(3){animation-delay:.4s;}
+.thinking-source-list{font-size:11px;color:var(--text3);margin-top:6px;}
+.thinking-source-list div{padding:1px 0;animation:fadeIn .3s ease;}
+@keyframes thinkPulse{0%,60%,100%{opacity:.3;transform:scale(.8)}30%{opacity:1;transform:scale(1)}}
+
+/* ── OOF response style ─────────────────────── */
+.oof-bubble{background:rgba(90,99,144,.15);border:1px solid var(--border2);}
+
+/* ── FAANG FEATURE CSS ──────────────────────── */
+/* Error Budget */
+.budget-gauge{position:relative;width:120px;height:120px;margin:0 auto;}
+.budget-gauge .bg-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.budget-num{font-size:26px;font-weight:900;}
+.budget-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;}
+.gate-status{border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.gate-status.blocked{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.35);}
+.gate-status.open{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);}
+.gate-icon{font-size:28px;flex-shrink:0;}
+.gate-info .gi-title{font-size:14px;font-weight:700;}
+.gate-info .gi-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.slo-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.slo-row:last-child{border:none;}
+.slo-service{flex:1;font-size:12px;font-weight:500;color:var(--text);}
+.slo-target{width:60px;font-size:11px;color:var(--text3);}
+.slo-budget{width:80px;}
+.slo-bar{height:5px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.slo-fill{height:100%;border-radius:3px;}
+.slo-pct{font-size:11px;font-weight:600;margin-top:2px;}
+.slo-gate{width:90px;text-align:right;}
+.burn-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.burn-fast{background:rgba(231,76,60,.2);color:var(--red);}
+.burn-ok{background:rgba(46,204,113,.2);color:var(--green);}
+.burn-warn{background:rgba(243,156,18,.2);color:var(--orange);}
+
+/* Biz Outcome */
+.timeline-wrap{position:relative;padding:8px 0;}
+.tl-event{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);position:relative;}
+.tl-event:last-child{border:none;}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.tl-body{flex:1;}
+.tl-body .tl-deploy{font-size:12px;font-weight:600;color:var(--text);}
+.tl-body .tl-outcome{font-size:12px;margin-top:3px;}
+.tl-body .tl-meta{font-size:10px;color:var(--text3);margin-top:2px;}
+.outcome-pos{color:var(--green);font-weight:600;}
+.outcome-neg{color:var(--red);font-weight:600;}
+.outcome-neutral{color:var(--text3);}
+.corr-badge{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.corr-strong{background:rgba(46,204,113,.2);color:var(--green);border:1px solid rgba(46,204,113,.3);}
+.corr-med{background:rgba(243,156,18,.2);color:var(--orange);border:1px solid rgba(243,156,18,.3);}
+.corr-weak{background:rgba(90,99,144,.2);color:var(--text3);border:1px solid var(--border2);}
+.biz-connect-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;}
+.bc-logo{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+
+/* Bus Factor */
+.bus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+.bus-card{background:var(--bg3);border:1px solid;border-radius:8px;padding:10px;text-align:center;}
+.bus-card.critical{border-color:rgba(231,76,60,.5);background:rgba(231,76,60,.06);}
+.bus-card.warning{border-color:rgba(243,156,18,.4);background:rgba(243,156,18,.05);}
+.bus-card.ok{border-color:var(--border2);}
+.bus-factor-num{font-size:28px;font-weight:900;line-height:1;}
+.bus-service{font-size:11px;font-weight:600;color:var(--text);margin-top:4px;}
+.bus-owners{font-size:10px;color:var(--text3);margin-top:2px;}
+.avatar-row{display:flex;justify-content:center;gap:-4px;margin-top:6px;}
+.mini-avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;border:2px solid var(--bg3);}
+
+/* Toil */
+.toil-big{font-size:48px;font-weight:900;letter-spacing:-3px;}
+.toil-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.toil-item:last-child{border:none;}
+.toil-cat{flex:1;}
+.toil-cat .tc-name{font-size:13px;font-weight:500;color:var(--text);}
+.toil-cat .tc-sub{font-size:11px;color:var(--text3);}
+.toil-bar-wrap{width:140px;}
+.toil-bar{height:6px;background:var(--border2);border-radius:3px;overflow:hidden;margin-bottom:2px;}
+.toil-fill{height:100%;border-radius:3px;}
+.toil-cost{width:90px;text-align:right;}
+.toil-cost .t-hrs{font-size:12px;font-weight:700;color:var(--text);}
+.toil-cost .t-usd{font-size:10px;color:var(--red);}
+
+/* Blast Radius */
+.blast-canvas{width:100%;height:280px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;position:relative;overflow:hidden;}
+.blast-node{position:absolute;transform:translate(-50%,-50%);text-align:center;cursor:pointer;transition:all .3s;}
+.blast-node .bn-circle{border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 auto 3px;transition:all .3s;border:2px solid;}
+.blast-node .bn-label{font-size:9px;white-space:nowrap;}
+.bn-healthy{background:rgba(46,204,113,.15);border-color:var(--green)!important;color:var(--green);}
+.bn-failed{background:rgba(231,76,60,.3);border-color:var(--red)!important;color:var(--red);animation:pulse 1.5s infinite;}
+.bn-degraded{background:rgba(243,156,18,.25);border-color:var(--orange)!important;color:var(--orange);}
+.bn-platform{background:rgba(124,106,247,.2);border-color:var(--purple)!important;color:var(--purple2);}
+.impact-stat{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;text-align:center;}
+.impact-stat .is-val{font-size:22px;font-weight:900;}
+.impact-stat .is-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;}
+
+/* ── SCROLLBAR ──────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ SIDEBAR ══════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="logo-mark">DI</div>
+    <div>
+      <div class="brand">DevOps <span>Intelligence</span></div>
+      <div style="font-size:10px;color:var(--text3);">Next Gen Vision · 2026</div>
+    </div>
+  </div>
+
+  <!-- Live health pill -->
+  <div class="sb-health-pill" title="Engineering Health Score">
+    <div class="health-ring">
+      <svg width="36" height="36" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="14" fill="none" stroke="#1e2340" stroke-width="4"/>
+        <circle cx="18" cy="18" r="14" fill="none" stroke="#2ecc71" stroke-width="4"
+          stroke-dasharray="62 88" stroke-linecap="round"/>
+      </svg>
+      <div class="score-text">78</div>
+    </div>
+    <div class="sb-health-info">
+      <div class="label">Eng. Health</div>
+      <div class="val">78 / 100</div>
+      <div class="delta">↑ 3 this week</div>
+    </div>
+  </div>
+
+  <div class="sb-section">Overview</div>
+  <div class="nav-item active" onclick="show('cmd')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+    Command Center
+  </div>
+  <div class="nav-item" onclick="show('ai')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a5 5 0 110 10A5 5 0 018 3zm0 2a3 3 0 100 6 3 3 0 000-6z"/></svg>
+    AI Copilot <span class="new-tag">NEW</span>
+    <span class="nav-badge blue">3</span>
+  </div>
+  <div class="nav-item" onclick="show('health')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z"/></svg>
+    Health Score <span class="new-tag">NEW</span>
+  </div>
+
+  <div class="sb-section">Engineering</div>
+  <div class="nav-item" onclick="show('dora')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 12l4-5 3 3 3-6 4 8H1z"/></svg>
+    DORA+ Metrics
+  </div>
+  <div class="nav-item" onclick="show('release')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/></svg>
+    Predictive Release <span class="new-tag">NEW</span>
+    <span class="nav-badge">2</span>
+  </div>
+  <div class="nav-item" onclick="show('topology')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="2" r="2"/><circle cx="2" cy="12" r="2"/><circle cx="14" cy="12" r="2"/><path d="M8 4L2 10M8 4l6 6"/></svg>
+    Team Topology <span class="new-tag">NEW</span>
+  </div>
+  <div class="nav-item" onclick="show('devex')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h12v8H2zM5 4V2h6v2"/></svg>
+    Dev Experience <span class="new-tag">NEW</span>
+  </div>
+
+  <div class="sb-section">Security & Risk</div>
+  <div class="nav-item" onclick="show('sbom')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L2 4v4c0 3.3 2.5 6.4 6 7 3.5-.6 6-3.7 6-7V4L8 1z"/></svg>
+    Supply Chain / SBOM <span class="new-tag">NEW</span>
+    <span class="nav-badge">7</span>
+  </div>
+  <div class="nav-item" onclick="show('incident')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l7 13H1L8 1zm0 4v5m0 1v2"/></svg>
+    Incident Intelligence
+    <span class="nav-badge">1</span>
+  </div>
+
+  <div class="sb-section">Business</div>
+  <div class="nav-item" onclick="show('biz')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 14l4-6 3 3 3-4 4 7H1z"/></svg>
+    Business Intelligence <span class="new-tag">NEW</span>
+  </div>
+  <div class="nav-item" onclick="show('cost')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 5v6M6 7h3a1 1 0 010 2H6"/></svg>
+    Cost Intelligence <span class="new-tag">NEW</span>
+  </div>
+  <div class="nav-item" onclick="show('bench')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 12V6M7 12V4M11 12V8M15 12V2"/></svg>
+    Benchmarking <span class="new-tag">NEW</span>
+  </div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section" style="font-size:9px;color:var(--purple2);letter-spacing:.3px;">★ 11 Extraordinary Features</div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section" style="color:var(--pink);letter-spacing:.4px;">🔥 FAANG-Level</div>
+  <div class="nav-item" onclick="show('errbudget')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a5 5 0 110 10A5 5 0 018 3zm-1 2v5l4 2-1 1.5L6 11V5h1z"/></svg>
+    Error Budget Engine <span class="new-tag">NEW</span>
+    <span class="nav-badge">2</span>
+  </div>
+  <div class="nav-item" onclick="show('bizoutcome')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 14l3-5 2 2 2-4 2 3 2-6 3 10H1z"/></svg>
+    Biz Outcome Correlation <span class="new-tag">NEW</span>
+  </div>
+  <div class="nav-item" onclick="show('busfactor')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="4" r="2"/><circle cx="11" cy="4" r="2"/><path d="M1 14c0-3 2-4 4-4h2M9 10c2 0 4 1 4 4"/></svg>
+    Bus Factor Intelligence <span class="new-tag">NEW</span>
+    <span class="nav-badge">3</span>
+  </div>
+  <div class="nav-item" onclick="show('toil')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2l1.5 4h4l-3.2 2.4 1.2 4L8 10l-3.5 2.4 1.2-4L2.5 6H6.5z"/></svg>
+    Toil Quantification <span class="new-tag">NEW</span>
+  </div>
+  <div class="nav-item" onclick="show('blast')">
+    <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3M3 3l2 2M11 11l2 2M3 13l2-2M11 5l2-2"/></svg>
+    Blast Radius Simulator <span class="new-tag">NEW</span>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══════════════════════════════════ -->
+<div class="main">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div style="flex:1">
+      <div class="topbar-title" id="topbar-title">Command Center</div>
+      <div class="topbar-sub" id="topbar-sub">Kyndryl DevOps Intelligence · Acme Corp Tenant</div>
+    </div>
+    <div class="tb-chip"><div class="dot"></div> 24 Services Live</div>
+    <div class="tb-chip">🔮 AI: Active</div>
+    <button class="tb-btn">⬇ Export Report</button>
+    <div class="tb-notif">🔔<div class="tb-notif-dot"></div></div>
+    <div class="tb-avatar">SK</div>
+  </div>
+
+  <!-- Content area -->
+  <div class="content">
+
+    <!-- ══════════ COMMAND CENTER ══════════ -->
+    <div id="s-cmd" class="screen active">
+      <div class="alert-banner">
+        <div class="ab-icon">🔴</div>
+        <div class="ab-text"><strong>Active Incident:</strong> payment-service latency spike — P2 — 18 mins open. 2 deployments in last 1h detected as possible cause.</div>
+        <div class="ab-action">→ View Incident AI Analysis</div>
+      </div>
+
+      <div class="grid4 mb12">
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Deploy Frequency</div><div class="dora-tier tier-elite">Elite</div></div>
+          <div class="dora-val" style="color:var(--green)">8.2/day</div>
+          <div style="height:48px;position:relative;"><canvas class="sparkline" id="sp1"></canvas></div>
+          <div class="card-delta delta-up">↑ 12% vs last week</div>
+        </div>
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Lead Time</div><div class="dora-tier tier-high">High</div></div>
+          <div class="dora-val" style="color:var(--blue)">2.1 days</div>
+          <div style="height:48px;position:relative;"><canvas class="sparkline" id="sp2"></canvas></div>
+          <div class="card-delta delta-up">↑ Improved 0.4d</div>
+        </div>
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Change Failure Rate</div><div class="dora-tier tier-high">High</div></div>
+          <div class="dora-val" style="color:var(--orange)">4.8%</div>
+          <div style="height:48px;position:relative;"><canvas class="sparkline" id="sp3"></canvas></div>
+          <div class="card-delta delta-down">↓ Up from 3.1% — investigate</div>
+        </div>
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">MTTR</div><div class="dora-tier tier-elite">Elite</div></div>
+          <div class="dora-val" style="color:var(--teal)">24 min</div>
+          <div style="height:48px;position:relative;"><canvas class="sparkline" id="sp4"></canvas></div>
+          <div class="card-delta delta-up">↑ Best in 90 days</div>
+        </div>
+      </div>
+
+      <div class="flex" style="gap:16px;align-items:flex-start">
+        <div style="flex:1.4">
+          <div class="section-row"><div class="section-title">🤖 AI Insights — Right Now</div><div class="section-action">View all →</div></div>
+          <div class="flex-col">
+            <div class="insight-card">
+              <div class="insight-icon danger">⚡</div>
+              <div class="insight-text">
+                <div class="title">CFR spike likely caused by payment-service v2.3.9</div>
+                <div class="desc">Deployment at 14:22 introduced 3 async queue changes. Pattern matches previous CFR events in 87% of similar cases.</div>
+                <div class="action">→ View AI root cause analysis</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon warn">⚠️</div>
+              <div class="insight-text">
+                <div class="title">Release v2.4.1 has high risk score: 72/100</div>
+                <div class="desc">Test coverage dropped 8%, 2 critical open bugs, 14 new dependencies. AI recommends delay of 2 days.</div>
+                <div class="action">→ See Predictive Release report</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon success">✅</div>
+              <div class="insight-text">
+                <div class="title">Team Alpha improved PR review time by 62%</div>
+                <div class="desc">Async review process change shows impact. Lead time for Team Alpha reduced from 4.2d → 1.6d this sprint.</div>
+                <div class="action">→ Share this win with team</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon ai">🧠</div>
+              <div class="insight-text">
+                <div class="title">Weekly Engineering Digest ready</div>
+                <div class="desc">AI-generated summary of 47 deployments, 182 PRs, 3 incidents, 1 supply chain CVE. Board-ready PDF available.</div>
+                <div class="action">→ Download executive report</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1">
+          <div class="section-row"><div class="section-title">📡 Live Activity Feed</div></div>
+          <div class="card">
+            <div class="activity-item">
+              <div class="a-icon deploy">🚀</div>
+              <div class="a-info"><div class="a-title">auth-service v2.1.4 deployed to production</div><div class="a-sub">ArgoCD · Team Beta · 0 failures</div></div>
+              <div class="a-time">2m ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="a-icon incident">🔴</div>
+              <div class="a-info"><div class="a-title">P2 Incident opened — payment-service latency</div><div class="a-sub">ServiceNow INC0084721 · Auto-linked to 2 deployments</div></div>
+              <div class="a-time">18m ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="a-icon security">🛡</div>
+              <div class="a-info"><div class="a-title">CVE-2024-3094 found in order-service</div><div class="a-sub">JFrog Xray · Critical · xz-utils 5.6.0</div></div>
+              <div class="a-time">34m ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="a-icon git">🔀</div>
+              <div class="a-info"><div class="a-title">PR #1847 merged — "Add retry logic to queue"</div><div class="a-sub">GitHub · payment-service · 3 reviewers · +147 -23</div></div>
+              <div class="a-time">52m ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="a-icon build">⚙️</div>
+              <div class="a-info"><div class="a-title">Build passed — catalog-service v3.0.0-rc1</div><div class="a-sub">All 247 tests passed · SonarQube: A · 8m 12s</div></div>
+              <div class="a-time">1h ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="a-icon git">📋</div>
+              <div class="a-info"><div class="a-title">Sprint 42 completed — Team Gamma</div><div class="a-sub">Jira · 18/21 stories done · Velocity: 84 pts</div></div>
+              <div class="a-time">2h ago</div>
+            </div>
+          </div>
+
+          <div class="section-row mt16"><div class="section-title">📦 Upcoming Releases</div></div>
+          <div class="card">
+            <div class="activity-item">
+              <div style="flex:1"><div class="a-title">payment-service v2.4.1</div><div class="a-sub">Scheduled: Tomorrow 10:00 UTC</div></div>
+              <div class="dora-tier tier-medium" style="font-size:10px">Risk: 72</div>
+            </div>
+            <div class="activity-item">
+              <div style="flex:1"><div class="a-title">auth-service v2.2.0</div><div class="a-sub">Scheduled: Friday 14:00 UTC</div></div>
+              <div class="dora-tier tier-elite" style="font-size:10px">Risk: 18</div>
+            </div>
+            <div class="activity-item">
+              <div style="flex:1"><div class="a-title">catalog-service v3.0.0</div><div class="a-sub">Scheduled: Next week</div></div>
+              <div class="dora-tier tier-high" style="font-size:10px">Risk: 34</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ AI COPILOT ══════════ -->
+    <div id="s-ai" class="screen">
+      <div class="page-header" style="margin-bottom:12px">
+        <div class="page-title">🤖 AI Engineering Copilot</div>
+        <div class="page-sub">Grounded in your real DI data — Git, Deployments, Incidents, Jira, JFrog, SonarQube. Never answers outside engineering scope.</div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;">
+        <div class="ai-tab active" id="tab-chat" onclick="switchAiTab('chat')">💬 Copilot Chat</div>
+        <div class="ai-tab" id="tab-arch" onclick="switchAiTab('arch')">⚙️ How It's Built</div>
+      </div>
+
+      <!-- ── TAB: CHAT ── -->
+      <div id="ai-chat-panel">
+        <!-- Scope indicator bar -->
+        <div style="background:rgba(124,106,247,.08);border:1px solid rgba(124,106,247,.2);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:12px;">
+          <span style="color:var(--purple2);font-weight:700;">🔒 Scope:</span>
+          <span style="color:var(--text2);">Engineering questions only — DORA, Deployments, Incidents, Security, Quality, Teams, Releases, Cost, Benchmarks</span>
+          <span style="margin-left:auto;color:var(--text3);font-size:11px;">Powered by RAG · Grounded in DI APIs</span>
+        </div>
+
+        <!-- DEMO MODE banner -->
+        <div id="demo-banner" style="background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.35);border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <span style="font-size:14px;">⚠️</span>
+          <div style="flex:1">
+            <span style="font-size:12px;font-weight:700;color:var(--orange);">DEMO MODE — All responses below are hardcoded mock data.</span>
+            <span style="font-size:11px;color:var(--text3);margin-left:8px;">In production, each answer is fetched live from your real DI microservice APIs.</span>
+          </div>
+          <button onclick="showRealMode()" style="background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">See Real Integration →</button>
+        </div>
+
+        <div class="chat-wrap" style="height:calc(100vh - 300px)">
+          <div class="chat-messages" id="chat-messages">
+            <!-- Welcome -->
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai">AI</div>
+              <div class="chat-bubble">
+                <strong>Hi Sarah! I'm your Engineering Copilot.</strong> Every answer I give is grounded in your <strong>real DI data</strong> — I never guess or hallucinate metrics. I only answer engineering questions.<br><br>
+                <span style="font-size:11px;color:var(--text3);">Try asking me something out of scope (e.g. "capital of France") to see how I handle it 👇</span>
+                <div class="chat-chips">
+                  <div class="chat-chip" onclick="sendChat(this)">Why did our CFR increase?</div>
+                  <div class="chat-chip" onclick="sendChat(this)">Is v2.4.1 safe to deploy?</div>
+                  <div class="chat-chip" onclick="sendChat(this)">Which team has the highest wait time?</div>
+                  <div class="chat-chip" onclick="sendChat(this)">Show me supply chain risks</div>
+                  <div class="chat-chip" onclick="sendChat(this)">Generate sprint retrospective</div>
+                  <div class="chat-chip" onclick="sendChat(this)">What's the capital of France?</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-bar">
+            <div style="font-size:16px">🤖</div>
+            <input class="chat-input" id="chat-input" placeholder="Ask about deployments, incidents, DORA, security, team performance..." onkeydown="if(event.key==='Enter')sendChatInput()" />
+            <button class="chat-send" onclick="sendChatInput()">➤</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REAL MODE OVERLAY (shown when "See Real Integration" clicked) ── -->
+      <div id="real-mode-panel" style="display:none;">
+        <div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:700;color:var(--green);">✅ REAL MODE — What production looks like</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:4px;">Actual DI API calls replace the hardcoded responses</span>
+          <button onclick="hideRealMode()" style="margin-left:auto;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">← Back to Demo</button>
+        </div>
+
+        <div class="card mb12">
+          <div class="section-title mb12">🔴 Demo (Current Wireframe) vs 🟢 Production (Real DI APIs)</div>
+          <table class="arch-table">
+            <thead><tr><th>User Question</th><th>🔴 Demo does this</th><th>🟢 Production does this</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>"Why did our CFR increase?"</td>
+                <td style="color:var(--orange);">Returns hardcoded string from <code style="font-size:10px">intentResponses.DORA</code> in JS</td>
+                <td style="color:var(--green);">
+                  <strong>Step 1:</strong> Intent = DORA<br>
+                  <strong>Step 2:</strong> Calls <code style="font-size:10px">GET /api/deployments/v3/cfr?tenant=acme&range=7d</code><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code style="font-size:10px">GET /api/incidentsmanager/v1/aggregates?range=7d</code><br>
+                  <strong>Step 3:</strong> Real JSON → structured context<br>
+                  <strong>Step 4:</strong> GPT-4o answers from real numbers
+                </td>
+              </tr>
+              <tr>
+                <td>"Show me supply chain risks"</td>
+                <td style="color:var(--orange);">Returns hardcoded CVE list string</td>
+                <td style="color:var(--green);">
+                  <strong>Calls:</strong> <code style="font-size:10px">GET /api/jfrog/v2/vulnerabilities?tenant=acme</code><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code style="font-size:10px">GET /api/git/v4/vulnerability-alerts</code><br>
+                  <strong>Returns:</strong> Your actual CVEs, real CVSS scores, real packages
+                </td>
+              </tr>
+              <tr>
+                <td>"Is v2.4.1 safe to deploy?"</td>
+                <td style="color:var(--orange);">Returns hardcoded risk score of 72</td>
+                <td style="color:var(--green);">
+                  <strong>Calls:</strong> <code style="font-size:10px">GET /api/release-manager/v1/risk?release=v2.4.1</code><br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code style="font-size:10px">GET /api/test/v4/aggregates?service=payment</code><br>
+                  <strong>Returns:</strong> Real test coverage, real open bugs, real risk score
+                </td>
+              </tr>
+              <tr style="background:rgba(231,76,60,.06)">
+                <td>"What's the capital of France?"</td>
+                <td style="color:var(--green);">✅ Already correct — guardrail fires, no API called</td>
+                <td style="color:var(--green);">✅ Same — intent classifier is real logic, not mock</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid2 mb12">
+          <div class="card">
+            <div class="section-title mb12">🔧 Go Service to Build: <code style="font-size:11px;color:var(--teal)">di-ai-copilot</code></div>
+            <div class="code-block"><span class="code-comment">// New microservice: bdg-sw-devx-di-ai-copilot</span>
+<span class="code-comment">// Follows same pattern as other DI services</span>
+
+<span class="code-key">POST /api/ai/v1/chat</span>
+{
+  "tenant_id": "acme-corp",
+  "question": "Why did our CFR increase?",
+  "time_range": "7d"
+}
+
+<span class="code-comment">// Handler flow:</span>
+1. ClassifyIntent(question)
+   → returns: {intent: "DORA", apis: [...]}
+
+2. FetchContext(tenant_id, intent, time_range)
+   → calls internal DI service APIs
+   → returns: structured context string
+
+3. if isOutOfScope(intent):
+   → return OOF response immediately
+   → no LLM call made
+
+4. CallLLM(systemPrompt, context, question)
+   → GPT-4o / Claude API call
+   → response grounded in context only
+
+5. return {answer, sources, confidence}
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="card">
+              <div class="section-title mb12">📡 Real API Call Example</div>
+              <div class="code-block" style="font-size:10px;"><span class="code-comment">// When user asks "Why did our CFR increase?"
+// di-ai-copilot calls these DI services:</span>
+
+<span class="code-key">// 1. Fetch real CFR data</span>
+resp1 := http.Get(
+  "/api/deployments/v3/cfr" +
+  "?tenant=" + tenantID +
+  "&range=7d"
+)
+<span class="code-comment">// → returns: {cfr: 4.8, prev_cfr: 3.1,
+//   events: [{deployment_id, service, ...}]}</span>
+
+<span class="code-key">// 2. Fetch real incidents</span>
+resp2 := http.Get(
+  "/api/incidentsmanager/v1/aggregates" +
+  "?tenant=" + tenantID +
+  "&range=7d"
+)
+<span class="code-comment">// → returns: {total: 3, linked_deploys: 2,
+//   pattern: "async config changes"}</span>
+
+<span class="code-key">// 3. Build context for LLM</span>
+context := fmt.Sprintf(<span class="code-comment">
+  "CFR this week: %v (was %v).
+   Incidents: %v.
+   Linked deployments: %v..."</span>,
+  resp1.cfr, resp1.prev_cfr, ...
+)
+              </div>
+            </div>
+
+            <div class="card" style="background:rgba(74,158,255,.06);border-color:rgba(74,158,255,.25);">
+              <div class="section-title mb12" style="color:var(--blue);">💡 What you need to build this</div>
+              <div class="flow-step"><div class="fs-num">1</div><div>New Go microservice <strong>bdg-sw-devx-di-ai-copilot</strong> (same pattern as other DI services)</div></div>
+              <div class="flow-step"><div class="fs-num">2</div><div>Intent classifier (Go function — keyword mapping already shown)</div></div>
+              <div class="flow-step"><div class="fs-num">3</div><div>Internal HTTP calls to existing DI microservice APIs (they already exist!)</div></div>
+              <div class="flow-step"><div class="fs-num">4</div><div>OpenAI / Anthropic API key for LLM calls</div></div>
+              <div class="flow-step"><div class="fs-num">5</div><div>System prompt with guardrails (already designed above)</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-rec-box">
+          <div class="ai-tag">🎯 Key Insight</div>
+          <p>The <strong>hardest part is already done</strong> — DI already has 24 microservices collecting real data across Git, Deployments, Incidents, Security, Jira, JFrog, SonarQube, etc. The AI Copilot is just a <strong>thin orchestration layer</strong> that: (1) understands what the user is asking, (2) calls the right existing DI APIs, and (3) passes real data to an LLM. The wireframe's guardrails, intent classification, and source tagging — all of that logic is already written and works correctly. Only the actual API calls need to be wired in.</p>
+        </div>
+      </div>
+
+      <!-- ── TAB: ARCHITECTURE ── -->
+      <div id="ai-arch-panel" style="display:none;overflow-y:auto;height:calc(100vh-250px)">
+
+        <!-- RAG Pipeline Visual -->
+        <div class="card mb12">
+          <div class="section-title mb12">🔧 How the AI Copilot Actually Works — RAG Architecture</div>
+          <div class="rag-flow">
+            <div class="rag-step">
+              <div class="rag-icon">💬</div>
+              <div class="rag-label">User Question</div>
+              <div class="rag-sub">"Why did CFR increase?"</div>
+            </div>
+            <div class="rag-arrow">→</div>
+            <div class="rag-step" style="border-color:var(--purple)">
+              <div class="rag-icon" style="color:var(--purple2)">🧠</div>
+              <div class="rag-label">Intent Classifier</div>
+              <div class="rag-sub">Maps question → DORA / Git / Incidents / Security / OOF</div>
+            </div>
+            <div class="rag-arrow">→</div>
+            <div class="rag-step" style="border-color:var(--blue)">
+              <div class="rag-icon" style="color:var(--blue)">📡</div>
+              <div class="rag-label">DI API Fetcher</div>
+              <div class="rag-sub">Queries only relevant microservice APIs (real data)</div>
+            </div>
+            <div class="rag-arrow">→</div>
+            <div class="rag-step" style="border-color:var(--teal)">
+              <div class="rag-icon" style="color:var(--teal)">📦</div>
+              <div class="rag-label">Context Builder</div>
+              <div class="rag-sub">Structures API response as LLM context (not raw JSON)</div>
+            </div>
+            <div class="rag-arrow">→</div>
+            <div class="rag-step" style="border-color:var(--orange)">
+              <div class="rag-icon" style="color:var(--orange)">✨</div>
+              <div class="rag-label">LLM + System Prompt</div>
+              <div class="rag-sub">GPT-4o / Claude with strict engineering-only prompt</div>
+            </div>
+            <div class="rag-arrow">→</div>
+            <div class="rag-step" style="border-color:var(--red)">
+              <div class="rag-icon" style="color:var(--red)">🔒</div>
+              <div class="rag-label">Guardrails</div>
+              <div class="rag-sub">Validates response stays in scope, blocks hallucinations</div>
+            </div>
+            <div class="rag-arrow">→</div>
+            <div class="rag-step" style="border-color:var(--green)">
+              <div class="rag-icon" style="color:var(--green)">✅</div>
+              <div class="rag-label">Response + Sources</div>
+              <div class="rag-sub">Answer shown with API sources used (auditable)</div>
+            </div>
+          </div>
+
+          <div class="arch-callout mt12">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">🔑 Why this prevents wrong answers:</div>
+            <div class="arch-why-grid">
+              <div class="arch-why-item arch-good">✅ <strong>Grounded</strong> — metrics come directly from DI API calls, not LLM memory</div>
+              <div class="arch-why-item arch-good">✅ <strong>Auditable</strong> — every response shows exactly which API returned the data</div>
+              <div class="arch-why-item arch-good">✅ <strong>Scoped</strong> — system prompt + intent classifier rejects non-engineering questions</div>
+              <div class="arch-why-item arch-good">✅ <strong>No-data safe</strong> — if DI has no data for a query, AI says "no data found" not a guess</div>
+              <div class="arch-why-item arch-bad">🚫 <strong>General Q&A blocked</strong> — "capital of France?" → boundary response, not hallucination</div>
+              <div class="arch-why-item arch-bad">🚫 <strong>No training data</strong> — LLM cannot use its pre-trained knowledge to answer your metrics</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intent Map Table -->
+        <div class="card mb12">
+          <div class="section-title mb12">🗂 Intent Classification — Which DI APIs Feed Each Question Type</div>
+          <table class="arch-table">
+            <thead>
+              <tr><th>Intent</th><th>Trigger Keywords</th><th>DI Microservices Queried</th><th>API Endpoints</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="intent-badge" style="background:rgba(46,204,113,.2);color:var(--green)">DORA</span></td>
+                <td class="kw-list">cfr, lead time, frequency, mttr, deployment, dora</td>
+                <td>Deployments, Incidents Manager</td>
+                <td class="api-code">/api/deployments/v3/cfr<br>/api/incidentsmanager/v1/aggregates</td>
+              </tr>
+              <tr>
+                <td><span class="intent-badge" style="background:rgba(74,158,255,.2);color:var(--blue)">GIT</span></td>
+                <td class="kw-list">pr, pull request, commit, branch, merge, review, code</td>
+                <td>Git Service, Develop Service</td>
+                <td class="api-code">/api/git/v4/pullrequests<br>/api/develop/v3/aggregates/by-contributor</td>
+              </tr>
+              <tr>
+                <td><span class="intent-badge" style="background:rgba(231,76,60,.2);color:var(--red)">INCIDENT</span></td>
+                <td class="kw-list">incident, outage, p1, p2, alert, down, latency, failure</td>
+                <td>Incidents Manager, ServiceNow</td>
+                <td class="api-code">/api/incidentsmanager/v1/incidents<br>/api/incidentsmanager/v1/cfr</td>
+              </tr>
+              <tr>
+                <td><span class="intent-badge" style="background:rgba(243,156,18,.2);color:var(--orange)">SECURITY</span></td>
+                <td class="kw-list">cve, vulnerability, sbom, supply chain, license, xray</td>
+                <td>JFrog, Git (Dependabot), License Scan</td>
+                <td class="api-code">/api/jfrog/v2/vulnerabilities<br>/api/git/v4/vulnerability-alerts</td>
+              </tr>
+              <tr>
+                <td><span class="intent-badge" style="background:rgba(124,106,247,.2);color:var(--purple2)">RELEASE</span></td>
+                <td class="kw-list">release, safe to deploy, risk, rollout, v2., ship</td>
+                <td>Release Manager, Build, Test, Deployments</td>
+                <td class="api-code">/api/release-manager/v1<br>/api/test/v4/aggregates</td>
+              </tr>
+              <tr>
+                <td><span class="intent-badge" style="background:rgba(26,188,156,.2);color:var(--teal)">TEAM</span></td>
+                <td class="kw-list">team, velocity, sprint, retro, productivity, developer</td>
+                <td>Develop Service, Jira, Git</td>
+                <td class="api-code">/api/develop/v3/aggregates/by-contributor<br>/api/jira/v4/milestones</td>
+              </tr>
+              <tr>
+                <td><span class="intent-badge" style="background:rgba(241,196,15,.2);color:var(--yellow)">QUALITY</span></td>
+                <td class="kw-list">quality, sonar, coverage, test, bug, tech debt</td>
+                <td>SonarQube, Test Service</td>
+                <td class="api-code">/api/sonarqube/v3<br>/api/test/v4/aggregates</td>
+              </tr>
+              <tr style="background:rgba(231,76,60,.06)">
+                <td><span class="intent-badge" style="background:rgba(231,76,60,.2);color:var(--red)">OUT OF SCOPE</span></td>
+                <td class="kw-list">weather, news, jokes, general knowledge, coding help unrelated to org...</td>
+                <td colspan="2" style="color:var(--red);font-size:11px;">⛔ No DI API called. LLM not invoked. Boundary response returned immediately.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- System Prompt -->
+        <div class="grid2">
+          <div class="card">
+            <div class="section-title mb12">📜 System Prompt (the guardrail)</div>
+            <div class="code-block">
+<span class="code-comment">// Sent to LLM before every user question</span>
+<span class="code-key">SYSTEM:</span> You are an Engineering Copilot for {company}.
+
+<span class="code-key">RULES (strictly enforced):</span>
+1. ONLY answer engineering questions about
+   deployments, incidents, code quality,
+   security, team metrics, and DORA.
+
+2. EVERY metric you state MUST come from
+   the &lt;CONTEXT&gt; block below.
+   DO NOT use your training data for numbers.
+
+3. If the &lt;CONTEXT&gt; is empty or lacks data:
+   → Say "I don't have data for that query.
+      Try a different time range."
+
+4. If the question is NOT engineering:
+   → Say "I'm focused on engineering questions
+      only. Ask me about your deployments,
+      incidents, or team metrics."
+
+5. Always cite which DI service provided
+   each data point.
+
+<span class="code-key">&lt;CONTEXT&gt;</span>
+{structured data from DI API calls}
+<span class="code-key">&lt;/CONTEXT&gt;</span>
+
+<span class="code-key">USER:</span> {question}
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="card">
+              <div class="section-title mb12">🔄 Data Flow per Request</div>
+              <div class="flow-step"><div class="fs-num">1</div><div><strong>Intent Detected:</strong> DORA</div></div>
+              <div class="flow-step"><div class="fs-num">2</div><div><strong>API Calls:</strong><br><code>/api/deployments/v3?tenant=X&range=7d</code><br><code>/api/incidentsmanager/v1/cfr?range=7d</code></div></div>
+              <div class="flow-step"><div class="fs-num">3</div><div><strong>Context Built:</strong> 847 tokens of structured data</div></div>
+              <div class="flow-step"><div class="fs-num">4</div><div><strong>LLM Called:</strong> GPT-4o with system prompt + context</div></div>
+              <div class="flow-step"><div class="fs-num">5</div><div><strong>Response time:</strong> ~1.2 seconds total</div></div>
+            </div>
+            <div class="card" style="background:rgba(231,76,60,.06);border-color:rgba(231,76,60,.3)">
+              <div class="section-title mb12" style="color:var(--red)">⚠️ What happens without RAG?</div>
+              <p style="font-size:12px;color:var(--text2);line-height:1.7;">Without grounding in DI data, asking "what's our CFR?" to a plain LLM returns hallucinated numbers from its training data — or confidently wrong guesses. With RAG + DI APIs, the answer is always <strong style="color:var(--green)">your actual data, nothing else.</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ HEALTH SCORE ══════════ -->
+    <div id="s-health" class="screen">
+      <div class="page-header">
+        <div class="page-title">⭐ Engineering Health Score</div>
+        <div class="page-sub">A composite signal of your engineering org's overall performance — velocity, quality, security, reliability, collaboration & developer experience.</div>
+      </div>
+
+      <div class="grid2">
+        <div class="card" style="text-align:center;padding:24px">
+          <div class="health-main">
+            <div class="health-score-big">78</div>
+            <div style="font-size:14px;color:var(--text3);">out of 100</div>
+            <div class="health-delta mt12">↑ +3 from last week &nbsp;·&nbsp; 🏆 High Performer</div>
+          </div>
+          <div style="height:200px;position:relative;margin-top:8px;">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="section-row"><div class="section-title">Score Breakdown</div></div>
+          <div class="hex-grid">
+            <div class="hex-item">
+              <div class="h-label">Velocity</div>
+              <div class="h-val" style="color:var(--green)">82</div>
+              <div class="h-bar"><div class="h-fill" style="width:82%;background:var(--green)"></div></div>
+            </div>
+            <div class="hex-item">
+              <div class="h-label">Quality</div>
+              <div class="h-val" style="color:var(--orange)">71</div>
+              <div class="h-bar"><div class="h-fill" style="width:71%;background:var(--orange)"></div></div>
+            </div>
+            <div class="hex-item">
+              <div class="h-label">Security</div>
+              <div class="h-val" style="color:var(--red)">68</div>
+              <div class="h-bar"><div class="h-fill" style="width:68%;background:var(--red)"></div></div>
+            </div>
+            <div class="hex-item">
+              <div class="h-label">Reliability</div>
+              <div class="h-val" style="color:var(--teal)">85</div>
+              <div class="h-bar"><div class="h-fill" style="width:85%;background:var(--teal)"></div></div>
+            </div>
+            <div class="hex-item">
+              <div class="h-label">Collaboration</div>
+              <div class="h-val" style="color:var(--blue)">76</div>
+              <div class="h-bar"><div class="h-fill" style="width:76%;background:var(--blue)"></div></div>
+            </div>
+            <div class="hex-item">
+              <div class="h-label">Dev Experience</div>
+              <div class="h-val" style="color:var(--purple2)">74</div>
+              <div class="h-bar"><div class="h-fill" style="width:74%;background:var(--purple2)"></div></div>
+            </div>
+          </div>
+
+          <div class="section-row mt12"><div class="section-title">🤖 AI Recommendations</div></div>
+          <div class="rec-item danger"><div class="rt">🔴 Security: 7 open CVEs need remediation (score impact: -8)</div>Address xz-utils critical CVE in order-service. Estimated fix: 2 hours.</div>
+          <div class="rec-item warn"><div class="rt">🟡 Quality: Test coverage below 80% threshold (score impact: -4)</div>payment-service dropped to 71% coverage after sprint 41 refactor.</div>
+          <div class="rec-item info"><div class="rt">🔵 Collaboration: Enable auto-review assignment (score impact: +3)</div>Team Alpha PR review wait is 4x industry average. CODEOWNERS setup recommended.</div>
+        </div>
+      </div>
+
+      <div class="mt16">
+        <div class="section-row"><div class="section-title">📈 30-Day Health Score Trend</div></div>
+        <div class="card" style="padding:16px">
+          <div style="height:160px"><canvas id="healthTrend"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ DORA+ ══════════ -->
+    <div id="s-dora" class="screen">
+      <div class="page-header">
+        <div class="page-title">📊 DORA+ Metrics Dashboard</div>
+        <div class="page-sub">Industry-standard DORA metrics enhanced with AI predictions, developer flow score, and supply chain risk — with 30-day forecasts.</div>
+      </div>
+
+      <div class="grid4">
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Deploy Frequency</div><div class="dora-tier tier-elite">Elite</div></div>
+          <div class="dora-val" style="color:var(--green)">8.2/day</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">↑ vs 6.2/day last week</div>
+          <div style="height:60px;position:relative"><canvas id="dora1"></canvas></div>
+          <div style="font-size:11px;color:var(--purple2);margin-top:4px;">🔮 Forecast: 8.8/day next week</div>
+        </div>
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Lead Time for Changes</div><div class="dora-tier tier-high">High</div></div>
+          <div class="dora-val" style="color:var(--blue)">2.1 days</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">↑ vs 2.5 days last week</div>
+          <div style="height:60px;position:relative"><canvas id="dora2"></canvas></div>
+          <div style="font-size:11px;color:var(--purple2);margin-top:4px;">🔮 Forecast: 1.9 days next week</div>
+        </div>
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Change Failure Rate</div><div class="dora-tier tier-high">High</div></div>
+          <div class="dora-val" style="color:var(--orange)">4.8%</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">↓ was 3.1% last week</div>
+          <div style="height:60px;position:relative"><canvas id="dora3"></canvas></div>
+          <div style="font-size:11px;color:var(--red);margin-top:4px;">⚠️ Forecast: 5.2% if unaddressed</div>
+        </div>
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">MTTR</div><div class="dora-tier tier-elite">Elite</div></div>
+          <div class="dora-val" style="color:var(--teal)">24 min</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">↑ vs 38 min last week</div>
+          <div style="height:60px;position:relative"><canvas id="dora4"></canvas></div>
+          <div style="font-size:11px;color:var(--purple2);margin-top:4px;">🔮 Forecast: 20 min next week</div>
+        </div>
+      </div>
+
+      <div class="grid2 mt16">
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Developer Flow Score <span class="badge badge-new">NEW</span></div><div class="dora-tier tier-high">High</div></div>
+          <div class="dora-val" style="color:var(--purple2)">74/100</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">Measures uninterrupted deep work time</div>
+          <div style="height:60px;position:relative"><canvas id="dora5"></canvas></div>
+          <div style="font-size:11px;color:var(--purple2);margin-top:4px;">💡 Avg 3.2h deep work/day per engineer</div>
+        </div>
+        <div class="dora-card">
+          <div class="dora-top"><div class="dora-label">Supply Chain Risk Score <span class="badge badge-new">NEW</span></div><div class="dora-tier tier-medium">Medium</div></div>
+          <div class="dora-val" style="color:var(--orange)">42/100</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">7 CVEs, 3 license violations, SLSA Level 2</div>
+          <div style="height:60px;position:relative"><canvas id="dora6"></canvas></div>
+          <div style="font-size:11px;color:var(--orange);margin-top:4px;">⚠️ 1 critical CVE needs immediate action</div>
+        </div>
+      </div>
+
+      <div class="mt16 card">
+        <div class="section-row mb12"><div class="section-title">🏆 Team-Level DORA Comparison</div></div>
+        <table class="wait-table">
+          <thead><tr><th>Team</th><th>Deploy Freq</th><th>Lead Time</th><th>CFR</th><th>MTTR</th><th>Health</th></tr></thead>
+          <tbody>
+            <tr><td class="team-name">Team Alpha (checkout)</td><td class="wait-ok">12.1/day</td><td class="wait-ok">1.2d</td><td class="wait-ok">2.1%</td><td class="wait-ok">12m</td><td><span class="dora-tier tier-elite">Elite</span></td></tr>
+            <tr><td class="team-name">Team Beta (auth/user)</td><td class="wait-ok">7.4/day</td><td>2.8d</td><td>4.2%</td><td class="wait-ok">19m</td><td><span class="dora-tier tier-high">High</span></td></tr>
+            <tr><td class="team-name">Team Gamma (payment)</td><td>3.2/day</td><td class="wait-high">4.6d</td><td class="wait-high">9.1%</td><td>52m</td><td><span class="dora-tier tier-medium">Medium</span></td></tr>
+            <tr><td class="team-name">Platform Team</td><td>2.1/day</td><td>6.1d</td><td>3.2%</td><td>8m</td><td><span class="dora-tier tier-high">High</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════ PREDICTIVE RELEASE ══════════ -->
+    <div id="s-release" class="screen">
+      <div class="page-header">
+        <div class="page-title">🔮 Predictive Release Intelligence</div>
+        <div class="page-sub">AI-computed release risk score before you deploy. Know your risk before it becomes an incident.</div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="section-row mb12">
+            <div class="section-title">payment-service v2.4.1</div>
+            <div class="dora-tier tier-medium">Scheduled: Tomorrow 10:00 UTC</div>
+          </div>
+
+          <div class="risk-score-wrap">
+            <div class="risk-donut">
+              <canvas id="riskDonut" width="100" height="100"></canvas>
+              <div class="risk-num"><div class="rn">72</div><div class="rl">Risk Score</div></div>
+            </div>
+            <div class="risk-factors">
+              <div class="rf-row"><div class="rf-label">Test Coverage Delta</div><div class="rf-bar"><div class="rf-fill high" style="width:85%"></div></div><div class="rf-badge high">HIGH</div></div>
+              <div class="rf-row"><div class="rf-label">Open Critical Bugs</div><div class="rf-bar"><div class="rf-fill high" style="width:90%"></div></div><div class="rf-badge high">HIGH</div></div>
+              <div class="rf-row"><div class="rf-label">New Dependencies</div><div class="rf-bar"><div class="rf-fill med" style="width:60%"></div></div><div class="rf-badge med">MED</div></div>
+              <div class="rf-row"><div class="rf-label">Team Availability</div><div class="rf-bar"><div class="rf-fill med" style="width:55%"></div></div><div class="rf-badge med">MED</div></div>
+              <div class="rf-row"><div class="rf-label">PR Review Completeness</div><div class="rf-bar"><div class="rf-fill low" style="width:15%"></div></div><div class="rf-badge low">LOW</div></div>
+              <div class="rf-row"><div class="rf-label">Infrastructure Changes</div><div class="rf-bar"><div class="rf-fill low" style="width:20%"></div></div><div class="rf-badge low">LOW</div></div>
+            </div>
+          </div>
+
+          <div class="ai-rec-box mt12">
+            <div class="ai-tag">🤖 AI Recommendation</div>
+            <p><strong>Recommend: Delay 48 hours.</strong> Based on 147 historical releases with similar risk profiles, releases with CFR > 8.5%. The <strong>2 open critical bugs</strong> in queue processing have high blast-radius potential. Resolving test coverage gap and bugs before release reduces estimated CFR from 9.2% → 2.1%.</p>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="tb-btn" style="flex:1;background:var(--red2)">🚫 Block Release</button>
+            <button class="tb-btn" style="flex:1;background:var(--bg4);color:var(--text);border:1px solid var(--border2)">📋 Create Pre-Release Checklist</button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">📈 Prediction Accuracy</div>
+            <div style="text-align:center;padding:8px 0;">
+              <div style="font-size:40px;font-weight:900;color:var(--green);">87%</div>
+              <div style="font-size:12px;color:var(--text3);">AI prediction accuracy over 147 releases</div>
+            </div>
+            <div style="height:100px"><canvas id="accChart"></canvas></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">🔮 All Upcoming Releases</div>
+            <div class="activity-item">
+              <div style="flex:1"><div class="a-title">payment-service v2.4.1</div><div class="a-sub">Tomorrow</div></div>
+              <div class="dora-tier tier-medium">72 / Med</div>
+            </div>
+            <div class="activity-item">
+              <div style="flex:1"><div class="a-title">catalog-service v3.0.0</div><div class="a-sub">Next week</div></div>
+              <div class="dora-tier tier-high">34 / Low</div>
+            </div>
+            <div class="activity-item">
+              <div style="flex:1"><div class="a-title">auth-service v2.2.0</div><div class="a-sub">Friday</div></div>
+              <div class="dora-tier tier-elite">18 / Safe</div>
+            </div>
+          </div>
+
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 Pattern Detected</div>
+            <p><strong>Team Gamma's releases</strong> consistently score 60+ risk. The #1 factor: test coverage below 75% at release time. Establishing a quality gate at 80% coverage would reduce their CFR by an estimated <strong>4.3 percentage points</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ TEAM TOPOLOGY ══════════ -->
+    <div id="s-topology" class="screen">
+      <div class="page-header">
+        <div class="page-title">🕸 Team Topology Intelligence</div>
+        <div class="page-sub">Visualize team dependencies inferred from real code interactions, PR reviews, and deployment coupling — discover bottlenecks before they slow you down.</div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">Dependency Graph <span class="badge badge-ai">AI-inferred</span></div>
+            <div class="topo-canvas" id="topo-canvas">
+              <!-- SVG lines + nodes drawn by JS -->
+            </div>
+            <div class="topology-legend mt12">
+              <div class="tl-item"><div class="tl-dot" style="background:var(--purple)"></div> Platform Team</div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--blue)"></div> Stream-aligned</div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div> 🔴 Bottleneck</div>
+            </div>
+          </div>
+
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 Conway's Law Analysis</div>
+            <p>Architecture alignment score: <strong>67%</strong>. The payment-service is jointly owned by 3 teams (Gamma, Alpha, Platform) causing coordination overhead. Recommend: <strong>assign full ownership to Team Gamma</strong> to reduce hand-off latency by ~2 days/sprint.</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">⏱ Cross-Team Wait Times</div>
+            <table class="wait-table">
+              <thead><tr><th>Requesting Team</th><th>Waiting on</th><th>Avg Wait</th><th>PRs Blocked</th></tr></thead>
+              <tbody>
+                <tr><td class="team-name">Team Alpha</td><td>Platform Team</td><td class="wait-high">3.2 days</td><td>7</td></tr>
+                <tr><td class="team-name">Team Beta</td><td>Platform Team</td><td class="wait-high">2.8 days</td><td>4</td></tr>
+                <tr><td class="team-name">Team Gamma</td><td>Platform Team</td><td class="wait-high">4.1 days</td><td>9</td></tr>
+                <tr><td class="team-name">Team Gamma</td><td>Team Alpha</td><td>1.2 days</td><td>3</td></tr>
+                <tr><td class="team-name">Team Delta</td><td>Team Beta</td><td class="wait-ok">0.6 days</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card mb12">
+            <div class="section-title mb12">🚨 Bottleneck Analysis</div>
+            <div class="rec-item danger"><div class="rt">Platform Team is blocking 4 teams</div>Average wait: 3.4 days. 20 open cross-team PRs awaiting review. Capacity: 2 engineers on this team vs. 4 teams depending on it.</div>
+            <div class="rec-item warn mt12"><div class="rt">Team Gamma has highest internal review time</div>P75 PR review wait: 18 hours. 2 engineers account for 90% of reviews — single point of failure risk.</div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">🔗 Coupling Heatmap</div>
+            <div style="height:120px;display:flex;align-items:center;justify-content:center;gap:4px;" id="coupling-heatmap">
+              <!-- Generated by JS -->
+            </div>
+            <div style="font-size:10px;color:var(--text3);text-align:center;margin-top:8px;">Darker = tighter coupling between teams</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ DEV EXPERIENCE ══════════ -->
+    <div id="s-devex" class="screen">
+      <div class="page-header">
+        <div class="page-title">💻 Developer Experience (DevEx)</div>
+        <div class="page-sub">Measure and improve the developer experience. Move beyond productivity metrics — measure friction, flow state, and wellbeing. Happy engineers ship 2.4x more features.</div>
+      </div>
+
+      <div class="devex-score-row mb12">
+        <div class="devex-big">
+          <div class="score">74</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text3);">/100</div>
+          <div class="label" style="margin-top:6px">DevEx Score</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px;">↑ +6 vs last month</div>
+        </div>
+        <div class="devex-metrics">
+          <div class="devex-metric">
+            <div class="dm-label">Deep Work Time</div>
+            <div class="dm-val" style="color:var(--blue)">3.2h</div>
+            <div class="dm-sub">avg/day per engineer</div>
+          </div>
+          <div class="devex-metric">
+            <div class="dm-label">Context Switches</div>
+            <div class="dm-val" style="color:var(--orange)">8.4x</div>
+            <div class="dm-sub">avg per day (target: &lt;5)</div>
+          </div>
+          <div class="devex-metric">
+            <div class="dm-label">PR Review Wait</div>
+            <div class="dm-val" style="color:var(--red)">6.8h</div>
+            <div class="dm-sub">median time to first review</div>
+          </div>
+          <div class="devex-metric">
+            <div class="dm-label">Build Wait Time</div>
+            <div class="dm-val" style="color:var(--teal)">8.2 min</div>
+            <div class="dm-sub">avg CI pipeline duration</div>
+          </div>
+          <div class="devex-metric">
+            <div class="dm-label">Flaky Test Rate</div>
+            <div class="dm-val" style="color:var(--red)">7.1%</div>
+            <div class="dm-sub">24 tests flagged as flaky</div>
+          </div>
+          <div class="devex-metric">
+            <div class="dm-label">Onboarding Time</div>
+            <div class="dm-val" style="color:var(--green)">4.2d</div>
+            <div class="dm-sub">days to first PR merged</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="section-title mb12">🔥 Top Developer Friction Points</div>
+          <div class="friction-item">
+            <div class="friction-rank">1</div>
+            <div class="friction-info"><div class="fi-name">Slow CI/CD pipeline</div><div class="fi-sub">payment-service builds averaging 22 min</div></div>
+            <div class="friction-impact"><div class="fi-time">−87 hrs/mo</div><div class="fi-label">team time lost</div></div>
+          </div>
+          <div class="friction-item">
+            <div class="friction-rank">2</div>
+            <div class="friction-info"><div class="fi-name">PR review bottleneck</div><div class="fi-sub">6.8h median wait for first review</div></div>
+            <div class="friction-impact"><div class="fi-time">−64 hrs/mo</div><div class="fi-label">team time lost</div></div>
+          </div>
+          <div class="friction-item">
+            <div class="friction-rank">3</div>
+            <div class="friction-info"><div class="fi-name">Flaky tests (24 tests)</div><div class="fi-sub">Causing re-runs and uncertainty</div></div>
+            <div class="friction-impact"><div class="fi-time">−42 hrs/mo</div><div class="fi-label">team time lost</div></div>
+          </div>
+          <div class="friction-item">
+            <div class="friction-rank">4</div>
+            <div class="friction-info"><div class="fi-name">Environment setup complexity</div><div class="fi-sub">Local dev env takes 2.5h to configure</div></div>
+            <div class="friction-impact"><div class="fi-time">−31 hrs/mo</div><div class="fi-label">team time lost</div></div>
+          </div>
+          <div class="friction-item">
+            <div class="friction-rank">5</div>
+            <div class="friction-info"><div class="fi-name">Incident interruptions</div><div class="fi-sub">Avg 2.3 unplanned interruptions/week/engineer</div></div>
+            <div class="friction-impact"><div class="fi-time">−28 hrs/mo</div><div class="fi-label">team time lost</div></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">📊 Weekly Flow State Trend</div>
+            <div style="height:140px"><canvas id="flowChart"></canvas></div>
+          </div>
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 AI Opportunity</div>
+            <p>If you <strong>parallelize CI tests</strong> in payment-service, build time drops from 22m → 8m. This alone recovers <strong>87 engineering hours/month</strong> — equivalent to adding <strong>0.5 FTE of productive capacity</strong>. Estimated ROI: $42K/year.</p>
+          </div>
+          <div class="card">
+            <div class="section-title mb12">🏅 Team DevEx Scores</div>
+            <div class="activity-item"><div style="flex:1"><div class="a-title">Team Alpha</div><div class="a-sub">checkout, cart services</div></div><div style="font-size:18px;font-weight:800;color:var(--green)">88</div></div>
+            <div class="activity-item"><div style="flex:1"><div class="a-title">Team Beta</div><div class="a-sub">auth, user services</div></div><div style="font-size:18px;font-weight:800;color:var(--blue)">79</div></div>
+            <div class="activity-item"><div style="flex:1"><div class="a-title">Team Gamma</div><div class="a-sub">payment, order services</div></div><div style="font-size:18px;font-weight:800;color:var(--red)">58</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ SBOM / SUPPLY CHAIN ══════════ -->
+    <div id="s-sbom" class="screen">
+      <div class="page-header">
+        <div class="page-title">🛡 Supply Chain Security & SBOM</div>
+        <div class="page-sub">Auto-generated Software Bill of Materials, CVE blast-radius analysis, SLSA compliance, and supply chain risk scoring — for every build.</div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">🔍 Application: payment-service v2.4.1</div>
+            <div class="sbom-header">
+              <div class="slsa-badge"><div class="slsa-level">L2</div><div class="slsa-label">SLSA Level</div></div>
+              <div style="flex:1">
+                <div class="section-title" style="margin-bottom:6px">Supply Chain Risk Score</div>
+                <div class="sc-risk"><div class="scr-label">Overall Risk</div><div class="scr-val" style="color:var(--orange)">42 / 100 <span style="font-size:12px;font-weight:400;color:var(--text3)">Medium Risk</span></div></div>
+                <div class="cve-row">
+                  <span class="cve-pill cve-crit">1 Critical</span>
+                  <span class="cve-pill cve-high">3 High</span>
+                  <span class="cve-pill cve-med">2 Medium</span>
+                  <span class="cve-pill cve-low">1 Low</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-title mt12">Dependency Tree (143 packages)</div>
+            <div class="dep-tree">
+payment-service@2.4.1
+├── stripe/stripe-go@v74.3.0 <span class="ok-flag">✓ safe</span>
+├── gin-gonic/gin@v1.9.1 <span class="ok-flag">✓ safe</span>
+├── mongo-driver@v1.13.1 <span class="ok-flag">✓ safe</span>
+├── <span style="color:var(--red)">xz/xz-utils@5.6.0</span> <span class="cve-flag">⚠ CVE-2024-3094 CRITICAL</span>
+│   └── liblzma@5.6.0 <span class="cve-flag">⚠ backdoor detected</span>
+├── jwt-go@v4.5.0 <span class="ok-flag">✓ safe</span>
+├── prometheus/client_golang@v1.18 <span class="ok-flag">✓ safe</span>
+├── <span style="color:var(--orange)">log4j-core@2.14.1</span> <span class="cve-flag">⚠ CVE-2021-44228 HIGH</span>
+├── zap@v1.26.0 <span class="ok-flag">✓ safe</span>
+└── ... 134 more packages
+            </div>
+
+            <div class="mt12" style="display:flex;gap:8px">
+              <button class="tb-btn">⬇ Export SBOM (SPDX)</button>
+              <button class="tb-btn" style="background:var(--bg4);color:var(--text);border:1px solid var(--border2)">⬇ CycloneDX Format</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">🔴 Critical CVE: CVE-2024-3094</div>
+            <div class="insight-card" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);">
+              <div class="insight-icon danger">🚨</div>
+              <div class="insight-text">
+                <div class="title">xz-utils 5.6.0 — Supply Chain Backdoor</div>
+                <div class="desc">CVSS 10.0 · Malicious code in xz-utils library can enable unauthorized remote access. Affects 3 services in your platform.</div>
+                <div class="action">Blast radius: payment-service, order-service, auth-service</div>
+              </div>
+            </div>
+            <div class="rec-item danger mt12"><div class="rt">Immediate Action Required</div>Downgrade xz-utils to 5.4.6. This is a 15-minute fix. AI-generated PR is ready for review.</div>
+            <button class="tb-btn mt12" style="width:100%;background:var(--red2)">🤖 Auto-Generate Fix PR</button>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">📋 SLSA Compliance Roadmap</div>
+            <div class="roadmap-step"><div class="rs-num" style="background:var(--green)">✓</div><div class="rs-info"><div class="rs-title">SLSA Level 1 — Documentation</div><div class="rs-sub">Build process documented ✓</div></div></div>
+            <div class="roadmap-step"><div class="rs-num" style="background:var(--green)">✓</div><div class="rs-info"><div class="rs-title">SLSA Level 2 — Build service</div><div class="rs-sub">Using managed CI/CD ✓</div></div></div>
+            <div class="roadmap-step"><div class="rs-num" style="background:var(--orange)">3</div><div class="rs-info"><div class="rs-title">SLSA Level 3 — Hardened builds</div><div class="rs-sub">Needs: provenance, isolated builds (2 items pending)</div></div></div>
+            <div class="roadmap-step coming-soon"><div class="rs-num">4</div><div class="rs-info"><div class="rs-title">SLSA Level 4 — Two-party review</div><div class="rs-sub">Future roadmap</div></div></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">📜 License Compliance</div>
+            <div class="cve-row">
+              <div style="flex:1;font-size:12px;color:var(--text)">GPL-3.0 violations</div>
+              <span class="cve-pill cve-high">3 violations</span>
+            </div>
+            <div class="cve-row">
+              <div style="flex:1;font-size:12px;color:var(--text)">MIT/Apache (approved)</div>
+              <span class="cve-pill cve-low">128 packages</span>
+            </div>
+            <div class="cve-row">
+              <div style="flex:1;font-size:12px;color:var(--text)">Unknown licenses</div>
+              <span class="cve-pill cve-med">2 packages</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ BUSINESS INTELLIGENCE ══════════ -->
+    <div id="s-biz" class="screen">
+      <div class="page-header">
+        <div class="page-title">📈 Business Intelligence — Engineering Value</div>
+        <div class="page-sub">Translate technical engineering metrics into business language that your board, CFO and CEO will understand. Show the ROI of engineering excellence.</div>
+      </div>
+
+      <div class="grid2 mb12">
+        <div class="biz-kpi"><div class="bk-icon" style="background:rgba(46,204,113,.15)">🚀</div><div class="bk-info"><div class="bk-metric">Deployment Frequency ↑23% YoY</div><div class="bk-biz">Customers receive new value more often</div><div class="bk-impact" style="color:var(--green)">+23% faster feature delivery to market</div></div></div>
+        <div class="biz-kpi"><div class="bk-icon" style="background:rgba(74,158,255,.15)">⚡</div><div class="bk-info"><div class="bk-metric">Lead Time: 2.1 days (was 14.2 days)</div><div class="bk-biz">Ideas reach customers 12 days sooner</div><div class="bk-impact" style="color:var(--blue)">6× faster time-to-market vs last year</div></div></div>
+        <div class="biz-kpi"><div class="bk-icon" style="background:rgba(46,204,113,.15)">🛡</div><div class="bk-info"><div class="bk-metric">MTTR: 24 min (was 6.2 hours)</div><div class="bk-biz">Outage impact dramatically reduced</div><div class="bk-impact" style="color:var(--green)">Saves est. $180,000/year in downtime</div></div></div>
+        <div class="biz-kpi"><div class="bk-icon" style="background:rgba(231,76,60,.15)">📉</div><div class="bk-info"><div class="bk-metric">CFR: 4.8% (was 11.2%)</div><div class="bk-biz">Fewer rollbacks, less firefighting</div><div class="bk-impact" style="color:var(--green)">57% fewer production failures</div></div></div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">🎯 Engineering OKRs — Q2 2026</div>
+            <div class="okr-item">
+              <div class="okr-title">O1: Achieve Elite DORA performance across all teams</div>
+              <div class="okr-sub">KR: All 4 teams reach Elite tier by Q3</div>
+              <div class="okr-progress"><div class="okr-fill" style="width:50%"></div></div>
+              <div class="okr-pct">2 of 4 teams achieved Elite · 50% complete</div>
+            </div>
+            <div class="okr-item">
+              <div class="okr-title">O2: Reduce security vulnerabilities to zero critical</div>
+              <div class="okr-sub">KR: 0 critical CVEs in production</div>
+              <div class="okr-progress"><div class="okr-fill" style="width:85%"></div></div>
+              <div class="okr-pct">1 remaining critical CVE · 85% complete</div>
+            </div>
+            <div class="okr-item">
+              <div class="okr-title">O3: Improve Developer Experience Score to 85+</div>
+              <div class="okr-sub">KR: DevEx score ≥ 85/100</div>
+              <div class="okr-progress"><div class="okr-fill" style="width:74%"></div></div>
+              <div class="okr-pct">Currently 74/100 · 74% of target</div>
+            </div>
+          </div>
+
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 AI Business Insight</div>
+            <p>Based on current velocity trends, engineering is on track to deliver the <strong>Q3 roadmap 3 weeks early</strong>. This is equivalent to <strong>~$2.1M in accelerated revenue</strong> if features ship ahead of competitive launch window.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title mb12">💰 Engineering ROI Dashboard</div>
+          <table class="roi-table">
+            <thead><tr><th>Investment</th><th>Cost</th><th>Value Delivered</th><th>ROI</th></tr></thead>
+            <tbody>
+              <tr><td>CI/CD optimization</td><td>$18K</td><td>$87K saved (eng. hrs)</td><td class="pos">+383%</td></tr>
+              <tr><td>DORA improvements</td><td>$32K</td><td>$180K (downtime avoided)</td><td class="pos">+463%</td></tr>
+              <tr><td>Security automation</td><td>$24K</td><td>$340K (breach avoided)</td><td class="pos">+1317%</td></tr>
+              <tr><td>DevEx improvements</td><td>$41K</td><td>$156K (productivity)</td><td class="pos">+280%</td></tr>
+              <tr><td>Test flakiness fix</td><td>$8K</td><td>$42K (time recovered)</td><td class="pos">+425%</td></tr>
+            </tbody>
+          </table>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:12px;color:var(--text3)">Total Engineering ROI</div>
+            <div style="font-size:20px;font-weight:800;color:var(--green)">+612% this year</div>
+          </div>
+          <button class="tb-btn mt12" style="width:100%">📄 Generate Board Report PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ COST INTELLIGENCE ══════════ -->
+    <div id="s-cost" class="screen">
+      <div class="page-header">
+        <div class="page-title">💸 Cost Intelligence</div>
+        <div class="page-sub">Correlate cloud spend and CI/CD costs with engineering events. Know exactly which services and teams are driving costs — and where to optimize.</div>
+      </div>
+
+      <div class="grid4 mb12">
+        <div class="card"><div class="card-title">Monthly CI/CD Cost</div><div class="cost-big">$24,180</div><div class="cost-pill mt12">↓ 8% vs last month</div></div>
+        <div class="card"><div class="card-title">Cloud Spend (Prod)</div><div class="cost-big">$187K</div><div class="card-delta delta-down mt12">↑ $12K from deploy events</div></div>
+        <div class="card"><div class="card-title">Cost per Deployment</div><div class="cost-big">$94</div><div class="card-delta delta-up mt12">↓ $18 improvement</div></div>
+        <div class="card"><div class="card-title">Optimization Potential</div><div class="cost-big" style="color:var(--green)">$47K</div><div class="card-delta delta-neutral mt12">Identified savings/year</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="section-title mb12">🏗 CI/CD Spend by Service</div>
+          <div class="cost-item"><div class="ci-name">payment-service</div><div class="ci-bar"><div class="ci-fill" style="width:90%"></div></div><div class="ci-val">$8,420 <span class="ci-delta delta-down">↑34%</span></div></div>
+          <div class="cost-item"><div class="ci-name">catalog-service</div><div class="ci-bar"><div class="ci-fill" style="width:40%"></div></div><div class="ci-val">$3,810 <span class="ci-delta delta-up">↓12%</span></div></div>
+          <div class="cost-item"><div class="ci-name">auth-service</div><div class="ci-bar"><div class="ci-fill" style="width:28%"></div></div><div class="ci-val">$2,640 <span class="ci-delta delta-up">↓4%</span></div></div>
+          <div class="cost-item"><div class="ci-name">order-service</div><div class="ci-bar"><div class="ci-fill" style="width:22%"></div></div><div class="ci-val">$2,100 <span class="ci-delta delta-up">↓8%</span></div></div>
+          <div class="cost-item"><div class="ci-name">notification-service</div><div class="ci-bar"><div class="ci-fill" style="width:14%"></div></div><div class="ci-val">$1,320 <span class="ci-delta delta-neutral">—</span></div></div>
+          <div style="height:140px;margin-top:16px"><canvas id="costChart"></canvas></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">💡 Top 5 Cost Optimizations</div>
+            <div class="saving-item"><div class="si-title">Parallelize payment-service test suite</div><div class="si-save">Save $14,800/year</div><div class="si-desc">Build time: 22m → 8m. 400 builds/month × 14 min × $0.04/min</div></div>
+            <div class="saving-item"><div class="si-title">Cache Docker layers for catalog-service</div><div class="si-save">Save $9,200/year</div><div class="si-desc">Layer caching reduces 60% of rebuild time</div></div>
+            <div class="saving-item"><div class="si-title">Spot instances for non-prod environments</div><div class="si-save">Save $8,400/year</div><div class="si-desc">Use spot/preemptible for dev & staging clusters</div></div>
+            <div class="saving-item"><div class="si-title">Remove 3 idle staging environments</div><div class="si-save">Save $7,200/year</div><div class="si-desc">Detected no deployments in 30+ days</div></div>
+            <div class="saving-item"><div class="si-title">Consolidate artifact storage in JFrog</div><div class="si-save">Save $4,800/year</div><div class="si-desc">1.8TB of unreferenced artifacts older than 90 days</div></div>
+          </div>
+
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 Cost Anomaly Detected</div>
+            <p><strong>payment-service CI costs spiked 34%</strong> this month. AI traced this to the new integration test suite added in sprint 41. The tests themselves are valuable, but running them on every commit (vs. nightly for slow tests) could reduce costs by $4,200/month with no quality tradeoff.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ BENCHMARKING ══════════ -->
+    <div id="s-bench" class="screen">
+      <div class="page-header">
+        <div class="page-title">🏆 Industry Benchmarking</div>
+        <div class="page-sub">Compare your engineering performance against anonymous peers — same industry, similar company size. Know where you stand and the exact steps to reach Elite tier.</div>
+      </div>
+
+      <div class="grid2 mb12">
+        <div class="bench-tier">
+          <div class="bt-label">Your Current Tier</div>
+          <div class="bt-tier">High Performer</div>
+          <div class="bt-sub">Top 25% of companies your size (500-2000 engineers)<br>Industry: Financial Services / FinTech</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;justify-content:center;">
+          <div class="insight-card" style="flex:unset">
+            <div class="insight-icon ai">🏅</div>
+            <div class="insight-text"><div class="title">You're 3 metrics away from Elite tier</div><div class="desc">Fix CFR, Lead Time variance, and DevEx score. Based on current improvement trajectory: <strong>Elite achievable in 6 weeks</strong>.</div></div>
+          </div>
+          <div class="insight-card" style="flex:unset">
+            <div class="insight-icon success">📊</div>
+            <div class="insight-text"><div class="title">You're already in top 10% for MTTR</div><div class="desc">Your 24-min MTTR beats 90% of peers in your industry. This is a significant competitive advantage.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb12">
+        <div class="section-title mb12">📊 Metric-by-Metric Peer Comparison</div>
+        <div style="display:flex;gap:12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:0 0 8px;border-bottom:1px solid var(--border);">
+          <div style="flex:1">Metric</div><div style="width:80px;text-align:center">You</div><div style="width:80px;text-align:center">Industry Median</div><div style="width:80px;text-align:center">Elite Tier</div><div style="width:100px;text-align:right">Your Percentile</div>
+        </div>
+        <div class="bench-row"><div class="br-metric">🚀 Deployment Frequency</div><div class="br-yours">8.2/day</div><div class="br-median">2.1/day</div><div class="br-elite">10+/day</div><div class="br-pct top">Top 18%</div></div>
+        <div class="bench-row"><div class="br-metric">⏱ Lead Time for Changes</div><div class="br-yours">2.1 days</div><div class="br-median">8.4 days</div><div class="br-elite">&lt;1 day</div><div class="br-pct top">Top 22%</div></div>
+        <div class="bench-row"><div class="br-metric">💥 Change Failure Rate</div><div class="br-yours">4.8%</div><div class="br-median">11.2%</div><div class="br-elite">&lt;1%</div><div class="br-pct mid">Top 38%</div></div>
+        <div class="bench-row"><div class="br-metric">🔧 Mean Time to Recovery</div><div class="br-yours">24 min</div><div class="br-median">4.2 hrs</div><div class="br-elite">&lt;15 min</div><div class="br-pct top">Top 9%</div></div>
+        <div class="bench-row"><div class="br-metric">💻 DevEx Score</div><div class="br-yours">74/100</div><div class="br-median">61/100</div><div class="br-elite">88+</div><div class="br-pct top">Top 28%</div></div>
+        <div class="bench-row"><div class="br-metric">🛡 Supply Chain Risk</div><div class="br-yours">42/100</div><div class="br-median">58/100</div><div class="br-elite">&lt;20</div><div class="br-pct top">Top 34%</div></div>
+        <div class="bench-row"><div class="br-metric">⭐ Engineering Health Score</div><div class="br-yours">78/100</div><div class="br-median">59/100</div><div class="br-elite">90+</div><div class="br-pct top">Top 24%</div></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title mb12">🗺 Roadmap to Elite Tier (Est. 6 weeks)</div>
+        <div class="roadmap-step"><div class="rs-num">1</div><div class="rs-info"><div class="rs-title">Fix CFR: Enforce quality gates (Week 1-2)</div><div class="rs-sub">Add 80% test coverage gate + critical bug gate → CFR drops from 4.8% → &lt;2%</div></div></div>
+        <div class="roadmap-step"><div class="rs-num">2</div><div class="rs-info"><div class="rs-title">Reduce Lead Time variance for Team Gamma (Week 2-3)</div><div class="rs-sub">Auto-review assignments + Platform team capacity increase → avg 2.1d → &lt;1d</div></div></div>
+        <div class="roadmap-step"><div class="rs-num">3</div><div class="rs-info"><div class="rs-title">Boost DevEx to 85+ (Week 3-5)</div><div class="rs-sub">Fix top 3 friction points: CI parallelization, flaky tests, review bottleneck</div></div></div>
+        <div class="roadmap-step"><div class="rs-num">4</div><div class="rs-info"><div class="rs-title">Achieve Elite across all 4 teams (Week 5-6)</div><div class="rs-sub">Team Gamma focused sprint + Platform team embedded support</div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════ INCIDENT INTELLIGENCE ══════════ -->
+    <div id="s-incident" class="screen">
+      <div class="page-header">
+        <div class="page-title">🔴 Incident Intelligence & Auto Post-Mortem</div>
+        <div class="page-sub">AI correlates incidents with deployments, detects patterns, and auto-generates post-mortems — so you spend time fixing, not documenting.</div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">🕐 Incident Timeline — INC0084721</div>
+            <div class="incident-timeline">
+              <div class="it-item"><div class="it-icon deploy">🚀</div><div class="it-info"><div class="it-time">13:58 UTC</div><div class="it-title">payment-service v2.3.9 deployed</div><div class="it-sub">ArgoCD · Team Gamma · Async queue config changed</div></div></div>
+              <div class="it-item"><div class="it-icon alert">⚠️</div><div class="it-info"><div class="it-time">14:04 UTC</div><div class="it-title">P95 latency spike detected</div><div class="it-sub">payment-service: 120ms → 2,400ms · Datadog alert</div></div></div>
+              <div class="it-item"><div class="it-icon incident">🔴</div><div class="it-info"><div class="it-time">14:22 UTC</div><div class="it-title">P2 Incident opened — INC0084721</div><div class="it-sub">ServiceNow · "payment-service latency spike"</div></div></div>
+              <div class="it-item"><div class="it-icon alert">⚠️</div><div class="it-info"><div class="it-time">14:28 UTC</div><div class="it-title">DI AI automatically linked to deployment</div><div class="it-sub">87% confidence — queue config change matches pattern</div></div></div>
+              <div class="it-item"><div class="it-icon deploy">🔄</div><div class="it-info"><div class="it-time">14:36 UTC — ONGOING</div><div class="it-title">Investigation in progress</div><div class="it-sub">Team Gamma · Rollback being evaluated</div></div></div>
+            </div>
+          </div>
+
+          <div class="grid4" style="grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+            <div class="card"><div class="card-title">Active Incidents</div><div class="card-value" style="color:var(--red)">1</div><div style="font-size:11px;color:var(--text3);margin-top:4px">P2 open</div></div>
+            <div class="card"><div class="card-title">MTTR (30d)</div><div class="card-value" style="color:var(--green)">24m</div><div class="card-delta delta-up mt12">↑ -14m vs prev</div></div>
+            <div class="card"><div class="card-title">CFR (30d)</div><div class="card-value" style="color:var(--orange)">4.8%</div><div class="card-delta delta-down mt12">↑ from 3.1%</div></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">🔍 Pattern Analysis — Last 90 Days</div>
+            <div class="rec-item danger mb12"><div class="rt">payment-service: 40% of all incidents</div>Root pattern: async queue configuration changes without load testing cause 87% of its incidents.</div>
+            <div class="rec-item warn mb12"><div class="rt">Monday deployments have 2.8x higher CFR</div>Correlated with reduced on-call coverage over weekends leading to incomplete smoke tests.</div>
+            <div class="rec-item info"><div class="rt">Team Gamma incidents resolved 2x slower than avg</div>Only 1 of 5 team members has full production access. Access provisioning recommendation auto-filed.</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="postmortem-box mb12">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <div class="ai-tag">🤖 AI Auto-Generated Post-Mortem</div>
+              <div class="tag">Draft — pending review</div>
+            </div>
+
+            <div class="pm-section"><div class="pm-title">Incident Summary</div><p>On 2026-06-30 at 14:22 UTC, a P2 incident was declared for payment-service latency spike. The service experienced a 20× increase in response time (120ms → 2,400ms), affecting checkout flows for all customers. Estimated customer impact: 2,400 checkout failures over 18 minutes (ongoing).</p></div>
+
+            <div class="pm-section"><div class="pm-title">Root Cause (87% confidence)</div><p>Deployment of payment-service v2.3.9 at 13:58 UTC changed async queue consumer configuration. The new batch size (500 → 5000) caused memory pressure under production load that was not replicated in staging (staging handles 10% of prod traffic).</p></div>
+
+            <div class="pm-section"><div class="pm-title">Contributing Factors</div><ul><li>Staging environment traffic gap (10% vs 100%)</li><li>No queue memory metrics in deployment pre-check</li><li>Alert threshold set to 5 min delay (should be 1 min)</li></ul></div>
+
+            <div class="pm-section"><div class="pm-title">Action Items (AI-suggested)</div><ul><li>Add memory pressure load test to payment-service CI [Team Gamma, due: 1 week]</li><li>Reduce alert threshold to 60s [Platform, due: today]</li><li>Implement canary deployment for queue config changes [Team Gamma, due: 2 weeks]</li><li>Scale staging to 30% of production traffic [Platform, due: 2 weeks]</li></ul></div>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="tb-btn">✅ Approve & Publish</button>
+              <button class="tb-btn" style="background:var(--bg4);color:var(--text);border:1px solid var(--border2)">✏️ Edit in Confluence</button>
+              <button class="tb-btn" style="background:var(--bg4);color:var(--text);border:1px solid var(--border2)">📤 Share to Slack</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">📊 Incident Trends (90 days)</div>
+            <div style="height:140px"><canvas id="incidentChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════ ERROR BUDGET ENGINE ══════════ -->
+    <div id="s-errbudget" class="screen">
+      <div class="page-header">
+        <div class="page-title">⏳ Error Budget Engine — SLO Deployment Gates</div>
+        <div class="page-sub">Invented at Google SRE. If you're burning SLO error budget too fast, deployments are AUTOMATICALLY BLOCKED — not just reported. The system enforces reliability, not just observes it.</div>
+      </div>
+      <div style="background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.35);border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div class="gate-status blocked" style="background:none;border:none;padding:0;">
+          <div class="gate-icon">🚫</div>
+          <div class="gate-info">
+            <div class="gi-title" style="color:var(--red)">DEPLOYMENT GATE ACTIVE — auth-service is BLOCKED</div>
+            <div class="gi-sub">Error budget at 4.2% remaining. All non-critical deployments auto-blocked until budget recovers above 10%. Policy: STRICT. Next reset: 3 days.</div>
+          </div>
+          <button style="background:var(--red2);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Override (Requires VP Approval)</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">📊 Error Budget Status — All Services</div>
+            <div style="display:flex;gap:8px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:0 0 8px;border-bottom:1px solid var(--border);">
+              <div style="flex:1">Service</div><div style="width:60px">SLO</div><div style="width:110px">Budget Remaining</div><div style="width:80px">Burn Rate</div><div style="width:90px">Gate</div>
+            </div>
+            <div class="slo-row">
+              <div class="slo-service">auth-service</div>
+              <div class="slo-target">99.95%</div>
+              <div class="slo-budget" style="width:110px">
+                <div class="slo-bar"><div class="slo-fill" style="width:4%;background:var(--red)"></div></div>
+                <div class="slo-pct" style="color:var(--red)">4.2% ← CRITICAL</div>
+              </div>
+              <div style="width:80px"><span class="burn-pill burn-fast">3.8x fast</span></div>
+              <div class="slo-gate"><span class="dora-tier tier-low">🚫 BLOCKED</span></div>
+            </div>
+            <div class="slo-row">
+              <div class="slo-service">payment-service</div>
+              <div class="slo-target">99.99%</div>
+              <div class="slo-budget" style="width:110px">
+                <div class="slo-bar"><div class="slo-fill" style="width:22%;background:var(--orange)"></div></div>
+                <div class="slo-pct" style="color:var(--orange)">22.1%</div>
+              </div>
+              <div style="width:80px"><span class="burn-pill burn-warn">1.9x fast</span></div>
+              <div class="slo-gate"><span class="dora-tier tier-medium">⚠️ CAUTION</span></div>
+            </div>
+            <div class="slo-row">
+              <div class="slo-service">catalog-service</div>
+              <div class="slo-target">99.9%</div>
+              <div class="slo-budget" style="width:110px">
+                <div class="slo-bar"><div class="slo-fill" style="width:71%;background:var(--green)"></div></div>
+                <div class="slo-pct" style="color:var(--green)">71.4%</div>
+              </div>
+              <div style="width:80px"><span class="burn-pill burn-ok">0.8x</span></div>
+              <div class="slo-gate"><span class="dora-tier tier-elite">✅ OPEN</span></div>
+            </div>
+            <div class="slo-row">
+              <div class="slo-service">order-service</div>
+              <div class="slo-target">99.9%</div>
+              <div class="slo-budget" style="width:110px">
+                <div class="slo-bar"><div class="slo-fill" style="width:58%;background:var(--green)"></div></div>
+                <div class="slo-pct" style="color:var(--green)">58.0%</div>
+              </div>
+              <div style="width:80px"><span class="burn-pill burn-ok">0.7x</span></div>
+              <div class="slo-gate"><span class="dora-tier tier-elite">✅ OPEN</span></div>
+            </div>
+            <div class="slo-row">
+              <div class="slo-service">notification-service</div>
+              <div class="slo-target">99.5%</div>
+              <div class="slo-budget" style="width:110px">
+                <div class="slo-bar"><div class="slo-fill" style="width:85%;background:var(--green)"></div></div>
+                <div class="slo-pct" style="color:var(--green)">85.2%</div>
+              </div>
+              <div style="width:80px"><span class="burn-pill burn-ok">0.3x</span></div>
+              <div class="slo-gate"><span class="dora-tier tier-elite">✅ OPEN</span></div>
+            </div>
+          </div>
+
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 Why this is FAANG-level</div>
+            <p>Google's SRE teams discovered that <strong>error budgets change behavior</strong> — when dev teams know deployments get blocked if they burn budget, they start writing better tests, doing canary releases, and investing in reliability. It's not a dashboard. It's a <strong>feedback loop that enforces SRE culture automatically.</strong></p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">🔥 auth-service — Error Budget Burn Rate (30 days)</div>
+            <div style="height:160px;position:relative"><canvas id="burnChart"></canvas></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:8px;">Dashed line = ideal burn rate (linear). Red = actual (accelerating burn). At this rate, budget exhausted in <strong style="color:var(--red)">3 days</strong>.</div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">⚙️ Gate Policy Configuration</div>
+            <div class="rec-item warn mb12"><div class="rt">Policy: STRICT (current)</div>Block all deploys when budget &lt; 10%. Override requires VP-level approval + incident ticket.</div>
+            <div class="activity-item"><div style="flex:1"><div class="a-title">Budget threshold</div><div class="a-sub">Block below</div></div><div style="font-weight:700;color:var(--orange)">10%</div></div>
+            <div class="activity-item"><div style="flex:1"><div class="a-title">Override approval</div><div class="a-sub">Who can unblock</div></div><div style="font-size:11px;color:var(--text2)">VP Engineering</div></div>
+            <div class="activity-item"><div style="flex:1"><div class="a-title">Critical path bypass</div><div class="a-sub">Security hotfixes</div></div><div style="font-size:11px;color:var(--green)">Always allowed</div></div>
+            <div class="activity-item"><div style="flex:1"><div class="a-title">Budget window</div><div class="a-sub">Rolling period</div></div><div style="font-size:11px;color:var(--text2)">30 days</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ BIZ OUTCOME CORRELATION ══════════ -->
+    <div id="s-bizoutcome" class="screen">
+      <div class="page-header">
+        <div class="page-title">📈 Business Outcome Correlation</div>
+        <div class="page-sub">The feature NO competitor has. Link every deployment directly to business metrics — conversion rate, revenue per session, user retention. Answer the $50M question: "Did our engineering actually matter?"</div>
+      </div>
+
+      <div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.25);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="font-size:20px">💡</span>
+        <div style="font-size:12px;color:var(--text2);">Connected to: <strong style="color:var(--text)">Amplitude · Google Analytics 4 · Stripe · Datadog RUM</strong> — deployments are automatically correlated with business KPI changes detected within 30 minutes.</div>
+        <button style="flex-shrink:0;background:var(--bg3);border:1px solid var(--border2);color:var(--purple2);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;">+ Connect Tool</button>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">🕐 Deployment → Business Impact Timeline (Last 30 days)</div>
+            <div class="timeline-wrap">
+              <div class="tl-event">
+                <div class="tl-dot" style="background:var(--green);margin-top:4px;"></div>
+                <div class="tl-body">
+                  <div class="tl-deploy">checkout-service v2.1.0 — "Redesigned checkout flow"</div>
+                  <div class="tl-outcome">Checkout conversion rate: <span class="outcome-pos">↑ 8.7%</span> &nbsp;·&nbsp; Revenue/session: <span class="outcome-pos">↑ $0.42</span></div>
+                  <div class="tl-meta">Jun 18 · Detected 22 min post-deploy · Confidence: <span class="corr-badge corr-strong">Strong 94%</span></div>
+                </div>
+              </div>
+              <div class="tl-event">
+                <div class="tl-dot" style="background:var(--red);margin-top:4px;"></div>
+                <div class="tl-body">
+                  <div class="tl-deploy">payment-service v2.3.9 — "Async queue batch resize"</div>
+                  <div class="tl-outcome">Checkout abandonment: <span class="outcome-neg">↑ 12.4%</span> &nbsp;·&nbsp; Revenue lost: <span class="outcome-neg">~$18K in 40 min</span></div>
+                  <div class="tl-meta">Jun 30 · Detected 15 min post-deploy · <span style="color:var(--red);font-weight:600;">→ Triggered auto-rollback recommendation</span></div>
+                </div>
+              </div>
+              <div class="tl-event">
+                <div class="tl-dot" style="background:var(--blue);margin-top:4px;"></div>
+                <div class="tl-body">
+                  <div class="tl-deploy">catalog-service v2.8.3 — "Search relevance model update"</div>
+                  <div class="tl-outcome">Search-to-cart rate: <span class="outcome-pos">↑ 3.2%</span> &nbsp;·&nbsp; Session duration: <span class="outcome-pos">↑ 18s avg</span></div>
+                  <div class="tl-meta">Jun 24 · Detected 31 min post-deploy · Confidence: <span class="corr-badge corr-strong">Strong 88%</span></div>
+                </div>
+              </div>
+              <div class="tl-event">
+                <div class="tl-dot" style="background:var(--text3);margin-top:4px;"></div>
+                <div class="tl-body">
+                  <div class="tl-deploy">auth-service v2.0.1 — "JWT token expiry fix"</div>
+                  <div class="tl-outcome">No significant business metric change detected</div>
+                  <div class="tl-meta">Jun 20 · Monitoring for 30 min · Confidence: <span class="corr-badge corr-weak">Weak — infra change</span></div>
+                </div>
+              </div>
+              <div class="tl-event">
+                <div class="tl-dot" style="background:var(--orange);margin-top:4px;"></div>
+                <div class="tl-body">
+                  <div class="tl-deploy">notification-service v1.4.2 — "Push notification retry"</div>
+                  <div class="tl-outcome">D7 retention: <span class="outcome-pos">↑ 1.8%</span> &nbsp;·&nbsp; Email open rate: <span class="outcome-pos">↑ 4.1%</span></div>
+                  <div class="tl-meta">Jun 15 · Detected 24h post-deploy (retention metric) · Confidence: <span class="corr-badge corr-med">Medium 72%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">💰 Engineering ROI by Business Impact (Q2 2026)</div>
+            <div style="height:160px;position:relative"><canvas id="bizImpactChart"></canvas></div>
+          </div>
+          <div class="grid2" style="gap:8px;">
+            <div class="impact-stat"><div class="is-val" style="color:var(--green)">+$2.4M</div><div class="is-lbl">Attributed Revenue</div></div>
+            <div class="impact-stat"><div class="is-val" style="color:var(--red)">-$31K</div><div class="is-lbl">Revenue Lost (regressions)</div></div>
+            <div class="impact-stat"><div class="is-val" style="color:var(--blue)">+8.7%</div><div class="is-lbl">Best Conversion Lift</div></div>
+            <div class="impact-stat"><div class="is-val" style="color:var(--purple2)">67%</div><div class="is-lbl">Deploys with Measured Impact</div></div>
+          </div>
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 Why this is FAANG-level</div>
+            <p>At Amazon, <strong>every feature team is measured by business outcomes, not deployments.</strong> This is the bridge most companies never build. The VP of Product and the VP of Engineering finally share the same dashboard. "Team Alpha's work in June contributed $1.2M to Q2 revenue" — that's the conversation that changes engineering culture forever.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ BUS FACTOR INTELLIGENCE ══════════ -->
+    <div id="s-busfactor" class="screen">
+      <div class="page-header">
+        <div class="page-title">🚌 Bus Factor Intelligence</div>
+        <div class="page-sub">How many engineers could leave before a service becomes unmaintainable? Inferred from real git blame, PR review patterns, and code ownership — not from org charts or spreadsheets.</div>
+      </div>
+
+      <div style="background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <span style="font-size:18px">🚨</span>
+        <div style="flex:1;font-size:12px;"><strong style="color:var(--red)">3 services have Bus Factor = 1 (CRITICAL)</strong> — a single engineer leaving would make these services unmaintainable. This is an existential operational risk your board doesn't know about.</div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-title mb12">🗂 Service Knowledge Map</div>
+            <div class="bus-grid">
+              <div class="bus-card critical">
+                <div class="bus-factor-num" style="color:var(--red)">1</div>
+                <div class="bus-service">auth-service</div>
+                <div class="bus-owners">Only: Sarah K.</div>
+                <div class="avatar-row"><div class="mini-avatar" style="background:var(--red)">SK</div></div>
+              </div>
+              <div class="bus-card critical">
+                <div class="bus-factor-num" style="color:var(--red)">1</div>
+                <div class="bus-service">payment-core</div>
+                <div class="bus-owners">Only: Raj P.</div>
+                <div class="avatar-row"><div class="mini-avatar" style="background:var(--red)">RP</div></div>
+              </div>
+              <div class="bus-card critical">
+                <div class="bus-factor-num" style="color:var(--red)">1</div>
+                <div class="bus-service">infra-secrets</div>
+                <div class="bus-owners">Only: Wei L.</div>
+                <div class="avatar-row"><div class="mini-avatar" style="background:var(--red)">WL</div></div>
+              </div>
+              <div class="bus-card warning">
+                <div class="bus-factor-num" style="color:var(--orange)">2</div>
+                <div class="bus-service">order-service</div>
+                <div class="bus-owners">Sarah + Raj</div>
+                <div class="avatar-row"><div class="mini-avatar" style="background:var(--orange)">SK</div><div class="mini-avatar" style="background:var(--orange)">RP</div></div>
+              </div>
+              <div class="bus-card warning">
+                <div class="bus-factor-num" style="color:var(--orange)">2</div>
+                <div class="bus-service">catalog-svc</div>
+                <div class="bus-owners">Maria + Jake</div>
+                <div class="avatar-row"><div class="mini-avatar" style="background:var(--orange)">MJ</div><div class="mini-avatar" style="background:var(--orange)">JA</div></div>
+              </div>
+              <div class="bus-card ok">
+                <div class="bus-factor-num" style="color:var(--green)">4</div>
+                <div class="bus-service">checkout-svc</div>
+                <div class="bus-owners">4 engineers</div>
+                <div class="avatar-row"><div class="mini-avatar" style="background:var(--green)">A</div><div class="mini-avatar" style="background:var(--green)">B</div><div class="mini-avatar" style="background:var(--green)">C</div><div class="mini-avatar" style="background:var(--green)">D</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">💀 "What If" Scenario</div>
+            <div class="ai-rec-box" style="margin:0">
+              <div class="ai-tag">Scenario: Sarah K. leaves tomorrow</div>
+              <p style="margin-top:6px"><strong style="color:var(--red)">Impact:</strong> auth-service and order-service become effectively unmaintainable. 2 of 4 scheduled sprints blocked. Estimated 6 months to bring replacement engineer to competency. <strong>Operational risk: HIGH.</strong></p>
+              <p style="margin-top:8px"><strong>Recommendation:</strong> Pair programming sessions — assign 2 engineers to shadow Sarah on auth-service for 4 sprints. DI can auto-detect when knowledge transfer is happening via PR co-authorship.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">📊 Knowledge Concentration Over Time</div>
+            <div style="height:150px;position:relative"><canvas id="busChart"></canvas></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:6px;">DI tracks bus factor monthly. Declining trend = knowledge concentration worsening.</div>
+          </div>
+          <div class="card">
+            <div class="section-title mb12">📋 Recommended Actions</div>
+            <div class="rec-item danger mb8"><div class="rt">🔴 auth-service: Schedule knowledge transfer sprint NOW</div>Pair Sarah with 2 engineers for next 4 sprints. Goal: Bus Factor 3 by end of Q3.</div>
+            <div class="rec-item danger mb8"><div class="rt">🔴 payment-core: Add Raj's documentation requirement to Definition of Done</div>Every PR from Raj must include a runbook update until Bus Factor reaches 2.</div>
+            <div class="rec-item warn mb8"><div class="rt">🟡 order-service: Sarah + Raj overlap is a correlation risk</div>Both engineers know auth AND order. If either leaves, you lose 2 services simultaneously.</div>
+          </div>
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 Why this is FAANG-level</div>
+            <p>Netflix, Google, Meta all track "single points of failure" in their engineering org. At scale, 1 person leaving can take down a product line. <strong>No DevOps tool currently measures this.</strong> DI already has all the data to compute it — git blame, PR authorship, code review history — it just needs to be surfaced.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ TOIL QUANTIFICATION ══════════ -->
+    <div id="s-toil" class="screen">
+      <div class="page-header">
+        <div class="page-title">🔁 Toil Quantification</div>
+        <div class="page-sub">Google SRE Rule: No team should spend more than 50% on toil. Toil = manual, repetitive, automatable work with no lasting value. DI measures it with data — not surveys. Then tells you exactly what to automate first.</div>
+      </div>
+
+      <div class="grid4 mb12">
+        <div class="card" style="grid-column:span 1">
+          <div class="card-title">Total Monthly Toil</div>
+          <div class="toil-big" style="color:var(--red)">34%</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;">of engineering capacity</div>
+          <div style="font-size:13px;font-weight:700;color:var(--red);margin-top:6px;">= $2.1M/yr wasted</div>
+        </div>
+        <div class="card"><div class="card-title">On-Call Toil</div><div class="card-value" style="color:var(--orange)">48%</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">of pages are noise</div></div>
+        <div class="card"><div class="card-title">Flaky Test Reruns</div><div class="card-value" style="color:var(--orange)">24</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">flaky tests, 847 wasted runs/mo</div></div>
+        <div class="card"><div class="card-title">Manual Steps</div><div class="card-value" style="color:var(--red)">17</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">manual deploy steps per release</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="section-title mb12">🏆 Top Toil Sources — Ranked by Cost</div>
+          <div class="toil-item">
+            <div class="toil-cat"><div class="tc-name">🔴 Repeated on-call noise</div><div class="tc-sub">Same 6 alerts fire weekly — all auto-resolvable</div></div>
+            <div class="toil-bar-wrap"><div class="toil-bar"><div class="toil-fill" style="width:92%;background:var(--red)"></div></div><div style="font-size:9px;color:var(--text3)">92% of on-call time</div></div>
+            <div class="toil-cost"><div class="t-hrs">182 hrs/mo</div><div class="t-usd">$54K/yr</div></div>
+          </div>
+          <div class="toil-item">
+            <div class="toil-cat"><div class="tc-name">🔴 Manual deployment checklist</div><div class="tc-sub">17 manual steps per payment-service deploy</div></div>
+            <div class="toil-bar-wrap"><div class="toil-bar"><div class="toil-fill" style="width:78%;background:var(--red)"></div></div><div style="font-size:9px;color:var(--text3)">78 hrs/mo</div></div>
+            <div class="toil-cost"><div class="t-hrs">78 hrs/mo</div><div class="t-usd">$46K/yr</div></div>
+          </div>
+          <div class="toil-item">
+            <div class="toil-cat"><div class="tc-name">🟡 Flaky test reruns (24 tests)</div><div class="tc-sub">Engineers re-trigger builds manually</div></div>
+            <div class="toil-bar-wrap"><div class="toil-bar"><div class="toil-fill" style="width:60%;background:var(--orange)"></div></div><div style="font-size:9px;color:var(--text3)">60 hrs/mo</div></div>
+            <div class="toil-cost"><div class="t-hrs">60 hrs/mo</div><div class="t-usd">$36K/yr</div></div>
+          </div>
+          <div class="toil-item">
+            <div class="toil-cat"><div class="tc-name">🟡 Config fire drills</div><div class="tc-sub">Env config diverges — emergency fix session</div></div>
+            <div class="toil-bar-wrap"><div class="toil-bar"><div class="toil-fill" style="width:45%;background:var(--orange)"></div></div><div style="font-size:9px;color:var(--text3)">45 hrs/mo</div></div>
+            <div class="toil-cost"><div class="t-hrs">45 hrs/mo</div><div class="t-usd">$27K/yr</div></div>
+          </div>
+          <div class="toil-item">
+            <div class="toil-cat"><div class="tc-name">🟡 Ticket routing &amp; triage</div><div class="tc-sub">Wrong-team tickets requiring manual redirect</div></div>
+            <div class="toil-bar-wrap"><div class="toil-bar"><div class="toil-fill" style="width:32%;background:var(--orange)"></div></div><div style="font-size:9px;color:var(--text3)">32 hrs/mo</div></div>
+            <div class="toil-cost"><div class="t-hrs">32 hrs/mo</div><div class="t-usd">$19K/yr</div></div>
+          </div>
+          <div class="toil-item">
+            <div class="toil-cat"><div class="tc-name">🟢 Repetitive code review patterns</div><div class="tc-sub">Same comments on 70% of PRs (style, naming)</div></div>
+            <div class="toil-bar-wrap"><div class="toil-bar"><div class="toil-fill" style="width:20%;background:var(--blue)"></div></div><div style="font-size:9px;color:var(--text3)">20 hrs/mo</div></div>
+            <div class="toil-cost"><div class="t-hrs">20 hrs/mo</div><div class="t-usd">$12K/yr</div></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">📊 Toil vs. Feature Work Ratio — per Team</div>
+            <div style="height:160px;position:relative"><canvas id="toilChart"></canvas></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:6px;">🎯 Target: &lt;50% toil. Google SRE enforces this as a hard rule.</div>
+          </div>
+          <div class="card">
+            <div class="section-title mb12">🤖 Top 3 Automations — ROI Ranked</div>
+            <div class="saving-item" style="margin-bottom:8px"><div class="si-title">Auto-remediate the 6 repeated on-call alerts</div><div class="si-save">Saves 182 hrs/mo · $54K/yr · 3-day build</div><div class="si-desc">Pattern: always caused by cache TTL expiry — auto-restart script fixes in 30s</div></div>
+            <div class="saving-item" style="margin-bottom:8px"><div class="si-title">Automate payment-service deploy checklist</div><div class="si-save">Saves 78 hrs/mo · $46K/yr · 1-week build</div><div class="si-desc">17 steps → 1 automated runbook triggered by ArgoCD webhook</div></div>
+            <div class="saving-item"><div class="si-title">Quarantine &amp; auto-retry flaky tests</div><div class="si-save">Saves 60 hrs/mo · $36K/yr · 2-day build</div><div class="si-desc">Tag flaky tests, run in isolation, alert only on 3 consecutive failures</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ BLAST RADIUS SIMULATOR ══════════ -->
+    <div id="s-blast" class="screen">
+      <div class="page-header">
+        <div class="page-title">💥 Blast Radius Simulator</div>
+        <div class="page-sub">Before you deploy, know who gets hurt if it fails. Built from REAL service call patterns — not documentation. Simulate cascading failures and measure revenue at risk in seconds.</div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="card mb12">
+            <div class="section-row mb8">
+              <div class="section-title">Simulate Failure Of:</div>
+              <select style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;" onchange="simulateBlast(this.value)">
+                <option value="payment">payment-service</option>
+                <option value="auth">auth-service</option>
+                <option value="catalog">catalog-service</option>
+                <option value="platform">platform-infra</option>
+              </select>
+              <button onclick="simulateBlast('payment')" style="background:var(--red2);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">▶ Run Simulation</button>
+            </div>
+            <div class="blast-canvas" id="blast-canvas"><!-- drawn by JS --></div>
+            <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--red)"></div>Failed</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--orange)"></div>Degraded</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>Healthy</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--purple)"></div>Platform</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="section-title mb12">💥 Blast Impact — payment-service failure</div>
+            <div class="grid2" style="gap:8px;margin-bottom:12px;">
+              <div class="impact-stat"><div class="is-val" style="color:var(--red)">34K</div><div class="is-lbl">Users Affected</div></div>
+              <div class="impact-stat"><div class="is-val" style="color:var(--red)">$6.2K</div><div class="is-lbl">Revenue at Risk / min</div></div>
+              <div class="impact-stat"><div class="is-val" style="color:var(--orange)">4</div><div class="is-lbl">Cascading Services</div></div>
+              <div class="impact-stat"><div class="is-val" style="color:var(--orange)">8 min</div><div class="is-lbl">Avg Detection Time</div></div>
+            </div>
+            <div class="card-title mb12">Cascade Chain</div>
+            <div class="flow-step"><div class="fs-num" style="background:var(--red)">1</div><div><strong style="color:var(--red)">payment-service FAILS</strong> → queue drain stops</div></div>
+            <div class="flow-step"><div class="fs-num" style="background:var(--red)">2</div><div><strong>order-service FAILS</strong> → can't confirm orders (depends on payment)</div></div>
+            <div class="flow-step"><div class="fs-num" style="background:var(--orange)">3</div><div><strong style="color:var(--orange)">checkout-service DEGRADES</strong> → shows error on payment step only</div></div>
+            <div class="flow-step"><div class="fs-num" style="background:var(--orange)">4</div><div><strong style="color:var(--orange)">notification-service DEGRADES</strong> → order confirmation emails queue up</div></div>
+            <div class="flow-step"><div class="fs-num" style="background:var(--green)">✓</div><div style="color:var(--green)">catalog, auth, user-service — NOT affected (no payment dependency)</div></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title mb12">🛡 DI Recommendations — Pre-Deploy</div>
+            <div class="rec-item danger mb8"><div class="rt">Add circuit breaker to order-service → payment calls</div>Without this, order-service fails hard when payment is down. Circuit breaker = graceful degradation.</div>
+            <div class="rec-item warn mb8"><div class="rt">Implement payment-service canary deployment</div>Route 5% traffic first. At $6.2K/min blast radius, 8 minutes of canary monitoring saves potential $49K loss.</div>
+            <div class="rec-item info"><div class="rt">Add SLO alert at 50% blast radius threshold</div>Alert fires before full cascade — gives 3-4 minutes to rollback before full outage.</div>
+          </div>
+
+          <div class="ai-rec-box">
+            <div class="ai-tag">🤖 Why this is FAANG-level</div>
+            <p>Netflix built <strong>Chaos Monkey</strong> because they needed to understand blast radius before production found out. This is pre-deployment chaos intelligence — you see the failure cascade <strong>before</strong> your customers do. No tool in the DevOps market does this today from actual call-graph data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ──────────────── NAVIGATION ────────────────
+const screens = ['cmd','ai','health','dora','release','topology','devex','sbom','biz','cost','bench','incident','errbudget','bizoutcome','busfactor','toil','blast'];
+const titles = {
+  cmd:'Command Center',ai:'AI Engineering Copilot',health:'Engineering Health Score',
+  dora:'DORA+ Metrics',release:'Predictive Release Intelligence',topology:'Team Topology Intelligence',
+  devex:'Developer Experience (DevEx)',sbom:'Supply Chain Security & SBOM',biz:'Business Intelligence',
+  cost:'Cost Intelligence',bench:'Industry Benchmarking',incident:'Incident Intelligence',
+  errbudget:'🔥 Error Budget Engine — SLO Deployment Gates',
+  bizoutcome:'🔥 Business Outcome Correlation',
+  busfactor:'🔥 Bus Factor Intelligence',
+  toil:'🔥 Toil Quantification',
+  blast:'🔥 Blast Radius Simulator'
+};
+function show(id) {
+  screens.forEach(s => {
+    const el = document.getElementById('s-'+s);
+    if(el) el.classList.remove('active');
+  });
+  const el = document.getElementById('s-'+id);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('topbar-title').textContent = titles[id] || id;
+  // init charts lazily
+  if(id==='health') initHealth();
+  if(id==='dora') initDora();
+  if(id==='release') initRelease();
+  if(id==='devex') initDevEx();
+  if(id==='cost') initCost();
+  if(id==='incident') initIncident();
+  if(id==='errbudget') initErrBudget();
+  if(id==='bizoutcome') initBizOutcome();
+  if(id==='busfactor') initBusFactor();
+  if(id==='toil') initToil();
+  if(id==='blast') { buildBlastCanvas(); }
+}
+
+// ──────────────── SPARKLINES (Command Center) ────────────────
+const spOpts = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{enabled:false}},
+  scales:{x:{display:false},y:{display:false}},
+  elements:{point:{radius:0},line:{tension:.4}}
+};
+function mkSparkline(id, data, color) {
+  const ctx = document.getElementById(id);
+  if(!ctx) return;
+  new Chart(ctx, {type:'line',data:{
+    labels:data.map((_,i)=>i),
+    datasets:[{data,borderColor:color,borderWidth:2,fill:false}]
+  }, options:spOpts});
+}
+mkSparkline('sp1',[4,5,6,5,7,6,8,7,8,8.2],'#2ecc71');
+mkSparkline('sp2',[3.2,3,2.8,2.6,2.8,2.5,2.3,2.2,2.1,2.1],'#4a9eff');
+mkSparkline('sp3',[2,2.5,3,2.8,3.1,3.2,4,4.5,4.8,4.8],'#f39c12');
+mkSparkline('sp4',[80,70,60,50,55,45,35,30,25,24],'#1abc9c');
+
+// ──────────────── HEALTH SCREEN ────────────────
+let healthInited=false;
+function initHealth() {
+  if(healthInited) return; healthInited=true;
+  const ctx = document.getElementById('radarChart');
+  if(!ctx) return;
+  new Chart(ctx, {
+    type:'radar',
+    data:{
+      labels:['Velocity','Quality','Security','Reliability','Collaboration','DevEx'],
+      datasets:[
+        {label:'Current',data:[82,71,68,85,76,74],borderColor:'#7c6af7',backgroundColor:'rgba(124,106,247,.15)',borderWidth:2,pointBackgroundColor:'#7c6af7'},
+        {label:'Last Week',data:[79,75,60,83,73,68],borderColor:'#4a9eff',backgroundColor:'transparent',borderWidth:1,borderDash:[4,4],pointRadius:0}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},
+      scales:{r:{grid:{color:'#1e2340'},angleLines:{color:'#1e2340'},pointLabels:{color:'#9099c4',font:{size:10}},ticks:{display:false},min:0,max:100}}}
+  });
+  const ctx2 = document.getElementById('healthTrend');
+  if(!ctx2) return;
+  const labels=['Jun 1','Jun 5','Jun 10','Jun 15','Jun 20','Jun 25','Jun 28','Jun 30'];
+  new Chart(ctx2, {
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Health Score',data:[62,65,66,69,72,75,75,78],borderColor:'#7c6af7',backgroundColor:'rgba(124,106,247,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:4,pointBackgroundColor:'#7c6af7'},
+      {label:'Security',data:[48,52,55,58,60,62,65,68],borderColor:'#e74c3c',backgroundColor:'transparent',tension:.4,borderWidth:1,pointRadius:0,borderDash:[3,3]},
+      {label:'Reliability',data:[75,78,79,82,83,84,84,85],borderColor:'#1abc9c',backgroundColor:'transparent',tension:.4,borderWidth:1,pointRadius:0,borderDash:[3,3]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},
+      scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}}},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},min:40,max:100}}}
+  });
+}
+
+// ──────────────── DORA CHARTS ────────────────
+let doraInited=false;
+function initDora() {
+  if(doraInited) return; doraInited=true;
+  const w={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},elements:{point:{radius:0},line:{tension:.4}}};
+  [['dora1',[3,4,5,5,6,5,7,7,8,8,8.2],'#2ecc71'],
+   ['dora2',[4,3.8,3.5,3,3,2.7,2.5,2.3,2.1,2.1,2.1],'#4a9eff'],
+   ['dora3',[2,2.5,2,3,3.1,3.5,4,4.5,4.8,4.8,5.2],'#f39c12'],
+   ['dora4',[90,80,70,60,55,50,40,35,30,24,20],'#1abc9c'],
+   ['dora5',[60,62,65,68,70,71,72,73,74,74,74],'#9d8ff7'],
+   ['dora6',[35,38,40,42,43,42,41,42,42,42,42],'#f39c12']
+  ].forEach(([id,data,color])=>{
+    const ctx=document.getElementById(id);
+    if(!ctx) return;
+    new Chart(ctx,{type:'line',data:{labels:data.map((_,i)=>i),datasets:[{data,borderColor:color,borderWidth:2,fill:false}]},options:w});
+  });
+}
+
+// ──────────────── RELEASE RISK DONUT ────────────────
+let releaseInited=false;
+function initRelease() {
+  if(releaseInited) return; releaseInited=true;
+  const ctx = document.getElementById('riskDonut');
+  if(!ctx) return;
+  new Chart(ctx,{type:'doughnut',data:{datasets:[{data:[72,28],backgroundColor:['#f39c12','#1e2340'],borderWidth:0,circumference:360}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'75%'}});
+  const ctx2 = document.getElementById('accChart');
+  if(!ctx2) return;
+  new Chart(ctx2,{type:'bar',data:{labels:['Low Risk','Med Risk','High Risk'],datasets:[{label:'Accuracy',data:[94,87,79],backgroundColor:['rgba(46,204,113,.6)','rgba(243,156,18,.6)','rgba(231,76,60,.6)'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}}},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},max:100}}}});
+}
+
+// ──────────────── TEAM TOPOLOGY SVG ────────────────
+(function buildTopo() {
+  const canvas = document.getElementById('topo-canvas');
+  if(!canvas) return;
+  const nodes = [
+    {id:'platform',label:'Platform\nTeam',x:50,y:50,cls:'node-platform'},
+    {id:'alpha',label:'Team Alpha\n(checkout)',x:20,y:75,cls:'node-stream'},
+    {id:'beta',label:'Team Beta\n(auth)',x:35,y:25,cls:'node-stream'},
+    {id:'gamma',label:'Team Gamma\n(payment)',x:65,y:75,cls:'node-bottleneck'},
+    {id:'delta',label:'Team Delta\n(catalog)',x:80,y:35,cls:'node-stream'},
+    {id:'infra',label:'Infra\nTeam',x:80,y:65,cls:'node-stream'}
+  ];
+  const edges=[['platform','alpha'],['platform','beta'],['platform','gamma'],['platform','delta'],['alpha','gamma'],['beta','delta'],['gamma','infra']];
+  let html='';
+  edges.forEach(([a,b])=>{
+    const na=nodes.find(n=>n.id===a),nb=nodes.find(n=>n.id===b);
+    const x1=na.x,y1=na.y,x2=nb.x,y2=nb.y;
+    const angle=Math.atan2(y2-y1,x2-x1)*180/Math.PI;
+    const dist=Math.sqrt((x2-x1)**2+(y2-y1)**2);
+    html+=`<div style="position:absolute;left:${x1}%;top:${y1}%;width:${dist}%;height:1px;background:#252b4a;transform-origin:left center;transform:rotate(${angle}deg);"></div>`;
+  });
+  nodes.forEach(n=>{
+    html+=`<div class="topo-node" style="left:${n.x}%;top:${n.y}%"><div class="node-circle ${n.cls}">${n.label.split('\n')[0].substring(0,3)}</div><div class="node-label">${n.label.replace('\n','<br>')}</div></div>`;
+  });
+  canvas.innerHTML=html;
+})();
+
+// Coupling heatmap
+(function buildHeatmap() {
+  const el=document.getElementById('coupling-heatmap');
+  if(!el) return;
+  const teams=['Alpha','Beta','Gamma','Delta','Plat'];
+  const matrix=[[0,2,8,1,7],[2,0,3,6,5],[8,3,0,4,9],[1,6,4,0,3],[7,5,9,3,0]];
+  let html='<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:2px;font-size:9px;">';
+  html+='<div></div>';
+  teams.forEach(t=>{ html+=`<div style="text-align:center;color:var(--text3);padding:2px;">${t}</div>`; });
+  teams.forEach((t,i)=>{
+    html+=`<div style="color:var(--text3);display:flex;align-items:center;padding-right:4px;">${t}</div>`;
+    teams.forEach((_,j)=>{
+      const v=matrix[i][j];const a=v/10;
+      const bg=v===0?'var(--bg4)':`rgba(124,106,247,${a})`;
+      html+=`<div style="width:24px;height:24px;background:${bg};border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;color:${v>5?'#fff':'var(--text3)'}">${v||'·'}</div>`;
+    });
+  });
+  html+='</div>';
+  el.innerHTML=html;
+})();
+
+// ──────────────── DEVEX CHARTS ────────────────
+let devexInited=false;
+function initDevEx() {
+  if(devexInited) return; devexInited=true;
+  const ctx=document.getElementById('flowChart');
+  if(!ctx) return;
+  const labels=['Mon','Tue','Wed','Thu','Fri','Mon','Tue','Wed','Thu','Fri'];
+  new Chart(ctx,{type:'bar',data:{labels,datasets:[
+    {label:'Deep Work (hrs)',data:[3.8,3.2,2.8,3.5,4.1,3.6,3.0,3.4,3.8,3.2],backgroundColor:'rgba(74,158,255,.6)',borderRadius:4},
+    {label:'Interrupted (hrs)',data:[1.2,1.8,2.2,1.5,0.9,1.4,2.0,1.6,1.2,1.8],backgroundColor:'rgba(231,76,60,.4)',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},stacked:true},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},stacked:true,max:6}}}});
+}
+
+// ──────────────── COST CHART ────────────────
+let costInited=false;
+function initCost() {
+  if(costInited) return; costInited=true;
+  const ctx=document.getElementById('costChart');
+  if(!ctx) return;
+  const labels=['Jan','Feb','Mar','Apr','May','Jun'];
+  new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {label:'CI/CD Cost ($K)',data:[18,20,22,21,26,24],borderColor:'#4a9eff',backgroundColor:'rgba(74,158,255,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3},
+    {label:'Cloud Spend ($K/10)',data:[15,15,16,16,19,18.7],borderColor:'#7c6af7',backgroundColor:'transparent',tension:.4,borderWidth:1,borderDash:[4,4],pointRadius:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}}},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}}}}}});
+}
+
+// ──────────────── INCIDENT CHART ────────────────
+let incidentInited=false;
+function initIncident() {
+  if(incidentInited) return; incidentInited=true;
+  const ctx=document.getElementById('incidentChart');
+  if(!ctx) return;
+  new Chart(ctx,{type:'bar',data:{
+    labels:['Apr W1','Apr W2','Apr W3','Apr W4','May W1','May W2','May W3','May W4','Jun W1','Jun W2','Jun W3','Jun W4'],
+    datasets:[
+      {label:'P1',data:[1,0,0,1,0,0,0,0,0,0,0,0],backgroundColor:'rgba(231,76,60,.8)',borderRadius:3},
+      {label:'P2',data:[2,1,3,1,2,1,0,1,2,1,0,1],backgroundColor:'rgba(243,156,18,.7)',borderRadius:3},
+      {label:'P3',data:[4,3,5,3,4,2,3,2,3,2,3,1],backgroundColor:'rgba(74,158,255,.5)',borderRadius:3}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9099c4',font:{size:9}}}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:9}},stacked:true},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},stacked:true}}}});
+}
+
+// ──────────────── AI COPILOT ENGINE ────────────────
+// ── Intent taxonomy: maps questions → DI APIs ──
+const INTENTS = {
+  DORA: {
+    keywords: ['cfr','change failure','lead time','deployment frequency','mttr','mean time','dora','recover'],
+    sources: [['Deployments Service','/api/deployments/v3/cfr'],['Incidents Manager','/api/incidentsmanager/v1/aggregates'],['Git Service','/api/git/v4/commits']],
+    confidence: 'high'
+  },
+  GIT: {
+    keywords: ['pr','pull request','commit','branch','merge','review','code churn','repository','repo','frequency drop'],
+    sources: [['Git Service','/api/git/v4/pullrequests'],['Develop Service','/api/develop/v3/aggregates/by-contributor']],
+    confidence: 'high'
+  },
+  INCIDENT: {
+    keywords: ['incident','outage','p1','p2','p3','oncall','alert','down','latency','error rate','failure','down'],
+    sources: [['Incidents Manager','/api/incidentsmanager/v1/incidents'],['ServiceNow','/api/servicenow/v1/incidents'],['Deployments Service','/api/deployments/v3/deployments']],
+    confidence: 'high'
+  },
+  SECURITY: {
+    keywords: ['cve','vulnerability','sbom','supply chain','license','xray','dependabot','security','jfrog'],
+    sources: [['JFrog Service','/api/jfrog/v2/vulnerabilities'],['Git Service','/api/git/v4/vulnerability-alerts'],['License Scan','/api/licensescan/v4']],
+    confidence: 'high'
+  },
+  RELEASE: {
+    keywords: ['release','safe to deploy','risk','rollout','v2.4','v2.','v1.','ship','production','deploy'],
+    sources: [['Release Manager','/api/release-manager/v1'],['Build Service','/api/build/v4'],['Test Service','/api/test/v4/aggregates'],['Deployments Service','/api/deployments/v3']],
+    confidence: 'high'
+  },
+  TEAM: {
+    keywords: ['team','velocity','sprint','retro','retrospective','productivity','developer','bottleneck','wait'],
+    sources: [['Develop Service','/api/develop/v3/aggregates/by-contributor'],['Jira Service','/api/jira/v4/milestones'],['Git Service','/api/git/v4/pullrequests']],
+    confidence: 'high'
+  },
+  QUALITY: {
+    keywords: ['quality','sonar','coverage','test','bug','tech debt','technical debt','sonarqube'],
+    sources: [['SonarQube Service','/api/sonarqube/v3'],['Test Service','/api/test/v4/aggregates'],['Application Manager','/api/application_manager/v4/aggregates']],
+    confidence: 'med'
+  },
+  BENCHMARK: {
+    keywords: ['benchmark','industry','compare','percentile','peer','how do we rank','how do we compare'],
+    sources: [['Insights Service','/api/insights/v3/benchmarks'],['Application Manager','/api/application_manager/v4/aggregates']],
+    confidence: 'med'
+  },
+  REPORT: {
+    keywords: ['report','summary','board','executive','weekly','monthly','export'],
+    sources: [['Insights Service','/api/insights/v3/reports'],['Application Manager','/api/application_manager/v4/aggregates'],['All Services','(all DI APIs)']],
+    confidence: 'high'
+  }
+};
+
+// ── Out-of-scope: must have at least one engineering keyword to be in scope ──
+const ENG_KEYWORDS = ['deploy','code','build','test','security','team','sprint','pr','commit',
+  'incident','metric','dora','release','pipeline','ci','cd','devops','engineer','quality',
+  'vulnerability','performance','monitor','service','api','repository','git','jira','sonar',
+  'cve','sbom','cfr','mttr','lead time','frequency','coverage','docker','kubernetes','helm',
+  'artifact','image','license','branch','merge','retro','velocity','benchmark','industry'];
+
+function isOutOfScope(q) {
+  const ql = q.toLowerCase();
+  return !ENG_KEYWORDS.some(k => ql.includes(k));
+}
+
+function classifyIntent(q) {
+  const ql = q.toLowerCase();
+  for (const [name, def] of Object.entries(INTENTS)) {
+    if (def.keywords.some(k => ql.includes(k))) return { name, ...def };
+  }
+  return null;
+}
+
+// ── Canned responses keyed by intent ──
+const intentResponses = {
+  DORA: (q)=> {
+    if(q.includes('cfr')||q.includes('change failure')){
+      return `📊 <strong>Change Failure Rate increased from 3.1% → 4.8%</strong> this week.<br><br>
+      <strong>Root Cause Analysis (from Deployments + Incidents APIs):</strong><br>
+      Deployment <code>payment-service v2.3.9</code> at 13:58 UTC changed async queue batch size (500→5000). Under production load this caused memory pressure not observed in staging. 2 of the 3 CFR events trace directly to this change.<br><br>
+      <strong>Pattern detected:</strong> 87% of payment-service CFR events follow async config changes without load testing. Recommend adding a queue load test to CI gate.`;
+    }
+    return `📈 <strong>DORA Metrics (last 7 days, from /api/deployments/v3 + /api/incidentsmanager/v1):</strong><br><br>
+    Deploy Frequency: <strong>8.2/day</strong> ↑12% &nbsp;|&nbsp; Lead Time: <strong>2.1 days</strong> ↓0.4d &nbsp;|&nbsp; CFR: <strong>4.8%</strong> ↑1.7% &nbsp;|&nbsp; MTTR: <strong>24 min</strong> ↓14m<br><br>
+    <strong>AI Observation:</strong> CFR spike is offsetting strong velocity gains. Team Gamma is the only team in Medium tier — fixing their pipeline quality would push org-level DORA to Elite.`;
+  },
+  GIT: ()=> `🔀 <strong>Git Activity (from /api/git/v4 + /api/develop/v3, last 7 days):</strong><br><br>
+    47 PRs merged · Avg PR size: 180 lines · Median review wait: <strong>6.8h</strong><br><br>
+    <strong>⚠️ Bottleneck:</strong> Team Alpha PR review wait jumped 4h→18h (2 senior engineers on PTO, 11 PRs queued). Deployment frequency dropped 34% as a direct result.<br><br>
+    <strong>Recommendation:</strong> Enable CODEOWNERS auto-assignment to distribute reviews across 3 eligible reviewers.`,
+  INCIDENT: ()=> `🔴 <strong>Active: INC0084721</strong> (from /api/incidentsmanager/v1 + /api/servicenow/v1)<br><br>
+    P2 · payment-service latency spike · Open 18 min · Auto-linked to deployment v2.3.9 (87% confidence)<br><br>
+    <strong>30-day pattern:</strong> payment-service responsible for 40% of all incidents. Root pattern: async queue config changes without load tests. This is the 3rd occurrence in 90 days.<br><br>
+    <strong>AI-generated post-mortem is ready</strong> — reviewing 5 signals from Deployments, Git, ServiceNow, and SonarQube APIs.`,
+  SECURITY: ()=> `🛡 <strong>Supply Chain Report (from /api/jfrog/v2 + /api/git/v4/vulnerability-alerts):</strong><br><br>
+    <strong>🔴 CRITICAL — CVE-2024-3094:</strong> xz-utils 5.6.0 backdoor in payment-service, order-service, auth-service. CVSS 10.0.<br><br>
+    7 total CVEs: 1 Critical · 3 High · 2 Medium · 1 Low<br>
+    License violations: 3 (GPL-3.0 in commercial services)<br><br>
+    <strong>AI-generated fix PR is ready</strong> for the xz-utils downgrade to 5.4.6 (15-min fix). SLSA Level 2 achieved, roadmap to Level 3 auto-generated.`,
+  RELEASE: ()=> `⚠️ <strong>Release Risk: payment-service v2.4.1 → Score 72/100 (MEDIUM-HIGH)</strong><br>
+    (from /api/release-manager/v1 + /api/test/v4 + /api/deployments/v3)<br><br>
+    Risk factors: Test coverage dropped 8% · 2 open critical bugs · 14 new dependencies · 2 engineers on PTO<br><br>
+    <strong>AI Recommendation: Delay 48 hours.</strong> Based on 147 historical releases with this risk profile, 67% required a hotfix within 24h of deployment. Resolving the 2 open critical bugs would drop risk score to 31 (Low).`,
+  TEAM: (q)=> {
+    if(q.includes('retro')||q.includes('retrospective')){
+      return `📝 <strong>Sprint 42 Auto-Retrospective — Team Gamma</strong> (from /api/develop/v3 + /api/jira/v4)<br><br>
+      <strong>✅ What went well:</strong> Async queue refactor delivered on time. Zero P1 incidents this sprint.<br><br>
+      <strong>⚠️ What to improve:</strong> PR review wait doubled (2h→4.2h). 3 deployments blocked by Platform team for 3.4 days avg. Build times up 175% after new integration tests added.<br><br>
+      <strong>🎯 Next sprint focus:</strong> Test coverage 71%→80%, CI parallelization, pre-coordinate with Platform team on Week 1.`;
+    }
+    return `👥 <strong>Team Performance (from /api/develop/v3 + /api/jira/v4, last sprint):</strong><br><br>
+    Team Alpha: Elite DORA · Deploy freq 12.1/day · Review wait 2.1h ✅<br>
+    Team Beta: High DORA · Deploy freq 7.4/day · Review wait 4.8h<br>
+    Team Gamma: <strong>Medium DORA</strong> · Deploy freq 3.2/day · Review wait 18h ⚠️<br><br>
+    <strong>Biggest bottleneck:</strong> Platform Team blocking 4 teams avg 3.4 days per cross-team PR. Recommend embedding Platform engineer in Team Gamma for next sprint.`;
+  },
+  QUALITY: ()=> `🔬 <strong>Code Quality (from /api/sonarqube/v3 + /api/test/v4):</strong><br><br>
+    Org-level test coverage: <strong>78%</strong> ↑4% · SonarQube gate: PASSING<br>
+    Tech debt: 142h (-18h this sprint) · Open bugs: 24 (2 critical)<br><br>
+    <strong>⚠️ payment-service: 71% coverage</strong> (below 80% gate). This is a release blocker for v2.4.1 and contributing to the elevated CFR.`,
+  BENCHMARK: ()=> `🏆 <strong>Industry Benchmark (from /api/insights/v3 · FinTech peer group, n=847 companies):</strong><br><br>
+    Your tier: <strong>High Performer</strong> · Top 25% overall<br>
+    MTTR: Top 9% 🏅 · Deploy Freq: Top 18% · CFR: Top 38% (needs work)<br><br>
+    <strong>3 steps to Elite tier:</strong> Fix CFR quality gates → Reduce Team Gamma lead time → Improve DevEx to 85+. Estimated timeline: 6 weeks.`,
+  REPORT: ()=> `📄 <strong>Engineering Executive Summary — Q2 2026</strong> (from all DI APIs)<br><br>
+    🟢 <strong>Velocity:</strong> 247 deployments (+23% YoY) · Lead time 2.1 days (was 14.2d)<br>
+    🟡 <strong>Reliability:</strong> 99.94% uptime · 3 P1/P2 incidents (was 8) · MTTR 24min saves ~$180K/yr<br>
+    🔵 <strong>Quality:</strong> Coverage 78% ↑4% · Tech debt -18%<br>
+    🔴 <strong>Risk:</strong> xz-utils CVE in 3 services — remediation this sprint<br><br>
+    Health Score: <strong>78/100 ↑3</strong> · High Performer tier · Top 25% FinTech benchmark`
+};
+
+// ── AI Tab switcher ──
+function switchAiTab(tab) {
+  document.getElementById('ai-chat-panel').style.display = tab==='chat' ? 'block' : 'none';
+  document.getElementById('ai-arch-panel').style.display = tab==='arch' ? 'block' : 'none';
+  document.getElementById('tab-chat').classList.toggle('active', tab==='chat');
+  document.getElementById('tab-arch').classList.toggle('active', tab==='arch');
+}
+
+function showRealMode() {
+  document.getElementById('ai-chat-panel').style.display = 'none';
+  document.getElementById('ai-arch-panel').style.display = 'none';
+  document.getElementById('real-mode-panel').style.display = 'block';
+  document.getElementById('tab-chat').classList.remove('active');
+  document.getElementById('tab-arch').classList.remove('active');
+}
+function hideRealMode() {
+  document.getElementById('real-mode-panel').style.display = 'none';
+  switchAiTab('chat');
+}
+
+function sendChat(chip) {
+  const q = chip.textContent;
+  processQuestion(q);
+}
+function sendChatInput() {
+  const inp = document.getElementById('chat-input');
+  const q = inp.value.trim();
+  if(!q) return;
+  inp.value = '';
+  processQuestion(q);
+}
+
+function processQuestion(q) {
+  addUserMsg(q);
+  // Show thinking indicator with which APIs are being queried
+  const intent = classifyIntent(q);
+  const oos = isOutOfScope(q);
+
+  if (oos || !intent) {
+    // Show brief thinking then OOF response
+    showThinking(['Checking scope...'], ()=> {
+      addOOFMsg();
+    }, 600);
+    return;
+  }
+
+  const apiNames = intent.sources.map(s => `Querying ${s[0]}...`);
+  showThinking(apiNames, ()=> {
+    const respFn = intentResponses[intent.name];
+    const respHtml = typeof respFn === 'function' ? respFn(q.toLowerCase()) : respFn;
+    addAIMsg(respHtml, intent.sources, intent.confidence);
+  }, 1200);
+}
+
+function showThinking(steps, callback, delay) {
+  const msgs = document.getElementById('chat-messages');
+  const id = 'thinking-' + Date.now();
+  msgs.innerHTML += `<div class="chat-msg ai" id="${id}">
+    <div class="chat-avatar ai">AI</div>
+    <div class="chat-bubble oof-bubble">
+      <div class="thinking-dots"><span></span><span></span><span></span></div>
+      <div class="thinking-source-list">${steps.map(s=>`<div>⟳ ${s}</div>`).join('')}</div>
+    </div>
+  </div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(()=>{ const el=document.getElementById(id); if(el)el.remove(); callback(); }, delay);
+}
+
+function addOOFMsg() {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML += `<div class="chat-msg ai">
+    <div class="chat-avatar ai">AI</div>
+    <div class="chat-bubble oof-bubble">
+      <strong>🔒 Out of Scope</strong><br><br>
+      I'm your Engineering Copilot — I only answer questions about your engineering org's data.<br><br>
+      I can help you with: <strong>DORA metrics, deployments, incidents, code quality, security vulnerabilities, team performance, release risk, cost intelligence, or industry benchmarks.</strong><br><br>
+      <em style="font-size:11px;color:var(--text3);">Why? Every answer I give is grounded in your real DI API data. I don't use general knowledge — that would lead to wrong answers. Keeping scope tight keeps answers accurate.</em>
+      <div class="chat-chips" style="margin-top:8px;">
+        <div class="chat-chip" onclick="sendChat(this)">Why did our CFR increase?</div>
+        <div class="chat-chip" onclick="sendChat(this)">Show me supply chain risks</div>
+        <div class="chat-chip" onclick="sendChat(this)">Is v2.4.1 safe to deploy?</div>
+      </div>
+      <div class="source-row"><span class="src-tag">⛔ No DI API called</span><span class="src-tag">No LLM invoked</span></div>
+    </div>
+  </div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMsg(text) {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML += `<div class="chat-msg user"><div class="chat-avatar user">SK</div><div class="chat-bubble user">${text}</div></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addAIMsg(html, sources, conf) {
+  const msgs = document.getElementById('chat-messages');
+  const srcHtml = sources ? sources.map(s=>`<span class="src-tag api">📡 ${s[0]}</span>`).join('') : '';
+  const confHtml = conf==='high' ? '<span class="confidence-tag conf-high">High confidence</span>' : '<span class="confidence-tag conf-med">Medium confidence</span>';
+  msgs.innerHTML += `<div class="chat-msg ai">
+    <div class="chat-avatar ai">AI</div>
+    <div class="chat-bubble">
+      ${html}
+      <div class="source-row">${srcHtml}${confHtml}</div>
+    </div>
+  </div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ──────────────── FAANG CHARTS ────────────────
+let errBudgetInited=false;
+function initErrBudget(){
+  if(errBudgetInited)return; errBudgetInited=true;
+  const ctx=document.getElementById('burnChart'); if(!ctx)return;
+  const labels=['Jun 1','Jun 5','Jun 10','Jun 15','Jun 20','Jun 25','Jun 28','Jun 30'];
+  new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {label:'Ideal burn',data:[100,87,74,61,48,35,25,19],borderColor:'#252b4a',borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false,tension:.1},
+    {label:'Actual burn',data:[100,95,88,70,45,22,10,4.2],borderColor:'#e74c3c',backgroundColor:'rgba(231,76,60,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#e74c3c'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:9}}},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},min:0,max:100,title:{display:true,text:'Budget %',color:'#5a6390',font:{size:9}}}}}});
+}
+
+let bizOutcomeInited=false;
+function initBizOutcome(){
+  if(bizOutcomeInited)return; bizOutcomeInited=true;
+  const ctx=document.getElementById('bizImpactChart'); if(!ctx)return;
+  new Chart(ctx,{type:'bar',data:{
+    labels:['checkout v2.1','catalog v2.8','notif v1.4','auth v2.0','payment v2.3.9'],
+    datasets:[{label:'Revenue Impact ($K)',data:[420,95,38,0,-18],backgroundColor:d=>d.raw>=0?'rgba(46,204,113,.6)':'rgba(231,76,60,.6)',borderRadius:4}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:9}}},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},title:{display:true,text:'Revenue $K',color:'#5a6390',font:{size:9}}}}}});
+}
+
+let busInited=false;
+function initBusFactor(){
+  if(busInited)return; busInited=true;
+  const ctx=document.getElementById('busChart'); if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[
+    {label:'Org Avg Bus Factor',data:[3.2,3.1,2.9,2.6,2.4,2.1],borderColor:'#e74c3c',backgroundColor:'rgba(231,76,60,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3},
+    {label:'Target (≥3)',data:[3,3,3,3,3,3],borderColor:'#27ae60',borderDash:[4,4],borderWidth:1,pointRadius:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:9}}},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},min:1,max:5}}}});
+}
+
+let toilInited=false;
+function initToil(){
+  if(toilInited)return; toilInited=true;
+  const ctx=document.getElementById('toilChart'); if(!ctx)return;
+  new Chart(ctx,{type:'bar',data:{
+    labels:['Team Alpha','Team Beta','Team Gamma','Platform'],
+    datasets:[
+      {label:'Feature Work',data:[62,54,41,38],backgroundColor:'rgba(74,158,255,.6)',borderRadius:4},
+      {label:'Toil',data:[38,46,59,62],backgroundColor:'rgba(231,76,60,.5)',borderRadius:4}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9099c4',font:{size:10}}}},scales:{x:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},stacked:true},y:{grid:{color:'#1e2340'},ticks:{color:'#5a6390',font:{size:10}},stacked:true,max:100,title:{display:true,text:'%',color:'#5a6390',font:{size:9}}}}}});
+}
+
+// ──────────────── BLAST RADIUS SIMULATOR ────────────────
+const blastConfigs = {
+  payment: {
+    nodes:[
+      {id:'payment',label:'payment-svc',x:50,y:40,state:'failed',size:56},
+      {id:'order',label:'order-svc',x:25,y:70,state:'failed',size:48},
+      {id:'checkout',label:'checkout-svc',x:72,y:68,state:'degraded',size:48},
+      {id:'notif',label:'notif-svc',x:85,y:42,state:'degraded',size:40},
+      {id:'catalog',label:'catalog-svc',x:15,y:35,state:'healthy',size:44},
+      {id:'auth',label:'auth-svc',x:38,y:15,state:'healthy',size:44},
+      {id:'user',label:'user-svc',x:65,y:15,state:'healthy',size:40},
+      {id:'infra',label:'platform\ninfra',x:50,y:85,state:'platform',size:52}
+    ],
+    edges:[['payment','order'],['payment','checkout'],['payment','notif'],['auth','payment'],['catalog','checkout'],['infra','payment'],['infra','auth'],['infra','catalog'],['user','checkout']]
+  }
+};
+
+function buildBlastCanvas(){
+  const canvas = document.getElementById('blast-canvas'); if(!canvas)return;
+  simulateBlast('payment');
+}
+
+function simulateBlast(svc){
+  const canvas = document.getElementById('blast-canvas'); if(!canvas)return;
+  const cfg = blastConfigs[svc]||blastConfigs.payment;
+  const stateClass = {failed:'bn-failed',degraded:'bn-degraded',healthy:'bn-healthy',platform:'bn-platform'};
+  let html='';
+  cfg.edges.forEach(([a,b])=>{
+    const na=cfg.nodes.find(n=>n.id===a),nb=cfg.nodes.find(n=>n.id===b);
+    const x1=na.x,y1=na.y,x2=nb.x,y2=nb.y;
+    const ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;
+    const dist=Math.sqrt((x2-x1)**2+(y2-y1)**2);
+    const color=(na.state==='failed'||nb.state==='failed')?'rgba(231,76,60,.5)':(na.state==='degraded'||nb.state==='degraded')?'rgba(243,156,18,.4)':'#1e2340';
+    html+=`<div style="position:absolute;left:${x1}%;top:${y1}%;width:${dist}%;height:1px;background:${color};transform-origin:left center;transform:rotate(${ang}deg);"></div>`;
+  });
+  cfg.nodes.forEach(n=>{
+    const s=n.size;
+    html+=`<div class="blast-node" style="left:${n.x}%;top:${n.y}%">
+      <div class="bn-circle ${stateClass[n.state]}" style="width:${s}px;height:${s}px;">${n.label.split('\n')[0].substring(0,4)}</div>
+      <div class="bn-label" style="color:var(--text3)">${n.label.replace('\n','<br>')}</div>
+    </div>`;
+  });
+  canvas.innerHTML=html;
+}
+
+// ──────────────── INIT CMD CENTER CHARTS ────────────────
+window.addEventListener('load',()=>{ mkSparkline('sp1',[4,5,6,5,7,6,8,7,8,8.2],'#2ecc71'); });
+</script>
+</body>
+</html>

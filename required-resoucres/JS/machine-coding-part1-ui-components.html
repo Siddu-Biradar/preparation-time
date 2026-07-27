@@ -1,0 +1,4770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Coding Round — Part 1: UI Components & DOM Problems</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .companies { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+    .live-demo { border: 2px solid var(--accent-soft); border-radius: 12px; margin: 14px 0 18px; overflow: hidden; background: #fff; }
+    .live-demo-header { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); }
+    .live-demo iframe { width: 100%; height: 420px; border: none; display: block; }
+    details.html-source { margin: -10px 0 18px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    details.html-source summary { padding: 10px 14px; background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); cursor: pointer; user-select: none; }
+    details.html-source summary:hover { background: #d6eaf8; }
+    details.html-source pre { margin: 0; border: none; border-radius: 0; max-height: 400px; overflow-y: auto; font-size: 9pt; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Machine Coding Round — Part 1</h1>
+  <p class="subtitle">UI Components & DOM-Based Problems (Asked at FAANG, Flipkart, Atlassian, Razorpay)</p>
+  <div class="pill-row">
+    <span class="pill">Debounce/Throttle</span>
+    <span class="pill">Infinite Scroll</span>
+    <span class="pill">Autocomplete</span>
+    <span class="pill">Star Rating</span>
+    <span class="pill">Modal/Toast</span>
+    <span class="pill">Tabs/Accordion</span>
+    <span class="pill">Drag & Drop</span>
+    <span class="pill">Form Validation</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>🎯 Machine Coding Round Format:</strong> You get 45-90 minutes, a problem statement, and sometimes a blank HTML file. You need to write working code (HTML + CSS + JS) from scratch. Interviewers evaluate: correctness, code structure, edge cases, UX polish, and how you handle time pressure. These are NOT algorithm problems — they test your ability to BUILD things.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#debounce-throttle">Debounce & Throttle (with Cancel, Flush, Leading/Trailing)</a></li>
+    <li><a href="#infinite-scroll">Infinite Scroll with Loading State</a></li>
+    <li><a href="#autocomplete">Autocomplete / Typeahead Search</a></li>
+    <li><a href="#star-rating">Star Rating Component</a></li>
+    <li><a href="#modal-system">Modal / Dialog System</a></li>
+    <li><a href="#toast-notification">Toast Notification System</a></li>
+    <li><a href="#tabs-component">Tabs Component</a></li>
+    <li><a href="#accordion">Accordion / Collapsible Sections</a></li>
+    <li><a href="#form-validation">Form Validation (Real-time)</a></li>
+    <li><a href="#countdown-timer">Countdown Timer / Stopwatch</a></li>
+    <li><a href="#carousel-slider">Image Carousel / Slider</a></li>
+    <li><a href="#drag-drop">Drag & Drop (Sortable List)</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="debounce-throttle">1. Debounce & Throttle</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Amazon, Flipkart, Razorpay, Swiggy, Atlassian, Uber</p>
+
+<h3>Problem Statement</h3>
+<p>Implement <code>debounce</code> and <code>throttle</code> utility functions with support for leading/trailing edge, cancel, and flush.</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Type in debounce input, click rapidly for throttle</div>
+  <iframe src="demos/debounce-throttle.html" loading="lazy" style="height:540px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Debounce &amp; Throttle Demo&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 30px; background: #f5f5f5; }
+
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 20px; font-size: 22px; }
+
+    .demo-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .demo-card h3 { margin-bottom: 12px; color: #1a5276; font-size: 16px; }
+    .demo-card p { font-size: 13px; color: #666; margin-bottom: 12px; }
+
+    input[type=&quot;text&quot;] {
+      width: 100%; padding: 12px 16px; border: 2px solid #ddd;
+      border-radius: 8px; font-size: 15px; outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: #4a90d9; }
+
+    .log-area {
+      margin-top: 12px; padding: 12px;
+      background: #1a1a2e; border-radius: 8px;
+      max-height: 160px; overflow-y: auto;
+      font-family: &#x27;SF Mono&#x27;, Consolas, monospace; font-size: 12px;
+      color: #00d9a3; line-height: 1.8;
+    }
+    .log-item { opacity: 0; animation: fadeIn 0.2s forwards; }
+    .log-item.raw { color: #888; }
+    .log-item.debounced { color: #27ae60; }
+    .log-item.throttled { color: #f39c12; }
+
+    .counter-row {
+      display: flex; gap: 12px; margin-top: 12px; font-size: 13px; font-weight: 600;
+    }
+    .counter { padding: 6px 12px; border-radius: 6px; background: #f0f0f0; }
+    .counter.raw { color: #e74c3c; }
+    .counter.processed { color: #27ae60; }
+
+    button.resize-btn {
+      width: 100%; padding: 12px; margin-top: 10px;
+      background: #4a90d9; color: white; border: none;
+      border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600;
+    }
+    button.resize-btn:hover { background: #357abd; }
+    .clear-btn {
+      background: #eee; color: #555; border: none; padding: 6px 14px;
+      border-radius: 6px; font-size: 12px; cursor: pointer; float: right;
+      margin: 0;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;⚡ Debounce vs Throttle&lt;/h1&gt;
+
+  &lt;!-- Debounce Demo --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;🔍 Debounce — Search Input&lt;/h3&gt;
+    &lt;p&gt;Type fast — API call fires only after you &lt;strong&gt;stop typing&lt;/strong&gt; for 500ms&lt;/p&gt;
+    &lt;input type=&quot;text&quot; id=&quot;debounce-input&quot; placeholder=&quot;Type here... watch the log below&quot;&gt;
+    &lt;div class=&quot;counter-row&quot;&gt;
+      &lt;span class=&quot;counter raw&quot;&gt;Keystrokes: &lt;span id=&quot;debounce-raw&quot;&gt;0&lt;/span&gt;&lt;/span&gt;
+      &lt;span class=&quot;counter processed&quot;&gt;API Calls: &lt;span id=&quot;debounce-fired&quot;&gt;0&lt;/span&gt;&lt;/span&gt;
+      &lt;button class=&quot;clear-btn&quot; onclick=&quot;clearLog(&#x27;debounce&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;debounce-log&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Throttle Demo --&gt;
+  &lt;div class=&quot;demo-card&quot;&gt;
+    &lt;h3&gt;🖱️ Throttle — Scroll / Resize&lt;/h3&gt;
+    &lt;p&gt;Click rapidly — handler fires at most once every &lt;strong&gt;300ms&lt;/strong&gt;&lt;/p&gt;
+    &lt;button class=&quot;resize-btn&quot; id=&quot;throttle-btn&quot;&gt;Click me rapidly! (simulates scroll/resize)&lt;/button&gt;
+    &lt;div class=&quot;counter-row&quot;&gt;
+      &lt;span class=&quot;counter raw&quot;&gt;Clicks: &lt;span id=&quot;throttle-raw&quot;&gt;0&lt;/span&gt;&lt;/span&gt;
+      &lt;span class=&quot;counter processed&quot;&gt;Handler Fired: &lt;span id=&quot;throttle-fired&quot;&gt;0&lt;/span&gt;&lt;/span&gt;
+      &lt;button class=&quot;clear-btn&quot; onclick=&quot;clearLog(&#x27;throttle&#x27;)&quot;&gt;Clear&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;log-area&quot; id=&quot;throttle-log&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// ━━━━━━━ DEBOUNCE IMPLEMENTATION ━━━━━━━
+function debounce(fn, delay) {
+  let timerId = null;
+  
+  function debounced(...args) {
+    clearTimeout(timerId);
+    timerId = setTimeout(() =&gt; {
+      fn.apply(this, args);
+      timerId = null;
+    }, delay);
+  }
+  
+  debounced.cancel = () =&gt; { clearTimeout(timerId); timerId = null; };
+  debounced.flush = () =&gt; { if (timerId) { clearTimeout(timerId); fn(); timerId = null; } };
+  return debounced;
+}
+
+// ━━━━━━━ THROTTLE IMPLEMENTATION ━━━━━━━
+function throttle(fn, limit) {
+  let inThrottle = false;
+  let lastArgs = null;
+  let lastThis = null;
+
+  return function(...args) {
+    if (!inThrottle) {
+      fn.apply(this, args);
+      inThrottle = true;
+      setTimeout(() =&gt; {
+        inThrottle = false;
+        if (lastArgs) {
+          fn.apply(lastThis, lastArgs);
+          lastArgs = null;
+          lastThis = null;
+        }
+      }, limit);
+    } else {
+      lastArgs = args;
+      lastThis = this;
+    }
+  };
+}
+
+// ━━━━━━━ DEMO LOGIC ━━━━━━━
+let debounceRaw = 0, debounceFired = 0;
+let throttleRaw = 0, throttleFired = 0;
+
+function addLog(containerId, text, type) {
+  const log = document.getElementById(containerId);
+  const time = new Date().toLocaleTimeString([], {hour12:false, hour:&#x27;2-digit&#x27;, minute:&#x27;2-digit&#x27;, second:&#x27;2-digit&#x27;, fractionalSecondDigits: 3});
+  const item = document.createElement(&#x27;div&#x27;);
+  item.className = `log-item ${type}`;
+  item.textContent = `[${time}] ${text}`;
+  log.appendChild(item);
+  log.scrollTop = log.scrollHeight;
+}
+
+function clearLog(type) {
+  document.getElementById(`${type}-log`).innerHTML = &#x27;&#x27;;
+}
+
+// Debounce demo
+const debouncedSearch = debounce((query) =&gt; {
+  debounceFired++;
+  document.getElementById(&#x27;debounce-fired&#x27;).textContent = debounceFired;
+  addLog(&#x27;debounce-log&#x27;, `✅ API CALLED with: &quot;${query}&quot;`, &#x27;debounced&#x27;);
+}, 500);
+
+document.getElementById(&#x27;debounce-input&#x27;).addEventListener(&#x27;input&#x27;, (e) =&gt; {
+  debounceRaw++;
+  document.getElementById(&#x27;debounce-raw&#x27;).textContent = debounceRaw;
+  addLog(&#x27;debounce-log&#x27;, `keystroke: &quot;${e.target.value}&quot;`, &#x27;raw&#x27;);
+  debouncedSearch(e.target.value);
+});
+
+// Throttle demo
+const throttledHandler = throttle(() =&gt; {
+  throttleFired++;
+  document.getElementById(&#x27;throttle-fired&#x27;).textContent = throttleFired;
+  addLog(&#x27;throttle-log&#x27;, `✅ HANDLER FIRED (${throttleFired})`, &#x27;throttled&#x27;);
+}, 300);
+
+document.getElementById(&#x27;throttle-btn&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+  throttleRaw++;
+  document.getElementById(&#x27;throttle-raw&#x27;).textContent = throttleRaw;
+  addLog(&#x27;throttle-log&#x27;, `click #${throttleRaw}`, &#x27;raw&#x27;);
+  throttledHandler();
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Debounce — Complete Implementation</h3>
+<pre><code>/**
+ * Debounce: Delays execution until N ms after the LAST call.
+ * Use case: Search input — don't fire API on every keystroke, wait until user stops typing.
+ * 
+ * How it works:
+ * - Every time the function is called, reset the timer.
+ * - Only execute when the timer completes (user stopped calling).
+ * - Leading: execute on the FIRST call, then ignore until silence.
+ */
+function debounce(fn, delay, options = {}) {
+  const { leading = false, trailing = true } = options;
+  let timerId = null;
+  let lastArgs = null;
+  let lastThis = null;
+  let result;
+
+  function invokeFunc() {
+    const args = lastArgs;
+    const thisArg = lastThis;
+    lastArgs = lastThis = null;
+    result = fn.apply(thisArg, args);
+    return result;
+  }
+
+  function debounced(...args) {
+    lastArgs = args;
+    lastThis = this;
+
+    const isFirstCall = timerId === null;
+
+    // Clear existing timer
+    if (timerId !== null) {
+      clearTimeout(timerId);
+    }
+
+    // Leading edge: execute immediately on first call
+    if (leading &amp;&amp; isFirstCall) {
+      invokeFunc();
+    }
+
+    // Set timer for trailing edge
+    timerId = setTimeout(() =&gt; {
+      timerId = null;
+      // Trailing edge: execute after delay
+      if (trailing &amp;&amp; lastArgs !== null) {
+        invokeFunc();
+      }
+    }, delay);
+
+    return result;
+  }
+
+  // Cancel: prevent pending execution
+  debounced.cancel = function () {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+      timerId = null;
+    }
+    lastArgs = lastThis = null;
+  };
+
+  // Flush: execute pending immediately
+  debounced.flush = function () {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+      timerId = null;
+      if (lastArgs !== null) {
+        invokeFunc();
+      }
+    }
+    return result;
+  };
+
+  return debounced;
+}
+
+// Usage:
+const searchAPI = debounce((query) =&gt; {
+  console.log("Calling API for:", query);
+  fetch(`/api/search?q=${encodeURIComponent(query)}`);
+}, 300);
+
+// In input handler:
+input.addEventListener("input", (e) =&gt; searchAPI(e.target.value));
+
+// Cancel on component unmount:
+searchAPI.cancel();</code></pre>
+
+<h3>Throttle — Complete Implementation</h3>
+<pre><code>/**
+ * Throttle: Ensures function executes at most once every N ms.
+ * Use case: Scroll/resize handlers — fire at controlled intervals, not every frame.
+ * 
+ * How it works:
+ * - First call executes immediately (leading edge).
+ * - Subsequent calls within the interval are ignored.
+ * - After the interval, the most recent call executes (trailing edge).
+ */
+function throttle(fn, interval, options = {}) {
+  const { leading = true, trailing = true } = options;
+  let timerId = null;
+  let lastArgs = null;
+  let lastThis = null;
+  let lastCallTime = 0;
+  let result;
+
+  function invokeFunc() {
+    const args = lastArgs;
+    const thisArg = lastThis;
+    lastArgs = lastThis = null;
+    lastCallTime = Date.now();
+    result = fn.apply(thisArg, args);
+    return result;
+  }
+
+  function throttled(...args) {
+    const now = Date.now();
+    const elapsed = now - lastCallTime;
+    const remaining = interval - elapsed;
+
+    lastArgs = args;
+    lastThis = this;
+
+    // Leading edge: execute if enough time has passed
+    if (leading &amp;&amp; elapsed &gt;= interval) {
+      if (timerId !== null) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+      invokeFunc();
+    } else if (trailing &amp;&amp; timerId === null) {
+      // Schedule trailing edge execution
+      timerId = setTimeout(() =&gt; {
+        timerId = null;
+        if (trailing &amp;&amp; lastArgs !== null) {
+          invokeFunc();
+        }
+      }, remaining &gt; 0 ? remaining : interval);
+    }
+
+    return result;
+  }
+
+  throttled.cancel = function () {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+      timerId = null;
+    }
+    lastCallTime = 0;
+    lastArgs = lastThis = null;
+  };
+
+  return throttled;
+}
+
+// Usage:
+const onScroll = throttle(() =&gt; {
+  console.log("Scroll position:", window.scrollY);
+  checkInfiniteScroll();
+}, 200);
+
+window.addEventListener("scroll", onScroll);
+
+// Cleanup:
+window.removeEventListener("scroll", onScroll);
+onScroll.cancel();</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Difference?</strong> Debounce waits for silence. Throttle fires at intervals.</li>
+  <li><strong>When to use debounce?</strong> Search input, resize end, form validation.</li>
+  <li><strong>When to use throttle?</strong> Scroll, drag, mousemove, game loop, rate limiting.</li>
+  <li><strong>requestAnimationFrame as throttle?</strong> Yes — natural 16ms throttle synced to frames.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="infinite-scroll">2. Infinite Scroll with Loading State</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Amazon, LinkedIn, Swiggy, Zomato, PhonePe</p>
+
+<h3>Problem Statement</h3>
+<p>Implement infinite scrolling that loads more items when the user scrolls near the bottom. Handle loading states, error states, and "no more data" state.</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Scroll to load more</div>
+  <iframe src="demos/infinite-scroll.html" loading="lazy"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Infinite Scroll&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; }
+
+    .feed { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .feed h1 { text-align: center; margin-bottom: 20px; color: #333; }
+
+    .post-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      animation: fadeIn 0.3s ease;
+    }
+    .post-card h3 { margin-bottom: 8px; color: #1a1a1a; font-size: 16px; }
+    .post-card p { color: #555; line-height: 1.5; font-size: 14px; }
+    .post-card .meta { 
+      font-size: 12px; color: #999; margin-top: 10px; 
+      display: flex; justify-content: space-between; 
+    }
+    .post-card .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      background: #e8f4fd; color: #1a5276; font-size: 11px; font-weight: 600;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 24px;
+      color: #666;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #eee;
+      border-top-color: #4a90d9;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 10px;
+    }
+    .end-message {
+      text-align: center;
+      padding: 24px;
+      color: #999;
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;feed&quot;&gt;
+  &lt;h1&gt;📱 News Feed (Infinite Scroll)&lt;/h1&gt;
+  &lt;div id=&quot;posts-container&quot;&gt;&lt;/div&gt;
+  &lt;div id=&quot;loader&quot; class=&quot;loader&quot; style=&quot;display:none&quot;&gt;
+    &lt;div class=&quot;spinner&quot;&gt;&lt;/div&gt;
+    &lt;p&gt;Loading more posts...&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div id=&quot;end-message&quot; class=&quot;end-message&quot; style=&quot;display:none&quot;&gt;
+    You&#x27;ve reached the end! 🎉 No more posts to load.
+  &lt;/div&gt;
+  &lt;div id=&quot;sentinel&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// Simulated API
+function fakeFetch(page, limit = 10) {
+  return new Promise((resolve) =&gt; {
+    const delay = 600 + Math.random() * 600;
+    setTimeout(() =&gt; {
+      const totalPosts = 45;
+      const start = (page - 1) * limit;
+      const tags = [&#x27;Tech&#x27;, &#x27;Design&#x27;, &#x27;Business&#x27;, &#x27;Science&#x27;, &#x27;Health&#x27;, &#x27;Culture&#x27;];
+      const titles = [
+        &#x27;Breaking: Major Update Released&#x27;,
+        &#x27;How to Build Scalable Systems&#x27;,
+        &#x27;The Future of AI in Frontend&#x27;,
+        &#x27;Understanding React Internals&#x27;,
+        &#x27;CSS Grid vs Flexbox in 2025&#x27;,
+        &#x27;Why TypeScript Wins&#x27;,
+        &#x27;Performance Optimization Tips&#x27;,
+        &#x27;Building Design Systems&#x27;,
+        &#x27;State Management Patterns&#x27;,
+        &#x27;Accessibility Best Practices&#x27;
+      ];
+      
+      const posts = Array.from({ length: Math.min(limit, totalPosts - start) }, (_, i) =&gt; ({
+        id: start + i + 1,
+        title: titles[(start + i) % titles.length],
+        body: &#x27;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.&#x27;,
+        tag: tags[Math.floor(Math.random() * tags.length)],
+        date: new Date(Date.now() - (start + i) * 7200000).toLocaleDateString(),
+        likes: Math.floor(Math.random() * 200)
+      }));
+      
+      resolve({ posts, hasMore: start + limit &lt; totalPosts, total: totalPosts });
+    }, delay);
+  });
+}
+
+class InfiniteScroll {
+  constructor() {
+    this.container = document.getElementById(&#x27;posts-container&#x27;);
+    this.loader = document.getElementById(&#x27;loader&#x27;);
+    this.endMessage = document.getElementById(&#x27;end-message&#x27;);
+    this.sentinel = document.getElementById(&#x27;sentinel&#x27;);
+    
+    this.page = 1;
+    this.isLoading = false;
+    this.hasMore = true;
+    
+    this.setupObserver();
+    this.loadMore();
+  }
+
+  setupObserver() {
+    this.observer = new IntersectionObserver((entries) =&gt; {
+      if (entries[0].isIntersecting &amp;&amp; !this.isLoading &amp;&amp; this.hasMore) {
+        this.loadMore();
+      }
+    }, { rootMargin: &#x27;200px&#x27; });
+    
+    this.observer.observe(this.sentinel);
+  }
+
+  async loadMore() {
+    if (this.isLoading || !this.hasMore) return;
+    this.isLoading = true;
+    this.loader.style.display = &#x27;block&#x27;;
+
+    try {
+      const { posts, hasMore } = await fakeFetch(this.page);
+      
+      const fragment = document.createDocumentFragment();
+      posts.forEach(post =&gt; {
+        const card = document.createElement(&#x27;div&#x27;);
+        card.className = &#x27;post-card&#x27;;
+        card.innerHTML = `
+          &lt;h3&gt;${post.title}&lt;/h3&gt;
+          &lt;p&gt;${post.body}&lt;/p&gt;
+          &lt;div class=&quot;meta&quot;&gt;
+            &lt;span class=&quot;tag&quot;&gt;${post.tag}&lt;/span&gt;
+            &lt;span&gt;${post.date} · ❤️ ${post.likes}&lt;/span&gt;
+          &lt;/div&gt;
+        `;
+        fragment.appendChild(card);
+      });
+      this.container.appendChild(fragment);
+
+      this.hasMore = hasMore;
+      this.page++;
+
+      if (!hasMore) {
+        this.endMessage.style.display = &#x27;block&#x27;;
+        this.observer.disconnect();
+      }
+    } catch (err) {
+      console.error(&#x27;Load failed:&#x27;, err);
+    } finally {
+      this.isLoading = false;
+      this.loader.style.display = &#x27;none&#x27;;
+    }
+  }
+}
+
+new InfiniteScroll();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class InfiniteScroll {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.threshold = options.threshold || 200; // px from bottom to trigger
+    this.fetchFn = options.fetchFn; // async function that returns { items, hasMore }
+    this.renderItem = options.renderItem; // function to create DOM for each item
+    
+    this.page = 1;
+    this.isLoading = false;
+    this.hasMore = true;
+    this.items = [];
+    
+    this.init();
+  }
+
+  init() {
+    // Create elements
+    this.listEl = document.createElement("div");
+    this.listEl.className = "infinite-list";
+    
+    this.loaderEl = document.createElement("div");
+    this.loaderEl.className = "loader";
+    this.loaderEl.textContent = "Loading...";
+    this.loaderEl.style.display = "none";
+    
+    this.endEl = document.createElement("div");
+    this.endEl.className = "end-message";
+    this.endEl.textContent = "No more items to load";
+    this.endEl.style.display = "none";
+    
+    this.container.appendChild(this.listEl);
+    this.container.appendChild(this.loaderEl);
+    this.container.appendChild(this.endEl);
+    
+    // Approach 1: Scroll event (throttled)
+    this.handleScroll = throttle(() =&gt; this.checkScroll(), 200);
+    window.addEventListener("scroll", this.handleScroll);
+    
+    // Approach 2: IntersectionObserver (better performance)
+    this.setupObserver();
+    
+    // Initial load
+    this.loadMore();
+  }
+
+  setupObserver() {
+    // Sentinel element at the bottom
+    this.sentinel = document.createElement("div");
+    this.sentinel.className = "scroll-sentinel";
+    this.container.appendChild(this.sentinel);
+    
+    this.observer = new IntersectionObserver(
+      (entries) =&gt; {
+        if (entries[0].isIntersecting &amp;&amp; !this.isLoading &amp;&amp; this.hasMore) {
+          this.loadMore();
+        }
+      },
+      { rootMargin: `${this.threshold}px` }
+    );
+    this.observer.observe(this.sentinel);
+  }
+
+  checkScroll() {
+    if (this.isLoading || !this.hasMore) return;
+    
+    const scrollBottom = window.innerHeight + window.scrollY;
+    const docHeight = document.documentElement.scrollHeight;
+    
+    if (docHeight - scrollBottom &lt; this.threshold) {
+      this.loadMore();
+    }
+  }
+
+  async loadMore() {
+    if (this.isLoading || !this.hasMore) return;
+    
+    this.isLoading = true;
+    this.loaderEl.style.display = "block";
+    
+    try {
+      const { items, hasMore } = await this.fetchFn(this.page);
+      
+      // Render new items
+      const fragment = document.createDocumentFragment();
+      items.forEach((item) =&gt; {
+        const el = this.renderItem(item);
+        fragment.appendChild(el);
+      });
+      this.listEl.appendChild(fragment);
+      
+      this.items.push(...items);
+      this.hasMore = hasMore;
+      this.page++;
+      
+      if (!hasMore) {
+        this.endEl.style.display = "block";
+        this.observer?.disconnect();
+      }
+    } catch (error) {
+      console.error("Failed to load:", error);
+      // Show retry button
+      this.showRetry();
+    } finally {
+      this.isLoading = false;
+      this.loaderEl.style.display = "none";
+    }
+  }
+
+  showRetry() {
+    const retryBtn = document.createElement("button");
+    retryBtn.textContent = "Retry";
+    retryBtn.onclick = () =&gt; {
+      retryBtn.remove();
+      this.loadMore();
+    };
+    this.container.appendChild(retryBtn);
+  }
+
+  destroy() {
+    window.removeEventListener("scroll", this.handleScroll);
+    this.observer?.disconnect();
+    this.handleScroll.cancel?.();
+  }
+}
+
+// Usage:
+const scroller = new InfiniteScroll(document.getElementById("feed"), {
+  threshold: 300,
+  fetchFn: async (page) =&gt; {
+    const res = await fetch(`/api/posts?page=${page}&amp;limit=20`);
+    const data = await res.json();
+    return { items: data.posts, hasMore: data.hasNext };
+  },
+  renderItem: (post) =&gt; {
+    const div = document.createElement("div");
+    div.className = "post-card";
+    div.innerHTML = `&lt;h3&gt;${post.title}&lt;/h3&gt;&lt;p&gt;${post.body}&lt;/p&gt;`;
+    return div;
+  }
+});</code></pre>
+
+<h3>Key Points for Interview</h3>
+<ul>
+  <li><strong>IntersectionObserver vs scroll event:</strong> Observer is more performant (no main thread cost), works with overflow containers, and handles edge cases better.</li>
+  <li><strong>Virtual scrolling:</strong> For 10,000+ items, only render visible items + buffer (mentioned in Part 3).</li>
+  <li><strong>Race conditions:</strong> What if page 2 response arrives before page 1? Use page sequencing or AbortController.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="autocomplete">3. Autocomplete / Typeahead Search</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Amazon, Microsoft, Uber, Flipkart, Razorpay, Atlassian</p>
+
+<h3>Problem Statement</h3>
+<p>Build an autocomplete input that shows suggestions as the user types. Handle debouncing, caching, keyboard navigation, highlight matching text, and race conditions.</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Type to search countries</div>
+  <iframe src="demos/autocomplete.html" loading="lazy"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Autocomplete Component&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .search-wrapper {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .search-wrapper h2 { margin-bottom: 16px; text-align: center; }
+
+    .autocomplete {
+      position: relative;
+    }
+    .autocomplete input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .autocomplete input:focus { 
+      border-color: #4a90d9; 
+      box-shadow: 0 0 0 3px rgba(74,144,217,0.15);
+    }
+
+    .autocomplete-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+      z-index: 100;
+      list-style: none;
+    }
+    .autocomplete-dropdown.open { display: block; }
+
+    .autocomplete-dropdown li {
+      padding: 12px 18px;
+      cursor: pointer;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.1s;
+      font-size: 15px;
+    }
+    .autocomplete-dropdown li:last-child { border-bottom: none; }
+    .autocomplete-dropdown li:hover,
+    .autocomplete-dropdown li.active { background: #e8f4fd; }
+    .autocomplete-dropdown li strong { color: #1a5276; }
+
+    .no-results { padding: 14px 18px; color: #999; font-style: italic; }
+
+    .hint { text-align: center; margin-top: 12px; color: #888; font-size: 13px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;search-wrapper&quot;&gt;
+  &lt;h2&gt;🔍 Search Countries&lt;/h2&gt;
+  &lt;div class=&quot;autocomplete&quot;&gt;
+    &lt;input 
+      type=&quot;text&quot; 
+      id=&quot;search-input&quot; 
+      placeholder=&quot;Type to search... (e.g. &#x27;ind&#x27;, &#x27;uni&#x27;)&quot;
+      role=&quot;combobox&quot;
+      aria-autocomplete=&quot;list&quot;
+      aria-expanded=&quot;false&quot;
+      aria-controls=&quot;suggestions-list&quot;
+      autocomplete=&quot;off&quot;
+    &gt;
+    &lt;ul class=&quot;autocomplete-dropdown&quot; id=&quot;suggestions-list&quot; role=&quot;listbox&quot;&gt;&lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;p class=&quot;hint&quot;&gt;Try: &quot;ind&quot; → India, Indonesia | &quot;uni&quot; → United Kingdom, United States&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const countries = [
+  &#x27;Afghanistan&#x27;,&#x27;Albania&#x27;,&#x27;Algeria&#x27;,&#x27;Argentina&#x27;,&#x27;Australia&#x27;,&#x27;Austria&#x27;,
+  &#x27;Bangladesh&#x27;,&#x27;Belgium&#x27;,&#x27;Brazil&#x27;,&#x27;Canada&#x27;,&#x27;Chile&#x27;,&#x27;China&#x27;,&#x27;Colombia&#x27;,
+  &#x27;Denmark&#x27;,&#x27;Egypt&#x27;,&#x27;Finland&#x27;,&#x27;France&#x27;,&#x27;Germany&#x27;,&#x27;Greece&#x27;,&#x27;India&#x27;,
+  &#x27;Indonesia&#x27;,&#x27;Ireland&#x27;,&#x27;Italy&#x27;,&#x27;Japan&#x27;,&#x27;Kenya&#x27;,&#x27;Malaysia&#x27;,&#x27;Mexico&#x27;,
+  &#x27;Netherlands&#x27;,&#x27;New Zealand&#x27;,&#x27;Nigeria&#x27;,&#x27;Norway&#x27;,&#x27;Pakistan&#x27;,&#x27;Peru&#x27;,
+  &#x27;Philippines&#x27;,&#x27;Poland&#x27;,&#x27;Portugal&#x27;,&#x27;Russia&#x27;,&#x27;Saudi Arabia&#x27;,&#x27;Singapore&#x27;,
+  &#x27;South Africa&#x27;,&#x27;South Korea&#x27;,&#x27;Spain&#x27;,&#x27;Sweden&#x27;,&#x27;Switzerland&#x27;,&#x27;Thailand&#x27;,
+  &#x27;Turkey&#x27;,&#x27;Ukraine&#x27;,&#x27;United Kingdom&#x27;,&#x27;United States&#x27;,&#x27;Vietnam&#x27;
+];
+
+class Autocomplete {
+  constructor(input, dropdown, options = {}) {
+    this.input = input;
+    this.dropdown = dropdown;
+    this.data = options.data || [];
+    this.onSelect = options.onSelect || (() =&gt; {});
+    this.minChars = options.minChars || 1;
+    this.debounceMs = options.debounceMs || 200;
+    
+    this.activeIndex = -1;
+    this.results = [];
+    this.isOpen = false;
+    this.timer = null;
+    
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.input.addEventListener(&#x27;input&#x27;, () =&gt; {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() =&gt; this.search(), this.debounceMs);
+    });
+    this.input.addEventListener(&#x27;keydown&#x27;, (e) =&gt; this.handleKeydown(e));
+    this.input.addEventListener(&#x27;focus&#x27;, () =&gt; {
+      if (this.results.length &amp;&amp; this.input.value.length &gt;= this.minChars) this.open();
+    });
+    document.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+      if (!this.input.parentElement.contains(e.target)) this.close();
+    });
+  }
+
+  search() {
+    const query = this.input.value.trim().toLowerCase();
+    if (query.length &lt; this.minChars) { this.close(); return; }
+    
+    this.results = this.data
+      .filter(item =&gt; item.toLowerCase().includes(query))
+      .sort((a, b) =&gt; {
+        const aStarts = a.toLowerCase().startsWith(query) ? 0 : 1;
+        const bStarts = b.toLowerCase().startsWith(query) ? 0 : 1;
+        return aStarts - bStarts || a.localeCompare(b);
+      })
+      .slice(0, 10);
+    
+    this.renderResults(query);
+  }
+
+  renderResults(query) {
+    this.activeIndex = -1;
+    
+    if (this.results.length === 0) {
+      this.dropdown.innerHTML = &#x27;&lt;li class=&quot;no-results&quot;&gt;No results found&lt;/li&gt;&#x27;;
+    } else {
+      this.dropdown.innerHTML = this.results.map((item, i) =&gt; {
+        const highlighted = this.highlight(item, query);
+        return `&lt;li role=&quot;option&quot; data-index=&quot;${i}&quot; id=&quot;option-${i}&quot;&gt;${highlighted}&lt;/li&gt;`;
+      }).join(&#x27;&#x27;);
+      
+      this.dropdown.querySelectorAll(&#x27;li[data-index]&#x27;).forEach(li =&gt; {
+        li.addEventListener(&#x27;click&#x27;, () =&gt; this.select(parseInt(li.dataset.index)));
+        li.addEventListener(&#x27;mouseenter&#x27;, () =&gt; this.setActive(parseInt(li.dataset.index)));
+      });
+    }
+    this.open();
+  }
+
+  highlight(text, query) {
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, &#x27;\\$&amp;&#x27;);
+    return text.replace(new RegExp(`(${escaped})`, &#x27;gi&#x27;), &#x27;&lt;strong&gt;$1&lt;/strong&gt;&#x27;);
+  }
+
+  handleKeydown(e) {
+    if (!this.isOpen &amp;&amp; e.key === &#x27;ArrowDown&#x27;) { this.search(); return; }
+    if (!this.isOpen) return;
+
+    switch (e.key) {
+      case &#x27;ArrowDown&#x27;:
+        e.preventDefault();
+        this.setActive(this.activeIndex &lt; this.results.length - 1 ? this.activeIndex + 1 : 0);
+        break;
+      case &#x27;ArrowUp&#x27;:
+        e.preventDefault();
+        this.setActive(this.activeIndex &gt; 0 ? this.activeIndex - 1 : this.results.length - 1);
+        break;
+      case &#x27;Enter&#x27;:
+        e.preventDefault();
+        if (this.activeIndex &gt;= 0) this.select(this.activeIndex);
+        break;
+      case &#x27;Escape&#x27;:
+        this.close();
+        break;
+    }
+  }
+
+  setActive(index) {
+    this.dropdown.querySelectorAll(&#x27;li&#x27;).forEach(li =&gt; li.classList.remove(&#x27;active&#x27;));
+    this.activeIndex = index;
+    const active = this.dropdown.querySelector(`[data-index=&quot;${index}&quot;]`);
+    if (active) {
+      active.classList.add(&#x27;active&#x27;);
+      active.scrollIntoView({ block: &#x27;nearest&#x27; });
+      this.input.setAttribute(&#x27;aria-activedescendant&#x27;, `option-${index}`);
+    }
+  }
+
+  select(index) {
+    const value = this.results[index];
+    this.input.value = value;
+    this.close();
+    this.onSelect(value);
+  }
+
+  open() {
+    this.isOpen = true;
+    this.dropdown.classList.add(&#x27;open&#x27;);
+    this.input.setAttribute(&#x27;aria-expanded&#x27;, &#x27;true&#x27;);
+  }
+
+  close() {
+    this.isOpen = false;
+    this.dropdown.classList.remove(&#x27;open&#x27;);
+    this.input.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
+    this.activeIndex = -1;
+  }
+}
+
+new Autocomplete(
+  document.getElementById(&#x27;search-input&#x27;),
+  document.getElementById(&#x27;suggestions-list&#x27;),
+  {
+    data: countries,
+    minChars: 1,
+    debounceMs: 150,
+    onSelect: (val) =&gt; alert(`Selected: ${val}`)
+  }
+);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Autocomplete {
+  constructor(inputEl, options = {}) {
+    this.input = inputEl;
+    this.fetchSuggestions = options.fetchSuggestions; // async (query) =&gt; string[]
+    this.onSelect = options.onSelect || (() =&gt; {});
+    this.minChars = options.minChars || 2;
+    this.debounceMs = options.debounceMs || 300;
+    this.maxResults = options.maxResults || 10;
+    
+    this.cache = new Map(); // query → results cache
+    this.activeIndex = -1;
+    this.results = [];
+    this.abortController = null;
+    this.isOpen = false;
+    
+    this.init();
+  }
+
+  init() {
+    // Create dropdown container
+    this.wrapper = document.createElement("div");
+    this.wrapper.className = "autocomplete-wrapper";
+    this.wrapper.style.position = "relative";
+    this.input.parentNode.insertBefore(this.wrapper, this.input);
+    this.wrapper.appendChild(this.input);
+    
+    this.dropdown = document.createElement("ul");
+    this.dropdown.className = "autocomplete-dropdown";
+    this.dropdown.setAttribute("role", "listbox");
+    this.dropdown.style.cssText = `
+      position: absolute; top: 100%; left: 0; right: 0;
+      max-height: 300px; overflow-y: auto; background: white;
+      border: 1px solid #ddd; border-radius: 4px; margin: 4px 0 0;
+      padding: 0; list-style: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none; z-index: 1000;
+    `;
+    this.wrapper.appendChild(this.dropdown);
+    
+    // ARIA attributes
+    this.input.setAttribute("role", "combobox");
+    this.input.setAttribute("aria-autocomplete", "list");
+    this.input.setAttribute("aria-expanded", "false");
+    
+    // Event listeners
+    this.debouncedSearch = debounce((query) =&gt; this.search(query), this.debounceMs);
+    
+    this.input.addEventListener("input", (e) =&gt; this.handleInput(e));
+    this.input.addEventListener("keydown", (e) =&gt; this.handleKeydown(e));
+    this.input.addEventListener("focus", () =&gt; this.handleFocus());
+    document.addEventListener("click", (e) =&gt; this.handleClickOutside(e));
+  }
+
+  handleInput(e) {
+    const query = e.target.value.trim();
+    
+    if (query.length &lt; this.minChars) {
+      this.close();
+      this.debouncedSearch.cancel();
+      return;
+    }
+    
+    this.debouncedSearch(query);
+  }
+
+  handleKeydown(e) {
+    if (!this.isOpen) {
+      if (e.key === "ArrowDown") this.open();
+      return;
+    }
+    
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        this.setActiveIndex(
+          this.activeIndex &lt; this.results.length - 1 ? this.activeIndex + 1 : 0
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        this.setActiveIndex(
+          this.activeIndex &gt; 0 ? this.activeIndex - 1 : this.results.length - 1
+        );
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (this.activeIndex &gt;= 0) {
+          this.selectItem(this.results[this.activeIndex]);
+        }
+        break;
+      case "Escape":
+        this.close();
+        this.input.blur();
+        break;
+    }
+  }
+
+  async search(query) {
+    // Check cache first
+    if (this.cache.has(query)) {
+      this.showResults(this.cache.get(query), query);
+      return;
+    }
+    
+    // Cancel previous request (prevents race conditions!)
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+    this.abortController = new AbortController();
+    
+    try {
+      const results = await this.fetchSuggestions(query, {
+        signal: this.abortController.signal
+      });
+      
+      // Cache the result
+      this.cache.set(query, results);
+      
+      // Only show if input still matches (user might have typed more)
+      if (this.input.value.trim() === query) {
+        this.showResults(results, query);
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Autocomplete error:", error);
+      }
+    }
+  }
+
+  showResults(results, query) {
+    this.results = results.slice(0, this.maxResults);
+    this.activeIndex = -1;
+    
+    if (this.results.length === 0) {
+      this.dropdown.innerHTML = `&lt;li style="padding:8px 12px;color:#999"&gt;No results found&lt;/li&gt;`;
+    } else {
+      this.dropdown.innerHTML = this.results
+        .map((item, i) =&gt; `
+          &lt;li role="option" data-index="${i}" 
+              style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #f0f0f0"&gt;
+            ${this.highlightMatch(item, query)}
+          &lt;/li&gt;
+        `)
+        .join("");
+      
+      // Click handlers for items
+      this.dropdown.querySelectorAll("li[data-index]").forEach((li) =&gt; {
+        li.addEventListener("click", () =&gt; {
+          this.selectItem(this.results[parseInt(li.dataset.index)]);
+        });
+        li.addEventListener("mouseenter", () =&gt; {
+          this.setActiveIndex(parseInt(li.dataset.index));
+        });
+      });
+    }
+    
+    this.open();
+  }
+
+  highlightMatch(text, query) {
+    // Case-insensitive highlight of matching portion
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&amp;")})`, "gi");
+    return text.replace(regex, "&lt;strong&gt;$1&lt;/strong&gt;");
+  }
+
+  setActiveIndex(index) {
+    // Remove previous active
+    const items = this.dropdown.querySelectorAll("li[data-index]");
+    items.forEach((li) =&gt; (li.style.background = ""));
+    
+    this.activeIndex = index;
+    if (index &gt;= 0 &amp;&amp; items[index]) {
+      items[index].style.background = "#e8f4fd";
+      items[index].scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  selectItem(item) {
+    this.input.value = item;
+    this.close();
+    this.onSelect(item);
+  }
+
+  open() {
+    this.isOpen = true;
+    this.dropdown.style.display = "block";
+    this.input.setAttribute("aria-expanded", "true");
+  }
+
+  close() {
+    this.isOpen = false;
+    this.dropdown.style.display = "none";
+    this.input.setAttribute("aria-expanded", "false");
+    this.activeIndex = -1;
+  }
+
+  handleFocus() {
+    if (this.results.length &gt; 0 &amp;&amp; this.input.value.length &gt;= this.minChars) {
+      this.open();
+    }
+  }
+
+  handleClickOutside(e) {
+    if (!this.wrapper.contains(e.target)) {
+      this.close();
+    }
+  }
+
+  destroy() {
+    this.debouncedSearch.cancel();
+    this.abortController?.abort();
+    document.removeEventListener("click", this.handleClickOutside);
+  }
+}
+
+// Usage:
+const ac = new Autocomplete(document.getElementById("search-input"), {
+  fetchSuggestions: async (query, { signal }) =&gt; {
+    const res = await fetch(`/api/suggestions?q=${encodeURIComponent(query)}`, { signal });
+    const data = await res.json();
+    return data.suggestions;
+  },
+  onSelect: (item) =&gt; console.log("Selected:", item),
+  minChars: 2,
+  debounceMs: 300
+});</code></pre>
+
+<h3>Edge Cases to Handle</h3>
+<ul>
+  <li>Race conditions: Response for "ab" arrives after response for "abc" — use AbortController</li>
+  <li>XSS: Sanitize suggestions before rendering as HTML</li>
+  <li>Accessibility: ARIA roles, screen reader announcements, keyboard navigation</li>
+  <li>Mobile: Touch events, virtual keyboard viewport changes</li>
+  <li>Empty states: Show "No results" vs "Type to search" vs "Loading..."</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="star-rating">4. Star Rating Component</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Flipkart, Amazon, Swiggy, Meesho, PhonePe</p>
+
+<h3>Problem Statement</h3>
+<p>Build a star rating component that supports: click to rate, hover preview, half-stars, read-only mode, and custom icons.</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Click stars to rate</div>
+  <iframe src="demos/star-rating.html" loading="lazy" style="height:520px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Star Rating Component&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f5f5f5; }
+    
+    .rating-container {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+      text-align: center;
+      margin: 0 auto;
+    }
+    .rating-container h2 { margin-bottom: 16px; color: #333; }
+    
+    .stars {
+      display: inline-flex;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .stars.readonly { cursor: default; }
+    
+    .star {
+      font-size: 40px;
+      color: #d1d5db;
+      transition: transform 0.1s ease, color 0.15s ease;
+      position: relative;
+      display: inline-block;
+    }
+    .star:hover { transform: scale(1.2); }
+    .star.filled { color: #fbbf24; }
+    .star.half {
+      background: linear-gradient(90deg, #fbbf24 50%, #d1d5db 50%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .rating-value {
+      margin-top: 16px;
+      font-size: 20px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .demo-section {
+      max-width: 400px;
+      margin: 24px auto;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .demo-section h3 { margin-bottom: 12px; color: #333; font-size: 16px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;rating-container&quot;&gt;
+  &lt;h2&gt;Rate this product&lt;/h2&gt;
+  &lt;div class=&quot;stars&quot; id=&quot;stars&quot; role=&quot;radiogroup&quot; aria-label=&quot;Star rating&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;rating-value&quot; id=&quot;rating-value&quot;&gt;0 / 5&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;demo-section&quot;&gt;
+  &lt;h3&gt;Half-Star Rating&lt;/h3&gt;
+  &lt;div class=&quot;stars&quot; id=&quot;stars-half&quot; role=&quot;radiogroup&quot; aria-label=&quot;Half star rating&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;rating-value&quot; id=&quot;rating-value-half&quot;&gt;0 / 5&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;demo-section&quot;&gt;
+  &lt;h3&gt;Read-only (3.5 stars)&lt;/h3&gt;
+  &lt;div class=&quot;stars readonly&quot; id=&quot;stars-readonly&quot; role=&quot;img&quot; aria-label=&quot;Rating: 3.5 out of 5&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+class StarRating {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.maxStars = options.maxStars || 5;
+    this.value = options.initialValue || 0;
+    this.allowHalf = options.allowHalf || false;
+    this.readOnly = options.readOnly || false;
+    this.onChange = options.onChange || (() =&gt; {});
+    this.displayEl = options.displayEl || null;
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = &#x27;&#x27;;
+    if (this.readOnly) this.container.classList.add(&#x27;readonly&#x27;);
+
+    for (let i = 1; i &lt;= this.maxStars; i++) {
+      const star = document.createElement(&#x27;span&#x27;);
+      star.className = &#x27;star&#x27;;
+      star.textContent = &#x27;★&#x27;;
+      star.dataset.value = i;
+      star.setAttribute(&#x27;role&#x27;, this.readOnly ? &#x27;presentation&#x27; : &#x27;radio&#x27;);
+      star.setAttribute(&#x27;aria-label&#x27;, `${i} star${i &gt; 1 ? &#x27;s&#x27; : &#x27;&#x27;}`);
+      if (!this.readOnly) star.setAttribute(&#x27;tabindex&#x27;, &#x27;0&#x27;);
+      this.container.appendChild(star);
+
+      if (!this.readOnly) {
+        star.addEventListener(&#x27;click&#x27;, (e) =&gt; this.handleClick(e, i));
+        star.addEventListener(&#x27;mousemove&#x27;, (e) =&gt; this.handleHover(e, i));
+        star.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
+          if (e.key === &#x27;Enter&#x27; || e.key === &#x27; &#x27;) { e.preventDefault(); this.handleClick(e, i); }
+        });
+      }
+    }
+
+    if (!this.readOnly) {
+      this.container.addEventListener(&#x27;mouseleave&#x27;, () =&gt; this.updateDisplay(this.value));
+    }
+    this.updateDisplay(this.value);
+  }
+
+  handleClick(e, starIndex) {
+    let value = starIndex;
+    if (this.allowHalf) {
+      const rect = e.target.closest(&#x27;.star&#x27;).getBoundingClientRect();
+      if (e.clientX - rect.left &lt; rect.width / 2) value -= 0.5;
+    }
+    this.value = this.value === value ? 0 : value;
+    this.updateDisplay(this.value);
+    this.onChange(this.value);
+  }
+
+  handleHover(e, starIndex) {
+    let value = starIndex;
+    if (this.allowHalf) {
+      const rect = e.target.closest(&#x27;.star&#x27;).getBoundingClientRect();
+      if (e.clientX - rect.left &lt; rect.width / 2) value -= 0.5;
+    }
+    this.updateDisplay(value);
+  }
+
+  updateDisplay(displayValue) {
+    const stars = this.container.querySelectorAll(&#x27;.star&#x27;);
+    stars.forEach((star, index) =&gt; {
+      const num = index + 1;
+      star.classList.remove(&#x27;filled&#x27;, &#x27;half&#x27;);
+      star.style.transform = &#x27;&#x27;;
+      if (displayValue &gt;= num) {
+        star.classList.add(&#x27;filled&#x27;);
+      } else if (this.allowHalf &amp;&amp; displayValue &gt;= num - 0.5) {
+        star.classList.add(&#x27;half&#x27;);
+      }
+    });
+    if (this.displayEl) {
+      this.displayEl.textContent = `${displayValue} / ${this.maxStars}`;
+    }
+  }
+}
+
+// Demo 1: Basic star rating
+new StarRating(document.getElementById(&#x27;stars&#x27;), {
+  maxStars: 5,
+  initialValue: 0,
+  allowHalf: false,
+  displayEl: document.getElementById(&#x27;rating-value&#x27;),
+  onChange: (val) =&gt; console.log(&#x27;Rating:&#x27;, val)
+});
+
+// Demo 2: Half-star rating
+new StarRating(document.getElementById(&#x27;stars-half&#x27;), {
+  maxStars: 5,
+  initialValue: 0,
+  allowHalf: true,
+  displayEl: document.getElementById(&#x27;rating-value-half&#x27;),
+  onChange: (val) =&gt; console.log(&#x27;Half rating:&#x27;, val)
+});
+
+// Demo 3: Read-only
+new StarRating(document.getElementById(&#x27;stars-readonly&#x27;), {
+  maxStars: 5,
+  initialValue: 3.5,
+  allowHalf: true,
+  readOnly: true
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class StarRating {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.maxStars = options.maxStars || 5;
+    this.value = options.initialValue || 0;
+    this.allowHalf = options.allowHalf || false;
+    this.readOnly = options.readOnly || false;
+    this.onChange = options.onChange || (() =&gt; {});
+    this.size = options.size || 32;
+    
+    this.hoverValue = 0;
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = `
+      display: inline-flex; gap: 4px;
+      cursor: ${this.readOnly ? "default" : "pointer"};
+      user-select: none;
+    `;
+    this.container.setAttribute("role", "radiogroup");
+    this.container.setAttribute("aria-label", `Rating: ${this.value} out of ${this.maxStars}`);
+
+    this.stars = [];
+    for (let i = 1; i &lt;= this.maxStars; i++) {
+      const star = document.createElement("span");
+      star.className = "star";
+      star.dataset.value = i;
+      star.style.cssText = `
+        font-size: ${this.size}px; transition: transform 0.1s;
+        display: inline-block; position: relative;
+      `;
+      star.setAttribute("role", "radio");
+      star.setAttribute("aria-label", `${i} star${i &gt; 1 ? "s" : ""}`);
+      
+      this.stars.push(star);
+      this.container.appendChild(star);
+      
+      if (!this.readOnly) {
+        star.addEventListener("click", (e) =&gt; this.handleClick(e, i));
+        star.addEventListener("mouseenter", (e) =&gt; this.handleHover(e, i));
+        star.addEventListener("mousemove", (e) =&gt; this.handleMouseMove(e, i));
+      }
+    }
+    
+    if (!this.readOnly) {
+      this.container.addEventListener("mouseleave", () =&gt; this.handleMouseLeave());
+    }
+    
+    this.updateDisplay(this.value);
+  }
+
+  handleClick(e, starIndex) {
+    let value = starIndex;
+    
+    if (this.allowHalf) {
+      const rect = e.target.getBoundingClientRect();
+      const isLeftHalf = e.clientX - rect.left &lt; rect.width / 2;
+      value = isLeftHalf ? starIndex - 0.5 : starIndex;
+    }
+    
+    // Toggle: clicking same value resets to 0
+    this.value = this.value === value ? 0 : value;
+    this.updateDisplay(this.value);
+    this.onChange(this.value);
+  }
+
+  handleHover(e, starIndex) {
+    this.hoverValue = starIndex;
+    this.updateDisplay(starIndex);
+    e.target.style.transform = "scale(1.2)";
+  }
+
+  handleMouseMove(e, starIndex) {
+    if (this.allowHalf) {
+      const rect = e.target.getBoundingClientRect();
+      const isLeftHalf = e.clientX - rect.left &lt; rect.width / 2;
+      const value = isLeftHalf ? starIndex - 0.5 : starIndex;
+      this.updateDisplay(value);
+    }
+  }
+
+  handleMouseLeave() {
+    this.stars.forEach((s) =&gt; (s.style.transform = "scale(1)"));
+    this.updateDisplay(this.value);
+  }
+
+  updateDisplay(displayValue) {
+    this.stars.forEach((star, index) =&gt; {
+      const starNum = index + 1;
+      
+      if (displayValue &gt;= starNum) {
+        star.textContent = "★"; // Full star
+        star.style.color = "#fbbf24";
+      } else if (this.allowHalf &amp;&amp; displayValue &gt;= starNum - 0.5) {
+        // Half star using CSS clip or overlay
+        star.innerHTML = `
+          &lt;span style="color:#fbbf24;position:absolute;overflow:hidden;width:50%"&gt;★&lt;/span&gt;
+          &lt;span style="color:#d1d5db"&gt;★&lt;/span&gt;
+        `;
+      } else {
+        star.textContent = "★"; // Empty star
+        star.style.color = "#d1d5db";
+      }
+    });
+    
+    this.container.setAttribute("aria-label", `Rating: ${displayValue} out of ${this.maxStars}`);
+  }
+
+  getValue() { return this.value; }
+  
+  setValue(val) {
+    this.value = Math.max(0, Math.min(val, this.maxStars));
+    this.updateDisplay(this.value);
+  }
+}
+
+// Usage:
+const rating = new StarRating(document.getElementById("rating"), {
+  maxStars: 5,
+  initialValue: 3.5,
+  allowHalf: true,
+  onChange: (value) =&gt; console.log("New rating:", value)
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="modal-system">5. Modal / Dialog System</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Microsoft, Atlassian, Razorpay, Freshworks, Zoho</p>
+
+<h3>Problem Statement</h3>
+<p>Build a modal system that supports: stacking (multiple modals), focus trapping, escape to close, backdrop click, animations, and accessibility.</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Click buttons to open modals</div>
+  <iframe src="demos/modal.html" loading="lazy"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Modal / Dialog System&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f5f5f5; }
+
+    .demo { max-width: 500px; margin: 0 auto; text-align: center; }
+    .demo h1 { margin-bottom: 24px; }
+    
+    button { 
+      padding: 12px 24px; font-size: 14px; border: none; border-radius: 8px;
+      cursor: pointer; margin: 6px; transition: transform 0.1s; font-weight: 600;
+    }
+    button:active { transform: scale(0.97); }
+    .btn-primary { background: #4a90d9; color: white; }
+    .btn-danger { background: #e74c3c; color: white; }
+    .btn-secondary { background: #eee; color: #333; }
+    .btn-success { background: #27ae60; color: white; }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.active { opacity: 1; pointer-events: all; }
+
+    /* Modal Box */
+    .modal {
+      background: white;
+      border-radius: 14px;
+      padding: 28px;
+      max-width: 480px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.25s ease;
+      position: relative;
+    }
+    .modal-backdrop.active .modal { transform: translateY(0) scale(1); }
+
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #eee;
+    }
+    .modal-header h2 { font-size: 20px; color: #333; }
+    .modal-close {
+      background: none; border: none; font-size: 26px; cursor: pointer;
+      padding: 4px 10px; border-radius: 6px; color: #666; margin: 0;
+    }
+    .modal-close:hover { background: #f0f0f0; color: #333; }
+
+    .modal-body { color: #555; line-height: 1.7; margin-bottom: 24px; font-size: 15px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;demo&quot;&gt;
+  &lt;h1&gt;🪟 Modal / Dialog System&lt;/h1&gt;
+  &lt;p style=&quot;color:#666; margin-bottom: 20px;&quot;&gt;Features: Focus trap, Escape key, Backdrop click, Stacking&lt;/p&gt;
+  &lt;button class=&quot;btn-primary&quot; onclick=&quot;openBasicModal()&quot;&gt;Open Modal&lt;/button&gt;
+  &lt;button class=&quot;btn-danger&quot; onclick=&quot;openConfirmModal()&quot;&gt;Confirm Delete&lt;/button&gt;
+  &lt;button class=&quot;btn-success&quot; onclick=&quot;openFormModal()&quot;&gt;Form Modal&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Modal Container --&gt;
+&lt;div class=&quot;modal-backdrop&quot; id=&quot;modal-backdrop&quot;&gt;
+  &lt;div class=&quot;modal&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;modal-title&quot; id=&quot;modal-box&quot;&gt;
+    &lt;div class=&quot;modal-header&quot;&gt;
+      &lt;h2 id=&quot;modal-title&quot;&gt;&lt;/h2&gt;
+      &lt;button class=&quot;modal-close&quot; aria-label=&quot;Close&quot; onclick=&quot;closeModal()&quot;&gt;&amp;times;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;modal-body&quot; id=&quot;modal-body&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;modal-footer&quot; id=&quot;modal-footer&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const backdrop = document.getElementById(&#x27;modal-backdrop&#x27;);
+const titleEl = document.getElementById(&#x27;modal-title&#x27;);
+const bodyEl = document.getElementById(&#x27;modal-body&#x27;);
+const footerEl = document.getElementById(&#x27;modal-footer&#x27;);
+const modalBox = document.getElementById(&#x27;modal-box&#x27;);
+let previousFocus = null;
+
+function openModal({ title, body, footer }) {
+  previousFocus = document.activeElement;
+  titleEl.textContent = title;
+  bodyEl.innerHTML = body;
+  footerEl.innerHTML = footer || &#x27;&#x27;;
+  backdrop.classList.add(&#x27;active&#x27;);
+  
+  // Focus first focusable element in modal
+  setTimeout(() =&gt; {
+    const focusable = modalBox.querySelectorAll(&#x27;button, input, select, textarea, [tabindex]:not([tabindex=&quot;-1&quot;])&#x27;);
+    if (focusable.length) focusable[0].focus();
+  }, 100);
+}
+
+function closeModal() {
+  backdrop.classList.remove(&#x27;active&#x27;);
+  if (previousFocus) previousFocus.focus();
+}
+
+// Close on backdrop click
+backdrop.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+  if (e.target === backdrop) closeModal();
+});
+
+// Close on Escape
+document.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
+  if (e.key === &#x27;Escape&#x27; &amp;&amp; backdrop.classList.contains(&#x27;active&#x27;)) closeModal();
+});
+
+// Focus trap
+document.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
+  if (e.key !== &#x27;Tab&#x27; || !backdrop.classList.contains(&#x27;active&#x27;)) return;
+  
+  const focusable = modalBox.querySelectorAll(&#x27;button, input, select, textarea, [tabindex]:not([tabindex=&quot;-1&quot;])&#x27;);
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  
+  if (e.shiftKey &amp;&amp; document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey &amp;&amp; document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
+
+// Demo Modals
+function openBasicModal() {
+  openModal({
+    title: &#x27;Welcome! 👋&#x27;,
+    body: `
+      &lt;p&gt;This is a fully accessible modal with:&lt;/p&gt;
+      &lt;ul style=&quot;margin: 10px 0 0 20px; line-height: 2;&quot;&gt;
+        &lt;li&gt;✅ Focus trapping (Tab cycles within modal)&lt;/li&gt;
+        &lt;li&gt;✅ Escape key to close&lt;/li&gt;
+        &lt;li&gt;✅ Click backdrop to close&lt;/li&gt;
+        &lt;li&gt;✅ ARIA attributes for screen readers&lt;/li&gt;
+        &lt;li&gt;✅ Restores focus on close&lt;/li&gt;
+      &lt;/ul&gt;
+    `,
+    footer: `
+      &lt;button class=&quot;btn-secondary&quot; onclick=&quot;closeModal()&quot;&gt;Cancel&lt;/button&gt;
+      &lt;button class=&quot;btn-primary&quot; onclick=&quot;closeModal()&quot;&gt;Got it!&lt;/button&gt;
+    `
+  });
+}
+
+function openConfirmModal() {
+  openModal({
+    title: &#x27;⚠️ Confirm Delete&#x27;,
+    body: &#x27;&lt;p&gt;Are you sure you want to delete this item? &lt;strong&gt;This action cannot be undone.&lt;/strong&gt;&lt;/p&gt;&#x27;,
+    footer: `
+      &lt;button class=&quot;btn-secondary&quot; onclick=&quot;closeModal()&quot;&gt;Cancel&lt;/button&gt;
+      &lt;button class=&quot;btn-danger&quot; onclick=&quot;handleDelete()&quot;&gt;Yes, Delete&lt;/button&gt;
+    `
+  });
+}
+
+function handleDelete() {
+  closeModal();
+  alert(&#x27;Item deleted successfully!&#x27;);
+}
+
+function openFormModal() {
+  openModal({
+    title: &#x27;📝 Quick Feedback&#x27;,
+    body: `
+      &lt;div style=&quot;margin-bottom:14px&quot;&gt;
+        &lt;label style=&quot;display:block;font-size:13px;font-weight:600;margin-bottom:4px;&quot;&gt;Your Name&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;feedback-name&quot; style=&quot;width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;&quot; placeholder=&quot;John Doe&quot;&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label style=&quot;display:block;font-size:13px;font-weight:600;margin-bottom:4px;&quot;&gt;Message&lt;/label&gt;
+        &lt;textarea id=&quot;feedback-msg&quot; rows=&quot;3&quot; style=&quot;width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;resize:vertical;&quot; placeholder=&quot;Your feedback...&quot;&gt;&lt;/textarea&gt;
+      &lt;/div&gt;
+    `,
+    footer: `
+      &lt;button class=&quot;btn-secondary&quot; onclick=&quot;closeModal()&quot;&gt;Cancel&lt;/button&gt;
+      &lt;button class=&quot;btn-success&quot; onclick=&quot;submitFeedback()&quot;&gt;Submit&lt;/button&gt;
+    `
+  });
+}
+
+function submitFeedback() {
+  const name = document.getElementById(&#x27;feedback-name&#x27;).value;
+  const msg = document.getElementById(&#x27;feedback-msg&#x27;).value;
+  closeModal();
+  if (name &amp;&amp; msg) alert(`Thanks ${name}! Feedback received.`);
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class ModalManager {
+  constructor() {
+    this.stack = []; // Active modals stack
+    this.handleKeydown = this.handleKeydown.bind(this);
+    document.addEventListener("keydown", this.handleKeydown);
+  }
+
+  open(options = {}) {
+    const {
+      title = "",
+      content = "",
+      onClose = () =&gt; {},
+      closeOnBackdrop = true,
+      closeOnEscape = true,
+      showCloseButton = true,
+      width = "500px",
+    } = options;
+
+    // Store previously focused element
+    const previousFocus = document.activeElement;
+
+    // Create backdrop
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.style.cssText = `
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: ${1000 + this.stack.length * 10};
+      animation: fadeIn 0.2s ease;
+    `;
+
+    // Create modal
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "modal-title");
+    modal.style.cssText = `
+      background: white; border-radius: 12px; padding: 24px;
+      max-width: ${width}; width: 90%; max-height: 80vh;
+      overflow-y: auto; position: relative;
+      animation: slideUp 0.2s ease;
+    `;
+
+    modal.innerHTML = `
+      ${showCloseButton ? `&lt;button class="modal-close" aria-label="Close" style="
+        position:absolute;top:12px;right:12px;border:none;background:none;
+        font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px;
+      "&gt;&amp;times;&lt;/button&gt;` : ""}
+      ${title ? `&lt;h2 id="modal-title" style="margin:0 0 16px"&gt;${title}&lt;/h2&gt;` : ""}
+      &lt;div class="modal-body"&gt;${content}&lt;/div&gt;
+    `;
+
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+    document.body.style.overflow = "hidden"; // Prevent scroll
+
+    // Focus trap
+    const focusableEls = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableEls[0];
+    const lastFocusable = focusableEls[focusableEls.length - 1];
+    firstFocusable?.focus();
+
+    const trapFocus = (e) =&gt; {
+      if (e.key !== "Tab") return;
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable?.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable?.focus();
+        }
+      }
+    };
+    modal.addEventListener("keydown", trapFocus);
+
+    // Close handlers
+    const close = () =&gt; {
+      backdrop.style.animation = "fadeOut 0.2s ease";
+      modal.style.animation = "slideDown 0.2s ease";
+      setTimeout(() =&gt; {
+        backdrop.remove();
+        this.stack.pop();
+        if (this.stack.length === 0) {
+          document.body.style.overflow = "";
+        }
+        previousFocus?.focus();
+        onClose();
+      }, 180);
+    };
+
+    if (closeOnBackdrop) {
+      backdrop.addEventListener("click", (e) =&gt; {
+        if (e.target === backdrop) close();
+      });
+    }
+
+    if (showCloseButton) {
+      modal.querySelector(".modal-close").addEventListener("click", close);
+    }
+
+    // Push to stack
+    const modalInstance = { backdrop, modal, close, closeOnEscape };
+    this.stack.push(modalInstance);
+
+    return { close, modal };
+  }
+
+  handleKeydown(e) {
+    if (e.key === "Escape" &amp;&amp; this.stack.length &gt; 0) {
+      const top = this.stack[this.stack.length - 1];
+      if (top.closeOnEscape) {
+        top.close();
+      }
+    }
+  }
+
+  closeAll() {
+    while (this.stack.length &gt; 0) {
+      this.stack[this.stack.length - 1].close();
+    }
+  }
+}
+
+// Usage:
+const modals = new ModalManager();
+
+document.getElementById("open-btn").addEventListener("click", () =&gt; {
+  const { close } = modals.open({
+    title: "Confirm Delete",
+    content: `
+      &lt;p&gt;Are you sure you want to delete this item?&lt;/p&gt;
+      &lt;div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"&gt;
+        &lt;button id="cancel-btn"&gt;Cancel&lt;/button&gt;
+        &lt;button id="confirm-btn" style="background:red;color:white"&gt;Delete&lt;/button&gt;
+      &lt;/div&gt;
+    `,
+    onClose: () =&gt; console.log("Modal closed")
+  });
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="toast-notification">6. Toast Notification System</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Razorpay, Flipkart, Swiggy, Freshworks, Meesho</p>
+
+<h3>Problem Statement</h3>
+<p>Build a toast notification system that supports: multiple positions, auto-dismiss, manual close, stacking, different types (success/error/warning/info), and custom duration.</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Click to trigger toasts</div>
+  <iframe src="demos/toast.html" loading="lazy"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Toast Notifications&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f5f5f5; min-height: 100vh; }
+
+    .demo { text-align: center; max-width: 500px; margin: 0 auto; }
+    .demo h1 { margin-bottom: 8px; }
+    .demo p { color: #666; margin-bottom: 20px; font-size: 14px; }
+    .demo button { 
+      padding: 12px 24px; margin: 6px; border: none; border-radius: 8px;
+      color: white; cursor: pointer; font-size: 14px; font-weight: 600;
+      transition: transform 0.1s;
+    }
+    .demo button:active { transform: scale(0.95); }
+    .btn-success { background: #27ae60; }
+    .btn-error { background: #e74c3c; }
+    .btn-warning { background: #f39c12; }
+    .btn-info { background: #3498db; }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 380px;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: 10px;
+      background: white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      animation: slideIn 0.3s ease;
+      transition: opacity 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+      border-left: 4px solid transparent;
+    }
+    .toast.success { border-left-color: #27ae60; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.warning { border-left-color: #f39c12; }
+    .toast.info { border-left-color: #3498db; }
+    
+    .toast.removing {
+      opacity: 0;
+      transform: translateX(120%);
+    }
+    .toast-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .toast-content { flex: 1; }
+    .toast-title { font-weight: 700; font-size: 14px; color: #333; margin-bottom: 2px; }
+    .toast-message { font-size: 13px; color: #666; line-height: 1.4; }
+    .toast-close {
+      background: none; border: none; font-size: 18px; cursor: pointer;
+      color: #bbb; padding: 0 4px; flex-shrink: 0; margin: 0;
+    }
+    .toast-close:hover { color: #333; }
+
+    .toast-progress {
+      position: absolute; bottom: 0; left: 0; height: 3px;
+      border-radius: 0 0 0 10px;
+      animation: progress linear forwards;
+    }
+    .toast.success .toast-progress { background: #27ae60; }
+    .toast.error .toast-progress { background: #e74c3c; }
+    .toast.warning .toast-progress { background: #f39c12; }
+    .toast.info .toast-progress { background: #3498db; }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes progress { from { width: 100%; } to { width: 0%; } }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;demo&quot;&gt;
+  &lt;h1&gt;🔔 Toast Notifications&lt;/h1&gt;
+  &lt;p&gt;Click buttons to trigger toasts. Hover to pause auto-dismiss.&lt;/p&gt;
+  &lt;button class=&quot;btn-success&quot; onclick=&quot;toast.success(&#x27;File saved successfully!&#x27;, {title: &#x27;Saved&#x27;})&quot;&gt;✅ Success&lt;/button&gt;
+  &lt;button class=&quot;btn-error&quot; onclick=&quot;toast.error(&#x27;Failed to upload file. Please try again.&#x27;, {title: &#x27;Upload Failed&#x27;})&quot;&gt;❌ Error&lt;/button&gt;
+  &lt;button class=&quot;btn-warning&quot; onclick=&quot;toast.warning(&#x27;Your session expires in 5 minutes.&#x27;, {title: &#x27;Warning&#x27;})&quot;&gt;⚠️ Warning&lt;/button&gt;
+  &lt;button class=&quot;btn-info&quot; onclick=&quot;toast.info(&#x27;A new version is available. Refresh to update.&#x27;, {title: &#x27;Update&#x27;})&quot;&gt;ℹ️ Info&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;toast-container&quot; id=&quot;toast-container&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+class ToastManager {
+  constructor(containerId) {
+    this.container = document.getElementById(containerId);
+    this.toasts = [];
+    this.maxToasts = 5;
+  }
+
+  show({ type = &#x27;info&#x27;, title, message, duration = 5000 }) {
+    if (this.toasts.length &gt;= this.maxToasts) {
+      this.remove(this.toasts[0].id);
+    }
+
+    const id = Date.now() + Math.random();
+    const icons = { success: &#x27;✅&#x27;, error: &#x27;❌&#x27;, warning: &#x27;⚠️&#x27;, info: &#x27;ℹ️&#x27; };
+    const defaultTitles = { success: &#x27;Success&#x27;, error: &#x27;Error&#x27;, warning: &#x27;Warning&#x27;, info: &#x27;Info&#x27; };
+
+    const el = document.createElement(&#x27;div&#x27;);
+    el.className = `toast ${type}`;
+    el.setAttribute(&#x27;role&#x27;, &#x27;alert&#x27;);
+    el.setAttribute(&#x27;aria-live&#x27;, &#x27;polite&#x27;);
+    el.innerHTML = `
+      &lt;span class=&quot;toast-icon&quot;&gt;${icons[type]}&lt;/span&gt;
+      &lt;div class=&quot;toast-content&quot;&gt;
+        &lt;div class=&quot;toast-title&quot;&gt;${title || defaultTitles[type]}&lt;/div&gt;
+        ${message ? `&lt;div class=&quot;toast-message&quot;&gt;${message}&lt;/div&gt;` : &#x27;&#x27;}
+      &lt;/div&gt;
+      &lt;button class=&quot;toast-close&quot; aria-label=&quot;Dismiss&quot;&gt;&amp;times;&lt;/button&gt;
+      &lt;div class=&quot;toast-progress&quot; style=&quot;animation-duration:${duration}ms&quot;&gt;&lt;/div&gt;
+    `;
+
+    el.querySelector(&#x27;.toast-close&#x27;).onclick = () =&gt; this.remove(id);
+    
+    // Pause on hover
+    let timeoutId;
+    el.addEventListener(&#x27;mouseenter&#x27;, () =&gt; {
+      el.querySelector(&#x27;.toast-progress&#x27;).style.animationPlayState = &#x27;paused&#x27;;
+      clearTimeout(timeoutId);
+    });
+    el.addEventListener(&#x27;mouseleave&#x27;, () =&gt; {
+      el.querySelector(&#x27;.toast-progress&#x27;).style.animationPlayState = &#x27;running&#x27;;
+      timeoutId = setTimeout(() =&gt; this.remove(id), 2000);
+    });
+
+    this.container.appendChild(el);
+    this.toasts.push({ id, el });
+
+    timeoutId = setTimeout(() =&gt; this.remove(id), duration);
+    return id;
+  }
+
+  remove(id) {
+    const index = this.toasts.findIndex(t =&gt; t.id === id);
+    if (index === -1) return;
+    
+    const { el } = this.toasts[index];
+    el.classList.add(&#x27;removing&#x27;);
+    setTimeout(() =&gt; {
+      el.remove();
+      this.toasts.splice(this.toasts.findIndex(t =&gt; t.id === id), 1);
+    }, 300);
+  }
+
+  success(message, opts = {}) { return this.show({ type: &#x27;success&#x27;, message, ...opts }); }
+  error(message, opts = {}) { return this.show({ type: &#x27;error&#x27;, message, ...opts }); }
+  warning(message, opts = {}) { return this.show({ type: &#x27;warning&#x27;, message, ...opts }); }
+  info(message, opts = {}) { return this.show({ type: &#x27;info&#x27;, message, ...opts }); }
+}
+
+const toast = new ToastManager(&#x27;toast-container&#x27;);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class ToastManager {
+  constructor(options = {}) {
+    this.position = options.position || "top-right"; // top-left, top-right, bottom-left, bottom-right, top-center
+    this.maxToasts = options.maxToasts || 5;
+    this.defaultDuration = options.duration || 3000;
+    this.toasts = [];
+    
+    this.createContainer();
+  }
+
+  createContainer() {
+    this.container = document.createElement("div");
+    this.container.className = "toast-container";
+    
+    const positions = {
+      "top-right": "top:16px;right:16px",
+      "top-left": "top:16px;left:16px",
+      "bottom-right": "bottom:16px;right:16px",
+      "bottom-left": "bottom:16px;left:16px",
+      "top-center": "top:16px;left:50%;transform:translateX(-50%)",
+    };
+    
+    this.container.style.cssText = `
+      position: fixed; ${positions[this.position]};
+      z-index: 9999; display: flex; flex-direction: column;
+      gap: 8px; pointer-events: none; max-width: 380px; width: 100%;
+    `;
+    document.body.appendChild(this.container);
+  }
+
+  show(message, options = {}) {
+    const {
+      type = "info", // success, error, warning, info
+      duration = this.defaultDuration,
+      dismissible = true,
+      action = null, // { label, onClick }
+    } = options;
+
+    // Remove oldest if at max
+    if (this.toasts.length &gt;= this.maxToasts) {
+      this.dismiss(this.toasts[0].id);
+    }
+
+    const id = Date.now() + Math.random();
+    const colors = {
+      success: { bg: "#d4edda", border: "#28a745", icon: "✓" },
+      error: { bg: "#f8d7da", border: "#dc3545", icon: "✕" },
+      warning: { bg: "#fff3cd", border: "#ffc107", icon: "⚠" },
+      info: { bg: "#d1ecf1", border: "#17a2b8", icon: "ℹ" },
+    };
+    const { bg, border, icon } = colors[type] || colors.info;
+
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.setAttribute("role", "alert");
+    toast.setAttribute("aria-live", "polite");
+    toast.style.cssText = `
+      background: ${bg}; border-left: 4px solid ${border};
+      padding: 12px 16px; border-radius: 6px; display: flex;
+      align-items: center; gap: 10px; pointer-events: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease; transition: all 0.3s ease;
+    `;
+
+    toast.innerHTML = `
+      &lt;span style="font-size:18px"&gt;${icon}&lt;/span&gt;
+      &lt;span style="flex:1;font-size:14px"&gt;${message}&lt;/span&gt;
+      ${action ? `&lt;button class="toast-action" style="
+        border:none;background:${border};color:white;padding:4px 8px;
+        border-radius:4px;cursor:pointer;font-size:12px"&gt;${action.label}&lt;/button&gt;` : ""}
+      ${dismissible ? `&lt;button class="toast-close" aria-label="Dismiss" style="
+        border:none;background:none;cursor:pointer;font-size:16px;padding:0 4px"&gt;&amp;times;&lt;/button&gt;` : ""}
+    `;
+
+    this.container.appendChild(toast);
+
+    // Progress bar for auto-dismiss
+    if (duration &gt; 0) {
+      const progress = document.createElement("div");
+      progress.style.cssText = `
+        position: absolute; bottom: 0; left: 0; height: 3px;
+        background: ${border}; border-radius: 0 0 0 6px;
+        animation: shrink ${duration}ms linear forwards;
+      `;
+      toast.style.position = "relative";
+      toast.style.overflow = "hidden";
+      toast.appendChild(progress);
+    }
+
+    // Event handlers
+    if (dismissible) {
+      toast.querySelector(".toast-close").addEventListener("click", () =&gt; this.dismiss(id));
+    }
+    if (action) {
+      toast.querySelector(".toast-action").addEventListener("click", () =&gt; {
+        action.onClick();
+        this.dismiss(id);
+      });
+    }
+
+    // Pause on hover
+    let timeoutId;
+    if (duration &gt; 0) {
+      timeoutId = setTimeout(() =&gt; this.dismiss(id), duration);
+      toast.addEventListener("mouseenter", () =&gt; clearTimeout(timeoutId));
+      toast.addEventListener("mouseleave", () =&gt; {
+        timeoutId = setTimeout(() =&gt; this.dismiss(id), 1000);
+      });
+    }
+
+    this.toasts.push({ id, toast, timeoutId });
+    return id;
+  }
+
+  dismiss(id) {
+    const index = this.toasts.findIndex((t) =&gt; t.id === id);
+    if (index === -1) return;
+    
+    const { toast, timeoutId } = this.toasts[index];
+    clearTimeout(timeoutId);
+    
+    toast.style.animation = "slideOut 0.3s ease forwards";
+    setTimeout(() =&gt; {
+      toast.remove();
+      this.toasts.splice(index, 1);
+    }, 280);
+  }
+
+  // Convenience methods
+  success(msg, opts) { return this.show(msg, { ...opts, type: "success" }); }
+  error(msg, opts) { return this.show(msg, { ...opts, type: "error" }); }
+  warning(msg, opts) { return this.show(msg, { ...opts, type: "warning" }); }
+  info(msg, opts) { return this.show(msg, { ...opts, type: "info" }); }
+}
+
+// Usage:
+const toast = new ToastManager({ position: "top-right" });
+toast.success("Item saved successfully!");
+toast.error("Failed to delete item", { duration: 5000 });
+toast.warning("Session expires in 5 minutes", {
+  action: { label: "Extend", onClick: () =&gt; extendSession() }
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="tabs-component">7. Tabs Component</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Zoho, Freshworks, Razorpay, PhonePe</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Click tabs, use arrow keys</div>
+  <iframe src="demos/tabs.html" loading="lazy"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Accessible Tabs Component&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .container { max-width: 700px; margin: 0 auto; }
+    .container h1 { text-align: center; margin-bottom: 24px; }
+
+    .tabs-wrapper {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    /* Tab List */
+    .tab-list {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #eee;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 16px 24px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      transition: color 0.2s;
+      margin: 0;
+    }
+    .tab-btn:hover { color: #333; background: rgba(0,0,0,0.02); }
+    .tab-btn[aria-selected=&quot;true&quot;] { color: #4a90d9; }
+    .tab-btn[aria-selected=&quot;true&quot;]::after {
+      content: &#x27;&#x27;;
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #4a90d9;
+      border-radius: 3px 3px 0 0;
+    }
+    .tab-btn:focus-visible {
+      outline: 2px solid #4a90d9;
+      outline-offset: -2px;
+      border-radius: 4px;
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      padding: 28px;
+      animation: fadeIn 0.25s ease;
+    }
+    .tab-panel.active { display: block; }
+    .tab-panel h2 { font-size: 20px; margin-bottom: 12px; color: #333; }
+    .tab-panel p { line-height: 1.7; color: #555; margin-bottom: 12px; }
+    .tab-panel code {
+      background: #f4f4f4; padding: 2px 6px; border-radius: 4px;
+      font-family: &#x27;SF Mono&#x27;, Consolas, monospace; font-size: 13px;
+    }
+    .tab-panel ul { margin-left: 20px; margin-bottom: 12px; }
+    .tab-panel li { line-height: 2; color: #555; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .instructions {
+      background: white; border-radius: 10px; padding: 20px; margin-top: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .instructions h3 { margin-bottom: 8px; font-size: 14px; }
+    .instructions kbd {
+      display: inline-block; padding: 2px 8px; background: #eee;
+      border-radius: 4px; font-family: monospace; font-size: 12px;
+      border: 1px solid #ddd;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;📑 Accessible Tabs&lt;/h1&gt;
+  
+  &lt;div class=&quot;tabs-wrapper&quot;&gt;
+    &lt;div class=&quot;tab-list&quot; role=&quot;tablist&quot; aria-label=&quot;Project Information&quot; id=&quot;tablist&quot;&gt;&lt;/div&gt;
+    &lt;div id=&quot;panels-container&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;instructions&quot;&gt;
+    &lt;h3&gt;⌨️ Keyboard Navigation:&lt;/h3&gt;
+    &lt;p&gt;&lt;kbd&gt;←&lt;/kbd&gt; &lt;kbd&gt;→&lt;/kbd&gt; Move between tabs &amp;nbsp;|&amp;nbsp; &lt;kbd&gt;Home&lt;/kbd&gt; First tab &amp;nbsp;|&amp;nbsp; &lt;kbd&gt;End&lt;/kbd&gt; Last tab &amp;nbsp;|&amp;nbsp; &lt;kbd&gt;Enter&lt;/kbd&gt; / &lt;kbd&gt;Space&lt;/kbd&gt; Select&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+class Tabs {
+  constructor({ tablistEl, panelsContainer, tabs }) {
+    this.tablistEl = tablistEl;
+    this.panelsContainer = panelsContainer;
+    this.tabs = tabs;
+    this.activeIndex = 0;
+    this.render();
+    this.bindEvents();
+  }
+
+  render() {
+    this.tabs.forEach((tab, i) =&gt; {
+      // Tab button
+      const btn = document.createElement(&#x27;button&#x27;);
+      btn.className = &#x27;tab-btn&#x27;;
+      btn.id = `tab-${i}`;
+      btn.setAttribute(&#x27;role&#x27;, &#x27;tab&#x27;);
+      btn.setAttribute(&#x27;aria-selected&#x27;, i === 0 ? &#x27;true&#x27; : &#x27;false&#x27;);
+      btn.setAttribute(&#x27;aria-controls&#x27;, `panel-${i}`);
+      btn.setAttribute(&#x27;tabindex&#x27;, i === 0 ? &#x27;0&#x27; : &#x27;-1&#x27;);
+      btn.textContent = tab.label;
+      this.tablistEl.appendChild(btn);
+
+      // Panel
+      const panel = document.createElement(&#x27;div&#x27;);
+      panel.className = `tab-panel ${i === 0 ? &#x27;active&#x27; : &#x27;&#x27;}`;
+      panel.id = `panel-${i}`;
+      panel.setAttribute(&#x27;role&#x27;, &#x27;tabpanel&#x27;);
+      panel.setAttribute(&#x27;aria-labelledby&#x27;, `tab-${i}`);
+      panel.setAttribute(&#x27;tabindex&#x27;, &#x27;0&#x27;);
+      panel.innerHTML = tab.content;
+      this.panelsContainer.appendChild(panel);
+    });
+
+    this.buttons = Array.from(this.tablistEl.querySelectorAll(&#x27;.tab-btn&#x27;));
+    this.panels = Array.from(this.panelsContainer.querySelectorAll(&#x27;.tab-panel&#x27;));
+  }
+
+  bindEvents() {
+    this.buttons.forEach((btn, i) =&gt; {
+      btn.addEventListener(&#x27;click&#x27;, () =&gt; this.activate(i));
+    });
+
+    this.tablistEl.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
+      let newIndex;
+      switch (e.key) {
+        case &#x27;ArrowRight&#x27;: newIndex = (this.activeIndex + 1) % this.tabs.length; break;
+        case &#x27;ArrowLeft&#x27;: newIndex = (this.activeIndex - 1 + this.tabs.length) % this.tabs.length; break;
+        case &#x27;Home&#x27;: newIndex = 0; break;
+        case &#x27;End&#x27;: newIndex = this.tabs.length - 1; break;
+        default: return;
+      }
+      e.preventDefault();
+      this.activate(newIndex);
+      this.buttons[newIndex].focus();
+    });
+  }
+
+  activate(index) {
+    // Deactivate old
+    this.buttons[this.activeIndex].setAttribute(&#x27;aria-selected&#x27;, &#x27;false&#x27;);
+    this.buttons[this.activeIndex].setAttribute(&#x27;tabindex&#x27;, &#x27;-1&#x27;);
+    this.panels[this.activeIndex].classList.remove(&#x27;active&#x27;);
+    
+    // Activate new
+    this.activeIndex = index;
+    this.buttons[index].setAttribute(&#x27;aria-selected&#x27;, &#x27;true&#x27;);
+    this.buttons[index].setAttribute(&#x27;tabindex&#x27;, &#x27;0&#x27;);
+    this.panels[index].classList.add(&#x27;active&#x27;);
+  }
+}
+
+new Tabs({
+  tablistEl: document.getElementById(&#x27;tablist&#x27;),
+  panelsContainer: document.getElementById(&#x27;panels-container&#x27;),
+  tabs: [
+    {
+      label: &#x27;🏗️ Overview&#x27;,
+      content: `
+        &lt;h2&gt;Project Overview&lt;/h2&gt;
+        &lt;p&gt;This Tabs component demonstrates a fully accessible, WAI-ARIA compliant tab interface built with vanilla JavaScript.&lt;/p&gt;
+        &lt;p&gt;Key features:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;Roving tabindex for keyboard navigation&lt;/li&gt;
+          &lt;li&gt;ARIA roles: &lt;code&gt;tablist&lt;/code&gt;, &lt;code&gt;tab&lt;/code&gt;, &lt;code&gt;tabpanel&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;Arrow key navigation within tab list&lt;/li&gt;
+          &lt;li&gt;Home/End key support&lt;/li&gt;
+        &lt;/ul&gt;
+      `
+    },
+    {
+      label: &#x27;🛠️ Implementation&#x27;,
+      content: `
+        &lt;h2&gt;Implementation Notes&lt;/h2&gt;
+        &lt;p&gt;The component uses the &lt;strong&gt;Roving Tabindex&lt;/strong&gt; pattern:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;Only the active tab has &lt;code&gt;tabindex=&quot;0&quot;&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;All other tabs have &lt;code&gt;tabindex=&quot;-1&quot;&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;Arrow keys move focus AND activate&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;aria-selected&lt;/code&gt; tracks the active tab&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;aria-controls&lt;/code&gt; / &lt;code&gt;aria-labelledby&lt;/code&gt; link tabs to panels&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;p&gt;This pattern is recommended by the &lt;a href=&quot;https://www.w3.org/WAI/ARIA/apg/patterns/tabs/&quot; target=&quot;_blank&quot;&gt;WAI-ARIA Authoring Practices Guide&lt;/a&gt;.&lt;/p&gt;
+      `
+    },
+    {
+      label: &#x27;📋 API&#x27;,
+      content: `
+        &lt;h2&gt;API Reference&lt;/h2&gt;
+        &lt;p&gt;The &lt;code&gt;Tabs&lt;/code&gt; class accepts a config object:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;tablistEl&lt;/code&gt; — Container for tab buttons&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;panelsContainer&lt;/code&gt; — Container for tab panels&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;tabs&lt;/code&gt; — Array of &lt;code&gt;{ label, content }&lt;/code&gt; objects&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;p&gt;Methods:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;activate(index)&lt;/code&gt; — Programmatically switch tab&lt;/li&gt;
+        &lt;/ul&gt;
+      `
+    },
+    {
+      label: &#x27;🎨 Styling&#x27;,
+      content: `
+        &lt;h2&gt;Styling Guide&lt;/h2&gt;
+        &lt;p&gt;The component uses minimal CSS with easy customization points:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;Tab indicator: Bottom border via &lt;code&gt;::after&lt;/code&gt; pseudo-element&lt;/li&gt;
+          &lt;li&gt;Active color: Change &lt;code&gt;--tab-color: #4a90d9&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;Fade animation on panel switch&lt;/li&gt;
+          &lt;li&gt;Focus-visible outline for keyboard users only&lt;/li&gt;
+          &lt;li&gt;Horizontal scroll on overflow (mobile-friendly)&lt;/li&gt;
+        &lt;/ul&gt;
+      `
+    }
+  ]
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Tabs {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.tabs = options.tabs || []; // [{ id, label, content }]
+    this.activeTab = options.defaultTab || this.tabs[0]?.id;
+    this.onChange = options.onChange || (() =&gt; {});
+    this.orientation = options.orientation || "horizontal"; // horizontal | vertical
+    this.lazy = options.lazy || false; // Only render content when tab is first activated
+    this.rendered = new Set();
+    
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.className = `tabs-container tabs-${this.orientation}`;
+    
+    // Tab list
+    const tabList = document.createElement("div");
+    tabList.className = "tab-list";
+    tabList.setAttribute("role", "tablist");
+    tabList.style.cssText = this.orientation === "horizontal"
+      ? "display:flex;border-bottom:2px solid #e0e0e0;gap:0"
+      : "display:flex;flex-direction:column;border-right:2px solid #e0e0e0;min-width:150px";
+    
+    this.tabs.forEach((tab) =&gt; {
+      const btn = document.createElement("button");
+      btn.className = "tab-btn";
+      btn.textContent = tab.label;
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", tab.id === this.activeTab);
+      btn.setAttribute("aria-controls", `panel-${tab.id}`);
+      btn.id = `tab-${tab.id}`;
+      btn.style.cssText = `
+        padding: 10px 20px; border: none; background: none;
+        cursor: pointer; font-size: 14px; font-weight: 500;
+        border-bottom: 2px solid transparent; margin-bottom: -2px;
+        transition: all 0.2s;
+        ${tab.id === this.activeTab ? "border-bottom-color:#2563eb;color:#2563eb" : "color:#666"}
+      `;
+      
+      btn.addEventListener("click", () =&gt; this.activate(tab.id));
+      btn.addEventListener("keydown", (e) =&gt; this.handleKeydown(e, tab.id));
+      
+      tabList.appendChild(btn);
+    });
+    
+    // Tab panels
+    const panelContainer = document.createElement("div");
+    panelContainer.className = "tab-panels";
+    panelContainer.style.cssText = "flex:1;padding:16px";
+    
+    this.tabs.forEach((tab) =&gt; {
+      const panel = document.createElement("div");
+      panel.className = "tab-panel";
+      panel.id = `panel-${tab.id}`;
+      panel.setAttribute("role", "tabpanel");
+      panel.setAttribute("aria-labelledby", `tab-${tab.id}`);
+      panel.style.display = tab.id === this.activeTab ? "block" : "none";
+      
+      if (!this.lazy || tab.id === this.activeTab) {
+        panel.innerHTML = typeof tab.content === "function" ? tab.content() : tab.content;
+        this.rendered.add(tab.id);
+      }
+      
+      panelContainer.appendChild(panel);
+    });
+    
+    if (this.orientation === "vertical") {
+      this.container.style.display = "flex";
+    }
+    
+    this.container.appendChild(tabList);
+    this.container.appendChild(panelContainer);
+  }
+
+  activate(tabId) {
+    if (tabId === this.activeTab) return;
+    this.activeTab = tabId;
+    
+    // Update buttons
+    this.container.querySelectorAll(".tab-btn").forEach((btn) =&gt; {
+      const isActive = btn.id === `tab-${tabId}`;
+      btn.setAttribute("aria-selected", isActive);
+      btn.style.borderBottomColor = isActive ? "#2563eb" : "transparent";
+      btn.style.color = isActive ? "#2563eb" : "#666";
+    });
+    
+    // Update panels
+    this.container.querySelectorAll(".tab-panel").forEach((panel) =&gt; {
+      const isActive = panel.id === `panel-${tabId}`;
+      panel.style.display = isActive ? "block" : "none";
+      
+      // Lazy render
+      if (isActive &amp;&amp; this.lazy &amp;&amp; !this.rendered.has(tabId)) {
+        const tab = this.tabs.find((t) =&gt; t.id === tabId);
+        panel.innerHTML = typeof tab.content === "function" ? tab.content() : tab.content;
+        this.rendered.add(tabId);
+      }
+    });
+    
+    this.onChange(tabId);
+  }
+
+  handleKeydown(e, currentId) {
+    const ids = this.tabs.map((t) =&gt; t.id);
+    const currentIndex = ids.indexOf(currentId);
+    let nextIndex;
+    
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      nextIndex = (currentIndex + 1) % ids.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      nextIndex = (currentIndex - 1 + ids.length) % ids.length;
+    } else if (e.key === "Home") {
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      nextIndex = ids.length - 1;
+    } else return;
+    
+    e.preventDefault();
+    this.activate(ids[nextIndex]);
+    document.getElementById(`tab-${ids[nextIndex]}`)?.focus();
+  }
+}
+
+// Usage:
+const tabs = new Tabs(document.getElementById("my-tabs"), {
+  tabs: [
+    { id: "overview", label: "Overview", content: "&lt;p&gt;Product overview...&lt;/p&gt;" },
+    { id: "specs", label: "Specifications", content: "&lt;p&gt;Technical specs...&lt;/p&gt;" },
+    { id: "reviews", label: "Reviews", content: () =&gt; fetchReviews() }, // Lazy
+  ],
+  onChange: (id) =&gt; console.log("Switched to:", id)
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="accordion">8. Accordion / Collapsible Sections</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Flipkart, Zoho, Freshworks, TCS Digital</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Click to expand/collapse sections</div>
+  <iframe src="demos/accordion.html" loading="lazy" style="height:460px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Accordion Component&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
+
+    .accordion {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .accordion-item { border-bottom: 1px solid #eee; }
+    .accordion-item:last-child { border-bottom: none; }
+
+    .accordion-header {
+      width: 100%;
+      padding: 18px 20px;
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      text-align: left;
+      transition: background 0.2s;
+      margin: 0;
+    }
+    .accordion-header:hover { background: #f8f9fa; }
+    .accordion-header[aria-expanded=&quot;true&quot;] { color: #4a90d9; }
+
+    .accordion-icon {
+      width: 20px; height: 20px;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+    .accordion-header[aria-expanded=&quot;true&quot;] .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+    .accordion-panel.open {
+      max-height: 500px;
+    }
+    .accordion-content {
+      padding: 0 20px 18px;
+      color: #555;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .controls {
+      text-align: center; margin-top: 20px;
+    }
+    .controls button {
+      padding: 8px 16px; margin: 4px; border: 1px solid #ddd;
+      border-radius: 6px; background: white; font-size: 13px;
+      cursor: pointer; font-weight: 600;
+    }
+    .controls button:hover { background: #f0f7ff; border-color: #4a90d9; }
+    .controls label { font-size: 13px; margin-left: 12px; color: #555; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;📂 Accordion&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;Click headers to expand/collapse. Toggle multi-open below.&lt;/p&gt;
+
+  &lt;div class=&quot;accordion&quot; id=&quot;accordion&quot; role=&quot;region&quot;&gt;&lt;/div&gt;
+
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;button onclick=&quot;accordion.expandAll()&quot;&gt;Expand All&lt;/button&gt;
+    &lt;button onclick=&quot;accordion.collapseAll()&quot;&gt;Collapse All&lt;/button&gt;
+    &lt;label&gt;&lt;input type=&quot;checkbox&quot; id=&quot;multi-toggle&quot; onchange=&quot;toggleMulti()&quot;&gt; Allow Multiple Open&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+class Accordion {
+  constructor(container, items, options = {}) {
+    this.container = container;
+    this.items = items;
+    this.allowMultiple = options.allowMultiple || false;
+    this.openSet = new Set(options.defaultOpen || []);
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = &#x27;&#x27;;
+    this.items.forEach((item, index) =&gt; {
+      const isOpen = this.openSet.has(index);
+      const div = document.createElement(&#x27;div&#x27;);
+      div.className = &#x27;accordion-item&#x27;;
+      div.innerHTML = `
+        &lt;button class=&quot;accordion-header&quot; aria-expanded=&quot;${isOpen}&quot; aria-controls=&quot;panel-${index}&quot; id=&quot;header-${index}&quot;&gt;
+          &lt;span&gt;${item.title}&lt;/span&gt;
+          &lt;svg class=&quot;accordion-icon&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.5&quot;&gt;
+            &lt;polyline points=&quot;6 9 12 15 18 9&quot;/&gt;
+          &lt;/svg&gt;
+        &lt;/button&gt;
+        &lt;div class=&quot;accordion-panel ${isOpen ? &#x27;open&#x27; : &#x27;&#x27;}&quot; id=&quot;panel-${index}&quot; role=&quot;region&quot; aria-labelledby=&quot;header-${index}&quot;&gt;
+          &lt;div class=&quot;accordion-content&quot;&gt;${item.content}&lt;/div&gt;
+        &lt;/div&gt;
+      `;
+      div.querySelector(&#x27;.accordion-header&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; this.toggle(index));
+      this.container.appendChild(div);
+    });
+  }
+
+  toggle(index) {
+    if (this.openSet.has(index)) {
+      this.openSet.delete(index);
+    } else {
+      if (!this.allowMultiple) this.openSet.clear();
+      this.openSet.add(index);
+    }
+    this.updateDOM();
+  }
+
+  updateDOM() {
+    this.items.forEach((_, i) =&gt; {
+      const header = this.container.querySelector(`#header-${i}`);
+      const panel = this.container.querySelector(`#panel-${i}`);
+      const isOpen = this.openSet.has(i);
+      header.setAttribute(&#x27;aria-expanded&#x27;, isOpen);
+      panel.classList.toggle(&#x27;open&#x27;, isOpen);
+    });
+  }
+
+  expandAll() { this.items.forEach((_, i) =&gt; this.openSet.add(i)); this.updateDOM(); }
+  collapseAll() { this.openSet.clear(); this.updateDOM(); }
+}
+
+const faqData = [
+  { title: &#x27;🚀 What is debounce?&#x27;, content: &#x27;Debounce delays execution until N ms after the &lt;strong&gt;last&lt;/strong&gt; call. Great for search inputs — waits until user stops typing before firing the API.&#x27; },
+  { title: &#x27;⚡ What is throttle?&#x27;, content: &#x27;Throttle ensures a function fires at most once every N ms. Ideal for scroll handlers, resize events, and mouse move tracking.&#x27; },
+  { title: &#x27;🔄 When to use which?&#x27;, content: &#x27;&lt;strong&gt;Debounce:&lt;/strong&gt; Search, autocomplete, form validation, window resize end.&lt;br&gt;&lt;strong&gt;Throttle:&lt;/strong&gt; Scroll position tracking, drag events, rate-limiting API calls, game loops.&#x27; },
+  { title: &#x27;📦 How does closure help here?&#x27;, content: &#x27;Both use closures to &quot;remember&quot; the timer ID between invocations. The returned function closes over the timerId variable, allowing cancel/reset without global state.&#x27; },
+  { title: &#x27;🎯 What about requestAnimationFrame?&#x27;, content: &#x27;rAF is a browser-native throttle at ~60fps (16.6ms). Use it for visual updates (animations, scroll effects) instead of setTimeout-based throttle for smoother rendering.&#x27; },
+];
+
+const accordion = new Accordion(
+  document.getElementById(&#x27;accordion&#x27;),
+  faqData,
+  { defaultOpen: [0] }
+);
+
+function toggleMulti() {
+  accordion.allowMultiple = document.getElementById(&#x27;multi-toggle&#x27;).checked;
+  if (!accordion.allowMultiple &amp;&amp; accordion.openSet.size &gt; 1) {
+    const first = [...accordion.openSet][0];
+    accordion.openSet.clear();
+    accordion.openSet.add(first);
+    accordion.updateDOM();
+  }
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Accordion {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.items = options.items || []; // [{ id, title, content }]
+    this.allowMultiple = options.allowMultiple || false;
+    this.defaultOpen = options.defaultOpen || []; // array of ids
+    this.onChange = options.onChange || (() =&gt; {});
+    this.animated = options.animated !== false;
+    
+    this.openItems = new Set(this.defaultOpen);
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.className = "accordion";
+    this.container.setAttribute("role", "region");
+    
+    this.items.forEach((item) =&gt; {
+      const section = document.createElement("div");
+      section.className = "accordion-item";
+      section.style.cssText = "border:1px solid #e0e0e0;border-radius:8px;margin-bottom:8px;overflow:hidden";
+      
+      // Header
+      const header = document.createElement("button");
+      header.className = "accordion-header";
+      header.setAttribute("aria-expanded", this.openItems.has(item.id));
+      header.setAttribute("aria-controls", `accordion-panel-${item.id}`);
+      header.id = `accordion-header-${item.id}`;
+      header.style.cssText = `
+        width:100%;padding:14px 16px;border:none;background:#f8f9fa;
+        font-size:15px;font-weight:600;text-align:left;cursor:pointer;
+        display:flex;justify-content:space-between;align-items:center;
+        transition:background 0.2s;
+      `;
+      header.innerHTML = `
+        &lt;span&gt;${item.title}&lt;/span&gt;
+        &lt;span class="accordion-icon" style="transition:transform 0.3s;display:inline-block"&gt;▼&lt;/span&gt;
+      `;
+      
+      // Panel
+      const panel = document.createElement("div");
+      panel.className = "accordion-panel";
+      panel.id = `accordion-panel-${item.id}`;
+      panel.setAttribute("role", "region");
+      panel.setAttribute("aria-labelledby", `accordion-header-${item.id}`);
+      panel.style.cssText = `
+        overflow:hidden;transition:${this.animated ? "max-height 0.3s ease,padding 0.3s ease" : "none"};
+        ${this.openItems.has(item.id) ? "max-height:1000px;padding:16px" : "max-height:0;padding:0 16px"}
+      `;
+      panel.innerHTML = typeof item.content === "function" ? item.content() : item.content;
+      
+      // Update icon rotation
+      if (this.openItems.has(item.id)) {
+        header.querySelector(".accordion-icon").style.transform = "rotate(180deg)";
+      }
+      
+      // Click handler
+      header.addEventListener("click", () =&gt; this.toggle(item.id));
+      
+      section.appendChild(header);
+      section.appendChild(panel);
+      this.container.appendChild(section);
+    });
+  }
+
+  toggle(id) {
+    if (this.openItems.has(id)) {
+      this.close(id);
+    } else {
+      this.open(id);
+    }
+    this.onChange([...this.openItems]);
+  }
+
+  open(id) {
+    // Close others if single mode
+    if (!this.allowMultiple) {
+      this.openItems.forEach((openId) =&gt; this.close(openId));
+    }
+    
+    this.openItems.add(id);
+    const panel = document.getElementById(`accordion-panel-${id}`);
+    const header = document.getElementById(`accordion-header-${id}`);
+    
+    panel.style.maxHeight = panel.scrollHeight + "px";
+    panel.style.padding = "16px";
+    header.setAttribute("aria-expanded", "true");
+    header.querySelector(".accordion-icon").style.transform = "rotate(180deg)";
+  }
+
+  close(id) {
+    this.openItems.delete(id);
+    const panel = document.getElementById(`accordion-panel-${id}`);
+    const header = document.getElementById(`accordion-header-${id}`);
+    
+    panel.style.maxHeight = "0";
+    panel.style.padding = "0 16px";
+    header.setAttribute("aria-expanded", "false");
+    header.querySelector(".accordion-icon").style.transform = "rotate(0deg)";
+  }
+
+  openAll() { this.items.forEach((i) =&gt; this.open(i.id)); }
+  closeAll() { this.items.forEach((i) =&gt; this.close(i.id)); }
+}
+
+// Usage:
+const accordion = new Accordion(document.getElementById("faq"), {
+  allowMultiple: false,
+  items: [
+    { id: "q1", title: "What is your return policy?", content: "&lt;p&gt;30-day returns...&lt;/p&gt;" },
+    { id: "q2", title: "How does shipping work?", content: "&lt;p&gt;Free shipping over ₹500...&lt;/p&gt;" },
+    { id: "q3", title: "Do you offer EMI?", content: "&lt;p&gt;Yes, on orders above ₹3000...&lt;/p&gt;" },
+  ],
+  defaultOpen: ["q1"]
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="form-validation">9. Form Validation (Real-time)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Amazon, Flipkart, Razorpay, Paytm, PhonePe</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Try filling the form</div>
+  <iframe src="demos/form-validation.html" loading="lazy" style="height:520px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Form Validation&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .form-wrapper {
+      max-width: 480px; margin: 0 auto;
+      background: white; border-radius: 16px;
+      padding: 36px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .form-wrapper h1 { text-align: center; margin-bottom: 4px; font-size: 22px; }
+    .form-wrapper .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 28px; }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: #444; margin-bottom: 6px;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 12px 14px;
+      border: 2px solid #e0e0e0; border-radius: 8px;
+      font-size: 15px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus { border-color: #4a90d9; box-shadow: 0 0 0 3px rgba(74,144,217,0.1); }
+    .form-group.valid input { border-color: #27ae60; }
+    .form-group.invalid input { border-color: #e74c3c; }
+
+    .error-msg {
+      display: none;
+      font-size: 12px; color: #e74c3c; margin-top: 4px;
+      animation: shake 0.3s ease;
+    }
+    .form-group.invalid .error-msg { display: block; }
+
+    .success-icon, .error-icon {
+      position: absolute; right: 12px; top: 36px; font-size: 16px;
+      display: none;
+    }
+    .form-group.valid .success-icon { display: block; }
+    .form-group.invalid .error-icon { display: block; }
+
+    /* Password Strength */
+    .password-strength {
+      height: 4px; border-radius: 4px;
+      background: #eee; margin-top: 8px; overflow: hidden;
+    }
+    .password-strength .bar {
+      height: 100%; width: 0;
+      border-radius: 4px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .strength-label { font-size: 11px; margin-top: 4px; font-weight: 600; }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%; padding: 14px;
+      background: #4a90d9; color: white;
+      border: none; border-radius: 10px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .submit-btn:hover:not(:disabled) { background: #357abd; }
+    .submit-btn:active:not(:disabled) { transform: scale(0.98); }
+    .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .form-success {
+      display: none; text-align: center; padding: 40px 20px;
+    }
+    .form-success h2 { color: #27ae60; margin-bottom: 8px; }
+    .form-success p { color: #666; }
+
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;form-wrapper&quot;&gt;
+  &lt;h1&gt;📝 Sign Up&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;Real-time validation with password strength&lt;/p&gt;
+
+  &lt;form id=&quot;signup-form&quot; novalidate&gt;
+    &lt;div class=&quot;form-group&quot; id=&quot;group-name&quot;&gt;
+      &lt;label for=&quot;name&quot;&gt;Full Name&lt;/label&gt;
+      &lt;input type=&quot;text&quot; id=&quot;name&quot; placeholder=&quot;John Doe&quot; autocomplete=&quot;name&quot;&gt;
+      &lt;span class=&quot;success-icon&quot;&gt;✅&lt;/span&gt;
+      &lt;span class=&quot;error-icon&quot;&gt;❌&lt;/span&gt;
+      &lt;p class=&quot;error-msg&quot; id=&quot;error-name&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;form-group&quot; id=&quot;group-email&quot;&gt;
+      &lt;label for=&quot;email&quot;&gt;Email Address&lt;/label&gt;
+      &lt;input type=&quot;email&quot; id=&quot;email&quot; placeholder=&quot;john@example.com&quot; autocomplete=&quot;email&quot;&gt;
+      &lt;span class=&quot;success-icon&quot;&gt;✅&lt;/span&gt;
+      &lt;span class=&quot;error-icon&quot;&gt;❌&lt;/span&gt;
+      &lt;p class=&quot;error-msg&quot; id=&quot;error-email&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;form-group&quot; id=&quot;group-password&quot;&gt;
+      &lt;label for=&quot;password&quot;&gt;Password&lt;/label&gt;
+      &lt;input type=&quot;password&quot; id=&quot;password&quot; placeholder=&quot;Min 8 chars, mixed case + number&quot;&gt;
+      &lt;span class=&quot;success-icon&quot;&gt;✅&lt;/span&gt;
+      &lt;span class=&quot;error-icon&quot;&gt;❌&lt;/span&gt;
+      &lt;p class=&quot;error-msg&quot; id=&quot;error-password&quot;&gt;&lt;/p&gt;
+      &lt;div class=&quot;password-strength&quot;&gt;&lt;div class=&quot;bar&quot; id=&quot;strength-bar&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;p class=&quot;strength-label&quot; id=&quot;strength-label&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;form-group&quot; id=&quot;group-confirm&quot;&gt;
+      &lt;label for=&quot;confirm&quot;&gt;Confirm Password&lt;/label&gt;
+      &lt;input type=&quot;password&quot; id=&quot;confirm&quot; placeholder=&quot;Re-enter password&quot;&gt;
+      &lt;span class=&quot;success-icon&quot;&gt;✅&lt;/span&gt;
+      &lt;span class=&quot;error-icon&quot;&gt;❌&lt;/span&gt;
+      &lt;p class=&quot;error-msg&quot; id=&quot;error-confirm&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot; class=&quot;submit-btn&quot; id=&quot;submit-btn&quot; disabled&gt;Create Account&lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;div class=&quot;form-success&quot; id=&quot;form-success&quot;&gt;
+    &lt;h2&gt;🎉 Account Created!&lt;/h2&gt;
+    &lt;p&gt;Welcome aboard. Check your email for verification.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const form = document.getElementById(&#x27;signup-form&#x27;);
+const submitBtn = document.getElementById(&#x27;submit-btn&#x27;);
+const fields = { name: &#x27;&#x27;, email: &#x27;&#x27;, password: &#x27;&#x27;, confirm: &#x27;&#x27; };
+const validity = { name: false, email: false, password: false, confirm: false };
+
+const validators = {
+  name(value) {
+    if (!value.trim()) return &#x27;Name is required&#x27;;
+    if (value.trim().length &lt; 2) return &#x27;Name must be at least 2 characters&#x27;;
+    if (!/^[a-zA-Z\s&#x27;-]+$/.test(value)) return &#x27;Name can only contain letters, spaces, hyphens&#x27;;
+    return &#x27;&#x27;;
+  },
+  email(value) {
+    if (!value.trim()) return &#x27;Email is required&#x27;;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return &#x27;Enter a valid email address&#x27;;
+    return &#x27;&#x27;;
+  },
+  password(value) {
+    if (!value) return &#x27;Password is required&#x27;;
+    if (value.length &lt; 8) return &#x27;Must be at least 8 characters&#x27;;
+    if (!/[A-Z]/.test(value)) return &#x27;Must include an uppercase letter&#x27;;
+    if (!/[a-z]/.test(value)) return &#x27;Must include a lowercase letter&#x27;;
+    if (!/[0-9]/.test(value)) return &#x27;Must include a number&#x27;;
+    return &#x27;&#x27;;
+  },
+  confirm(value) {
+    if (!value) return &#x27;Please confirm your password&#x27;;
+    if (value !== document.getElementById(&#x27;password&#x27;).value) return &#x27;Passwords do not match&#x27;;
+    return &#x27;&#x27;;
+  }
+};
+
+// Real-time validation
+Object.keys(fields).forEach(field =&gt; {
+  const input = document.getElementById(field);
+  const group = document.getElementById(`group-${field}`);
+  const errorEl = document.getElementById(`error-${field}`);
+
+  input.addEventListener(&#x27;input&#x27;, () =&gt; {
+    const value = input.value;
+    const error = validators[field](value);
+    
+    group.classList.remove(&#x27;valid&#x27;, &#x27;invalid&#x27;);
+    if (value.length &gt; 0) {
+      if (error) {
+        group.classList.add(&#x27;invalid&#x27;);
+        errorEl.textContent = error;
+        validity[field] = false;
+      } else {
+        group.classList.add(&#x27;valid&#x27;);
+        validity[field] = true;
+      }
+    } else {
+      validity[field] = false;
+    }
+
+    // Update password strength
+    if (field === &#x27;password&#x27;) updateStrength(value);
+    // Re-validate confirm when password changes
+    if (field === &#x27;password&#x27; &amp;&amp; document.getElementById(&#x27;confirm&#x27;).value) {
+      document.getElementById(&#x27;confirm&#x27;).dispatchEvent(new Event(&#x27;input&#x27;));
+    }
+    
+    updateSubmitBtn();
+  });
+});
+
+function updateStrength(password) {
+  const bar = document.getElementById(&#x27;strength-bar&#x27;);
+  const label = document.getElementById(&#x27;strength-label&#x27;);
+  let score = 0;
+  if (password.length &gt;= 8) score++;
+  if (password.length &gt;= 12) score++;
+  if (/[A-Z]/.test(password) &amp;&amp; /[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  const levels = [
+    { width: &#x27;0%&#x27;, color: &#x27;#eee&#x27;, text: &#x27;&#x27; },
+    { width: &#x27;20%&#x27;, color: &#x27;#e74c3c&#x27;, text: &#x27;Very Weak&#x27; },
+    { width: &#x27;40%&#x27;, color: &#x27;#f39c12&#x27;, text: &#x27;Weak&#x27; },
+    { width: &#x27;60%&#x27;, color: &#x27;#f1c40f&#x27;, text: &#x27;Fair&#x27; },
+    { width: &#x27;80%&#x27;, color: &#x27;#27ae60&#x27;, text: &#x27;Strong&#x27; },
+    { width: &#x27;100%&#x27;, color: &#x27;#1a9f4e&#x27;, text: &#x27;Very Strong&#x27; },
+  ];
+  const level = levels[Math.min(score, 5)];
+  bar.style.width = level.width;
+  bar.style.background = level.color;
+  label.textContent = level.text;
+  label.style.color = level.color;
+}
+
+function updateSubmitBtn() {
+  submitBtn.disabled = !Object.values(validity).every(Boolean);
+}
+
+form.addEventListener(&#x27;submit&#x27;, (e) =&gt; {
+  e.preventDefault();
+  if (!Object.values(validity).every(Boolean)) return;
+  
+  form.style.display = &#x27;none&#x27;;
+  document.getElementById(&#x27;form-success&#x27;).style.display = &#x27;block&#x27;;
+});
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class FormValidator {
+  constructor(formEl, options = {}) {
+    this.form = formEl;
+    this.rules = options.rules || {};
+    this.messages = options.messages || {};
+    this.onSubmit = options.onSubmit || (() =&gt; {});
+    this.validateOn = options.validateOn || "blur"; // blur | input | submit
+    this.errors = {};
+    
+    this.init();
+  }
+
+  init() {
+    // Built-in validation rules
+    this.validators = {
+      required: (value) =&gt; value.trim().length &gt; 0,
+      email: (value) =&gt; /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+      minLength: (value, min) =&gt; value.length &gt;= min,
+      maxLength: (value, max) =&gt; value.length &lt;= max,
+      pattern: (value, regex) =&gt; new RegExp(regex).test(value),
+      match: (value, fieldName) =&gt; value === this.getFieldValue(fieldName),
+      phone: (value) =&gt; /^[6-9]\d{9}$/.test(value),
+      number: (value) =&gt; !isNaN(value) &amp;&amp; value.trim() !== "",
+      min: (value, min) =&gt; Number(value) &gt;= min,
+      max: (value, max) =&gt; Number(value) &lt;= max,
+      url: (value) =&gt; {
+        try { new URL(value); return true; } catch { return false; }
+      },
+      custom: (value, fn) =&gt; fn(value),
+    };
+
+    // Default error messages
+    this.defaultMessages = {
+      required: "This field is required",
+      email: "Please enter a valid email",
+      minLength: (min) =&gt; `Minimum ${min} characters required`,
+      maxLength: (max) =&gt; `Maximum ${max} characters allowed`,
+      pattern: "Invalid format",
+      match: (field) =&gt; `Must match ${field}`,
+      phone: "Please enter a valid 10-digit phone number",
+      number: "Please enter a valid number",
+      min: (min) =&gt; `Minimum value is ${min}`,
+      max: (max) =&gt; `Maximum value is ${max}`,
+      url: "Please enter a valid URL",
+    };
+
+    // Attach event listeners
+    Object.keys(this.rules).forEach((fieldName) =&gt; {
+      const field = this.form.elements[fieldName];
+      if (!field) return;
+      
+      if (this.validateOn === "input" || this.validateOn === "blur") {
+        field.addEventListener(this.validateOn, () =&gt; this.validateField(fieldName));
+      }
+      // Always validate on input after first error shown
+      field.addEventListener("input", () =&gt; {
+        if (this.errors[fieldName]) {
+          this.validateField(fieldName);
+        }
+      });
+    });
+
+    // Form submit
+    this.form.addEventListener("submit", (e) =&gt; {
+      e.preventDefault();
+      if (this.validateAll()) {
+        const formData = new FormData(this.form);
+        this.onSubmit(Object.fromEntries(formData));
+      }
+    });
+  }
+
+  validateField(fieldName) {
+    const rules = this.rules[fieldName];
+    const value = this.getFieldValue(fieldName);
+    
+    for (const rule of rules) {
+      const [ruleName, ...params] = Array.isArray(rule) ? rule : [rule];
+      const validator = this.validators[ruleName];
+      
+      if (!validator) continue;
+      
+      const isValid = validator(value, ...params);
+      
+      if (!isValid) {
+        const message = this.getMessage(fieldName, ruleName, params);
+        this.showError(fieldName, message);
+        this.errors[fieldName] = message;
+        return false;
+      }
+    }
+    
+    this.clearError(fieldName);
+    delete this.errors[fieldName];
+    return true;
+  }
+
+  validateAll() {
+    let isValid = true;
+    Object.keys(this.rules).forEach((fieldName) =&gt; {
+      if (!this.validateField(fieldName)) {
+        isValid = false;
+      }
+    });
+    
+    // Focus first error field
+    if (!isValid) {
+      const firstErrorField = Object.keys(this.errors)[0];
+      this.form.elements[firstErrorField]?.focus();
+    }
+    
+    return isValid;
+  }
+
+  getFieldValue(fieldName) {
+    const field = this.form.elements[fieldName];
+    if (!field) return "";
+    if (field.type === "checkbox") return field.checked ? "checked" : "";
+    return field.value;
+  }
+
+  getMessage(fieldName, ruleName, params) {
+    // Custom message for this field+rule
+    if (this.messages[fieldName]?.[ruleName]) {
+      return this.messages[fieldName][ruleName];
+    }
+    // Default message
+    const msg = this.defaultMessages[ruleName];
+    return typeof msg === "function" ? msg(...params) : msg;
+  }
+
+  showError(fieldName, message) {
+    const field = this.form.elements[fieldName];
+    field.style.borderColor = "#dc3545";
+    
+    // Remove existing error
+    this.clearError(fieldName);
+    
+    // Add error message
+    const errorEl = document.createElement("span");
+    errorEl.className = `field-error error-${fieldName}`;
+    errorEl.style.cssText = "color:#dc3545;font-size:12px;display:block;margin-top:4px";
+    errorEl.textContent = message;
+    field.parentNode.appendChild(errorEl);
+  }
+
+  clearError(fieldName) {
+    const field = this.form.elements[fieldName];
+    field.style.borderColor = "";
+    const existing = field.parentNode.querySelector(`.error-${fieldName}`);
+    if (existing) existing.remove();
+  }
+
+  reset() {
+    this.errors = {};
+    Object.keys(this.rules).forEach((fieldName) =&gt; this.clearError(fieldName));
+    this.form.reset();
+  }
+}
+
+// Usage:
+const validator = new FormValidator(document.getElementById("signup-form"), {
+  rules: {
+    name: ["required", ["minLength", 2]],
+    email: ["required", "email"],
+    phone: ["required", "phone"],
+    password: ["required", ["minLength", 8], ["pattern", "(?=.*[A-Z])(?=.*\\d)"]],
+    confirmPassword: ["required", ["match", "password"]],
+  },
+  messages: {
+    password: {
+      pattern: "Must contain at least one uppercase letter and one number"
+    }
+  },
+  onSubmit: (data) =&gt; {
+    console.log("Form submitted:", data);
+  }
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="countdown-timer">10. Countdown Timer / Stopwatch</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Swiggy, Flipkart, Meesho, OLX, Paytm</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Start/stop, try countdown mode</div>
+  <iframe src="demos/countdown-timer.html" loading="lazy" style="height:500px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Countdown Timer &amp; Stopwatch&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #1a1a2e; color: #eee; min-height: 100vh; }
+
+    .container { max-width: 500px; margin: 0 auto; }
+    .container h1 { text-align: center; margin-bottom: 24px; font-size: 24px; }
+
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex; justify-content: center; gap: 0; margin-bottom: 24px;
+    }
+    .mode-btn {
+      padding: 10px 28px; border: 2px solid #4a90d9; background: transparent;
+      color: #4a90d9; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; margin: 0;
+    }
+    .mode-btn:first-child { border-radius: 8px 0 0 8px; }
+    .mode-btn:last-child { border-radius: 0 8px 8px 0; }
+    .mode-btn.active { background: #4a90d9; color: white; }
+
+    /* Display */
+    .timer-card {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 40px 24px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .time-display {
+      font-size: 64px;
+      font-weight: 300;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      font-family: &#x27;SF Mono&#x27;, Consolas, monospace;
+    }
+    .ms-display {
+      font-size: 24px;
+      color: #888;
+      margin-bottom: 24px;
+      font-family: &#x27;SF Mono&#x27;, Consolas, monospace;
+    }
+
+    /* Controls */
+    .controls { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+    .ctrl-btn {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: none; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.1s, box-shadow 0.2s;
+      margin: 0;
+    }
+    .ctrl-btn:active { transform: scale(0.9); }
+    .btn-start { background: #27ae60; color: white; box-shadow: 0 4px 15px rgba(39,174,96,0.3); }
+    .btn-pause { background: #f39c12; color: white; box-shadow: 0 4px 15px rgba(243,156,18,0.3); }
+    .btn-reset { background: #e74c3c; color: white; box-shadow: 0 4px 15px rgba(231,76,60,0.3); }
+    .btn-lap { background: #9b59b6; color: white; box-shadow: 0 4px 15px rgba(155,89,182,0.3); }
+
+    /* Countdown Input */
+    .countdown-input {
+      display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;
+    }
+    .countdown-input input {
+      width: 70px; padding: 10px; text-align: center;
+      font-size: 18px; background: #0f3460; border: 1px solid #4a90d9;
+      border-radius: 8px; color: white; font-family: monospace;
+    }
+    .countdown-input label {
+      font-size: 11px; color: #888; display: block; margin-top: 4px; text-align: center;
+    }
+
+    /* Laps */
+    .laps {
+      margin-top: 24px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .lap-item {
+      display: flex; justify-content: space-between;
+      padding: 8px 14px; margin: 4px 0; background: #0f3460;
+      border-radius: 6px; font-size: 13px; font-family: monospace;
+    }
+    .lap-item.best { color: #27ae60; }
+    .lap-item.worst { color: #e74c3c; }
+
+    .hidden { display: none; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;⏱️ Timer &amp; Stopwatch&lt;/h1&gt;
+
+  &lt;div class=&quot;mode-toggle&quot;&gt;
+    &lt;button class=&quot;mode-btn active&quot; onclick=&quot;switchMode(&#x27;stopwatch&#x27;)&quot;&gt;Stopwatch&lt;/button&gt;
+    &lt;button class=&quot;mode-btn&quot; onclick=&quot;switchMode(&#x27;countdown&#x27;)&quot;&gt;Countdown&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;timer-card&quot;&gt;
+    &lt;!-- Countdown Input --&gt;
+    &lt;div class=&quot;countdown-input hidden&quot; id=&quot;countdown-input&quot;&gt;
+      &lt;div&gt;&lt;input type=&quot;number&quot; id=&quot;hours&quot; value=&quot;0&quot; min=&quot;0&quot; max=&quot;99&quot;&gt;&lt;label&gt;HRS&lt;/label&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;input type=&quot;number&quot; id=&quot;minutes&quot; value=&quot;5&quot; min=&quot;0&quot; max=&quot;59&quot;&gt;&lt;label&gt;MIN&lt;/label&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;input type=&quot;number&quot; id=&quot;seconds&quot; value=&quot;0&quot; min=&quot;0&quot; max=&quot;59&quot;&gt;&lt;label&gt;SEC&lt;/label&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;time-display&quot; id=&quot;time-display&quot;&gt;00:00:00&lt;/div&gt;
+    &lt;div class=&quot;ms-display&quot; id=&quot;ms-display&quot;&gt;.000&lt;/div&gt;
+
+    &lt;div class=&quot;controls&quot;&gt;
+      &lt;button class=&quot;ctrl-btn btn-start&quot; id=&quot;btn-start&quot; onclick=&quot;start()&quot; title=&quot;Start&quot;&gt;▶&lt;/button&gt;
+      &lt;button class=&quot;ctrl-btn btn-pause hidden&quot; id=&quot;btn-pause&quot; onclick=&quot;pause()&quot; title=&quot;Pause&quot;&gt;⏸&lt;/button&gt;
+      &lt;button class=&quot;ctrl-btn btn-lap&quot; id=&quot;btn-lap&quot; onclick=&quot;lap()&quot; title=&quot;Lap&quot; style=&quot;display:none&quot;&gt;🏁&lt;/button&gt;
+      &lt;button class=&quot;ctrl-btn btn-reset&quot; id=&quot;btn-reset&quot; onclick=&quot;reset()&quot; title=&quot;Reset&quot;&gt;⏹&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;laps&quot; id=&quot;laps-container&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+let mode = &#x27;stopwatch&#x27;;
+let running = false;
+let elapsed = 0;
+let targetMs = 0;
+let startTime = 0;
+let rafId = null;
+let laps = [];
+
+const display = document.getElementById(&#x27;time-display&#x27;);
+const msDisplay = document.getElementById(&#x27;ms-display&#x27;);
+const btnStart = document.getElementById(&#x27;btn-start&#x27;);
+const btnPause = document.getElementById(&#x27;btn-pause&#x27;);
+const btnLap = document.getElementById(&#x27;btn-lap&#x27;);
+const btnReset = document.getElementById(&#x27;btn-reset&#x27;);
+const lapsContainer = document.getElementById(&#x27;laps-container&#x27;);
+const countdownInput = document.getElementById(&#x27;countdown-input&#x27;);
+
+function switchMode(newMode) {
+  reset();
+  mode = newMode;
+  document.querySelectorAll(&#x27;.mode-btn&#x27;).forEach((btn, i) =&gt; {
+    btn.classList.toggle(&#x27;active&#x27;, (i === 0 &amp;&amp; mode === &#x27;stopwatch&#x27;) || (i === 1 &amp;&amp; mode === &#x27;countdown&#x27;));
+  });
+  countdownInput.classList.toggle(&#x27;hidden&#x27;, mode !== &#x27;countdown&#x27;);
+  btnLap.style.display = mode === &#x27;stopwatch&#x27; ? &#x27;&#x27; : &#x27;none&#x27;;
+}
+
+function formatTime(ms) {
+  const totalSec = Math.floor(Math.abs(ms) / 1000);
+  const h = String(Math.floor(totalSec / 3600)).padStart(2, &#x27;0&#x27;);
+  const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, &#x27;0&#x27;);
+  const s = String(totalSec % 60).padStart(2, &#x27;0&#x27;);
+  return `${h}:${m}:${s}`;
+}
+
+function formatMs(ms) {
+  return &#x27;.&#x27; + String(Math.abs(ms) % 1000).padStart(3, &#x27;0&#x27;);
+}
+
+function tick() {
+  const now = performance.now();
+  const delta = now - startTime;
+
+  if (mode === &#x27;stopwatch&#x27;) {
+    const current = elapsed + delta;
+    display.textContent = formatTime(current);
+    msDisplay.textContent = formatMs(Math.floor(current));
+  } else {
+    const remaining = targetMs - (elapsed + delta);
+    if (remaining &lt;= 0) {
+      display.textContent = &#x27;00:00:00&#x27;;
+      msDisplay.textContent = &#x27;.000&#x27;;
+      running = false;
+      btnStart.classList.remove(&#x27;hidden&#x27;);
+      btnPause.classList.add(&#x27;hidden&#x27;);
+      // Flash effect
+      display.style.color = &#x27;#e74c3c&#x27;;
+      setTimeout(() =&gt; display.style.color = &#x27;&#x27;, 2000);
+      alert(&#x27;⏰ Time\&#x27;s up!&#x27;);
+      return;
+    }
+    display.textContent = formatTime(remaining);
+    msDisplay.textContent = formatMs(Math.floor(remaining));
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+function start() {
+  if (mode === &#x27;countdown&#x27; &amp;&amp; elapsed === 0) {
+    const h = parseInt(document.getElementById(&#x27;hours&#x27;).value) || 0;
+    const m = parseInt(document.getElementById(&#x27;minutes&#x27;).value) || 0;
+    const s = parseInt(document.getElementById(&#x27;seconds&#x27;).value) || 0;
+    targetMs = (h * 3600 + m * 60 + s) * 1000;
+    if (targetMs &lt;= 0) return;
+    countdownInput.classList.add(&#x27;hidden&#x27;);
+  }
+  running = true;
+  startTime = performance.now();
+  btnStart.classList.add(&#x27;hidden&#x27;);
+  btnPause.classList.remove(&#x27;hidden&#x27;);
+  if (mode === &#x27;stopwatch&#x27;) btnLap.style.display = &#x27;&#x27;;
+  tick();
+}
+
+function pause() {
+  if (!running) return;
+  running = false;
+  cancelAnimationFrame(rafId);
+  elapsed += performance.now() - startTime;
+  btnStart.classList.remove(&#x27;hidden&#x27;);
+  btnPause.classList.add(&#x27;hidden&#x27;);
+}
+
+function reset() {
+  cancelAnimationFrame(rafId);
+  running = false;
+  elapsed = 0;
+  laps = [];
+  display.textContent = &#x27;00:00:00&#x27;;
+  msDisplay.textContent = &#x27;.000&#x27;;
+  display.style.color = &#x27;&#x27;;
+  btnStart.classList.remove(&#x27;hidden&#x27;);
+  btnPause.classList.add(&#x27;hidden&#x27;);
+  lapsContainer.innerHTML = &#x27;&#x27;;
+  if (mode === &#x27;countdown&#x27;) countdownInput.classList.remove(&#x27;hidden&#x27;);
+}
+
+function lap() {
+  if (!running || mode !== &#x27;stopwatch&#x27;) return;
+  const current = elapsed + (performance.now() - startTime);
+  const prev = laps.length ? laps[laps.length - 1].total : 0;
+  laps.push({ total: current, split: current - prev });
+  renderLaps();
+}
+
+function renderLaps() {
+  if (!laps.length) { lapsContainer.innerHTML = &#x27;&#x27;; return; }
+  
+  const splits = laps.map(l =&gt; l.split);
+  const bestSplit = Math.min(...splits);
+  const worstSplit = Math.max(...splits);
+
+  lapsContainer.innerHTML = [...laps].reverse().map((l, ri) =&gt; {
+    const i = laps.length - 1 - ri;
+    let cls = &#x27;&#x27;;
+    if (laps.length &gt; 2) {
+      if (l.split === bestSplit) cls = &#x27;best&#x27;;
+      else if (l.split === worstSplit) cls = &#x27;worst&#x27;;
+    }
+    return `&lt;div class=&quot;lap-item ${cls}&quot;&gt;
+      &lt;span&gt;Lap ${i + 1}&lt;/span&gt;
+      &lt;span&gt;${formatTime(l.split)}${formatMs(Math.floor(l.split))}&lt;/span&gt;
+    &lt;/div&gt;`;
+  }).join(&#x27;&#x27;);
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Timer {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.mode = options.mode || "countdown"; // countdown | stopwatch
+    this.initialTime = options.time || 0; // seconds (for countdown)
+    this.onComplete = options.onComplete || (() =&gt; {});
+    this.onTick = options.onTick || (() =&gt; {});
+    
+    this.time = this.mode === "countdown" ? this.initialTime : 0;
+    this.isRunning = false;
+    this.intervalId = null;
+    this.laps = [];
+    
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="timer-display" style="font-size:48px;font-family:monospace;text-align:center;margin:20px 0"&gt;
+        ${this.formatTime(this.time)}
+      &lt;/div&gt;
+      &lt;div class="timer-controls" style="display:flex;gap:10px;justify-content:center"&gt;
+        &lt;button class="timer-start"&gt;Start&lt;/button&gt;
+        &lt;button class="timer-pause" disabled&gt;Pause&lt;/button&gt;
+        &lt;button class="timer-reset"&gt;Reset&lt;/button&gt;
+        ${this.mode === "stopwatch" ? '&lt;button class="timer-lap"&gt;Lap&lt;/button&gt;' : ""}
+      &lt;/div&gt;
+      ${this.mode === "stopwatch" ? '&lt;div class="timer-laps" style="margin-top:16px"&gt;&lt;/div&gt;' : ""}
+    `;
+    
+    this.displayEl = this.container.querySelector(".timer-display");
+    
+    this.container.querySelector(".timer-start").addEventListener("click", () =&gt; this.start());
+    this.container.querySelector(".timer-pause").addEventListener("click", () =&gt; this.pause());
+    this.container.querySelector(".timer-reset").addEventListener("click", () =&gt; this.reset());
+    
+    if (this.mode === "stopwatch") {
+      this.container.querySelector(".timer-lap").addEventListener("click", () =&gt; this.lap());
+    }
+  }
+
+  start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    
+    this.container.querySelector(".timer-start").disabled = true;
+    this.container.querySelector(".timer-pause").disabled = false;
+    
+    const startTime = Date.now() - (this.mode === "stopwatch" ? this.time * 1000 : 0);
+    
+    // Use precise timing with Date.now() instead of relying on setInterval accuracy
+    this.intervalId = setInterval(() =&gt; {
+      if (this.mode === "countdown") {
+        this.time--;
+        if (this.time &lt;= 0) {
+          this.time = 0;
+          this.pause();
+          this.onComplete();
+        }
+      } else {
+        this.time = (Date.now() - startTime) / 1000;
+      }
+      
+      this.updateDisplay();
+      this.onTick(this.time);
+    }, this.mode === "stopwatch" ? 10 : 1000); // 10ms for stopwatch precision
+  }
+
+  pause() {
+    this.isRunning = false;
+    clearInterval(this.intervalId);
+    this.container.querySelector(".timer-start").disabled = false;
+    this.container.querySelector(".timer-pause").disabled = true;
+  }
+
+  reset() {
+    this.pause();
+    this.time = this.mode === "countdown" ? this.initialTime : 0;
+    this.laps = [];
+    this.updateDisplay();
+    if (this.mode === "stopwatch") {
+      this.container.querySelector(".timer-laps").innerHTML = "";
+    }
+  }
+
+  lap() {
+    if (!this.isRunning) return;
+    const lapTime = this.time;
+    const prevLap = this.laps.length &gt; 0 ? this.laps[this.laps.length - 1] : 0;
+    this.laps.push(lapTime);
+    
+    const lapsEl = this.container.querySelector(".timer-laps");
+    const lapEl = document.createElement("div");
+    lapEl.style.cssText = "display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee";
+    lapEl.innerHTML = `
+      &lt;span&gt;Lap ${this.laps.length}&lt;/span&gt;
+      &lt;span&gt;${this.formatTime(lapTime - prevLap)}&lt;/span&gt;
+      &lt;span&gt;${this.formatTime(lapTime)}&lt;/span&gt;
+    `;
+    lapsEl.prepend(lapEl);
+  }
+
+  updateDisplay() {
+    this.displayEl.textContent = this.formatTime(this.time);
+  }
+
+  formatTime(seconds) {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const ms = Math.floor((seconds % 1) * 100);
+    
+    if (this.mode === "stopwatch") {
+      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}.${String(ms).padStart(2, "0")}`;
+    }
+    return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+
+  destroy() {
+    clearInterval(this.intervalId);
+  }
+}
+
+// Countdown usage:
+const countdown = new Timer(document.getElementById("timer"), {
+  mode: "countdown",
+  time: 300, // 5 minutes
+  onComplete: () =&gt; alert("Time's up!")
+});
+
+// Stopwatch usage:
+const stopwatch = new Timer(document.getElementById("stopwatch"), {
+  mode: "stopwatch"
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="carousel-slider">11. Image Carousel / Slider</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Amazon, Myntra, Swiggy, Meesho</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Auto-plays, use arrows or swipe</div>
+  <iframe src="demos/carousel.html" loading="lazy" style="height:520px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Image Carousel / Slider&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #1a1a2e; min-height: 100vh; }
+
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; color: white; margin-bottom: 24px; }
+
+    .carousel {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      background: #000;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      position: relative;
+    }
+    .carousel-slide img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      display: block;
+    }
+    .carousel-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      padding: 20px 24px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+    }
+    .carousel-caption h3 { font-size: 18px; margin-bottom: 4px; }
+    .carousel-caption p { font-size: 13px; opacity: 0.8; }
+
+    /* Arrows */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.9);
+      border: none; border-radius: 50%;
+      font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: transform 0.15s, background 0.2s;
+      z-index: 10;
+    }
+    .carousel-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
+    .carousel-btn.prev { left: 14px; }
+    .carousel-btn.next { right: 14px; }
+
+    /* Dots */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      background: rgba(0,0,0,0.4);
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      border: none;
+    }
+    .dot.active { background: white; transform: scale(1.3); }
+    .dot:hover { background: rgba(255,255,255,0.7); }
+
+    /* Controls */
+    .controls {
+      display: flex; justify-content: center; gap: 12px; margin-top: 16px;
+    }
+    .controls button {
+      padding: 8px 16px; border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px; background: transparent; color: white;
+      font-size: 13px; cursor: pointer; font-weight: 600;
+    }
+    .controls button:hover { background: rgba(255,255,255,0.1); }
+    .controls button.active-ctrl { background: rgba(74,144,217,0.6); border-color: #4a90d9; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;🖼️ Image Carousel&lt;/h1&gt;
+
+  &lt;div class=&quot;carousel&quot; id=&quot;carousel&quot;&gt;
+    &lt;div class=&quot;carousel-track&quot; id=&quot;track&quot;&gt;&lt;/div&gt;
+    &lt;button class=&quot;carousel-btn prev&quot; id=&quot;prev-btn&quot;&gt;‹&lt;/button&gt;
+    &lt;button class=&quot;carousel-btn next&quot; id=&quot;next-btn&quot;&gt;›&lt;/button&gt;
+    &lt;div class=&quot;carousel-dots&quot; id=&quot;dots&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;button id=&quot;autoplay-btn&quot; class=&quot;active-ctrl&quot; onclick=&quot;toggleAutoplay()&quot;&gt;⏸ Pause&lt;/button&gt;
+    &lt;button onclick=&quot;carousel.goTo(0)&quot;&gt;Go to 1st&lt;/button&gt;
+    &lt;button onclick=&quot;carousel.goTo(carousel.slides.length - 1)&quot;&gt;Go to Last&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+class Carousel {
+  constructor(container, slides, options = {}) {
+    this.container = container;
+    this.slides = slides;
+    this.track = container.querySelector(&#x27;#track&#x27;);
+    this.dotsContainer = container.querySelector(&#x27;#dots&#x27;);
+    this.autoPlay = options.autoPlay !== false;
+    this.interval = options.interval || 3000;
+    this.infinite = options.infinite !== false;
+    
+    this.currentIndex = 0;
+    this.autoTimer = null;
+    this.isHovered = false;
+
+    this.render();
+    this.bindEvents();
+    if (this.autoPlay) this.startAuto();
+  }
+
+  render() {
+    // Slides
+    this.track.innerHTML = this.slides.map((slide, i) =&gt; `
+      &lt;div class=&quot;carousel-slide&quot;&gt;
+        &lt;img src=&quot;${slide.image}&quot; alt=&quot;${slide.alt}&quot;&gt;
+        &lt;div class=&quot;carousel-caption&quot;&gt;
+          &lt;h3&gt;${slide.title}&lt;/h3&gt;
+          &lt;p&gt;${slide.description}&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `).join(&#x27;&#x27;);
+
+    // Dots
+    this.dotsContainer.innerHTML = this.slides.map((_, i) =&gt; 
+      `&lt;button class=&quot;dot ${i === 0 ? &#x27;active&#x27; : &#x27;&#x27;}&quot; data-index=&quot;${i}&quot; aria-label=&quot;Slide ${i+1}&quot;&gt;&lt;/button&gt;`
+    ).join(&#x27;&#x27;);
+  }
+
+  bindEvents() {
+    document.getElementById(&#x27;prev-btn&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; this.prev());
+    document.getElementById(&#x27;next-btn&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; this.next());
+    
+    this.dotsContainer.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+      if (e.target.classList.contains(&#x27;dot&#x27;)) {
+        this.goTo(parseInt(e.target.dataset.index));
+      }
+    });
+
+    // Pause on hover
+    this.container.addEventListener(&#x27;mouseenter&#x27;, () =&gt; { this.isHovered = true; this.stopAuto(); });
+    this.container.addEventListener(&#x27;mouseleave&#x27;, () =&gt; { this.isHovered = false; if (this.autoPlay) this.startAuto(); });
+
+    // Keyboard
+    document.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
+      if (e.key === &#x27;ArrowLeft&#x27;) this.prev();
+      if (e.key === &#x27;ArrowRight&#x27;) this.next();
+    });
+
+    // Touch swipe
+    let touchStartX = 0;
+    this.container.addEventListener(&#x27;touchstart&#x27;, (e) =&gt; { touchStartX = e.touches[0].clientX; });
+    this.container.addEventListener(&#x27;touchend&#x27;, (e) =&gt; {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) &gt; 50) diff &gt; 0 ? this.next() : this.prev();
+    });
+  }
+
+  goTo(index) {
+    if (this.infinite) {
+      this.currentIndex = (index + this.slides.length) % this.slides.length;
+    } else {
+      this.currentIndex = Math.max(0, Math.min(index, this.slides.length - 1));
+    }
+    this.track.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+    this.updateDots();
+  }
+
+  next() { this.goTo(this.currentIndex + 1); }
+  prev() { this.goTo(this.currentIndex - 1); }
+
+  updateDots() {
+    this.dotsContainer.querySelectorAll(&#x27;.dot&#x27;).forEach((dot, i) =&gt; {
+      dot.classList.toggle(&#x27;active&#x27;, i === this.currentIndex);
+    });
+  }
+
+  startAuto() {
+    this.stopAuto();
+    this.autoTimer = setInterval(() =&gt; this.next(), this.interval);
+  }
+
+  stopAuto() { clearInterval(this.autoTimer); }
+}
+
+// Placeholder images using CSS gradients (no external deps)
+const slides = [
+  { image: &#x27;data:image/svg+xml,&#x27; + encodeURIComponent(&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;700&quot; height=&quot;380&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;g&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; style=&quot;stop-color:#667eea&quot;/&gt;&lt;stop offset=&quot;100%&quot; style=&quot;stop-color:#764ba2&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect fill=&quot;url(#g)&quot; width=&quot;700&quot; height=&quot;380&quot;/&gt;&lt;text x=&quot;350&quot; y=&quot;200&quot; font-family=&quot;sans-serif&quot; font-size=&quot;40&quot; fill=&quot;white&quot; text-anchor=&quot;middle&quot;&gt;🏔️ Mountains&lt;/text&gt;&lt;/svg&gt;&#x27;), alt: &#x27;Mountains&#x27;, title: &#x27;Mountain Landscape&#x27;, description: &#x27;Beautiful snow-capped peaks at sunrise&#x27; },
+  { image: &#x27;data:image/svg+xml,&#x27; + encodeURIComponent(&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;700&quot; height=&quot;380&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;g&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; style=&quot;stop-color:#f093fb&quot;/&gt;&lt;stop offset=&quot;100%&quot; style=&quot;stop-color:#f5576c&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect fill=&quot;url(#g)&quot; width=&quot;700&quot; height=&quot;380&quot;/&gt;&lt;text x=&quot;350&quot; y=&quot;200&quot; font-family=&quot;sans-serif&quot; font-size=&quot;40&quot; fill=&quot;white&quot; text-anchor=&quot;middle&quot;&gt;🌅 Sunset&lt;/text&gt;&lt;/svg&gt;&#x27;), alt: &#x27;Sunset&#x27;, title: &#x27;Ocean Sunset&#x27;, description: &#x27;Golden hour by the coast&#x27; },
+  { image: &#x27;data:image/svg+xml,&#x27; + encodeURIComponent(&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;700&quot; height=&quot;380&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;g&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; style=&quot;stop-color:#4facfe&quot;/&gt;&lt;stop offset=&quot;100%&quot; style=&quot;stop-color:#00f2fe&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect fill=&quot;url(#g)&quot; width=&quot;700&quot; height=&quot;380&quot;/&gt;&lt;text x=&quot;350&quot; y=&quot;200&quot; font-family=&quot;sans-serif&quot; font-size=&quot;40&quot; fill=&quot;white&quot; text-anchor=&quot;middle&quot;&gt;🌊 Ocean&lt;/text&gt;&lt;/svg&gt;&#x27;), alt: &#x27;Ocean&#x27;, title: &#x27;Deep Blue&#x27;, description: &#x27;Underwater world exploration&#x27; },
+  { image: &#x27;data:image/svg+xml,&#x27; + encodeURIComponent(&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;700&quot; height=&quot;380&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;g&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; style=&quot;stop-color:#43e97b&quot;/&gt;&lt;stop offset=&quot;100%&quot; style=&quot;stop-color:#38f9d7&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect fill=&quot;url(#g)&quot; width=&quot;700&quot; height=&quot;380&quot;/&gt;&lt;text x=&quot;350&quot; y=&quot;200&quot; font-family=&quot;sans-serif&quot; font-size=&quot;40&quot; fill=&quot;white&quot; text-anchor=&quot;middle&quot;&gt;🌿 Forest&lt;/text&gt;&lt;/svg&gt;&#x27;), alt: &#x27;Forest&#x27;, title: &#x27;Emerald Forest&#x27;, description: &#x27;Ancient trees and fresh air&#x27; },
+  { image: &#x27;data:image/svg+xml,&#x27; + encodeURIComponent(&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;700&quot; height=&quot;380&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;g&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; style=&quot;stop-color:#fa709a&quot;/&gt;&lt;stop offset=&quot;100%&quot; style=&quot;stop-color:#fee140&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect fill=&quot;url(#g)&quot; width=&quot;700&quot; height=&quot;380&quot;/&gt;&lt;text x=&quot;350&quot; y=&quot;200&quot; font-family=&quot;sans-serif&quot; font-size=&quot;40&quot; fill=&quot;white&quot; text-anchor=&quot;middle&quot;&gt;🏙️ City&lt;/text&gt;&lt;/svg&gt;&#x27;), alt: &#x27;City&#x27;, title: &#x27;Urban Skyline&#x27;, description: &#x27;City lights and modern architecture&#x27; },
+];
+
+const carousel = new Carousel(document.getElementById(&#x27;carousel&#x27;), slides, {
+  autoPlay: true,
+  interval: 3000,
+  infinite: true,
+});
+
+function toggleAutoplay() {
+  const btn = document.getElementById(&#x27;autoplay-btn&#x27;);
+  carousel.autoPlay = !carousel.autoPlay;
+  if (carousel.autoPlay) {
+    carousel.startAuto();
+    btn.textContent = &#x27;⏸ Pause&#x27;;
+    btn.classList.add(&#x27;active-ctrl&#x27;);
+  } else {
+    carousel.stopAuto();
+    btn.textContent = &#x27;▶ Play&#x27;;
+    btn.classList.remove(&#x27;active-ctrl&#x27;);
+  }
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Carousel {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.slides = options.slides || []; // [{ image, alt, caption }]
+    this.autoPlay = options.autoPlay !== false;
+    this.interval = options.interval || 3000;
+    this.showDots = options.showDots !== false;
+    this.showArrows = options.showArrows !== false;
+    this.infinite = options.infinite !== false;
+    this.transition = options.transition || "slide"; // slide | fade
+    
+    this.currentIndex = 0;
+    this.isAnimating = false;
+    this.autoPlayId = null;
+    
+    this.render();
+    if (this.autoPlay) this.startAutoPlay();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "position:relative;overflow:hidden;border-radius:8px";
+    
+    // Track (slides container)
+    this.track = document.createElement("div");
+    this.track.className = "carousel-track";
+    this.track.style.cssText = `
+      display: flex; transition: transform 0.4s ease;
+      ${this.transition === "fade" ? "position:relative" : ""}
+    `;
+    
+    this.slides.forEach((slide, i) =&gt; {
+      const slideEl = document.createElement("div");
+      slideEl.className = "carousel-slide";
+      slideEl.style.cssText = `
+        min-width: 100%; position: relative;
+        ${this.transition === "fade" ? `
+          position: absolute; top: 0; left: 0; opacity: ${i === 0 ? 1 : 0};
+          transition: opacity 0.4s ease;
+        ` : ""}
+      `;
+      slideEl.innerHTML = `
+        &lt;img src="${slide.image}" alt="${slide.alt || ""}" 
+             style="width:100%;height:auto;display:block" loading="lazy"&gt;
+        ${slide.caption ? `&lt;div style="position:absolute;bottom:0;left:0;right:0;
+          padding:12px;background:linear-gradient(transparent,rgba(0,0,0,0.7));
+          color:white;font-size:14px"&gt;${slide.caption}&lt;/div&gt;` : ""}
+      `;
+      this.track.appendChild(slideEl);
+    });
+    
+    this.container.appendChild(this.track);
+    
+    // Arrows
+    if (this.showArrows) {
+      const arrowStyle = `
+        position:absolute;top:50%;transform:translateY(-50%);
+        background:rgba(255,255,255,0.8);border:none;border-radius:50%;
+        width:40px;height:40px;font-size:18px;cursor:pointer;z-index:10;
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:background 0.2s;
+      `;
+      const prevBtn = document.createElement("button");
+      prevBtn.innerHTML = "‹";
+      prevBtn.setAttribute("aria-label", "Previous slide");
+      prevBtn.style.cssText = arrowStyle + "left:10px";
+      prevBtn.addEventListener("click", () =&gt; this.prev());
+      
+      const nextBtn = document.createElement("button");
+      nextBtn.innerHTML = "›";
+      nextBtn.setAttribute("aria-label", "Next slide");
+      nextBtn.style.cssText = arrowStyle + "right:10px";
+      nextBtn.addEventListener("click", () =&gt; this.next());
+      
+      this.container.appendChild(prevBtn);
+      this.container.appendChild(nextBtn);
+    }
+    
+    // Dots
+    if (this.showDots) {
+      this.dotsContainer = document.createElement("div");
+      this.dotsContainer.style.cssText = `
+        position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+        display:flex;gap:6px;z-index:10;
+      `;
+      this.slides.forEach((_, i) =&gt; {
+        const dot = document.createElement("button");
+        dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
+        dot.style.cssText = `
+          width:10px;height:10px;border-radius:50%;border:none;
+          cursor:pointer;transition:background 0.2s;
+          background:${i === 0 ? "white" : "rgba(255,255,255,0.5)"};
+        `;
+        dot.addEventListener("click", () =&gt; this.goTo(i));
+        this.dotsContainer.appendChild(dot);
+      });
+      this.container.appendChild(this.dotsContainer);
+    }
+    
+    // Touch/swipe support
+    this.setupTouch();
+    
+    // Pause on hover
+    this.container.addEventListener("mouseenter", () =&gt; this.stopAutoPlay());
+    this.container.addEventListener("mouseleave", () =&gt; {
+      if (this.autoPlay) this.startAutoPlay();
+    });
+  }
+
+  goTo(index) {
+    if (this.isAnimating) return;
+    
+    if (this.infinite) {
+      if (index &lt; 0) index = this.slides.length - 1;
+      if (index &gt;= this.slides.length) index = 0;
+    } else {
+      if (index &lt; 0 || index &gt;= this.slides.length) return;
+    }
+    
+    this.isAnimating = true;
+    this.currentIndex = index;
+    
+    if (this.transition === "slide") {
+      this.track.style.transform = `translateX(-${index * 100}%)`;
+    } else {
+      // Fade
+      const slides = this.track.children;
+      Array.from(slides).forEach((s, i) =&gt; {
+        s.style.opacity = i === index ? "1" : "0";
+      });
+    }
+    
+    // Update dots
+    if (this.showDots) {
+      Array.from(this.dotsContainer.children).forEach((dot, i) =&gt; {
+        dot.style.background = i === index ? "white" : "rgba(255,255,255,0.5)";
+      });
+    }
+    
+    setTimeout(() =&gt; { this.isAnimating = false; }, 400);
+  }
+
+  next() { this.goTo(this.currentIndex + 1); }
+  prev() { this.goTo(this.currentIndex - 1); }
+
+  startAutoPlay() {
+    this.stopAutoPlay();
+    this.autoPlayId = setInterval(() =&gt; this.next(), this.interval);
+  }
+
+  stopAutoPlay() {
+    if (this.autoPlayId) {
+      clearInterval(this.autoPlayId);
+      this.autoPlayId = null;
+    }
+  }
+
+  setupTouch() {
+    let startX = 0;
+    let isDragging = false;
+    
+    this.container.addEventListener("touchstart", (e) =&gt; {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    });
+    
+    this.container.addEventListener("touchend", (e) =&gt; {
+      if (!isDragging) return;
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) &gt; 50) { // Minimum swipe distance
+        diff &gt; 0 ? this.next() : this.prev();
+      }
+      isDragging = false;
+    });
+  }
+
+  destroy() {
+    this.stopAutoPlay();
+  }
+}
+
+// Usage:
+const carousel = new Carousel(document.getElementById("slider"), {
+  slides: [
+    { image: "/img/slide1.jpg", alt: "Summer Sale", caption: "Up to 70% off" },
+    { image: "/img/slide2.jpg", alt: "New Arrivals" },
+    { image: "/img/slide3.jpg", alt: "Electronics", caption: "Best deals" },
+  ],
+  autoPlay: true,
+  interval: 4000,
+  infinite: true
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="drag-drop">12. Drag & Drop (Sortable List)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Atlassian (Trello), Microsoft, Flipkart, Notion, Zoho</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Drag items to reorder</div>
+  <iframe src="demos/drag-drop.html" loading="lazy" style="height:520px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Drag &amp; Drop Sortable List&lt;/title&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .container { max-width: 500px; margin: 0 auto; }
+    .container h1 { text-align: center; margin-bottom: 8px; }
+    .container p { text-align: center; color: #666; margin-bottom: 24px; font-size: 14px; }
+
+    .sortable-list {
+      background: white;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      list-style: none;
+      min-height: 100px;
+    }
+
+    .sortable-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      margin: 6px 0;
+      background: #fafafa;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s;
+      user-select: none;
+    }
+    .sortable-item:hover { background: #f0f7ff; border-color: #d0e3f5; }
+    .sortable-item:active { cursor: grabbing; }
+    .sortable-item.dragging {
+      opacity: 0.5;
+      background: #e8f4fd;
+      border-color: #4a90d9;
+      transform: scale(0.98);
+    }
+    .sortable-item.over {
+      border-color: #4a90d9;
+      background: #e8f4fd;
+      transform: translateY(4px);
+    }
+
+    .drag-handle {
+      font-size: 18px; color: #bbb;
+      flex-shrink: 0;
+    }
+    .item-content { flex: 1; font-size: 15px; color: #333; }
+    .item-badge {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      background: #4a90d9; color: white; border-radius: 50%;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+
+    .output {
+      margin-top: 20px; padding: 16px;
+      background: #1a1a2e; color: #00d9a3; border-radius: 10px;
+      font-family: monospace; font-size: 13px; line-height: 1.6;
+      max-height: 120px; overflow-y: auto;
+    }
+    .output-title { color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 8px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+  &lt;h1&gt;🔀 Drag &amp; Drop Sortable&lt;/h1&gt;
+  &lt;p&gt;Drag items to reorder. Order updates live below.&lt;/p&gt;
+
+  &lt;ul class=&quot;sortable-list&quot; id=&quot;sortable-list&quot;&gt;&lt;/ul&gt;
+
+  &lt;div class=&quot;output&quot;&gt;
+    &lt;div class=&quot;output-title&quot;&gt;Current Order:&lt;/div&gt;
+    &lt;div id=&quot;order-output&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const initialItems = [
+  { id: 1, text: &#x27;Learn HTML &amp; CSS Fundamentals&#x27; },
+  { id: 2, text: &#x27;Master JavaScript Core Concepts&#x27; },
+  { id: 3, text: &#x27;Build Projects with React/Angular&#x27; },
+  { id: 4, text: &#x27;Study Data Structures &amp; Algorithms&#x27; },
+  { id: 5, text: &#x27;Practice System Design&#x27; },
+  { id: 6, text: &#x27;Mock Interviews &amp; Behavioral Prep&#x27; },
+  { id: 7, text: &#x27;Apply to Companies &amp; Network&#x27; },
+];
+
+class SortableList {
+  constructor(listEl, items) {
+    this.listEl = listEl;
+    this.items = [...items];
+    this.draggedIndex = null;
+    this.render();
+    this.updateOutput();
+  }
+
+  render() {
+    this.listEl.innerHTML = &#x27;&#x27;;
+    this.items.forEach((item, index) =&gt; {
+      const li = document.createElement(&#x27;li&#x27;);
+      li.className = &#x27;sortable-item&#x27;;
+      li.draggable = true;
+      li.dataset.index = index;
+      li.innerHTML = `
+        &lt;span class=&quot;drag-handle&quot;&gt;⠿&lt;/span&gt;
+        &lt;span class=&quot;item-content&quot;&gt;${item.text}&lt;/span&gt;
+        &lt;span class=&quot;item-badge&quot;&gt;${index + 1}&lt;/span&gt;
+      `;
+      this.bindDragEvents(li, index);
+      this.listEl.appendChild(li);
+    });
+  }
+
+  bindDragEvents(el, index) {
+    el.addEventListener(&#x27;dragstart&#x27;, (e) =&gt; {
+      this.draggedIndex = index;
+      el.classList.add(&#x27;dragging&#x27;);
+      e.dataTransfer.effectAllowed = &#x27;move&#x27;;
+      e.dataTransfer.setData(&#x27;text/plain&#x27;, index);
+    });
+
+    el.addEventListener(&#x27;dragend&#x27;, () =&gt; {
+      el.classList.remove(&#x27;dragging&#x27;);
+      this.clearOverStates();
+      this.draggedIndex = null;
+    });
+
+    el.addEventListener(&#x27;dragover&#x27;, (e) =&gt; {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = &#x27;move&#x27;;
+      if (index !== this.draggedIndex) {
+        this.clearOverStates();
+        el.classList.add(&#x27;over&#x27;);
+      }
+    });
+
+    el.addEventListener(&#x27;dragleave&#x27;, () =&gt; {
+      el.classList.remove(&#x27;over&#x27;);
+    });
+
+    el.addEventListener(&#x27;drop&#x27;, (e) =&gt; {
+      e.preventDefault();
+      if (this.draggedIndex === null || this.draggedIndex === index) return;
+      
+      // Reorder items
+      const [moved] = this.items.splice(this.draggedIndex, 1);
+      this.items.splice(index, 0, moved);
+      
+      this.render();
+      this.updateOutput();
+    });
+
+    // Touch support
+    el.addEventListener(&#x27;touchstart&#x27;, (e) =&gt; this.handleTouchStart(e, index), { passive: false });
+    el.addEventListener(&#x27;touchmove&#x27;, (e) =&gt; this.handleTouchMove(e), { passive: false });
+    el.addEventListener(&#x27;touchend&#x27;, (e) =&gt; this.handleTouchEnd(e));
+  }
+
+  handleTouchStart(e, index) {
+    this.draggedIndex = index;
+    this.touchStartY = e.touches[0].clientY;
+    const el = e.currentTarget;
+    el.classList.add(&#x27;dragging&#x27;);
+  }
+
+  handleTouchMove(e) {
+    e.preventDefault();
+    const touchY = e.touches[0].clientY;
+    const items = this.listEl.querySelectorAll(&#x27;.sortable-item&#x27;);
+    this.clearOverStates();
+    
+    items.forEach((item, i) =&gt; {
+      if (i === this.draggedIndex) return;
+      const rect = item.getBoundingClientRect();
+      if (touchY &gt; rect.top &amp;&amp; touchY &lt; rect.bottom) {
+        item.classList.add(&#x27;over&#x27;);
+        this.touchOverIndex = i;
+      }
+    });
+  }
+
+  handleTouchEnd() {
+    if (this.touchOverIndex !== undefined &amp;&amp; this.touchOverIndex !== this.draggedIndex) {
+      const [moved] = this.items.splice(this.draggedIndex, 1);
+      this.items.splice(this.touchOverIndex, 0, moved);
+    }
+    this.touchOverIndex = undefined;
+    this.draggedIndex = null;
+    this.render();
+    this.updateOutput();
+  }
+
+  clearOverStates() {
+    this.listEl.querySelectorAll(&#x27;.sortable-item&#x27;).forEach(el =&gt; el.classList.remove(&#x27;over&#x27;));
+  }
+
+  updateOutput() {
+    const output = document.getElementById(&#x27;order-output&#x27;);
+    output.textContent = this.items.map((item, i) =&gt; `${i + 1}. ${item.text}`).join(&#x27;\n&#x27;);
+  }
+}
+
+new SortableList(document.getElementById(&#x27;sortable-list&#x27;), initialItems);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</details>
+
+<h3>Complete Implementation</h3>
+<pre><code>class SortableList {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.items = options.items || [];
+    this.onReorder = options.onReorder || (() =&gt; {});
+    this.handle = options.handle || null; // CSS selector for drag handle
+    
+    this.draggedItem = null;
+    this.draggedIndex = -1;
+    this.placeholder = null;
+    
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "list-style:none;padding:0;margin:0";
+    
+    this.items.forEach((item, index) =&gt; {
+      const li = document.createElement("div");
+      li.className = "sortable-item";
+      li.dataset.index = index;
+      li.draggable = !this.handle; // Only draggable from handle if specified
+      li.style.cssText = `
+        padding: 12px 16px; margin: 4px 0; background: white;
+        border: 1px solid #e0e0e0; border-radius: 6px;
+        display: flex; align-items: center; gap: 12px;
+        cursor: ${this.handle ? "default" : "grab"};
+        transition: box-shadow 0.2s, transform 0.2s;
+        user-select: none;
+      `;
+      
+      if (this.handle) {
+        const handleEl = document.createElement("span");
+        handleEl.className = "drag-handle";
+        handleEl.textContent = "⠿";
+        handleEl.style.cssText = "cursor:grab;font-size:18px;color:#999;padding:0 4px";
+        handleEl.draggable = true;
+        handleEl.addEventListener("dragstart", (e) =&gt; this.handleDragStart(e, index));
+        li.appendChild(handleEl);
+      } else {
+        li.addEventListener("dragstart", (e) =&gt; this.handleDragStart(e, index));
+      }
+      
+      const content = document.createElement("span");
+      content.style.flex = "1";
+      content.textContent = typeof item === "string" ? item : item.label || item.text;
+      li.appendChild(content);
+      
+      // Drag events
+      li.addEventListener("dragover", (e) =&gt; this.handleDragOver(e, index));
+      li.addEventListener("dragenter", (e) =&gt; this.handleDragEnter(e));
+      li.addEventListener("dragleave", (e) =&gt; this.handleDragLeave(e));
+      li.addEventListener("drop", (e) =&gt; this.handleDrop(e, index));
+      li.addEventListener("dragend", () =&gt; this.handleDragEnd());
+      
+      this.container.appendChild(li);
+    });
+  }
+
+  handleDragStart(e, index) {
+    this.draggedIndex = index;
+    this.draggedItem = this.items[index];
+    
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+    
+    // Style dragged element
+    const el = this.container.children[index];
+    setTimeout(() =&gt; {
+      el.style.opacity = "0.4";
+      el.style.transform = "scale(0.98)";
+    }, 0);
+  }
+
+  handleDragOver(e, index) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    
+    // Show visual indicator of drop position
+    const el = this.container.children[index];
+    const rect = el.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    
+    // Reset all borders
+    Array.from(this.container.children).forEach((child) =&gt; {
+      child.style.borderTop = "1px solid #e0e0e0";
+      child.style.borderBottom = "1px solid #e0e0e0";
+    });
+    
+    if (e.clientY &lt; midY) {
+      el.style.borderTop = "2px solid #2563eb";
+    } else {
+      el.style.borderBottom = "2px solid #2563eb";
+    }
+  }
+
+  handleDragEnter(e) {
+    e.preventDefault();
+  }
+
+  handleDragLeave(e) {
+    const el = e.currentTarget;
+    el.style.borderTop = "1px solid #e0e0e0";
+    el.style.borderBottom = "1px solid #e0e0e0";
+  }
+
+  handleDrop(e, dropIndex) {
+    e.preventDefault();
+    
+    if (this.draggedIndex === dropIndex) return;
+    
+    // Determine if dropping above or below
+    const el = this.container.children[dropIndex];
+    const rect = el.getBoundingClientRect();
+    const insertBefore = e.clientY &lt; rect.top + rect.height / 2;
+    
+    // Reorder array
+    const item = this.items.splice(this.draggedIndex, 1)[0];
+    let newIndex = dropIndex;
+    if (this.draggedIndex &lt; dropIndex) newIndex--;
+    if (!insertBefore) newIndex++;
+    
+    this.items.splice(newIndex, 0, item);
+    
+    this.render();
+    this.onReorder(this.items, this.draggedIndex, newIndex);
+  }
+
+  handleDragEnd() {
+    // Reset all styles
+    Array.from(this.container.children).forEach((child) =&gt; {
+      child.style.opacity = "1";
+      child.style.transform = "scale(1)";
+      child.style.borderTop = "1px solid #e0e0e0";
+      child.style.borderBottom = "1px solid #e0e0e0";
+    });
+  }
+
+  getItems() { return [...this.items]; }
+  
+  addItem(item, index) {
+    if (index === undefined) this.items.push(item);
+    else this.items.splice(index, 0, item);
+    this.render();
+  }
+  
+  removeItem(index) {
+    this.items.splice(index, 1);
+    this.render();
+  }
+}
+
+// Usage:
+const sortable = new SortableList(document.getElementById("todo-list"), {
+  items: ["Buy groceries", "Clean house", "Write code", "Exercise", "Read book"],
+  handle: true, // Use drag handle
+  onReorder: (newOrder, from, to) =&gt; {
+    console.log(`Moved item from ${from} to ${to}`);
+    console.log("New order:", newOrder);
+    // Persist to backend
+    fetch("/api/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: newOrder })
+    });
+  }
+});</code></pre>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase9-polyfills-machine-coding.html">← Phase 9: Polyfills</a>
+  <a href="machine-coding-part2-utility-implementations.html">Part 2: Utility Implementations →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

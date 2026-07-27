@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker Visual Cheatsheet — One-Page Reference</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  :root {
+    --ink: #1d1d1b; --paper: #ffffff; --bg: #eef1f5;
+    --blue: #2472c8; --blue-soft: #e3f0fc;
+    --green: #0d9c66; --green-soft: #e1f7ee;
+    --purple: #8e44ad; --purple-soft: #f3e8fa;
+    --orange: #c0642a; --orange-soft: #fbe9dd;
+    --teal: #128a92; --teal-soft: #ddf3f4;
+    --red: #c0392b; --red-soft: #fbe4e1;
+    --amber: #b7930b; --amber-soft: #fbf1d3;
+    --slate: #445; --slate-soft: #e6e9ef;
+    --line: #d7dbe3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14.5px;
+  }
+  main { max-width: 1600px; margin: 0 auto; padding: 18px 20px 26px; }
+  code, .mono { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+
+  /* ── Header ───────────────────────────── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, #0b2d4d, #123f66);
+    color: #fff; border-radius: 14px; padding: 14px 22px; margin-bottom: 12px;
+  }
+  .header h1 { margin: 0; font-size: 29px; letter-spacing: -0.02em; }
+  .header p { margin: 3px 0 0; font-size: 14px; color: #cfe2f4; }
+  .header .badge {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px; padding: 6px 14px; font-size: 13px; white-space: nowrap;
+  }
+
+  /* ── Pipeline diagram ─────────────────── */
+  .pipeline {
+    display: flex; align-items: stretch; gap: 6px; margin-bottom: 12px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 12px 14px; overflow-x: auto;
+  }
+  .p-step {
+    flex: 1; min-width: 128px; border-radius: 10px; padding: 10px 12px;
+    text-align: center; font-weight: 700; color: #fff; position: relative; font-size: 13.5px;
+  }
+  .p-step small { display: block; font-weight: 500; margin-top: 4px; font-size: 11.5px; opacity: 0.95; }
+  .p-arrow { align-self: center; font-size: 24px; color: var(--slate); padding: 0 3px; }
+  .p-1 { background: var(--blue); } .p-2 { background: var(--green); }
+  .p-3 { background: var(--purple); } .p-4 { background: var(--orange); }
+  .p-5 { background: var(--teal); }
+
+  /* ── VM vs Container visual ───────────── */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;
+  }
+  .stack-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px;
+  }
+  .stack-card h3 { margin: 0 0 10px; font-size: 17px; }
+  .stack {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .layer {
+    border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; color: #fff;
+    display: flex; justify-content: space-between;
+  }
+  .layer span.tag { font-weight: 400; opacity: 0.85; font-size: 11.5px; }
+  .l-hw { background: #566; }
+  .l-host-os { background: #45607a; }
+  .l-hv { background: #7c5cbf; }
+  .l-gos { background: #2e86c1; }
+  .l-app-vm { background: #16a085; }
+  .l-kernel { background: #45607a; }
+  .l-engine { background: #d68910; }
+  .l-app-c1 { background: #16a085; }
+  .l-app-c2 { background: #148f77; }
+  .l-app-c3 { background: #117a65; }
+  .stat-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .stat { background: var(--slate-soft); border-radius: 8px; padding: 5px 11px; font-size: 12.5px; }
+  .stat b { color: var(--ink); }
+
+  /* ── Category card grid ───────────────── */
+  .grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px;
+  }
+  .card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .card .head {
+    padding: 9px 13px; font-weight: 700; color: #fff; font-size: 15px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card .body { padding: 10px 13px; flex: 1; }
+  .card .body div.cmd { margin-bottom: 7px; line-height: 1.4; }
+  .card .body code {
+    background: var(--slate-soft); border-radius: 4px; padding: 2px 5px; font-size: 12.5px; color: #1a2530;
+  }
+  .card .body .desc { color: #555; font-size: 12px; }
+  .h-blue { background: var(--blue); } .c-blue { background: var(--blue-soft); }
+  .h-green { background: var(--green); } .c-green { background: var(--green-soft); }
+  .h-purple { background: var(--purple); } .c-purple { background: var(--purple-soft); }
+  .h-orange { background: var(--orange); } .c-orange { background: var(--orange-soft); }
+  .h-teal { background: var(--teal); } .c-teal { background: var(--teal-soft); }
+  .h-red { background: var(--red); } .c-red { background: var(--red-soft); }
+  .h-amber { background: var(--amber); } .c-amber { background: var(--amber-soft); }
+  .h-slate { background: #364559; } .c-slate { background: var(--slate-soft); }
+
+  /* ── Bottom strips: Dockerfile instructions + exit codes ── */
+  .strips { display: grid; grid-template-columns: 2.1fr 1fr; gap: 10px; }
+  .strip-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px;
+  }
+  .strip-card h3 { margin: 0 0 10px; font-size: 16px; }
+  .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .instr-pill {
+    border-radius: 8px; padding: 6px 11px; font-size: 12.5px; background: var(--blue-soft);
+    border: 1px solid #b9d9f2; display: flex; gap: 6px; align-items: baseline;
+  }
+  .instr-pill b { font-family: monospace; color: var(--blue); font-size: 13px; }
+  .exit-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .exit-table td, .exit-table th { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+  .exit-table th { color: #555; font-weight: 700; }
+  .exit-table td.code-cell { font-family: monospace; font-weight: 700; }
+  .footer-note {
+    margin-top: 12px; font-size: 12.5px; color: #556; text-align: center;
+  }
+  .footer-note a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .nav-links {
+    display: flex; justify-content: space-between; margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid var(--line); font-size: 14px;
+  }
+  .nav-links a { color: var(--blue); text-decoration: none; font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+
+  <div class="header">
+    <div>
+      <h1>🐳 Docker Visual Cheatsheet</h1>
+      <p>One-page reference — build → run → debug → clean up. Companion deep-dives: Docker Part 1 (theory), Part 2 (interview Q&amp;A), and the full text Commands Cheatsheet.</p>
+    </div>
+    <span class="badge">Backend / Full-Stack scope — not cluster/infra admin</span>
+  </div>
+
+  <!-- Build → Run pipeline -->
+  <div class="pipeline">
+    <div class="p-step p-1">Dockerfile<small>your recipe (FROM/RUN/COPY/CMD)</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-1">docker build<small>executes each instruction → layer</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-2">Image<small>read-only template</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-3">docker push / pull<small>⇄ Registry (JFrog Artifactory)</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-2">Image (local)<small>docker run</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-4">Container<small>running instance, writable layer</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-5">docker logs / exec<small>debug it while it runs</small></div>
+  </div>
+
+  <!-- VM vs Container visual stacks -->
+  <div class="compare">
+    <div class="stack-card">
+      <h3>🖥️ Virtual Machine — stacked hardware virtualization</h3>
+      <div class="stack">
+        <div class="layer l-app-vm">App A <span class="tag">your code</span></div>
+        <div class="layer l-gos">Guest OS + Kernel <span class="tag">full second OS, own drivers</span></div>
+        <div class="layer l-hv">Hypervisor <span class="tag">VMware / VirtualBox / Parallels</span></div>
+        <div class="layer l-host-os">Host OS</div>
+        <div class="layer l-hw">Physical Hardware</div>
+      </div>
+      <div class="stat-row">
+        <span class="stat">Boot: <b>minutes</b></span>
+        <span class="stat">Size: <b>GBs</b></span>
+        <span class="stat">Isolation: <b>hardware-level</b></span>
+      </div>
+    </div>
+    <div class="stack-card">
+      <h3>📦 Containers — shared kernel, isolated processes</h3>
+      <div class="stack">
+        <div class="layer l-app-c1">App A <span class="tag">container 1</span></div>
+        <div class="layer l-app-c2">App B <span class="tag">container 2</span></div>
+        <div class="layer l-app-c3">App C <span class="tag">container 3</span></div>
+        <div class="layer l-engine">Docker Engine <span class="tag">namespaces + cgroups + overlayfs</span></div>
+        <div class="layer l-kernel">Host OS Kernel <span class="tag">ONE shared kernel</span></div>
+        <div class="layer l-hw">Physical Hardware</div>
+      </div>
+      <div class="stat-row">
+        <span class="stat">Boot: <b>ms–sec</b></span>
+        <span class="stat">Size: <b>MBs</b></span>
+        <span class="stat">Isolation: <b>process-level</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category cards -->
+  <div class="grid">
+
+    <div class="card">
+      <div class="head h-blue">🖼️ Images</div>
+      <div class="body c-blue">
+        <div class="cmd"><code>docker build -t app:dev .</code><br><span class="desc">build from Dockerfile in cwd</span></div>
+        <div class="cmd"><code>docker images</code><br><span class="desc">list local images</span></div>
+        <div class="cmd"><code>docker tag app:dev repo/app:1.0</code></div>
+        <div class="cmd"><code>docker push / pull repo/app:1.0</code></div>
+        <div class="cmd"><code>docker rmi app:dev</code></div>
+        <div class="cmd"><code>docker history app:dev</code><br><span class="desc">layer-by-layer size</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-green">📦 Containers</div>
+      <div class="body c-green">
+        <div class="cmd"><code>docker run -d -p 8080:8080 --name app img</code></div>
+        <div class="cmd"><code>docker ps</code> / <code>docker ps -a</code></div>
+        <div class="cmd"><code>docker start / stop / restart app</code></div>
+        <div class="cmd"><code>docker rm app</code> <span class="desc">(-f to force)</span></div>
+        <div class="cmd"><code>docker rename old new</code></div>
+        <div class="cmd"><code>docker pause / unpause app</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-purple">🔍 Inspect &amp; Debug</div>
+      <div class="body c-purple">
+        <div class="cmd"><code>docker logs -f app</code></div>
+        <div class="cmd"><code>docker exec -it app sh</code></div>
+        <div class="cmd"><code>docker inspect app</code></div>
+        <div class="cmd"><code>docker stats</code> <span class="desc">live CPU/mem</span></div>
+        <div class="cmd"><code>docker top app</code></div>
+        <div class="cmd"><code>docker diff app</code> <span class="desc">fs changes vs image</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-orange">💾 Volumes</div>
+      <div class="body c-orange">
+        <div class="cmd"><code>docker volume create data</code></div>
+        <div class="cmd"><code>docker volume ls / inspect / rm</code></div>
+        <div class="cmd"><code>docker run -v data:/data/db mongo:7</code></div>
+        <div class="cmd"><code>docker cp app:/app/x.json ./x.json</code></div>
+        <div class="cmd"><code>docker cp ./x.json app:/app/x.json</code></div>
+        <div class="cmd"><span class="desc">bind mount: <code>-v $(pwd):/app</code></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-teal">🌐 Networking</div>
+      <div class="body c-teal">
+        <div class="cmd"><code>docker network create di-net</code></div>
+        <div class="cmd"><code>docker run --network di-net --name mongo mongo:7</code></div>
+        <div class="cmd"><code>docker network ls / inspect di-net</code></div>
+        <div class="cmd"><code>-p 8080:80</code> <span class="desc">host:container</span></div>
+        <div class="cmd"><span class="desc">default bridge = no name DNS; user-defined bridge / Compose = name DNS works</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-slate">🧩 Compose</div>
+      <div class="body c-slate">
+        <div class="cmd"><code>docker compose up -d --build</code></div>
+        <div class="cmd"><code>docker compose logs -f svc</code></div>
+        <div class="cmd"><code>docker compose ps</code></div>
+        <div class="cmd"><code>docker compose exec svc sh</code></div>
+        <div class="cmd"><code>docker compose down -v</code> <span class="desc">-v also wipes volumes</span></div>
+        <div class="cmd"><code>docker compose config</code> <span class="desc">print resolved config</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-red">🧹 Cleanup</div>
+      <div class="body c-red">
+        <div class="cmd"><code>docker system df</code> <span class="desc">disk usage breakdown</span></div>
+        <div class="cmd"><code>docker system prune</code></div>
+        <div class="cmd"><code>docker system prune -a</code> <span class="desc">⚠ removes unused images too</span></div>
+        <div class="cmd"><code>docker container prune</code></div>
+        <div class="cmd"><code>docker volume prune</code> <span class="desc">⚠ destroys unattached data</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-amber">🔐 Registry (JFrog Artifactory)</div>
+      <div class="body c-amber">
+        <div class="cmd"><code>echo "$PASS" | docker login kyndryl.jfrog.io \<br>&nbsp;&nbsp;-u "$USER" --password-stdin</code></div>
+        <div class="cmd"><code>docker logout kyndryl.jfrog.io</code></div>
+        <div class="cmd"><code>docker pull kyndryl.jfrog.io/ibmcb-docker-local/...</code></div>
+        <div class="cmd"><span class="desc">⚠ never pass <code>-p plaintext</code> — always <code>--password-stdin</code></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Dockerfile instructions + exit codes -->
+  <div class="strips">
+    <div class="strip-card">
+      <h3>📜 Dockerfile Instructions — Quick Reference</h3>
+      <div class="pill-grid">
+        <span class="instr-pill"><b>FROM</b> base image</span>
+        <span class="instr-pill"><b>WORKDIR</b> sets cwd</span>
+        <span class="instr-pill"><b>COPY</b> host → image</span>
+        <span class="instr-pill"><b>RUN</b> build-time exec</span>
+        <span class="instr-pill"><b>ENV</b> baked var (build+run)</span>
+        <span class="instr-pill"><b>ARG</b> build-time only var</span>
+        <span class="instr-pill"><b>EXPOSE</b> docs the port (no publish)</span>
+        <span class="instr-pill"><b>USER</b> drop root</span>
+        <span class="instr-pill"><b>CMD</b> default, overridable</span>
+        <span class="instr-pill"><b>ENTRYPOINT</b> fixed executable</span>
+        <span class="instr-pill"><b>HEALTHCHECK</b> liveness probe</span>
+      </div>
+    </div>
+    <div class="strip-card">
+      <h3>🚦 Common Exit Codes</h3>
+      <table class="exit-table">
+        <tr><th>Code</th><th>Meaning</th></tr>
+        <tr><td class="code-cell">0</td><td>Clean exit (process ran &amp; finished)</td></tr>
+        <tr><td class="code-cell">1</td><td>Generic app-level error/crash</td></tr>
+        <tr><td class="code-cell">137</td><td>SIGKILL — often OOM-killed</td></tr>
+        <tr><td class="code-cell">143</td><td>SIGTERM — graceful stop signal</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <p class="footer-note">Full details: <a href="docker-phase1-fundamentals-theory.html">Docker Part 1 — Fundamentals</a> · <a href="docker-phase2-interview-questions.html">Part 2 — Interview Q&amp;A</a> · <a href="docker-commands-cheatsheet.html">Full Text Commands Cheatsheet</a></p>
+
+  <div class="nav-links">
+    <a href="docker-commands-cheatsheet.html">← Docker Commands Cheatsheet</a>
+    <a href="../kubernetes/kubernetes-phase1-fundamentals-theory.html">Kubernetes Part 1 — Fundamentals →</a>
+  </div>
+
+</main>
+</body>
+</html>

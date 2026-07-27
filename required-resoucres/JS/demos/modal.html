@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modal / Dialog System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f5f5f5; }
+
+    .demo { max-width: 500px; margin: 0 auto; text-align: center; }
+    .demo h1 { margin-bottom: 24px; }
+    
+    button { 
+      padding: 12px 24px; font-size: 14px; border: none; border-radius: 8px;
+      cursor: pointer; margin: 6px; transition: transform 0.1s; font-weight: 600;
+    }
+    button:active { transform: scale(0.97); }
+    .btn-primary { background: #4a90d9; color: white; }
+    .btn-danger { background: #e74c3c; color: white; }
+    .btn-secondary { background: #eee; color: #333; }
+    .btn-success { background: #27ae60; color: white; }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.active { opacity: 1; pointer-events: all; }
+
+    /* Modal Box */
+    .modal {
+      background: white;
+      border-radius: 14px;
+      padding: 28px;
+      max-width: 480px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.25s ease;
+      position: relative;
+    }
+    .modal-backdrop.active .modal { transform: translateY(0) scale(1); }
+
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #eee;
+    }
+    .modal-header h2 { font-size: 20px; color: #333; }
+    .modal-close {
+      background: none; border: none; font-size: 26px; cursor: pointer;
+      padding: 4px 10px; border-radius: 6px; color: #666; margin: 0;
+    }
+    .modal-close:hover { background: #f0f0f0; color: #333; }
+
+    .modal-body { color: #555; line-height: 1.7; margin-bottom: 24px; font-size: 15px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="demo">
+  <h1>🪟 Modal / Dialog System</h1>
+  <p style="color:#666; margin-bottom: 20px;">Features: Focus trap, Escape key, Backdrop click, Stacking</p>
+  <button class="btn-primary" onclick="openBasicModal()">Open Modal</button>
+  <button class="btn-danger" onclick="openConfirmModal()">Confirm Delete</button>
+  <button class="btn-success" onclick="openFormModal()">Form Modal</button>
+</div>
+
+<!-- Modal Container -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="modal-box">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="modal-close" aria-label="Close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script>
+const backdrop = document.getElementById('modal-backdrop');
+const titleEl = document.getElementById('modal-title');
+const bodyEl = document.getElementById('modal-body');
+const footerEl = document.getElementById('modal-footer');
+const modalBox = document.getElementById('modal-box');
+let previousFocus = null;
+
+function openModal({ title, body, footer }) {
+  previousFocus = document.activeElement;
+  titleEl.textContent = title;
+  bodyEl.innerHTML = body;
+  footerEl.innerHTML = footer || '';
+  backdrop.classList.add('active');
+  
+  // Focus first focusable element in modal
+  setTimeout(() => {
+    const focusable = modalBox.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusable.length) focusable[0].focus();
+  }, 100);
+}
+
+function closeModal() {
+  backdrop.classList.remove('active');
+  if (previousFocus) previousFocus.focus();
+}
+
+// Close on backdrop click
+backdrop.addEventListener('click', (e) => {
+  if (e.target === backdrop) closeModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && backdrop.classList.contains('active')) closeModal();
+});
+
+// Focus trap
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab' || !backdrop.classList.contains('active')) return;
+  
+  const focusable = modalBox.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
+
+// Demo Modals
+function openBasicModal() {
+  openModal({
+    title: 'Welcome! 👋',
+    body: `
+      <p>This is a fully accessible modal with:</p>
+      <ul style="margin: 10px 0 0 20px; line-height: 2;">
+        <li>✅ Focus trapping (Tab cycles within modal)</li>
+        <li>✅ Escape key to close</li>
+        <li>✅ Click backdrop to close</li>
+        <li>✅ ARIA attributes for screen readers</li>
+        <li>✅ Restores focus on close</li>
+      </ul>
+    `,
+    footer: `
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="closeModal()">Got it!</button>
+    `
+  });
+}
+
+function openConfirmModal() {
+  openModal({
+    title: '⚠️ Confirm Delete',
+    body: '<p>Are you sure you want to delete this item? <strong>This action cannot be undone.</strong></p>',
+    footer: `
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" onclick="handleDelete()">Yes, Delete</button>
+    `
+  });
+}
+
+function handleDelete() {
+  closeModal();
+  alert('Item deleted successfully!');
+}
+
+function openFormModal() {
+  openModal({
+    title: '📝 Quick Feedback',
+    body: `
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Your Name</label>
+        <input type="text" id="feedback-name" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;" placeholder="John Doe">
+      </div>
+      <div>
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px;">Message</label>
+        <textarea id="feedback-msg" rows="3" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;resize:vertical;" placeholder="Your feedback..."></textarea>
+      </div>
+    `,
+    footer: `
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-success" onclick="submitFeedback()">Submit</button>
+    `
+  });
+}
+
+function submitFeedback() {
+  const name = document.getElementById('feedback-name').value;
+  const msg = document.getElementById('feedback-msg').value;
+  closeModal();
+  if (name && msg) alert(`Thanks ${name}! Feedback received.`);
+}
+</script>
+</body>
+</html>

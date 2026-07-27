@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Validation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .form-wrapper {
+      max-width: 480px; margin: 0 auto;
+      background: white; border-radius: 16px;
+      padding: 36px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .form-wrapper h1 { text-align: center; margin-bottom: 4px; font-size: 22px; }
+    .form-wrapper .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 28px; }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: #444; margin-bottom: 6px;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 12px 14px;
+      border: 2px solid #e0e0e0; border-radius: 8px;
+      font-size: 15px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus { border-color: #4a90d9; box-shadow: 0 0 0 3px rgba(74,144,217,0.1); }
+    .form-group.valid input { border-color: #27ae60; }
+    .form-group.invalid input { border-color: #e74c3c; }
+
+    .error-msg {
+      display: none;
+      font-size: 12px; color: #e74c3c; margin-top: 4px;
+      animation: shake 0.3s ease;
+    }
+    .form-group.invalid .error-msg { display: block; }
+
+    .success-icon, .error-icon {
+      position: absolute; right: 12px; top: 36px; font-size: 16px;
+      display: none;
+    }
+    .form-group.valid .success-icon { display: block; }
+    .form-group.invalid .error-icon { display: block; }
+
+    /* Password Strength */
+    .password-strength {
+      height: 4px; border-radius: 4px;
+      background: #eee; margin-top: 8px; overflow: hidden;
+    }
+    .password-strength .bar {
+      height: 100%; width: 0;
+      border-radius: 4px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .strength-label { font-size: 11px; margin-top: 4px; font-weight: 600; }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%; padding: 14px;
+      background: #4a90d9; color: white;
+      border: none; border-radius: 10px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .submit-btn:hover:not(:disabled) { background: #357abd; }
+    .submit-btn:active:not(:disabled) { transform: scale(0.98); }
+    .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .form-success {
+      display: none; text-align: center; padding: 40px 20px;
+    }
+    .form-success h2 { color: #27ae60; margin-bottom: 8px; }
+    .form-success p { color: #666; }
+
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  </style>
+</head>
+<body>
+
+<div class="form-wrapper">
+  <h1>📝 Sign Up</h1>
+  <p class="subtitle">Real-time validation with password strength</p>
+
+  <form id="signup-form" novalidate>
+    <div class="form-group" id="group-name">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" placeholder="John Doe" autocomplete="name">
+      <span class="success-icon">✅</span>
+      <span class="error-icon">❌</span>
+      <p class="error-msg" id="error-name"></p>
+    </div>
+
+    <div class="form-group" id="group-email">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="john@example.com" autocomplete="email">
+      <span class="success-icon">✅</span>
+      <span class="error-icon">❌</span>
+      <p class="error-msg" id="error-email"></p>
+    </div>
+
+    <div class="form-group" id="group-password">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Min 8 chars, mixed case + number">
+      <span class="success-icon">✅</span>
+      <span class="error-icon">❌</span>
+      <p class="error-msg" id="error-password"></p>
+      <div class="password-strength"><div class="bar" id="strength-bar"></div></div>
+      <p class="strength-label" id="strength-label"></p>
+    </div>
+
+    <div class="form-group" id="group-confirm">
+      <label for="confirm">Confirm Password</label>
+      <input type="password" id="confirm" placeholder="Re-enter password">
+      <span class="success-icon">✅</span>
+      <span class="error-icon">❌</span>
+      <p class="error-msg" id="error-confirm"></p>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn" disabled>Create Account</button>
+  </form>
+
+  <div class="form-success" id="form-success">
+    <h2>🎉 Account Created!</h2>
+    <p>Welcome aboard. Check your email for verification.</p>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('signup-form');
+const submitBtn = document.getElementById('submit-btn');
+const fields = { name: '', email: '', password: '', confirm: '' };
+const validity = { name: false, email: false, password: false, confirm: false };
+
+const validators = {
+  name(value) {
+    if (!value.trim()) return 'Name is required';
+    if (value.trim().length < 2) return 'Name must be at least 2 characters';
+    if (!/^[a-zA-Z\s'-]+$/.test(value)) return 'Name can only contain letters, spaces, hyphens';
+    return '';
+  },
+  email(value) {
+    if (!value.trim()) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Enter a valid email address';
+    return '';
+  },
+  password(value) {
+    if (!value) return 'Password is required';
+    if (value.length < 8) return 'Must be at least 8 characters';
+    if (!/[A-Z]/.test(value)) return 'Must include an uppercase letter';
+    if (!/[a-z]/.test(value)) return 'Must include a lowercase letter';
+    if (!/[0-9]/.test(value)) return 'Must include a number';
+    return '';
+  },
+  confirm(value) {
+    if (!value) return 'Please confirm your password';
+    if (value !== document.getElementById('password').value) return 'Passwords do not match';
+    return '';
+  }
+};
+
+// Real-time validation
+Object.keys(fields).forEach(field => {
+  const input = document.getElementById(field);
+  const group = document.getElementById(`group-${field}`);
+  const errorEl = document.getElementById(`error-${field}`);
+
+  input.addEventListener('input', () => {
+    const value = input.value;
+    const error = validators[field](value);
+    
+    group.classList.remove('valid', 'invalid');
+    if (value.length > 0) {
+      if (error) {
+        group.classList.add('invalid');
+        errorEl.textContent = error;
+        validity[field] = false;
+      } else {
+        group.classList.add('valid');
+        validity[field] = true;
+      }
+    } else {
+      validity[field] = false;
+    }
+
+    // Update password strength
+    if (field === 'password') updateStrength(value);
+    // Re-validate confirm when password changes
+    if (field === 'password' && document.getElementById('confirm').value) {
+      document.getElementById('confirm').dispatchEvent(new Event('input'));
+    }
+    
+    updateSubmitBtn();
+  });
+});
+
+function updateStrength(password) {
+  const bar = document.getElementById('strength-bar');
+  const label = document.getElementById('strength-label');
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  const levels = [
+    { width: '0%', color: '#eee', text: '' },
+    { width: '20%', color: '#e74c3c', text: 'Very Weak' },
+    { width: '40%', color: '#f39c12', text: 'Weak' },
+    { width: '60%', color: '#f1c40f', text: 'Fair' },
+    { width: '80%', color: '#27ae60', text: 'Strong' },
+    { width: '100%', color: '#1a9f4e', text: 'Very Strong' },
+  ];
+  const level = levels[Math.min(score, 5)];
+  bar.style.width = level.width;
+  bar.style.background = level.color;
+  label.textContent = level.text;
+  label.style.color = level.color;
+}
+
+function updateSubmitBtn() {
+  submitBtn.disabled = !Object.values(validity).every(Boolean);
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!Object.values(validity).every(Boolean)) return;
+  
+  form.style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+});
+</script>
+</body>
+</html>

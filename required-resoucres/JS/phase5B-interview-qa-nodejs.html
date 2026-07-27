@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 5B: Interview Q&A, Node.js Event Loop & Race Conditions</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 5B: Interview Q&amp;A, Node.js Event Loop &amp; Race Conditions</h1>
+  <p class="subtitle">JavaScript Mastery — Companion to Phase 5 (Filling the Gaps)</p>
+  <div class="pill-row">
+    <span class="pill">Interview Q&amp;A (All Sections)</span>
+    <span class="pill">Node.js Event Loop</span>
+    <span class="pill">Race Conditions</span>
+    <span class="pill">Debounce/Throttle Internals</span>
+    <span class="pill">requestIdleCallback</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#timer-qa">Interview Q&amp;A: Timers (setTimeout, setInterval, rAF)</a></li>
+    <li><a href="#callback-qa">Interview Q&amp;A: Callbacks</a></li>
+    <li><a href="#promise-methods-qa">Interview Q&amp;A: Promise Static Methods</a></li>
+    <li><a href="#async-await-qa">Interview Q&amp;A: async/await</a></li>
+    <li><a href="#concurrency-qa">Interview Q&amp;A: Concurrency Patterns</a></li>
+    <li><a href="#nodejs-event-loop">Node.js Event Loop (Phases &amp; Differences)</a></li>
+    <li><a href="#race-conditions">Race Conditions &amp; How to Prevent Them</a></li>
+    <li><a href="#debounce-throttle">Classic Debounce &amp; Throttle (Timer Internals)</a></li>
+    <li><a href="#ric-workers">requestIdleCallback &amp; Web Workers</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="timer-qa">1. Interview Q&amp;A: Timers</h2>
+
+<div class="interview">
+<h4>🎯 setTimeout &amp; setInterval Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> Is setTimeout(fn, 0) truly immediate?</p>
+<p><strong>Answer:</strong> No. It means "schedule after current sync code + microtasks finish, with a minimum delay of ~4ms" (browsers clamp nested timeouts to 4ms after 5 levels). The 0 means "as soon as possible" not "immediately". It's still a macrotask — all microtasks run first.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What's the difference between nested setTimeout and setInterval?</p>
+<p><strong>Answer:</strong> setInterval fires at fixed intervals regardless of how long the callback takes — if callback takes longer than interval, executions pile up. Nested setTimeout guarantees the delay is measured FROM when the previous callback finishes, preventing overlap. Nested setTimeout is always safer for non-trivial work.</p>
+
+<pre><code>// setInterval problem: if task takes 300ms and interval is 200ms,
+// callbacks overlap and queue up
+
+// Safer: nested setTimeout
+function poll() {
+  doExpensiveWork().then(() =&gt; {
+    setTimeout(poll, 200); // 200ms AFTER work finishes
+  });
+}
+setTimeout(poll, 200);</code></pre>
+
+<p><span class="difficulty d-hard">Hard</span> How do background tabs affect timers?</p>
+<p><strong>Answer:</strong> Browsers throttle timers in background tabs: (1) setInterval/setTimeout are clamped to minimum 1000ms in Chrome background tabs. (2) requestAnimationFrame is completely paused — it only fires when the tab is visible. (3) This is why you should use <code>document.visibilitychange</code> event to pause/resume logic rather than relying on timer accuracy.</p>
+
+<p><span class="difficulty d-medium">Medium</span> When would you use requestAnimationFrame over setTimeout?</p>
+<p><strong>Answer:</strong> rAF for any visual updates (animations, DOM manipulation) because: (1) It syncs with the browser's paint cycle (60fps = 16.7ms), (2) It automatically pauses when tab is hidden (saves battery), (3) It batches DOM reads/writes preventing forced reflows, (4) Browser can optimize multiple rAF callbacks together. Use setTimeout for non-visual delays (API polling, debounce).</p>
+
+<p><span class="difficulty d-expert">Expert</span> Implement setInterval using only setTimeout.</p>
+<pre><code>function mySetInterval(fn, delay) {
+  let cancelled = false;
+  
+  function tick() {
+    if (cancelled) return;
+    fn();
+    setTimeout(tick, delay);
+  }
+  
+  setTimeout(tick, delay);
+  
+  // Return cancel function
+  return { clear() { cancelled = true; } };
+}
+
+// With drift correction (bonus):
+function preciseInterval(fn, delay) {
+  let expected = Date.now() + delay;
+  let cancelled = false;
+  
+  function tick() {
+    if (cancelled) return;
+    fn();
+    const drift = Date.now() - expected;
+    expected += delay;
+    setTimeout(tick, Math.max(0, delay - drift));
+  }
+  
+  setTimeout(tick, delay);
+  return { clear() { cancelled = true; } };
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="callback-qa">2. Interview Q&amp;A: Callbacks</h2>
+
+<div class="interview">
+<h4>🎯 Callback Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What is a callback function?</p>
+<p><strong>Answer:</strong> A function passed as an argument to another function, to be called (called back) at a later time — either synchronously (Array.map, forEach) or asynchronously (setTimeout, event listeners, fs.readFile). It's the simplest form of async control flow in JavaScript.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is "Callback Hell" and what's the REAL problem?</p>
+<p><strong>Answer:</strong> Callback Hell (Pyramid of Doom) looks like deeply nested callbacks. But nesting isn't the core issue — you can flatten callbacks with named functions. The REAL problems are: (1) <strong>Inversion of Control</strong> — you give your callback to a 3rd party and trust they'll call it correctly (once, with right args, not too early/late). (2) <strong>No standardized error handling</strong> — each callback must manually check `if (err)`. (3) <strong>Difficult composition</strong> — running parallel tasks or sequential chains is verbose and error-prone.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is "Inversion of Control" and how do Promises solve it?</p>
+<p><strong>Answer:</strong> With callbacks, you hand your continuation (next step) to someone else's code. You can't guarantee: (a) callback is called exactly once, (b) called with correct arguments, (c) errors are properly reported. Promises invert this back: instead of passing your callback IN, you get a promise OUT. You control when/how to react via .then(). Promises guarantee: single resolution, immutable once settled, always async (via microtask), and built-in error propagation.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promise-methods-qa">3. Interview Q&amp;A: Promise Static Methods</h2>
+
+<div class="interview">
+<h4>🎯 Promise.all / race / allSettled / any Questions</h4>
+
+<p><span class="difficulty d-medium">Medium</span> What happens if one promise in Promise.all rejects?</p>
+<p><strong>Answer:</strong> Promise.all short-circuits immediately on the first rejection — the returned promise rejects with that error. The remaining promises still execute (can't cancel them), but their results are ignored. Use Promise.allSettled if you need all results regardless of failures.</p>
+
+<p><span class="difficulty d-medium">Medium</span> When would you use Promise.race vs Promise.any?</p>
+<p><strong>Answer:</strong> Promise.race settles with the first promise to settle (resolve OR reject). Promise.any settles with the first to RESOLVE — it ignores rejections until all fail (then rejects with AggregateError). Use race for timeouts (race between fetch and a timeout promise). Use any for redundancy (try multiple mirrors, take the fastest success).</p>
+
+<pre><code>// Timeout pattern with race:
+const result = await Promise.race([
+  fetch("/api/data"),
+  new Promise((_, reject) =&gt; setTimeout(() =&gt; reject(new Error("Timeout")), 5000))
+]);
+
+// Fastest mirror with any:
+const data = await Promise.any([
+  fetch("https://cdn1.example.com/data"),
+  fetch("https://cdn2.example.com/data"),
+  fetch("https://cdn3.example.com/data"),
+]);</code></pre>
+
+<p><span class="difficulty d-hard">Hard</span> Implement Promise.allSettled from scratch.</p>
+<pre><code>function allSettled(promises) {
+  return Promise.all(
+    promises.map((p) =&gt;
+      Promise.resolve(p).then(
+        (value) =&gt; ({ status: "fulfilled", value }),
+        (reason) =&gt; ({ status: "rejected", reason })
+      )
+    )
+  );
+}
+// Key insight: wrap each promise so it ALWAYS resolves (never rejects)
+// Then Promise.all will never short-circuit</code></pre>
+
+<p><span class="difficulty d-expert">Expert</span> What is Promise.withResolvers() and when is it useful?</p>
+<p><strong>Answer:</strong> <code>Promise.withResolvers()</code> (ES2024) returns <code>{ promise, resolve, reject }</code> — extracting the resolve/reject handles outside the executor. Useful when the resolution logic lives in a different scope (event handlers, callback APIs, class methods). Without it, you'd use the "deferred pattern": declare let resolve/reject outside new Promise().</p>
+
+<pre><code>// Before (deferred pattern):
+let resolve, reject;
+const promise = new Promise((res, rej) =&gt; { resolve = res; reject = rej; });
+
+// After (ES2024):
+const { promise, resolve, reject } = Promise.withResolvers();
+// Use resolve/reject anywhere!</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="async-await-qa">4. Interview Q&amp;A: async/await</h2>
+
+<div class="interview">
+<h4>🎯 async/await Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What does async do to a function?</p>
+<p><strong>Answer:</strong> It makes the function always return a Promise. If you return a non-Promise value, it's wrapped in Promise.resolve(). If you throw, the returned promise rejects. It also enables using await inside the function.</p>
+
+<p><span class="difficulty d-medium">Medium</span> Does await block the main thread?</p>
+<p><strong>Answer:</strong> No! await only pauses the async FUNCTION, not the main thread. When execution hits await, the function suspends and returns its promise to the caller. The event loop continues processing other tasks. When the awaited value resolves, the function resumes from where it paused (scheduled as a microtask). This is why "script end" prints before "after await".</p>
+
+<p><span class="difficulty d-hard">Hard</span> What's the difference between these three?</p>
+<pre><code>// 1. Sequential (SLOW — each waits for previous)
+const a = await fetchA();
+const b = await fetchB();
+const c = await fetchC();
+
+// 2. Parallel (FAST — all start immediately)
+const [a, b, c] = await Promise.all([fetchA(), fetchB(), fetchC()]);
+
+// 3. Fire-and-forget-then-await (FAST — same as #2 but different style)
+const pA = fetchA(); // Start immediately
+const pB = fetchB(); // Start immediately
+const pC = fetchC(); // Start immediately
+const a = await pA;
+const b = await pB;
+const c = await pC;</code></pre>
+<p><strong>Answer:</strong> #1 is sequential: total time = A + B + C. #2 and #3 are parallel: total time = max(A, B, C). In #3, all fetches start before any await — the awaits just collect results. #2 (Promise.all) is preferred because if one fails, you fail fast. In #3, if pB rejects while you're awaiting pA, the rejection might go unhandled momentarily.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why should you always use "return await" inside try/catch?</p>
+<pre><code>// BUG: catch doesn't fire!
+async function bad() {
+  try {
+    return fetchData(); // Returns promise WITHOUT awaiting
+  } catch (e) {
+    console.log("never reached"); // rejection escapes!
+  }
+}
+
+// CORRECT: catch fires on rejection
+async function good() {
+  try {
+    return await fetchData(); // Awaits → rejection caught here
+  } catch (e) {
+    console.log("caught:", e); // ✓
+  }
+}</code></pre>
+<p><strong>Answer:</strong> Without await, `return promise` immediately returns the promise without unwrapping it — the try/catch never sees the rejection. With `return await`, the promise is unwrapped, the rejection becomes a thrown error caught by the try block. ESLint rule: <code>no-return-await</code> is wrong in try/catch contexts!</p>
+
+<p><span class="difficulty d-expert">Expert</span> How does await work with non-Promise values (thenables)?</p>
+<p><strong>Answer:</strong> await calls Promise.resolve(value) internally. If the value has a .then() method (is "thenable"), Promise.resolve unwraps it by calling .then(). This means await works with any thenable — custom promise libraries, jQuery deferreds, etc. If the value is a plain value, it's wrapped in a resolved promise and the function resumes on the next microtask.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="concurrency-qa">5. Interview Q&amp;A: Concurrency Patterns</h2>
+
+<div class="interview">
+<h4>🎯 Concurrency Questions</h4>
+
+<p><span class="difficulty d-medium">Medium</span> How do you limit concurrent API requests (e.g., process 100 URLs with max 5 at a time)?</p>
+<p><strong>Answer:</strong> Use a Promise Pool / concurrency limiter. Maintain a counter of active requests. When a request finishes, start the next one from the queue. Libraries: p-limit, p-queue. Custom: maintain an array of active promises, use Promise.race to detect when one finishes, then add the next.</p>
+
+<pre><code>async function pool(tasks, concurrency) {
+  const results = [];
+  const executing = new Set();
+
+  for (const [i, task] of tasks.entries()) {
+    const p = task().then((val) =&gt; { executing.delete(p); return val; });
+    executing.add(p);
+    results[i] = p;
+
+    if (executing.size &gt;= concurrency) {
+      await Promise.race(executing); // Wait for one to finish
+    }
+  }
+
+  return Promise.all(results);
+}</code></pre>
+
+<p><span class="difficulty d-hard">Hard</span> Implement a mutex/lock for async operations.</p>
+<p><strong>Answer:</strong> A mutex ensures only one async operation accesses a resource at a time. Use a queue of resolve functions:</p>
+<pre><code>class Mutex {
+  #locked = false;
+  #queue = [];
+
+  async acquire() {
+    if (!this.#locked) {
+      this.#locked = true;
+      return;
+    }
+    await new Promise((resolve) =&gt; this.#queue.push(resolve));
+  }
+
+  release() {
+    if (this.#queue.length &gt; 0) {
+      this.#queue.shift()(); // Unblock next waiter
+    } else {
+      this.#locked = false;
+    }
+  }
+
+  async runExclusive(fn) {
+    await this.acquire();
+    try { return await fn(); }
+    finally { this.release(); }
+  }
+}
+
+const dbMutex = new Mutex();
+await dbMutex.runExclusive(async () =&gt; {
+  // Only one operation at a time here
+  await db.read();
+  await db.write();
+});</code></pre>
+
+<p><span class="difficulty d-expert">Expert</span> Implement a "stale-while-revalidate" cache strategy.</p>
+<pre><code>function swr(fetchFn, { ttl = 5000, staleWhileRevalidate = 30000 } = {}) {
+  let cache = { value: null, timestamp: 0 };
+
+  return async function (...args) {
+    const age = Date.now() - cache.timestamp;
+
+    if (age &lt; ttl) {
+      return cache.value; // Fresh — return immediately
+    }
+
+    if (age &lt; staleWhileRevalidate &amp;&amp; cache.value !== null) {
+      // Stale but usable — return stale, revalidate in background
+      fetchFn(...args).then((val) =&gt; {
+        cache = { value: val, timestamp: Date.now() };
+      });
+      return cache.value;
+    }
+
+    // Expired — must wait for fresh data
+    const value = await fetchFn(...args);
+    cache = { value, timestamp: Date.now() };
+    return value;
+  };
+}</code></pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="nodejs-event-loop">6. Node.js Event Loop (Phases &amp; Differences)</h2>
+
+<div class="callout">
+  <strong>Why this matters:</strong> Full-stack interviews often ask "How does Node.js event loop differ from the browser?" — knowing the 6 phases is a strong differentiator.
+</div>
+
+<h3>Node.js Event Loop Phases (in order)</h3>
+<pre><code>┌───────────────────────────┐
+│         timers            │ ← setTimeout, setInterval callbacks
+├───────────────────────────┤
+│     pending callbacks     │ ← I/O callbacks deferred from previous cycle
+├───────────────────────────┤
+│       idle, prepare       │ ← internal use only
+├───────────────────────────┤
+│          poll             │ ← retrieve new I/O events; execute I/O callbacks
+├───────────────────────────┤
+│         check             │ ← setImmediate() callbacks
+├───────────────────────────┤
+│     close callbacks       │ ← socket.on('close'), etc.
+└───────────────────────────┘
+
+Between EVERY phase: process ALL microtasks (Promise.then, process.nextTick)</code></pre>
+
+<h3>Key Differences from Browser</h3>
+<table>
+  <tr><th>Feature</th><th>Browser</th><th>Node.js</th></tr>
+  <tr><td>Microtask processing</td><td>After each macrotask</td><td>Between every phase + after each callback within a phase (since Node 11)</td></tr>
+  <tr><td>process.nextTick</td><td>N/A</td><td>Higher priority than Promise.then! Runs before any other microtask</td></tr>
+  <tr><td>setImmediate</td><td>N/A (non-standard)</td><td>Fires in "check" phase, after I/O</td></tr>
+  <tr><td>requestAnimationFrame</td><td>Before repaint</td><td>N/A (no rendering)</td></tr>
+  <tr><td>MessageChannel</td><td>Macrotask</td><td>Available but rarely used</td></tr>
+</table>
+
+<h3>process.nextTick vs setImmediate vs Promise.then</h3>
+<pre><code>// Priority order in Node.js:
+// 1. process.nextTick (highest — drains completely before promises!)
+// 2. Promise.then / queueMicrotask
+// 3. setImmediate (check phase)
+// 4. setTimeout(fn, 0) (timer phase — minimum 1ms in Node)
+
+process.nextTick(() =&gt; console.log("1 - nextTick"));
+Promise.resolve().then(() =&gt; console.log("2 - promise"));
+setImmediate(() =&gt; console.log("3 - immediate"));
+setTimeout(() =&gt; console.log("4 - timeout"), 0);
+
+// Output (usually): 1 - nextTick, 2 - promise, 4 - timeout, 3 - immediate
+// (timeout vs immediate order is non-deterministic at top level!)
+
+// BUT inside an I/O callback, setImmediate ALWAYS fires before setTimeout:
+const fs = require("fs");
+fs.readFile(__filename, () =&gt; {
+  setImmediate(() =&gt; console.log("immediate"));  // Always first
+  setTimeout(() =&gt; console.log("timeout"), 0);   // Always second
+});</code></pre>
+
+<h3>The "Starvation" Risk with nextTick</h3>
+<pre><code>// DANGER: nextTick recursion blocks EVERYTHING (I/O, timers, everything!)
+function runForever() {
+  process.nextTick(runForever); // Never yields to other phases
+}
+// This is worse than while(true) for the event loop!
+// Use setImmediate for recursive async work instead.
+
+// SAFE: setImmediate gives other phases a chance
+function safePoll() {
+  setImmediate(() =&gt; {
+    doWork();
+    safePoll(); // Yields between iterations
+  });
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What's the order: setTimeout(0) vs setImmediate in Node.js?</p>
+<p><strong>Answer:</strong> At the top level, the order is non-deterministic (depends on process performance and when the loop starts). Inside an I/O callback, setImmediate always fires first (because after I/O, the "check" phase runs before looping back to "timers"). This is a classic Node.js trick question.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why is process.nextTick dangerous?</p>
+<p><strong>Answer:</strong> nextTick callbacks drain completely (recursively) before the event loop continues to the next phase. This means recursive nextTick calls can starve I/O, timers, and everything else — the system becomes unresponsive. Promise.then is safer because it's also a microtask but has lower priority. Use setImmediate for recursive patterns.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="race-conditions">7. Race Conditions &amp; How to Prevent Them</h2>
+
+<div class="callout warning">
+  <strong>Real-World Impact:</strong> Race conditions are the #1 source of bugs in async frontend code. They're subtle, hard to reproduce, and interviewers love asking about them.
+</div>
+
+<h3>What is a Race Condition?</h3>
+<p>A race condition occurs when the behavior of your code depends on the <strong>timing/ordering</strong> of async operations, which isn't guaranteed. The result changes depending on which operation finishes first.</p>
+
+<h3>Pattern 1: Stale Response Overwriting Fresh Data</h3>
+<pre><code>// BUG: User types "ab" then "abc"
+// Request for "ab" takes 500ms, request for "abc" takes 100ms
+// "abc" response arrives first (correct), then "ab" response overwrites it!
+
+// Broken:
+async function search(query) {
+  const results = await fetch(`/api/search?q=${query}`).then(r =&gt; r.json());
+  renderResults(results); // "ab" results overwrite "abc" results!
+}
+
+// FIX 1: Track request order with a counter
+let latestRequestId = 0;
+
+async function search(query) {
+  const requestId = ++latestRequestId;
+  const results = await fetch(`/api/search?q=${query}`).then(r =&gt; r.json());
+  if (requestId !== latestRequestId) return; // Stale — discard
+  renderResults(results);
+}
+
+// FIX 2: AbortController (cancel previous request)
+let controller = null;
+
+async function search(query) {
+  controller?.abort(); // Cancel previous
+  controller = new AbortController();
+  try {
+    const results = await fetch(`/api/search?q=${query}`, {
+      signal: controller.signal
+    }).then(r =&gt; r.json());
+    renderResults(results);
+  } catch (e) {
+    if (e.name !== "AbortError") throw e; // Ignore abort, rethrow others
+  }
+}</code></pre>
+
+<h3>Pattern 2: Stale Closure (React/Angular trap)</h3>
+<pre><code>// BUG: Classic React stale closure
+function SearchComponent() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+
+  useEffect(() =&gt; {
+    // query is captured at the time useEffect runs
+    fetch(`/api/search?q=${query}`)
+      .then(r =&gt; r.json())
+      .then(data =&gt; setResults(data)); // May set stale results!
+  }, [query]);
+
+  // FIX: Use AbortController cleanup
+  useEffect(() =&gt; {
+    const controller = new AbortController();
+    fetch(`/api/search?q=${query}`, { signal: controller.signal })
+      .then(r =&gt; r.json())
+      .then(data =&gt; setResults(data))
+      .catch(e =&gt; { if (e.name !== "AbortError") throw e; });
+
+    return () =&gt; controller.abort(); // Cleanup cancels stale request
+  }, [query]);
+}</code></pre>
+
+<h3>Pattern 3: Double-Submit / Duplicate Actions</h3>
+<pre><code>// BUG: User double-clicks "Submit Order" — two orders created!
+
+// FIX: Disable during processing + deduplicate
+class SubmitGuard {
+  #pending = false;
+
+  async submit(fn) {
+    if (this.#pending) return; // Already in-flight
+    this.#pending = true;
+    try {
+      return await fn();
+    } finally {
+      this.#pending = false;
+    }
+  }
+}
+
+const guard = new SubmitGuard();
+submitBtn.addEventListener("click", () =&gt; {
+  guard.submit(async () =&gt; {
+    submitBtn.disabled = true;
+    await placeOrder();
+    submitBtn.disabled = false;
+  });
+});</code></pre>
+
+<h3>Pattern 4: Read-Modify-Write (Concurrent Updates)</h3>
+<pre><code>// BUG: Two tabs increment a counter simultaneously
+// Tab A reads: count = 5
+// Tab B reads: count = 5
+// Tab A writes: count = 6
+// Tab B writes: count = 6  ← Should be 7!
+
+// FIX: Optimistic locking with version number
+async function incrementCounter() {
+  const { count, version } = await fetch("/api/counter").then(r =&gt; r.json());
+  
+  const response = await fetch("/api/counter", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ count: count + 1, expectedVersion: version }),
+  });
+  
+  if (response.status === 409) {
+    // Conflict! Someone else updated — retry
+    return incrementCounter(); // Retry with fresh data
+  }
+}
+
+// FIX for frontend state: Use the mutex from concurrency section
+const stateMutex = new Mutex();
+await stateMutex.runExclusive(async () =&gt; {
+  const current = await getState();
+  await setState(current + 1);
+});</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How do you prevent stale API responses from overwriting fresh data?</p>
+<p><strong>Answer:</strong> Three approaches: (1) Request ID counter — increment on each request, ignore responses whose ID doesn't match the latest. (2) AbortController — cancel previous request before starting new one (preferred). (3) Timestamp comparison — only apply response if its request timestamp is newer than the last applied one.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What's a stale closure and how does it cause bugs in React?</p>
+<p><strong>Answer:</strong> A stale closure captures an old value of a variable (like state). In React useEffect, if you start an async operation that closes over the current state, by the time it resolves the state may have changed — but the closure still has the old value. Fix: use the cleanup function with AbortController, or use useRef for mutable latest value, or use the functional updater form of setState.</p>
+
+<p><span class="difficulty d-expert">Expert</span> How would you implement idempotent operations to prevent double-submits?</p>
+<p><strong>Answer:</strong> Client-side: disable button + guard flag + debounce. But the real fix is server-side idempotency: (1) Generate a unique idempotency key (UUID) per operation on the client. (2) Send it with the request. (3) Server checks if it's seen this key before — if yes, return the cached response without re-executing. This handles network retries, double-clicks, and browser back/forward safely.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="debounce-throttle">8. Classic Debounce &amp; Throttle (Timer Internals)</h2>
+
+<div class="callout">
+  <strong>Why here?</strong> The main Phase 5 file covers async debounce. Machine Coding Part 1 covers the full implementation. This section explains the <strong>timer mechanics</strong> — how clearTimeout/setTimeout interaction creates debounce behavior.
+</div>
+
+<h3>Debounce: Under the Hood</h3>
+<pre><code>// "Wait until the user STOPS typing for X ms"
+// Every call resets the timer. Only the last call fires.
+
+function debounce(fn, delay, { leading = false, trailing = true } = {}) {
+  let timerId = null;
+  let lastArgs = null;
+
+  function debounced(...args) {
+    lastArgs = args;
+    const isFirstCall = timerId === null;
+
+    // Leading edge: fire immediately on first call
+    if (leading &amp;&amp; isFirstCall) {
+      fn.apply(this, args);
+    }
+
+    // Clear previous timer (THIS is the debounce mechanism)
+    clearTimeout(timerId);
+
+    // Set new timer
+    timerId = setTimeout(() =&gt; {
+      timerId = null; // Reset — next call is "first" again
+      if (trailing) {
+        fn.apply(this, lastArgs);
+      }
+    }, delay);
+  }
+
+  debounced.cancel = () =&gt; { clearTimeout(timerId); timerId = null; };
+  debounced.flush = () =&gt; { clearTimeout(timerId); fn.apply(null, lastArgs); timerId = null; };
+  
+  return debounced;
+}
+
+// HOW IT WORKS (trace for 300ms debounce):
+// t=0ms:   User types "a" → clearTimeout(null), set timer for t=300ms
+// t=100ms: User types "b" → clearTimeout(prev), set NEW timer for t=400ms
+// t=200ms: User types "c" → clearTimeout(prev), set NEW timer for t=500ms
+// t=500ms: Timer fires! → call fn("abc")  ← Only ONE call, with latest value
+// KEY: clearTimeout + setTimeout = "restart the wait"</code></pre>
+
+<h3>Throttle: Under the Hood</h3>
+<pre><code>// "Fire at most once every X ms" (rate limiting)
+// Unlike debounce, throttle GUARANTEES periodic calls during sustained input
+
+function throttle(fn, limit, { leading = true, trailing = true } = {}) {
+  let timerId = null;
+  let lastArgs = null;
+  let lastCallTime = 0;
+
+  function throttled(...args) {
+    const now = Date.now();
+    const timeSinceLastCall = now - lastCallTime;
+    lastArgs = args;
+
+    if (!lastCallTime &amp;&amp; !leading) {
+      lastCallTime = now; // Skip leading call
+    }
+
+    if (timeSinceLastCall &gt;= limit) {
+      // Enough time passed — fire immediately
+      lastCallTime = now;
+      fn.apply(this, args);
+    } else if (!timerId &amp;&amp; trailing) {
+      // Schedule trailing call for remaining time
+      timerId = setTimeout(() =&gt; {
+        lastCallTime = leading ? Date.now() : 0;
+        timerId = null;
+        fn.apply(this, lastArgs);
+      }, limit - timeSinceLastCall);
+    }
+  }
+
+  throttled.cancel = () =&gt; { clearTimeout(timerId); timerId = null; lastCallTime = 0; };
+  return throttled;
+}
+
+// HOW IT WORKS (trace for 200ms throttle, scroll event fires every 16ms):
+// t=0ms:   scroll → fire immediately (leading), lastCallTime=0
+// t=16ms:  scroll → 16 &lt; 200, schedule trailing for t=200
+// t=32ms:  scroll → 32 &lt; 200, already scheduled, skip
+// ...
+// t=200ms: timer fires → call fn (trailing), reset
+// t=216ms: scroll → fire immediately (200ms passed since last)
+// RESULT: fn fires every ~200ms during continuous scroll (not every 16ms!)</code></pre>
+
+<h3>Comparison Table</h3>
+<table>
+  <tr><th></th><th>Debounce</th><th>Throttle</th></tr>
+  <tr><td>When does it fire?</td><td>After silence (no calls for X ms)</td><td>At most once per X ms window</td></tr>
+  <tr><td>During rapid input</td><td>Never fires (keeps resetting)</td><td>Fires periodically</td></tr>
+  <tr><td>Use case</td><td>Search input, resize end, form validation</td><td>Scroll, drag, mousemove, game tick</td></tr>
+  <tr><td>Mechanism</td><td>clearTimeout + setTimeout (restart)</td><td>Timestamp check + single trailing timer</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="ric-workers">9. requestIdleCallback &amp; Web Workers</h2>
+
+<h3>requestIdleCallback — Non-Urgent Background Work</h3>
+<pre><code>// requestIdleCallback runs tasks when the browser is IDLE
+// (no animations, no user input, no layout work pending)
+
+// Use case: analytics, prefetching, non-critical DOM updates
+function sendAnalytics(events) {
+  // Don't block main thread with analytics!
+  requestIdleCallback((deadline) =&gt; {
+    // deadline.timeRemaining() tells you how much time you have (usually 0-50ms)
+    while (events.length &gt; 0 &amp;&amp; deadline.timeRemaining() &gt; 5) {
+      const event = events.shift();
+      navigator.sendBeacon("/analytics", JSON.stringify(event));
+    }
+
+    // If there's more work, schedule for next idle period
+    if (events.length &gt; 0) {
+      requestIdleCallback(() =&gt; sendAnalytics(events));
+    }
+  }, { timeout: 5000 }); // Force execution after 5s even if never idle
+}
+
+// Priority comparison:
+// 1. User input / animation (rAF) — HIGHEST
+// 2. Microtasks (Promise.then)
+// 3. Macrotasks (setTimeout)
+// 4. requestIdleCallback — LOWEST (only when nothing else to do)
+
+// CAVEAT: Don't mutate DOM in rIC! It might trigger forced reflows.
+// Instead, batch DOM changes with requestAnimationFrame:
+requestIdleCallback(() =&gt; {
+  const data = computeExpensiveLayout(); // OK here
+  requestAnimationFrame(() =&gt; {
+    applyToDOM(data); // DOM mutation in rAF
+  });
+});</code></pre>
+
+<h3>Web Workers — True Parallelism</h3>
+<pre><code>// Web Workers run JS on a SEPARATE thread (actual parallelism!)
+// They CANNOT access: DOM, window, document, shared variables
+
+// Main thread:
+const worker = new Worker("heavy-task.js");
+
+worker.postMessage({ data: largeArray }); // Send data (structured clone)
+
+worker.onmessage = (e) =&gt; {
+  console.log("Result:", e.data); // Receive result
+};
+
+worker.onerror = (e) =&gt; console.error("Worker error:", e.message);
+
+// heavy-task.js (worker):
+self.onmessage = (e) =&gt; {
+  const result = expensiveCPUWork(e.data.data); // Doesn't block main thread!
+  self.postMessage(result); // Send back
+};
+
+// Use cases:
+// - Image processing (canvas manipulation)
+// - Large JSON parsing (JSON.parse of 10MB+)
+// - Sorting/filtering 100K+ rows
+// - Crypto operations
+// - WebAssembly computations
+
+// Modern alternative: Comlink (makes workers feel like async functions)
+// import { wrap } from "comlink";
+// const api = wrap(new Worker("worker.js"));
+// const result = await api.heavyComputation(data);</code></pre>
+
+<h3>SharedArrayBuffer &amp; Atomics (Advanced)</h3>
+<pre><code>// SharedArrayBuffer: memory shared between workers (no copying!)
+// Requires: Cross-Origin-Isolation headers (COOP + COEP)
+
+// Main thread:
+const shared = new SharedArrayBuffer(1024);
+const view = new Int32Array(shared);
+worker.postMessage(shared); // Workers get the SAME memory
+
+// Atomics: thread-safe operations on shared memory
+Atomics.add(view, 0, 1);      // Atomic increment
+Atomics.load(view, 0);        // Atomic read
+Atomics.wait(view, 0, 0);     // Block until value changes (worker only)
+Atomics.notify(view, 0, 1);   // Wake waiting workers
+
+// USE CASE: High-performance scenarios like games, WASM, real-time audio</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> When would you use requestIdleCallback vs requestAnimationFrame?</p>
+<p><strong>Answer:</strong> rAF for visual updates (runs before every paint at 60fps). rIC for non-urgent work (runs only when the browser is idle). Never do DOM mutations in rIC — compute in rIC, apply in rAF. rIC has a timeout option to guarantee eventual execution.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What's the difference between Web Workers and Service Workers?</p>
+<p><strong>Answer:</strong> Web Workers: dedicated background threads for CPU work, live as long as the page is open, one-to-one with a page. Service Workers: proxy between browser and network, persist across page sessions, intercept fetch requests for caching/offline support, used for PWAs and push notifications. Both run off the main thread, neither can access DOM.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="exercise">
+<h4>🏋️ Phase 5 Completeness Checklist</h4>
+<p>After studying Phase 5 (main file) + Phase 5A + Phase 5B, you should be able to:</p>
+<ol>
+  <li>✅ Draw the event loop diagram from memory (call stack, Web APIs, task queue, microtask queue)</li>
+  <li>✅ Predict output order of any async code snippet (15 drills mastered)</li>
+  <li>✅ Explain microtask vs macrotask priority with examples</li>
+  <li>✅ Implement Promise from scratch (covered in Phase 9: Polyfills)</li>
+  <li>✅ Write async/await with proper error handling (return await, try/catch)</li>
+  <li>✅ Explain how async/await works under the hood (generator + Promise runner)</li>
+  <li>✅ Use generators for lazy sequences, tree traversal, cooperative multitasking</li>
+  <li>✅ Build async iterables for paginated APIs, WebSocket streams</li>
+  <li>✅ Implement debounce, throttle, and explain their timer mechanics</li>
+  <li>✅ Identify and fix race conditions (stale responses, double-submit, stale closures)</li>
+  <li>✅ Explain Node.js event loop phases and process.nextTick vs setImmediate</li>
+  <li>✅ Know when to use rAF vs rIC vs Web Workers vs setTimeout</li>
+  <li>✅ Handle concurrent operations (Promise.all, pool, mutex, SWR cache)</li>
+  <li>✅ Cancel async operations with AbortController</li>
+</ol>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase5A-generators-output-drills.html">← Phase 5A: Generators &amp; Drills</a>
+  <a href="phase6-dom-events-browser-apis.html">Phase 6: DOM &amp; Browser APIs →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

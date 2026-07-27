@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kubernetes Commands Cheatsheet — Common &amp; Medium Use Cases</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 17pt; margin-top: 30px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 12.5pt; margin-top: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.5; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .freq { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; margin-left: 6px; }
+    .f-daily { background: #d4edda; color: #155724; }
+    .f-medium { background: #fff3cd; color: #856404; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Kubernetes Commands Cheatsheet</h1>
+  <p class="subtitle">Most Common (daily-driver) &amp; Medium Use-Case <code>kubectl</code>/<code>helm</code> Commands — Backend/Full-Stack Reference</p>
+  <div class="pill-row">
+    <span class="pill">Pods</span>
+    <span class="pill">Deployments/Rollouts</span>
+    <span class="pill">Services</span>
+    <span class="pill">ConfigMap/Secret</span>
+    <span class="pill">Debugging</span>
+    <span class="pill">Namespaces</span>
+    <span class="pill">Apply/Diff</span>
+    <span class="pill">Helm</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>Legend:</strong> <span class="freq f-daily">DAILY</span> = you'll run this constantly. <span class="freq f-medium">MEDIUM</span> = less frequent, but expect to need it weekly or in an interview scenario. Companion theory: <a href="kubernetes-phase1-fundamentals-theory.html">Kubernetes Part 1</a> · Companion Q&amp;A: <a href="kubernetes-phase2-interview-questions.html">Kubernetes Part 2</a>.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#cluster-context">Cluster &amp; Context</a></li>
+    <li><a href="#pods-cmd">Pods</a></li>
+    <li><a href="#deploy-cmd">Deployments &amp; Rollouts</a></li>
+    <li><a href="#svc-cmd">Services &amp; Networking</a></li>
+    <li><a href="#config-cmd">ConfigMaps &amp; Secrets</a></li>
+    <li><a href="#debug-cmd">Debugging &amp; Troubleshooting</a></li>
+    <li><a href="#ns-cmd">Namespaces &amp; Labels</a></li>
+    <li><a href="#apply-cmd">Apply / Diff / Dry-Run</a></li>
+    <li><a href="#helm-cmd">Helm</a></li>
+    <li><a href="#advanced-cmd">Medium/Advanced Daily Use</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="cluster-context">1. Cluster &amp; Context</h2>
+
+<pre><code># Basic cluster health / info
+kubectl cluster-info                                     # MEDIUM
+kubectl get nodes                                          # DAILY
+kubectl get nodes -o wide                                    # MEDIUM
+
+# See/switch which cluster+namespace kubectl is currently pointed at
+kubectl config get-contexts                                   # DAILY
+kubectl config use-context my-dev-cluster                       # DAILY
+kubectl config view --minify                                       # MEDIUM
+
+# Set a default namespace for the current context (avoids typing -n every time)
+kubectl config set-context --current --namespace=dash                # MEDIUM
+
+# API resource discovery — what fields/kinds are available (great for writing YAML)
+kubectl explain deployment.spec.template.spec.containers               # MEDIUM
+kubectl api-resources                                                    # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="pods-cmd">2. Pods</h2>
+
+<pre><code># List pods (current namespace / all namespaces / with more detail)
+kubectl get pods                                            # DAILY
+kubectl get pods -n dash                                      # DAILY
+kubectl get pods -A                                             # MEDIUM
+kubectl get pods -o wide                                          # DAILY (shows node, IP)
+
+# Full details + recent Events (the #1 debugging command)
+kubectl describe pod di-jfrog-abc123                              # DAILY
+
+# Logs — current, follow, previous (crashed) instance, specific container in multi-container pod
+kubectl logs di-jfrog-abc123                                        # DAILY
+kubectl logs -f di-jfrog-abc123                                       # DAILY
+kubectl logs di-jfrog-abc123 --previous                                 # DAILY (for CrashLoopBackOff)
+kubectl logs di-jfrog-abc123 -c sidecar-name                              # MEDIUM
+
+# Shell into a running pod
+kubectl exec -it di-jfrog-abc123 -- sh                                     # DAILY
+kubectl exec -it di-jfrog-abc123 -c sidecar-name -- sh                       # MEDIUM
+
+# Run a one-off command without a shell
+kubectl exec di-jfrog-abc123 -- env                                           # MEDIUM
+kubectl exec di-jfrog-abc123 -- cat /etc/config/app.json                       # MEDIUM
+
+# Delete a pod (ReplicaSet recreates it automatically if managed)
+kubectl delete pod di-jfrog-abc123                                              # DAILY
+
+# Live CPU/memory usage per pod (requires metrics-server)
+kubectl top pod                                                                  # MEDIUM
+kubectl top pod di-jfrog-abc123                                                    # MEDIUM
+
+# Copy a file to/from a pod
+kubectl cp di-jfrog-abc123:/app/config.json ./local-config.json                     # MEDIUM
+kubectl cp ./local-config.json di-jfrog-abc123:/app/config.json                       # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="deploy-cmd">3. Deployments &amp; Rollouts</h2>
+
+<pre><code># List / describe deployments
+kubectl get deployments                                     # DAILY
+kubectl describe deployment di-jfrog                            # DAILY
+
+# Scale manually
+kubectl scale deployment di-jfrog --replicas=5                    # MEDIUM
+
+# Trigger a new rollout by updating the image
+kubectl set image deployment/di-jfrog di-jfrog=kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.2.0   # DAILY
+
+# Watch a rollout in progress
+kubectl rollout status deployment/di-jfrog                          # DAILY
+
+# Rollback to the previous revision, or a specific one
+kubectl rollout undo deployment/di-jfrog                               # DAILY (when a release is broken)
+kubectl rollout undo deployment/di-jfrog --to-revision=3                 # MEDIUM
+
+# See revision history
+kubectl rollout history deployment/di-jfrog                                # MEDIUM
+
+# Force a restart of all pods without changing the image (e.g. to pick up a ConfigMap change)
+kubectl rollout restart deployment/di-jfrog                                  # MEDIUM
+
+# Pause/resume a rollout (useful mid-rollout to inspect canary pods before continuing)
+kubectl rollout pause deployment/di-jfrog                                      # MEDIUM
+kubectl rollout resume deployment/di-jfrog                                       # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="svc-cmd">4. Services &amp; Networking</h2>
+
+<pre><code># List / describe services
+kubectl get svc                                              # DAILY
+kubectl describe svc di-jfrog-svc                                # DAILY
+
+# Check which pods a Service is actually routing to (empty = selector mismatch)
+kubectl get endpoints di-jfrog-svc                                 # MEDIUM
+
+# Tunnel a cluster Service (or Pod) to your local machine — great for local debugging against a real cluster
+kubectl port-forward svc/di-jfrog-svc 8080:80                        # DAILY
+kubectl port-forward pod/di-jfrog-abc123 8080:8080                     # MEDIUM
+
+# Quickly expose an existing deployment as a new Service (ad-hoc, mostly for local/dev clusters)
+kubectl expose deployment di-jfrog --port=80 --target-port=8080           # MEDIUM
+
+# Ingress
+kubectl get ingress                                                          # DAILY
+kubectl describe ingress dash-ingress                                          # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="config-cmd">5. ConfigMaps &amp; Secrets</h2>
+
+<pre><code># Create a ConfigMap from literals or a file
+kubectl create configmap di-jfrog-config --from-literal=LOG_LEVEL=debug     # MEDIUM
+kubectl create configmap di-jfrog-config --from-file=config.json               # MEDIUM
+
+# Create a Secret (values are base64-encoded automatically, NOT encrypted)
+kubectl create secret generic di-jfrog-secret --from-literal=DB_PASS=xxxx        # MEDIUM
+
+# View (Secrets show base64; decode manually if needed)
+kubectl get configmap di-jfrog-config -o yaml                                       # DAILY
+kubectl get secret di-jfrog-secret -o jsonpath='{.data.DB_PASS}' | base64 -d           # MEDIUM
+
+# Edit live (opens in your $EDITOR, applies on save — use sparingly, prefer Helm values + apply)
+kubectl edit configmap di-jfrog-config                                                   # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="debug-cmd">6. Debugging &amp; Troubleshooting</h2>
+
+<pre><code># The single most useful debugging command — status + recent Events
+kubectl describe pod di-jfrog-abc123                          # DAILY
+
+# Cluster-wide recent events, newest last (great for spotting scheduling/OOM issues fast)
+kubectl get events --sort-by='.lastTimestamp'                    # DAILY
+kubectl get events -n dash --sort-by='.lastTimestamp'               # DAILY
+
+# Why is a pod Pending? Why did a rollout stall? Check both pod AND deployment describe
+kubectl describe deployment di-jfrog                                  # MEDIUM
+
+# Attach an ephemeral debug container to a running pod without restarting it (needs a distro-with-tools image)
+kubectl debug -it di-jfrog-abc123 --image=busybox:1.36 --target=di-jfrog   # MEDIUM
+
+# Get a pod's full resolved YAML (spec + status) — useful to see actually-applied values
+kubectl get pod di-jfrog-abc123 -o yaml                                       # MEDIUM
+
+# Check readiness/liveness probe results directly from the Conditions section
+kubectl get pod di-jfrog-abc123 -o jsonpath='{.status.conditions}'               # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="ns-cmd">7. Namespaces &amp; Labels</h2>
+
+<pre><code># List namespaces; switch working namespace for a single command
+kubectl get namespaces                                       # DAILY
+kubectl get pods -n dash                                        # DAILY
+
+# Add/remove a label on the fly (e.g. temporarily tagging a pod for a query)
+kubectl label pod di-jfrog-abc123 debug=true                       # MEDIUM
+kubectl label pod di-jfrog-abc123 debug-                             # MEDIUM (trailing - removes it)
+
+# Filter by label selector — the same mechanism Services/ReplicaSets use internally
+kubectl get pods -l app=di-jfrog                                       # DAILY
+kubectl get pods -l 'app in (di-jfrog, di-authorization)'                 # MEDIUM
+
+# Add an annotation (metadata, not used for selection)
+kubectl annotate pod di-jfrog-abc123 owner=squad-di                          # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="apply-cmd">8. Apply / Diff / Dry-Run</h2>
+
+<pre><code># Create or update from a manifest — the standard declarative workflow
+kubectl apply -f deployment.yaml                              # DAILY
+
+# See what WOULD change before actually applying it
+kubectl diff -f deployment.yaml                                  # MEDIUM
+
+# Render what apply would create without sending it (client-side, no cluster call)
+kubectl apply -f deployment.yaml --dry-run=client -o yaml           # MEDIUM
+
+# Server-side dry-run (validates against the actual API server, catches more errors)
+kubectl apply -f deployment.yaml --dry-run=server                     # MEDIUM
+
+# Delete everything defined in a manifest file
+kubectl delete -f deployment.yaml                                        # DAILY
+
+# Get ALL common resource types in a namespace at once (quick overview)
+kubectl get all -n dash                                                    # DAILY</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="helm-cmd">9. Helm</h2>
+
+<pre><code># Install / upgrade a release (upgrade --install is idempotent — safe for both first-time and repeat)
+helm upgrade --install dash ./dash-chart -f env-config/shared-prod/values.yaml   # DAILY
+
+# See what values are actually in effect for a running release
+helm get values dash                                              # DAILY
+helm get values dash -a                                              # MEDIUM (includes computed/default values)
+
+# Render final manifests locally WITHOUT touching the cluster — best first debugging step
+helm template ./dash-chart -f env-config/shared-prod/values.yaml      # DAILY
+
+# List releases / see revision history / rollback
+helm list                                                                # DAILY
+helm history dash                                                          # MEDIUM
+helm rollback dash 3                                                         # MEDIUM
+
+# Lint a chart for template/schema errors before installing
+helm lint ./dash-chart                                                         # MEDIUM
+
+# Uninstall a release
+helm uninstall dash                                                              # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="advanced-cmd">10. Medium/Advanced Daily Use</h2>
+
+<pre><code># Watch a resource live update in your terminal (like `watch kubectl get pods`)
+kubectl get pods --watch                                       # MEDIUM
+
+# Jsonpath output for scripting (e.g. grab just the image tag currently deployed)
+kubectl get deployment di-jfrog -o jsonpath='{.spec.template.spec.containers[0].image}'   # MEDIUM
+
+# Field/label selectors together to narrow down a busy namespace
+kubectl get pods --field-selector=status.phase=Running -l app=di-jfrog   # MEDIUM
+
+# See which node a pod landed on, and that node's allocatable resources
+kubectl get pod di-jfrog-abc123 -o wide                                   # DAILY
+kubectl describe node &lt;node-name&gt;                                          # MEDIUM
+
+# Restart just the Pods without deleting the Deployment (rollout restart is the safe way; direct
+# pod delete also works since the ReplicaSet recreates it, but rollout restart preserves history)
+kubectl delete pod -l app=di-jfrog                                            # MEDIUM
+
+# Quick sanity check — is a Service resolvable/reachable from inside the cluster?
+kubectl run tmp-debug --rm -it --image=busybox:1.36 -- sh -c "nslookup di-jfrog-svc"   # MEDIUM</code></pre>
+
+<div class="nav-links">
+  <a href="kubernetes-phase2-interview-questions.html">← Kubernetes Part 2 — Interview Questions</a>
+  <a href="kubernetes-visual-cheatsheet.html">Kubernetes Visual Cheatsheet →</a>
+</div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Coding Round — Part 4: High-Frequency Interview Problems</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .companies { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+    .live-demo { border: 2px solid var(--accent-soft); border-radius: 12px; margin: 14px 0 18px; overflow: hidden; background: #fff; }
+    .live-demo-header { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); }
+    .live-demo iframe { width: 100%; height: 420px; border: none; display: block; }
+    details.html-source { margin: -10px 0 18px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    details.html-source summary { padding: 10px 14px; background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); cursor: pointer; user-select: none; }
+    details.html-source summary:hover { background: #d6eaf8; }
+    details.html-source pre { margin: 0; border: none; border-radius: 0; max-height: 400px; overflow-y: auto; font-size: 9pt; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Machine Coding — Part 4</h1>
+  <p class="subtitle">High-Frequency Interview Problems — Custom Select, OTP, Calendar, Spreadsheet & More</p>
+  <div class="pill-row">
+    <span class="pill">Flipkart Favourite</span>
+    <span class="pill">Atlassian Top-Ask</span>
+    <span class="pill">Fintech Must-Know</span>
+    <span class="pill">12 Problems</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Why these?</strong> Custom Select, OTP Input, Nested Checkbox, and Tag Input appear in 50%+ of machine coding rounds at Flipkart, Atlassian, Razorpay, and PhonePe.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#custom-select">Custom Select / Multi-Select Dropdown</a></li>
+    <li><a href="#otp-input">OTP Input Box</a></li>
+    <li><a href="#nested-checkbox">Nested Checkbox (Parent-Child)</a></li>
+    <li><a href="#tag-input">Tag / Chip Input</a></li>
+    <li><a href="#file-uploader">File Uploader (Drag & Drop + Progress)</a></li>
+    <li><a href="#calendar-picker">Calendar / Date Picker</a></li>
+    <li><a href="#color-picker">Color Picker</a></li>
+    <li><a href="#notification-center">Notification Center</a></li>
+    <li><a href="#image-cropper">Image Cropper / Resizer</a></li>
+    <li><a href="#command-palette">Command Palette (VS Code style)</a></li>
+    <li><a href="#tooltip-popover">Tooltip / Popover</a></li>
+    <li><a href="#spreadsheet">Mini Spreadsheet</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="custom-select">1. Custom Select / Multi-Select Dropdown</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Flipkart, Atlassian, Razorpay, Amazon, Swiggy, Meesho</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class CustomSelect {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.options = options.options || []; // [{ value, label, group? }]
+    this.multiple = options.multiple || false;
+    this.searchable = options.searchable !== false;
+    this.placeholder = options.placeholder || "Select...";
+    this.maxSelections = options.maxSelections || Infinity;
+    this.onChange = options.onChange || (() =&gt; {});
+    this.groupBy = options.groupBy || null;
+
+    this.selected = new Set(options.defaultValue || []);
+    this.isOpen = false;
+    this.searchTerm = "";
+    this.highlightedIndex = -1;
+    this.filteredOptions = [...this.options];
+
+    this.render();
+    this.attachOutsideClick();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.position = "relative";
+    this.container.style.fontFamily = "sans-serif";
+
+    // Trigger button
+    this.trigger = document.createElement("div");
+    this.trigger.className = "select-trigger";
+    this.trigger.setAttribute("role", "combobox");
+    this.trigger.setAttribute("aria-expanded", this.isOpen);
+    this.trigger.setAttribute("aria-haspopup", "listbox");
+    this.trigger.setAttribute("tabindex", "0");
+    this.trigger.style.cssText = `
+      min-height: 38px; padding: 6px 12px; border: 1px solid #d1d5db;
+      border-radius: 6px; cursor: pointer; display: flex; flex-wrap: wrap;
+      align-items: center; gap: 4px; background: white;
+      ${this.isOpen ? "border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,0.2)" : ""}
+    `;
+
+    if (this.multiple &amp;&amp; this.selected.size &gt; 0) {
+      // Show chips for multi-select
+      this.selected.forEach((val) =&gt; {
+        const opt = this.options.find((o) =&gt; o.value === val);
+        if (!opt) return;
+        const chip = document.createElement("span");
+        chip.style.cssText = `
+          display:inline-flex;align-items:center;gap:4px;padding:2px 8px;
+          background:#e0e7ff;border-radius:4px;font-size:12px;color:#1e40af;
+        `;
+        chip.textContent = opt.label;
+        const removeBtn = document.createElement("span");
+        removeBtn.textContent = "\u00d7";
+        removeBtn.style.cssText = "cursor:pointer;font-weight:700;margin-left:2px";
+        removeBtn.addEventListener("click", (e) =&gt; {
+          e.stopPropagation();
+          this.deselect(val);
+        });
+        chip.appendChild(removeBtn);
+        this.trigger.appendChild(chip);
+      });
+    } else if (!this.multiple &amp;&amp; this.selected.size === 1) {
+      const val = [...this.selected][0];
+      const opt = this.options.find((o) =&gt; o.value === val);
+      const label = document.createElement("span");
+      label.textContent = opt ? opt.label : val;
+      this.trigger.appendChild(label);
+    } else {
+      const ph = document.createElement("span");
+      ph.textContent = this.placeholder;
+      ph.style.color = "#9ca3af";
+      this.trigger.appendChild(ph);
+    }
+
+    // Arrow
+    const arrow = document.createElement("span");
+    arrow.textContent = this.isOpen ? "\u25b2" : "\u25bc";
+    arrow.style.cssText = "margin-left:auto;font-size:10px;color:#6b7280";
+    this.trigger.appendChild(arrow);
+
+    this.trigger.addEventListener("click", () =&gt; this.toggle());
+    this.trigger.addEventListener("keydown", (e) =&gt; this.handleTriggerKey(e));
+    this.container.appendChild(this.trigger);
+
+    // Dropdown
+    if (this.isOpen) {
+      this.dropdown = document.createElement("div");
+      this.dropdown.className = "select-dropdown";
+      this.dropdown.style.cssText = `
+        position:absolute;top:100%;left:0;right:0;margin-top:4px;
+        background:white;border:1px solid #d1d5db;border-radius:6px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:1000;
+        max-height:250px;overflow-y:auto;
+      `;
+
+      // Search input
+      if (this.searchable) {
+        const searchWrap = document.createElement("div");
+        searchWrap.style.cssText = "padding:8px;border-bottom:1px solid #e5e7eb;position:sticky;top:0;background:white";
+        this.searchInput = document.createElement("input");
+        this.searchInput.type = "text";
+        this.searchInput.placeholder = "Search...";
+        this.searchInput.value = this.searchTerm;
+        this.searchInput.style.cssText = `
+          width:100%;padding:6px 10px;border:1px solid #e5e7eb;border-radius:4px;
+          font-size:13px;outline:none;
+        `;
+        this.searchInput.addEventListener("input", (e) =&gt; {
+          this.searchTerm = e.target.value;
+          this.filterOptions();
+          this.renderOptions();
+        });
+        this.searchInput.addEventListener("keydown", (e) =&gt; this.handleSearchKey(e));
+        searchWrap.appendChild(this.searchInput);
+        this.dropdown.appendChild(searchWrap);
+        setTimeout(() =&gt; this.searchInput.focus(), 0);
+      }
+
+      // Select All (for multi-select)
+      if (this.multiple) {
+        const selectAllWrap = document.createElement("div");
+        selectAllWrap.style.cssText = "padding:6px 12px;border-bottom:1px solid #e5e7eb;font-size:12px";
+        const selectAllBtn = document.createElement("button");
+        selectAllBtn.textContent = this.selected.size === this.options.length ? "Deselect All" : "Select All";
+        selectAllBtn.style.cssText = "border:none;background:none;color:#2563eb;cursor:pointer;font-size:12px;font-weight:600";
+        selectAllBtn.addEventListener("click", () =&gt; {
+          if (this.selected.size === this.options.length) {
+            this.selected.clear();
+          } else {
+            this.options.forEach((o) =&gt; this.selected.add(o.value));
+          }
+          this.onChange([...this.selected]);
+          this.render();
+        });
+        selectAllWrap.appendChild(selectAllBtn);
+        this.dropdown.appendChild(selectAllWrap);
+      }
+
+      // Options list
+      this.optionsList = document.createElement("div");
+      this.optionsList.setAttribute("role", "listbox");
+      this.renderOptions();
+      this.dropdown.appendChild(this.optionsList);
+
+      this.container.appendChild(this.dropdown);
+    }
+  }
+
+  renderOptions() {
+    this.optionsList.innerHTML = "";
+    const options = this.filteredOptions;
+
+    if (options.length === 0) {
+      const empty = document.createElement("div");
+      empty.textContent = "No options found";
+      empty.style.cssText = "padding:12px;text-align:center;color:#9ca3af;font-size:13px";
+      this.optionsList.appendChild(empty);
+      return;
+    }
+
+    // Group if needed
+    if (this.groupBy) {
+      const groups = {};
+      options.forEach((opt) =&gt; {
+        const key = opt[this.groupBy] || "Other";
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(opt);
+      });
+      Object.entries(groups).forEach(([groupName, items]) =&gt; {
+        const groupHeader = document.createElement("div");
+        groupHeader.textContent = groupName;
+        groupHeader.style.cssText = "padding:6px 12px;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase";
+        this.optionsList.appendChild(groupHeader);
+        items.forEach((opt, i) =&gt; this.renderOption(opt, i));
+      });
+    } else {
+      options.forEach((opt, i) =&gt; this.renderOption(opt, i));
+    }
+  }
+
+  renderOption(opt, index) {
+    const item = document.createElement("div");
+    item.setAttribute("role", "option");
+    item.setAttribute("aria-selected", this.selected.has(opt.value));
+    const isHighlighted = index === this.highlightedIndex;
+    const isSelected = this.selected.has(opt.value);
+
+    item.style.cssText = `
+      padding:8px 12px;cursor:pointer;font-size:13px;display:flex;
+      align-items:center;gap:8px;transition:background 0.1s;
+      background:${isHighlighted ? "#f3f4f6" : "transparent"};
+      ${isSelected ? "color:#2563eb;font-weight:500" : ""}
+    `;
+
+    if (this.multiple) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = isSelected;
+      checkbox.style.cssText = "pointer-events:none;width:14px;height:14px";
+      item.appendChild(checkbox);
+    }
+
+    const label = document.createElement("span");
+    label.textContent = opt.label;
+    item.appendChild(label);
+
+    if (!this.multiple &amp;&amp; isSelected) {
+      const check = document.createElement("span");
+      check.textContent = "\u2713";
+      check.style.cssText = "margin-left:auto;color:#2563eb";
+      item.appendChild(check);
+    }
+
+    item.addEventListener("click", () =&gt; this.selectOption(opt.value));
+    item.addEventListener("mouseenter", () =&gt; {
+      this.highlightedIndex = index;
+      this.renderOptions();
+    });
+
+    this.optionsList.appendChild(item);
+  }
+
+  selectOption(value) {
+    if (this.multiple) {
+      if (this.selected.has(value)) {
+        this.selected.delete(value);
+      } else {
+        if (this.selected.size &lt; this.maxSelections) {
+          this.selected.add(value);
+        }
+      }
+      this.onChange([...this.selected]);
+      this.render();
+    } else {
+      this.selected.clear();
+      this.selected.add(value);
+      this.onChange(value);
+      this.close();
+    }
+  }
+
+  deselect(value) {
+    this.selected.delete(value);
+    this.onChange([...this.selected]);
+    this.render();
+  }
+
+  filterOptions() {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredOptions = this.options.filter((o) =&gt;
+      o.label.toLowerCase().includes(term)
+    );
+    this.highlightedIndex = 0;
+  }
+
+  toggle() { this.isOpen ? this.close() : this.open(); }
+  open() { this.isOpen = true; this.searchTerm = ""; this.filteredOptions = [...this.options]; this.highlightedIndex = 0; this.render(); }
+  close() { this.isOpen = false; this.searchTerm = ""; this.render(); }
+
+  handleTriggerKey(e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.toggle(); }
+    if (e.key === "ArrowDown") { e.preventDefault(); this.open(); }
+    if (e.key === "Escape") { this.close(); }
+  }
+
+  handleSearchKey(e) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      this.highlightedIndex = Math.min(this.highlightedIndex + 1, this.filteredOptions.length - 1);
+      this.renderOptions();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      this.highlightedIndex = Math.max(this.highlightedIndex - 1, 0);
+      this.renderOptions();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (this.filteredOptions[this.highlightedIndex]) {
+        this.selectOption(this.filteredOptions[this.highlightedIndex].value);
+      }
+    } else if (e.key === "Escape") {
+      this.close();
+    }
+  }
+
+  attachOutsideClick() {
+    document.addEventListener("click", (e) =&gt; {
+      if (!this.container.contains(e.target) &amp;&amp; this.isOpen) {
+        this.close();
+      }
+    });
+  }
+
+  // Programmatic API
+  getValue() { return this.multiple ? [...this.selected] : [...this.selected][0]; }
+  setValue(val) {
+    this.selected = new Set(Array.isArray(val) ? val : [val]);
+    this.onChange(this.getValue());
+    this.render();
+  }
+  clear() { this.selected.clear(); this.onChange(this.getValue()); this.render(); }
+}
+
+// Usage — Single Select:
+const citySelect = new CustomSelect(document.getElementById("city-picker"), {
+  placeholder: "Choose a city...",
+  searchable: true,
+  options: [
+    { value: "blr", label: "Bangalore", group: "South" },
+    { value: "hyd", label: "Hyderabad", group: "South" },
+    { value: "del", label: "Delhi", group: "North" },
+    { value: "mum", label: "Mumbai", group: "West" },
+    { value: "pun", label: "Pune", group: "West" },
+  ],
+  groupBy: "group",
+  onChange: (val) =&gt; console.log("Selected:", val),
+});
+
+// Usage — Multi-Select:
+const tagSelect = new CustomSelect(document.getElementById("skills-picker"), {
+  placeholder: "Select skills...",
+  multiple: true,
+  searchable: true,
+  maxSelections: 5,
+  options: [
+    { value: "js", label: "JavaScript" },
+    { value: "ts", label: "TypeScript" },
+    { value: "react", label: "React" },
+    { value: "angular", label: "Angular" },
+    { value: "node", label: "Node.js" },
+  ],
+  onChange: (vals) =&gt; console.log("Selected:", vals),
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Accessibility:</strong> ARIA roles (combobox, listbox, option), aria-expanded, aria-activedescendant for keyboard nav</li>
+  <li><strong>Virtual scrolling:</strong> For 10,000+ options, only render visible items (combine with Virtual List from Part 2)</li>
+  <li><strong>Async options:</strong> Load options from API on search (with debounce + loading state)</li>
+  <li><strong>Position awareness:</strong> If dropdown overflows viewport bottom, open upward</li>
+  <li><strong>Portal rendering:</strong> Render dropdown in document.body to avoid overflow:hidden ancestors</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="otp-input">2. OTP Input Box</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: PhonePe, Razorpay, Paytm, Swiggy, CRED, Groww</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class OTPInput {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.length = options.length || 6;
+    this.onComplete = options.onComplete || (() =&gt; {});
+    this.onChange = options.onChange || (() =&gt; {});
+    this.autoSubmit = options.autoSubmit !== false;
+    this.mask = options.mask || false; // Show dots instead of numbers
+    this.type = options.type || "number"; // number | alphanumeric
+
+    this.values = new Array(this.length).fill("");
+    this.inputs = [];
+
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "display:flex;gap:8px;justify-content:center";
+
+    for (let i = 0; i &lt; this.length; i++) {
+      const input = document.createElement("input");
+      input.type = this.mask ? "password" : "text";
+      input.inputMode = this.type === "number" ? "numeric" : "text";
+      input.maxLength = 1;
+      input.autocomplete = "one-time-code";
+      input.setAttribute("aria-label", `Digit ${i + 1} of ${this.length}`);
+      input.style.cssText = `
+        width: 48px; height: 56px; text-align: center; font-size: 22px;
+        font-weight: 700; border: 2px solid #d1d5db; border-radius: 8px;
+        outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        font-family: monospace;
+      `;
+
+      // Events
+      input.addEventListener("input", (e) =&gt; this.handleInput(e, i));
+      input.addEventListener("keydown", (e) =&gt; this.handleKeydown(e, i));
+      input.addEventListener("focus", () =&gt; {
+        input.style.borderColor = "#2563eb";
+        input.style.boxShadow = "0 0 0 3px rgba(37,99,235,0.15)";
+        input.select();
+      });
+      input.addEventListener("blur", () =&gt; {
+        input.style.borderColor = this.values[i] ? "#2563eb" : "#d1d5db";
+        input.style.boxShadow = "none";
+      });
+      input.addEventListener("paste", (e) =&gt; this.handlePaste(e, i));
+
+      this.inputs.push(input);
+      this.container.appendChild(input);
+
+      // Add separator dash after middle (e.g., 3 digits for 6-length OTP)
+      if (i === Math.floor(this.length / 2) - 1) {
+        const dash = document.createElement("span");
+        dash.textContent = "—";
+        dash.style.cssText = "display:flex;align-items:center;color:#9ca3af;font-size:20px;margin:0 4px";
+        this.container.appendChild(dash);
+      }
+    }
+  }
+
+  handleInput(e, index) {
+    const value = e.target.value;
+
+    // Validate input type
+    if (this.type === "number" &amp;&amp; !/^\d*$/.test(value)) {
+      e.target.value = "";
+      return;
+    }
+    if (this.type === "alphanumeric" &amp;&amp; !/^[a-zA-Z0-9]*$/.test(value)) {
+      e.target.value = "";
+      return;
+    }
+
+    this.values[index] = value;
+    this.updateStyles();
+    this.onChange(this.getOTP());
+
+    // Auto-focus next input
+    if (value &amp;&amp; index &lt; this.length - 1) {
+      this.inputs[index + 1].focus();
+    }
+
+    // Auto-submit when all filled
+    if (this.autoSubmit &amp;&amp; this.isComplete()) {
+      this.onComplete(this.getOTP());
+    }
+  }
+
+  handleKeydown(e, index) {
+    // Backspace: clear current and move to previous
+    if (e.key === "Backspace") {
+      if (!this.values[index] &amp;&amp; index &gt; 0) {
+        this.values[index - 1] = "";
+        this.inputs[index - 1].value = "";
+        this.inputs[index - 1].focus();
+      } else {
+        this.values[index] = "";
+      }
+      this.updateStyles();
+      this.onChange(this.getOTP());
+    }
+
+    // Left arrow: move to previous
+    if (e.key === "ArrowLeft" &amp;&amp; index &gt; 0) {
+      e.preventDefault();
+      this.inputs[index - 1].focus();
+    }
+
+    // Right arrow: move to next
+    if (e.key === "ArrowRight" &amp;&amp; index &lt; this.length - 1) {
+      e.preventDefault();
+      this.inputs[index + 1].focus();
+    }
+
+    // Delete: clear current
+    if (e.key === "Delete") {
+      this.values[index] = "";
+      this.inputs[index].value = "";
+      this.updateStyles();
+    }
+  }
+
+  handlePaste(e, startIndex) {
+    e.preventDefault();
+    const pasteData = (e.clipboardData || window.clipboardData)
+      .getData("text")
+      .trim()
+      .slice(0, this.length - startIndex);
+
+    // Validate pasted content
+    const validChars = this.type === "number" ? /^\d+$/ : /^[a-zA-Z0-9]+$/;
+    if (!validChars.test(pasteData)) return;
+
+    // Fill inputs from paste position
+    for (let i = 0; i &lt; pasteData.length; i++) {
+      const idx = startIndex + i;
+      if (idx &lt; this.length) {
+        this.values[idx] = pasteData[i];
+        this.inputs[idx].value = pasteData[i];
+      }
+    }
+
+    // Focus the next empty or last filled
+    const nextEmpty = this.values.findIndex((v) =&gt; !v);
+    const focusIdx = nextEmpty !== -1 ? nextEmpty : this.length - 1;
+    this.inputs[focusIdx].focus();
+
+    this.updateStyles();
+    this.onChange(this.getOTP());
+
+    if (this.autoSubmit &amp;&amp; this.isComplete()) {
+      this.onComplete(this.getOTP());
+    }
+  }
+
+  updateStyles() {
+    this.inputs.forEach((input, i) =&gt; {
+      if (this.values[i]) {
+        input.style.borderColor = "#2563eb";
+        input.style.background = "#f0f5ff";
+      } else {
+        input.style.borderColor = "#d1d5db";
+        input.style.background = "white";
+      }
+    });
+  }
+
+  getOTP() { return this.values.join(""); }
+  isComplete() { return this.values.every((v) =&gt; v !== ""); }
+
+  clear() {
+    this.values.fill("");
+    this.inputs.forEach((input) =&gt; { input.value = ""; });
+    this.updateStyles();
+    this.inputs[0].focus();
+  }
+
+  disable() { this.inputs.forEach((input) =&gt; { input.disabled = true; }); }
+  enable() { this.inputs.forEach((input) =&gt; { input.disabled = false; }); }
+
+  // Set error state (wrong OTP)
+  setError() {
+    this.inputs.forEach((input) =&gt; {
+      input.style.borderColor = "#dc3545";
+      input.style.background = "#fff5f5";
+      input.style.animation = "shake 0.3s ease";
+    });
+    // Add shake animation
+    if (!document.getElementById("otp-shake-style")) {
+      const style = document.createElement("style");
+      style.id = "otp-shake-style";
+      style.textContent = `
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    setTimeout(() =&gt; {
+      this.clear();
+    }, 600);
+  }
+}
+
+// Usage:
+const otp = new OTPInput(document.getElementById("otp-container"), {
+  length: 6,
+  type: "number",
+  mask: false,
+  onComplete: (code) =&gt; {
+    console.log("OTP entered:", code);
+    // Verify with API
+    verifyOTP(code).then((valid) =&gt; {
+      if (!valid) otp.setError();
+    });
+  },
+  onChange: (partial) =&gt; console.log("Current:", partial),
+});
+
+// Resend timer
+let resendTimer = 30;
+const resendBtn = document.getElementById("resend-btn");
+const countdown = setInterval(() =&gt; {
+  resendTimer--;
+  resendBtn.textContent = `Resend in ${resendTimer}s`;
+  if (resendTimer &lt;= 0) {
+    clearInterval(countdown);
+    resendBtn.textContent = "Resend OTP";
+    resendBtn.disabled = false;
+  }
+}, 1000);</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Auto-read SMS:</strong> Use <code>navigator.credentials.get({ otp: { transport: ["sms"] } })</code> (Web OTP API)</li>
+  <li><strong>Accessibility:</strong> aria-label per input, live region announcing "X of Y digits entered"</li>
+  <li><strong>Security:</strong> Don't log OTP, clear from memory after verification, rate-limit resend</li>
+  <li><strong>Mobile UX:</strong> inputMode="numeric" shows number pad, autocomplete="one-time-code" triggers autofill</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="nested-checkbox">3. Nested Checkbox (Parent-Child)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Myntra, Amazon, Meesho, Walmart</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class NestedCheckbox {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.data = options.data || []; // Tree structure
+    this.onChange = options.onChange || (() =&gt; {});
+    this.expandAll = options.expandAll || false;
+
+    // Track state: { id: "checked" | "unchecked" | "indeterminate" }
+    this.state = {};
+    this.expanded = new Set();
+
+    this.initState(this.data);
+    if (this.expandAll) this.expandAllNodes(this.data);
+    this.render();
+  }
+
+  initState(nodes) {
+    nodes.forEach((node) =&gt; {
+      this.state[node.id] = node.checked ? "checked" : "unchecked";
+      if (node.children) this.initState(node.children);
+    });
+  }
+
+  expandAllNodes(nodes) {
+    nodes.forEach((node) =&gt; {
+      if (node.children) {
+        this.expanded.add(node.id);
+        this.expandAllNodes(node.children);
+      }
+    });
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "font-family:sans-serif;font-size:14px";
+    const tree = this.buildTree(this.data, 0);
+    this.container.appendChild(tree);
+  }
+
+  buildTree(nodes, level) {
+    const ul = document.createElement("ul");
+    ul.style.cssText = `list-style:none;padding-left:${level === 0 ? 0 : 24}px;margin:0`;
+
+    nodes.forEach((node) =&gt; {
+      const li = document.createElement("li");
+      li.style.cssText = "padding:4px 0";
+
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:center;gap:6px";
+
+      // Expand/collapse toggle (only for parent nodes)
+      if (node.children &amp;&amp; node.children.length &gt; 0) {
+        const toggle = document.createElement("span");
+        toggle.textContent = this.expanded.has(node.id) ? "\u25bc" : "\u25b6";
+        toggle.style.cssText = "cursor:pointer;font-size:10px;width:14px;color:#666;user-select:none";
+        toggle.addEventListener("click", () =&gt; {
+          if (this.expanded.has(node.id)) {
+            this.expanded.delete(node.id);
+          } else {
+            this.expanded.add(node.id);
+          }
+          this.render();
+        });
+        row.appendChild(toggle);
+      } else {
+        const spacer = document.createElement("span");
+        spacer.style.width = "14px";
+        spacer.style.display = "inline-block";
+        row.appendChild(spacer);
+      }
+
+      // Checkbox
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = `cb-${node.id}`;
+      checkbox.style.cssText = "width:16px;height:16px;cursor:pointer;accent-color:#2563eb";
+
+      const state = this.state[node.id];
+      checkbox.checked = state === "checked";
+      checkbox.indeterminate = state === "indeterminate";
+
+      checkbox.addEventListener("change", () =&gt; {
+        const newState = checkbox.checked ? "checked" : "unchecked";
+        this.toggleNode(node, newState);
+        this.onChange(this.getSelected());
+        this.render();
+      });
+      row.appendChild(checkbox);
+
+      // Label
+      const label = document.createElement("label");
+      label.htmlFor = `cb-${node.id}`;
+      label.textContent = node.label;
+      label.style.cssText = "cursor:pointer;user-select:none";
+      row.appendChild(label);
+
+      li.appendChild(row);
+
+      // Children (if expanded)
+      if (node.children &amp;&amp; node.children.length &gt; 0 &amp;&amp; this.expanded.has(node.id)) {
+        const childTree = this.buildTree(node.children, level + 1);
+        li.appendChild(childTree);
+      }
+
+      ul.appendChild(li);
+    });
+
+    return ul;
+  }
+
+  toggleNode(node, newState) {
+    // Set this node
+    this.state[node.id] = newState;
+
+    // Cascade DOWN: set all children to same state
+    if (node.children) {
+      this.cascadeDown(node.children, newState);
+    }
+
+    // Cascade UP: update parent states
+    this.cascadeUp(this.data);
+  }
+
+  cascadeDown(children, state) {
+    children.forEach((child) =&gt; {
+      this.state[child.id] = state;
+      if (child.children) this.cascadeDown(child.children, state);
+    });
+  }
+
+  cascadeUp(nodes) {
+    // Post-order traversal: compute parent state from children
+    nodes.forEach((node) =&gt; {
+      if (!node.children || node.children.length === 0) return;
+
+      // First recurse into children
+      this.cascadeUp(node.children);
+
+      // Then compute this node's state
+      const childStates = node.children.map((c) =&gt; this.state[c.id]);
+      const allChecked = childStates.every((s) =&gt; s === "checked");
+      const allUnchecked = childStates.every((s) =&gt; s === "unchecked");
+
+      if (allChecked) {
+        this.state[node.id] = "checked";
+      } else if (allUnchecked) {
+        this.state[node.id] = "unchecked";
+      } else {
+        this.state[node.id] = "indeterminate";
+      }
+    });
+  }
+
+  getSelected() {
+    // Return all leaf nodes (or all nodes) that are checked
+    const selected = [];
+    const collect = (nodes) =&gt; {
+      nodes.forEach((node) =&gt; {
+        if (this.state[node.id] === "checked") {
+          if (!node.children || node.children.length === 0) {
+            selected.push(node.id);
+          }
+        }
+        if (node.children) collect(node.children);
+      });
+    };
+    collect(this.data);
+    return selected;
+  }
+
+  // Programmatic API
+  selectAll() {
+    Object.keys(this.state).forEach((id) =&gt; { this.state[id] = "checked"; });
+    this.render();
+  }
+  deselectAll() {
+    Object.keys(this.state).forEach((id) =&gt; { this.state[id] = "unchecked"; });
+    this.render();
+  }
+}
+
+// Usage:
+const tree = new NestedCheckbox(document.getElementById("category-tree"), {
+  expandAll: true,
+  data: [
+    {
+      id: "electronics", label: "Electronics", children: [
+        { id: "phones", label: "Phones", children: [
+          { id: "iphone", label: "iPhone" },
+          { id: "samsung", label: "Samsung" },
+          { id: "pixel", label: "Pixel" },
+        ]},
+        { id: "laptops", label: "Laptops", children: [
+          { id: "macbook", label: "MacBook" },
+          { id: "thinkpad", label: "ThinkPad" },
+        ]},
+      ]
+    },
+    {
+      id: "clothing", label: "Clothing", children: [
+        { id: "men", label: "Men" },
+        { id: "women", label: "Women" },
+        { id: "kids", label: "Kids" },
+      ]
+    },
+  ],
+  onChange: (selected) =&gt; console.log("Selected leaves:", selected),
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Key algorithm:</strong> Cascade DOWN (parent → children same state), Cascade UP (children → parent derives state)</li>
+  <li><strong>Indeterminate state:</strong> Neither all-checked nor all-unchecked children → parent is indeterminate</li>
+  <li><strong>Performance:</strong> For deeply nested trees (1000+ nodes), use virtualization and avoid full re-render on each click</li>
+  <li><strong>Search + filter:</strong> Add search that highlights matching nodes and auto-expands their parents</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="tag-input">4. Tag / Chip Input</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Atlassian, Razorpay, Flipkart, LinkedIn, Notion</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class TagInput {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.maxTags = options.maxTags || Infinity;
+    this.allowDuplicates = options.allowDuplicates || false;
+    this.suggestions = options.suggestions || [];
+    this.placeholder = options.placeholder || "Add a tag...";
+    this.validate = options.validate || (() =&gt; true);
+    this.onChange = options.onChange || (() =&gt; {});
+    this.delimiter = options.delimiter || [",", "Enter", "Tab"];
+
+    this.tags = options.defaultTags ? [...options.defaultTags] : [];
+    this.filteredSuggestions = [];
+    this.showSuggestions = false;
+    this.highlightedIndex = -1;
+
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+
+    // Main wrapper (looks like an input)
+    this.wrapper = document.createElement("div");
+    this.wrapper.style.cssText = `
+      display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;
+      border:2px solid #d1d5db;border-radius:8px;min-height:42px;
+      cursor:text;align-items:center;background:white;
+      transition:border-color 0.2s;position:relative;
+    `;
+    this.wrapper.addEventListener("click", () =&gt; this.input.focus());
+
+    // Render existing tags
+    this.tags.forEach((tag, i) =&gt; {
+      const chip = document.createElement("span");
+      chip.style.cssText = `
+        display:inline-flex;align-items:center;gap:4px;padding:3px 8px;
+        background:#e0e7ff;color:#1e40af;border-radius:4px;font-size:13px;
+        font-family:sans-serif;animation:fadeIn 0.2s ease;
+      `;
+      chip.textContent = tag;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "\u00d7";
+      removeBtn.setAttribute("aria-label", `Remove ${tag}`);
+      removeBtn.style.cssText = `
+        border:none;background:none;color:#1e40af;cursor:pointer;
+        font-size:14px;font-weight:700;padding:0 2px;line-height:1;
+      `;
+      removeBtn.addEventListener("click", (e) =&gt; {
+        e.stopPropagation();
+        this.removeTag(i);
+      });
+      chip.appendChild(removeBtn);
+      this.wrapper.appendChild(chip);
+    });
+
+    // Input field
+    this.input = document.createElement("input");
+    this.input.type = "text";
+    this.input.placeholder = this.tags.length &gt;= this.maxTags ? "" : this.placeholder;
+    this.input.disabled = this.tags.length &gt;= this.maxTags;
+    this.input.style.cssText = `
+      border:none;outline:none;flex:1;min-width:120px;font-size:14px;
+      font-family:sans-serif;background:transparent;
+    `;
+
+    this.input.addEventListener("input", (e) =&gt; this.handleInput(e));
+    this.input.addEventListener("keydown", (e) =&gt; this.handleKeydown(e));
+    this.input.addEventListener("focus", () =&gt; {
+      this.wrapper.style.borderColor = "#2563eb";
+      this.wrapper.style.boxShadow = "0 0 0 3px rgba(37,99,235,0.1)";
+    });
+    this.input.addEventListener("blur", () =&gt; {
+      this.wrapper.style.borderColor = "#d1d5db";
+      this.wrapper.style.boxShadow = "none";
+      // Add tag on blur if there's text
+      setTimeout(() =&gt; {
+        if (this.input.value.trim()) {
+          this.addTag(this.input.value.trim());
+        }
+        this.hideSuggestions();
+      }, 150);
+    });
+    this.input.addEventListener("paste", (e) =&gt; this.handlePaste(e));
+
+    this.wrapper.appendChild(this.input);
+
+    // Tag count
+    if (this.maxTags !== Infinity) {
+      const count = document.createElement("span");
+      count.textContent = `${this.tags.length}/${this.maxTags}`;
+      count.style.cssText = "font-size:11px;color:#9ca3af;font-family:sans-serif;margin-left:auto";
+      this.wrapper.appendChild(count);
+    }
+
+    this.container.appendChild(this.wrapper);
+
+    // Suggestions dropdown
+    this.suggestionsEl = document.createElement("div");
+    this.suggestionsEl.style.cssText = `
+      position:absolute;top:100%;left:0;right:0;margin-top:4px;
+      background:white;border:1px solid #e5e7eb;border-radius:6px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:150px;
+      overflow-y:auto;display:none;z-index:100;
+    `;
+    this.wrapper.appendChild(this.suggestionsEl);
+
+    // Add animation
+    if (!document.getElementById("tag-input-styles")) {
+      const style = document.createElement("style");
+      style.id = "tag-input-styles";
+      style.textContent = `@keyframes fadeIn { from { opacity:0;transform:scale(0.9); } to { opacity:1;transform:scale(1); } }`;
+      document.head.appendChild(style);
+    }
+  }
+
+  handleInput(e) {
+    const value = e.target.value;
+
+    // Check for delimiter characters
+    const lastChar = value[value.length - 1];
+    if (this.delimiter.includes(",") &amp;&amp; lastChar === ",") {
+      const tag = value.slice(0, -1).trim();
+      if (tag) this.addTag(tag);
+      this.input.value = "";
+      this.hideSuggestions();
+      return;
+    }
+
+    // Show suggestions
+    if (this.suggestions.length &gt; 0 &amp;&amp; value.trim()) {
+      this.filteredSuggestions = this.suggestions.filter(
+        (s) =&gt; s.toLowerCase().includes(value.toLowerCase()) &amp;&amp;
+              !this.tags.includes(s)
+      );
+      this.renderSuggestions();
+    } else {
+      this.hideSuggestions();
+    }
+  }
+
+  handleKeydown(e) {
+    const value = this.input.value.trim();
+
+    if ((e.key === "Enter" || e.key === "Tab") &amp;&amp; value) {
+      e.preventDefault();
+      // If suggestion highlighted, use it
+      if (this.highlightedIndex &gt;= 0 &amp;&amp; this.filteredSuggestions[this.highlightedIndex]) {
+        this.addTag(this.filteredSuggestions[this.highlightedIndex]);
+      } else {
+        this.addTag(value);
+      }
+      this.input.value = "";
+      this.hideSuggestions();
+    }
+
+    // Backspace on empty input removes last tag
+    if (e.key === "Backspace" &amp;&amp; !this.input.value &amp;&amp; this.tags.length &gt; 0) {
+      this.removeTag(this.tags.length - 1);
+    }
+
+    // Arrow keys for suggestions
+    if (e.key === "ArrowDown" &amp;&amp; this.showSuggestions) {
+      e.preventDefault();
+      this.highlightedIndex = Math.min(this.highlightedIndex + 1, this.filteredSuggestions.length - 1);
+      this.renderSuggestions();
+    }
+    if (e.key === "ArrowUp" &amp;&amp; this.showSuggestions) {
+      e.preventDefault();
+      this.highlightedIndex = Math.max(this.highlightedIndex - 1, 0);
+      this.renderSuggestions();
+    }
+    if (e.key === "Escape") {
+      this.hideSuggestions();
+    }
+  }
+
+  handlePaste(e) {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    // Split by comma, newline, or tab
+    const items = text.split(/[,\n\t]+/).map((s) =&gt; s.trim()).filter(Boolean);
+    items.forEach((item) =&gt; this.addTag(item));
+    this.input.value = "";
+  }
+
+  addTag(tag) {
+    tag = tag.trim();
+    if (!tag) return false;
+    if (this.tags.length &gt;= this.maxTags) return false;
+    if (!this.allowDuplicates &amp;&amp; this.tags.includes(tag)) {
+      // Shake the duplicate
+      this.highlightDuplicate(tag);
+      return false;
+    }
+    if (!this.validate(tag)) return false;
+
+    this.tags.push(tag);
+    this.onChange(this.tags);
+    this.render();
+    return true;
+  }
+
+  removeTag(index) {
+    this.tags.splice(index, 1);
+    this.onChange(this.tags);
+    this.render();
+    this.input.focus();
+  }
+
+  highlightDuplicate(tag) {
+    const chips = this.wrapper.querySelectorAll("span");
+    chips.forEach((chip) =&gt; {
+      if (chip.textContent.replace("\u00d7", "").trim() === tag) {
+        chip.style.animation = "none";
+        chip.offsetHeight; // Trigger reflow
+        chip.style.animation = "shake 0.3s ease";
+        chip.style.background = "#fecaca";
+        setTimeout(() =&gt; { chip.style.background = "#e0e7ff"; }, 500);
+      }
+    });
+  }
+
+  renderSuggestions() {
+    if (this.filteredSuggestions.length === 0) {
+      this.hideSuggestions();
+      return;
+    }
+    this.showSuggestions = true;
+    this.suggestionsEl.style.display = "block";
+    this.suggestionsEl.innerHTML = "";
+
+    this.filteredSuggestions.forEach((s, i) =&gt; {
+      const item = document.createElement("div");
+      item.textContent = s;
+      item.style.cssText = `
+        padding:8px 12px;cursor:pointer;font-size:13px;font-family:sans-serif;
+        background:${i === this.highlightedIndex ? "#f3f4f6" : "white"};
+      `;
+      item.addEventListener("mousedown", (e) =&gt; {
+        e.preventDefault(); // Prevent blur
+        this.addTag(s);
+        this.input.value = "";
+        this.hideSuggestions();
+      });
+      this.suggestionsEl.appendChild(item);
+    });
+  }
+
+  hideSuggestions() {
+    this.showSuggestions = false;
+    this.highlightedIndex = -1;
+    this.suggestionsEl.style.display = "none";
+  }
+
+  // Programmatic API
+  getTags() { return [...this.tags]; }
+  setTags(tags) { this.tags = [...tags]; this.render(); }
+  clear() { this.tags = []; this.onChange([]); this.render(); }
+}
+
+// Usage:
+const skills = new TagInput(document.getElementById("skills-input"), {
+  maxTags: 8,
+  placeholder: "Type a skill and press Enter...",
+  suggestions: ["JavaScript", "TypeScript", "React", "Angular", "Vue", "Node.js",
+                "Python", "Go", "Docker", "Kubernetes", "AWS", "GraphQL"],
+  defaultTags: ["JavaScript", "React"],
+  validate: (tag) =&gt; tag.length &gt;= 2 &amp;&amp; tag.length &lt;= 30,
+  onChange: (tags) =&gt; console.log("Tags:", tags),
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Paste handling:</strong> Split pasted text by commas/newlines into multiple tags at once</li>
+  <li><strong>Validation UX:</strong> Show error toast for invalid/duplicate tags with reason</li>
+  <li><strong>Drag to reorder:</strong> Allow reordering tags via drag and drop (combine with Sortable List)</li>
+  <li><strong>Email tag input:</strong> Validate email format, show avatar + domain chip styling</li>
+  <li><strong>Performance:</strong> Virtualize suggestions list if 10,000+ options</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="file-uploader">5. File Uploader (Drag & Drop + Progress)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Atlassian, Dropbox, Microsoft, Flipkart</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Drag files or click Browse</div>
+  <iframe src="demos/file-uploader.html" loading="lazy"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class FileUploader {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.maxSize = options.maxSize || 10 * 1024 * 1024; // 10MB
+    this.allowedTypes = options.allowedTypes || ['image/*', 'application/pdf', '.doc', '.docx'];
+    this.multiple = options.multiple !== false;
+    this.maxFiles = options.maxFiles || 5;
+    this.onUpload = options.onUpload || this.simulateUpload;
+    this.files = [];
+    
+    this.render();
+    this.bindEvents();
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="uploader-dropzone" id="dropzone"&gt;
+        &lt;input type="file" id="file-input" ${this.multiple ? 'multiple' : ''} hidden&gt;
+        &lt;div class="drop-content"&gt;
+          &lt;span class="drop-icon"&gt;📁&lt;/span&gt;
+          &lt;p&gt;Drag files here or &lt;button class="browse-btn"&gt;Browse&lt;/button&gt;&lt;/p&gt;
+          &lt;span class="drop-hint"&gt;Max ${this.maxFiles} files, ${this.formatSize(this.maxSize)} each&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="file-list" id="file-list"&gt;&lt;/div&gt;
+    `;
+  }
+
+  bindEvents() {
+    const dropzone = this.container.querySelector('#dropzone');
+    const input = this.container.querySelector('#file-input');
+    const browseBtn = this.container.querySelector('.browse-btn');
+
+    browseBtn.addEventListener('click', () =&gt; input.click());
+    input.addEventListener('change', (e) =&gt; this.handleFiles(e.target.files));
+
+    // Drag & Drop
+    ['dragenter', 'dragover'].forEach(event =&gt; {
+      dropzone.addEventListener(event, (e) =&gt; {
+        e.preventDefault();
+        dropzone.classList.add('drag-over');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(event =&gt; {
+      dropzone.addEventListener(event, (e) =&gt; {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) =&gt; {
+      this.handleFiles(e.dataTransfer.files);
+    });
+  }
+
+  handleFiles(fileList) {
+    const newFiles = Array.from(fileList);
+    
+    for (const file of newFiles) {
+      // Validation
+      if (this.files.length &gt;= this.maxFiles) {
+        this.showError(`Max ${this.maxFiles} files allowed`);
+        break;
+      }
+      if (file.size &gt; this.maxSize) {
+        this.showError(`${file.name} exceeds ${this.formatSize(this.maxSize)}`);
+        continue;
+      }
+      if (!this.isAllowedType(file)) {
+        this.showError(`${file.name}: file type not allowed`);
+        continue;
+      }
+
+      const fileEntry = { file, id: Date.now() + Math.random(), progress: 0, status: 'pending' };
+      this.files.push(fileEntry);
+      this.renderFileItem(fileEntry);
+      this.uploadFile(fileEntry);
+    }
+  }
+
+  isAllowedType(file) {
+    return this.allowedTypes.some(type =&gt; {
+      if (type.endsWith('/*')) return file.type.startsWith(type.replace('/*', ''));
+      if (type.startsWith('.')) return file.name.toLowerCase().endsWith(type);
+      return file.type === type;
+    });
+  }
+
+  async uploadFile(fileEntry) {
+    fileEntry.status = 'uploading';
+    const progressBar = this.container.querySelector(`[data-id="${fileEntry.id}"] .progress-fill`);
+    
+    try {
+      await this.onUpload(fileEntry.file, (progress) =&gt; {
+        fileEntry.progress = progress;
+        if (progressBar) progressBar.style.width = `${progress}%`;
+      });
+      fileEntry.status = 'complete';
+      this.updateFileStatus(fileEntry);
+    } catch (err) {
+      fileEntry.status = 'error';
+      this.updateFileStatus(fileEntry, err.message);
+    }
+  }
+
+  simulateUpload(file, onProgress) {
+    return new Promise((resolve, reject) =&gt; {
+      let progress = 0;
+      const interval = setInterval(() =&gt; {
+        progress += Math.random() * 15;
+        if (progress &gt;= 100) {
+          clearInterval(interval);
+          onProgress(100);
+          Math.random() &gt; 0.1 ? resolve() : reject(new Error('Network error'));
+        } else {
+          onProgress(Math.min(progress, 99));
+        }
+      }, 200);
+    });
+  }
+
+  renderFileItem(fileEntry) {
+    const list = this.container.querySelector('#file-list');
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.dataset.id = fileEntry.id;
+    div.innerHTML = `
+      &lt;span class="file-name"&gt;${fileEntry.file.name}&lt;/span&gt;
+      &lt;span class="file-size"&gt;${this.formatSize(fileEntry.file.size)}&lt;/span&gt;
+      &lt;div class="progress-bar"&gt;&lt;div class="progress-fill"&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;button class="remove-btn" onclick="this.closest('.file-item').remove()"&gt;✕&lt;/button&gt;
+    `;
+    list.appendChild(div);
+  }
+
+  updateFileStatus(fileEntry, error) {
+    const item = this.container.querySelector(`[data-id="${fileEntry.id}"]`);
+    if (!item) return;
+    item.classList.add(fileEntry.status);
+    if (error) item.querySelector('.file-size').textContent = error;
+  }
+
+  formatSize(bytes) {
+    if (bytes &lt; 1024) return bytes + ' B';
+    if (bytes &lt; 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  showError(msg) { console.warn('[FileUploader]', msg); }
+  removeFile(id) { this.files = this.files.filter(f =&gt; f.id !== id); }
+}</code></pre>
+</details>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Chunked upload:</strong> Split large files into 5MB chunks, upload in parallel, reassemble server-side</li>
+  <li><strong>Resume upload:</strong> Track uploaded chunks, resume from where it left off after network failure</li>
+  <li><strong>Image preview:</strong> Use FileReader + URL.createObjectURL for thumbnail preview before upload</li>
+  <li><strong>Cancel upload:</strong> AbortController per file to cancel in-flight requests</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="calendar-picker">6. Calendar / Date Picker</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Flipkart, Razorpay, Atlassian, Freshworks</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Navigate months, select dates, try range mode</div>
+  <iframe src="demos/calendar-picker.html" loading="lazy" style="height:520px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class DatePicker {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.selectedDate = options.initialDate || null;
+    this.minDate = options.minDate || null;
+    this.maxDate = options.maxDate || null;
+    this.onChange = options.onChange || (() =&gt; {});
+    this.mode = options.mode || 'single'; // single | range
+    this.rangeStart = null;
+    this.rangeEnd = null;
+    
+    this.currentMonth = (this.selectedDate || new Date()).getMonth();
+    this.currentYear = (this.selectedDate || new Date()).getFullYear();
+    
+    this.render();
+  }
+
+  render() {
+    const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+    const firstDayOfWeek = new Date(this.currentYear, this.currentMonth, 1).getDay();
+    const monthName = new Date(this.currentYear, this.currentMonth).toLocaleString('default', { month: 'long' });
+
+    let calendarHTML = `
+      &lt;div class="calendar"&gt;
+        &lt;div class="calendar-header"&gt;
+          &lt;button class="nav-btn" data-action="prev-month"&gt;‹&lt;/button&gt;
+          &lt;span class="month-year"&gt;${monthName} ${this.currentYear}&lt;/span&gt;
+          &lt;button class="nav-btn" data-action="next-month"&gt;›&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="calendar-weekdays"&gt;
+          ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d =&gt; `&lt;span&gt;${d}&lt;/span&gt;`).join('')}
+        &lt;/div&gt;
+        &lt;div class="calendar-days"&gt;`;
+
+    // Empty cells for offset
+    for (let i = 0; i &lt; firstDayOfWeek; i++) {
+      calendarHTML += `&lt;span class="day empty"&gt;&lt;/span&gt;`;
+    }
+
+    // Day cells
+    for (let day = 1; day &lt;= daysInMonth; day++) {
+      const date = new Date(this.currentYear, this.currentMonth, day);
+      const isDisabled = this.isDisabled(date);
+      const isSelected = this.isSelected(date);
+      const isToday = this.isToday(date);
+      const isInRange = this.isInRange(date);
+      
+      const classes = ['day',
+        isDisabled ? 'disabled' : '',
+        isSelected ? 'selected' : '',
+        isToday ? 'today' : '',
+        isInRange ? 'in-range' : '',
+      ].filter(Boolean).join(' ');
+
+      calendarHTML += `&lt;span class="${classes}" data-date="${date.toISOString()}"&gt;${day}&lt;/span&gt;`;
+    }
+
+    calendarHTML += `&lt;/div&gt;&lt;/div&gt;`;
+    this.container.innerHTML = calendarHTML;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.container.addEventListener('click', (e) =&gt; {
+      const action = e.target.dataset.action;
+      if (action === 'prev-month') { this.navigate(-1); return; }
+      if (action === 'next-month') { this.navigate(1); return; }
+      
+      if (e.target.classList.contains('day') && !e.target.classList.contains('disabled') && !e.target.classList.contains('empty')) {
+        this.selectDate(new Date(e.target.dataset.date));
+      }
+    });
+  }
+
+  selectDate(date) {
+    if (this.mode === 'single') {
+      this.selectedDate = date;
+      this.onChange(date);
+    } else {
+      // Range mode
+      if (!this.rangeStart || this.rangeEnd) {
+        this.rangeStart = date;
+        this.rangeEnd = null;
+      } else {
+        if (date &lt; this.rangeStart) {
+          this.rangeEnd = this.rangeStart;
+          this.rangeStart = date;
+        } else {
+          this.rangeEnd = date;
+        }
+        this.onChange({ start: this.rangeStart, end: this.rangeEnd });
+      }
+    }
+    this.render();
+  }
+
+  navigate(direction) {
+    this.currentMonth += direction;
+    if (this.currentMonth &gt; 11) { this.currentMonth = 0; this.currentYear++; }
+    if (this.currentMonth &lt; 0) { this.currentMonth = 11; this.currentYear--; }
+    this.render();
+  }
+
+  isDisabled(date) {
+    if (this.minDate && date &lt; this.minDate) return true;
+    if (this.maxDate && date &gt; this.maxDate) return true;
+    return false;
+  }
+
+  isSelected(date) {
+    if (this.mode === 'single') return this.selectedDate?.toDateString() === date.toDateString();
+    return this.rangeStart?.toDateString() === date.toDateString() || this.rangeEnd?.toDateString() === date.toDateString();
+  }
+
+  isToday(date) { return date.toDateString() === new Date().toDateString(); }
+
+  isInRange(date) {
+    if (this.mode !== 'range' || !this.rangeStart || !this.rangeEnd) return false;
+    return date &gt; this.rangeStart && date &lt; this.rangeEnd;
+  }
+}</code></pre>
+</details>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Year/month jump:</strong> Dropdown to quickly navigate to any month/year</li>
+  <li><strong>Disabled dates:</strong> Weekends, holidays, custom blackout dates</li>
+  <li><strong>Keyboard navigation:</strong> Arrow keys to move between days, Enter to select</li>
+  <li><strong>Time picker integration:</strong> Add hour/minute selection below calendar</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="color-picker">7. Color Picker</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Figma, Canva, Freshworks, Zoho</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class ColorPicker {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.color = options.initialColor || '#4a90d9';
+    this.format = options.format || 'hex'; // hex | rgb | hsl
+    this.onChange = options.onChange || (() =&gt; {});
+    this.presets = options.presets || ['#e74c3c','#f39c12','#27ae60','#3498db','#9b59b6','#1abc9c','#34495e','#000000'];
+    
+    this.render();
+  }
+
+  render() {
+    const rgb = this.hexToRgb(this.color);
+    const hsl = this.rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+    this.container.innerHTML = `
+      &lt;div class="color-picker"&gt;
+        &lt;div class="color-preview" style="background:${this.color}"&gt;&lt;/div&gt;
+        &lt;div class="color-inputs"&gt;
+          &lt;label&gt;Hex: &lt;input type="text" value="${this.color}" data-type="hex"&gt;&lt;/label&gt;
+          &lt;label&gt;R: &lt;input type="range" min="0" max="255" value="${rgb.r}" data-channel="r"&gt;&lt;/label&gt;
+          &lt;label&gt;G: &lt;input type="range" min="0" max="255" value="${rgb.g}" data-channel="g"&gt;&lt;/label&gt;
+          &lt;label&gt;B: &lt;input type="range" min="0" max="255" value="${rgb.b}" data-channel="b"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="presets"&gt;
+          ${this.presets.map(c =&gt; `&lt;button class="preset-swatch" style="background:${c}" data-color="${c}"&gt;&lt;/button&gt;`).join('')}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    // Range sliders
+    this.container.querySelectorAll('input[type="range"]').forEach(input =&gt; {
+      input.addEventListener('input', () =&gt; {
+        const r = +this.container.querySelector('[data-channel="r"]').value;
+        const g = +this.container.querySelector('[data-channel="g"]').value;
+        const b = +this.container.querySelector('[data-channel="b"]').value;
+        this.setColor(this.rgbToHex(r, g, b));
+      });
+    });
+
+    // Hex input
+    this.container.querySelector('[data-type="hex"]').addEventListener('change', (e) =&gt; {
+      if (/^#[0-9a-f]{6}$/i.test(e.target.value)) this.setColor(e.target.value);
+    });
+
+    // Presets
+    this.container.querySelectorAll('.preset-swatch').forEach(btn =&gt; {
+      btn.addEventListener('click', () =&gt; this.setColor(btn.dataset.color));
+    });
+  }
+
+  setColor(hex) {
+    this.color = hex;
+    this.onChange(hex);
+    this.render();
+  }
+
+  hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) };
+  }
+
+  rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(x =&gt; x.toString(16).padStart(2, '0')).join('');
+  }
+
+  rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) { h = s = 0; } else {
+      const d = max - min;
+      s = l &gt; 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = ((g - b) / d + (g &lt; b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="notification-center">8. Notification Center (Bell Icon + Dropdown)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: LinkedIn, Flipkart, Amazon, Razorpay, Freshworks</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Click bell, add notifications, mark as read</div>
+  <iframe src="demos/notification-center.html" loading="lazy"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class NotificationCenter {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.notifications = options.initialData || [];
+    this.maxVisible = options.maxVisible || 20;
+    this.onMarkRead = options.onMarkRead || (() =&gt; {});
+    this.onAction = options.onAction || (() =&gt; {});
+    this.isOpen = false;
+
+    this.render();
+  }
+
+  get unreadCount() {
+    return this.notifications.filter(n =&gt; !n.read).length;
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="notif-wrapper"&gt;
+        &lt;button class="bell-btn" aria-label="Notifications"&gt;
+          🔔 ${this.unreadCount &gt; 0 ? `&lt;span class="badge"&gt;${this.unreadCount}&lt;/span&gt;` : ''}
+        &lt;/button&gt;
+        &lt;div class="notif-dropdown ${this.isOpen ? 'open' : ''}"&gt;
+          &lt;div class="notif-header"&gt;
+            &lt;h4&gt;Notifications&lt;/h4&gt;
+            &lt;button class="mark-all-btn"&gt;Mark all read&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;div class="notif-list"&gt;
+            ${this.notifications.length === 0 ? '&lt;p class="empty"&gt;No notifications&lt;/p&gt;' :
+              this.notifications.slice(0, this.maxVisible).map(n =&gt; `
+                &lt;div class="notif-item ${n.read ? '' : 'unread'}" data-id="${n.id}"&gt;
+                  &lt;span class="notif-icon"&gt;${this.getIcon(n.type)}&lt;/span&gt;
+                  &lt;div class="notif-content"&gt;
+                    &lt;p&gt;${n.message}&lt;/p&gt;
+                    &lt;span class="notif-time"&gt;${this.timeAgo(n.timestamp)}&lt;/span&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              `).join('')}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.container.querySelector('.bell-btn').addEventListener('click', () =&gt; {
+      this.isOpen = !this.isOpen;
+      this.render();
+    });
+
+    this.container.querySelector('.mark-all-btn')?.addEventListener('click', () =&gt; {
+      this.notifications.forEach(n =&gt; n.read = true);
+      this.onMarkRead('all');
+      this.render();
+    });
+
+    this.container.querySelectorAll('.notif-item').forEach(item =&gt; {
+      item.addEventListener('click', () =&gt; {
+        const id = item.dataset.id;
+        const notif = this.notifications.find(n =&gt; n.id === id);
+        if (notif) { notif.read = true; this.onAction(notif); }
+        this.render();
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) =&gt; {
+      if (!this.container.contains(e.target) && this.isOpen) {
+        this.isOpen = false;
+        this.render();
+      }
+    });
+  }
+
+  addNotification(notification) {
+    this.notifications.unshift({ ...notification, id: Date.now().toString(), read: false, timestamp: Date.now() });
+    this.render();
+  }
+
+  getIcon(type) {
+    const icons = { message: '💬', like: '❤️', follow: '👤', system: '⚙️', order: '📦' };
+    return icons[type] || '📌';
+  }
+
+  timeAgo(timestamp) {
+    const diff = Date.now() - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    if (minutes &lt; 1) return 'Just now';
+    if (minutes &lt; 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours &lt; 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  }
+}</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="image-cropper">9. Image Cropper / Resizer</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Canva, Google Photos, Flipkart, Amazon</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class ImageCropper {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.aspectRatio = options.aspectRatio || null; // e.g., 16/9, 1 (square)
+    this.minWidth = options.minWidth || 50;
+    this.minHeight = options.minHeight || 50;
+    this.onCrop = options.onCrop || (() =&gt; {});
+    
+    this.image = null;
+    this.crop = { x: 50, y: 50, width: 200, height: 200 };
+    this.isDragging = false;
+    this.isResizing = false;
+    this.dragStart = { x: 0, y: 0 };
+  }
+
+  loadImage(src) {
+    return new Promise((resolve) =&gt; {
+      this.image = new Image();
+      this.image.onload = () =&gt; {
+        this.imageWidth = this.image.naturalWidth;
+        this.imageHeight = this.image.naturalHeight;
+        this.render();
+        resolve();
+      };
+      this.image.src = src;
+    });
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="cropper-wrapper"&gt;
+        &lt;img src="${this.image.src}" class="cropper-image"&gt;
+        &lt;div class="crop-overlay"&gt;
+          &lt;div class="crop-area" style="left:${this.crop.x}px;top:${this.crop.y}px;width:${this.crop.width}px;height:${this.crop.height}px"&gt;
+            &lt;div class="crop-handle nw" data-pos="nw"&gt;&lt;/div&gt;
+            &lt;div class="crop-handle ne" data-pos="ne"&gt;&lt;/div&gt;
+            &lt;div class="crop-handle sw" data-pos="sw"&gt;&lt;/div&gt;
+            &lt;div class="crop-handle se" data-pos="se"&gt;&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;button class="crop-btn"&gt;Crop&lt;/button&gt;
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const area = this.container.querySelector('.crop-area');
+    
+    // Drag the crop area
+    area.addEventListener('mousedown', (e) =&gt; {
+      if (e.target.classList.contains('crop-handle')) return;
+      this.isDragging = true;
+      this.dragStart = { x: e.clientX - this.crop.x, y: e.clientY - this.crop.y };
+    });
+
+    // Resize handles
+    this.container.querySelectorAll('.crop-handle').forEach(handle =&gt; {
+      handle.addEventListener('mousedown', (e) =&gt; {
+        e.stopPropagation();
+        this.isResizing = handle.dataset.pos;
+        this.dragStart = { x: e.clientX, y: e.clientY, ...this.crop };
+      });
+    });
+
+    document.addEventListener('mousemove', (e) =&gt; {
+      if (this.isDragging) {
+        this.crop.x = Math.max(0, e.clientX - this.dragStart.x);
+        this.crop.y = Math.max(0, e.clientY - this.dragStart.y);
+        this.updateCropArea();
+      } else if (this.isResizing) {
+        this.handleResize(e, this.isResizing);
+      }
+    });
+
+    document.addEventListener('mouseup', () =&gt; {
+      this.isDragging = false;
+      this.isResizing = false;
+    });
+
+    this.container.querySelector('.crop-btn').addEventListener('click', () =&gt; this.doCrop());
+  }
+
+  handleResize(e, pos) {
+    const dx = e.clientX - this.dragStart.x;
+    const dy = e.clientY - this.dragStart.y;
+
+    if (pos.includes('e')) this.crop.width = Math.max(this.minWidth, this.dragStart.width + dx);
+    if (pos.includes('w')) { this.crop.x = this.dragStart.x + dx; this.crop.width = this.dragStart.width - dx; }
+    if (pos.includes('s')) this.crop.height = Math.max(this.minHeight, this.dragStart.height + dy);
+    if (pos.includes('n')) { this.crop.y = this.dragStart.y + dy; this.crop.height = this.dragStart.height - dy; }
+
+    if (this.aspectRatio) this.crop.height = this.crop.width / this.aspectRatio;
+    this.updateCropArea();
+  }
+
+  updateCropArea() {
+    const area = this.container.querySelector('.crop-area');
+    if (area) Object.assign(area.style, {
+      left: this.crop.x + 'px', top: this.crop.y + 'px',
+      width: this.crop.width + 'px', height: this.crop.height + 'px'
+    });
+  }
+
+  doCrop() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = this.container.querySelector('.cropper-image');
+    const scaleX = this.imageWidth / img.clientWidth;
+    const scaleY = this.imageHeight / img.clientHeight;
+    
+    canvas.width = this.crop.width * scaleX;
+    canvas.height = this.crop.height * scaleY;
+    
+    ctx.drawImage(this.image,
+      this.crop.x * scaleX, this.crop.y * scaleY,
+      this.crop.width * scaleX, this.crop.height * scaleY,
+      0, 0, canvas.width, canvas.height
+    );
+    
+    this.onCrop(canvas.toDataURL('image/png'), canvas);
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="command-palette">10. Command Palette (VS Code style)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Atlassian, Notion, Figma, Linear, Microsoft</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Press ⌘K or click button, type to fuzzy search</div>
+  <iframe src="demos/command-palette.html" loading="lazy" style="height:500px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class CommandPalette {
+  constructor(options = {}) {
+    this.commands = options.commands || []; // [{id, label, shortcut, action, category}]
+    this.isOpen = false;
+    this.query = '';
+    this.activeIndex = 0;
+    this.filteredCommands = [];
+    this.recentCommands = JSON.parse(localStorage.getItem('recent-commands') || '[]');
+
+    this.createDOM();
+    this.bindGlobalShortcut();
+  }
+
+  createDOM() {
+    this.overlay = document.createElement('div');
+    this.overlay.className = 'cmd-overlay';
+    this.overlay.innerHTML = `
+      &lt;div class="cmd-palette"&gt;
+        &lt;input class="cmd-input" placeholder="Type a command..." autocomplete="off"&gt;
+        &lt;div class="cmd-results"&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    `;
+    document.body.appendChild(this.overlay);
+    
+    this.input = this.overlay.querySelector('.cmd-input');
+    this.results = this.overlay.querySelector('.cmd-results');
+    this.bindEvents();
+  }
+
+  bindGlobalShortcut() {
+    document.addEventListener('keydown', (e) =&gt; {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        this.toggle();
+      }
+      if (e.key === 'Escape' && this.isOpen) this.close();
+    });
+  }
+
+  bindEvents() {
+    this.input.addEventListener('input', () =&gt; {
+      this.query = this.input.value;
+      this.activeIndex = 0;
+      this.search();
+    });
+
+    this.input.addEventListener('keydown', (e) =&gt; {
+      if (e.key === 'ArrowDown') { e.preventDefault(); this.moveActive(1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); this.moveActive(-1); }
+      if (e.key === 'Enter') { this.executeActive(); }
+    });
+
+    this.overlay.addEventListener('click', (e) =&gt; {
+      if (e.target === this.overlay) this.close();
+    });
+  }
+
+  search() {
+    const q = this.query.toLowerCase();
+    
+    if (!q) {
+      // Show recent commands first, then all
+      this.filteredCommands = [
+        ...this.commands.filter(c =&gt; this.recentCommands.includes(c.id)),
+        ...this.commands.filter(c =&gt; !this.recentCommands.includes(c.id)),
+      ];
+    } else {
+      this.filteredCommands = this.commands
+        .map(cmd =&gt; ({
+          ...cmd,
+          score: this.fuzzyScore(cmd.label.toLowerCase(), q) + (cmd.category?.toLowerCase().includes(q) ? 10 : 0)
+        }))
+        .filter(cmd =&gt; cmd.score &gt; 0)
+        .sort((a, b) =&gt; b.score - a.score);
+    }
+    
+    this.renderResults();
+  }
+
+  fuzzyScore(str, query) {
+    let score = 0, qi = 0;
+    for (let i = 0; i &lt; str.length && qi &lt; query.length; i++) {
+      if (str[i] === query[qi]) { score += (i === 0 || str[i-1] === ' ' ? 10 : 1); qi++; }
+    }
+    return qi === query.length ? score : 0;
+  }
+
+  renderResults() {
+    this.results.innerHTML = this.filteredCommands.slice(0, 10).map((cmd, i) =&gt; `
+      &lt;div class="cmd-item ${i === this.activeIndex ? 'active' : ''}" data-index="${i}"&gt;
+        &lt;span class="cmd-label"&gt;${cmd.label}&lt;/span&gt;
+        ${cmd.shortcut ? `&lt;kbd&gt;${cmd.shortcut}&lt;/kbd&gt;` : ''}
+        ${cmd.category ? `&lt;span class="cmd-cat"&gt;${cmd.category}&lt;/span&gt;` : ''}
+      &lt;/div&gt;
+    `).join('') || '&lt;div class="cmd-empty"&gt;No results&lt;/div&gt;';
+
+    this.results.querySelectorAll('.cmd-item').forEach(item =&gt; {
+      item.addEventListener('click', () =&gt; { this.activeIndex = +item.dataset.index; this.executeActive(); });
+    });
+  }
+
+  moveActive(dir) {
+    this.activeIndex = (this.activeIndex + dir + this.filteredCommands.length) % this.filteredCommands.length;
+    this.renderResults();
+  }
+
+  executeActive() {
+    const cmd = this.filteredCommands[this.activeIndex];
+    if (!cmd) return;
+    
+    // Track recent
+    this.recentCommands = [cmd.id, ...this.recentCommands.filter(id =&gt; id !== cmd.id)].slice(0, 5);
+    localStorage.setItem('recent-commands', JSON.stringify(this.recentCommands));
+    
+    this.close();
+    cmd.action();
+  }
+
+  toggle() { this.isOpen ? this.close() : this.open(); }
+  
+  open() {
+    this.isOpen = true;
+    this.overlay.classList.add('visible');
+    this.input.value = '';
+    this.query = '';
+    this.activeIndex = 0;
+    this.search();
+    setTimeout(() =&gt; this.input.focus(), 50);
+  }
+
+  close() {
+    this.isOpen = false;
+    this.overlay.classList.remove('visible');
+  }
+}</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="tooltip-popover">11. Tooltip / Popover (Smart Positioning)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Atlassian, Freshworks, Zoho, Razorpay</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Tooltip {
+  constructor(options = {}) {
+    this.delay = options.delay || 200;
+    this.offset = options.offset || 8;
+    this.preferredPosition = options.position || 'top'; // top | bottom | left | right
+    this.tooltipEl = null;
+    this.timer = null;
+
+    this.init();
+  }
+
+  init() {
+    // Attach to all elements with [data-tooltip]
+    document.addEventListener('mouseenter', (e) =&gt; {
+      const target = e.target.closest('[data-tooltip]');
+      if (target) this.show(target);
+    }, true);
+
+    document.addEventListener('mouseleave', (e) =&gt; {
+      const target = e.target.closest('[data-tooltip]');
+      if (target) this.hide();
+    }, true);
+  }
+
+  show(target) {
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() =&gt; {
+      const text = target.dataset.tooltip;
+      if (!text) return;
+      
+      this.tooltipEl = document.createElement('div');
+      this.tooltipEl.className = 'tooltip-popup';
+      this.tooltipEl.textContent = text;
+      this.tooltipEl.setAttribute('role', 'tooltip');
+      document.body.appendChild(this.tooltipEl);
+      
+      this.position(target);
+    }, this.delay);
+  }
+
+  position(target) {
+    const tt = this.tooltipEl;
+    const tr = target.getBoundingClientRect();
+    const ttr = tt.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    
+    let pos = this.preferredPosition;
+    
+    // Smart repositioning if it would overflow
+    const positions = {
+      top: { x: tr.left + tr.width/2 - ttr.width/2, y: tr.top - ttr.height - this.offset },
+      bottom: { x: tr.left + tr.width/2 - ttr.width/2, y: tr.bottom + this.offset },
+      left: { x: tr.left - ttr.width - this.offset, y: tr.top + tr.height/2 - ttr.height/2 },
+      right: { x: tr.right + this.offset, y: tr.top + tr.height/2 - ttr.height/2 },
+    };
+
+    let { x, y } = positions[pos];
+
+    // Flip if overflows viewport
+    if (y &lt; 0 && pos === 'top') { pos = 'bottom'; ({x, y} = positions.bottom); }
+    if (y + ttr.height &gt; vh && pos === 'bottom') { pos = 'top'; ({x, y} = positions.top); }
+    if (x &lt; 0) x = this.offset;
+    if (x + ttr.width &gt; vw) x = vw - ttr.width - this.offset;
+
+    tt.style.left = x + 'px';
+    tt.style.top = y + 'px';
+    tt.dataset.pos = pos;
+  }
+
+  hide() {
+    clearTimeout(this.timer);
+    if (this.tooltipEl) { this.tooltipEl.remove(); this.tooltipEl = null; }
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="spreadsheet">12. Mini Spreadsheet (Formulas + Cell Dependencies)</h2>
+<span class="difficulty d-expert">EXPERT</span>
+<p class="companies">Asked at: Google, Microsoft, Flipkart (Staff+), Notion</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Type numbers & formulas (=A1+B1), see auto-propagation</div>
+  <iframe src="demos/spreadsheet.html" loading="lazy" style="height:500px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class Spreadsheet {
+  constructor(container, { rows = 20, cols = 10 } = {}) {
+    this.container = container;
+    this.rows = rows;
+    this.cols = cols;
+    this.data = {}; // { "A1": { raw: "=B1+C1", computed: 10 } }
+    this.dependencies = {}; // { "A1": ["B1", "C1"] } — A1 depends on B1, C1
+    this.dependents = {};   // { "B1": ["A1"] } — B1 is used by A1
+    this.selectedCell = null;
+
+    this.render();
+    this.bindEvents();
+  }
+
+  render() {
+    let html = '&lt;table class="spreadsheet"&gt;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;';
+    for (let c = 0; c &lt; this.cols; c++) html += `&lt;th&gt;${String.fromCharCode(65 + c)}&lt;/th&gt;`;
+    html += '&lt;/tr&gt;';
+
+    for (let r = 1; r &lt;= this.rows; r++) {
+      html += `&lt;tr&gt;&lt;td class="row-header"&gt;${r}&lt;/td&gt;`;
+      for (let c = 0; c &lt; this.cols; c++) {
+        const cellId = this.getCellId(r, c);
+        const value = this.data[cellId]?.computed ?? '';
+        html += `&lt;td&gt;&lt;input class="cell" data-cell="${cellId}" value="${value}"&gt;&lt;/td&gt;`;
+      }
+      html += '&lt;/tr&gt;';
+    }
+    html += '&lt;/table&gt;';
+    this.container.innerHTML = html;
+  }
+
+  bindEvents() {
+    this.container.addEventListener('change', (e) =&gt; {
+      if (e.target.classList.contains('cell')) {
+        this.setCellValue(e.target.dataset.cell, e.target.value);
+      }
+    });
+
+    this.container.addEventListener('focus', (e) =&gt; {
+      if (e.target.classList.contains('cell')) {
+        this.selectedCell = e.target.dataset.cell;
+        // Show raw formula in input
+        const cellData = this.data[e.target.dataset.cell];
+        if (cellData) e.target.value = cellData.raw;
+      }
+    }, true);
+
+    this.container.addEventListener('blur', (e) =&gt; {
+      if (e.target.classList.contains('cell')) {
+        const cellData = this.data[e.target.dataset.cell];
+        if (cellData) e.target.value = cellData.computed;
+      }
+    }, true);
+  }
+
+  setCellValue(cellId, raw) {
+    // Remove old dependencies
+    if (this.dependencies[cellId]) {
+      this.dependencies[cellId].forEach(dep =&gt; {
+        if (this.dependents[dep]) {
+          this.dependents[dep] = this.dependents[dep].filter(d =&gt; d !== cellId);
+        }
+      });
+    }
+
+    // Parse formula and find dependencies
+    const deps = this.parseDependencies(raw);
+    this.dependencies[cellId] = deps;
+    deps.forEach(dep =&gt; {
+      if (!this.dependents[dep]) this.dependents[dep] = [];
+      if (!this.dependents[dep].includes(cellId)) this.dependents[dep].push(cellId);
+    });
+
+    // Circular dependency check
+    if (this.hasCircular(cellId, new Set())) {
+      alert(`Circular reference detected in ${cellId}!`);
+      return;
+    }
+
+    this.data[cellId] = { raw, computed: this.evaluate(raw) };
+    this.updateCell(cellId);
+
+    // Propagate to dependents (topological update)
+    this.propagate(cellId);
+  }
+
+  evaluate(raw) {
+    if (!raw.startsWith('=')) return isNaN(raw) ? raw : Number(raw);
+    
+    const formula = raw.slice(1);
+    // Replace cell references with values
+    const evaluated = formula.replace(/[A-Z]\d+/g, (ref) =&gt; {
+      return this.data[ref]?.computed ?? 0;
+    });
+
+    try {
+      // Safe evaluation: only allow numbers, operators, and basic functions
+      const sanitized = evaluated.replace(/[^0-9+\-*/().,%\s]/g, '');
+      return Function(`"use strict"; return (${sanitized})`)();
+    } catch {
+      return '#ERROR';
+    }
+  }
+
+  parseDependencies(raw) {
+    if (!raw.startsWith('=')) return [];
+    return [...raw.matchAll(/[A-Z]\d+/g)].map(m =&gt; m[0]);
+  }
+
+  propagate(cellId) {
+    const visited = new Set();
+    const queue = [...(this.dependents[cellId] || [])];
+
+    while (queue.length) {
+      const current = queue.shift();
+      if (visited.has(current)) continue;
+      visited.add(current);
+
+      const cellData = this.data[current];
+      if (cellData) {
+        cellData.computed = this.evaluate(cellData.raw);
+        this.updateCell(current);
+      }
+      if (this.dependents[current]) queue.push(...this.dependents[current]);
+    }
+  }
+
+  hasCircular(cellId, visited) {
+    if (visited.has(cellId)) return true;
+    visited.add(cellId);
+    return (this.dependencies[cellId] || []).some(dep =&gt; this.hasCircular(dep, new Set(visited)));
+  }
+
+  updateCell(cellId) {
+    const input = this.container.querySelector(`[data-cell="${cellId}"]`);
+    if (input && document.activeElement !== input) {
+      input.value = this.data[cellId]?.computed ?? '';
+    }
+  }
+
+  getCellId(row, col) { return String.fromCharCode(65 + col) + row; }
+}</code></pre>
+</details>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>SUM/AVG/MIN/MAX functions:</strong> Parse =SUM(A1:A10) range syntax</li>
+  <li><strong>Undo/Redo:</strong> Command pattern with cell-level history</li>
+  <li><strong>CSV import/export:</strong> Parse CSV into cells, export cells to downloadable CSV</li>
+  <li><strong>Cell formatting:</strong> Bold, colors, number formats (currency, percentage)</li>
+</ul>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="machine-coding-part3-advanced-patterns.html">← Part 3: Advanced Patterns</a>
+  <a href="machine-coding-part5-games-utilities.html">Part 5: Games & More →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

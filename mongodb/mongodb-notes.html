@@ -1,0 +1,3257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MongoDB Deep Learning Notes — 0 to Senior Interview Ready</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f9fc;
+    --panel: #ffffff;
+    --panel-2: #f3f6fb;
+    --text: #1b2330;
+    --muted: #5b6675;
+    --accent: #00ED64;
+    --accent-dark: #00684A;
+    --accent-2: #1a7f72;
+    --border: #e3e8ef;
+    --border-strong: #cfd6df;
+    --success: #16a34a;
+    --error: #dc2626;
+    --warn: #b45309;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+    background: var(--bg-alt);
+    color: var(--text);
+    line-height: 1.65;
+  }
+  header {
+    padding: 52px 24px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #e8fdf4 0%, #ffffff 100%);
+  }
+  header h1 { margin: 0 0 10px; font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.5px; color: #0f1621; }
+  header h1 span { color: var(--accent-dark); }
+  header p { color: var(--muted); max-width: 900px; margin: 0 auto; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0 0; }
+  .pill { border: 1px solid var(--border-strong); background: #fff; color: var(--muted); padding: 6px 12px; border-radius: 999px; font-size: 13px; }
+  .pill.accent { color: var(--accent-dark); border-color: rgba(0,104,74,0.35); background: #e8fdf4; }
+  .phase {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px 26px; margin: 22px 0;
+    box-shadow: var(--shadow);
+  }
+  .phase h2 {
+    margin: 0 0 6px; font-size: 22px; color: #0f1621;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .phase h2 .tag {
+    font-size: 12px; color: #fff; background: var(--accent-dark);
+    padding: 3px 10px; border-radius: 6px; font-weight: 700;
+  }
+  .phase .sub { color: var(--muted); margin-top: 0; }
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    margin-top: 10px;
+  }
+  .card {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .card h3 {
+    margin: 0 0 10px; font-size: 14px; color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;
+  }
+  .card h4 {
+    margin: 12px 0 8px; font-size: 13px; color: #0f1621; font-weight: 600;
+  }
+  ul { margin: 6px 0 0 0; padding-left: 20px; }
+  li { margin: 5px 0; }
+  a { color: var(--accent-dark); text-decoration: none; border-bottom: 1px dashed rgba(0,104,74,0.35); }
+  a:hover { color: #005a3e; border-bottom-color: #005a3e; }
+  code {
+    background: #eef8f3; color: #00684A;
+    padding: 2px 6px; border-radius: 4px; font-size: 13px;
+    border: 1px solid #c8e6d8;
+  }
+  pre {
+    background: #1e1e1e; color: #d4d4d4;
+    padding: 12px; border-radius: 6px; overflow-x: auto;
+    font-size: 12px; line-height: 1.5;
+    border: 1px solid var(--border-strong);
+    margin: 8px 0;
+  }
+  pre code { background: none; color: inherit; padding: 0; border: none; }
+  .project {
+    border-left: 4px solid var(--accent-dark);
+    padding: 12px 16px; background: #e8fdf4;
+    border-radius: 0 8px 8px 0; margin: 12px 0;
+  }
+  .project b { color: var(--accent-dark); }
+  .checklist {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    margin-top: 12px;
+  }
+  .check {
+    background: #fff; border: 1px solid var(--border);
+    border-left: 3px solid var(--success);
+    border-radius: 8px; padding: 10px 12px; font-size: 14px;
+  }
+  .check::before { content: "✓ "; color: var(--success); font-weight: bold; }
+  .callout {
+    background: #e8fdf4; border: 1px solid rgba(0,104,74,0.3);
+    border-left: 4px solid var(--accent-dark);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+  }
+  .callout b { color: var(--accent-dark); }
+  .warn {
+    background: #fff8eb; border: 1px solid #f5d69a;
+    border-left: 4px solid var(--warn);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+    color: #7a4a05;
+  }
+  .error-box {
+    background: #fef2f2; border: 1px solid #fca5a5;
+    border-left: 4px solid var(--error);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+    color: #7f1d1d;
+  }
+  .videos {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin: 12px 0;
+  }
+  .video {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    transition: box-shadow .15s ease, transform .1s ease;
+  }
+  .video:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .video .title { font-weight: 600; color: var(--text); }
+  .video small { color: var(--muted); display: block; margin-top: 4px; font-size: 12px; }
+  footer {
+    text-align: center; color: var(--muted); padding: 40px 20px;
+    border-top: 1px solid var(--border); margin-top: 40px; font-size: 14px;
+    background: #fff;
+  }
+  .toc {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+    box-shadow: var(--shadow);
+  }
+  .toc h3 { margin-top: 0; color: var(--accent-dark); }
+  .toc ol { columns: 2; column-gap: 30px; padding-left: 20px; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+  .concept {
+    margin: 14px 0 6px; padding: 8px 0 4px;
+    border-top: 1px dashed var(--border);
+  }
+  .concept:first-of-type { border-top: none; }
+  .concept h4 { margin: 0 0 6px; font-size: 15px; color: #0f1621; }
+  .concept h4::before { content: "▸ "; color: var(--accent-dark); font-weight: 700; }
+  .interview-q {
+    background: #fff; border: 1px solid var(--border);
+    border-left: 3px solid #7c3aed;
+    border-radius: 8px; padding: 12px 14px; margin: 10px 0; font-size: 14px;
+    line-height: 1.6;
+  }
+  .interview-q b { color: #7c3aed; }
+  .interview-q small { display: block; color: var(--muted); margin-top: 6px; font-size: 12px; font-style: italic; }
+  .codeblock { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin: 10px 0; }
+  .codeblock-header { font-weight: 600; color: var(--accent-dark); margin-bottom: 8px; font-size: 13px; }
+  .gotcha {
+    background: #fef3c7; border: 1px solid #fde68a;
+    border-left: 4px solid var(--warn);
+    border-radius: 8px; padding: 12px 14px; margin: 10px 0; font-size: 13px;
+  }
+  .gotcha strong { color: var(--warn); }
+  .production-use {
+    background: #ecfdf5; border: 1px solid #a7f3d0;
+    border-left: 4px solid var(--success);
+    border-radius: 8px; padding: 12px 14px; margin: 10px 0; font-size: 13px;
+  }
+  .production-use strong { color: var(--success); }
+  @media (max-width: 480px) {
+    header { padding: 40px 16px 28px; }
+    header h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍃 <span>MongoDB</span> Deep Learning Notes</h1>
+  <p>Complete reference for backend engineers at Kyndryl. Every concept mapped to production code. Includes 50+ interview questions, real code patterns, gotchas, and system design thinking. Built from actual microservices that run 24/7.</p>
+  <div class="legend">
+    <span class="pill accent">14 Phases Covered</span>
+    <span class="pill">Production Patterns Included</span>
+    <span class="pill accent">50+ Interview Q&A</span>
+    <span class="pill">Go Driver + Shell Examples</span>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📚 Table of Contents</h3>
+  <ol>
+    <li><a href="#intro">How to Use This Guide</a></li>
+    <li><a href="#phase0">Phase 0: Getting Started (Setup & Installation)</a></li>
+    <li><a href="#daily-commands">Daily mongosh Commands & Connection Strings</a></li>
+    <li><a href="#phase1">Phase 1: MongoDB Fundamentals</a></li>
+    <li><a href="#phase2">Phase 2: CRUD Operations Deep Dive</a></li>
+    <li><a href="#phase3">Phase 3: Query Operators & Filtering</a></li>
+    <li><a href="#phase4">Phase 4: Update Operators & Patterns</a></li>
+    <li><a href="#phase5">Phase 5: Aggregation Pipeline (Advanced)</a></li>
+    <li><a href="#phase6">Phase 6: Indexing & Query Performance</a></li>
+    <li><a href="#phase7">Phase 7: Schema Design Decisions</a></li>
+    <li><a href="#phase8">Phase 8: Transactions & Data Integrity</a></li>
+    <li><a href="#phase9">Phase 9: Go Driver Implementation</a></li>
+    <li><a href="#phase10">Phase 10: Production Patterns</a></li>
+    <li><a href="#phase11">Phase 11: Replica Sets & HA</a></li>
+    <li><a href="#phase12">Phase 12: Sharding at Scale</a></li>
+    <li><a href="#phase13">Phase 13: Change Streams & Events</a></li>
+    <li><a href="#phase14">Phase 14: Senior Interview Topics</a></li>
+    <li><a href="#cheat-sheet">Quick Reference Cheat Sheet</a></li>
+    <li><a href="#common-mistakes">Common Mistakes & Anti-Patterns</a></li>
+    <li><a href="#troubleshooting">Troubleshooting & Debugging Guide</a></li>
+    <li><a href="#checklist">Completion Checklist</a></li>
+  </ol>
+</div>
+
+<!-- INTRODUCTION -->
+<section class="phase" id="intro">
+  <h2>🎯 How to Use This Guide</h2>
+  <p class="sub">This is a reference guide + interview prep + production handbook all in one. Each phase builds on the previous one.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>📖 For Daily Development</h3>
+      <p>Use Ctrl+F to search for a specific concept. Every code example is tested and production-ready. When you need to write a query or need to remember the syntax, jump to the relevant phase and copy the pattern.</p>
+    </div>
+    <div class="card">
+      <h3>🎓 For Interview Prep</h3>
+      <p>Start at Phase 1 and read all interview questions without looking at answers. Then verify your answer against the provided one. Practice explaining the "why" out loud — that's what interviewers test.</p>
+    </div>
+    <div class="card">
+      <h3>⚠️ For Production Debugging</h3>
+      <p>Jump to the Gotchas sections. Most production issues fall into known patterns. Find your symptoms, learn why it happens, and apply the fix.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <b>Pro Tip:</b> Master phases 1-6 to pass junior interviews. Master phases 7-14 to pass senior (SDE2/SDE3) interviews. Understanding sharding + schema tradeoffs is what separates SDE1 from SDE2 thinking.
+  </div>
+</section>
+
+<!-- ================================= PHASE 0: GETTING STARTED ================================= -->
+<section class="phase" id="phase0">
+  <h2><span class="tag">Phase 0</span> Getting Started — Installation & Setup</h2>
+  <p class="sub">Before writing any code, you need MongoDB installed and running. This phase walks you through everything: what each tool is, how to install it, and how to verify it's working.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>🎯 Prerequisites</h3>
+      <ul>
+        <li>Terminal / Command Line familiarity (you don't need to be a shell expert)</li>
+        <li>Homebrew (macOS), Docker, or native installation capability</li>
+        <li>4GB RAM available (more is better)</li>
+        <li>5GB disk space for learning databases</li>
+        <li>Text editor or IDE (VS Code, GoLand, etc.)</li>
+        <li>Internet connection (for Atlas setup)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>What is MongoDB? (The 30-Second Version)</h3>
+      <ul>
+        <li><b>MongoDB</b> = A database that stores JSON-like documents instead of rows/columns</li>
+        <li><b>Not a spreadsheet</b> — It's optimized for flexible, nested data (perfect for modern applications)</li>
+        <li><b>Not SQL</b> — Different query syntax, but same core concepts (find, filter, group)</li>
+        <li><b>Open source</b> — You can run it yourself or use MongoDB's cloud service</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>MongoDB Flavors Explained</h3>
+      <p><b>The Three Tools:</b></p>
+      <ul>
+        <li>
+          <b>mongod</b> = The MongoDB <u>server</u> (the actual database process)
+          <br/>→ This runs in background and stores your data
+          <br/>→ You interact with it via mongosh
+          <br/>→ On macOS: <code>brew services start mongodb-community</code>
+        </li>
+        <li>
+          <b>mongosh</b> = Modern interactive shell (what you use to write queries)
+          <br/>→ Type commands like: <code>db.users.find()</code>
+          <br/>→ The recommended MongoDB shell (2022 onwards)
+          <br/>→ On macOS: <code>mongosh</code> to launch
+        </li>
+        <li>
+          <b>mongo</b> = Old deprecated shell (don't use this anymore)
+          <br/>→ Replaced by mongosh in 2022
+          <br/>→ If someone tells you to use "mongo", they're outdated — use "mongosh" instead
+        </li>
+      </ul>
+
+      <p style="margin-top: 14px;"><b>MongoDB Editions:</b></p>
+      <ul>
+        <li>
+          <b>Community</b> = Open source, free, runs on your machine
+          <br/>→ Perfect for learning, dev, and production (no cost)
+          <br/>→ What you'll use for this guide
+        </li>
+        <li>
+          <b>Enterprise</b> = Commercial, paid, includes support + security features
+          <br/>→ Used by companies that need support contracts
+          <br/>→ Not needed for learning
+        </li>
+        <li>
+          <b>Atlas</b> = MongoDB cloud-managed (SaaS)
+          <br/>→ MongoDB runs servers FOR you in the cloud (AWS, GCP, Azure)
+          <br/>→ Free tier (M0): 512MB storage, great for learning
+          <br/>→ Pay as you grow when you need more
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Installation: Local MongoDB (Community)</h3>
+      <p><b>macOS with Homebrew (Recommended for learning):</b></p>
+      <pre>
+# 1. Install MongoDB Community
+brew tap mongodb/brew
+brew install mongodb-community
+
+# 2. Start MongoDB (runs in background)
+brew services start mongodb-community
+
+# 3. Verify it's running
+mongosh --eval "db.version()"
+# Output: 8.3.4 (or whatever version you installed)
+
+# 4. To stop: brew services stop mongodb-community
+# 5. To restart: brew services restart mongodb-community
+      </pre>
+
+      <p style="margin-top: 12px;"><b>Using Docker (If you prefer containers):</b></p>
+      <pre>
+# Run MongoDB in Docker
+docker run -d -p 27017:27017 --name mongodb mongo:latest
+
+# Connect with mongosh
+mongosh mongodb://localhost:27017
+
+# Stop it
+docker stop mongodb
+      </pre>
+
+      <p style="margin-top: 12px;"><b>Windows or Linux:</b></p>
+      <ul>
+        <li><a href="https://docs.mongodb.com/manual/installation/" target="_blank">Official MongoDB Installation Guide</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Installation: mongosh (The Shell)</h3>
+      <p><b>What is mongosh?</b> The tool you use to query MongoDB. Think of it like <code>psql</code> for PostgreSQL or <code>mysql</code> CLI for MySQL.</p>
+      <pre>
+# On macOS (if not installed with MongoDB)
+brew install mongosh
+
+# Verify installation
+mongosh --version
+# Output: mongosh 2.0.0 (or later)
+
+# Quick test: connect to local MongoDB
+mongosh
+# You should see: test> prompt
+# Type: exit  (to quit)
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Verify Your Installation</h3>
+      <p>Run these commands to make sure everything works:</p>
+      <pre>
+# 1. Check mongod is running
+brew services list
+# Should show "mongodb-community started"
+
+# 2. Connect with mongosh
+mongosh
+
+# 3. Inside mongosh, run:
+db.version()
+# Should return a version number like "8.3.4"
+
+show dbs
+# Should list databases (at minimum: admin, config, local)
+
+# 4. Create a test database
+use test_db
+db.test_collection.insertOne({ message: "Hello MongoDB!" })
+
+# 5. Retrieve your data
+db.test_collection.findOne()
+# Should return: { _id: ObjectId(...), message: "Hello MongoDB!" }
+
+# 6. Exit
+exit
+      </pre>
+
+      <p style="margin-top: 10px; color: #16a34a;"><b>✅ If all above worked, you're ready to move forward!</b></p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>MongoDB Atlas: Cloud Setup (Alternative to Local)</h3>
+      <p><b>What is Atlas?</b> MongoDB's cloud service. Free tier (M0) gives you 512MB to learn with. Perfect if you don't want to run MongoDB locally.</p>
+
+      <p style="margin-top: 10px;"><b>Step 1: Create Free Cluster</b></p>
+      <ul>
+        <li>Go to <a href="https://www.mongodb.com/cloud/atlas" target="_blank">atlas.mongodb.com</a></li>
+        <li>Sign up with email or Google</li>
+        <li>Click "Create a Deployment"</li>
+        <li>Select "M0 (Free)" tier</li>
+        <li>Choose region closest to you</li>
+        <li>Click "Create Deployment"</li>
+        <li>Wait 2-3 minutes for cluster to start</li>
+      </ul>
+
+      <p style="margin-top: 10px;"><b>Step 2: Create Database User</b></p>
+      <ul>
+        <li>In Atlas, go to "Database Access" → "Add New Database User"</li>
+        <li>Username: (anything, e.g., "myuser")</li>
+        <li>Password: (use auto-generated, save it!)</li>
+        <li>Click "Add User"</li>
+      </ul>
+
+      <p style="margin-top: 10px;"><b>Step 3: Get Connection String</b></p>
+      <ul>
+        <li>Click "Connect" button</li>
+        <li>Select "Drivers"</li>
+        <li>Copy connection string that looks like:</li>
+        <li><code>mongodb+srv://myuser:password@cluster.mongodb.net/mydb?retryWrites=true&w=majority</code></li>
+      </ul>
+
+      <p style="margin-top: 10px;"><b>Step 4: Add Your IP (IMPORTANT!)</b></p>
+      <ul>
+        <li>Go to "Network Access" → "Add IP Address"</li>
+        <li>Click "Add Current IP Address"</li>
+        <li>Or add 0.0.0.0/0 to allow from anywhere (NOT for production!)</li>
+        <li>Click "Confirm"</li>
+      </ul>
+
+      <p style="margin-top: 10px;"><b>Step 5: Connect with mongosh</b></p>
+      <pre>
+# Use your connection string from Step 3
+mongosh "mongodb+srv://myuser:password@cluster.mongodb.net/mydb"
+
+# If successful, you'll see: mydb>
+# You're now connected to your Atlas database!
+      </pre>
+
+      <p style="margin-top: 10px;"><b>M0 Limitations (Free Tier):</b></p>
+      <ul>
+        <li>512MB storage (good for learning, not production)</li>
+        <li>No multi-document transactions (Phase 8 limitation)</li>
+        <li>No sharding (Phase 12 limitation)</li>
+        <li>But great for: learning all core concepts, practicing queries, preparing for interviews</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Which Setup Should YOU Use?</h3>
+      <table style="width: 100%; font-size: 13px; margin-top: 10px;">
+        <tr style="background: #f3f6fb; border-bottom: 1px solid #e3e8ef;">
+          <td style="padding: 8px;"><b>Setup</b></td>
+          <td style="padding: 8px;"><b>Best For</b></td>
+          <td style="padding: 8px;"><b>Pros</b></td>
+          <td style="padding: 8px;"><b>Cons</b></td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e3e8ef;">
+          <td style="padding: 8px;"><b>Local (mongod)</b></td>
+          <td style="padding: 8px;">Learning, fast iteration</td>
+          <td style="padding: 8px;">Full control, no internet needed, fast</td>
+          <td style="padding: 8px;">Need to manage process</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e3e8ef;">
+          <td style="padding: 8px;"><b>Docker</b></td>
+          <td style="padding: 8px;">Containers, portability</td>
+          <td style="padding: 8px;">Isolated, repeatable setup</td>
+          <td style="padding: 8px;">Need Docker installed</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px;"><b>Atlas M0</b></td>
+          <td style="padding: 8px;">Cloud learning, no setup</td>
+          <td style="padding: 8px;">Zero setup, cloud-ready, practice Atlas concepts</td>
+          <td style="padding: 8px;">512MB limit, needs internet</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>🎯 For this guide:</b> I recommend <u>Local MongoDB + mongosh</u> for fast learning. Once you're comfortable, try Atlas to practice cloud deployments.
+  </div>
+</section>
+
+<!-- ================================= DAILY MONGOSH COMMANDS ================================= -->
+<section class="phase" id="daily-commands">
+  <h2>⚡ Daily mongosh Commands & Connection Strings</h2>
+  <p class="sub">You'll use these commands every single day. Master these 15 commands first, then learn everything else.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Connecting to MongoDB</h3>
+      <p><b>Local Connection (on your machine):</b></p>
+      <pre>
+# Default: connects to localhost:27017
+mongosh
+
+# Explicit local with default database
+mongosh mongodb://localhost:27017/mydb
+
+# Explicit with authentication
+mongosh mongodb://username:password@localhost:27017/mydb
+      </pre>
+
+      <p style="margin-top: 12px;"><b>Atlas Connection (cloud):</b></p>
+      <pre>
+# Atlas format (connection string from Atlas dashboard)
+mongosh "mongodb+srv://user:pass@cluster.mongodb.net/dbname"
+
+# Replace: user, pass, cluster with your Atlas values
+# Copy from Atlas → Connect → Drivers
+      </pre>
+
+      <p style="margin-top: 12px;"><b>Connection String Parameters:</b></p>
+      <pre>
+# Common connection string options:
+?retryWrites=true          # Automatically retry writes
+&w=majority                # Wait for all replicas to confirm
+&ssl=true                  # Use encrypted connection
+&authSource=admin          # Where auth DB is
+&maxPoolSize=10            # Connection pool size
+
+# Example with parameters:
+mongodb+srv://user:pass@cluster.mongodb.net/db?retryWrites=true&w=majority
+      </pre>
+
+      <p style="margin-top: 10px;"><b>Exiting mongosh:</b></p>
+      <pre>
+exit
+# or press Ctrl+D
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>The 15 Essential Commands (MEMORIZE THESE)</h3>
+      <p><b>1. Check current database:</b></p>
+      <pre>db</pre>
+
+      <p style="margin-top: 10px;"><b>2. Switch to a database:</b></p>
+      <pre>use mydb  # If mydb doesn't exist, MongoDB creates it on first insert</pre>
+
+      <p style="margin-top: 10px;"><b>3. List all databases:</b></p>
+      <pre>show dbs  # Shows only databases that have data</pre>
+
+      <p style="margin-top: 10px;"><b>4. List all collections in current database:</b></p>
+      <pre>show collections</pre>
+
+      <p style="margin-top: 10px;"><b>5. Check MongoDB version:</b></p>
+      <pre>db.version()</pre>
+
+      <p style="margin-top: 10px;"><b>6. Check server status:</b></p>
+      <pre>db.serverStatus().uptime  # Uptime in seconds</pre>
+
+      <p style="margin-top: 10px;"><b>7. Create a collection (explicit):</b></p>
+      <pre>db.createCollection("users")</pre>
+
+      <p style="margin-top: 10px;"><b>8. Insert a document:</b></p>
+      <pre>db.users.insertOne({ name: "Alice", age: 30 })</pre>
+
+      <p style="margin-top: 10px;"><b>9. Find all documents:</b></p>
+      <pre>db.users.find()  # Shows all documents (max 20 by default)</pre>
+
+      <p style="margin-top: 10px;"><b>10. Find one document:</b></p>
+      <pre>db.users.findOne()  # Returns first document</pre>
+
+      <p style="margin-top: 10px;"><b>11. Count documents:</b></p>
+      <pre>db.users.countDocuments()  # How many docs total</pre>
+
+      <p style="margin-top: 10px;"><b>12. Delete all documents (CAREFUL!):</b></p>
+      <pre>db.users.deleteMany({})  # Removes everything in collection</pre>
+
+      <p style="margin-top: 10px;"><b>13. Drop entire collection:</b></p>
+      <pre>db.users.drop()  # Removes collection completely</pre>
+
+      <p style="margin-top: 10px;"><b>14. Drop entire database:</b></p>
+      <pre>db.dropDatabase()  # Removes current database (DANGEROUS!)</pre>
+
+      <p style="margin-top: 10px;"><b>15. Get help:</b></p>
+      <pre>help           # General help
+help db        # Database help
+help db.col    # Collection help</pre>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Finding and Querying (Daily Use)</h3>
+      <pre>
+# Find with filter
+db.users.find({ age: 30 })
+
+# Find with projection (only show certain fields)
+db.users.find({}, { name: 1, age: 1, _id: 0 })
+
+# Find with sorting
+db.users.find().sort({ age: -1 })  # -1 = descending, 1 = ascending
+
+# Limit results
+db.users.find().limit(5)
+
+# Skip results (for pagination)
+db.users.find().skip(10).limit(5)  # Skip first 10, take next 5
+
+# Chain them together
+db.users.find({ status: "active" })
+  .sort({ createdAt: -1 })
+  .skip(20)
+  .limit(10)
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Updating Documents (Daily Use)</h3>
+      <pre>
+# Update one document
+db.users.updateOne(
+  { _id: ObjectId("...") },
+  { $set: { age: 31 } }
+)
+
+# Update many documents
+db.users.updateMany(
+  { status: "inactive" },
+  { $set: { status: "active" } }
+)
+
+# Increment a field
+db.users.updateOne(
+  { _id: ObjectId("...") },
+  { $inc: { loginCount: 1 } }
+)
+
+# Add item to array
+db.users.updateOne(
+  { _id: ObjectId("...") },
+  { $push: { tags: "vip" } }
+)
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Deleting Documents (Daily Use)</h3>
+      <pre>
+# Delete one document
+db.users.deleteOne({ _id: ObjectId("...") })
+
+# Delete many matching documents
+db.users.deleteMany({ status: "inactive" })
+
+# Delete all (CAREFUL!)
+db.users.deleteMany({})
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Collection Management</h3>
+      <pre>
+# Get collection stats
+db.users.stats()
+
+# List all indexes
+db.users.getIndexes()
+
+# Create index on a field
+db.users.createIndex({ email: 1 })
+
+# Create compound index
+db.users.createIndex({ status: 1, createdAt: -1 })
+
+# Drop an index
+db.users.dropIndex("email_1")
+
+# Validate collection
+db.users.validate()
+
+# Rename collection
+db.users.renameCollection("customers")
+      </pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>💡 Pro Tip:</b> Keep these 15 commands in your clipboard. When you're stuck, these will get you 90% of the way to solving the problem. The other 10% is reading the documentation.
+  </div>
+
+  <div class="project">
+    <b>Exercise for you:</b> Open mongosh, connect to your local MongoDB, and run all 15 commands above. Don't move to Phase 1 until you're comfortable with these. This is foundational.
+  </div>
+</section>
+
+<!-- ================================= PHASE 1 ================================= -->
+<section class="phase" id="phase1">
+  <h2><span class="tag">Phase 1</span> MongoDB Fundamentals — The Mental Model Shift</h2>
+  <p class="sub">Everything you build later depends on getting this right. You MUST internalize the MongoDB way of thinking before any query makes sense.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>SQL to MongoDB Mapping</h3>
+      <ul>
+        <li><b>Database</b> → Database (same)</li>
+        <li><b>Table</b> → Collection</li>
+        <li><b>Row</b> → Document</li>
+        <li><b>Column</b> → Field</li>
+        <li><b>Primary Key</b> → <code>_id</code> (auto-generated ObjectId if not provided)</li>
+        <li><b>Schema</b> → Flexible (no fixed columns)</li>
+        <li><b>JOIN</b> → Embedding OR <code>$lookup</code> in aggregation</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Document Structure</h3>
+      <p>MongoDB documents are JSON-like objects:</p>
+      <pre><code>{
+  "_id": ObjectId("507f1f77bcf86cd799439011"),
+  "name": "Sid Rameshwar",
+  "age": 28,
+  "email": "sid@example.com",
+  "tags": ["golang", "backend"],
+  "address": {
+    "city": "San Francisco",
+    "zip": "94105"
+  },
+  "createdAt": ISODate("2024-01-15T10:30:00Z")
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <h3>BSON Types (Not Just JSON)</h3>
+      <ul>
+        <li><code>ObjectId</code> — 12-byte unique ID, sortable, contains timestamp</li>
+        <li><code>String</code> — UTF-8 encoded text</li>
+        <li><code>Int32, Int64, Double, Decimal128</code> — number types</li>
+        <li><code>Boolean</code> — true/false</li>
+        <li><code>Date</code> — milliseconds since Unix epoch</li>
+        <li><code>Array</code> — ordered list of values</li>
+        <li><code>Object</code> — nested document</li>
+        <li><code>Null</code> — missing/empty field</li>
+        <li><code>Binary</code> — raw bytes (images, files)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Why MongoDB? (Real Reasons)</h3>
+      <ul>
+        <li><b>Flexible Schema:</b> Each microservice in your codebase stores different data shapes in the same collection. SQL requires ALTER TABLE; MongoDB allows it.</li>
+        <li><b>Horizontal Scaling:</b> Sharding spreads data across machines. Your services grow without buying bigger hardware.</li>
+        <li><b>Document Shape Matches APIs:</b> JSON request → JSON document → JSON response. No mapping layer needed.</li>
+        <li><b>Aggregation:</b> Complex data transformations are native operations, not application logic.</li>
+        <li><b>Embedded Documents:</b> Related data in one place. No JOIN overhead for common queries.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Key Interview Questions</h4>
+    <div class="interview-q">
+      <b>Q: Why use MongoDB instead of PostgreSQL?</b><br>
+      A: MongoDB excels when: (1) schema evolves frequently (microservices with different data shapes), (2) horizontal scaling is needed (shard across machines), (3) data is naturally hierarchical (nested documents), (4) you need JSON-native APIs. PostgreSQL is better for relational data with fixed schemas and complex JOINs.
+    </div>
+    <div class="interview-q">
+      <b>Q: Explain ObjectId. Why does it matter?</b><br>
+      A: ObjectId is a 12-byte value: 4-byte timestamp + 5-byte machine ID + 3-byte counter. (1) It's unique globally across all machines. (2) It's sortable (ordered by creation time). (3) It contains the creation timestamp without a separate timestamp field. (4) In your codebase, ObjectIds are used as document IDs across all services.
+    </div>
+    <div class="interview-q">
+      <b>Q: Is MongoDB schema-less? Can you enforce structure?</b><br>
+      A: MongoDB is schema-less by default — any document can have any fields. But you CAN enforce a schema using $jsonSchema validation at the collection level. Best practice: enforce in DB ($jsonSchema) + application layer (Go struct tags). Your sonarqube service uses Go struct marshaling for validation.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> <code>null</code> in MongoDB and <code>missing field</code> are different. A query <code>{ age: null }</code> matches documents where age=null OR age field doesn't exist. Use <code>{ $exists: false }</code> to match only missing fields.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your jfrog service stores artifact metadata with varying fields per repository type. SQL would require separate tables; MongoDB handles it with flexible documents. Your sonarqube service stores scan results from different languages—each has different analysis fields. MongoDB's flexibility is essential here.
+  </div>
+</section>
+
+<!-- ================================= PHASE 2 ================================= -->
+<section class="phase" id="phase2">
+  <h2><span class="tag">Phase 2</span> CRUD Operations — The Foundation of Everything</h2>
+  <p class="sub">60% of what you do in production is CRUD. Master these to perfection. You should be able to write all 4 operations without opening documentation.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>CREATE: Insert</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Shell:</div>
+        <pre><code>// Insert one document
+db.users.insertOne({ name: "Sid", age: 28 })
+
+// Insert many (one network round-trip, not N)
+db.users.insertMany([
+  { name: "Alice", age: 25 },
+  { name: "Bob", age: 30 }
+])
+
+// Returns: { insertedId: ObjectId(...) }</code></pre>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header">Go Driver:</div>
+        <pre><code>// Single insert
+result, err := col.InsertOne(ctx, bson.M{
+  "name": "Sid",
+  "age": 28,
+})
+// err = nil if successful, result.InsertedID is the _id
+
+// Batch insert
+results, err := col.InsertMany(ctx, []interface{}{
+  bson.M{"name": "Alice", "age": 25},
+  bson.M{"name": "Bob", "age": 30},
+})
+// results.InsertedIDs is []interface{} of all IDs</code></pre>
+      </div>
+      <ul>
+        <li>MongoDB auto-creates <code>_id</code> if not provided</li>
+        <li>You CAN provide your own <code>_id</code> (must be unique)</li>
+        <li>Collection is auto-created on first insert</li>
+        <li>Use <code>InsertMany</code> for batch operations (1 network call vs N)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>READ: Find</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Shell:</div>
+        <pre><code>// Find all documents
+db.users.find()
+
+// Find with filter
+db.users.find({ age: 28 })
+
+// Find one (returns first match or null)
+db.users.findOne({ email: "sid@example.com" })
+
+// With projection (select fields)
+db.users.find({}, { name: 1, email: 1, _id: 0 })
+
+// With sort, limit, skip
+db.users.find().sort({ createdAt: -1 }).limit(10).skip(20)</code></pre>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header">Go Driver:</div>
+        <pre><code>// Find one
+var result bson.M
+err := col.FindOne(ctx, bson.M{"email": "sid@example.com"}).Decode(&result)
+if err == mongo.ErrNoDocuments {
+  // No match found (not a real error)
+}
+
+// Find many (returns cursor)
+cursor, err := col.Find(ctx, bson.M{"age": bson.M{"$gte": 25}})
+defer cursor.Close(ctx)
+
+// Decode all results
+var results []bson.M
+err = cursor.All(ctx, &results)
+
+// Or iterate
+for cursor.Next(ctx) {
+  var doc bson.M
+  cursor.Decode(&doc)
+}</code></pre>
+      </div>
+      <ul>
+        <li><code>Find</code> returns a cursor (lazy evaluation)</li>
+        <li><code>FindOne</code> fetches just one document</li>
+        <li>Always check for <code>mongo.ErrNoDocuments</code> in Go</li>
+        <li>Projections reduce network bandwidth</li>
+        <li>Order: filter → sort → skip → limit</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>UPDATE: Modify Existing</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Shell:</div>
+        <pre><code>// Update one document
+db.users.updateOne(
+  { email: "sid@example.com" },
+  { $set: { age: 29, updated: new Date() } }
+)
+
+// Update many matching
+db.users.updateMany(
+  { status: "inactive" },
+  { $set: { active: false } }
+)
+
+// Find and update (returns the doc)
+db.users.findOneAndUpdate(
+  { _id: ObjectId("...") },
+  { $set: { lastLogin: new Date() } },
+  { returnDocument: "after" }
+)</code></pre>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header">Go Driver:</div>
+        <pre><code>// Update one
+result, err := col.UpdateOne(ctx,
+  bson.M{"email": "sid@example.com"},
+  bson.M{"$set": bson.M{"age": 29}},
+)
+// result.ModifiedCount tells you how many docs were updated
+
+// Find and update (returns the doc)
+var updated bson.M
+err := col.FindOneAndUpdate(ctx,
+  bson.M{"_id": id},
+  bson.M{"$set": bson.M{"lastLogin": time.Now()}},
+  options.FindOneAndUpdate().SetReturnDocument(options.After),
+).Decode(&updated)</code></pre>
+      </div>
+      <ul>
+        <li><code>$set</code> modifies only specified fields</li>
+        <li><code>replaceOne</code> replaces entire document (dangerous!)</li>
+        <li>Always use <code>$set</code> in production (safer than replace)</li>
+        <li><code>ModifiedCount</code> can be 0 if no documents matched</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>DELETE: Remove Data</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Shell:</div>
+        <pre><code>// Delete one document
+db.users.deleteOne({ email: "sid@example.com" })
+
+// Delete many matching
+db.users.deleteMany({ status: "deleted" })
+
+// Delete entire collection
+db.users.drop()
+
+// Before deletion: always preview with find
+db.users.find({ status: "deleted" }).count()</code></pre>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header">Go Driver:</div>
+        <pre><code>// Delete one
+result, err := col.DeleteOne(ctx, bson.M{"email": "sid@example.com"})
+// result.DeletedCount
+
+// Delete many
+result, err := col.DeleteMany(ctx, bson.M{"status": "deleted"})
+// result.DeletedCount</code></pre>
+      </div>
+      <ul>
+        <li>Deletion is immediate — no trash bin</li>
+        <li><b>Safety rule:</b> Always run <code>find()</code> with same filter first</li>
+        <li><code>DeletedCount</code> can be 0 if no match</li>
+        <li>Cannot delete individual array elements easily; use <code>$pull</code> update instead</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: CRUD</h4>
+    <div class="interview-q">
+      <b>Q: Difference between updateOne and updateMany?</b><br>
+      A: <code>updateOne</code> updates the first matching document. <code>updateMany</code> updates all matching documents. Always sure which one you want — accidental updateMany is a common bug.
+    </div>
+    <div class="interview-q">
+      <b>Q: What does InsertMany do vs individual InsertOne calls?</b><br>
+      A: <code>InsertMany</code> sends all inserts in one network round-trip. 1000 individual InsertOne calls = 1000 round-trips (slow). One InsertMany with 1000 docs = 1 round-trip (fast). Your jfrog service uses this for bulk artifact inserts.
+    </div>
+    <div class="interview-q">
+      <b>Q: What is findOneAndUpdate and when would you use it?</b><br>
+      A: <code>findOneAndUpdate</code> atomically updates a document and returns it (original or updated, your choice). Useful when you need to know the final state immediately. Your nwayfw service uses this pattern for inventory updates.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> <code>db.find()</code> does NOT return an array — it returns a Cursor. In Go, you must call <code>cursor.All(ctx, &results)</code> to get an array. Not calling All() means you're iterating lazily, which is fine for large datasets but not if you expect a complete list.
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> <code>FindOne</code> with no match returns <code>mongo.ErrNoDocuments</code>. This is NOT a real error — it's an expected result. Always check <code>if err == mongo.ErrNoDocuments</code> separately from other errors.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your sonarqube service batch-inserts 1000s of scan results. It uses <code>InsertMany</code>, not individual inserts. Similarly, your jfrog service bulk-updates artifacts with upsert=true, hitting multiple documents in one call via BulkWrite.
+  </div>
+</section>
+
+<!-- ================================= PHASE 3 ================================= -->
+<section class="phase" id="phase3">
+  <h2><span class="tag">Phase 3</span> Query Operators — Expressing Complex Filters</h2>
+  <p class="sub">Basic <code>find({ age: 25 })</code> only works for exact matches. Real queries use operators: greater than, in a list, regular expressions, etc. These are used constantly in your codebase.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Comparison Operators</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Common operators:</div>
+        <pre><code>// $eq: equal (same as plain field: value)
+{ age: { $eq: 25 } }
+
+// $ne: not equal
+{ status: { $ne: "deleted" } }
+
+// $gt, $gte, $lt, $lte: greater/less than
+{ age: { $gt: 25, $lt: 65 } }
+
+// $in: field value is in an array
+{ status: { $in: ["active", "pending"] } }
+
+// $nin: field value is NOT in an array
+{ role: { $nin: ["admin", "root"] } }</code></pre>
+      </div>
+      <ul>
+        <li><code>$in</code> is very common in your code (sonarqube, jfrog)</li>
+        <li><code>$nin</code> = NOT in list (opposite of $in)</li>
+        <li><code>$eq</code> is rarely needed (plain object is cleaner)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Logical Operators</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Combine conditions:</div>
+        <pre><code>// $and: ALL conditions must be true
+{ $and: [
+  { age: { $gt: 18 } },
+  { status: "active" }
+] }
+
+// $or: ANY condition must be true
+{ $or: [
+  { role: "admin" },
+  { department: "DevOps" }
+] }
+
+// $not: negate a condition
+{ age: { $not: { $gt: 65 } } }
+
+// $nor: NONE of the conditions are true
+{ $nor: [
+  { deleted: true },
+  { archived: true }
+] }</code></pre>
+      </div>
+      <ul>
+        <li><code>$and</code> is implicit when you write <code>{ a: 1, b: 2 }</code></li>
+        <li><code>$or</code> requires explicit syntax</li>
+        <li><code>$nor</code> = NOT ($or)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Element Operators</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Check field existence/type:</div>
+        <pre><code>// $exists: field exists (or doesn't)
+{ phone: { $exists: true } }
+{ phone: { $exists: false } }  // missing field
+
+// $type: field is a specific BSON type
+{ age: { $type: "int" } }
+{ email: { $type: "string" } }</code></pre>
+      </div>
+      <ul>
+        <li>Used in your jfrog service for artifact field validation</li>
+        <li><code>$exists: false</code> differs from <code>$eq: null</code> (latter matches null values too)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Array Operators</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Query array fields:</div>
+        <pre><code>// $all: array contains ALL these values
+{ tags: { $all: ["go", "backend"] } }
+
+// $size: array has exactly N elements
+{ tags: { $size: 3 } }
+
+// $elemMatch: at least one element matches ALL conditions
+{ comments: { $elemMatch: { 
+    author: "Sid",
+    score: { $gte: 5 }
+  }
+}}</code></pre>
+      </div>
+      <ul>
+        <li><code>$all</code> is used in your sonarqube service for tag filtering</li>
+        <li><code>$size</code> cannot be used with other operators on the same field</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Text & Regex Operators</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Pattern matching:</div>
+        <pre><code>// $regex: pattern match (like LIKE in SQL)
+{ name: { $regex: "^Sid", $options: "i" } }  // case-insensitive
+
+// $text: full-text search (requires text index)
+{ $text: { $search: "mongodb golang" } }
+
+// $where: JavaScript (AVOID in production)
+{ $where: "this.age > 25" }  // SLOW!</code></pre>
+      </div>
+      <ul>
+        <li><code>$regex</code> is common but not as fast as indexed fields</li>
+        <li><code>$text</code> requires a text index first</li>
+        <li><code>$where</code> executes JavaScript per document — never use in production</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Go Driver: Query Examples</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Go code:</div>
+        <pre><code>// Find users where age > 25 AND status = "active"
+filter := bson.M{
+  "age": bson.M{"$gt": 25},
+  "status": "active",
+}
+cursor, _ := col.Find(ctx, filter)
+
+// Find where role is in ["admin", "dev"]
+filter := bson.M{
+  "role": bson.M{"$in": []string{"admin", "dev"}},
+}
+
+// Find where tags array contains both "go" and "backend"
+filter := bson.M{
+  "tags": bson.M{"$all": []string{"go", "backend"}},
+}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Query Operators</h4>
+    <div class="interview-q">
+      <b>Q: When should you use $in vs $eq with multiple values?</b><br>
+      A: <code>{ role: { $in: ["admin", "dev"] } }</code> is cleaner than <code>{ $or: [{ role: "admin" }, { role: "dev" }] }</code>. Always prefer <code>$in</code> for checking if a field is one of several values.
+    </div>
+    <div class="interview-q">
+      <b>Q: How do $or and $and combine? Is there an implicit AND?</b><br>
+      A: Yes, fields at the top level have an implicit AND. <code>{ age: 25, status: "active" }</code> means age=25 AND status="active". To use OR, you must be explicit: <code>{ $or: [...] }</code>.
+    </div>
+    <div class="interview-q">
+      <b>Q: What is the difference between { age: null } and { age: { $exists: false } }?</b><br>
+      A: <code>{ age: null }</code> matches documents where age field=null OR the field doesn't exist. <code>{ age: { $exists: false } }</code> matches only documents where the age field is missing entirely.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> <code>$in</code> with an empty array <code>{ field: { $in: [] } }</code> matches NO documents. If your code builds a dynamic filter list and it's empty, remember this will return 0 results, not all documents.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your develop service filters issues by <code>{ status: { $in: ["open", "in-progress"] } }</code>. Your sonarqube service filters projects by language: <code>{ language: { $in: ["go", "python"] } }</code>. This pattern is everywhere.
+  </div>
+</section>
+
+<!-- ================================= PHASE 4 ================================= -->
+<section class="phase" id="phase4">
+  <h2><span class="tag">Phase 4</span> Update Operators — Surgical Modifications</h2>
+  <p class="sub">Never replace an entire document just to change one field. MongoDB provides operators to modify exactly what you need. These keep your code clean and fast.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Field Update Operators</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Modify individual fields:</div>
+        <pre><code>// $set: set field value (most common)
+{ $set: { status: "active", updated: new Date() } }
+
+// $unset: remove a field
+{ $unset: { deprecated_field: "" } }
+
+// $inc: increment a number field
+{ $inc: { views: 1, score: 5 } }
+
+// $mul: multiply a number
+{ $mul: { price: 1.1 } }  // 10% increase
+
+// $rename: rename a field
+{ $rename: { "oldName": "newName" } }
+
+// $min: update only if new value is smaller
+{ $min: { salary: 50000 } }
+
+// $max: update only if new value is larger
+{ $max: { maxScore: 100 } }
+
+// $currentDate: set field to current timestamp
+{ $currentDate: { lastModified: true } }</code></pre>
+      </div>
+      <ul>
+        <li><code>$set</code> is the most common in production</li>
+        <li><code>$inc</code> is atomic (no race conditions)</li>
+        <li><code>$unset</code> removes the field entirely</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Array Update Operators</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Modify array fields:</div>
+        <pre><code>// $push: add element to array
+{ $push: { tags: "go" } }
+
+// $pull: remove matching elements from array
+{ $pull: { tags: "deprecated" } }
+
+// $addToSet: add to array only if not already present
+{ $addToSet: { languages: "python" } }
+
+// $pop: remove first (-1) or last (1) element
+{ $pop: { history: 1 } }  // remove last
+
+// $each: push multiple elements
+{ $push: { tags: { $each: ["go", "api", "backend"] } } }
+
+// $sort + $slice: sort array then keep first N
+{ $push: {
+    scores: { 
+      $each: [85, 92],
+      $sort: -1,
+      $slice: 10
+    }
+  }
+}</code></pre>
+      </div>
+      <ul>
+        <li><code>$push</code> allows duplicates</li>
+        <li><code>$addToSet</code> prevents duplicates (set behavior)</li>
+        <li><code>$pull</code> is used in your develop service to remove resolved items</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Upsert — Update OR Insert</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Upsert pattern:</div>
+        <pre><code>// Shell
+db.users.updateOne(
+  { email: "sid@example.com" },
+  { $set: { name: "Sid", updated: new Date() } },
+  { upsert: true }
+)
+
+// Go driver
+opts := options.Update().SetUpsert(true)
+result, err := col.UpdateOne(ctx,
+  bson.M{"email": "sid@example.com"},
+  bson.M{"$set": bson.M{"name": "Sid"}},
+  opts,
+)
+// result.UpsertedID will be set if insert happened</code></pre>
+      </div>
+      <ul>
+        <li><b>Upsert = Update + Insert</b></li>
+        <li>If filter matches → update the document</li>
+        <li>If filter doesn't match → insert a new document</li>
+        <li>Eliminates need for find-then-insert pattern</li>
+        <li>Your nwayfw service uses this heavily for inventory management</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>$setOnInsert — Control Upsert Behavior</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Only set fields on insert:</div>
+        <pre><code>// Update: increment counter
+// Insert: set counter = 1, set createdAt
+db.stats.updateOne(
+  { metric: "requests" },
+  {
+    $inc: { count: 1 },
+    $setOnInsert: { 
+      createdAt: new Date(),
+      count: 1  // initialize count to 1
+    }
+  },
+  { upsert: true }
+)</code></pre>
+      </div>
+      <ul>
+        <li><code>$setOnInsert</code> only applies when upsert inserts a new document</li>
+        <li>On updates, <code>$setOnInsert</code> is ignored</li>
+        <li>Perfect for initialization on first occurrence</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>BulkWrite — Batch Multiple Operations</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Shell:</div>
+        <pre><code>db.users.bulkWrite([
+  {
+    insertOne: { document: { name: "Sid", age: 28 } }
+  },
+  {
+    updateOne: {
+      filter: { email: "alice@example.com" },
+      update: { $set: { active: true } }
+    }
+  },
+  {
+    deleteMany: { filter: { status: "deleted" } }
+  }
+])
+// Returns: { insertedCount, modifiedCount, deletedCount }</code></pre>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header">Go Driver:</div>
+        <pre><code>models := []mongo.WriteModel{
+  mongo.NewInsertOneModel().SetDocument(bson.M{"name": "Sid"}),
+  mongo.NewUpdateOneModel().
+    SetFilter(bson.M{"email": "alice@example.com"}).
+    SetUpdate(bson.M{"$set": bson.M{"active": true}}),
+  mongo.NewDeleteManyModel().
+    SetFilter(bson.M{"status": "deleted"}),
+}
+
+result, err := col.BulkWrite(ctx, models)
+// result.InsertedCount, result.ModifiedCount, result.DeletedCount</code></pre>
+      </div>
+      <ul>
+        <li><code>BulkWrite</code> sends all operations in one network call</li>
+        <li>Orders: <code>ordered: true</code> (stop on error), <code>ordered: false</code> (continue on error)</li>
+        <li>Your jfrog service uses this for batch artifact updates</li>
+        <li>100 BulkWrite operations = 1 network call (vs 100 individual calls)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Update Operators</h4>
+    <div class="interview-q">
+      <b>Q: Explain the difference between $push and $addToSet.</b><br>
+      A: <code>$push</code> always appends to an array, even if the value exists (allows duplicates). <code>$addToSet</code> only adds if the value doesn't already exist (set semantics, no duplicates). Use <code>$addToSet</code> for tags/labels, <code>$push</code> for logs/events.
+    </div>
+    <div class="interview-q">
+      <b>Q: What is upsert and when would you use it?</b><br>
+      A: Upsert = update + insert. If the filter matches an existing document, update it. If not, insert a new one. Advantages: (1) eliminates race conditions, (2) one operation instead of find-then-insert, (3) atomic. Your streaming service uses it for inventory updates.
+    </div>
+    <div class="interview-q">
+      <b>Q: Why use BulkWrite instead of individual updateOne calls?</b><br>
+      A: BulkWrite sends all operations in one network round-trip. 1000 individual calls = 1000 network round-trips (slow). One BulkWrite with 1000 models = 1 round-trip (fast). Can reduce latency from seconds to milliseconds for large batch operations.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> If you use <code>$set: { }</code> (empty object), MongoDB does nothing. Not an error, just silently no-op. This can hide bugs in your code if you're conditionally building the update object.
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> <code>$inc</code> on a field that doesn't exist creates it with value=N. <code>$inc: { counter: 1 }</code> on a non-existent field results in counter=1. This is a feature (initialization) but watch out for unexpected fields.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your jfrog service uses BulkWrite to update 1000s of artifacts in seconds. Your develop service uses <code>$push</code> to append events to issue history. Your sonarqube service uses <code>$inc</code> to update scan counters atomically without race conditions.
+  </div>
+</section>
+
+<!-- ================================= PHASE 5 ================================= -->
+<section class="phase" id="phase5">
+  <h2><span class="tag">Phase 5</span> Aggregation Pipeline — Data Transformation Power</h2>
+  <p class="sub">Aggregation is MongoDB's most powerful feature. Think of it as SQL's GROUP BY + SELECT + JOINs all built-in. This is what separates good MongoDB code from great code. Master this.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Pipeline Stages (In Order)</h3>
+      <ul>
+        <li><b>$match</b> → Filter documents (like WHERE)</li>
+        <li><b>$sort</b> → Order results</li>
+        <li><b>$skip</b> → Skip first N</li>
+        <li><b>$limit</b> → Take first N</li>
+        <li><b>$project</b> → Select/reshape fields</li>
+        <li><b>$group</b> → Summarize/aggregate</li>
+        <li><b>$unwind</b> → Flatten arrays</li>
+        <li><b>$lookup</b> → JOIN to another collection</li>
+        <li><b>$facet</b> → Run multiple sub-pipelines</li>
+        <li><b>$out</b> → Write results to collection</li>
+      </ul>
+      <div class="warn">
+        <b>💡 Golden Rule:</b> Always put <code>$match</code> FIRST to reduce documents early. Filtering 10M → 100 at the start is way faster than filtering after expensive operations.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>$match: Filter Early</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Start pipeline with $match:</div>
+        <pre><code>db.orders.aggregate([
+  { $match: { status: "completed", amount: { $gte: 100 } } },
+  { $group: { _id: "$userId", total: { $sum: "$amount" } } }
+])
+
+// Go driver
+pipeline := mongo.Pipeline{
+  bson.D{{Key: "$match", Value: bson.D{
+    {Key: "status", Value: "completed"},
+  }}},
+}</code></pre>
+      </div>
+      <ul>
+        <li>Filters input to the pipeline</li>
+        <li>Supports all query operators: <code>$gt</code>, <code>$in</code>, <code>$and</code>, etc.</li>
+        <li>Dramatically reduces data processed in downstream stages</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>$group: Summarize Data</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Aggregate by field:</div>
+        <pre><code>// Total spent per user
+db.orders.aggregate([
+  { $group: {
+    _id: "$userId",
+    total: { $sum: "$amount" },
+    count: { $sum: 1 },
+    avg: { $avg: "$amount" },
+    max: { $max: "$amount" }
+  }}
+])
+
+// Group ALL documents (pass null as _id)
+db.orders.aggregate([
+  { $group: {
+    _id: null,
+    totalRevenue: { $sum: "$amount" },
+    avgOrder: { $avg: "$amount" }
+  }}
+])</code></pre>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header">Accumulators:</div>
+        <pre><code>$sum     // total or count
+$avg     // average
+$min     // minimum
+$max     // maximum
+$count   // count documents
+$push    // array of values (collect)
+$addToSet // array of unique values
+$first   // first value (with sort)
+$last    // last value (with sort)</code></pre>
+      </div>
+      <ul>
+        <li><code>_id</code> is the group-by field</li>
+        <li><code>_id: null</code> = group everything</li>
+        <li><code>$sum: 1</code> counts documents</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>$project: Shape Output</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Select and compute fields:</div>
+        <pre><code>// Include only certain fields
+{ $project: { name: 1, email: 1, _id: 0 } }
+
+// Rename fields
+{ $project: { userName: "$name" } }
+
+// Compute new fields
+{ $project: {
+    fullName: { $concat: ["$first", " ", "$last"] },
+    age: { $year: new Date() - "$birthYear" },
+    isActive: { $cond: [
+      { $eq: ["$status", "active"] },
+      true,
+      false
+    ]}
+  }
+}</code></pre>
+      </div>
+      <ul>
+        <li><code>1</code> = include, <code>0</code> = exclude</li>
+        <li><code>$fieldName</code> references existing fields</li>
+        <li>Expression functions: <code>$concat</code>, <code>$substr</code>, <code>$toUpper</code>, <code>$cond</code>, etc.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>$lookup: JOIN Collections</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Join users with orders:</div>
+        <pre><code>db.orders.aggregate([
+  { $lookup: {
+    from: "users",
+    localField: "userId",
+    foreignField: "_id",
+    as: "user"
+  }},
+  { $project: {
+    orderId: 1,
+    amount: 1,
+    "user.name": 1,
+    "user.email": 1
+  }}
+])
+
+// Go example
+pipeline := mongo.Pipeline{
+  bson.D{{Key: "$lookup", Value: bson.D{
+    {Key: "from", Value: "users"},
+    {Key: "localField", Value: "userId"},
+    {Key: "foreignField", Value: "_id"},
+    {Key: "as", Value: "user"},
+  }}},
+}</code></pre>
+      </div>
+      <ul>
+        <li><b>from:</b> collection to join</li>
+        <li><b>localField:</b> field in current doc</li>
+        <li><b>foreignField:</b> field in foreign collection</li>
+        <li><b>as:</b> array name for results (nested inside output doc)</li>
+        <li>Similar to LEFT JOIN in SQL</li>
+        <li><code>user</code> is an array (can be empty if no match)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>$unwind: Flatten Arrays</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Expand array elements to separate docs:</div>
+        <pre><code>// Before:
+{ _id: 1, user: "Sid", tags: ["go", "api", "backend"] }
+
+// After $unwind: "$tags"
+{ _id: 1, user: "Sid", tags: "go" }
+{ _id: 1, user: "Sid", tags: "api" }
+{ _id: 1, user: "Sid", tags: "backend" }
+
+// Then you can $group by tags
+{ $unwind: "$tags" },
+{ $group: { _id: "$tags", count: { $sum: 1 } } }
+// Result: count of documents per tag</code></pre>
+      </div>
+      <ul>
+        <li><code>$unwind</code> creates one output doc per array element</li>
+        <li>Required before you can group by array values</li>
+        <li>Can significantly increase document count in pipeline</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Real Pipeline Example: Revenue Report</h4>
+    <div class="codeblock">
+      <div class="codeblock-header">Calculate total revenue per user, top 10, last 30 days:</div>
+      <pre><code>db.orders.aggregate([
+  // 1. Filter to recent completed orders
+  { $match: {
+    status: "completed",
+    createdAt: { $gte: new Date(Date.now() - 30*24*60*60*1000) }
+  }},
+  
+  // 2. Group by user, sum revenue
+  { $group: {
+    _id: "$userId",
+    totalRevenue: { $sum: "$amount" },
+    orderCount: { $sum: 1 },
+    avgOrder: { $avg: "$amount" }
+  }},
+  
+  // 3. Sort descending
+  { $sort: { totalRevenue: -1 } },
+  
+  // 4. Take top 10
+  { $limit: 10 },
+  
+  // 5. Join with user details
+  { $lookup: {
+    from: "users",
+    localField: "_id",
+    foreignField: "_id",
+    as: "userData"
+  }},
+  
+  // 6. Shape output
+  { $project: {
+    userId: "$_id",
+    _id: 0,
+    totalRevenue: 1,
+    orderCount: 1,
+    avgOrder: 1,
+    userName: { $arrayElemAt: ["$userData.name", 0] },
+    userEmail: { $arrayElemAt: ["$userData.email", 0] }
+  }}
+])</code></pre>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Aggregation</h4>
+    <div class="interview-q">
+      <b>Q: Explain the aggregation pipeline. What order do stages execute?</b><br>
+      A: Stages execute in the order you define them, left-to-right. The output of one stage becomes the input to the next. Always put <code>$match</code> first to reduce data early. Order matters: <code>$match → $sort → $skip → $limit → $group</code> is better than grouping first then filtering.
+    </div>
+    <div class="interview-q">
+      <b>Q: What is the difference between $lookup and embedding?</b><br>
+      A: Embedding stores related data in one document (one read). <code>$lookup</code> does a JOIN (slower, multiple reads). Use $lookup when data is shared between many documents or grows large. Embedding is faster for one-to-few relationships.
+    </div>
+    <div class="interview-q">
+      <b>Q: When would you use $group with _id: null?</b><br>
+      A: When you want to compute aggregates across ALL documents. Example: <code>{ $group: { _id: null, totalRevenue: { $sum: "$amount" } } }</code> gives you the total revenue across all orders. Without _id:null, you'd group by a specific field.
+    </div>
+    <div class="interview-q">
+      <b>Q: Why should $match come first in a pipeline?</b><br>
+      A: Filter as early as possible to reduce documents in the pipeline. If you have 10M orders but only 100 completed ones, put <code>$match</code> first. Grouping 10M then filtering is 100x slower than filtering 10M to 100, then grouping 100.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> <code>$unwind</code> on an empty array or missing field drops the entire document. To keep docs with empty/missing arrays, use <code>{ $unwind: { path: "$tags", preserveNullAndEmptyArrays: true } }</code>.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your develop service uses aggregation to calculate metrics per developer: <code>$match</code> recent commits, <code>$group</code> by author, <code>$lookup</code> user data. Your sonarqube service aggregates scan results across projects: <code>$group</code> by language, <code>$sum</code> issues, <code>$sort</code> to get top projects by issue count.
+  </div>
+</section>
+
+<!-- ================================= PHASE 6 ================================= -->
+<section class="phase" id="phase6">
+  <h2><span class="tag">Phase 6</span> Indexing & Query Performance — Make Queries Fast</h2>
+  <p class="sub">Without indexes, MongoDB scans every document (Collection Scan = slow). With indexes, it jumps directly to matches (Index Scan = fast). This phase teaches you to think about performance from day 1.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>What is an Index?</h3>
+      <ul>
+        <li>A B-tree data structure MongoDB maintains separately from your data</li>
+        <li><b>Without index:</b> <code>COLLSCAN</code> = read ALL documents to find matches</li>
+        <li><b>With index:</b> <code>IXSCAN</code> = jump directly to matching documents</li>
+        <li>Trade-off: indexes make reads faster but writes slightly slower (index must be updated)</li>
+        <li>Rule: index fields you frequently filter on, sort on, or query ranges</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Index Types</h3>
+      <ul>
+        <li><b>Single-field:</b> <code>{ email: 1 }</code> → ascending or <code>-1</code> descending</li>
+        <li><b>Compound:</b> <code>{ userId: 1, createdAt: -1 }</code> → multiple fields</li>
+        <li><b>Multikey:</b> Auto-created when indexing array fields</li>
+        <li><b>Text:</b> Full-text search: <code>{ $text: { $search: "..." } }</code></li>
+        <li><b>Unique:</b> Prevents duplicate values: <code>{ unique: true }</code></li>
+        <li><b>TTL:</b> Auto-deletes docs after N seconds (great for sessions)</li>
+        <li><b>Geospatial:</b> For location queries: <code>$near</code>, <code>$within</code></li>
+        <li><b>Sparse:</b> Only index docs where field exists</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>ESR Rule for Compound Indexes</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Order fields correctly in compound index:</div>
+        <pre><code>// Rule: Equality → Sort → Range
+// DON'T: { createdAt: -1, userId: 1, status: 1 }
+// YES:   { userId: 1, status: 1, createdAt: -1 }
+
+// Query: find users where status="active", sort by createdAt, filter by date range
+// Filter by userId (equality) → filter by status (equality) → sort by createdAt → filter range
+// Index: { userId: 1, status: 1, createdAt: -1 }</code></pre>
+      </div>
+      <ul>
+        <li><b>E:</b> Equality fields first (exact match)</li>
+        <li><b>S:</b> Sort fields next</li>
+        <li><b>R:</b> Range fields last (<code>$gt</code>, <code>$lt</code>, <code>$in</code>)</li>
+        <li>A compound index on <code>{ a:1, b:1, c:1 }</code> also supports queries on <code>{ a:1 }</code> and <code>{ a:1, b:1 }</code>, but NOT on <code>{ b:1 }</code> alone</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Reading Execution Plans</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Use explain() to diagnose:</div>
+        <pre><code>// Shell
+db.users.find({ email: "x" }).explain("executionStats")
+
+// Go driver
+opts := options.Find().SetHint(bson.M{"email": 1})
+cursor, _ := col.Find(ctx, filter, opts)
+
+// Look for:
+// "executionStages": {
+//   "stage": "IXSCAN"  ← Good, used index
+//   vs
+//   "stage": "COLLSCAN" ← Bad, full scan
+// },
+// "totalDocsExamined": 1000,
+// "nReturned": 10
+// If examined >>> returned, you need a better index</code></pre>
+      </div>
+      <ul>
+        <li><code>IXSCAN</code> = good (used index)</li>
+        <li><code>COLLSCAN</code> = bad (full scan)</li>
+        <li><code>totalDocsExamined</code> vs <code>nReturned</code> → if far apart, add an index</li>
+        <li>Use Compass's "Explain" tab for visual representation</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Index Management</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Create, list, delete indexes:</div>
+        <pre><code>// Create index
+db.users.createIndex({ email: 1 })
+db.users.createIndex({ email: 1 }, { unique: true, name: "unique_email" })
+
+// List all indexes
+db.users.getIndexes()
+
+// Drop index by name
+db.users.dropIndex("unique_email")
+
+// Go driver
+indexModel := mongo.IndexModel{
+  Keys: bson.D{{Key: "email", Value: 1}},
+  Options: options.Index().SetUnique(true),
+}
+col.Indexes().CreateOne(ctx, indexModel)</code></pre>
+      </div>
+      <ul>
+        <li>Always give indexes meaningful names</li>
+        <li>Index names like <code>email_1</code> are auto-generated but not descriptive</li>
+        <li>Background index builds (large collections) → default in v4.2+</li>
+        <li>Too many indexes = slow writes. Only index what you query.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Read Preference & Secondaries</h3>
+      <ul>
+        <li>In a replica set: 1 Primary + N Secondaries</li>
+        <li><b>Primary:</b> All writes, default reads</li>
+        <li><b>Secondary:</b> Can serve reads (data may be slightly stale)</li>
+        <li><code>SecondaryPreferred()</code> in your code routes reads to secondaries to reduce primary load</li>
+        <li>Used in your develop service for heavy metric reads</li>
+        <li>Options: <code>primary</code>, <code>primaryPreferred</code>, <code>secondary</code>, <code>secondaryPreferred</code>, <code>nearest</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Indexes</h4>
+    <div class="interview-q">
+      <b>Q: Explain the ESR rule for compound indexes.</b><br>
+      A: ESR = Equality, Sort, Range. In a compound index, put equality fields first, sort fields second, range fields last. This order allows MongoDB to use the index optimally. For query filter by userId (equality) + sort by date (sort) + range by amount, the index should be <code>{ userId: 1, createdAt: -1, amount: 1 }</code>.
+    </div>
+    <div class="interview-q">
+      <b>Q: What does IXSCAN vs COLLSCAN mean in explain output?</b><br>
+      A: IXSCAN = index scan (good). MongoDB found an index and used it to jump directly to matching docs. COLLSCAN = collection scan (bad). MongoDB scanned every document. Always aim for IXSCAN. If you see COLLSCAN on a frequently-run query, create an index.
+    </div>
+    <div class="interview-q">
+      <b>Q: Can you use a compound index for single-field queries?</b><br>
+      A: Partially. A compound index on <code>{ a:1, b:1, c:1 }</code> can be used for queries on <code>a</code> alone or <code>a,b</code> together. But it cannot be used for queries on just <code>b</code> or <code>c</code> alone because the index is ordered by <code>a</code> first.
+    </div>
+    <div class="interview-q">
+      <b>Q: When would you use a unique index?</b><br>
+      A: When you need to prevent duplicate values in a field. Example: email addresses, usernames, API keys. <code>{ unique: true }</code> throws an error if you try to insert a document with a duplicate value. Prevents data integrity issues.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> Indexes help reads but slow writes (index must be updated). Never create an index for every field "just in case". Index only fields you actively query on. Too many indexes = slow inserts, updates, deletes.
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> <code>{ $in: [] }</code> with an empty array can't use a range index efficiently. MongoDB may not use the index if the array is dynamic and could be empty.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your sonarqube service has compound indexes like <code>{ projectId: 1, createdAt: -1 }</code> for fast "recent scans for project X" queries. Your jfrog service indexes artifacts by <code>{ repositoryId: 1, name: 1 }</code> for unique constraint + fast lookups. Your develop service uses secondary reads for non-critical metric reads to avoid overwhelming the primary.
+  </div>
+</section>
+
+<!-- ================================= PHASE 7 ================================= -->
+<section class="phase" id="phase7">
+  <h2><span class="tag">Phase 7</span> Schema Design — The Core Difference from SQL</h2>
+  <p class="sub">In SQL, you normalize everything. In MongoDB, you design for your actual query patterns. This phase teaches you the two critical decisions: embedding vs referencing, and when each is right.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Embedding: Denormalization</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Nest related data in one document:</div>
+        <pre><code>// User WITH embedded address (denormalized)
+{
+  _id: ObjectId(...),
+  name: "Sid",
+  email: "sid@example.com",
+  address: {
+    street: "123 Main St",
+    city: "SF",
+    zip: "94105"
+  }
+}
+
+// Pros: One read gets everything. No JOIN needed.
+// Cons: If address shared between multiple users, duplicated data.</code></pre>
+      </div>
+      <ul>
+        <li><b>Use embedding when:</b></li>
+        <li>- Data is always read together (user + address)</li>
+        <li>- Embedded data is bounded (few items, not growing unbounded)</li>
+        <li>- Only one parent owns the child data</li>
+        <li>- Document size stays well under 16MB</li>
+        <li>Pros: one read, no JOINs, faster queries</li>
+        <li>Cons: data duplication if shared, harder to update shared data</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Referencing: Normalization</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Store just the ID (like foreign key):</div>
+        <pre><code>// User WITH referenced address (normalized)
+{
+  _id: ObjectId(...),
+  name: "Sid",
+  email: "sid@example.com",
+  addressId: ObjectId(...)  // reference to addresses collection
+}
+
+// Address in separate collection
+{
+  _id: ObjectId(...),
+  street: "123 Main St",
+  city: "SF",
+  zip: "94105"
+}
+
+// Requires $lookup join:
+db.users.aggregate([
+  { $lookup: {
+    from: "addresses",
+    localField: "addressId",
+    foreignField: "_id",
+    as: "address"
+  }}
+])</code></pre>
+      </div>
+      <ul>
+        <li><b>Use referencing when:</b></li>
+        <li>- Data is shared between many parents (one address, many users)</li>
+        <li>- Child data is large or unbounded (1000s of order items per order)</li>
+        <li>- You query child independently</li>
+        <li>- Embedded doc would exceed 16MB limit</li>
+        <li>Pros: no duplication, shared data stays consistent</li>
+        <li>Cons: requires JOIN, slower initial query</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Design Patterns</h3>
+      <ul>
+        <li><b>Subset Pattern:</b> Embed top N items, reference the rest. Example: embed top 5 reviews in product doc, reference full list in separate collection</li>
+        <li><b>Bucket Pattern:</b> Group time-series data into time buckets. Example: 1 hour of IoT readings grouped in one document</li>
+        <li><b>Extended Reference:</b> Embed frequently-read fields of referenced doc to avoid JOINs. Example: embed user name + email in order doc even though user is referenced</li>
+        <li><b>Computed Pattern:</b> Pre-compute aggregates on write to avoid expensive calculations on read. Example: store product rating + review count in product doc, updated when reviews change</li>
+        <li><b>Outlier Pattern:</b> Flag documents with unusually large arrays for special handling</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Real Examples from Your Codebase</h3>
+      <ul>
+        <li><b>Your sonarqube service:</b> Embeds scan metadata in project doc (always read together), references detailed issues in separate collection (queried independently)</li>
+        <li><b>Your jfrog service:</b> Embeds artifact properties in artifact doc, references repository as ID to avoid duplication (one repo, many artifacts)</li>
+        <li><b>Your develop service:</b> Embeds recent issue comments (top 10), references full history in separate collection</li>
+        <li><b>Your broker service:</b> Message data is large → references in separate collection, not embedded in broker doc</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Schema Design</h4>
+    <div class="interview-q">
+      <b>Q: When would you embed vs reference?</b><br>
+      A: Embed when data is always read together, bounded in size, and only one parent owns it (user + address). Reference when data is shared between many documents, grows unbounded, or you query it independently (user + orders). Reference also prevents the 16MB document limit.
+    </div>
+    <div class="interview-q">
+      <b>Q: What is the 16MB document limit and why does it exist?</b><br>
+      A: MongoDB limits documents to 16MB to prevent unbounded document growth that would degrade performance. Documents loaded into RAM must fit. If you're hitting 16MB, you're probably embedding too much data. Solution: reference that data in a separate collection instead.
+    </div>
+    <div class="interview-q">
+      <b>Q: Explain the Subset Pattern.</b><br>
+      A: Embed frequently-accessed data (top 5 reviews in product doc) while referencing less frequently-accessed data (full review history in separate collection). Balances performance (no JOIN for common case) with data management (don't embed unbounded data).
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> Embedding the same data in multiple documents creates duplication. When that data updates, you must update EVERY document containing it. This is expensive and error-prone. Only embed if the data truly belongs to one parent.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your services embed small, frequently-accessed data and reference large, shared data. This balance keeps queries fast without creating consistency nightmares. Your monitoring dashboards prove this: queries on embedded data are sub-100ms, queries requiring joins are 100-500ms.
+  </div>
+</section>
+
+<!-- ================================= PHASE 8 ================================= -->
+<section class="phase" id="phase8">
+  <h2><span class="tag">Phase 8</span> Transactions & Data Integrity — ACID Guarantees</h2>
+  <p class="sub">MongoDB supports ACID transactions (since v4.0). This phase explains single-document atomicity (always), multi-document transactions (when needed), and why good schema design can often avoid them.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Single-Document Atomicity (Always Guaranteed)</h3>
+      <ul>
+        <li>Any single-document operation is 100% atomic in MongoDB</li>
+        <li>This includes <code>updateOne</code>, even with <code>$set</code>, <code>$inc</code>, <code>$push</code>, etc.</li>
+        <li>Atomic = either the whole operation succeeds or fails. No partial updates.</li>
+        <li>Example: <code>{ $inc: { counter: 1 }, $set: { updated: now } }</code> → both happen or neither</li>
+        <li>Race condition impossible: two concurrent increments = counter increases by 2, not 1</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Multi-Document Transactions</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">When you need ACID across multiple documents:</div>
+        <pre><code>// Shell
+const session = db.getMongo().startSession()
+session.startTransaction()
+try {
+  db.accounts.updateOne(
+    { _id: "alice" },
+    { $inc: { balance: -100 } },
+    { session }
+  )
+  db.accounts.updateOne(
+    { _id: "bob" },
+    { $inc: { balance: +100 } },
+    { session }
+  )
+  session.commitTransaction()
+} catch (e) {
+  session.abortTransaction()
+  throw e
+} finally {
+  session.endSession()
+}</code></pre>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header">Go driver:</div>
+        <pre><code>session, _ := client.StartSession()
+defer session.EndSession(context.Background())
+
+err := session.WithTransaction(ctx, func(ctx context.Context) error {
+  // Both ops must succeed
+  col.UpdateOne(ctx, bson.M{"_id": "alice"},
+    bson.M{"$inc": bson.M{"balance": -100}})
+  col.UpdateOne(ctx, bson.M{"_id": "bob"},
+    bson.M{"$inc": bson.M{"balance": 100}})
+  return nil
+})
+// If error, both rollback. If nil, both commit.</code></pre>
+      </div>
+      <ul>
+        <li><b>Requirements:</b> Replica Set OR Sharded Cluster (not standalone)</li>
+        <li><b>Requires:</b> Connection to <code>mongodb://</code> (not Atlas free tier M0)</li>
+        <li>If one operation fails, BOTH rollback. No partial state.</li>
+        <li>Use sessions to group operations</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Write Concern: Durability Level</h3>
+      <ul>
+        <li><b>{ w: 1 }</b> (default) — Primary acknowledges write (fast, less safe)</li>
+        <li><b>{ w: "majority" }</b> — Majority of replica set acknowledges (safer, slower)</li>
+        <li><b>{ j: true }</b> — Write persisted to journal on disk (survives crash)</li>
+        <li><b>{ w: 1, j: true }</b> — Balance: acknowledged + journaled</li>
+        <li>Higher write concern = more durability, but slower writes</li>
+        <li>Atlas uses <code>w: "majority"</code> by default (safe for production)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Read Concern: Consistency Level</h3>
+      <ul>
+        <li><b>local</b> (default) — Read latest data on primary (may not be replicated yet)</li>
+        <li><b>majority</b> — Read only data that majority of nodes have (safe, slightly stale)</li>
+        <li><b>linearizable</b> — Read reflects all completed writes (slow, strongest guarantee)</li>
+        <li><b>snapshot</b> — Consistent point-in-time read (for transactions)</li>
+        <li>Higher read concern = more consistency, but slower reads</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Transactions</h4>
+    <div class="interview-q">
+      <b>Q: Is single-document atomicity always guaranteed in MongoDB?</b><br>
+      A: Yes. Any single-document operation is atomic. Even <code>{ $inc: { counter: 1 }, $set: { updated: now } }</code> is all-or-nothing. This is why good schema design (embedding related fields) can often avoid multi-document transactions.
+    </div>
+    <div class="interview-q">
+      <b>Q: When would you use multi-document transactions?</b><br>
+      A: Only when you need to atomically update data across multiple documents. Example: transfer money (debit account A, credit account B) must both succeed or both fail. If you can embed related data, avoid transactions (slower, more complex).
+    </div>
+    <div class="interview-q">
+      <b>Q: What is write concern and when would you change it?</b><br>
+      A: Write concern controls how many nodes must acknowledge a write before returning. Default <code>{ w: 1 }</code> is fast but less safe. <code>{ w: "majority" }</code> is safer (production). <code>{ j: true }</code> ensures persistence to disk. Choose based on durability requirements vs acceptable latency.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> Multi-document transactions only work on Replica Sets or Sharded Clusters. Standalone MongoDB does NOT support them. Atlas M0 (free tier) is standalone → no transactions. Upgrade to M2+ for transaction support.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your services rarely need multi-document transactions because of good schema design (embedding). Your nwayfw service uses single-document atomicity for inventory updates: <code>$inc</code> quantity and <code>$set</code> lastModified together — atomic, no lock needed.
+  </div>
+</section>
+
+<!-- ================================= PHASE 9 ================================= -->
+<section class="phase" id="phase9">
+  <h2><span class="tag">Phase 9</span> Go Driver Implementation — Your Language</h2>
+  <p class="sub">Everything connects here. The Go driver (<code>go.mongodb.org/mongo-driver</code>) is used by every service in your codebase. Learn how it maps to shell commands you've learned.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Setup & Connection</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Initialize MongoDB connection:</div>
+        <pre><code>import "go.mongodb.org/mongo-driver/mongo"
+import "go.mongodb.org/mongo-driver/mongo/options"
+
+// Create connection with timeout
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+
+client, err := mongo.Connect(ctx, options.Client().
+  ApplyURI("mongodb+srv://user:pass@cluster.mongodb.net/dbname"))
+if err != nil { panic(err) }
+
+// Verify connection
+err = client.Ping(ctx, nil)
+
+// Use database and collection
+db := client.Database("mydb")
+col := db.Collection("users")
+
+// Always close on shutdown
+defer client.Disconnect(context.Background())</code></pre>
+      </div>
+      <ul>
+        <li>Create client ONCE at startup, share across app</li>
+        <li>Do NOT create new client per request (expensive)</li>
+        <li>Always use context with timeout</li>
+        <li>Connection string format: <code>mongodb+srv://</code> (Atlas) or <code>mongodb://</code> (local)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>BSON Types in Go</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Working with BSON:</div>
+        <pre><code>import "go.mongodb.org/mongo-driver/bson"
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
+// bson.M = unordered map (most common for filters)
+filter := bson.M{"email": "sid@example.com", "age": bson.M{"$gt": 25}}
+
+// bson.D = ordered document (use for aggregation pipeline)
+pipeline := mongo.Pipeline{
+  bson.D{{Key: "$match", Value: bson.D{
+    {Key: "status", Value: "active"},
+  }}},
+}
+
+// bson.A = array
+tags := bson.A{"go", "backend", "api"}
+
+// primitive.ObjectID = Go type for MongoDB _id
+id := primitive.NewObjectID()  // generate new
+idFromHex := primitive.ObjectIDFromHex("507f1f77bcf86cd799439011")
+
+// Struct marshaling (automatic BSON encoding)
+type User struct {
+  ID    primitive.ObjectID `bson:"_id,omitempty"`
+  Name  string             `bson:"name"`
+  Email string             `bson:"email"`
+  Age   int                `bson:"age"`
+}</code></pre>
+      </div>
+      <ul>
+        <li><code>bson.M</code> for dynamic filters/queries</li>
+        <li><code>bson.D</code> for ordered documents (aggregation)</li>
+        <li><code>primitive.ObjectID</code> for _id fields</li>
+        <li>Struct tags control BSON encoding: <code>bson:"fieldName,omitempty"</code></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>CRUD Operations in Go</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Complete CRUD patterns:</div>
+        <pre><code>// INSERT
+result, err := col.InsertOne(ctx, bson.M{"name": "Sid"})
+id := result.InsertedID.(primitive.ObjectID)
+
+// FIND ONE
+var user bson.M
+err := col.FindOne(ctx, bson.M{"email": "sid@example.com"}).Decode(&user)
+if err == mongo.ErrNoDocuments { /* no match */ }
+
+// FIND MANY
+cursor, _ := col.Find(ctx, bson.M{"active": true})
+var results []bson.M
+cursor.All(ctx, &results)
+
+// UPDATE
+result, _ := col.UpdateOne(ctx,
+  bson.M{"_id": id},
+  bson.M{"$set": bson.M{"age": 29}})
+fmt.Println(result.ModifiedCount)  // 0 or 1
+
+// DELETE
+result, _ := col.DeleteOne(ctx, bson.M{"_id": id})
+fmt.Println(result.DeletedCount)  // 0 or 1</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Advanced Patterns</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Go-specific patterns:</div>
+        <pre><code>// FIND AND UPDATE (returns the document)
+var updated User
+err := col.FindOneAndUpdate(ctx,
+  bson.M{"_id": id},
+  bson.M{"$set": bson.M{"lastLogin": time.Now()}},
+  options.FindOneAndUpdate().SetReturnDocument(options.After),
+).Decode(&updated)
+
+// BULK WRITE (batch operations)
+models := []mongo.WriteModel{
+  mongo.NewInsertOneModel().SetDocument(bson.M{"name": "Alice"}),
+  mongo.NewUpdateOneModel().
+    SetFilter(bson.M{"_id": id}).
+    SetUpdate(bson.M{"$set": bson.M{"active": true}}),
+}
+result, _ := col.BulkWrite(ctx, models)
+
+// AGGREGATION
+cursor, _ := col.Aggregate(ctx, mongo.Pipeline{
+  bson.D{{Key: "$match", Value: bson.D{{Key: "status", Value: "active"}}}},
+  bson.D{{Key: "$group", Value: bson.D{
+    {Key: "_id", Value: "$userId"},
+    {Key: "count", Value: bson.D{{Key: "$sum", Value: 1}}},
+  }}},
+})
+var results []bson.M
+cursor.All(ctx, &results)</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Error Handling</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Go-specific error checks:</div>
+        <pre><code>import "go.mongodb.org/mongo-driver/mongo"
+
+// FindOne: no match is NOT an error
+if err == mongo.ErrNoDocuments {
+  fmt.Println("No document found")
+} else if err != nil {
+  panic(err)  // real error
+}
+
+// Check for duplicate key error
+if mongo.IsDuplicateKeyError(err) {
+  fmt.Println("Duplicate value for unique field")
+}
+
+// Check for timeout
+if mongo.IsTimeout(err) {
+  fmt.Println("Operation timed out")
+}
+
+// Always use context with timeout
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()</code></pre>
+      </div>
+      <ul>
+        <li><code>mongo.ErrNoDocuments</code> is an expected result, not an error</li>
+        <li><code>mongo.IsDuplicateKeyError</code> checks for unique constraint violation</li>
+        <li>Always use context timeouts to prevent hanging forever</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>OpenTelemetry Tracing (otelmongo)</h3>
+      <ul>
+        <li>Your services use <code>github.com/mongodb-forks/mongo-go-driver/mongo/event/otelmongo</code></li>
+        <li>Automatically creates trace spans for every DB operation</li>
+        <li>Setup: <code>otelmongo.NewMonitor()</code> → pass to client options</li>
+        <li>Zero code change needed in queries — automatic middleware</li>
+        <li>Every query shows up in Jaeger/Tempo with duration + details</li>
+        <li>Used in your sonarqube, jfrog, develop services</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Go Driver</h4>
+    <div class="interview-q">
+      <b>Q: Explain bson.M vs bson.D. When would you use each?</b><br>
+      A: <code>bson.M</code> is an unordered map (convenient for filters). <code>bson.D</code> is an ordered document (preserves field order, required for aggregation). Use <code>bson.M</code> for queries/filters, <code>bson.D</code> for pipelines and when order matters.
+    </div>
+    <div class="interview-q">
+      <b>Q: What does mongo.ErrNoDocuments mean and how do you handle it?</b><br>
+      A: It means FindOne found no matching document. This is NOT a real error — it's an expected result. Handle it separately: <code>if err == mongo.ErrNoDocuments { /* no doc */ }</code>. Other errors (timeout, connection) are real errors.
+    </div>
+    <div class="interview-q">
+      <b>Q: Should you create a new MongoDB client for each request?</b><br>
+      A: Never. Create the client once at startup, share it across your app. Each connection is expensive. Create it in main(), pass it to handlers. Close it on shutdown. Your services use a singleton pattern for this.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> If you forget to call <code>cursor.All(ctx, &results)</code> or iterate with <code>for cursor.Next(ctx)</code>, you won't consume the cursor and it stays open (resource leak). Always consume cursors.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your sonarqube service uses the Go driver with context timeouts, error handling, and otelmongo tracing. Your jfrog service uses BulkWrite for fast batch updates. Your develop service uses FindOneAndUpdate with upsert for atomic operations. These patterns are battle-tested.
+  </div>
+</section>
+
+<!-- ================================= PHASE 10 ================================= -->
+<section class="phase" id="phase10">
+  <h2><span class="tag">Phase 10</span> Production Patterns — From Development to Deployment</h2>
+  <p class="sub">Development MongoDB is different from production MongoDB. This phase covers monitoring, connection pooling, replica sets, failover, and running MongoDB at scale.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Replica Sets: High Availability</h3>
+      <ul>
+        <li>Replica set = group of mongod processes maintaining same dataset</li>
+        <li>Typical: 1 Primary + 2 Secondaries</li>
+        <li>If primary goes down → secondaries automatically elect new primary (failover)</li>
+        <li>All writes go to primary, then replicated to secondaries</li>
+        <li>Reads can go to primary (current) or secondaries (may be stale)</li>
+        <li><b>Oplog:</b> The replication log (like WAL in PostgreSQL)</li>
+        <li><code>rs.status()</code> shows replica set members and health</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Connection Pooling</h3>
+      <ul>
+        <li>Go driver maintains a connection pool internally</li>
+        <li>Don't create new connections for each query</li>
+        <li>Configure: <code>SetMaxPoolSize(50).SetMinPoolSize(5)</code></li>
+        <li>Default: 100 max connections</li>
+        <li>Atlas M0 (free): 500 max connections total. M2+: much higher.</li>
+        <li>Monitor: connection count in metrics (Compass or Atlas dashboard)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>MongoDB Atlas: Managed Service</h3>
+      <ul>
+        <li><b>Atlas = MongoDB fully managed in cloud</b> (AWS/GCP/Azure)</li>
+        <li>Free tier: M0 cluster. Good for learning, limited (512MB storage)</li>
+        <li>Production: M10+ clusters with encryption, backups, monitoring</li>
+        <li>Connection string: <code>mongodb+srv://user:pass@cluster.mongodb.net/dbname</code></li>
+        <li>Features: Atlas Search (full-text), Charts (dashboards), Triggers (serverless)</li>
+        <li>Your services connect to Atlas clusters (M2+ tiers)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Monitoring & Observability</h3>
+      <ul>
+        <li><b>Atlas Performance Advisor:</b> Suggests indexes for slow queries</li>
+        <li><b>Atlas Profiler:</b> Logs queries above latency threshold</li>
+        <li><b>db.currentOp():</b> See currently running operations</li>
+        <li><b>db.serverStatus():</b> Memory, connections, opcounters</li>
+        <li><b>otelmongo:</b> Your services export traces for every query</li>
+        <li><b>Metrics to watch:</b> Operation latency, index usage, cache hit rate, replication lag</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Backup & Recovery</h3>
+      <ul>
+        <li><b>Atlas Automatic Backups:</b> Daily snapshots (free), available for 7-35 days</li>
+        <li><b>Point-in-time Recovery:</b> Restore to any exact timestamp (requires oplog)</li>
+        <li><b>Backup Storage:</b> Separate from active cluster (survive region failure)</li>
+        <li><b>Restore:</b> Creates new cluster from backup (original stays intact)</li>
+        <li><b>Test backups regularly:</b> A backup you haven't tested is useless</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Interview Questions: Production MongoDB</h4>
+    <div class="interview-q">
+      <b>Q: Explain what a replica set is and why it matters for production.</b><br>
+      A: A replica set is a group of mongod processes (primary + secondaries) maintaining the same data. Advantages: (1) automatic failover if primary dies, (2) read scaling (reads on secondaries), (3) backups (backup from secondary without impacting primary). Production MongoDB is always a replica set, never standalone.
+    </div>
+    <div class="interview-q">
+      <b>Q: What is the oplog and how does it work?</b><br>
+      A: The oplog (operations log) is a capped collection on every replica set member containing all write operations. Secondaries replicate from primary by reading the oplog and applying operations. It's also the data source for Change Streams. If oplog is too small, secondaries can fall behind.
+    </div>
+    <div class="interview-q">
+      <b>Q: Why shouldn't you create a new MongoDB client for each request?</b><br>
+      A: Creating a client is expensive (connection negotiation, auth, pool initialization). Each request creating one means thousands of new connections per second (connection pool thrashing). Create once at startup, reuse. Connection pooling is automatic and handles concurrent requests efficiently.
+    </div>
+  </div>
+
+  <div class="gotcha">
+    <strong>GOTCHA:</strong> Atlas M0 is standalone, no replica set. It doesn't support transactions, Change Streams, or read preference. Use M2+ for production features. Never use M0 for anything but testing.
+  </div>
+
+  <div class="production-use">
+    <strong>PRODUCTION:</strong> Your services run on Atlas M10+ clusters with automatic backups, monitoring, and failover. Each service gets 50 max connections (pool size), distributed across multiple services. Total connection load monitored to stay under cluster limits. Your jfrog service uses SecondaryPreference for read-heavy metric queries.
+  </div>
+</section>
+
+<!-- Continue in next part... due to token limits -->
+<!-- ================================= PHASE 11-14 ================================= -->
+<section class="phase" id="phase11">
+  <h2><span class="tag">Phase 11</span> Replica Sets Deep Dive & Failover</h2>
+  <p class="sub">Understanding replica sets is essential for production work. You must know how primary election works, what happens on failure, and how to monitor health.</p>
+  
+  <div class="interview-q">
+    <b>Q: What happens when the primary in a replica set fails?</b><br>
+    A: Secondaries detect the primary is down (heartbeat timeout). They elect a new primary using majority consensus. Clients get redirected to the new primary. Write operations during this window fail (briefly). Typical failover: 10-30 seconds. This is why you monitor replica set health.
+  </div>
+
+  <div class="interview-q">
+    <b>Q: Can you do a read-only query on a secondary?</b><br>
+    A: Yes, using read preference <code>secondary</code> or <code>secondaryPreferred</code>. Data may be slightly stale (replication lag). Good for non-critical reads (metrics, reports). Not suitable for reads that must be current.
+  </div>
+
+  <div class="interview-q">
+    <b>Q: What is replication lag?</b><br>
+    A: The delay between primary applying a write and secondaries applying it. During high write load, replication lag increases. If secondary falls behind oplog size, it must do full resync (slow). Monitor replication lag; if it's large, your secondaries can't keep up.
+  </div>
+</section>
+
+<section class="phase" id="phase12">
+  <h2><span class="tag">Phase 12</span> Sharding at Scale — Horizontal Scaling</h2>
+  <p class="sub">When a single replica set can't handle write throughput or data size, you shard data across multiple machines. This is the scaling interview topic that separates SDE1 from SDE2.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Sharding Basics</h3>
+      <ul>
+        <li><b>Sharding = splitting data across machines</b> (horizontal scaling)</li>
+        <li>Each machine holds a <b>shard</b> (subset of data)</li>
+        <li>Sharded cluster components: Shard servers + Config servers + mongos (query router)</li>
+        <li>Your app connects to <code>mongos</code>, which routes queries to right shard</li>
+        <li>Each shard is itself a replica set (HA + sharding together)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Shard Key — Most Critical Decision</h3>
+      <ul>
+        <li><b>Shard key:</b> Field MongoDB uses to decide which shard a document goes to</li>
+        <li>Chosen once, <b>cannot be changed</b> later (resharding required)</li>
+        <li><b>Good shard key:</b> High cardinality, even distribution, matches query patterns</li>
+        <li><b>Bad shard key:</b> Low cardinality (few unique values) → hot spots</li>
+        <li>Example good: <code>{ userId: 1 }</code> if you frequently query by userId</li>
+        <li>Example bad: <code>{ status: 1 }</code> (only 3 values, one shard gets all load)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Targeted vs Scatter-Gather</h3>
+      <ul>
+        <li><b>Targeted query:</b> Filter includes shard key → routes to ONE shard → fast</li>
+        <li><b>Scatter-gather:</b> Filter doesn't include shard key → broadcasts to ALL shards → slow</li>
+        <li>Design rule: Most common query must be targeted, not scatter-gather</li>
+        <li>If you have a query that runs 1000x/sec, make it targeted with the right shard key</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Interview Questions: Sharding</h3>
+      <div class="interview-q">
+        <b>Q: What makes a bad shard key?</b><br>
+        A: (1) Low cardinality — few unique values (status: only 3 values) → hot spot. (2) Monotonically increasing values (timestamps) without hashing → all new writes go to one shard. (3) Doesn't match query patterns → scatter-gather queries. (4) Can't be unshard later.
+      </div>
+      <div class="interview-q">
+        <b>Q: Explain range sharding vs hash sharding.</b><br>
+        A: Range sharding: documents with similar shard key values go to same shard. Good for range queries. Bad if data monotonically increases (hot spot). Hash sharding: hash the shard key value for even distribution. Can't do efficient range queries. For timestamps as shard key, use hash sharding.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="phase" id="phase13">
+  <h2><span class="tag">Phase 13</span> Change Streams & Event-Driven Architecture</h2>
+  <p class="sub">Change Streams let you react to database changes in real time. This is essential for microservice architectures where one service needs to know when another's data changes.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>What are Change Streams?</h3>
+      <ul>
+        <li>Real-time stream of insert/update/delete events on a collection</li>
+        <li>Built on oplog (replication log)</li>
+        <li>Requires replica set (doesn't work on standalone)</li>
+        <li>Application opens a cursor that blocks waiting for events</li>
+        <li>Use cases: cache invalidation, audit logs, sync to Elasticsearch, event-driven services</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Change Stream Event Structure</h3>
+      <ul>
+        <li><b>operationType:</b> "insert", "update", "delete", "replace"</li>
+        <li><b>fullDocument:</b> Complete document (for inserts/replaces)</li>
+        <li><b>updateDescription:</b> Only changed fields (for updates)</li>
+        <li><b>documentKey:</b> The _id of affected document</li>
+        <li><b>ns:</b> Namespace: { db, coll }</li>
+        <li><b>resumeToken:</b> Token to resume from if consumer restarts</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Resume Token — Fault Tolerance</h3>
+      <ul>
+        <li>Every event has a resume token (its _id)</li>
+        <li>If consumer crashes, save resume token to disk</li>
+        <li>On restart: <code>Watch(..., SetResumeAfter(token))</code></li>
+        <li>Provides at-least-once delivery (may see duplicates)</li>
+        <li>Make event handlers idempotent</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Go Pattern: Change Stream Consumer</h3>
+      <div class="codeblock">
+        <div class="codeblock-header">Idiomatic Go implementation:</div>
+        <pre><code>ctx := context.Background()
+stream, _ := col.Watch(ctx, mongo.Pipeline{
+  bson.D{{Key: "$match", Value: bson.D{
+    {Key: "operationType", Value: bson.M{"$in": []string{"insert", "update"}}},
+  }}},
+})
+defer stream.Close(ctx)
+
+for stream.Next(ctx) {
+  var event bson.M
+  stream.Decode(&event)
+  
+  // Process event (must be idempotent)
+  processEvent(event)
+  
+  // Save resume token
+  saveResumeToken(stream.ResumeToken())
+}
+if err := stream.Err(); err != nil {
+  // Reconnect with resume token
+}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="interview-q">
+    <b>Q: What is a change stream and when would you use it?</b><br>
+    A: Real-time stream of DB changes (insert/update/delete events). Use when one service needs to react to another service's data changes. Examples: cache invalidation, sync to search index, audit logs, event-driven microservices. Alternative: polling (wastes DB resources).
+  </div>
+
+  <div class="interview-q">
+    <b>Q: What is a resume token and why does it matter?</b><br>
+    A: Resume token is a checkpoint in the change stream. If your consumer crashes, save the token. On restart, resume from that token using <code>SetResumeAfter</code>. Prevents reprocessing old events (or losing new events). Essential for exactly-once delivery semantics.
+  </div>
+</section>
+
+<section class="phase" id="phase14">
+  <h2><span class="tag">Phase 14</span> Senior Interview Topics — SDE2/SDE3 Level</h2>
+  <p class="sub">These questions separate senior from junior candidates. They test deep understanding of MongoDB internals, architecture trade-offs, and production problem-solving.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>WiredTiger Storage Engine</h3>
+      <ul>
+        <li>Default storage engine since v3.2 (replaced MMAPv1)</li>
+        <li><b>Document-level locking:</b> Two writes to different docs in same collection don't block each other</li>
+        <li><b>MVCC (Multi-Version Concurrency Control):</b> Readers don't block writers, writers don't block readers</li>
+        <li><b>Compression:</b> Data compressed on disk (snappy). Reduces disk by 60-80%</li>
+        <li><b>Internal cache:</b> Default 50% of RAM. Working set should fit</li>
+        <li><b>How it helps:</b> High concurrency = no writer-writer blocking</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Patterns That Cause Production Issues</h3>
+      <ul>
+        <li><b>Unbounded arrays:</b> Never <code>$push</code> forever. Hit 16MB limit. Use separate collection.</li>
+        <li><b>N+1 problem:</b> Fetch 1 list, then N queries for details. Use <code>$lookup</code> or <code>$in</code> batching.</li>
+        <li><b>No indexes on frequently-queried fields:</b> COLLSCAN = slow. Always confirm IXSCAN.</li>
+        <li><b>Using $where or JavaScript:</b> JS executes per document. Use native operators.</li>
+        <li><b>Storing files as base64:</b> Breaks 16MB limit. Use GridFS or S3.</li>
+        <li><b>ObjectId stored as string:</b> Wastes space, breaks sorting. Always use ObjectId type.</li>
+        <li><b>Not handling ErrNoDocuments:</b> FindOne returns this, not a real error.</li>
+        <li><b>Too many indexes:</b> Slows writes. Index only fields you query.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>MongoDB vs Other Databases (System Design)</h3>
+      <ul>
+        <li><b>MongoDB vs Redis:</b> Redis in-memory (sub-ms latency, caching). MongoDB persistent disk (primary storage, richer queries)</li>
+        <li><b>MongoDB vs PostgreSQL:</b> Postgres for relational + complex JOINs + strict schema. MongoDB for flexible schema + document data + horizontal scaling</li>
+        <li><b>MongoDB vs Cassandra:</b> Cassandra write-optimized, no transactions, wide-column (extreme scale time-series). MongoDB rich queries, ACID transactions, document model</li>
+        <li><b>When to pick MongoDB:</b> Flexible/evolving schema, document-shaped data, horizontal scaling needed, JSON-native APIs</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Schema Validation ($jsonSchema)</h3>
+      <ul>
+        <li>MongoDB supports enforcing schema at collection level (not schema-less if you don't want to be)</li>
+        <li><code>db.createCollection("users", { validator: { $jsonSchema: {...} } })</code></li>
+        <li>Validation levels: strict (all writes) or moderate (only new/updated docs)</li>
+        <li>Can require fields, set types, patterns, ranges</li>
+        <li>Prevents garbage data from entering collection</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Security: Authentication & Authorization</h3>
+      <ul>
+        <li><b>Authentication:</b> WHO are you. Methods: SCRAM (default), X.509, LDAP, Kerberos</li>
+        <li><b>Authorization (RBAC):</b> WHAT can you do. Roles: read, readWrite, dbAdmin, clusterAdmin</li>
+        <li><b>Least privilege:</b> Each service gets only the permissions it needs</li>
+        <li><b>TLS/SSL:</b> Always use encrypted connections. <code>tls=true</code></li>
+        <li><b>Field-level encryption:</b> Encrypt specific fields (SSN, credit card) end-to-end</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Advanced Interview Questions</h3>
+      <div class="interview-q">
+        <b>Q: Describe the MVCC model in WiredTiger and why it matters.</b><br>
+        A: MVCC = Multiple-Version Concurrency Control. Multiple versions of data exist during concurrent operations. Readers see a consistent snapshot without blocking writers. Writers see their changes immediately. No reader-writer blocking. This is why MongoDB can handle high concurrency compared to traditional locking-based systems.
+      </div>
+
+      <div class="interview-q">
+        <b>Q: Explain the N+1 problem in MongoDB and solutions.</b><br>
+        A: N+1 = fetch 1 list (queries 1), then N individual lookups for each item (queries N). Total: 1+N queries (slow). Solutions: (1) <code>$lookup</code> in aggregation (one query). (2) <code>{ field: { $in: [array of IDs] } }</code> (one query to fetch all). (3) Embedding if data is small and always needed.
+      </div>
+
+      <div class="interview-q">
+        <b>Q: When would you use a capped collection?</b><br>
+        A: Capped collection = fixed-size, overwrites oldest docs when full. Use for: logs, audit trails, activity feeds, rate-limit counters. Insertion order preserved. No delete individual docs. Great for "keep only recent N items" without explicit cleanup.
+      </div>
+
+      <div class="interview-q">
+        <b>Q: How do you handle schema evolution in MongoDB?</b><br>
+        A: (1) Add <code>schemaVersion</code> field. (2) Write new code to handle both old and new versions. (3) Backfill old documents gradually (or leave them as-is if backward-compatible). (4) Eventually drop old version support. No downtime needed — this is MongoDB's flexibility advantage over SQL.
+      </div>
+
+      <div class="interview-q">
+        <b>Q: Explain the trade-off between embedding and referencing.</b><br>
+        A: Embedding: one read = all data (fast), but duplication if shared, can hit 16MB limit. Referencing: no duplication, shared data consistent, but requires JOIN ($lookup, slower). Choose based on: data sharing (shared = reference), size (large/unbounded = reference), access patterns (always together = embed).
+      </div>
+
+      <div class="interview-q">
+        <b>Q: What happens if your shard key causes a hot spot?</b><br>
+        A: All writes go to one shard, others sit idle. That shard becomes the bottleneck. Solution: choose better shard key (higher cardinality, even distribution). For monotonically-increasing values (timestamps), use hash sharding. Once a hot shard key is chosen, you're stuck until resharding.
+      </div>
+
+      <div class="interview-q">
+        <b>Q: How do you monitor MongoDB in production?</b><br>
+        A: (1) Atlas Performance Advisor (suggests indexes). (2) Atlas Profiler (logs slow queries). (3) Metrics: operation latency, index usage, cache hit rate, replication lag. (4) otelmongo traces (your services). (5) currentOp() (running operations). (6) serverStatus() (cluster health).
+      </div>
+
+      <div class="interview-q">
+        <b>Q: What is the difference between w:1 and w:"majority" write concern?</b><br>
+        A: w:1 = primary acknowledges (fast, less safe, may lose data if primary crashes before replicate). w:"majority" = majority of replica set acknowledges (safe, slower, data survives single-node crash). Production typically uses majority. Trade-off: durability vs latency.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================= QUICK REFERENCE CHEAT SHEET ================================= -->
+<section class="phase" id="cheat-sheet">
+  <h2>📋 Quick Reference: Command Cheat Sheet</h2>
+  <p class="sub">One-page reference for all operators, patterns, and commands. Ctrl+F to find what you need fast.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>CRUD Patterns (Most Common)</h3>
+      <pre>
+// INSERT
+db.col.insertOne({ name: "Alice" })
+db.col.insertMany([{...}, {...}])
+
+// FIND
+db.col.find()                          // All docs
+db.col.find({ status: "active" })      // Filter
+db.col.findOne({ _id: ObjectId(...) }) // One doc
+db.col.find({}, { name: 1, _id: 0 })   // Projection
+
+// UPDATE
+db.col.updateOne({ _id: id }, { $set: { field: value } })
+db.col.updateMany({}, { $inc: { count: 1 } })
+db.col.replaceOne({ _id: id }, { newDoc: true })
+db.col.findOneAndUpdate({ _id: id }, { $set: {...} })
+
+// DELETE
+db.col.deleteOne({ _id: id })
+db.col.deleteMany({ status: "inactive" })
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Query Operators ($)</h3>
+      <pre>
+// Comparison
+{ age: { $eq: 30 } }         // Equal
+{ age: { $gt: 30 } }         // Greater than
+{ age: { $gte: 30 } }        // Greater or equal
+{ status: { $in: ["a", "b"] } } // In array
+{ status: { $nin: ["x"] } }  // Not in array
+
+// Logical
+{ $and: [{ age: 30 }, { city: "NYC" }] }
+{ $or: [{ age: 30 }, { age: 40 }] }
+{ $not: { age: { $gt: 30 } } }
+{ $nor: [{ age: 30 }, { active: false }] }
+
+// Element
+{ email: { $exists: true } }   // Field exists
+{ field: { $type: "string" } } // Type check
+
+// Array
+{ tags: { $all: ["a", "b"] } }     // Contains all
+{ tags: { $in: ["x", "y"] } }      // Contains any
+{ items: { $size: 5 } }            // Array length
+{ items: { $elemMatch: { id: 1, qty: { $gt: 5 } } } }
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Update Operators ($)</h3>
+      <pre>
+// Field Updates
+{ $set: { field: value } }         // Set field
+{ $unset: { field: "" } }          // Remove field
+{ $inc: { count: 1 } }             // Increment
+{ $rename: { oldName: "newName" } }
+
+// Array Updates
+{ $push: { tags: "new" } }         // Add to array
+{ $pull: { tags: "old" } }         // Remove from array
+{ $addToSet: { tags: "new" } }     // Add if not exists
+{ $pop: { tags: 1 } }              // Remove last element
+
+// Special
+{ $currentDate: { updated: true } } // Set to now
+{ $setOnInsert: { created: date } } // Set if insert
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Aggregation Pipeline</h3>
+      <pre>
+// Stages (in order)
+$match      // Filter documents
+$group      // Group by field
+$sort       // Sort results
+$project    // Reshape output
+$limit      // Limit count
+$skip       // Skip count
+$lookup     // Join collections
+$unwind     // Flatten arrays
+$count      // Count documents
+$out        // Write to collection
+
+// Example Pipeline:
+[
+  { $match: { status: "active" } },
+  { $group: { _id: "$userId", total: { $sum: "$amount" } } },
+  { $sort: { total: -1 } },
+  { $limit: 10 }
+]
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Indexes (Create & Manage)</h3>
+      <pre>
+// Create indexes
+db.col.createIndex({ email: 1 })           // Single field
+db.col.createIndex({ status: 1, date: -1 }) // Compound
+db.col.createIndex({ email: 1 }, { unique: true }) // Unique
+db.col.createIndex({ email: "text" })      // Text search
+db.col.createIndex({ location: "2dsphere" }) // Geospatial
+db.col.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600 }) // TTL
+
+// Manage indexes
+db.col.getIndexes()           // List all
+db.col.dropIndex("email_1")   // Drop specific
+db.col.dropIndexes()          // Drop all (except _id)
+
+// Query analysis
+db.col.find({...}).explain("executionStats")
+      </pre>
+    </div>
+
+    <div class="card">
+      <h3>Common Find Patterns</h3>
+      <pre>
+// Find by ObjectId
+db.users.findOne({ _id: ObjectId("650abc...") })
+
+// Pagination (skip + limit)
+db.users.find().skip(10).limit(10)  // Page 2 (10 per page)
+
+// Search by substring
+db.users.find({ name: { $regex: "alice", $options: "i" } })
+
+// Range query
+db.orders.find({ price: { $gte: 100, $lte: 500 } })
+
+// Find with sort
+db.posts.find({ published: true }).sort({ createdAt: -1 }).limit(5)
+
+// Count matching
+db.users.countDocuments({ status: "active" })
+
+// Check existence
+db.users.find({ optionalField: { $exists: true } })
+
+// Array contains
+db.posts.find({ tags: "mongodb" })  // Simple contains
+db.posts.find({ tags: { $all: ["mongodb", "database"] } })
+      </pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>🎯 Usage:</b> Bookmark this section. When writing a query, search here first. Most operations are on this page.
+  </div>
+</section>
+
+<!-- ================================= COMMON MISTAKES & ANTI-PATTERNS ================================= -->
+<section class="phase" id="common-mistakes">
+  <h2>⚠️ Common Mistakes & Anti-Patterns</h2>
+  <p class="sub">These are the patterns that cause 90% of MongoDB problems in production. Learn to spot them and avoid them.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Anti-Pattern #1: Creating New Client Per Request</h3>
+      <p><b>❌ WRONG (Go):</b></p>
+      <pre>
+for i := 0; i &lt; 1000; i++ {
+  client, _ := mongo.Connect(ctx)  // EXPENSIVE!
+  collection := client.Database("db").Collection("col")
+  collection.InsertOne(ctx, doc)
+  client.Disconnect(ctx)            // Connection destroyed
+}
+// Result: 1000 connection attempts = SLOW + resource leak
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+client, _ := mongo.Connect(ctx)     // Once
+defer client.Disconnect(ctx)
+collection := client.Database("db").Collection("col")
+
+for i := 0; i &lt; 1000; i++ {
+  collection.InsertOne(ctx, doc)    // Reuse connection
+}
+      </pre>
+      <p><b>Why?</b> Connection establishment is expensive (TCP handshake, authentication). Reuse connections via connection pooling.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #2: Ignoring mongo.ErrNoDocuments</h3>
+      <p><b>❌ WRONG (Go):</b></p>
+      <pre>
+var user User
+err := col.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
+if err != nil {
+  log.Fatal("User not found")  // WRONG! ErrNoDocuments is normal
+}
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+var user User
+err := col.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
+if err == mongo.ErrNoDocuments {
+  // User doesn't exist (normal case, not an error)
+  return fmt.Errorf("user not found")
+} else if err != nil {
+  // Real error (connection, timeout, etc.)
+  return err
+}
+      </pre>
+      <p><b>Why?</b> mongo.ErrNoDocuments is NOT a database error—it's a normal result meaning "no match". Treating it as a fatal error crashes your app.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #3: Not Using Indexes on Query Fields</h3>
+      <p><b>❌ WRONG (Shell):</b></p>
+      <pre>
+db.users.find({ email: "alice@example.com" })
+// Without index: scans ALL 1 million documents (COLLSCAN)
+// Query takes 5+ seconds
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+db.users.createIndex({ email: 1 })
+db.users.find({ email: "alice@example.com" })
+// With index: binary search on index (IXSCAN)
+// Query takes < 1ms
+      </pre>
+      <p><b>Why?</b> Without indexes, MongoDB must read every single document. Indexes let it jump to matches instantly.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #4: Unbounded Arrays (16MB Document Limit)</h3>
+      <p><b>❌ WRONG (Schema):</b></p>
+      <pre>
+{
+  "_id": user_id,
+  "name": "Alice",
+  "posts": [post1, post2, ..., post_1000000]  // Array grows forever
+}
+// Eventually hits 16MB limit → insertions fail
+      </pre>
+      <p><b>✅ CORRECT (Option 1 - Separate Collection):</b></p>
+      <pre>
+// Collection: users
+{ "_id": user_id, "name": "Alice" }
+
+// Collection: posts
+{ "_id": post_id, "userId": user_id, "content": "..." }
+
+// Query: db.posts.find({ userId: user_id })
+      </pre>
+      <p><b>✅ CORRECT (Option 2 - Bounded Array with Bucket Pattern):</b></p>
+      <pre>
+{
+  "_id": user_id,
+  "name": "Alice",
+  "buckets": [
+    { "date": "2024-01", "posts": [post1, post2, ...] },  // Max 100 per bucket
+    { "date": "2024-02", "posts": [post3, post4, ...] }
+  ]
+}
+      </pre>
+      <p><b>Why?</b> MongoDB documents have a 16MB hard limit. Arrays that grow indefinitely WILL break. Always cap them or move to separate collection.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #5: Not Checking Write Errors</h3>
+      <p><b>❌ WRONG (Go):</b></p>
+      <pre>
+result, _ := col.InsertOne(ctx, doc)  // Ignoring err!
+fmt.Println(result.InsertedID)        // May not exist if insert failed
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+result, err := col.InsertOne(ctx, doc)
+if err != nil {
+  // Check error type
+  if mongo.IsDuplicateKeyError(err) {
+    log.Println("Duplicate key error")
+  } else if ctx.Err() == context.DeadlineExceeded {
+    log.Println("Context timeout")
+  } else {
+    log.Println("Insert failed:", err)
+  }
+  return err
+}
+fmt.Println(result.InsertedID)  // Safe to use now
+      </pre>
+      <p><b>Why?</b> Write errors are silent failures. Your code thinks it worked when it didn't. Always check.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #6: Using $where (JavaScript Eval)</h3>
+      <p><b>❌ WRONG (Shell):</b></p>
+      <pre>
+db.users.find({ $where: "this.age > 30" })
+// Evaluates JavaScript for EVERY document (no index possible)
+// Performance: O(n) full scan, very slow
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+db.users.find({ age: { $gt: 30 } })
+// Can use index on age field
+// Performance: O(log n) binary search
+      </pre>
+      <p><b>Why?</b> $where disables all query optimizations. Never use it. Use standard operators instead.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #7: Storing ObjectIds as Strings</h3>
+      <p><b>❌ WRONG (Go):</b></p>
+      <pre>
+type User struct {
+  ID string `bson:"_id"` // Storing ObjectId as string
+  Name string
+}
+// Can't index efficiently, comparison is string (wrong order)
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+type User struct {
+  ID primitive.ObjectID `bson:"_id"`  // Native ObjectID
+  Name string
+}
+// Indexing works, comparison is efficient
+      </pre>
+      <p><b>Why?</b> ObjectIds are binary. Converting to strings wastes space and breaks sorting/indexing.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #8: The N+1 Problem</h3>
+      <p><b>❌ WRONG (Go):</b></p>
+      <pre>
+// Get all users
+users, _ := col.Find(ctx, bson.M{})  // Query 1
+
+// For each user, fetch their posts
+for _, user := range users {
+  posts, _ := postCol.Find(ctx, bson.M{"userId": user.ID})  // Query N
+  // Total queries: 1 + N (SLOW)
+}
+      </pre>
+      <p><b>✅ CORRECT (Using $lookup):</b></p>
+      <pre>
+// One aggregation query fetches both
+cursor, _ := col.Aggregate(ctx, mongo.Pipeline{
+  bson.D{{Key: "$lookup", Value: bson.D{
+    {Key: "from", Value: "posts"},
+    {Key: "localField", Value: "_id"},
+    {Key: "foreignField", Value: "userId"},
+    {Key: "as", Value: "posts"},
+  }}},
+})
+// Total queries: 1 (FAST)
+      </pre>
+      <p><b>Why?</b> N+1 queries multiply latency. Use $lookup to fetch related data in one query.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #9: Forgetting to Close Cursors (Go)</h3>
+      <p><b>❌ WRONG:</b></p>
+      <pre>
+for i := 0; i &lt; 1000; i++ {
+  cursor, _ := col.Find(ctx, bson.M{})
+  // Using cursor...
+  // FORGOT cursor.Close(ctx)  ← Resource leak!
+}
+// After 1000 iterations: connection exhausted
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+for i := 0; i &lt; 1000; i++ {
+  cursor, _ := col.Find(ctx, bson.M{})
+  defer cursor.Close(ctx)  // Always close!
+  // Using cursor...
+}
+      </pre>
+      <p><b>Why?</b> Cursors hold server-side resources. Not closing them leads to connection pool exhaustion.</p>
+    </div>
+
+    <div class="card">
+      <h3>Anti-Pattern #10: Too Many Indexes</h3>
+      <p><b>❌ WRONG:</b></p>
+      <pre>
+db.users.createIndex({ name: 1 })
+db.users.createIndex({ email: 1 })
+db.users.createIndex({ age: 1 })
+db.users.createIndex({ city: 1 })
+db.users.createIndex({ country: 1 })
+// Now INSERTs are slow (must update all 5 indexes)
+// Memory bloat (indexes take space)
+      </pre>
+      <p><b>✅ CORRECT:</b></p>
+      <pre>
+// Create only indexes for frequent queries
+db.users.createIndex({ email: 1 })  // For login
+db.users.createIndex({ status: 1, createdAt: -1 })  // For list queries
+
+// Use explain to verify queries use indexes
+db.users.find({...}).explain("executionStats")
+      </pre>
+      <p><b>Why?</b> Each index slows writes and consumes RAM. Index only what you query frequently.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>💡 Interview Tip:</b> Interviewers LOVE asking "What anti-patterns have you encountered in production?" Have 2-3 answers ready with solutions.
+  </div>
+</section>
+
+<!-- ================================= TROUBLESHOOTING GUIDE ================================= -->
+<section class="phase" id="troubleshooting">
+  <h2>🔧 Troubleshooting & Debugging Guide</h2>
+  <p class="sub">When something breaks, come here. This guide covers the most common errors and how to fix them.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Connection Issues</h3>
+      <p><b>Error: "connect: connection refused"</b></p>
+      <ul>
+        <li><b>Cause:</b> MongoDB server not running</li>
+        <li><b>Fix:</b> <code>brew services start mongodb-community</code></li>
+        <li><b>Check:</b> <code>brew services list</code> (should show "mongodb-community started")</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Error: "authentication failed"</b></p>
+      <ul>
+        <li><b>Cause:</b> Wrong username/password in connection string</li>
+        <li><b>Fix:</b> Verify connection string from Atlas dashboard</li>
+        <li><b>Check:</b> <code>mongosh "mongodb+srv://user:pass@cluster.mongodb.net/db"</code></li>
+        <li><b>Tip:</b> If password has special characters, URL-encode them (@ → %40, # → %23)</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Error: "no servers available" or "cluster not found"</b></p>
+      <ul>
+        <li><b>Cause (Atlas):</b> Your IP not in IP whitelist or cluster suspended</li>
+        <li><b>Fix:</b> Go to Atlas → Network Access → Add your IP (or 0.0.0.0/0 for dev)</li>
+        <li><b>Fix:</b> Check if cluster is "paused" → click Resume</li>
+        <li><b>Cause (Local):</b> Wrong port or server crashed</li>
+        <li><b>Fix:</b> Check port 27017: <code>lsof -i :27017</code></li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Error: "context deadline exceeded"</b></p>
+      <ul>
+        <li><b>Cause:</b> Query taking too long (missing index) or network latency</li>
+        <li><b>Fix:</b> Increase context timeout: <code>ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)</code></li>
+        <li><b>Better Fix:</b> Add index to speed up query</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Query Issues</h3>
+      <p><b>Problem: "find() returns empty but I know data exists"</b></p>
+      <ul>
+        <li><b>Check:</b> Verify you're querying the right collection and database</li>
+        <li><code>use mydb</code> → <code>show collections</code> → check collection name</li>
+        <li><b>Check:</b> Query syntax correct? <code>db.col.find({ status: "active" })</code> vs <code>db.col.find({ status: active })</code> (quotes matter!)</li>
+        <li><b>Check:</b> Data type matches? <code>{ age: 30 }</code> vs <code>{ age: "30" }</code> (number vs string)</li>
+        <li><b>Debug:</b> <code>db.col.countDocuments({})</code> → check if collection is empty</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "Query is very slow"</b></p>
+      <ul>
+        <li><b>Step 1:</b> Analyze query with explain: <code>db.col.find({...}).explain("executionStats")</code></li>
+        <li><b>Check:</b> "executionStages.stage" — if "COLLSCAN", you're doing full collection scan (slow)</li>
+        <li><b>Check:</b> If "IXSCAN", you're using an index (good)</li>
+        <li><b>Fix:</b> Add index on query field: <code>db.col.createIndex({ queryField: 1 })</code></li>
+        <li><b>Check:</b> ESR rule for compound queries: Equality first, then Sort, then Range</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "No matching documents returned but I expect some"</b></p>
+      <ul>
+        <li><b>Common:</b> Case sensitivity in strings: <code>{ name: "Alice" }</code> won't match "alice"</li>
+        <li><b>Fix:</b> Use $regex with case-insensitive: <code>{ name: { $regex: "alice", $options: "i" } }</code></li>
+        <li><b>Common:</b> ObjectId comparison: <code>{ _id: "507f1f77bcf86cd799439011" }</code> (string) won't match ObjectId</li>
+        <li><b>Fix:</b> Use <code>ObjectId("507f1f77bcf86cd799439011")</code> or convert from your code</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "duplicate key error" on insert</b></p>
+      <ul>
+        <li><b>Cause:</b> You have a unique index and trying to insert duplicate value</li>
+        <li><b>Check:</b> <code>db.col.getIndexes()</code> → look for "unique: true"</li>
+        <li><b>Option 1:</b> Use upsert: <code>updateOne({...}, {...}, { upsert: true })</code></li>
+        <li><b>Option 2:</b> Delete the conflicting document first, then insert</li>
+        <li><b>Option 3:</b> Drop the unique index if no longer needed: <code>db.col.dropIndex("indexName")</code></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Data Issues</h3>
+      <p><b>Problem: "Struct unmarshaling failed" (Go)</b></p>
+      <ul>
+        <li><b>Cause:</b> Document fields don't match Go struct</li>
+        <li><b>Example Wrong:</b> <code>type User struct { Name string }</code> but document has <code>{ full_name: "Alice" }</code></li>
+        <li><b>Fix:</b> Use <code>bson</code> tags: <code>type User struct { Name string `bson:"full_name"` }</code></li>
+        <li><b>Fix:</b> Or rename fields in document to match struct</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "Can't decode nested object to struct" (Go)</b></p>
+      <ul>
+        <li><b>Cause:</b> Embedded document not properly typed</li>
+        <li><b>Wrong:</b> <code>type User struct { Address string }</code> when Address is nested document</li>
+        <li><b>Fix:</b> <code>type User struct { Address struct { City string; Zip string } `bson:"address"` }</code></li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "Field type mismatch" on query</b></p>
+      <ul>
+        <li><b>Example:</b> Some docs have <code>{ age: 30 }</code> (number), others have <code>{ age: "30" }</code> (string)</li>
+        <li><b>Fix:</b> Use $type to filter by type: <code>{ age: { $type: "int" } }</code></li>
+        <li><b>Better:</b> Add validation: <code>db.createCollection("users", { validator: { $jsonSchema: { properties: { age: { type: "int" } } } } })</code></li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "Hit 16MB document size limit"</b></p>
+      <ul>
+        <li><b>Cause:</b> Document with unbounded array grew too large</li>
+        <li><b>Fix:</b> See Anti-Pattern #4 above — move array to separate collection or use bucket pattern</li>
+        <li><b>Check:</b> <code>db.col.find().sort({ $natural: -1 }).limit(1)</code> → check size of largest doc</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Performance Issues</h3>
+      <p><b>Problem: "Insert speed is slow"</b></p>
+      <ul>
+        <li><b>Check:</b> How many indexes? Too many indexes slow writes</li>
+        <li><b>Fix:</b> Drop unused indexes</li>
+        <li><b>Check:</b> Using individual inserts in loop? Do BulkWrite instead</li>
+        <li><b>Fix:</b> Group 1000 inserts into one BulkWrite call</li>
+        <li><b>Check:</b> Write concern too high? (w: "majority" is slower than w: 1)</li>
+        <li><b>Fix:</b> Use appropriate write concern for your needs</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "Update is taking too long"</b></p>
+      <ul>
+        <li><b>Check:</b> Is there an index on the filter field?</li>
+        <li><b>Fix:</b> <code>db.col.createIndex({ status: 1 })</code> (if filtering by status)</li>
+        <li><b>Check:</b> Update expression complex? Simplify if possible</li>
+        <li><b>Example:</b> Use <code>$set</code> instead of fetching, modifying, replacing</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Problem: "High memory usage on MongoDB server"</b></p>
+      <ul>
+        <li><b>Check:</b> Too many indexes? Each index uses RAM</li>
+        <li><b>Check:</b> Connection pool too large? Reduce pool size</li>
+        <li><b>Check:</b> Large aggregations without $limit or $out?</li>
+        <li><b>Fix:</b> Add $limit to cap aggregation results</li>
+        <li><b>Fix:</b> Use $out to write large results to collection instead of streaming</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Atlas-Specific Issues</h3>
+      <p><b>Error: "IP address not in access list"</b></p>
+      <ul>
+        <li><b>Fix:</b> Go to Atlas → Network Access → Add your IP</li>
+        <li><b>Tip:</b> For development, use 0.0.0.0/0 (anywhere, NOT for production!)</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Error: "Cluster is suspended"</b></p>
+      <ul>
+        <li><b>Cause:</b> M0 free tier auto-suspends after 60 days of inactivity</li>
+        <li><b>Fix:</b> Go to Atlas → Clusters → click Resume</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Error: "Exceeded storage quota"</b></p>
+      <ul>
+        <li><b>Cause (M0):</b> Free tier limited to 512MB</li>
+        <li><b>Fix:</b> Delete unused databases/collections or upgrade to paid tier</li>
+        <li><b>Check:</b> <code>db.stats()</code> → check "dataSize"</li>
+      </ul>
+
+      <p style="margin-top: 12px;"><b>Connection String Issues</b></p>
+      <ul>
+        <li><b>Wrong:</b> Copying old connection string after password change</li>
+        <li><b>Fix:</b> Always get fresh connection string from Atlas dashboard</li>
+        <li><b>Wrong:</b> Special characters in password not URL-encoded</li>
+        <li><b>Fix:</b> @ → %40, # → %23, : → %3A (use a URL encoder)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Debugging Checklist</h3>
+      <p>When stuck, follow this order:</p>
+      <ul>
+        <li>✅ <b>Step 1:</b> Is MongoDB running? <code>brew services list</code></li>
+        <li>✅ <b>Step 2:</b> Can you connect? <code>mongosh mongodb://localhost:27017</code></li>
+        <li>✅ <b>Step 3:</b> Does the database/collection exist? <code>show dbs</code> → <code>show collections</code></li>
+        <li>✅ <b>Step 4:</b> Is there data? <code>db.col.countDocuments({})</code></li>
+        <li>✅ <b>Step 5:</b> Is query correct? Try simpler query first</li>
+        <li>✅ <b>Step 6:</b> Run <code>.explain("executionStats")</code> to see query plan</li>
+        <li>✅ <b>Step 7:</b> Check indexes: <code>db.col.getIndexes()</code></li>
+        <li>✅ <b>Step 8:</b> Review logs: <code>mongod</code> outputs errors to console or log file</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>🎯 Pro Tip:</b> Save this troubleshooting section. 80% of MongoDB issues fall into one of these categories. When you encounter a new error, add it here.
+  </div>
+</section>
+
+<!-- CHECKLIST -->
+<section class="phase">
+  <h2>✅ Mastery Checklist</h2>
+  <p class="sub">Go through each item. If you can't explain it without notes, you're not ready for the interview.</p>
+  <div class="checklist">
+    <div class="check">Explain MongoDB to someone who only knows SQL</div>
+    <div class="check">Write CRUD in shell AND Go without documentation</div>
+    <div class="check">Explain when to use $in, $and, $or, $exists, $all</div>
+    <div class="check">Difference between $set, $push, $inc, $addToSet</div>
+    <div class="check">Write a 5-stage aggregation pipeline from scratch</div>
+    <div class="check">Design a schema: when to embed vs reference</div>
+    <div class="check">Read explain() output and identify COLLSCAN vs IXSCAN</div>
+    <div class="check">Explain the ESR rule for compound indexes</div>
+    <div class="check">Upsert pattern: when and why</div>
+    <div class="check">BulkWrite: advantages over individual writes</div>
+    <div class="check">Go driver: bson.M vs bson.D, error handling</div>
+    <div class="check">Replica set: primary + secondary + failover</div>
+    <div class="check">Sharding: shard key selection + targeted vs scatter-gather</div>
+    <div class="check">Change streams: use cases + resume token</div>
+    <div class="check">WiredTiger: document-level locking + MVCC + compression</div>
+    <div class="check">5 anti-patterns and why they're bad</div>
+    <div class="check">MongoDB vs PostgreSQL vs Cassandra decision tree</div>
+    <div class="check">Connection pooling: why not new client per request</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  MongoDB Deep Learning Notes — Built for Kyndryl backend engineers.<br>
+  Every concept tested in production services: sonarqube · jfrog · develop · nwayfw · authorization · broker.<br>
+  Last updated: 2026. Reference material for daily development + interview prep.
+</footer>
+
+</div><!-- /container -->
+
+</body>
+</html>

@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go Backend — Phase 4: REST APIs (End-to-End Mastery)</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+      --go: #00ADD8; --go-dark: #0082a3;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14.5pt; margin-top: 20px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; }
+    .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; }
+    .yt-links ul { margin: 6px 0 2px 18px; padding: 0; }
+    .yt-links li { margin-bottom: 4px; }
+    .yt-links a { color: #c0392b; text-decoration: none; }
+    .yt-links a:hover { text-decoration: underline; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .interview h4 { color: #8b4513; margin-top: 0; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .real-code { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 8px; padding: 8px 12px; margin: 6px 0 10px; font-size: 9pt; color: #1b4d30; }
+    .real-code strong { font-family: "Avenir Next", sans-serif; }
+    .importance-box { background: linear-gradient(135deg, #fff8e1 0%, #fff3e0 100%); border: 2px solid #ff9800; border-radius: 12px; padding: 18px 20px; margin: 16px 0 22px; }
+    .importance-box h3 { color: #e65100; margin-top: 0; }
+    .importance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+    .importance-card { background: #fff; border: 1px solid #ffe0b2; border-radius: 8px; padding: 12px 14px; }
+    .importance-card h4 { color: #bf360c; margin-top: 0; font-size: 11pt; }
+    @media (max-width: 600px) { .importance-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<div class="hero">
+  <h1>Phase 4: REST APIs in Go — End-to-End Mastery</h1>
+  <p class="subtitle">Go Backend Roadmap — Phase 4 Deep-Dive Notes</p>
+  <div class="pill-row">
+    <span class="pill">HTTP Methods & Status Codes</span>
+    <span class="pill">net/http Handlers</span>
+    <span class="pill">Chi Router</span>
+    <span class="pill">Middleware</span>
+    <span class="pill">Request / Response Patterns</span>
+    <span class="pill">Pagination & Filtering</span>
+    <span class="pill">OpenAPI / Swagger</span>
+    <span class="pill">Error Handling</span>
+    <span class="pill">JWT Auth</span>
+    <span class="pill">Testing REST APIs</span>
+    <span class="pill">Real Microservice Patterns</span>
+  </div>
+</div>
+
+<!-- ═══════════════ IMPORTANCE ═══════════════ -->
+<div class="importance-box">
+  <h3>⚡ How Important Is This? (Read First)</h3>
+  <div class="importance-grid">
+    <div class="importance-card">
+      <h4>🎯 For Interviews</h4>
+      <ul>
+        <li><strong>100% of backend interviews</strong> test REST API design — no exceptions</li>
+        <li>Every technical round: "Design a REST API for X" is a standard question</li>
+        <li>HTTP methods, status codes, idempotency are asked in almost every Go interview</li>
+        <li>Middleware, auth middleware, and request validation are extremely common</li>
+        <li>System design rounds always include REST API design choices (versioning, pagination)</li>
+        <li><em>Verdict: Skip this = fail every backend interview</em></li>
+      </ul>
+    </div>
+    <div class="importance-card">
+      <h4>🏭 For Real-Time Production</h4>
+      <ul>
+        <li><strong>Every microservice you'll ever build</strong> exposes a REST API</li>
+        <li>The Kyndryl codebase you're working in is 100% REST — every handler in <code>controller/</code> is a REST endpoint</li>
+        <li>Your Angular frontend calls REST APIs — now you build the other side</li>
+        <li>REST design mistakes are permanent once clients depend on your API</li>
+        <li>Pagination bugs kill performance at scale — seen in production DBs</li>
+        <li><em>Verdict: REST is the daily language of backend development</em></li>
+      </ul>
+    </div>
+    <div class="importance-card">
+      <h4>📊 Interview Frequency (Go Roles)</h4>
+      <ul>
+        <li>HTTP fundamentals — <strong>asked in 95%</strong> of interviews</li>
+        <li>REST API design — <strong>asked in 90%</strong></li>
+        <li>Middleware patterns — <strong>asked in 75%</strong></li>
+        <li>Error handling / status codes — <strong>asked in 85%</strong></li>
+        <li>JWT / Auth implementation — <strong>asked in 70%</strong></li>
+        <li>Pagination / filtering — <strong>asked in 60%</strong></li>
+        <li>Testing REST handlers — <strong>asked in 65%</strong></li>
+      </ul>
+    </div>
+    <div class="importance-card">
+      <h4>🤖 For AI Backend Role (Your Goal)</h4>
+      <ul>
+        <li><code>POST /api/chat</code> — your LLM streaming endpoint</li>
+        <li><code>POST /api/documents/upload</code> — RAG ingestion trigger</li>
+        <li><code>GET /api/jobs/:id</code> — async AI job status polling</li>
+        <li>Every LLM SDK (OpenAI, Gemini) IS a REST API under the hood</li>
+        <li>AI backends need strict rate limiting middleware (per user token budget)</li>
+        <li><em>REST APIs are the entry point to every AI feature you'll build</em></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PRIORITY GUIDE ═══════════════ -->
+<div style="background:#fff;border:1px solid #d8d0c3;border-radius:12px;padding:18px 20px;margin:16px 0;">
+  <h3 style="margin:0 0 14px;font-family:'Avenir Next',sans-serif;color:#1a2530;font-size:15pt;">🗺️ Which Sections Are Compulsory? (Your Learning Priority)</h3>
+
+  <!-- Row 1: Compulsory -->
+  <div style="margin-bottom:14px;">
+    <div style="display:inline-block;background:#f8d7da;color:#721c24;font-family:'Avenir Next',sans-serif;font-weight:700;font-size:9pt;padding:3px 10px;border-radius:4px;margin-bottom:8px;">🔴 COMPULSORY — Every Go Backend Job</div>
+    <table style="width:100%;border-collapse:collapse;font-size:10pt;margin:0;">
+      <tr style="background:#eaf2f8;">
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">#</th>
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">Section</th>
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">Why compulsory</th>
+      </tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">1</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#http-fundamentals">HTTP Fundamentals</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Asked in 95% of interviews. Foundation of everything.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">2</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#rest-principles">REST Principles & API Design</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">You design APIs daily — wrong design = permanent technical debt.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">3</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#net-http">Building with net/http</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Core of every Go server. No framework hides this completely.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">5</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#request-response">Request &amp; Response Patterns</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">JSON decode/encode, validation — used in every single handler.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">6</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#middleware">Middleware</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Logging, auth, CORS — every production API has these.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">7</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#error-handling">Error Handling Patterns</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Leaking internal errors to clients = security issue. Non-negotiable.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">8</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#pagination">Pagination, Filtering &amp; Sorting</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Every list endpoint — missing this = unusable API at scale.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">10</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#jwt-auth">JWT Authentication Middleware</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Every real API needs authentication.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">18</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#project-structure">Clean Architecture &amp; Project Structure</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Without this, codebase becomes unmaintainable in week 3.</td></tr>
+    </table>
+  </div>
+
+  <!-- Row 2: Important -->
+  <div style="margin-bottom:14px;">
+    <div style="display:inline-block;background:#fff3cd;color:#856404;font-family:'Avenir Next',sans-serif;font-weight:700;font-size:9pt;padding:3px 10px;border-radius:4px;margin-bottom:8px;">🟡 IMPORTANT — Expected at Mid / Senior Level</div>
+    <table style="width:100%;border-collapse:collapse;font-size:10pt;margin:0;">
+      <tr style="background:#eaf2f8;">
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">#</th>
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">Section</th>
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">Why important</th>
+      </tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">4</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#chi-router">Chi Router</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">You need a router for any real project beyond hello-world.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">9</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#swagger">OpenAPI / Swagger</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Expected in most company codebases.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">11</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#testing">Testing REST Handlers</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Every serious company requires tests. Signals seniority.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">13</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#http-client">HTTP Client</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">You call OpenAI, other microservices, external APIs daily.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">16</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#graceful-shutdown">Graceful Shutdown &amp; Health Checks</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">K8s kills your pod without this — production requirement.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">17</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#request-tracing">Request Tracing</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Without request IDs, debugging microservices is impossible.</td></tr>
+    </table>
+  </div>
+
+  <!-- Row 3: Situational -->
+  <div style="margin-bottom:14px;">
+    <div style="display:inline-block;background:#d4edda;color:#155724;font-family:'Avenir Next',sans-serif;font-weight:700;font-size:9pt;padding:3px 10px;border-radius:4px;margin-bottom:8px;">🟢 SITUATIONAL — Learn When Your Role Needs It</div>
+    <table style="width:100%;border-collapse:collapse;font-size:10pt;margin:0;">
+      <tr style="background:#eaf2f8;">
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">#</th>
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">Section</th>
+        <th style="border:1px solid #d8d0c3;padding:7px 10px;text-align:left;">When you need it</th>
+      </tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">14</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#sse-streaming">SSE Streaming</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">When building AI chat (your goal — learn early).</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">15</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#file-upload">File Upload &amp; S3</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">When building RAG pipelines (document ingestion).</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">19</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#webhooks">Webhooks</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">When integrating with GitHub, Stripe, Slack etc.</td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">12</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#real-microservice">Real Microservice Patterns</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">
+        Live in your workspace right now:
+        <br/><code style="font-size:8.5pt;">bdg-sw-devx-di-application-manager/controller/<strong>controller.go</strong></code> — router &amp; route registration
+        <br/><code style="font-size:8.5pt;">bdg-sw-devx-di-application-manager/controller/<strong>applications.go</strong></code> — full handler implementation
+        <br/><span style="color:#5c584f;font-size:9pt;">Base path: <code>/api/application_manager/v4</code></span>
+      </td></tr>
+      <tr><td style="border:1px solid #d8d0c3;padding:6px 10px;">20</td><td style="border:1px solid #d8d0c3;padding:6px 10px;"><a href="#interview-bank">Interview Question Bank</a></td><td style="border:1px solid #d8d0c3;padding:6px 10px;">Study resource — grind this before every interview.</td></tr>
+    </table>
+  </div>
+
+  <!-- Week-by-week plan -->
+  <div style="background:#f0f7fc;border-left:4px solid #1a5276;border-radius:0 8px 8px 0;padding:12px 16px;">
+    <strong style="font-family:'Avenir Next',sans-serif;color:#1a5276;">⏱️ Your Priority Order (Frontend → Backend AI Engineer)</strong>
+    <table style="width:100%;border-collapse:collapse;font-size:10pt;margin:8px 0 0;">
+      <tr><td style="padding:4px 10px 4px 0;font-weight:700;white-space:nowrap;color:#1a5276;">Week 1–2</td><td style="padding:4px 0;">Sections 1, 2, 3, 5, 7 — survive any backend task</td></tr>
+      <tr><td style="padding:4px 10px 4px 0;font-weight:700;white-space:nowrap;color:#1a5276;">Week 3–4</td><td style="padding:4px 0;">Sections 4, 6, 8, 10, 18 — build a real, production-grade API</td></tr>
+      <tr><td style="padding:4px 10px 4px 0;font-weight:700;white-space:nowrap;color:#1a5276;">Week 5–6</td><td style="padding:4px 0;">Sections 11, 13, 16, 17 — production-quality code</td></tr>
+      <tr><td style="padding:4px 10px 4px 0;font-weight:700;white-space:nowrap;color:#1a5276;">Week 7+</td><td style="padding:4px 0;">Sections 14, 15, 9 — AI-specific features (SSE, file upload, docs)</td></tr>
+      <tr><td style="padding:4px 10px 4px 0;font-weight:700;white-space:nowrap;color:#1a5276;">Pre-interview</td><td style="padding:4px 0;">Section 20 — drill all Q&amp;A, revisit sections 1, 2, 6, 7, 10</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ TOC ═══════════════ -->
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#http-fundamentals">HTTP Fundamentals — Methods, Status Codes, Headers</a></li>
+    <li><a href="#rest-principles">REST Principles & API Design</a></li>
+    <li><a href="#net-http">Building with net/http (Go Stdlib)</a></li>
+    <li><a href="#chi-router">Chi Router — Real-World Routing</a></li>
+    <li><a href="#request-response">Request & Response Patterns</a></li>
+    <li><a href="#middleware">Middleware — Logging, Auth, CORS, Rate Limiting</a></li>
+    <li><a href="#error-handling">Error Handling Patterns</a></li>
+    <li><a href="#pagination">Pagination, Filtering & Sorting</a></li>
+    <li><a href="#swagger">OpenAPI / Swagger Documentation</a></li>
+    <li><a href="#jwt-auth">JWT Authentication Middleware</a></li>
+    <li><a href="#testing">Testing REST API Handlers</a></li>
+    <li><a href="#real-microservice">Real Microservice Patterns (from Kyndryl codebase)</a></li>
+    <li><a href="#http-client">HTTP Client — Calling External APIs</a></li>
+    <li><a href="#sse-streaming">SSE Streaming — Real-Time LLM Token Output</a></li>
+    <li><a href="#file-upload">File Upload & Multipart Forms (S3 Integration)</a></li>
+    <li><a href="#graceful-shutdown">Graceful Shutdown & Health Checks</a></li>
+    <li><a href="#request-tracing">Request Tracing & Structured Logging</a></li>
+    <li><a href="#project-structure">Clean Architecture & Project Structure</a></li>
+    <li><a href="#webhooks">Webhooks — Receiving & Verifying</a></li>
+    <li><a href="#interview-bank">Full Interview Question Bank</a></li>
+  </ol>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="http-fundamentals">1. HTTP Fundamentals — Methods, Status Codes, Headers</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=HTTP+Crash+Course+ByteByteGo" target="_blank">HTTP Crash Course — ByteByteGo</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=HTTP+Status+Codes+Explained" target="_blank">HTTP Status Codes Explained — Fireship</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=REST+API+Tutorial+Go+golang" target="_blank">REST API Tutorial — Anthony GG</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+
+<h4>HTTP Methods — Purpose, Idempotency, Safety</h4>
+<p>Every REST API call uses an HTTP method (verb). Knowing the exact semantics — especially <strong>idempotency</strong> and <strong>safety</strong> — is essential for design and interviews.</p>
+
+<table>
+<tr><th>Method</th><th>Purpose</th><th>Safe?</th><th>Idempotent?</th><th>Has Body?</th><th>Common Use</th></tr>
+<tr><td><strong>GET</strong></td><td>Read a resource</td><td>✅ Yes</td><td>✅ Yes</td><td>No</td><td>Fetch user, list items</td></tr>
+<tr><td><strong>POST</strong></td><td>Create a resource</td><td>❌ No</td><td>❌ No</td><td>Yes</td><td>Create user, submit order</td></tr>
+<tr><td><strong>PUT</strong></td><td>Replace entire resource</td><td>❌ No</td><td>✅ Yes</td><td>Yes</td><td>Full update of a record</td></tr>
+<tr><td><strong>PATCH</strong></td><td>Partial update</td><td>❌ No</td><td>⚠️ Maybe</td><td>Yes</td><td>Update one field</td></tr>
+<tr><td><strong>DELETE</strong></td><td>Remove a resource</td><td>❌ No</td><td>✅ Yes</td><td>Rarely</td><td>Delete a record</td></tr>
+<tr><td><strong>HEAD</strong></td><td>Like GET, no body</td><td>✅ Yes</td><td>✅ Yes</td><td>No</td><td>Check if resource exists</td></tr>
+<tr><td><strong>OPTIONS</strong></td><td>Describe allowed methods</td><td>✅ Yes</td><td>✅ Yes</td><td>No</td><td>CORS preflight</td></tr>
+</table>
+
+<div class="callout">
+<strong>Idempotent</strong> = Calling the endpoint N times produces the same result as calling it once. Example: <code>DELETE /users/1</code> — whether you call it once or 10 times, the user is gone. <strong>Safe</strong> = The call does not change server state. GET is safe — reading data never modifies it.
+</div>
+
+<h4>HTTP Status Codes — Complete Map</h4>
+
+<table>
+<tr><th>Code</th><th>Meaning</th><th>When to use in Go</th></tr>
+<tr><td><strong>200 OK</strong></td><td>Success</td><td>GET returns data, PUT/PATCH update succeeded</td></tr>
+<tr><td><strong>201 Created</strong></td><td>Resource created</td><td>POST created a new record — include <code>Location</code> header</td></tr>
+<tr><td><strong>204 No Content</strong></td><td>Success, no body</td><td>DELETE succeeded, no body to return</td></tr>
+<tr><td><strong>400 Bad Request</strong></td><td>Invalid client input</td><td>Missing required field, invalid JSON, bad query param</td></tr>
+<tr><td><strong>401 Unauthorized</strong></td><td>Not authenticated</td><td>Missing/invalid/expired JWT token</td></tr>
+<tr><td><strong>403 Forbidden</strong></td><td>Not authorized</td><td>Authenticated but lacks permission for this action</td></tr>
+<tr><td><strong>404 Not Found</strong></td><td>Resource doesn't exist</td><td>User ID not in DB, route not matched</td></tr>
+<tr><td><strong>409 Conflict</strong></td><td>State conflict</td><td>Duplicate email, version mismatch (optimistic locking)</td></tr>
+<tr><td><strong>422 Unprocessable Entity</strong></td><td>Semantic validation error</td><td>JSON parses fine but business rules fail (e.g., negative price)</td></tr>
+<tr><td><strong>429 Too Many Requests</strong></td><td>Rate limited</td><td>User exceeded API rate limit — include <code>Retry-After</code> header</td></tr>
+<tr><td><strong>500 Internal Server Error</strong></td><td>Unexpected server failure</td><td>Unhandled panic, DB connection lost</td></tr>
+<tr><td><strong>502 Bad Gateway</strong></td><td>Upstream failure</td><td>Your service called another service that returned an error</td></tr>
+<tr><td><strong>503 Service Unavailable</strong></td><td>Service down</td><td>During deployment, maintenance, or when DB is unreachable</td></tr>
+</table>
+
+<div class="callout warning">
+<strong>⚠️ Common Mistakes:</strong> Using 200 for errors (never do this). Using 404 for "not authorized" (leaks resource existence). Returning 500 for bad client input (should be 400). Never return 401 when you mean 403 — they have different meanings and clients behave differently.
+</div>
+
+<h4>Essential HTTP Headers</h4>
+<pre><code>// Request Headers
+Content-Type: application/json        // What format the body is in
+Accept: application/json              // What format the client wants back
+Authorization: Bearer eyJhbGci...     // JWT or API key
+X-Request-ID: uuid-v4                 // Trace ID for distributed tracing
+X-Forwarded-For: 203.0.113.1          // Original client IP (behind load balancer)
+
+// Response Headers
+Content-Type: application/json        // Format of the response body
+Location: /api/v1/users/123          // Where the new resource lives (201 Created)
+X-Request-ID: same-uuid-as-request   // Echo back for tracing
+Retry-After: 60                       // Seconds until rate limit resets (429)
+X-Total-Count: 1500                   // Total records for pagination
+Cache-Control: no-store               // Don't cache sensitive data</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-easy">Easy</span> What is the difference between PUT and PATCH?</p>
+<p><strong>Answer:</strong> PUT replaces the <em>entire</em> resource — you must send all fields. If you omit a field, it gets set to null/default. PATCH partially updates — only send the fields you want to change. PUT is idempotent by design (same call, same result). PATCH may or may not be idempotent depending on implementation (e.g., "increment count by 1" is not idempotent).</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is the difference between 401 and 403?</p>
+<p><strong>Answer:</strong> 401 means "I don't know who you are" — missing/invalid authentication credentials. 403 means "I know who you are, but you're not allowed to do this." Example: 401 = no JWT token sent. 403 = valid JWT token, but the user role is "viewer" not "admin." Some APIs return 404 instead of 403 to hide whether a resource exists (security through obscurity).</p>
+
+<p><span class="difficulty d-medium">Medium</span> What does idempotent mean? Which HTTP methods are NOT idempotent?</p>
+<p><strong>Answer:</strong> An operation is idempotent if calling it N times produces the same result as calling it once. POST is NOT idempotent — calling <code>POST /orders</code> 3 times creates 3 orders. PATCH may not be — depends on the operation. GET, PUT, DELETE, HEAD, OPTIONS are idempotent. This matters for retry logic: safe to retry idempotent requests on timeout, dangerous to retry POST.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="rest-principles">2. REST Principles & API Design</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=REST+API+Design+Best+Practices+2024" target="_blank">REST API Best Practices — ByteByteGo</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=API+versioning+golang" target="_blank">API Versioning Strategies — Hussein Nasser</a></li>
+</ul></details>
+
+<h3>Theory: REST Constraints</h3>
+<p>REST (Representational State Transfer) is an architectural style defined by Roy Fielding in his 2000 PhD thesis. An API is "RESTful" when it satisfies 6 constraints:</p>
+
+<ol>
+  <li><strong>Client-Server</strong> — Separation of concerns. Client manages UI, server manages data.</li>
+  <li><strong>Stateless</strong> — Each request contains all information needed to process it. Server stores no session state. Enables horizontal scaling.</li>
+  <li><strong>Cacheable</strong> — Responses must define whether they are cacheable. GET responses should be cacheable.</li>
+  <li><strong>Uniform Interface</strong> — Resource identification via URIs, manipulation via representations, self-descriptive messages, HATEOAS.</li>
+  <li><strong>Layered System</strong> — Client can't tell if it's talking directly to a server or a load balancer/proxy/cache.</li>
+  <li><strong>Code on Demand (optional)</strong> — Server can send executable code (e.g., JavaScript) to client.</li>
+</ol>
+
+<h4>URL Design Rules</h4>
+<table>
+<tr><th>Rule</th><th>Bad ❌</th><th>Good ✅</th></tr>
+<tr><td>Use nouns, not verbs</td><td><code>/getUsers</code></td><td><code>/users</code></td></tr>
+<tr><td>Plural resource names</td><td><code>/user</code></td><td><code>/users</code></td></tr>
+<tr><td>Lowercase with hyphens</td><td><code>/TechnicalServices</code></td><td><code>/technical-services</code></td></tr>
+<tr><td>Hierarchy shows relationship</td><td><code>/getUserOrders?id=5</code></td><td><code>/users/5/orders</code></td></tr>
+<tr><td>No trailing slash</td><td><code>/users/</code></td><td><code>/users</code></td></tr>
+<tr><td>Version in path</td><td><code>/users</code> (breaks clients on change)</td><td><code>/api/v1/users</code></td></tr>
+<tr><td>Filter via query params</td><td><code>/activeUsers</code></td><td><code>/users?status=active</code></td></tr>
+</table>
+
+<div class="real-code">
+<strong>📌 Real pattern from Kyndryl microservice (controller.go):</strong><br/>
+The <code>bdg-sw-devx-di-application-manager</code> service uses versioned base path: <code>/api/application_manager/v4</code> with resource-based routes like <code>/applications/{applicationID}</code>, <code>/technical-services/{technicalServiceID}</code>. Relationships are expressed in the URL: <code>/technical-services/delink/{technicalServiceID}</code>. Methods on the same path: GET/POST on <code>/applications</code>, GET/PATCH/DELETE on <code>/applications/{id}</code>.
+</div>
+
+<h4>API Versioning Strategies</h4>
+<table>
+<tr><th>Strategy</th><th>Example</th><th>Pros</th><th>Cons</th></tr>
+<tr><td><strong>URL Path</strong> (most common)</td><td><code>/api/v1/users</code></td><td>Explicit, easy to route, cacheable</td><td>URL pollution, clients must update URLs</td></tr>
+<tr><td><strong>Query Param</strong></td><td><code>/users?version=1</code></td><td>Backward compatible URL</td><td>Easy to miss, not RESTful purist</td></tr>
+<tr><td><strong>Header</strong></td><td><code>Accept: application/vnd.v2+json</code></td><td>Clean URLs</td><td>Less visible, harder to test with browser</td></tr>
+<tr><td><strong>No Versioning</strong></td><td>Additive changes only</td><td>Simple</td><td>Dangerous — any breaking change breaks clients</td></tr>
+</table>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What makes an API "RESTful"? What's the most important constraint?</p>
+<p><strong>Answer:</strong> The 6 REST constraints. The most important for scalability is <strong>Statelessness</strong> — each request is self-contained. The server never stores client session state between requests. All context the server needs (auth token, user ID) must be in each request. This enables horizontal scaling — any server in the cluster can handle any request.</p>
+
+<p><span class="difficulty d-medium">Medium</span> How would you version a REST API? What approach do you prefer and why?</p>
+<p><strong>Answer:</strong> URL path versioning (<code>/api/v1/</code>) is most common and pragmatic — it's explicit, easy to route, visible in logs, and simple to test with curl. Header versioning is cleaner per REST theory but harder to debug. I'd use URL versioning for public APIs and internal microservices both. The rule: never make breaking changes to an existing version; create v2 instead.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="net-http">3. Building with net/http (Go Stdlib)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=Go+net+http+server+tutorial" target="_blank">net/http Server — Anthony GG</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=Go+1.22+new+router+http+stdlib" target="_blank">Go 1.22 New Router — Alex Edwards</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>Go's <code>net/http</code> package is a production-ready HTTP server in the standard library. Unlike Node.js where you need Express, Go's stdlib handles routing (Go 1.22+), middleware, timeouts, and TLS natively. Always learn stdlib before frameworks — frameworks are just wrappers.</p>
+
+<h4>Minimal HTTP Server</h4>
+<pre><code>package main
+
+import (
+    "encoding/json"
+    "log"
+    "net/http"
+)
+
+// Always write handlers with this exact signature
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK) // set status BEFORE writing body
+    json.NewEncoder(w).Encode(map[string]string{"message": "hello"})
+}
+
+func main() {
+    mux := http.NewServeMux()
+    mux.HandleFunc("GET /api/hello", helloHandler) // Go 1.22+: method in pattern
+
+    server := &http.Server{
+        Addr:         ":8080",
+        Handler:      mux,
+        ReadTimeout:  15 * time.Second,  // ALWAYS set timeouts
+        WriteTimeout: 15 * time.Second,
+        IdleTimeout:  60 * time.Second,
+    }
+
+    log.Println("Server running on :8080")
+    log.Fatal(server.ListenAndServe())
+}</code></pre>
+
+<div class="callout warning">
+<strong>⚠️ Never use http.ListenAndServe() directly in production:</strong> It has no timeouts. A slow client can hold a connection open forever, exhausting your goroutine pool. Always create an <code>http.Server</code> struct with explicit timeout values.
+</div>
+
+<h4>Reading URL Parameters — 3 Ways</h4>
+<pre><code>// 1. Path parameters (Go 1.22+)
+mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")  // Go 1.22+
+    // id = "123" for request to /users/123
+})
+
+// 2. Query parameters
+// GET /users?status=active&limit=20
+func getUsers(w http.ResponseWriter, r *http.Request) {
+    status := r.URL.Query().Get("status")   // "active"
+    limit  := r.URL.Query().Get("limit")    // "20" (always string, must parse)
+    
+    limitInt, err := strconv.Atoi(limit)
+    if err != nil || limitInt <= 0 {
+        http.Error(w, "invalid limit parameter", http.StatusBadRequest)
+        return
+    }
+}
+
+// 3. Headers
+func authHandler(w http.ResponseWriter, r *http.Request) {
+    token := r.Header.Get("Authorization") // "Bearer eyJhb..."
+    apiKey := r.Header.Get("X-API-Key")
+}</code></pre>
+
+<h4>Reading & Writing JSON (The Core Pattern)</h4>
+<pre><code>type CreateUserRequest struct {
+    Name  string `json:"name"`
+    Email string `json:"email"`
+    Age   int    `json:"age"`
+}
+
+type UserResponse struct {
+    ID    string `json:"id"`
+    Name  string `json:"name"`
+    Email string `json:"email"`
+}
+
+// Standard handler pattern used in ALL real Go APIs
+func createUser(w http.ResponseWriter, r *http.Request) {
+    // 1. Limit body size (prevent 1GB attack bodies)
+    r.Body = http.MaxBytesReader(w, r.Body, 1_048_576) // 1MB limit
+
+    // 2. Decode JSON body
+    var req CreateUserRequest
+    dec := json.NewDecoder(r.Body)
+    dec.DisallowUnknownFields() // reject extra fields (strict mode)
+    if err := dec.Decode(&req); err != nil {
+        http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // 3. Validate
+    if req.Name == "" {
+        http.Error(w, "name is required", http.StatusBadRequest)
+        return
+    }
+    if req.Age < 0 || req.Age > 150 {
+        http.Error(w, "age must be between 0 and 150", http.StatusUnprocessableEntity)
+        return
+    }
+
+    // 4. Business logic (call service layer)
+    user, err := userService.Create(r.Context(), req)
+    if err != nil {
+        log.Printf("create user error: %v", err)
+        http.Error(w, "internal server error", http.StatusInternalServerError)
+        return
+    }
+
+    // 5. Write response
+    w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Location", "/api/v1/users/"+user.ID) // 201 best practice
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(UserResponse{
+        ID: user.ID, Name: user.Name, Email: user.Email,
+    })
+}
+
+// ─── Helper: write JSON response (use this everywhere) ─────────────
+func writeJSON(w http.ResponseWriter, status int, v any) {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(status)
+    if err := json.NewEncoder(w).Encode(v); err != nil {
+        log.Printf("writeJSON error: %v", err)
+    }
+}</code></pre>
+
+<div class="exercise">
+<h4>✏️ Hands-On Exercise 1 — Minimal CRUD Server</h4>
+<p>Build an in-memory REST API for a <code>Task</code> resource using only <code>net/http</code>:</p>
+<ul>
+  <li><code>GET  /api/tasks</code> — list all tasks</li>
+  <li><code>POST /api/tasks</code> — create a task (title, done fields)</li>
+  <li><code>GET  /api/tasks/{id}</code> — get one task</li>
+  <li><code>PATCH /api/tasks/{id}</code> — update title or done status</li>
+  <li><code>DELETE /api/tasks/{id}</code> — delete a task</li>
+</ul>
+<p>Requirements: proper status codes, JSON responses, 404 when task not found, thread-safe (use <code>sync.RWMutex</code> for the in-memory map).</p>
+<p><strong>Goal:</strong> Get comfortable with the handler signature and JSON decode/encode before adding a router.</p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> Why must you call <code>w.WriteHeader()</code> before writing the body?</p>
+<p><strong>Answer:</strong> HTTP protocol requires status line and headers to be sent before the body. In Go's <code>http.ResponseWriter</code>, the first call to <code>Write()</code> implicitly sends the status line (200) if you haven't called <code>WriteHeader()</code> yet. Once the status is sent, it can't be changed. If you set headers after writing, they're silently ignored. Order: set headers → WriteHeader → write body.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What happens if you don't set timeouts on your HTTP server in Go?</p>
+<p><strong>Answer:</strong> Without timeouts, a slow client or slow upstream can hold a goroutine and connection open indefinitely. This causes goroutine leaks and eventually exhausts memory. In production, attackers use "slow loris" attacks — sending HTTP headers one byte per second to tie up all connections. <code>ReadTimeout</code> kills connections that take too long to send the request. <code>WriteTimeout</code> kills connections where response writing is too slow. Always set both.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="chi-router">4. Chi Router — Real-World Routing</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=REST+API+with+Chi+Router+Go" target="_blank">REST API with Chi — NerdCademy</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=chi+router+middleware+golang" target="_blank">Chi Router + Middleware — Coding with Patrik</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>Chi is a lightweight, idiomatic Go router that builds directly on <code>net/http</code>. It adds: method+path routing, URL parameters, middleware chaining, sub-routers, and route grouping — all with zero external dependencies beyond itself.</p>
+
+<h4>Chi Router Setup</h4>
+<pre><code>package main
+
+import (
+    "net/http"
+    "github.com/go-chi/chi/v5"
+    "github.com/go-chi/chi/v5/middleware"
+)
+
+func main() {
+    r := chi.NewRouter()
+
+    // ── Global middleware (runs for every request) ──
+    r.Use(middleware.RequestID)    // adds X-Request-Id header
+    r.Use(middleware.RealIP)       // sets RemoteAddr from X-Forwarded-For
+    r.Use(middleware.Logger)       // structured access logs
+    r.Use(middleware.Recoverer)    // catches panics, returns 500
+    r.Use(middleware.Timeout(60 * time.Second)) // request timeout
+
+    // ── Route groups with shared middleware ──
+    r.Route("/api/v1", func(r chi.Router) {
+        r.Use(AuthMiddleware) // JWT validation for all /api/v1 routes
+
+        r.Route("/users", func(r chi.Router) {
+            r.Get("/", listUsers)           // GET  /api/v1/users
+            r.Post("/", createUser)         // POST /api/v1/users
+
+            r.Route("/{userID}", func(r chi.Router) {
+                r.Use(LoadUserCtx)          // load user from DB into context
+                r.Get("/", getUser)         // GET    /api/v1/users/{userID}
+                r.Put("/", updateUser)      // PUT    /api/v1/users/{userID}
+                r.Patch("/", patchUser)     // PATCH  /api/v1/users/{userID}
+                r.Delete("/", deleteUser)   // DELETE /api/v1/users/{userID}
+            })
+        })
+
+        r.Route("/applications", func(r chi.Router) {
+            r.Get("/", listApplications)
+            r.Post("/", createApplication)
+            r.Get("/{appID}", getApplication)
+            r.Patch("/{appID}", updateApplication)
+            r.Delete("/{appID}", deleteApplication)
+        })
+    })
+
+    http.ListenAndServe(":8080", r)
+}
+
+// Get URL parameter
+func getUser(w http.ResponseWriter, r *http.Request) {
+    userID := chi.URLParam(r, "userID")  // chi's way to get path vars
+    // ...
+}
+
+// Context pattern: load resource in middleware, use in handler
+type contextKey string
+const userKey contextKey = "user"
+
+func LoadUserCtx(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        userID := chi.URLParam(r, "userID")
+        user, err := db.GetUser(r.Context(), userID)
+        if err != nil {
+            http.Error(w, "user not found", http.StatusNotFound)
+            return
+        }
+        ctx := context.WithValue(r.Context(), userKey, user)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
+}</code></pre>
+
+<div class="real-code">
+<strong>📌 Kyndryl codebase uses gorilla/mux:</strong> <code>vars := mux.Vars(r)</code> to get path variables — same concept, different library. The pattern in <code>applications.go</code>: authenticate → validate params → query DB → marshal response. Chi achieves the same thing with cleaner sub-router grouping.
+</div>
+
+<div class="exercise">
+<h4>✏️ Hands-On Exercise 2 — Chi Router CRUD</h4>
+<p>Migrate your Exercise 1 task API to use Chi router. Add:</p>
+<ul>
+  <li>Route grouping: all routes under <code>/api/v1/tasks</code></li>
+  <li><code>middleware.Logger</code> — see request logs in terminal</li>
+  <li><code>middleware.Recoverer</code> — handle panics gracefully</li>
+  <li><code>middleware.Timeout(30 * time.Second)</code> — request timeout</li>
+  <li>A <code>LoadTaskCtx</code> middleware that loads the task from the map and puts it in context, returning 404 if not found</li>
+</ul>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="request-response">5. Request & Response Patterns</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=golang+json+encode+decode+rest+api" target="_blank">JSON Encode/Decode in Go — Anthony GG</a></li>
+</ul></details>
+
+<h3>Theory: Consistent Response Envelope</h3>
+<p>Production APIs use a <strong>consistent response envelope</strong> so clients know exactly where to find data, errors, and metadata regardless of the endpoint.</p>
+
+<h4>Standard Response Envelope</h4>
+<pre><code>// Standard API response envelope — use this pattern consistently
+type APIResponse[T any] struct {
+    Data    T           `json:"data,omitempty"`
+    Error   *APIError   `json:"error,omitempty"`
+    Meta    *Meta       `json:"meta,omitempty"`   // pagination info
+}
+
+type APIError struct {
+    Code    string `json:"code"`
+    Message string `json:"message"`
+    Details any    `json:"details,omitempty"` // field-level validation errors
+}
+
+type Meta struct {
+    Total  int `json:"total"`
+    Offset int `json:"offset"`
+    Limit  int `json:"limit"`
+}
+
+// ─── Success responses ────────────────────────────────
+// Single resource:
+// { "data": { "id": "1", "name": "John" } }
+
+// List with pagination:
+// { "data": [...], "meta": { "total": 100, "offset": 0, "limit": 20 } }
+
+// ─── Error responses ─────────────────────────────────
+// { "error": { "code": "VALIDATION_ERROR", "message": "...", "details": {...} } }
+
+// Usage
+func writeSuccess[T any](w http.ResponseWriter, status int, data T, meta *Meta) {
+    writeJSON(w, status, APIResponse[T]{Data: data, Meta: meta})
+}
+
+func writeError(w http.ResponseWriter, status int, code, msg string) {
+    writeJSON(w, status, APIResponse[any]{
+        Error: &APIError{Code: code, Message: msg},
+    })
+}</code></pre>
+
+<h4>Input Validation Pattern</h4>
+<pre><code>// Use github.com/go-playground/validator/v10
+import "github.com/go-playground/validator/v10"
+
+var validate = validator.New()
+
+type CreateApplicationRequest struct {
+    Name        string `json:"name"        validate:"required,min=2,max=100"`
+    Description string `json:"description" validate:"omitempty,max=500"`
+    Environment string `json:"environment" validate:"required,oneof=dev staging prod"`
+    Priority    int    `json:"priority"    validate:"min=1,max=5"`
+}
+
+func createApplication(w http.ResponseWriter, r *http.Request) {
+    var req CreateApplicationRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        writeError(w, http.StatusBadRequest, "INVALID_JSON", err.Error())
+        return
+    }
+
+    // Validate struct tags
+    if err := validate.Struct(req); err != nil {
+        // Convert validation errors to human-readable map
+        errors := make(map[string]string)
+        for _, e := range err.(validator.ValidationErrors) {
+            errors[e.Field()] = e.Tag() + "=" + e.Param()
+        }
+        writeJSON(w, http.StatusBadRequest, APIResponse[any]{
+            Error: &APIError{
+                Code:    "VALIDATION_ERROR",
+                Message: "request validation failed",
+                Details: errors,
+            },
+        })
+        return
+    }
+    // ... continue with business logic
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How do you handle an unknown JSON field in a Go request body?</p>
+<p><strong>Answer:</strong> By default, <code>json.Decoder</code> silently ignores unknown fields. To reject them, use <code>dec.DisallowUnknownFields()</code>. This prevents clients from sending garbage data or typos (<code>"naem"</code> instead of <code>"name"</code>) that would silently be ignored, making debugging harder. For public APIs, it's better to be permissive (ignore unknowns) for forward compatibility; for strict internal APIs, reject them.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why should you limit request body size? How do you do it in Go?</p>
+<p><strong>Answer:</strong> Without a body size limit, a client can send a 10GB request body, buffering it into memory and causing OOM. Use <code>r.Body = http.MaxBytesReader(w, r.Body, 1<<20)</code> (1MB limit). When exceeded, <code>json.Decoder.Decode()</code> returns a <code>*http.MaxBytesError</code>. For file uploads, set a higher limit. This is a basic DoS protection measure.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="middleware">6. Middleware — Logging, Auth, CORS, Rate Limiting</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=Go+middleware+pattern+net+http" target="_blank">Writing Middleware — Alex Edwards</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+middleware+chain+logging+auth" target="_blank">Middleware Patterns — Flo Woelki</a></li>
+</ul></details>
+
+<h3>Theory: The Middleware Pattern</h3>
+<p>Middleware is a function that <strong>wraps</strong> an HTTP handler to add cross-cutting behaviour (logging, auth, rate limiting) without touching business logic. In Go, middleware has a single signature: it takes an <code>http.Handler</code> and returns an <code>http.Handler</code>.</p>
+
+<pre><code>// The middleware signature — memorize this
+type Middleware func(http.Handler) http.Handler
+
+// Every middleware looks like this:
+func MyMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // PRE-processing (runs BEFORE the handler)
+        log.Println("Request started:", r.Method, r.URL.Path)
+
+        next.ServeHTTP(w, r) // call the next handler in the chain
+
+        // POST-processing (runs AFTER the handler)
+        log.Println("Request finished")
+    })
+}
+
+// Chaining multiple middleware (manual, without Chi)
+handler := LoggingMiddleware(AuthMiddleware(RateLimitMiddleware(myHandler)))
+// Execution order: Logging → Auth → RateLimit → myHandler → RateLimit → Auth → Logging</code></pre>
+
+<h4>4 Essential Middleware Implementations</h4>
+
+<pre><code>// ─── 1. Request Logging Middleware ───────────────────────────────
+func RequestLogger(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        start := time.Now()
+        
+        // Wrap ResponseWriter to capture status code
+        ww := &responseWriter{ResponseWriter: w, status: http.StatusOK}
+        
+        next.ServeHTTP(ww, r)
+        
+        slog.Info("request",
+            "method",   r.Method,
+            "path",     r.URL.Path,
+            "status",   ww.status,
+            "duration", time.Since(start),
+            "ip",       r.RemoteAddr,
+        )
+    })
+}
+
+// Wrap ResponseWriter to capture the status code
+type responseWriter struct {
+    http.ResponseWriter
+    status int
+}
+func (rw *responseWriter) WriteHeader(code int) {
+    rw.status = code
+    rw.ResponseWriter.WriteHeader(code)
+}
+
+// ─── 2. CORS Middleware ───────────────────────────────────────────
+func CORSMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Access-Control-Allow-Origin", "https://yourdomain.com")
+        w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-ID")
+        w.Header().Set("Access-Control-Max-Age", "86400") // cache preflight for 1 day
+        
+        if r.Method == http.MethodOptions {
+            w.WriteHeader(http.StatusNoContent) // 204 for preflight
+            return
+        }
+        next.ServeHTTP(w, r)
+    })
+}
+// In production use github.com/rs/cors instead of manual implementation
+
+// ─── 3. Rate Limiting Middleware (Token Bucket) ───────────────────
+import "golang.org/x/time/rate"
+
+type rateLimiter struct {
+    limiters sync.Map // map[IP]*rate.Limiter
+    rate     rate.Limit
+    burst    int
+}
+
+func (rl *rateLimiter) getLimiter(ip string) *rate.Limiter {
+    v, loaded := rl.limiters.LoadOrStore(ip, rate.NewLimiter(rl.rate, rl.burst))
+    return v.(*rate.Limiter)
+}
+
+func (rl *rateLimiter) Middleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        ip := r.RemoteAddr
+        limiter := rl.getLimiter(ip)
+        
+        if !limiter.Allow() {
+            w.Header().Set("Retry-After", "60")
+            http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
+            return
+        }
+        next.ServeHTTP(w, r)
+    })
+}
+
+// Use: r := rate.NewLimiter(rate.Every(time.Second), 10) → 10 req/sec
+
+// ─── 4. Recovery (Panic Handler) Middleware ───────────────────────
+func Recovery(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        defer func() {
+            if err := recover(); err != nil {
+                // Log the stack trace
+                buf := make([]byte, 2048)
+                n := runtime.Stack(buf, false)
+                slog.Error("panic recovered",
+                    "error", err,
+                    "stack", string(buf[:n]),
+                )
+                http.Error(w, "internal server error", http.StatusInternalServerError)
+            }
+        }()
+        next.ServeHTTP(w, r)
+    })
+}</code></pre>
+
+<div class="real-code">
+<strong>📌 Real pattern from Kyndryl codebase:</strong> In <code>controller.go</code>, authentication is handled per-route via <code>.Auth(dashfw.FABTA | dashfw.FATI)</code> flags — this is an auth middleware injected by the framework. In <code>applications.go</code>: <code>authorization, msg := c.authWrapper(auth, dashRequest, r)</code> — the authWrapper is injected at construction time (dependency injection), making it testable.
+</div>
+
+<div class="exercise">
+<h4>✏️ Hands-On Exercise 3 — Middleware Chain</h4>
+<p>Add the following middleware to your Chi task API:</p>
+<ul>
+  <li>Custom <code>RequestLogger</code> that logs method, path, status code, and duration using <code>slog</code></li>
+  <li>Custom <code>CORSMiddleware</code> that allows <code>localhost:4200</code> (Angular dev server)</li>
+  <li>A simple <code>APIKeyMiddleware</code> that checks <code>X-API-Key</code> header and returns 401 if missing or wrong</li>
+  <li>Rate limiter: 5 requests/second per IP</li>
+</ul>
+<p><strong>Test with:</strong> <code>curl -H "X-API-Key: secret" http://localhost:8080/api/v1/tasks</code></p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How does Go middleware work? Why does order matter?</p>
+<p><strong>Answer:</strong> Middleware wraps handlers in a chain. Each middleware calls <code>next.ServeHTTP(w, r)</code> to pass to the next link. Order matters because each middleware runs both before AND after the next. Logging middleware should be outermost (runs first, captures total time). Auth middleware should run before business logic but after logging (so you log unauthorized attempts). Recovery should be outermost of all (catches panics from all other middleware).</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is the difference between CORS simple request and preflight request?</p>
+<p><strong>Answer:</strong> A <strong>simple request</strong> (GET/POST with standard headers) doesn't trigger preflight — the browser sends it directly and checks CORS headers in the response. A <strong>preflight</strong> is an OPTIONS request the browser sends first to check if the actual request is allowed (required for custom headers like Authorization, non-simple methods like DELETE, or cross-origin POSTs with JSON). If your server doesn't handle OPTIONS with correct CORS headers, the browser blocks the actual request. Always handle OPTIONS in your router.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="error-handling">7. Error Handling Patterns</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=Go+error+handling+REST+API+patterns" target="_blank">Error Handling in Go REST APIs — Anthony GG</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+custom+error+types+api" target="_blank">Custom Error Types in Go — Flo Woelki</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>Go has no exceptions. Errors are values. For REST APIs, you need a disciplined error strategy that translates internal Go errors into appropriate HTTP responses without leaking internal details to clients.</p>
+
+<h4>Domain Error → HTTP Status Mapping</h4>
+<pre><code>// Define domain-level errors — never expose DB/internal errors to client
+type AppError struct {
+    Code    string // machine-readable code: "USER_NOT_FOUND"
+    Message string // human-readable message for clients
+    Status  int    // HTTP status code
+    Err     error  // wrapped internal error (for logging only, NOT sent to client)
+}
+
+func (e *AppError) Error() string { return e.Message }
+func (e *AppError) Unwrap() error { return e.Err }
+
+// Sentinel constructors
+func ErrNotFound(resource, id string) *AppError {
+    return &AppError{
+        Code:    "NOT_FOUND",
+        Message: fmt.Sprintf("%s with id %s not found", resource, id),
+        Status:  http.StatusNotFound,
+    }
+}
+func ErrConflict(msg string) *AppError {
+    return &AppError{Code: "CONFLICT", Message: msg, Status: http.StatusConflict}
+}
+func ErrValidation(msg string) *AppError {
+    return &AppError{Code: "VALIDATION_ERROR", Message: msg, Status: http.StatusBadRequest}
+}
+func ErrForbidden(msg string) *AppError {
+    return &AppError{Code: "FORBIDDEN", Message: msg, Status: http.StatusForbidden}
+}
+func ErrInternal(err error) *AppError {
+    return &AppError{
+        Code:    "INTERNAL_ERROR",
+        Message: "an unexpected error occurred",
+        Status:  http.StatusInternalServerError,
+        Err:     err, // logged server-side, NOT returned to client
+    }
+}
+
+// Central error handler — use in every handler
+func handleError(w http.ResponseWriter, err error) {
+    var appErr *AppError
+    if errors.As(err, &appErr) {
+        if appErr.Err != nil {
+            slog.Error("application error", "internal_error", appErr.Err)
+        }
+        writeJSON(w, appErr.Status, map[string]any{
+            "error": map[string]string{
+                "code":    appErr.Code,
+                "message": appErr.Message,
+            },
+        })
+        return
+    }
+    // Unknown error — log full details, return generic message
+    slog.Error("unexpected error", "error", err)
+    writeJSON(w, http.StatusInternalServerError, map[string]any{
+        "error": map[string]string{
+            "code":    "INTERNAL_ERROR",
+            "message": "an unexpected error occurred",
+        },
+    })
+}
+
+// Usage in a handler:
+func getUser(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "id")
+    user, err := svc.GetUser(r.Context(), id)
+    if err != nil {
+        handleError(w, err) // one line handles everything
+        return
+    }
+    writeJSON(w, http.StatusOK, user)
+}</code></pre>
+
+<div class="callout warning">
+<strong>⚠️ NEVER do this:</strong> <code>http.Error(w, err.Error(), 500)</code> — this leaks internal error messages (DB connection strings, file paths, stack traces) to the client. Always log the internal error server-side and return a generic message to the client.
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> How do you prevent leaking internal errors to API clients?</p>
+<p><strong>Answer:</strong> Define a domain error type with both an internal error (for logging) and a public message (for clients). Use <code>errors.As()</code> to check if an error is a domain error. If yes, use its public message and status code. If it's an unknown error type, log the full details and return a generic "internal server error" message. Never use <code>err.Error()</code> directly in HTTP responses — it may contain DB queries, file paths, or stack traces.</p>
+
+<p><span class="difficulty d-medium">Medium</span> When should you use 422 vs 400?</p>
+<p><strong>Answer:</strong> 400 (Bad Request) = the request is malformed — unparseable JSON, wrong content-type, missing required headers. 422 (Unprocessable Entity) = the request is syntactically valid but semantically wrong — the JSON parsed fine, but a field value violates a business rule (negative price, start date after end date, invalid enum value). Some APIs use 400 for both; using both is more precise for clients.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="pagination">8. Pagination, Filtering & Sorting</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=API+pagination+cursor+vs+offset+explained" target="_blank">Pagination Strategies — ByteByteGo</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+pagination+filtering+REST+API" target="_blank">Pagination in Go REST API — Anthony GG</a></li>
+</ul></details>
+
+<h3>Theory: Two Pagination Models</h3>
+
+<table>
+<tr><th>Strategy</th><th>How it works</th><th>Pros</th><th>Cons</th><th>Use when</th></tr>
+<tr>
+  <td><strong>Offset-based</strong></td>
+  <td><code>?offset=20&amp;limit=10</code><br/>SQL: <code>LIMIT 10 OFFSET 20</code></td>
+  <td>Simple, supports random page jumps, easy UI "page 3 of 10"</td>
+  <td>Slow at large offsets, inconsistent results if data changes between pages</td>
+  <td>Admin dashboards, small datasets (&lt;100K rows)</td>
+</tr>
+<tr>
+  <td><strong>Cursor-based</strong></td>
+  <td><code>?cursor=eyJpZCI6MTAwfQ&amp;limit=10</code><br/>SQL: <code>WHERE id &gt; 100 LIMIT 10</code></td>
+  <td>Consistent results, O(1) performance at any position, works for real-time feeds</td>
+  <td>No random page jumps, cursor must be opaque to client</td>
+  <td>Feeds, AI search results, large datasets, mobile infinite scroll</td>
+</tr>
+</table>
+
+<h4>Offset Pagination Implementation</h4>
+<pre><code>type PaginationParams struct {
+    Offset int `json:"offset"`
+    Limit  int `json:"limit"`
+}
+
+func parsePagination(r *http.Request) (PaginationParams, error) {
+    offsetStr := r.URL.Query().Get("offset")
+    limitStr  := r.URL.Query().Get("limit")
+    
+    offset := 0
+    if offsetStr != "" {
+        var err error
+        offset, err = strconv.Atoi(offsetStr)
+        if err != nil || offset < 0 {
+            return PaginationParams{}, fmt.Errorf("invalid offset parameter")
+        }
+    }
+    
+    limit := 20 // default
+    if limitStr != "" {
+        var err error
+        limit, err = strconv.Atoi(limitStr)
+        if err != nil || limit <= 0 {
+            return PaginationParams{}, fmt.Errorf("invalid limit parameter")
+        }
+        if limit > 100 { limit = 100 } // cap maximum
+    }
+    
+    return PaginationParams{Offset: offset, Limit: limit}, nil
+}
+
+// Response with pagination metadata
+type PaginatedResponse[T any] struct {
+    Data   []T  `json:"data"`
+    Total  int  `json:"total"`
+    Offset int  `json:"offset"`
+    Limit  int  `json:"limit"`
+    HasMore bool `json:"has_more"`
+}
+
+func listApplications(w http.ResponseWriter, r *http.Request) {
+    p, err := parsePagination(r)
+    if err != nil {
+        writeError(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+        return
+    }
+    
+    apps, total, err := appSvc.List(r.Context(), p.Offset, p.Limit)
+    if err != nil { handleError(w, err); return }
+    
+    writeJSON(w, http.StatusOK, PaginatedResponse[Application]{
+        Data:    apps,
+        Total:   total,
+        Offset:  p.Offset,
+        Limit:   p.Limit,
+        HasMore: p.Offset+len(apps) < total,
+    })
+}</code></pre>
+
+<h4>Filtering & Sorting Pattern</h4>
+<pre><code>// GET /api/v1/applications?name=payment&status=active&sort=name&order=asc&limit=20
+type ApplicationFilter struct {
+    Name   string `json:"name"`
+    Status string `json:"status"`
+    Sort   string `json:"sort"`
+    Order  string `json:"order"` // "asc" or "desc"
+}
+
+func parseFilter(r *http.Request) (ApplicationFilter, error) {
+    f := ApplicationFilter{
+        Name:   r.URL.Query().Get("name"),
+        Status: r.URL.Query().Get("status"),
+        Sort:   r.URL.Query().Get("sort"),
+        Order:  r.URL.Query().Get("order"),
+    }
+    
+    // Validate sort field against allowlist (CRITICAL — prevents SQL injection)
+    allowedSort := map[string]bool{"name": true, "created_at": true, "updated_at": true}
+    if f.Sort != "" && !allowedSort[f.Sort] {
+        return ApplicationFilter{}, fmt.Errorf("invalid sort field: %s", f.Sort)
+    }
+    
+    // Validate order direction
+    if f.Order != "" && f.Order != "asc" && f.Order != "desc" {
+        return ApplicationFilter{}, fmt.Errorf("order must be asc or desc")
+    }
+    if f.Order == "" { f.Order = "asc" }
+    
+    return f, nil
+}</code></pre>
+
+<div class="real-code">
+<strong>📌 Real pattern from Kyndryl codebase (applications.go):</strong> Exactly this pattern is used — <code>sortService := r.URL.Query().Get("sortOrder")</code> validated against <code>ValidSortOrderList</code>. Pagination handled via <code>httpx.HandlePaginationV4(r, 10, 100, language...)</code> — a shared helper that parses offset/limit with defaults and max caps. The <code>allowedParams</code> list validated with <code>httpx.ValidateQueryParms(r, allowedParams, true)</code> prevents unknown query params.
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> Why is offset pagination slow at large page numbers? How does cursor-based pagination solve this?</p>
+<p><strong>Answer:</strong> With <code>LIMIT 20 OFFSET 100000</code>, the database must scan and discard 100,000 rows before returning your 20. Even with indexes, this is O(n) in offset size. Cursor-based uses <code>WHERE id > last_seen_id LIMIT 20</code> — the DB can use the index to jump directly to the cursor position and return the next 20 rows in O(log n). At offset=0 they're identical; at offset=1,000,000 the difference can be 1000x. Cursor pagination also handles insertions/deletions between pages gracefully — offset pagination skips rows or shows duplicates when data changes.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="swagger">9. OpenAPI / Swagger Documentation</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=swagger+openapi+golang+swaggo+tutorial" target="_blank">Swagger / OpenAPI with swaggo in Go</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>OpenAPI (Swagger) is the standard for documenting REST APIs. It generates interactive docs where developers can test endpoints directly in the browser. In Go, <code>swaggo/swag</code> generates Swagger JSON/YAML from code comments.</p>
+
+<h4>swaggo Annotations</h4>
+<pre><code>// main.go — global info
+// @title           Application Manager API
+// @version         4.0
+// @description     Manage applications and technical services
+// @termsOfService  http://example.com/terms/
+// @host            localhost:8080
+// @BasePath        /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
+// Endpoint annotation
+// @Summary      Get a list of applications
+// @Description  Returns paginated list of applications filtered by query params
+// @Tags         applications
+// @Accept       json
+// @Produce      json
+// @Param        name     query   string  false  "Filter by application name"
+// @Param        status   query   string  false  "Filter by status" Enums(active, inactive)
+// @Param        offset   query   int     false  "Pagination offset" default(0)
+// @Param        limit    query   int     false  "Number of results" default(20) maximum(100)
+// @Success      200      {object}  PaginatedResponse[Application]
+// @Failure      400      {object}  APIError  "Invalid query parameters"
+// @Failure      401      {object}  APIError  "Unauthorized"
+// @Security     BearerAuth
+// @Router       /applications [get]
+func listApplications(w http.ResponseWriter, r *http.Request) { ... }
+
+// Generate: run `swag init` in project root → creates docs/ folder
+// Serve UI: import _ "myapp/docs" and add swaggerui handler</code></pre>
+
+<h4>Serving Swagger UI in Go</h4>
+<pre><code>// go.mod: github.com/swaggo/swag, github.com/swaggo/http-swagger
+
+import (
+    _ "myapp/docs"                   // auto-generated by swag init
+    httpSwagger "github.com/swaggo/http-swagger"
+)
+
+func setupRoutes(r chi.Router) {
+    // Serve interactive Swagger UI at /swagger/
+    // Only enable in non-production environments
+    if os.Getenv("APP_ENV") != "production" {
+        r.Get("/swagger/*", httpSwagger.Handler(
+            httpSwagger.URL("/swagger/doc.json"), // URL to swagger JSON
+        ))
+        // Now open: http://localhost:8080/swagger/index.html
+    }
+
+    // JSON spec also available at:
+    // http://localhost:8080/swagger/doc.json
+}
+
+// Regenerate docs after any handler change:
+// go generate ./...   (if you added //go:generate swag init)</code></pre>
+
+<div class="real-code">
+<strong>📌 Kyndryl codebase uses go-swagger:</strong> The <code>// swagger:operation GET /applications Applications getApplicationsV4</code> comments in <code>applications.go</code> follow go-swagger format. The <code>//go:generate swagger generate spec -m -o ./swagger.json</code> directive auto-generates the spec. Both swaggo and go-swagger produce OpenAPI JSON — only the comment syntax differs.
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="jwt-auth">10. JWT Authentication Middleware</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=JWT+authentication+golang+middleware" target="_blank">JWT Auth in Go — Anthony GG</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+jwt+rest+api+complete+tutorial" target="_blank">JWT REST API Complete — TechSchool</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>JWT (JSON Web Token) is the standard auth mechanism for REST APIs. A JWT is a base64-encoded, signed string containing claims (user ID, roles, expiry). The server validates the signature — no DB lookup needed on every request.</p>
+
+<h4>JWT Structure</h4>
+<pre><code>// JWT = Header.Payload.Signature
+// Example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signature
+
+// Header (base64 decoded):
+{ "alg": "HS256", "typ": "JWT" }
+
+// Payload/Claims (base64 decoded):
+{
+  "sub": "user-uuid-here",      // subject (user ID)
+  "email": "user@example.com",
+  "role": "admin",
+  "iat": 1719792000,            // issued at (Unix timestamp)
+  "exp": 1719795600             // expires at (issued + 1 hour)
+}
+
+// Signature = HMAC-SHA256(base64(header) + "." + base64(payload), secret_key)</code></pre>
+
+<h4>JWT Middleware in Go</h4>
+<pre><code>import "github.com/golang-jwt/jwt/v5"
+
+type Claims struct {
+    UserID string `json:"sub"`
+    Email  string `json:"email"`
+    Role   string `json:"role"`
+    jwt.RegisteredClaims
+}
+
+type contextKey string
+const claimsKey contextKey = "claims"
+
+func JWTMiddleware(secretKey []byte) func(http.Handler) http.Handler {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            // 1. Extract token from Authorization header
+            authHeader := r.Header.Get("Authorization")
+            if authHeader == "" {
+                writeError(w, http.StatusUnauthorized, "MISSING_TOKEN", "authorization header required")
+                return
+            }
+            
+            parts := strings.SplitN(authHeader, " ", 2)
+            if len(parts) != 2 || parts[0] != "Bearer" {
+                writeError(w, http.StatusUnauthorized, "INVALID_TOKEN_FORMAT", "use Bearer <token>")
+                return
+            }
+            tokenStr := parts[1]
+            
+            // 2. Parse & validate token
+            var claims Claims
+            token, err := jwt.ParseWithClaims(tokenStr, &claims, func(t *jwt.Token) (any, error) {
+                // CRITICAL: validate the signing method
+                if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+                    return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+                }
+                return secretKey, nil
+            })
+            
+            if err != nil || !token.Valid {
+                writeError(w, http.StatusUnauthorized, "INVALID_TOKEN", "token is invalid or expired")
+                return
+            }
+            
+            // 3. Store claims in context for downstream handlers
+            ctx := context.WithValue(r.Context(), claimsKey, &claims)
+            next.ServeHTTP(w, r.WithContext(ctx))
+        })
+    }
+}
+
+// Helper to extract claims in handlers
+func ClaimsFromContext(ctx context.Context) *Claims {
+    c, _ := ctx.Value(claimsKey).(*Claims)
+    return c
+}
+
+// Role-based authorization middleware
+func RequireRole(role string) func(http.Handler) http.Handler {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            claims := ClaimsFromContext(r.Context())
+            if claims == nil || claims.Role != role {
+                writeError(w, http.StatusForbidden, "FORBIDDEN", "insufficient permissions")
+                return
+            }
+            next.ServeHTTP(w, r)
+        })
+    }
+}
+
+// Usage with Chi:
+r.Route("/api/v1/admin", func(r chi.Router) {
+    r.Use(JWTMiddleware(secretKey))
+    r.Use(RequireRole("admin"))
+    r.Get("/users", listAllUsers)
+})</code></pre>
+
+<div class="exercise">
+<h4>✏️ Hands-On Exercise 4 — Full Auth Flow</h4>
+<p>Add JWT authentication to your task API:</p>
+<ol>
+  <li>Create <code>POST /api/auth/login</code> — accepts <code>{"email": ..., "password": ...}</code>, verifies against hardcoded user map, returns JWT token</li>
+  <li>Apply <code>JWTMiddleware</code> to all <code>/api/v1/tasks</code> routes</li>
+  <li>Add an "owner" field to tasks — only the task creator (from JWT <code>sub</code>) can delete their own tasks (return 403 otherwise)</li>
+  <li>Add a <code>GET /api/auth/me</code> endpoint that returns the current user's info from the JWT claims</li>
+</ol>
+<p><strong>Test:</strong> <code>curl -X POST /api/auth/login -d '{"email":"a@b.com","password":"pass"}' -H "Content-Type: application/json"</code></p>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> How does JWT work? What's in the payload?</p>
+<p><strong>Answer:</strong> JWT = 3 base64-encoded parts: Header (algorithm), Payload (claims: user ID, roles, expiry), Signature (HMAC of header+payload with server secret). Server validates the signature without any DB lookup — if the signature is valid and the token hasn't expired, the user is authenticated. Claims should include: <code>sub</code> (user ID), <code>iat</code> (issued at), <code>exp</code> (expiry). Never put passwords or sensitive data in JWT — it's base64 encoded, not encrypted.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Why must you validate the signing algorithm in JWT middleware?</p>
+<p><strong>Answer:</strong> This is a critical security vulnerability. An attacker can forge a JWT by changing the header algorithm to <code>"alg": "none"</code> — some naive JWT libraries accept unsigned tokens if not explicitly checked. Also, an RS256 public key attack: if your code accepts both HS256 and RS256, an attacker can sign with the public key using HS256. Always use <code>jwt.ParseWithClaims</code> with a <code>KeyFunc</code> that explicitly rejects unexpected algorithms: <code>if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok { return nil, error }</code>.</p>
+
+<p><span class="difficulty d-expert">Expert</span> What are the security considerations of storing JWT in localStorage vs cookies?</p>
+<p><strong>Answer:</strong> <strong>localStorage:</strong> Vulnerable to XSS — any JavaScript injected into your app can read it. Simple to implement. <strong>HttpOnly cookie:</strong> Immune to XSS — JavaScript can't read HttpOnly cookies. But vulnerable to CSRF — another site can make requests with your cookies. Mitigate CSRF with <code>SameSite=Strict</code> cookies or CSRF tokens. <strong>Best practice for AI/SaaS apps:</strong> Store access token in memory (JavaScript variable), use HttpOnly cookie for refresh token. This limits XSS exposure (access token expires quickly) while protecting the long-lived refresh token from XSS.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="testing">11. Testing REST API Handlers</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=golang+httptest+REST+API+testing+tutorial" target="_blank">httptest Package in Go — Mario Carrion</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+testify+mock+HTTP+handler+test" target="_blank">Handler Testing with testify — Anthony GG</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>The <code>net/http/httptest</code> package lets you test HTTP handlers without starting a real server. You create a test request, a test response recorder, call the handler, and assert the result.</p>
+
+<h4>Testing a Handler</h4>
+<pre><code>import (
+    "net/http"
+    "net/http/httptest"
+    "testing"
+    "encoding/json"
+    "strings"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
+)
+
+func TestCreateTask(t *testing.T) {
+    // Table-driven tests
+    tests := []struct {
+        name           string
+        body           string
+        expectedStatus int
+        expectedCode   string
+    }{
+        {
+            name:           "valid task created",
+            body:           `{"title": "Buy milk"}`,
+            expectedStatus: http.StatusCreated,
+        },
+        {
+            name:           "empty title rejected",
+            body:           `{"title": ""}`,
+            expectedStatus: http.StatusBadRequest,
+            expectedCode:   "VALIDATION_ERROR",
+        },
+        {
+            name:           "invalid JSON rejected",
+            body:           `{not json}`,
+            expectedStatus: http.StatusBadRequest,
+            expectedCode:   "INVALID_JSON",
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            // Create test request
+            req := httptest.NewRequest(
+                http.MethodPost,
+                "/api/v1/tasks",
+                strings.NewReader(tt.body),
+            )
+            req.Header.Set("Content-Type", "application/json")
+
+            // Create response recorder
+            w := httptest.NewRecorder()
+
+            // Call handler directly
+            handler := NewTaskHandler(newMockTaskService())
+            handler.ServeHTTP(w, req)
+
+            // Assert
+            resp := w.Result()
+            assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+
+            if tt.expectedCode != "" {
+                var body map[string]any
+                require.NoError(t, json.NewDecoder(resp.Body).Decode(&body))
+                errObj := body["error"].(map[string]any)
+                assert.Equal(t, tt.expectedCode, errObj["code"])
+            }
+        })
+    }
+}
+
+// ─── Mock service with testify/mock ─────────────────────────────
+type MockTaskService struct {
+    mock.Mock
+}
+
+func (m *MockTaskService) Create(ctx context.Context, title string) (*Task, error) {
+    args := m.Called(ctx, title)
+    return args.Get(0).(*Task), args.Error(1)
+}
+
+func TestCreateTask_ServiceError(t *testing.T) {
+    svc := new(MockTaskService)
+    svc.On("Create", mock.Anything, "Buy milk").
+        Return((*Task)(nil), errors.New("db connection lost"))
+
+    req := httptest.NewRequest("POST", "/tasks",
+        strings.NewReader(`{"title":"Buy milk"}`))
+    req.Header.Set("Content-Type", "application/json")
+    w := httptest.NewRecorder()
+
+    NewTaskHandler(svc).ServeHTTP(w, req)
+    assert.Equal(t, http.StatusInternalServerError, w.Code)
+}</code></pre>
+
+<div class="exercise">
+<h4>✏️ Hands-On Exercise 5 — Complete Test Suite</h4>
+<p>Write a complete test suite for your Task API:</p>
+<ul>
+  <li>Table-driven tests for every endpoint (at least 3 cases each: happy path, not found, validation error)</li>
+  <li>Mock the service layer with <code>testify/mock</code></li>
+  <li>Test that middleware behaves correctly (missing auth token returns 401, wrong role returns 403)</li>
+  <li>Test pagination response structure</li>
+  <li>Run with <code>go test -v ./...</code> and <code>go test -cover ./...</code></li>
+</ul>
+<p><strong>Target:</strong> 80%+ code coverage on the handler layer.</p>
+</div>
+
+<h4>Integration Tests with testcontainers-go (Real DB)</h4>
+<pre><code>// Integration test — uses a REAL Postgres container
+// go get github.com/testcontainers/testcontainers-go
+import (
+    "testing"
+    "github.com/testcontainers/testcontainers-go"
+    "github.com/testcontainers/testcontainers-go/modules/postgres"
+    "github.com/testcontainers/testcontainers-go/wait"
+)
+
+// TestMain sets up and tears down the container for the entire test package
+func TestMain(m *testing.M) {
+    ctx := context.Background()
+
+    // Start a real Postgres container
+    pgContainer, err := postgres.RunContainer(ctx,
+        testcontainers.WithImage("postgres:16-alpine"),
+        postgres.WithDatabase("testdb"),
+        postgres.WithUsername("testuser"),
+        postgres.WithPassword("testpass"),
+        testcontainers.WithWaitStrategy(
+            wait.ForLog("database system is ready to accept connections").
+                WithOccurrence(2).WithStartupTimeout(30*time.Second),
+        ),
+    )
+    if err != nil { log.Fatal(err) }
+    defer pgContainer.Terminate(ctx)
+
+    // Get connection string
+    connStr, _ := pgContainer.ConnectionString(ctx, "sslmode=disable")
+    
+    // Run migrations
+    db, _ := sql.Open("pgx", connStr)
+    runMigrations(db)
+    
+    // Store in package-level var for tests
+    testDB = db
+
+    // Run all tests
+    code := m.Run()
+    os.Exit(code)
+}
+
+// Now write a real integration test that hits actual DB
+func TestCreateApplication_Integration(t *testing.T) {
+    repo := repository.NewApplicationRepository(testDB)
+    svc  := service.NewApplicationService(repo)
+    h    := handler.NewApplicationHandler(svc)
+
+    router := chi.NewRouter()
+    router.Post("/applications", h.Create)
+
+    body := `{"name": "PaymentService", "environment": "prod"}`
+    req := httptest.NewRequest("POST", "/applications", strings.NewReader(body))
+    req.Header.Set("Content-Type", "application/json")
+    w := httptest.NewRecorder()
+
+    router.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusCreated, w.Code)
+
+    var resp map[string]any
+    json.NewDecoder(w.Body).Decode(&resp)
+    data := resp["data"].(map[string]any)
+    assert.Equal(t, "PaymentService", data["name"])
+    assert.NotEmpty(t, data["id"])
+
+    // Verify it's actually in the DB
+    var count int
+    testDB.QueryRow("SELECT COUNT(*) FROM applications WHERE name = $1", "PaymentService").Scan(&count)
+    assert.Equal(t, 1, count)
+}
+
+// Run integration tests: go test -tags=integration ./...
+// Separate with build tag so they don't run in every 'go test'</code></pre>
+
+<h4>Testing SSE Streaming Endpoint</h4>
+<pre><code>func TestStreamChat_SSE(t *testing.T) {
+    // Mock LLM that returns 3 tokens
+    mockLLM := &MockLLMClient{}
+    mockLLM.On("StreamCompletion", mock.Anything, "hello", mock.Anything).
+        Run(func(args mock.Arguments) {
+            tokenChan := args.Get(2).(chan string)
+            go func() {
+                tokenChan <- "Hi"
+                tokenChan <- " there"
+                tokenChan <- "!"
+                close(tokenChan)
+            }()
+        }).Return(nil)
+
+    handler := NewChatHandler(mockLLM)
+    req := httptest.NewRequest("POST", "/chat",
+        strings.NewReader(`{"message":"hello"}`))
+    req.Header.Set("Accept", "text/event-stream")
+    w := httptest.NewRecorder()
+
+    handler.StreamChat(w, req)
+
+    resp := w.Result()
+    assert.Equal(t, http.StatusOK, resp.StatusCode)
+    assert.Equal(t, "text/event-stream", resp.Header.Get("Content-Type"))
+
+    body := w.Body.String()
+    assert.Contains(t, body, `"token":"Hi"`)
+    assert.Contains(t, body, `"token":" there"`)
+    assert.Contains(t, body, "[DONE]")
+}</code></pre>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="real-microservice">12. Real Microservice Patterns (Kyndryl Codebase)</h2>
+
+<h3>What the Application Manager Service Does</h3>
+<p>The <code>bdg-sw-devx-di-application-manager</code> service is a production REST API that manages application and technical service definitions across the Kyndryl DevOps Intelligence platform. Base path: <code>/api/application_manager/v4</code>.</p>
+
+<h4>Key Patterns Observed</h4>
+<table>
+<tr><th>Pattern</th><th>Implementation in Codebase</th><th>What You Should Learn From It</th></tr>
+<tr>
+  <td>Route grouping by resource</td>
+  <td>Separate handler methods: <code>getApplications</code>, <code>createApplication</code>, <code>getSingleApplication</code>, <code>updateSingleApplication</code>, <code>deleteSingleApplication</code></td>
+  <td>One function per HTTP method × resource. Never a fat "handleApplication" function.</td>
+</tr>
+<tr>
+  <td>Dependency injection for testability</td>
+  <td><code>mongoDBDALWrapper</code> and <code>authWrapper</code> are function fields on <code>appMngrController</code> struct — injected at construction, replaced with mocks in tests</td>
+  <td>Never call DB/auth directly in handlers. Accept interfaces or functions for all external deps.</td>
+</tr>
+<tr>
+  <td>Context propagation</td>
+  <td><code>ctx := r.Context()</code> passed to every DB call and service method</td>
+  <td>Always pass context. It carries the request timeout and cancellation signal.</td>
+</tr>
+<tr>
+  <td>Validation before DB</td>
+  <td>Auth check → query param validation → type coercion → DB call. Never touches DB with invalid input.</td>
+  <td>Validate everything before any expensive operation. Fail fast at the boundary.</td>
+</tr>
+<tr>
+  <td>Allowlist query params</td>
+  <td><code>allowedParams := []string{"application", "sortOrder", "isExactMatch"}</code></td>
+  <td>Reject unknown query params — prevents confusion and accidental DB filtering on invalid fields.</td>
+</tr>
+<tr>
+  <td>Swagger comments on every endpoint</td>
+  <td><code>// swagger:operation GET /applications Applications getApplicationsV4</code></td>
+  <td>API documentation is part of the code, not a separate doc. Never let them drift.</td>
+</tr>
+<tr>
+  <td>Paginated list endpoints</td>
+  <td><code>httpx.HandlePaginationV4(r, 10, 100)</code> — default 10, max 100</td>
+  <td>Every list endpoint needs pagination. Never return unbounded result sets.</td>
+</tr>
+<tr>
+  <td>Localized error messages</td>
+  <td><code>localizer.GetMessage(locale.E25000, ...)</code></td>
+  <td>In multi-tenant/multi-region APIs, error messages should match user locale.</td>
+</tr>
+</table>
+
+<h4>Handler Pattern Analysis (applications.go)</h4>
+<pre><code>// The Kyndryl pattern (simplified) — this is production-grade Go REST
+func (c *appMngrController) getApplications(dashRequest DashRequest, w http.ResponseWriter, r *http.Request) {
+    // Step 1: Extract request-scoped dependencies from DashRequest
+    tenant     := dashRequest.Tenant()      // multi-tenancy context
+    requestID  := dashRequest.RequestID()   // distributed trace ID
+    localizer  := dashRequest.Locale()      // i18n error messages
+
+    // Step 2: Authorization check BEFORE any work
+    auth := authorizationfw.Authorization{Permission: viewPerm, ...}
+    ok, msg := c.authWrapper(auth, dashRequest, r)
+    if !ok {
+        tenant.RequestLog(requestID, Error, "unauthorized attempt", subject)
+        http.Error(w, msg, http.StatusForbidden)
+        return
+    }
+
+    // Step 3: Validate query params against allowlist
+    if ok, bad := httpx.ValidateQueryParms(r, allowedParams, true); !ok {
+        http.Error(w, localizer.GetMessage(E25000, bad), http.StatusBadRequest)
+        return
+    }
+
+    // Step 4: Parse and validate individual params
+    isExactMatch, err := parseBoolQueryParam(r, "isExactMatch")
+    if err != nil { http.Error(w, ..., http.StatusBadRequest); return }
+
+    // Step 5: Get DB client (connection pooled, from tenant context)
+    client, err := tenant.GetClient()
+    defer client.DisconnectNoErr() // always release connection
+
+    // Step 6: Execute query
+    results, err := database.Find(ctx, filter, options)
+    if err != nil { http.Error(w, ..., http.StatusInternalServerError); return }
+
+    // Step 7: Marshal and respond
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(results)
+}</code></pre>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="http-client">13. HTTP Client — Calling External APIs</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=golang+http+client+tutorial+2024" target="_blank">Go HTTP Client Deep Dive — Anthony GG</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+http+client+retries+backoff" target="_blank">HTTP Client with Retries — Hussein Nasser</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>Your Go AI backend constantly <em>calls</em> other REST APIs — OpenAI, Gemini, internal microservices, payment gateways. The <code>http.Client</code> is Go's outbound HTTP client. <strong>Never use the default <code>http.DefaultClient</code></strong> — it has no timeouts.</p>
+
+<h4>Production HTTP Client Setup</h4>
+<pre><code>import (
+    "context"
+    "encoding/json"
+    "net/http"
+    "time"
+)
+
+// Build a shared client — NEVER create a new http.Client per request
+// (each client has its own connection pool)
+var apiClient = &http.Client{
+    Timeout: 30 * time.Second, // total request timeout (incl. reading body)
+    Transport: &http.Transport{
+        MaxIdleConns:          100,              // max idle connections across all hosts
+        MaxIdleConnsPerHost:   10,               // max idle per host (pool reuse)
+        IdleConnTimeout:       90 * time.Second, // close idle connections after 90s
+        TLSHandshakeTimeout:   10 * time.Second,
+        ResponseHeaderTimeout: 20 * time.Second, // time to receive response headers
+        DisableCompression:    false,
+    },
+}
+
+// ─── Always use NewRequestWithContext — never http.Get(url) ─────────
+// http.Get() uses DefaultClient with NO timeout — will hang forever on network issues
+
+func callOpenAI(ctx context.Context, prompt string) (*OpenAIResponse, error) {
+    body := OpenAIRequest{
+        Model:    "gpt-4o",
+        Messages: []Message{{Role: "user", Content: prompt}},
+    }
+
+    bodyBytes, err := json.Marshal(body)
+    if err != nil {
+        return nil, fmt.Errorf("marshal request: %w", err)
+    }
+
+    // Create request WITH context — ctx carries timeout + cancellation
+    req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+        "https://api.openai.com/v1/chat/completions",
+        bytes.NewReader(bodyBytes),
+    )
+    if err != nil {
+        return nil, fmt.Errorf("create request: %w", err)
+    }
+
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer "+os.Getenv("OPENAI_API_KEY"))
+
+    resp, err := apiClient.Do(req)
+    if err != nil {
+        // Distinguish timeout from other errors
+        if errors.Is(err, context.DeadlineExceeded) {
+            return nil, fmt.Errorf("openai timeout: %w", err)
+        }
+        return nil, fmt.Errorf("openai request failed: %w", err)
+    }
+    defer resp.Body.Close() // ALWAYS close body — prevents connection leak
+
+    // Read with size limit (LLM responses can be large but not infinite)
+    limitedBody := io.LimitReader(resp.Body, 10<<20) // 10MB max
+
+    if resp.StatusCode != http.StatusOK {
+        var errBody map[string]any
+        json.NewDecoder(limitedBody).Decode(&errBody)
+        return nil, fmt.Errorf("openai error %d: %v", resp.StatusCode, errBody)
+    }
+
+    var result OpenAIResponse
+    if err := json.NewDecoder(limitedBody).Decode(&result); err != nil {
+        return nil, fmt.Errorf("decode response: %w", err)
+    }
+
+    return &result, nil
+}</code></pre>
+
+<h4>HTTP Client with Exponential Backoff Retry</h4>
+<pre><code>// Retry with exponential backoff — essential for LLM API rate limits
+func callWithRetry(ctx context.Context, fn func() (*http.Response, error), maxRetries int) (*http.Response, error) {
+    var lastErr error
+
+    for attempt := 0; attempt <= maxRetries; attempt++ {
+        if attempt > 0 {
+            // Exponential backoff: 1s, 2s, 4s, 8s...
+            waitDuration := time.Duration(1<<uint(attempt-1)) * time.Second
+            select {
+            case <-time.After(waitDuration):
+            case <-ctx.Done():
+                return nil, ctx.Err() // cancelled — stop retrying
+            }
+        }
+
+        resp, err := fn()
+        if err != nil {
+            lastErr = err
+            continue
+        }
+
+        // Don't retry on client errors (4xx) — only server errors (5xx) and 429
+        if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= 500 {
+            resp.Body.Close()
+            lastErr = fmt.Errorf("server returned %d", resp.StatusCode)
+
+            // If 429, check Retry-After header
+            if resp.StatusCode == http.StatusTooManyRequests {
+                if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
+                    seconds, _ := strconv.Atoi(retryAfter)
+                    select {
+                    case <-time.After(time.Duration(seconds) * time.Second):
+                    case <-ctx.Done():
+                        return nil, ctx.Err()
+                    }
+                }
+            }
+            continue
+        }
+
+        return resp, nil // success
+    }
+
+    return nil, fmt.Errorf("all %d retries failed: %w", maxRetries, lastErr)
+}
+
+// Usage:
+resp, err := callWithRetry(ctx, func() (*http.Response, error) {
+    return apiClient.Do(req)
+}, 3) // retry up to 3 times</code></pre>
+
+<div class="callout warning">
+<strong>⚠️ Always call <code>resp.Body.Close()</code></strong> even if you don't read the body. Without it, the connection cannot be returned to the pool, causing goroutine and file descriptor leaks. Use <code>defer resp.Body.Close()</code> immediately after checking <code>err</code>.
+</div>
+
+<div class="exercise">
+<h4>✏️ Hands-On Exercise 6 — External API Client</h4>
+<p>Build a <code>WeatherService</code> that calls the public Open-Meteo API (no key needed):</p>
+<ul>
+  <li>Create a typed client struct with a shared <code>http.Client</code></li>
+  <li><code>GET /api/v1/weather?city=London</code> — fetches weather from <code>https://api.open-meteo.com/v1/forecast?latitude=51.5&longitude=-0.1&current_weather=true</code></li>
+  <li>Handle timeouts (set 5s client timeout, test what happens when you point to <code>http://10.255.255.1</code>)</li>
+  <li>Add retry logic: retry 3 times on 5xx, with 500ms→1s→2s backoff</li>
+  <li>Test with a mock HTTP server using <code>httptest.NewServer()</code></li>
+</ul>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> Why should you never use <code>http.DefaultClient</code> in production?</p>
+<p><strong>Answer:</strong> <code>http.DefaultClient</code> has no timeout — a slow or unresponsive server will hang your goroutine forever, eventually exhausting the goroutine pool. Always create a custom <code>&http.Client{Timeout: 30 * time.Second}</code>. Also, the default transport has low <code>MaxIdleConnsPerHost</code> (2), which is too low for high-throughput services. Create one shared client per service (singleton) — each client manages a connection pool, so creating per-request destroys pooling.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you test code that makes HTTP calls to external services?</p>
+<p><strong>Answer:</strong> Three approaches: (1) <strong>httptest.NewServer</strong> — spin up a real local HTTP server in your test, inject its URL into your client. Full fidelity, tests real HTTP. (2) <strong>Interface abstraction</strong> — define an <code>HTTPDoer</code> interface with <code>Do(*http.Request) (*http.Response, error)</code>; mock it in tests. (3) <strong>testify/mock + RoundTripper</strong> — implement a custom <code>http.RoundTripper</code> that returns preset responses. Always use approach 1 or 2 for unit tests; use real API in integration tests with a separate environment.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="sse-streaming">14. SSE Streaming — Real-Time LLM Token Output</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=server+sent+events+golang+SSE+tutorial" target="_blank">Server-Sent Events in Go — Anthony GG</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=openai+streaming+golang+goroutine+channel" target="_blank">OpenAI Streaming + Go Goroutines</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=SSE+vs+WebSocket+when+to+use" target="_blank">SSE vs WebSocket — When to Use Which — Hussein Nasser</a></li>
+</ul></details>
+
+<h3>Theory: SSE vs WebSocket</h3>
+<table>
+<tr><th>Feature</th><th>SSE (Server-Sent Events)</th><th>WebSocket</th></tr>
+<tr><td>Direction</td><td>Server → Client only (one-way)</td><td>Bidirectional (full-duplex)</td></tr>
+<tr><td>Protocol</td><td>HTTP/1.1 or HTTP/2</td><td>Upgrades HTTP to WS protocol</td></tr>
+<tr><td>Auto-reconnect</td><td>✅ Built into browser EventSource</td><td>❌ Must implement manually</td></tr>
+<tr><td>Use case</td><td>LLM token streaming, live feeds, notifications</td><td>Chat, games, collaborative editors</td></tr>
+<tr><td>Go complexity</td><td>Simple — just <code>http.Flusher</code></td><td>Needs gorilla/websocket library</td></tr>
+<tr><td>Load balancer</td><td>Works with standard HTTP LBs</td><td>Requires sticky sessions or WS-aware LB</td></tr>
+</table>
+
+<div class="callout">
+<strong>For AI chat (ChatGPT-style streaming):</strong> Use SSE. The LLM generates tokens server → client. User's messages go via a regular POST. SSE is simpler, HTTP-native, and doesn't require WebSocket upgrades — perfect for this pattern.
+</div>
+
+<h4>Complete SSE Implementation</h4>
+<pre><code>// ─── SSE Handler — streams LLM tokens to browser ─────────────────
+
+type ChatRequest struct {
+    Message string `json:"message" validate:"required"`
+}
+
+func (h *ChatHandler) StreamChat(w http.ResponseWriter, r *http.Request) {
+    // 1. Parse request body
+    var req ChatRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "invalid JSON", http.StatusBadRequest)
+        return
+    }
+
+    // 2. Check browser supports SSE (optional but good practice)
+    if r.Header.Get("Accept") != "" && 
+       !strings.Contains(r.Header.Get("Accept"), "text/event-stream") {
+        http.Error(w, "client must accept text/event-stream", http.StatusNotAcceptable)
+        return
+    }
+
+    // 3. Get the Flusher interface — MUST check this
+    flusher, ok := w.(http.Flusher)
+    if !ok {
+        http.Error(w, "streaming not supported", http.StatusInternalServerError)
+        return
+    }
+
+    // 4. Set SSE headers — ORDER MATTERS: headers before WriteHeader
+    w.Header().Set("Content-Type", "text/event-stream")
+    w.Header().Set("Cache-Control", "no-cache")
+    w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("X-Accel-Buffering", "no") // disable nginx response buffering
+    w.Header().Set("Access-Control-Allow-Origin", "*") // CORS for SSE
+
+    // 5. Start LLM call in a goroutine, send tokens on channel
+    tokenChan := make(chan string, 10) // buffered to avoid blocking LLM goroutine
+    errChan   := make(chan error, 1)
+
+    go func() {
+        defer close(tokenChan)
+        err := h.llmClient.StreamCompletion(r.Context(), req.Message, tokenChan)
+        if err != nil {
+            errChan <- err
+        }
+    }()
+
+    // 6. SSE write loop — runs on main goroutine
+    for {
+        select {
+        case token, ok := <-tokenChan:
+            if !ok {
+                // Channel closed — stream ended normally
+                fmt.Fprintf(w, "data: [DONE]\n\n") // final event
+                flusher.Flush()
+                return
+            }
+            // SSE event format: "data: <payload>\n\n"
+            // For structured data, use JSON in data field
+            payload, _ := json.Marshal(map[string]string{"token": token})
+            fmt.Fprintf(w, "data: %s\n\n", payload)
+            flusher.Flush() // push to client immediately
+
+        case err := <-errChan:
+            // Send error as SSE event
+            errPayload, _ := json.Marshal(map[string]string{
+                "error": err.Error(),
+            })
+            fmt.Fprintf(w, "event: error\ndata: %s\n\n", errPayload)
+            flusher.Flush()
+            return
+
+        case <-r.Context().Done():
+            // Client disconnected (closed browser tab / navigated away)
+            slog.Info("SSE client disconnected", "path", r.URL.Path)
+            return // goroutine and LLM call cancelled via r.Context()
+        }
+    }
+}
+
+// ─── Named SSE events (optional but clean) ───────────────────────
+// fmt.Fprintf(w, "event: token\ndata: %s\n\n", payload)  → EventSource: onmessage for 'token'
+// fmt.Fprintf(w, "event: done\ndata: {}\n\n")             → EventSource: onmessage for 'done'
+// fmt.Fprintf(w, "id: 42\ndata: %s\n\n", payload)        → sets lastEventId for reconnect
+// fmt.Fprintf(w, "retry: 3000\n\n")                       → browser reconnects after 3s</code></pre>
+
+<h4>Frontend: Consuming SSE from Angular / JavaScript</h4>
+<pre><code>// ─── Browser EventSource (built-in, no library needed) ───────────
+
+// POST first to start a session, then connect EventSource
+async function startChat(message) {
+  // Step 1: POST the message, get a session ID back
+  const { sessionId } = await fetch('/api/v1/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ message })
+  }).then(r => r.json());
+
+  // Step 2: Connect to SSE stream
+  const evtSource = new EventSource(`/api/v1/chat/stream/${sessionId}`, {
+    withCredentials: true
+  });
+
+  evtSource.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data === '[DONE]' || data.token === undefined) {
+      evtSource.close(); // stream finished
+      return;
+    }
+    appendToUI(data.token); // render each token as it arrives
+  };
+
+  evtSource.addEventListener('error', (e) => {
+    console.error('SSE error:', e);
+    evtSource.close();
+  });
+}
+
+// ─── Fetch-based streaming (more control, supports POST + auth) ──
+async function streamWithFetch(message) {
+  const response = await fetch('/api/v1/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      'Accept': 'text/event-stream'
+    },
+    body: JSON.stringify({ message })
+  });
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const text = decoder.decode(value);
+    const lines = text.split('\n\n').filter(Boolean);
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const payload = JSON.parse(line.slice(6));
+        if (payload !== '[DONE]') appendToUI(payload.token);
+      }
+    }
+  }
+}</code></pre>
+
+<div class="exercise">
+<h4>✏️ Hands-On Exercise 7 — LLM Token Streaming</h4>
+<p>Build a streaming chat endpoint:</p>
+<ol>
+  <li>Create <code>POST /api/v1/chat</code> that accepts <code>{"message": "..."}</code></li>
+  <li>Instead of calling a real LLM, simulate streaming: split the response into words and send each word as a token with a 100ms delay using a goroutine + channel</li>
+  <li>Test with: <code>curl -N -H "Accept: text/event-stream" -d '{"message":"hello"}' http://localhost:8080/api/v1/chat</code> (the <code>-N</code> disables curl buffering)</li>
+  <li>Add the client disconnection detection (verify the goroutine stops when you Ctrl+C the curl)</li>
+  <li>Bonus: build a minimal HTML page with a fetch-based reader to see it render word by word</li>
+</ol>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What is the difference between SSE and WebSocket? When would you choose each?</p>
+<p><strong>Answer:</strong> SSE is HTTP-based, server→client only, auto-reconnects, simpler. WebSocket is a separate protocol, bidirectional, requires manual reconnect. Choose SSE for: LLM token streaming, live feeds (stock tickers, sports scores), push notifications — where server pushes and client listens. Choose WebSocket for: chat (both sides send messages), collaborative editors (real-time cursors), multiplayer games, any scenario requiring fast bidirectional communication.</p>
+
+<p><span class="difficulty d-hard">Hard</span> What is <code>http.Flusher</code>? What happens if the ResponseWriter doesn't implement it?</p>
+<p><strong>Answer:</strong> <code>http.Flusher</code> is an optional interface with one method: <code>Flush()</code>. It forces the buffered response data to be sent to the client immediately. Without flushing, Go's HTTP server buffers responses and sends in chunks — the client won't see tokens until the buffer fills. Not all ResponseWriters implement Flusher (e.g., if wrapped by certain middleware). Always type-assert: <code>flusher, ok := w.(http.Flusher)</code> and return 500 if not supported. When using Chi's middleware, the wrapped writer preserves Flusher; verify with your specific middleware stack.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="file-upload">15. File Upload & Multipart Forms (S3 Integration)</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=golang+file+upload+multipart+form+tutorial" target="_blank">File Upload in Go — Coding with Patrik</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+aws+s3+upload+sdk+v2" target="_blank">AWS S3 Upload with Go SDK v2 — Anthony GG</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>File uploads use <code>multipart/form-data</code> content type. Critical for AI backends — users upload PDFs, images, audio files that feed RAG/Vision/Whisper pipelines. The key rule: <strong>stream directly to S3, never buffer the entire file in RAM.</strong></p>
+
+<h4>Complete File Upload Handler</h4>
+<pre><code>import (
+    "mime/multipart"
+    "net/http"
+    "path/filepath"
+    "strings"
+    "github.com/aws/aws-sdk-go-v2/service/s3"
+)
+
+// Allowed MIME types — allowlist, not blocklist
+var allowedMIMETypes = map[string]bool{
+    "application/pdf":  true,
+    "image/jpeg":       true,
+    "image/png":        true,
+    "audio/mpeg":       true,  // mp3
+    "audio/wav":        true,
+    "text/plain":       true,
+}
+
+const (
+    maxUploadSize = 50 << 20  // 50MB
+    maxMemory     = 10 << 20  // 10MB held in memory; rest spills to temp disk
+)
+
+func (h *FileHandler) UploadDocument(w http.ResponseWriter, r *http.Request) {
+    // 1. Limit total request size BEFORE parsing
+    r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+
+    // 2. Parse multipart form (uses temp files for large uploads)
+    if err := r.ParseMultipartForm(maxMemory); err != nil {
+        if strings.Contains(err.Error(), "too large") {
+            writeError(w, http.StatusRequestEntityTooLarge, "FILE_TOO_LARGE",
+                fmt.Sprintf("file must be under %dMB", maxUploadSize>>20))
+            return
+        }
+        writeError(w, http.StatusBadRequest, "INVALID_FORM", err.Error())
+        return
+    }
+    defer r.MultipartForm.RemoveAll() // clean up temp files
+
+    // 3. Get the file from the form field named "file"
+    file, header, err := r.FormFile("file")
+    if err != nil {
+        writeError(w, http.StatusBadRequest, "MISSING_FILE", "field 'file' required")
+        return
+    }
+    defer file.Close()
+
+    // 4. Validate MIME type by reading file magic bytes
+    //    (NEVER trust r.Header.Get("Content-Type") or file extension alone — trivially faked)
+    buf := make([]byte, 512)
+    n, _ := file.Read(buf)
+    mimeType := http.DetectContentType(buf[:n])
+
+    if !allowedMIMETypes[mimeType] {
+        writeError(w, http.StatusUnsupportedMediaType, "INVALID_FILE_TYPE",
+            fmt.Sprintf("file type %s not allowed", mimeType))
+        return
+    }
+
+    // 5. Reset file position after reading magic bytes
+    if seeker, ok := file.(io.Seeker); ok {
+        seeker.Seek(0, io.SeekStart)
+    }
+
+    // 6. Generate a unique storage key (never use the original filename directly!)
+    ext := filepath.Ext(header.Filename)
+    storageKey := fmt.Sprintf("uploads/%s/%s%s",
+        userIDFromContext(r.Context()),
+        uuid.New().String(),
+        ext,
+    )
+
+    // 7. Stream to S3 (don't read entire file into []byte)
+    uploadResult, err := h.s3Client.PutObject(r.Context(), &s3.PutObjectInput{
+        Bucket:      aws.String(h.bucket),
+        Key:         aws.String(storageKey),
+        Body:        file,             // io.Reader — streams directly
+        ContentType: aws.String(mimeType),
+        ContentLength: aws.Int64(header.Size),
+        // Server-side encryption
+        ServerSideEncryption: types.ServerSideEncryptionAes256,
+    })
+    if err != nil {
+        slog.Error("s3 upload failed", "error", err, "key", storageKey)
+        writeError(w, http.StatusInternalServerError, "UPLOAD_FAILED", "storage error")
+        return
+    }
+
+    // 8. Persist metadata to DB and queue ingestion job
+    doc := Document{
+        ID:          uuid.New().String(),
+        UserID:      userIDFromContext(r.Context()),
+        Filename:    header.Filename,
+        StorageKey:  storageKey,
+        ContentType: mimeType,
+        SizeBytes:   header.Size,
+        Status:      "pending",
+    }
+    if err := h.docRepo.Create(r.Context(), doc); err != nil {
+        writeError(w, http.StatusInternalServerError, "DB_ERROR", "failed to save document")
+        return
+    }
+
+    // 9. Queue async ingestion job
+    if err := h.queue.Enqueue(r.Context(), "ingest_document", doc.ID); err != nil {
+        slog.Error("failed to queue ingestion", "docID", doc.ID, "error", err)
+        // Don't fail the upload — job can be retried later
+    }
+
+    // 10. Return 202 Accepted (async processing)
+    writeJSON(w, http.StatusAccepted, map[string]string{
+        "document_id": doc.ID,
+        "status":      "processing",
+        "message":     "document uploaded, ingestion started",
+    })
+}
+
+// ─── Pre-signed URL — let client upload directly to S3 (skip your server) ──
+func (h *FileHandler) GetUploadURL(w http.ResponseWriter, r *http.Request) {
+    presigner := s3.NewPresignClient(h.s3Client)
+    
+    key := fmt.Sprintf("uploads/%s/%s", userIDFromContext(r.Context()), uuid.New().String())
+    
+    presignResult, err := presigner.PresignPutObject(r.Context(), &s3.PutObjectInput{
+        Bucket: aws.String(h.bucket),
+        Key:    aws.String(key),
+    }, s3.WithPresignExpires(15*time.Minute))
+    if err != nil {
+        writeError(w, http.StatusInternalServerError, "PRESIGN_FAILED", "failed to generate URL")
+        return
+    }
+
+    writeJSON(w, http.StatusOK, map[string]string{
+        "upload_url": presignResult.URL,
+        "storage_key": key,
+        // Client uploads directly to this URL (PUT to S3), then calls:
+        // POST /api/v1/documents/confirm with storage_key
+    })
+}</code></pre>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="graceful-shutdown">16. Graceful Shutdown & Health Checks</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=golang+graceful+shutdown+http+server+SIGTERM" target="_blank">Graceful Shutdown in Go — Anthony GG</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=kubernetes+health+check+liveness+readiness+go" target="_blank">K8s Health Probes in Go — TechWorld with Nana</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>In K8s, pods receive <code>SIGTERM</code> before being terminated (scaling down, deployment update). Without graceful shutdown, in-flight requests are cut mid-response — breaking active AI streams. Graceful shutdown: stop accepting new connections, finish current requests, then exit.</p>
+
+<h4>Complete Graceful Shutdown</h4>
+<pre><code>func main() {
+    r := chi.NewRouter()
+    // ... add routes
+    
+    // Health endpoints — register BEFORE the server starts
+    r.Get("/health", healthHandler)
+    r.Get("/ready", readinessHandler)
+    r.Get("/live", livenessHandler)
+
+    server := &http.Server{
+        Addr:         ":8080",
+        Handler:      r,
+        ReadTimeout:  15 * time.Second,
+        WriteTimeout: 60 * time.Second, // higher for SSE streaming endpoints
+        IdleTimeout:  120 * time.Second,
+    }
+
+    // Start server in goroutine (non-blocking)
+    go func() {
+        slog.Info("server started", "addr", server.Addr)
+        if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+            slog.Error("server error", "error", err)
+            os.Exit(1)
+        }
+    }()
+
+    // Block until OS signal received
+    quit := make(chan os.Signal, 1)
+    signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM) // Ctrl+C and K8s kill
+    sig := <-quit
+
+    slog.Info("shutdown signal received", "signal", sig)
+
+    // Give in-flight requests time to complete (K8s waits terminationGracePeriodSeconds)
+    shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    defer cancel()
+
+    if err := server.Shutdown(shutdownCtx); err != nil {
+        slog.Error("forced shutdown", "error", err)
+        os.Exit(1)
+    }
+
+    // Clean up other resources
+    db.Close()
+    redisClient.Close()
+    slog.Info("server shut down cleanly")
+}
+
+// ─── Health Check Endpoints ────────────────────────────────────────
+
+type HealthStatus struct {
+    Status    string            `json:"status"`      // "ok" or "degraded"
+    Version   string            `json:"version"`
+    Timestamp time.Time         `json:"timestamp"`
+    Checks    map[string]string `json:"checks,omitempty"`
+}
+
+// /health — lightweight: "am I alive?" (K8s liveness probe)
+// If this returns non-200, K8s restarts the pod
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+    writeJSON(w, http.StatusOK, HealthStatus{
+        Status:    "ok",
+        Version:   buildVersion, // injected via ldflags at build time
+        Timestamp: time.Now().UTC(),
+    })
+}
+
+// /ready — "am I ready to receive traffic?" (K8s readiness probe)
+// If this returns non-200, K8s removes the pod from the load balancer
+// Run your actual dependency checks here
+func readinessHandler(w http.ResponseWriter, r *http.Request) {
+    checks := make(map[string]string)
+    allOK := true
+
+    // Check DB
+    if err := db.PingContext(r.Context()); err != nil {
+        checks["database"] = "unhealthy: " + err.Error()
+        allOK = false
+    } else {
+        checks["database"] = "ok"
+    }
+
+    // Check Redis
+    if err := redisClient.Ping(r.Context()).Err(); err != nil {
+        checks["redis"] = "unhealthy: " + err.Error()
+        allOK = false
+    } else {
+        checks["redis"] = "ok"
+    }
+
+    status := http.StatusOK
+    statusStr := "ok"
+    if !allOK {
+        status = http.StatusServiceUnavailable // 503 — K8s stops routing traffic
+        statusStr = "degraded"
+    }
+
+    writeJSON(w, status, HealthStatus{
+        Status:    statusStr,
+        Timestamp: time.Now().UTC(),
+        Checks:    checks,
+    })
+}</code></pre>
+
+<div class="callout">
+<strong>K8s probe config (deployment.yaml):</strong>
+<pre><code>livenessProbe:
+  httpGet:
+    path: /health      # lightweight — just checks process is alive
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 30
+readinessProbe:
+  httpGet:
+    path: /ready       # checks DB + Redis — is this pod ready for traffic?
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3</code></pre>
+</div>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-medium">Medium</span> What's the difference between liveness and readiness probes in K8s?</p>
+<p><strong>Answer:</strong> <strong>Liveness</strong>: "Is this container alive?" — if it fails, K8s kills and restarts the pod. Use a lightweight check (no DB ping — you don't want K8s restarting a healthy pod just because DB is temporarily down). <strong>Readiness</strong>: "Is this container ready to serve traffic?" — if it fails, K8s removes the pod from the load balancer but doesn't restart it. Use for dependency checks (DB, Redis). During startup, readiness prevents traffic hitting a pod that hasn't loaded its config yet. During DB maintenance, readiness marks pods as not-ready, routing traffic to healthy pods.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="request-tracing">17. Request Tracing & Structured Logging</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=opentelemetry+golang+distributed+tracing+tutorial" target="_blank">OpenTelemetry + Go — tracing distributed requests</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+slog+structured+logging+request+id" target="_blank">slog Structured Logging — Flo Woelki</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>In microservices, a single user action triggers requests across multiple services. Without a trace ID attached to every log line, debugging is impossible. A <strong>Request ID</strong> (also called Correlation ID or Trace ID) is a UUID generated at the gateway and passed through the entire call chain via headers and context.</p>
+
+<h4>Request ID Middleware + Logger Setup</h4>
+<pre><code>// ─── Request ID Middleware ────────────────────────────────────────
+const requestIDHeader = "X-Request-ID"
+type requestIDKey struct{}
+
+func RequestIDMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Use client-provided ID (from upstream), or generate a new one
+        requestID := r.Header.Get(requestIDHeader)
+        if requestID == "" {
+            requestID = uuid.New().String()
+        }
+
+        // Echo back so client can correlate their request
+        w.Header().Set(requestIDHeader, requestID)
+
+        // Store in context for handlers and downstream HTTP calls
+        ctx := context.WithValue(r.Context(), requestIDKey{}, requestID)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
+}
+
+func RequestIDFromContext(ctx context.Context) string {
+    id, _ := ctx.Value(requestIDKey{}).(string)
+    return id
+}
+
+// ─── Structured Logger with Request ID ───────────────────────────
+func RequestLogger(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        start := time.Now()
+        ww := wrapResponseWriter(w)
+
+        next.ServeHTTP(ww, r)
+
+        requestID := RequestIDFromContext(r.Context())
+        slog.Info("http request",
+            "request_id", requestID,
+            "method",     r.Method,
+            "path",       r.URL.Path,
+            "query",      r.URL.RawQuery,
+            "status",     ww.Status(),
+            "duration_ms", time.Since(start).Milliseconds(),
+            "ip",         r.RemoteAddr,
+            "user_agent", r.UserAgent(),
+        )
+    })
+}
+
+// ─── Propagate Request ID to outgoing HTTP calls ──────────────────
+func callDownstreamService(ctx context.Context, url string) (*http.Response, error) {
+    req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+    if err != nil {
+        return nil, err
+    }
+
+    // Forward request ID to downstream — this is how you trace across services
+    if requestID := RequestIDFromContext(ctx); requestID != "" {
+        req.Header.Set(requestIDHeader, requestID)
+    }
+
+    return apiClient.Do(req)
+}
+
+// ─── Handler: use request-scoped logger ──────────────────────────
+func createApplication(w http.ResponseWriter, r *http.Request) {
+    requestID := RequestIDFromContext(r.Context())
+    log := slog.With("request_id", requestID, "handler", "createApplication")
+
+    var req CreateApplicationRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        log.Warn("invalid request body", "error", err)
+        writeError(w, http.StatusBadRequest, "INVALID_JSON", err.Error())
+        return
+    }
+
+    app, err := appSvc.Create(r.Context(), req)
+    if err != nil {
+        log.Error("failed to create application", "error", err) // has request_id automatically
+        handleError(w, err)
+        return
+    }
+
+    log.Info("application created", "app_id", app.ID)
+    writeJSON(w, http.StatusCreated, app)
+}</code></pre>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="project-structure">18. Clean Architecture & Project Structure</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=golang+clean+architecture+project+structure+2024" target="_blank">Clean Architecture in Go — Mario Carrion</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+hexagonal+architecture+DI+tutorial" target="_blank">Hexagonal Architecture — Flo Woelki</a></li>
+  <li><a href="https://www.youtube.com/results?search_query=golang+standard+project+layout+golang-standards" target="_blank">Standard Go Project Layout — golang-standards</a></li>
+</ul></details>
+
+<h3>Theory: 3-Layer Architecture</h3>
+<p>Clean architecture separates your code into <strong>3 layers with strict rules</strong>: each layer only depends on the layer below it. This makes every layer independently testable and replaceable.</p>
+
+<pre><code>┌──────────────────────────────────────────────────┐
+│  Transport Layer (Handler)                        │
+│  Knows: HTTP, JSON, status codes                  │
+│  Calls: Service layer interfaces                  │
+│  Does NOT: query DB, call LLM directly            │
+├──────────────────────────────────────────────────┤
+│  Service Layer (Business Logic)                   │
+│  Knows: business rules only                       │
+│  Calls: Repository + external service interfaces  │
+│  Does NOT: know about HTTP, JSON, or SQL          │
+├──────────────────────────────────────────────────┤
+│  Repository / Infrastructure Layer                │
+│  Knows: SQL, MongoDB, Redis, S3, LLM APIs         │
+│  Implements: interfaces defined by service layer  │
+│  Does NOT: know about business rules              │
+└──────────────────────────────────────────────────┘</code></pre>
+
+<h4>Recommended Directory Structure</h4>
+<pre><code>myapp/
+├── cmd/
+│   └── api/
+│       └── main.go               ← Entry point, wires everything together
+├── internal/                     ← Private packages (can't import from outside)
+│   ├── handler/                  ← HTTP handlers (transport layer)
+│   │   ├── application.go
+│   │   ├── application_test.go
+│   │   └── middleware.go
+│   ├── service/                  ← Business logic
+│   │   ├── application.go        ← Interface + implementation
+│   │   └── application_test.go   ← Unit tests (mocks repos)
+│   ├── repository/               ← DB layer
+│   │   ├── application_postgres.go
+│   │   └── application_test.go   ← Integration tests (testcontainers)
+│   ├── domain/                   ← Pure data types, no dependencies
+│   │   └── application.go        ← Application struct, errors, constants
+│   └── config/
+│       └── config.go             ← Viper/env config struct
+├── pkg/                          ← Public reusable packages
+│   ├── httputil/
+│   │   └── response.go           ← writeJSON, writeError helpers
+│   └── validator/
+│       └── validator.go
+├── migrations/                   ← SQL migration files
+├── docker-compose.yml
+├── Dockerfile
+├── .env.example
+└── go.mod</code></pre>
+
+<h4>Complete main.go Wiring (Dependency Injection by Hand)</h4>
+<pre><code>// cmd/api/main.go — the composition root
+func main() {
+    // 1. Load config
+    cfg := config.Load() // reads .env or environment variables
+
+    // 2. Connect infrastructure
+    db, err := postgres.Connect(cfg.DatabaseURL)
+    if err != nil { log.Fatal("db connect:", err) }
+    defer db.Close()
+
+    redisClient := redis.NewClient(&redis.Options{Addr: cfg.RedisAddr})
+    defer redisClient.Close()
+
+    s3Client := s3.NewFromConfig(awsConfig)
+
+    // 3. Build repository layer (implements interfaces)
+    appRepo   := repository.NewApplicationRepository(db)
+    docRepo   := repository.NewDocumentRepository(db)
+    cacheRepo := repository.NewRedisCache(redisClient)
+
+    // 4. Build service layer (depends on interfaces, not concrete types)
+    appSvc := service.NewApplicationService(appRepo, cacheRepo)
+    docSvc := service.NewDocumentService(docRepo, s3Client, queue)
+    aiSvc  := service.NewAIService(openAIClient, vectorDB, cacheRepo)
+
+    // 5. Build handler layer (depends on service interfaces)
+    appHandler  := handler.NewApplicationHandler(appSvc)
+    docHandler  := handler.NewDocumentHandler(docSvc)
+    chatHandler := handler.NewChatHandler(aiSvc)
+
+    // 6. Build router
+    r := chi.NewRouter()
+    r.Use(middleware.RequestID)
+    r.Use(RequestLogger)
+    r.Use(middleware.Recoverer)
+    r.Use(CORSMiddleware)
+
+    r.Get("/health", healthHandler)
+    r.Get("/ready", readinessHandler(db, redisClient))
+
+    r.Route("/api/v1", func(r chi.Router) {
+        r.Use(JWTMiddleware([]byte(cfg.JWTSecret)))
+
+        r.Mount("/applications", appHandler.Routes())
+        r.Mount("/documents",    docHandler.Routes())
+        r.Post("/chat",          chatHandler.Stream)
+    })
+
+    // 7. Start with graceful shutdown
+    startServer(r, cfg.Port)
+}
+
+// ─── Interface definition (in domain or service layer) ───────────
+// service/application.go
+type ApplicationRepository interface {
+    Create(ctx context.Context, app domain.Application) (*domain.Application, error)
+    GetByID(ctx context.Context, id string) (*domain.Application, error)
+    List(ctx context.Context, filter Filter, page Pagination) ([]domain.Application, int, error)
+    Update(ctx context.Context, id string, updates domain.ApplicationUpdates) (*domain.Application, error)
+    Delete(ctx context.Context, id string) error
+}
+
+// handler registers its own routes — keeps routing logic together
+func (h *ApplicationHandler) Routes() chi.Router {
+    r := chi.NewRouter()
+    r.Get("/",      h.List)
+    r.Post("/",     h.Create)
+    r.Get("/{id}",  h.GetByID)
+    r.Patch("/{id}", h.Update)
+    r.Delete("/{id}", h.Delete)
+    return r
+}</code></pre>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="webhooks">19. Webhooks — Receiving & Verifying</h2>
+
+<details class="yt-links"><summary>📺 YouTube Tutorials</summary><ul>
+  <li><a href="https://www.youtube.com/results?search_query=golang+webhook+HMAC+verification+stripe+github" target="_blank">Webhook Signature Verification in Go</a></li>
+</ul></details>
+
+<h3>Theory</h3>
+<p>Webhooks are HTTP callbacks — external services (GitHub, Stripe, Slack) call your API when events happen. You cannot use JWT auth for webhooks (you don't control the caller). Instead, senders include an <strong>HMAC signature</strong> in a header — you verify it to confirm the request is genuine and hasn't been tampered with.</p>
+
+<h4>Webhook Handler with HMAC Verification</h4>
+<pre><code>// ─── GitHub webhook example (works same way for Stripe, Slack, etc.) ─────
+
+func (h *WebhookHandler) HandleGitHubEvent(w http.ResponseWriter, r *http.Request) {
+    // 1. Read the ENTIRE body first (needed for signature verification)
+    body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20)) // 1MB limit
+    if err != nil {
+        http.Error(w, "failed to read body", http.StatusBadRequest)
+        return
+    }
+
+    // 2. Verify HMAC-SHA256 signature
+    // GitHub sends: X-Hub-Signature-256: sha256=<hex>
+    sigHeader := r.Header.Get("X-Hub-Signature-256")
+    if sigHeader == "" {
+        http.Error(w, "missing signature", http.StatusUnauthorized)
+        return
+    }
+
+    if !verifyHMACSignature(body, sigHeader, h.webhookSecret) {
+        http.Error(w, "invalid signature", http.StatusUnauthorized)
+        return
+    }
+
+    // 3. Parse event type
+    eventType := r.Header.Get("X-GitHub-Event")
+
+    // 4. Respond 200 FAST (within 5s) — queue for async processing
+    // Webhook providers retry on non-200 or timeout
+    w.WriteHeader(http.StatusOK)
+
+    // 5. Process asynchronously
+    go h.processEvent(context.Background(), eventType, body)
+}
+
+func verifyHMACSignature(body []byte, sigHeader, secret string) bool {
+    // Strip "sha256=" prefix
+    parts := strings.SplitN(sigHeader, "=", 2)
+    if len(parts) != 2 || parts[0] != "sha256" {
+        return false
+    }
+    receivedSig, err := hex.DecodeString(parts[1])
+    if err != nil {
+        return false
+    }
+
+    // Compute expected HMAC
+    mac := hmac.New(sha256.New, []byte(secret))
+    mac.Write(body)
+    expected := mac.Sum(nil)
+
+    // Use constant-time comparison to prevent timing attacks
+    return hmac.Equal(receivedSig, expected)
+}
+
+// ─── Replay attack prevention (optional but important for payments) ─
+func (h *WebhookHandler) HandleStripeEvent(w http.ResponseWriter, r *http.Request) {
+    body, _ := io.ReadAll(io.LimitReader(r.Body, 1<<20))
+
+    // Stripe sends timestamp in header: t=timestamp,v1=signature
+    timestampStr := extractTimestamp(r.Header.Get("Stripe-Signature"))
+    timestamp, _ := strconv.ParseInt(timestampStr, 10, 64)
+
+    // Reject webhooks older than 5 minutes (replay attack prevention)
+    age := time.Since(time.Unix(timestamp, 0))
+    if age > 5*time.Minute {
+        http.Error(w, "webhook too old", http.StatusBadRequest)
+        return
+    }
+
+    // Include timestamp in signature payload (Stripe's approach)
+    sigPayload := fmt.Sprintf("%d.%s", timestamp, body)
+    // ... verify HMAC ...
+}</code></pre>
+
+<div class="interview">
+<h4>🎯 Interview Questions</h4>
+<p><span class="difficulty d-hard">Hard</span> How do you secure webhook endpoints? Why can't you use JWT?</p>
+<p><strong>Answer:</strong> You can't use JWT because you don't control the webhook sender (GitHub, Stripe, etc.) — they don't have your users' JWT tokens. Instead: (1) <strong>HMAC signature</strong> — you share a secret with the provider; they sign the payload with HMAC-SHA256 and include it in a header; you verify it. (2) <strong>IP allowlisting</strong> — only accept requests from the provider's published IP ranges (fragile, IPs change). (3) <strong>Replay attack prevention</strong> — check the timestamp in the signature header and reject requests older than 5 minutes (prevents captured webhooks from being replayed later). Always use constant-time comparison (<code>hmac.Equal</code>) to prevent timing attacks.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="interview-bank">20. Full Interview Question Bank</h2>
+
+<h3>HTTP & REST Fundamentals</h3>
+<div class="interview">
+<h4>🎯 Core Questions</h4>
+
+<p><span class="difficulty d-easy">Easy</span> What are the HTTP methods? Which are safe and which are idempotent?</p>
+<p><strong>Answer:</strong> GET (safe + idempotent), HEAD (safe + idempotent), OPTIONS (safe + idempotent), DELETE (idempotent, not safe), PUT (idempotent, not safe), POST (neither), PATCH (depends on implementation).</p>
+
+<p><span class="difficulty d-easy">Easy</span> What is the difference between authentication and authorization?</p>
+<p><strong>Answer:</strong> Authentication = "Who are you?" — verifying identity (login with JWT). Authorization = "What are you allowed to do?" — checking permissions (role-based access). Authentication happens first; authorization requires a valid identity.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is CORS and why does it exist?</p>
+<p><strong>Answer:</strong> Cross-Origin Resource Sharing. Browsers block cross-origin requests by default (Same-Origin Policy) to prevent malicious websites from making requests to other sites using your credentials. CORS is the server's way of relaxing this — by setting <code>Access-Control-Allow-Origin</code>, the server says "I allow this other origin to read my responses." Without it, your Angular app on <code>localhost:4200</code> can't call your Go API on <code>localhost:8080</code>. Preflight (OPTIONS) checks permission before the actual request.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is idempotency key and when do you need it?</p>
+<p><strong>Answer:</strong> For non-idempotent POST operations (like payment processing), clients include a unique <code>Idempotency-Key: uuid</code> header. The server stores the result of the first request keyed by that UUID. If the client retries (due to timeout), the server returns the stored result instead of processing again. This makes POST effectively idempotent — prevents double charges or duplicate orders. Critical for payment APIs and any "create" operation where retrying has side effects.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How would you design rate limiting for an AI API endpoint where different users have different limits?</p>
+<p><strong>Answer:</strong> Use a token bucket algorithm stored in Redis, keyed by user ID (not IP — IPs change). Each user has a bucket with capacity = their plan's limit (e.g., free: 10 req/min, pro: 100 req/min). On each request: get bucket from Redis, try to consume a token (WATCH + MULTI/EXEC for atomicity or Lua script), return 429 with <code>Retry-After</code> header if empty. For AI specifically, rate limit by <em>tokens</em> not requests (a 10-token prompt and a 10,000-token response have very different costs). Store token usage in Redis with a sliding window: <code>INCRBY user:123:tokens {tokens_used}; EXPIRE user:123:tokens 60</code>.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you handle versioning when you have breaking changes in a REST API?</p>
+<p><strong>Answer:</strong> Never remove or change v1 endpoints — create v2. Run both versions simultaneously with separate route groups. Deprecate v1 by adding a <code>Deprecation</code> header and announcement. After a sunset period (e.g., 6-12 months with advance notice), shut down v1. For additive changes (new fields, new endpoints), no new version needed. Breaking changes: field removal, type change, semantic meaning change, auth requirement change — these require a new version. Internally, v1 and v2 handlers can share the same service layer; only the transport representation differs.</p>
+
+<p><span class="difficulty d-hard">Hard</span> Explain the OWASP Top 10 vulnerabilities relevant to a Go REST API.</p>
+<p><strong>Answer:</strong> Key ones: (1) <strong>Broken Access Control</strong> — missing auth checks on endpoints, check authorization per resource not just per role. (2) <strong>Injection</strong> — use parameterized queries (sqlc/pgx) not string concatenation; validate/sanitize inputs. (3) <strong>Security Misconfiguration</strong> — set timeouts, disable debug endpoints in prod, use TLS. (4) <strong>Broken Authentication</strong> — validate JWT algorithm, short expiry, token rotation. (5) <strong>Security Logging failures</strong> — log all auth attempts. (6) For AI APIs specifically: <strong>prompt injection</strong> — user inputs manipulating your system prompt, sanitize and validate before sending to LLM.</p>
+
+<p><span class="difficulty d-expert">Expert</span> Design a REST API for an AI document Q&A system. Walk through the endpoints, status codes, and async patterns.</p>
+<p><strong>Answer:</strong> <code>POST /api/v1/documents</code> (multipart) → 202 Accepted + returns <code>{"job_id": "uuid"}</code>. Async background: parse → chunk → embed → store in pgvector. <code>GET /api/v1/documents/{id}/status</code> → 200 with <code>{"status": "processing|ready|failed"}</code>. <code>POST /api/v1/chat</code> → 200 with SSE stream (<code>Content-Type: text/event-stream</code>), streams tokens as <code>data: {"token": "Hello"}\n\n</code> events. <code>GET /api/v1/conversations/{id}</code> → full history. WebSocket at <code>ws://host/api/v1/chat/ws</code> for bidirectional. Status codes: 202 for async, 200+SSE for streaming, 204 for delete, 422 for unsupported file type, 429 for token budget exceeded with <code>X-Token-Budget-Reset</code> header.</p>
+</div>
+
+<h3>Go-Specific REST Questions</h3>
+<div class="interview">
+<h4>🎯 Go Implementation Questions</h4>
+
+<p><span class="difficulty d-medium">Medium</span> How do you gracefully shut down a Go HTTP server?</p>
+<p><strong>Answer:</strong> Use <code>server.Shutdown(ctx)</code> which stops accepting new connections and waits for in-flight requests to complete before closing. Pattern: listen for <code>os.Signal</code> (SIGTERM, SIGINT) in a goroutine, call Shutdown when signal received. Pass a context with timeout so if requests don't finish in 30 seconds, they're forcibly closed. This is essential in K8s where pods receive SIGTERM on scale-down — without graceful shutdown, active AI streaming responses are cut mid-stream.</p>
+
+<p><span class="difficulty d-medium">Medium</span> What is the http.Handler interface? What's the difference between http.Handler and http.HandlerFunc?</p>
+<p><strong>Answer:</strong> <code>http.Handler</code> is an interface: <code>type Handler interface { ServeHTTP(ResponseWriter, *Request) }</code>. Any type implementing this method is an HTTP handler. <code>http.HandlerFunc</code> is a function type that implements the Handler interface: <code>type HandlerFunc func(ResponseWriter, *Request)</code> — its <code>ServeHTTP</code> just calls itself. This is the adapter pattern — it lets you use a plain function as an http.Handler without creating a struct.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How do you share data between middleware and handler in Go without using global variables?</p>
+<p><strong>Answer:</strong> Use <code>context.WithValue()</code>. Middleware stores data in the request context: <code>ctx := context.WithValue(r.Context(), key, value); next.ServeHTTP(w, r.WithContext(ctx))</code>. Handler retrieves it: <code>value := r.Context().Value(key)</code>. Best practices: use a private type for context keys (not string) to prevent collisions — <code>type ctxKey string; const userIDKey ctxKey = "userID"</code>. Only store request-scoped data: auth claims, request ID, loaded resources. Never store mutable shared state in context.</p>
+
+<p><span class="difficulty d-hard">Hard</span> How would you implement streaming LLM responses from a Go server to a browser?</p>
+<p><strong>Answer:</strong> Use Server-Sent Events (SSE). Set headers: <code>Content-Type: text/event-stream</code>, <code>Cache-Control: no-cache</code>, <code>X-Accel-Buffering: no</code> (disables nginx buffering). Get the flusher: <code>flusher, ok := w.(http.Flusher)</code>. In a goroutine, receive tokens from the LLM streaming channel and write: <code>fmt.Fprintf(w, "data: %s\n\n", token); flusher.Flush()</code>. On context cancellation (user closed browser), stop the LLM call. Use <code>select { case token := &lt;-tokenChan: ...; case &lt;-r.Context().Done(): return }</code>. Send a final <code>data: [DONE]\n\n</code> event. This is how ChatGPT's streaming works.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="nav-links">
+  <a href="../go-roadmap.html#phase4">← Back to Go Roadmap — Phase 4</a>
+  <a href="phase3.html">← Phase 3: Concurrency</a>
+  <a href="../go-roadmap.html#phase5">Phase 5: Databases →</a>
+</div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Coding Round — Part 2: Utility & Logic Implementations</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .companies { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Machine Coding Round — Part 2</h1>
+  <p class="subtitle">Utility & Logic Implementations (Event-driven, Data Structures, Async Patterns)</p>
+  <div class="pill-row">
+    <span class="pill">EventEmitter</span>
+    <span class="pill">Pub/Sub</span>
+    <span class="pill">Deep Clone</span>
+    <span class="pill">Flatten</span>
+    <span class="pill">Promise Pool</span>
+    <span class="pill">Observable</span>
+    <span class="pill">Undo/Redo</span>
+    <span class="pill">Type Checking</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>🎯 What interviewers look for:</strong> Clean API design, edge case handling (circular references, null/undefined, empty inputs), proper error handling, memory management (cleanup, removing listeners), and whether you can extend the solution when they add follow-up requirements.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#event-emitter">EventEmitter (Node.js style)</a></li>
+    <li><a href="#pub-sub">Pub/Sub (Publish-Subscribe) System</a></li>
+    <li><a href="#deep-clone">Deep Clone (Handle all edge cases)</a></li>
+    <li><a href="#flatten">Flatten Array / Object (Deep)</a></li>
+    <li><a href="#promise-pool">Promise Pool (Concurrency Limiter)</a></li>
+    <li><a href="#observable">Observable / Reactive Stream</a></li>
+    <li><a href="#undo-redo">Undo/Redo Manager</a></li>
+    <li><a href="#type-checker">Runtime Type Checker / Schema Validator</a></li>
+    <li><a href="#virtual-list">Virtual List (Windowed Rendering)</a></li>
+    <li><a href="#retry-queue">Retry Queue with Exponential Backoff</a></li>
+    <li><a href="#middleware">Middleware Pipeline (Express-style)</a></li>
+    <li><a href="#state-machine">Finite State Machine</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="event-emitter">1. EventEmitter (Node.js style)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Amazon, Microsoft, Flipkart, Atlassian, Uber</p>
+
+<h3>Problem Statement</h3>
+<p>Implement a complete EventEmitter class with: on, off, once, emit, removeAllListeners, listenerCount, and event namespacing.</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class EventEmitter {
+  constructor() {
+    this.events = new Map(); // eventName → Set of { fn, once }
+    this.maxListeners = 10;
+  }
+
+  on(event, fn) {
+    if (typeof fn !== "function") {
+      throw new TypeError("Listener must be a function");
+    }
+    
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    
+    const listeners = this.events.get(event);
+    
+    // Warn if too many listeners (memory leak detection)
+    if (listeners.length &gt;= this.maxListeners) {
+      console.warn(`MaxListenersExceeded: ${event} has ${listeners.length + 1} listeners`);
+    }
+    
+    listeners.push({ fn, once: false });
+    return this; // Enable chaining
+  }
+
+  once(event, fn) {
+    if (typeof fn !== "function") {
+      throw new TypeError("Listener must be a function");
+    }
+    
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    
+    this.events.get(event).push({ fn, once: true });
+    return this;
+  }
+
+  off(event, fn) {
+    if (!this.events.has(event)) return this;
+    
+    if (!fn) {
+      // Remove all listeners for this event
+      this.events.delete(event);
+      return this;
+    }
+    
+    const listeners = this.events.get(event);
+    const filtered = listeners.filter((listener) =&gt; listener.fn !== fn);
+    
+    if (filtered.length === 0) {
+      this.events.delete(event);
+    } else {
+      this.events.set(event, filtered);
+    }
+    
+    return this;
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return false;
+    
+    const listeners = this.events.get(event);
+    const toRemove = [];
+    
+    // Execute all listeners
+    listeners.forEach((listener, index) =&gt; {
+      listener.fn.apply(this, args);
+      if (listener.once) {
+        toRemove.push(index);
+      }
+    });
+    
+    // Remove "once" listeners (reverse order to maintain indices)
+    for (let i = toRemove.length - 1; i &gt;= 0; i--) {
+      listeners.splice(toRemove[i], 1);
+    }
+    
+    if (listeners.length === 0) {
+      this.events.delete(event);
+    }
+    
+    return true;
+  }
+
+  removeAllListeners(event) {
+    if (event) {
+      this.events.delete(event);
+    } else {
+      this.events.clear();
+    }
+    return this;
+  }
+
+  listenerCount(event) {
+    return this.events.has(event) ? this.events.get(event).length : 0;
+  }
+
+  eventNames() {
+    return [...this.events.keys()];
+  }
+
+  setMaxListeners(n) {
+    this.maxListeners = n;
+    return this;
+  }
+
+  // Wildcard support: emit("user.*") triggers "user.login", "user.logout" etc.
+  emitWildcard(pattern, ...args) {
+    const regex = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
+    let fired = false;
+    
+    for (const [event] of this.events) {
+      if (regex.test(event)) {
+        this.emit(event, ...args);
+        fired = true;
+      }
+    }
+    return fired;
+  }
+
+  // Wait for an event (Promise-based)
+  waitFor(event, timeout = 0) {
+    return new Promise((resolve, reject) =&gt; {
+      let timerId;
+      
+      const handler = (...args) =&gt; {
+        if (timerId) clearTimeout(timerId);
+        resolve(args.length === 1 ? args[0] : args);
+      };
+      
+      this.once(event, handler);
+      
+      if (timeout &gt; 0) {
+        timerId = setTimeout(() =&gt; {
+          this.off(event, handler);
+          reject(new Error(`Timeout waiting for event: ${event}`));
+        }, timeout);
+      }
+    });
+  }
+}
+
+// Usage:
+const emitter = new EventEmitter();
+
+// Basic
+emitter.on("data", (payload) =&gt; console.log("Received:", payload));
+emitter.emit("data", { id: 1, name: "Test" });
+
+// Once
+emitter.once("connect", () =&gt; console.log("Connected!"));
+emitter.emit("connect"); // Fires
+emitter.emit("connect"); // Nothing happens
+
+// Promise-based waiting
+async function waitForUser() {
+  const user = await emitter.waitFor("user:login", 5000);
+  console.log("User logged in:", user);
+}
+
+// Chaining
+emitter
+  .on("error", (err) =&gt; console.error(err))
+  .on("warn", (msg) =&gt; console.warn(msg))
+  .setMaxListeners(20);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="pub-sub">2. Pub/Sub (Publish-Subscribe) System</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Microsoft, Atlassian, Razorpay, Freshworks</p>
+
+<h3>Problem Statement</h3>
+<p>Build a Pub/Sub system with topics, subscriptions, message history, and dead-letter queue for failed handlers.</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class PubSub {
+  constructor(options = {}) {
+    this.topics = new Map();        // topic → { subscribers, history }
+    this.maxHistory = options.maxHistory || 100;
+    this.deadLetterQueue = [];
+  }
+
+  subscribe(topic, handler, options = {}) {
+    const { priority = 0, filter = null, id = null } = options;
+    
+    if (!this.topics.has(topic)) {
+      this.topics.set(topic, { subscribers: [], history: [] });
+    }
+    
+    const subscription = {
+      id: id || `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      handler,
+      priority,
+      filter,       // Only receive messages matching filter
+      active: true,
+    };
+    
+    const topicData = this.topics.get(topic);
+    topicData.subscribers.push(subscription);
+    
+    // Sort by priority (higher first)
+    topicData.subscribers.sort((a, b) =&gt; b.priority - a.priority);
+    
+    // Return unsubscribe function
+    return {
+      id: subscription.id,
+      unsubscribe: () =&gt; {
+        const subs = topicData.subscribers;
+        const index = subs.findIndex((s) =&gt; s.id === subscription.id);
+        if (index !== -1) subs.splice(index, 1);
+      },
+      pause: () =&gt; { subscription.active = false; },
+      resume: () =&gt; { subscription.active = true; },
+    };
+  }
+
+  publish(topic, message, options = {}) {
+    const { persist = true, metadata = {} } = options;
+    
+    const envelope = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      topic,
+      data: message,
+      metadata: { ...metadata, timestamp: Date.now(), publisher: metadata.publisher || "anonymous" },
+    };
+    
+    if (!this.topics.has(topic)) {
+      this.topics.set(topic, { subscribers: [], history: [] });
+    }
+    
+    const topicData = this.topics.get(topic);
+    
+    // Store in history
+    if (persist) {
+      topicData.history.push(envelope);
+      if (topicData.history.length &gt; this.maxHistory) {
+        topicData.history.shift();
+      }
+    }
+    
+    // Deliver to subscribers
+    let deliveredCount = 0;
+    topicData.subscribers.forEach((sub) =&gt; {
+      if (!sub.active) return;
+      if (sub.filter &amp;&amp; !sub.filter(message)) return;
+      
+      try {
+        sub.handler(envelope.data, envelope.metadata);
+        deliveredCount++;
+      } catch (error) {
+        // Dead letter queue for failed deliveries
+        this.deadLetterQueue.push({
+          envelope,
+          subscriberId: sub.id,
+          error: error.message,
+          failedAt: Date.now(),
+        });
+      }
+    });
+    
+    return { messageId: envelope.id, deliveredTo: deliveredCount };
+  }
+
+  // Get message history for a topic
+  getHistory(topic, limit = 10) {
+    const topicData = this.topics.get(topic);
+    if (!topicData) return [];
+    return topicData.history.slice(-limit);
+  }
+
+  // Pattern-based subscription (e.g., "orders.*" matches "orders.created", "orders.shipped")
+  subscribePattern(pattern, handler) {
+    const regex = new RegExp("^" + pattern.replace(/\./g, "\\.").replace(/\*/g, "[^.]+").replace(/#/g, ".*") + "$");
+    
+    // Subscribe to all existing matching topics
+    const subs = [];
+    for (const topic of this.topics.keys()) {
+      if (regex.test(topic)) {
+        subs.push(this.subscribe(topic, handler));
+      }
+    }
+    
+    // Store pattern for future topics
+    this._patterns = this._patterns || [];
+    this._patterns.push({ regex, handler, subs });
+    
+    return {
+      unsubscribe: () =&gt; subs.forEach((s) =&gt; s.unsubscribe())
+    };
+  }
+
+  // Request-Reply pattern
+  async request(topic, message, timeout = 5000) {
+    const replyTopic = `${topic}.reply.${Date.now()}`;
+    
+    return new Promise((resolve, reject) =&gt; {
+      const timer = setTimeout(() =&gt; {
+        sub.unsubscribe();
+        reject(new Error(`Request timeout on topic: ${topic}`));
+      }, timeout);
+      
+      const sub = this.subscribe(replyTopic, (data) =&gt; {
+        clearTimeout(timer);
+        sub.unsubscribe();
+        resolve(data);
+      });
+      
+      this.publish(topic, { ...message, replyTo: replyTopic });
+    });
+  }
+
+  getDeadLetterQueue() { return [...this.deadLetterQueue]; }
+  
+  getTopics() { return [...this.topics.keys()]; }
+  
+  getSubscriberCount(topic) {
+    return this.topics.get(topic)?.subscribers.length || 0;
+  }
+}
+
+// Usage:
+const pubsub = new PubSub();
+
+// Subscribe with filter
+const orderSub = pubsub.subscribe("orders", (data, meta) =&gt; {
+  console.log(`New order: ${data.orderId} at ${new Date(meta.timestamp)}`);
+}, {
+  priority: 1,
+  filter: (msg) =&gt; msg.amount &gt; 500, // Only high-value orders
+});
+
+// Publish
+pubsub.publish("orders", { orderId: "ORD-123", amount: 1200 });
+
+// Cleanup
+orderSub.unsubscribe();</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="deep-clone">3. Deep Clone (Handle All Edge Cases)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Amazon, Microsoft, Flipkart, Atlassian</p>
+
+<h3>Problem Statement</h3>
+<p>Implement deep clone that handles: nested objects, arrays, Date, RegExp, Map, Set, circular references, symbols, and typed arrays.</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>function deepClone(obj, seen = new WeakMap()) {
+  // Primitives and null
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+  
+  // Handle circular references
+  if (seen.has(obj)) {
+    return seen.get(obj);
+  }
+  
+  // Date
+  if (obj instanceof Date) {
+    return new Date(obj.getTime());
+  }
+  
+  // RegExp
+  if (obj instanceof RegExp) {
+    const clone = new RegExp(obj.source, obj.flags);
+    clone.lastIndex = obj.lastIndex;
+    return clone;
+  }
+  
+  // Map
+  if (obj instanceof Map) {
+    const clone = new Map();
+    seen.set(obj, clone);
+    obj.forEach((value, key) =&gt; {
+      clone.set(deepClone(key, seen), deepClone(value, seen));
+    });
+    return clone;
+  }
+  
+  // Set
+  if (obj instanceof Set) {
+    const clone = new Set();
+    seen.set(obj, clone);
+    obj.forEach((value) =&gt; {
+      clone.add(deepClone(value, seen));
+    });
+    return clone;
+  }
+  
+  // TypedArrays (Int8Array, Uint8Array, Float32Array, etc.)
+  if (ArrayBuffer.isView(obj)) {
+    return new obj.constructor(obj);
+  }
+  
+  // ArrayBuffer
+  if (obj instanceof ArrayBuffer) {
+    const clone = new ArrayBuffer(obj.byteLength);
+    new Uint8Array(clone).set(new Uint8Array(obj));
+    return clone;
+  }
+  
+  // Error
+  if (obj instanceof Error) {
+    const clone = new obj.constructor(obj.message);
+    clone.stack = obj.stack;
+    return clone;
+  }
+  
+  // Array
+  if (Array.isArray(obj)) {
+    const clone = [];
+    seen.set(obj, clone);
+    obj.forEach((item, index) =&gt; {
+      clone[index] = deepClone(item, seen);
+    });
+    return clone;
+  }
+  
+  // Plain Object (preserve prototype chain)
+  const clone = Object.create(Object.getPrototypeOf(obj));
+  seen.set(obj, clone);
+  
+  // Copy all own properties including symbols
+  const allKeys = [
+    ...Object.getOwnPropertyNames(obj),
+    ...Object.getOwnPropertySymbols(obj),
+  ];
+  
+  allKeys.forEach((key) =&gt; {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, key);
+    if (descriptor.value !== undefined) {
+      descriptor.value = deepClone(descriptor.value, seen);
+    }
+    Object.defineProperty(clone, key, descriptor);
+  });
+  
+  return clone;
+}
+
+// Tests:
+const original = {
+  name: "test",
+  date: new Date(),
+  regex: /hello/gi,
+  nested: { a: [1, 2, { b: 3 }] },
+  map: new Map([["key", { val: 1 }]]),
+  set: new Set([1, 2, 3]),
+  [Symbol("id")]: 42,
+};
+// Circular reference
+original.self = original;
+
+const cloned = deepClone(original);
+console.log(cloned.self === cloned); // true (circular ref preserved)
+console.log(cloned.date === original.date); // false (different instance)
+console.log(cloned.nested.a[2] === original.nested.a[2]); // false (deep)</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="flatten">4. Flatten Array / Object (Deep)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Amazon, Flipkart, Uber, PhonePe</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>// ─── Array Flatten ─────────────────────────────────────
+// Flatten nested array to specified depth (like Array.flat)
+function flattenArray(arr, depth = Infinity) {
+  if (depth &lt;= 0) return [...arr];
+  
+  return arr.reduce((result, item) =&gt; {
+    if (Array.isArray(item)) {
+      result.push(...flattenArray(item, depth - 1));
+    } else {
+      result.push(item);
+    }
+    return result;
+  }, []);
+}
+
+// Iterative version (no recursion — handles very deep arrays)
+function flattenArrayIterative(arr) {
+  const stack = [...arr];
+  const result = [];
+  
+  while (stack.length &gt; 0) {
+    const item = stack.pop();
+    if (Array.isArray(item)) {
+      stack.push(...item);
+    } else {
+      result.push(item);
+    }
+  }
+  
+  return result.reverse();
+}
+
+// Tests:
+flattenArray([1, [2, [3, [4]]], 5]); // [1, 2, 3, 4, 5]
+flattenArray([1, [2, [3, [4]]], 5], 1); // [1, 2, [3, [4]], 5]
+flattenArray([1, [2, [3, [4]]], 5], 2); // [1, 2, 3, [4], 5]
+
+// ─── Object Flatten ───────────────────────────────────────
+// { a: { b: { c: 1 } } } → { "a.b.c": 1 }
+function flattenObject(obj, prefix = "", separator = ".") {
+  const result = {};
+  
+  for (const [key, value] of Object.entries(obj)) {
+    const newKey = prefix ? `${prefix}${separator}${key}` : key;
+    
+    if (
+      value !== null &amp;&amp;
+      typeof value === "object" &amp;&amp;
+      !Array.isArray(value) &amp;&amp;
+      !(value instanceof Date) &amp;&amp;
+      Object.keys(value).length &gt; 0
+    ) {
+      Object.assign(result, flattenObject(value, newKey, separator));
+    } else {
+      result[newKey] = value;
+    }
+  }
+  
+  return result;
+}
+
+// Unflatten: { "a.b.c": 1 } → { a: { b: { c: 1 } } }
+function unflattenObject(obj, separator = ".") {
+  const result = {};
+  
+  for (const [flatKey, value] of Object.entries(obj)) {
+    const keys = flatKey.split(separator);
+    let current = result;
+    
+    for (let i = 0; i &lt; keys.length - 1; i++) {
+      const key = keys[i];
+      // Check if next key is numeric (array)
+      const nextKey = keys[i + 1];
+      if (!current[key]) {
+        current[key] = /^\d+$/.test(nextKey) ? [] : {};
+      }
+      current = current[key];
+    }
+    
+    current[keys[keys.length - 1]] = value;
+  }
+  
+  return result;
+}
+
+// Tests:
+flattenObject({ a: { b: 1, c: { d: 2 } }, e: 3 });
+// { "a.b": 1, "a.c.d": 2, "e": 3 }
+
+unflattenObject({ "a.b": 1, "a.c.d": 2, "e": 3 });
+// { a: { b: 1, c: { d: 2 } }, e: 3 }</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="promise-pool">5. Promise Pool (Concurrency Limiter)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Amazon, Uber, Atlassian, Razorpay</p>
+
+<h3>Problem Statement</h3>
+<p>Implement a function that runs async tasks with a maximum concurrency limit. Like Promise.all but with a pool size.</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>// Version 1: Simple pool (like p-limit)
+function promisePool(tasks, concurrency) {
+  return new Promise((resolve, reject) =&gt; {
+    const results = new Array(tasks.length);
+    let nextIndex = 0;
+    let completedCount = 0;
+    let hasErrored = false;
+
+    function runNext() {
+      if (hasErrored) return;
+      if (nextIndex &gt;= tasks.length) return;
+      
+      const currentIndex = nextIndex++;
+      const task = tasks[currentIndex];
+
+      Promise.resolve(task())
+        .then((result) =&gt; {
+          results[currentIndex] = result;
+          completedCount++;
+          
+          if (completedCount === tasks.length) {
+            resolve(results);
+          } else {
+            runNext(); // Pick up next task
+          }
+        })
+        .catch((error) =&gt; {
+          hasErrored = true;
+          reject(error);
+        });
+    }
+
+    // Start initial batch (up to concurrency limit)
+    const initialBatch = Math.min(concurrency, tasks.length);
+    for (let i = 0; i &lt; initialBatch; i++) {
+      runNext();
+    }
+    
+    // Edge case: empty tasks array
+    if (tasks.length === 0) resolve([]);
+  });
+}
+
+// Version 2: Full-featured pool class with pause/resume/abort
+class TaskPool {
+  constructor(concurrency = 3) {
+    this.concurrency = concurrency;
+    this.running = 0;
+    this.queue = [];
+    this.paused = false;
+    this.results = [];
+    this.abortController = new AbortController();
+  }
+
+  add(taskFn, priority = 0) {
+    return new Promise((resolve, reject) =&gt; {
+      const task = { fn: taskFn, resolve, reject, priority };
+      
+      // Insert by priority (higher = earlier)
+      const insertIndex = this.queue.findIndex((t) =&gt; t.priority &lt; priority);
+      if (insertIndex === -1) {
+        this.queue.push(task);
+      } else {
+        this.queue.splice(insertIndex, 0, task);
+      }
+      
+      this.processQueue();
+    });
+  }
+
+  processQueue() {
+    if (this.paused) return;
+    if (this.abortController.signal.aborted) return;
+    
+    while (this.running &lt; this.concurrency &amp;&amp; this.queue.length &gt; 0) {
+      const task = this.queue.shift();
+      this.running++;
+      
+      Promise.resolve(task.fn(this.abortController.signal))
+        .then((result) =&gt; {
+          task.resolve(result);
+          this.results.push({ status: "fulfilled", value: result });
+        })
+        .catch((error) =&gt; {
+          task.reject(error);
+          this.results.push({ status: "rejected", reason: error });
+        })
+        .finally(() =&gt; {
+          this.running--;
+          this.processQueue();
+        });
+    }
+  }
+
+  pause() { this.paused = true; }
+  
+  resume() {
+    this.paused = false;
+    this.processQueue();
+  }
+  
+  abort() {
+    this.abortController.abort();
+    this.queue.forEach((task) =&gt; task.reject(new Error("Pool aborted")));
+    this.queue = [];
+  }
+
+  get pending() { return this.queue.length; }
+  get active() { return this.running; }
+  get size() { return this.queue.length + this.running; }
+}
+
+// Usage:
+const urls = Array.from({ length: 100 }, (_, i) =&gt; `https://api.example.com/item/${i}`);
+const tasks = urls.map((url) =&gt; () =&gt; fetch(url).then((r) =&gt; r.json()));
+
+// Run max 5 at a time
+const results = await promisePool(tasks, 5);
+console.log(`All ${results.length} requests completed`);
+
+// Class-based usage with priority:
+const pool = new TaskPool(3);
+pool.add(() =&gt; fetch("/api/critical"), 10); // High priority
+pool.add(() =&gt; fetch("/api/normal"), 1);    // Normal priority
+pool.add(() =&gt; fetch("/api/low"), 0);       // Low priority</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="observable">6. Observable / Reactive Stream</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Microsoft, Atlassian, Angular-heavy companies</p>
+
+<h3>Problem Statement</h3>
+<p>Implement a simplified Observable (like RxJS) with operators: map, filter, take, debounceTime, switchMap.</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Observable {
+  constructor(subscribeFn) {
+    this._subscribe = subscribeFn;
+  }
+
+  subscribe(observerOrNext, error, complete) {
+    const observer = typeof observerOrNext === "function"
+      ? { next: observerOrNext, error: error || (() =&gt; {}), complete: complete || (() =&gt; {}) }
+      : { next: () =&gt; {}, error: () =&gt; {}, complete: () =&gt; {}, ...observerOrNext };
+
+    const subscription = { unsubscribed: false };
+    
+    const safeObserver = {
+      next: (value) =&gt; { if (!subscription.unsubscribed) observer.next(value); },
+      error: (err) =&gt; { if (!subscription.unsubscribed) observer.error(err); },
+      complete: () =&gt; { if (!subscription.unsubscribed) observer.complete(); },
+    };
+
+    const teardown = this._subscribe(safeObserver);
+    
+    subscription.unsubscribe = () =&gt; {
+      subscription.unsubscribed = true;
+      if (typeof teardown === "function") teardown();
+    };
+
+    return subscription;
+  }
+
+  // Operators (return new Observable)
+  pipe(...operators) {
+    return operators.reduce((source, operator) =&gt; operator(source), this);
+  }
+
+  // Static creators
+  static of(...values) {
+    return new Observable((observer) =&gt; {
+      values.forEach((v) =&gt; observer.next(v));
+      observer.complete();
+    });
+  }
+
+  static from(iterable) {
+    return new Observable((observer) =&gt; {
+      for (const item of iterable) {
+        observer.next(item);
+      }
+      observer.complete();
+    });
+  }
+
+  static fromEvent(element, eventName) {
+    return new Observable((observer) =&gt; {
+      const handler = (e) =&gt; observer.next(e);
+      element.addEventListener(eventName, handler);
+      return () =&gt; element.removeEventListener(eventName, handler);
+    });
+  }
+
+  static interval(ms) {
+    return new Observable((observer) =&gt; {
+      let count = 0;
+      const id = setInterval(() =&gt; observer.next(count++), ms);
+      return () =&gt; clearInterval(id);
+    });
+  }
+}
+
+// Operators as functions (pipeable)
+function map(transformFn) {
+  return (source) =&gt; new Observable((observer) =&gt; {
+    return source.subscribe({
+      next: (value) =&gt; observer.next(transformFn(value)),
+      error: (err) =&gt; observer.error(err),
+      complete: () =&gt; observer.complete(),
+    });
+  });
+}
+
+function filter(predicateFn) {
+  return (source) =&gt; new Observable((observer) =&gt; {
+    return source.subscribe({
+      next: (value) =&gt; { if (predicateFn(value)) observer.next(value); },
+      error: (err) =&gt; observer.error(err),
+      complete: () =&gt; observer.complete(),
+    });
+  });
+}
+
+function take(count) {
+  return (source) =&gt; new Observable((observer) =&gt; {
+    let taken = 0;
+    const sub = source.subscribe({
+      next: (value) =&gt; {
+        if (taken &lt; count) {
+          observer.next(value);
+          taken++;
+          if (taken === count) {
+            observer.complete();
+            sub.unsubscribe();
+          }
+        }
+      },
+      error: (err) =&gt; observer.error(err),
+      complete: () =&gt; observer.complete(),
+    });
+    return () =&gt; sub.unsubscribe();
+  });
+}
+
+function debounceTime(ms) {
+  return (source) =&gt; new Observable((observer) =&gt; {
+    let timerId;
+    const sub = source.subscribe({
+      next: (value) =&gt; {
+        clearTimeout(timerId);
+        timerId = setTimeout(() =&gt; observer.next(value), ms);
+      },
+      error: (err) =&gt; observer.error(err),
+      complete: () =&gt; { clearTimeout(timerId); observer.complete(); },
+    });
+    return () =&gt; { clearTimeout(timerId); sub.unsubscribe(); };
+  });
+}
+
+function switchMap(projectFn) {
+  return (source) =&gt; new Observable((observer) =&gt; {
+    let innerSub;
+    const outerSub = source.subscribe({
+      next: (value) =&gt; {
+        // Cancel previous inner subscription
+        innerSub?.unsubscribe();
+        const innerObservable = projectFn(value);
+        innerSub = innerObservable.subscribe({
+          next: (innerVal) =&gt; observer.next(innerVal),
+          error: (err) =&gt; observer.error(err),
+        });
+      },
+      error: (err) =&gt; observer.error(err),
+      complete: () =&gt; observer.complete(),
+    });
+    return () =&gt; { innerSub?.unsubscribe(); outerSub.unsubscribe(); };
+  });
+}
+
+// Usage:
+const clicks$ = Observable.fromEvent(document, "click");
+
+const sub = clicks$.pipe(
+  map((e) =&gt; ({ x: e.clientX, y: e.clientY })),
+  filter(({ x }) =&gt; x &gt; 100),
+  debounceTime(300),
+  take(5)
+).subscribe({
+  next: (pos) =&gt; console.log("Click at:", pos),
+  complete: () =&gt; console.log("Done! Got 5 clicks"),
+});
+
+// Cleanup
+sub.unsubscribe();</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="undo-redo">7. Undo/Redo Manager</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google Docs, Notion, Atlassian, Microsoft, Figma-style</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class UndoRedoManager {
+  constructor(options = {}) {
+    this.maxHistory = options.maxHistory || 100;
+    this.undoStack = [];  // Past states
+    this.redoStack = [];  // Future states (cleared on new action)
+    this.current = options.initialState || null;
+    this.onChange = options.onChange || (() =&gt; {});
+    this.batchMode = false;
+    this.batchCommands = [];
+  }
+
+  // Execute a command and store it
+  execute(command) {
+    // command = { execute(), undo(), description }
+    if (this.batchMode) {
+      this.batchCommands.push(command);
+      command.execute();
+      return;
+    }
+    
+    // Store current state for undo
+    this.undoStack.push(command);
+    
+    // Clear redo stack (new action invalidates redo history)
+    this.redoStack = [];
+    
+    // Limit history size
+    if (this.undoStack.length &gt; this.maxHistory) {
+      this.undoStack.shift();
+    }
+    
+    // Execute the command
+    command.execute();
+    this.onChange({ type: "execute", command });
+  }
+
+  undo() {
+    if (!this.canUndo()) return null;
+    
+    const command = this.undoStack.pop();
+    command.undo();
+    this.redoStack.push(command);
+    this.onChange({ type: "undo", command });
+    return command;
+  }
+
+  redo() {
+    if (!this.canRedo()) return null;
+    
+    const command = this.redoStack.pop();
+    command.execute();
+    this.undoStack.push(command);
+    this.onChange({ type: "redo", command });
+    return command;
+  }
+
+  canUndo() { return this.undoStack.length &gt; 0; }
+  canRedo() { return this.redoStack.length &gt; 0; }
+
+  // Batch multiple commands as one undo-able unit
+  startBatch(description = "Batch") {
+    this.batchMode = true;
+    this.batchCommands = [];
+    this.batchDescription = description;
+  }
+
+  endBatch() {
+    this.batchMode = false;
+    const commands = [...this.batchCommands];
+    this.batchCommands = [];
+    
+    if (commands.length === 0) return;
+    
+    // Create a compound command
+    const batchCommand = {
+      description: this.batchDescription,
+      execute: () =&gt; commands.forEach((cmd) =&gt; cmd.execute()),
+      undo: () =&gt; [...commands].reverse().forEach((cmd) =&gt; cmd.undo()),
+    };
+    
+    this.undoStack.push(batchCommand);
+    this.redoStack = [];
+    this.onChange({ type: "batch", command: batchCommand });
+  }
+
+  // State-based approach (store full snapshots)
+  static createWithSnapshots(options = {}) {
+    const manager = {
+      states: [options.initialState],
+      currentIndex: 0,
+      maxHistory: options.maxHistory || 50,
+      
+      push(state) {
+        // Remove any redo states
+        this.states = this.states.slice(0, this.currentIndex + 1);
+        this.states.push(structuredClone(state));
+        this.currentIndex++;
+        
+        if (this.states.length &gt; this.maxHistory) {
+          this.states.shift();
+          this.currentIndex--;
+        }
+      },
+      
+      undo() {
+        if (this.currentIndex &gt; 0) {
+          this.currentIndex--;
+          return structuredClone(this.states[this.currentIndex]);
+        }
+        return null;
+      },
+      
+      redo() {
+        if (this.currentIndex &lt; this.states.length - 1) {
+          this.currentIndex++;
+          return structuredClone(this.states[this.currentIndex]);
+        }
+        return null;
+      },
+      
+      get current() { return structuredClone(this.states[this.currentIndex]); },
+      get canUndo() { return this.currentIndex &gt; 0; },
+      get canRedo() { return this.currentIndex &lt; this.states.length - 1; },
+    };
+    
+    return manager;
+  }
+
+  getHistory() {
+    return this.undoStack.map((cmd) =&gt; cmd.description || "Unknown");
+  }
+
+  clear() {
+    this.undoStack = [];
+    this.redoStack = [];
+  }
+}
+
+// Usage with Command pattern:
+const manager = new UndoRedoManager();
+const editor = { text: "" };
+
+// Define commands
+function insertText(pos, text) {
+  return {
+    description: `Insert "${text}" at ${pos}`,
+    execute: () =&gt; {
+      editor.text = editor.text.slice(0, pos) + text + editor.text.slice(pos);
+    },
+    undo: () =&gt; {
+      editor.text = editor.text.slice(0, pos) + editor.text.slice(pos + text.length);
+    }
+  };
+}
+
+manager.execute(insertText(0, "Hello"));  // "Hello"
+manager.execute(insertText(5, " World")); // "Hello World"
+manager.undo();                            // "Hello"
+manager.redo();                            // "Hello World"
+
+// Batch example (Find &amp; Replace All):
+manager.startBatch("Replace all 'l' with 'L'");
+// ... multiple individual replacements ...
+manager.endBatch(); // All replacements undo as one</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="type-checker">8. Runtime Type Checker / Schema Validator</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Razorpay, Atlassian, Freshworks, Flipkart</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Schema {
+  constructor() {
+    this.checks = [];
+    this.isOptional = false;
+    this.defaultValue = undefined;
+  }
+
+  // Chainable validators
+  string() { return this._addCheck("type", (v) =&gt; typeof v === "string", "Expected string"); }
+  number() { return this._addCheck("type", (v) =&gt; typeof v === "number" &amp;&amp; !isNaN(v), "Expected number"); }
+  boolean() { return this._addCheck("type", (v) =&gt; typeof v === "boolean", "Expected boolean"); }
+  array() { return this._addCheck("type", (v) =&gt; Array.isArray(v), "Expected array"); }
+  object() { return this._addCheck("type", (v) =&gt; typeof v === "object" &amp;&amp; v !== null &amp;&amp; !Array.isArray(v), "Expected object"); }
+  
+  // String validators
+  min(n) { return this._addCheck("min", (v) =&gt; (typeof v === "string" ? v.length &gt;= n : v &gt;= n), `Minimum ${n}`); }
+  max(n) { return this._addCheck("max", (v) =&gt; (typeof v === "string" ? v.length &lt;= n : v &lt;= n), `Maximum ${n}`); }
+  email() { return this._addCheck("email", (v) =&gt; /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Invalid email"); }
+  url() { return this._addCheck("url", (v) =&gt; { try { new URL(v); return true; } catch { return false; } }, "Invalid URL"); }
+  pattern(regex) { return this._addCheck("pattern", (v) =&gt; regex.test(v), `Must match ${regex}`); }
+  enum(values) { return this._addCheck("enum", (v) =&gt; values.includes(v), `Must be one of: ${values.join(", ")}`); }
+  
+  // Modifiers
+  optional() { this.isOptional = true; return this; }
+  default(val) { this.defaultValue = val; this.isOptional = true; return this; }
+  custom(fn, message) { return this._addCheck("custom", fn, message || "Custom validation failed"); }
+  
+  _addCheck(name, fn, message) {
+    this.checks.push({ name, fn, message });
+    return this;
+  }
+
+  validate(value, path = "") {
+    // Handle optional/default
+    if (value === undefined || value === null) {
+      if (this.isOptional) return { valid: true, value: this.defaultValue ?? value };
+      return { valid: false, errors: [{ path, message: "Required field" }] };
+    }
+    
+    // Run all checks
+    const errors = [];
+    for (const check of this.checks) {
+      if (!check.fn(value)) {
+        errors.push({ path, message: check.message, rule: check.name });
+      }
+    }
+    
+    return errors.length === 0
+      ? { valid: true, value }
+      : { valid: false, errors };
+  }
+}
+
+// Object schema validator
+class ObjectSchema {
+  constructor(shape) {
+    this.shape = shape; // { fieldName: Schema }
+    this.strictMode = false;
+  }
+
+  strict() { this.strictMode = true; return this; }
+
+  validate(obj, parentPath = "") {
+    if (typeof obj !== "object" || obj === null) {
+      return { valid: false, errors: [{ path: parentPath, message: "Expected object" }] };
+    }
+    
+    const errors = [];
+    const result = {};
+    
+    // Validate defined fields
+    for (const [key, schema] of Object.entries(this.shape)) {
+      const path = parentPath ? `${parentPath}.${key}` : key;
+      const value = obj[key];
+      
+      if (schema instanceof ObjectSchema) {
+        const nested = schema.validate(value, path);
+        if (!nested.valid) errors.push(...nested.errors);
+        else result[key] = nested.value;
+      } else {
+        const fieldResult = schema.validate(value, path);
+        if (!fieldResult.valid) errors.push(...fieldResult.errors);
+        else result[key] = fieldResult.value;
+      }
+    }
+    
+    // Check for extra fields in strict mode
+    if (this.strictMode) {
+      const extraKeys = Object.keys(obj).filter((k) =&gt; !(k in this.shape));
+      extraKeys.forEach((key) =&gt; {
+        errors.push({ path: parentPath ? `${parentPath}.${key}` : key, message: "Unexpected field" });
+      });
+    }
+    
+    return errors.length === 0
+      ? { valid: true, value: result }
+      : { valid: false, errors };
+  }
+}
+
+// Helper factory
+const v = {
+  string: () =&gt; new Schema().string(),
+  number: () =&gt; new Schema().number(),
+  boolean: () =&gt; new Schema().boolean(),
+  array: () =&gt; new Schema().array(),
+  object: (shape) =&gt; new ObjectSchema(shape),
+};
+
+// Usage:
+const userSchema = v.object({
+  name: v.string().min(2).max(50),
+  email: v.string().email(),
+  age: v.number().min(18).max(120).optional(),
+  role: v.string().enum(["admin", "user", "moderator"]).default("user"),
+  address: v.object({
+    city: v.string().min(2),
+    zip: v.string().pattern(/^\d{6}$/),
+  }).strict(),
+});
+
+const result = userSchema.validate({
+  name: "Sid",
+  email: "sid@example.com",
+  age: 25,
+  address: { city: "Bangalore", zip: "560001" }
+});
+console.log(result); // { valid: true, value: { ... } }</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="virtual-list">9. Virtual List (Windowed Rendering)</h2>
+<span class="difficulty d-expert">EXPERT</span>
+<p class="companies">Asked at: Google, Facebook, Flipkart, LinkedIn, Atlassian</p>
+
+<h3>Problem Statement</h3>
+<p>Render a list of 100,000+ items efficiently by only rendering the visible items + a small buffer. As user scrolls, swap out DOM elements.</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class VirtualList {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.items = options.items || [];
+    this.itemHeight = options.itemHeight || 40; // Fixed height per item
+    this.overscan = options.overscan || 5; // Extra items above/below viewport
+    this.renderItem = options.renderItem; // (item, index) =&gt; HTMLElement
+    
+    this.scrollTop = 0;
+    this.containerHeight = 0;
+    
+    this.init();
+  }
+
+  init() {
+    // Outer container (scrollable)
+    this.container.style.cssText = `
+      overflow-y: auto; position: relative;
+      height: ${this.container.clientHeight || 400}px;
+    `;
+    this.containerHeight = this.container.clientHeight;
+    
+    // Inner container (total height — creates scrollbar)
+    this.spacer = document.createElement("div");
+    this.spacer.style.height = `${this.items.length * this.itemHeight}px`;
+    this.spacer.style.position = "relative";
+    
+    // Visible items container
+    this.content = document.createElement("div");
+    this.content.style.cssText = "position: absolute; top: 0; left: 0; right: 0;";
+    
+    this.spacer.appendChild(this.content);
+    this.container.appendChild(this.spacer);
+    
+    // Scroll handler
+    this.container.addEventListener("scroll", () =&gt; {
+      this.scrollTop = this.container.scrollTop;
+      this.renderVisible();
+    });
+    
+    // Initial render
+    this.renderVisible();
+  }
+
+  renderVisible() {
+    const startIndex = Math.max(0, Math.floor(this.scrollTop / this.itemHeight) - this.overscan);
+    const visibleCount = Math.ceil(this.containerHeight / this.itemHeight);
+    const endIndex = Math.min(this.items.length - 1, startIndex + visibleCount + this.overscan * 2);
+    
+    // Only re-render if range changed
+    if (startIndex === this._lastStart &amp;&amp; endIndex === this._lastEnd) return;
+    this._lastStart = startIndex;
+    this._lastEnd = endIndex;
+    
+    // Clear and re-render visible items
+    this.content.innerHTML = "";
+    this.content.style.top = `${startIndex * this.itemHeight}px`;
+    
+    const fragment = document.createDocumentFragment();
+    for (let i = startIndex; i &lt;= endIndex; i++) {
+      const el = this.renderItem(this.items[i], i);
+      el.style.height = `${this.itemHeight}px`;
+      el.style.boxSizing = "border-box";
+      fragment.appendChild(el);
+    }
+    this.content.appendChild(fragment);
+  }
+
+  // Dynamic updates
+  setItems(newItems) {
+    this.items = newItems;
+    this.spacer.style.height = `${this.items.length * this.itemHeight}px`;
+    this._lastStart = -1; // Force re-render
+    this.renderVisible();
+  }
+
+  scrollToIndex(index) {
+    this.container.scrollTop = index * this.itemHeight;
+  }
+
+  // For variable height items (more complex)
+  static createVariableHeight(container, options) {
+    // Would use a height cache + binary search for offset calculation
+    // Left as exercise — key insight: maintain cumulative height array
+    // and use binary search to find start index from scrollTop
+  }
+}
+
+// Usage:
+const items = Array.from({ length: 100000 }, (_, i) =&gt; ({
+  id: i,
+  name: `Item ${i}`,
+  description: `Description for item ${i}`,
+}));
+
+const list = new VirtualList(document.getElementById("list-container"), {
+  items,
+  itemHeight: 50,
+  overscan: 10,
+  renderItem: (item, index) =&gt; {
+    const div = document.createElement("div");
+    div.style.cssText = "padding:12px;border-bottom:1px solid #eee;display:flex;align-items:center";
+    div.innerHTML = `&lt;strong&gt;#${index}&lt;/strong&gt;&amp;nbsp;— ${item.name}`;
+    return div;
+  }
+});
+
+// Scroll to item 5000:
+list.scrollToIndex(5000);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="retry-queue">10. Retry Queue with Exponential Backoff</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Amazon, Razorpay, Uber, Flipkart</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class RetryQueue {
+  constructor(options = {}) {
+    this.maxRetries = options.maxRetries || 3;
+    this.baseDelay = options.baseDelay || 1000;
+    this.maxDelay = options.maxDelay || 30000;
+    this.backoffFactor = options.backoffFactor || 2;
+    this.jitter = options.jitter !== false; // Add randomness to prevent thundering herd
+    this.queue = [];
+    this.processing = false;
+    this.onRetry = options.onRetry || (() =&gt; {});
+    this.onMaxRetries = options.onMaxRetries || (() =&gt; {});
+  }
+
+  async add(taskFn, taskId = null) {
+    return new Promise((resolve, reject) =&gt; {
+      this.queue.push({
+        id: taskId || `task_${Date.now()}`,
+        fn: taskFn,
+        attempt: 0,
+        resolve,
+        reject,
+      });
+      this.process();
+    });
+  }
+
+  async process() {
+    if (this.processing || this.queue.length === 0) return;
+    this.processing = true;
+
+    while (this.queue.length &gt; 0) {
+      const task = this.queue[0];
+      
+      try {
+        const result = await task.fn();
+        task.resolve(result);
+        this.queue.shift(); // Remove successful task
+      } catch (error) {
+        task.attempt++;
+        
+        if (task.attempt &gt;= this.maxRetries) {
+          this.onMaxRetries(task.id, error);
+          task.reject(error);
+          this.queue.shift(); // Remove failed task
+        } else {
+          // Calculate backoff delay
+          const delay = this.calculateDelay(task.attempt);
+          this.onRetry(task.id, task.attempt, delay, error);
+          
+          // Wait before retry
+          await this.sleep(delay);
+          // Task stays in queue for retry
+        }
+      }
+    }
+
+    this.processing = false;
+  }
+
+  calculateDelay(attempt) {
+    let delay = this.baseDelay * Math.pow(this.backoffFactor, attempt - 1);
+    delay = Math.min(delay, this.maxDelay);
+    
+    if (this.jitter) {
+      // Full jitter: random between 0 and calculated delay
+      delay = Math.random() * delay;
+    }
+    
+    return Math.floor(delay);
+  }
+
+  sleep(ms) {
+    return new Promise((resolve) =&gt; setTimeout(resolve, ms));
+  }
+
+  // Retry with circuit breaker pattern
+  static withCircuitBreaker(fn, options = {}) {
+    const { threshold = 5, timeout = 60000, maxRetries = 3, baseDelay = 1000 } = options;
+    
+    let failures = 0;
+    let lastFailureTime = 0;
+    let state = "CLOSED"; // CLOSED (normal) | OPEN (failing) | HALF_OPEN (testing)
+    
+    return async function (...args) {
+      // Check circuit state
+      if (state === "OPEN") {
+        if (Date.now() - lastFailureTime &gt; timeout) {
+          state = "HALF_OPEN"; // Try one request
+        } else {
+          throw new Error("Circuit breaker is OPEN — requests are blocked");
+        }
+      }
+      
+      // Retry logic
+      for (let attempt = 0; attempt &lt;= maxRetries; attempt++) {
+        try {
+          const result = await fn(...args);
+          
+          // Success — reset circuit
+          if (state === "HALF_OPEN") state = "CLOSED";
+          failures = 0;
+          return result;
+        } catch (error) {
+          failures++;
+          lastFailureTime = Date.now();
+          
+          if (failures &gt;= threshold) {
+            state = "OPEN";
+            throw new Error(`Circuit OPEN after ${failures} failures: ${error.message}`);
+          }
+          
+          if (attempt &lt; maxRetries) {
+            await new Promise((r) =&gt; setTimeout(r, baseDelay * Math.pow(2, attempt)));
+          } else {
+            throw error;
+          }
+        }
+      }
+    };
+  }
+}
+
+// Usage:
+const retryQueue = new RetryQueue({
+  maxRetries: 3,
+  baseDelay: 1000,
+  onRetry: (id, attempt, delay) =&gt; {
+    console.log(`Retrying ${id} (attempt ${attempt}) in ${delay}ms`);
+  }
+});
+
+await retryQueue.add(async () =&gt; {
+  const res = await fetch("/api/flaky-endpoint");
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}, "fetch-data");
+
+// Circuit breaker:
+const resilientFetch = RetryQueue.withCircuitBreaker(
+  (url) =&gt; fetch(url).then((r) =&gt; { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
+  { threshold: 5, timeout: 30000 }
+);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="middleware">11. Middleware Pipeline (Express-style)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Razorpay, Atlassian, Flipkart, Freshworks</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class MiddlewarePipeline {
+  constructor() {
+    this.middlewares = [];
+    this.errorHandlers = [];
+  }
+
+  use(pathOrFn, fn) {
+    if (typeof pathOrFn === "function") {
+      // No path — matches all
+      this.middlewares.push({ path: null, handler: pathOrFn });
+    } else if (typeof fn === "function") {
+      // Path-based middleware
+      this.middlewares.push({ path: pathOrFn, handler: fn });
+    }
+    return this;
+  }
+
+  // Error handler (4 params: err, ctx, next)
+  onError(handler) {
+    this.errorHandlers.push(handler);
+    return this;
+  }
+
+  async execute(context = {}) {
+    let index = 0;
+    
+    const next = async () =&gt; {
+      if (index &gt;= this.middlewares.length) return;
+      
+      const middleware = this.middlewares[index++];
+      
+      // Path matching (if middleware has a path)
+      if (middleware.path &amp;&amp; context.path &amp;&amp; !context.path.startsWith(middleware.path)) {
+        return next(); // Skip non-matching middleware
+      }
+      
+      try {
+        await middleware.handler(context, next);
+      } catch (error) {
+        // Run error handlers
+        for (const errorHandler of this.errorHandlers) {
+          await errorHandler(error, context, next);
+        }
+        if (this.errorHandlers.length === 0) {
+          throw error;
+        }
+      }
+    };
+
+    await next();
+    return context;
+  }
+}
+
+// Usage (Express-like request handling):
+const app = new MiddlewarePipeline();
+
+// Logger middleware
+app.use(async (ctx, next) =&gt; {
+  const start = Date.now();
+  console.log(`→ ${ctx.method} ${ctx.path}`);
+  await next();
+  console.log(`← ${ctx.method} ${ctx.path} [${Date.now() - start}ms]`);
+});
+
+// Auth middleware
+app.use("/api", async (ctx, next) =&gt; {
+  if (!ctx.headers?.authorization) {
+    ctx.status = 401;
+    ctx.body = { error: "Unauthorized" };
+    return; // Don't call next — stops pipeline
+  }
+  ctx.user = { id: 1, name: "Sid" }; // Decoded from token
+  await next();
+});
+
+// Route handler
+app.use("/api/users", async (ctx, next) =&gt; {
+  ctx.status = 200;
+  ctx.body = { users: [ctx.user] };
+  await next();
+});
+
+// Error handler
+app.onError((err, ctx, next) =&gt; {
+  ctx.status = 500;
+  ctx.body = { error: err.message };
+});
+
+// Execute
+const result = await app.execute({
+  method: "GET",
+  path: "/api/users",
+  headers: { authorization: "Bearer token123" }
+});
+console.log(result.body); // { users: [{ id: 1, name: "Sid" }] }</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="state-machine">12. Finite State Machine</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Google, Microsoft, Atlassian, Razorpay</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class StateMachine {
+  constructor(config) {
+    this.states = config.states;
+    this.currentState = config.initial;
+    this.context = config.context || {};
+    this.listeners = [];
+    this.history = [this.currentState];
+    
+    // Enter initial state
+    this._executeActions(this.states[this.currentState]?.entry);
+  }
+
+  // Send an event (trigger transition)
+  send(event, payload = {}) {
+    const stateConfig = this.states[this.currentState];
+    if (!stateConfig || !stateConfig.on) {
+      throw new Error(`No transitions defined for state: ${this.currentState}`);
+    }
+    
+    const transition = stateConfig.on[event];
+    if (!transition) {
+      console.warn(`No transition for event "${event}" in state "${this.currentState}"`);
+      return this;
+    }
+    
+    // Transition can be: string (target) or object { target, guard, actions }
+    const { target, guard, actions } = typeof transition === "string"
+      ? { target: transition, guard: null, actions: null }
+      : transition;
+    
+    // Check guard condition
+    if (guard &amp;&amp; !guard(this.context, payload)) {
+      console.warn(`Guard blocked transition: ${this.currentState} → ${target}`);
+      return this;
+    }
+    
+    const previousState = this.currentState;
+    
+    // Exit current state
+    this._executeActions(stateConfig.exit);
+    
+    // Run transition actions
+    if (actions) {
+      this._executeActions(actions, payload);
+    }
+    
+    // Enter new state
+    this.currentState = target;
+    this.history.push(this.currentState);
+    this._executeActions(this.states[target]?.entry);
+    
+    // Notify listeners
+    this.listeners.forEach((fn) =&gt; fn({
+      from: previousState,
+      to: this.currentState,
+      event,
+      context: this.context,
+    }));
+    
+    return this;
+  }
+
+  _executeActions(actions, payload) {
+    if (!actions) return;
+    const actionList = Array.isArray(actions) ? actions : [actions];
+    actionList.forEach((action) =&gt; {
+      if (typeof action === "function") action(this.context, payload);
+    });
+  }
+
+  // Subscribe to state changes
+  onChange(fn) {
+    this.listeners.push(fn);
+    return () =&gt; {
+      this.listeners = this.listeners.filter((l) =&gt; l !== fn);
+    };
+  }
+
+  // Check if current state matches
+  matches(state) { return this.currentState === state; }
+  
+  // Get available events for current state
+  getAvailableEvents() {
+    return Object.keys(this.states[this.currentState]?.on || {});
+  }
+
+  // Can a specific event be sent?
+  can(event) {
+    return !!this.states[this.currentState]?.on?.[event];
+  }
+
+  getHistory() { return [...this.history]; }
+}
+
+// Usage: Traffic Light
+const trafficLight = new StateMachine({
+  initial: "red",
+  context: { count: 0 },
+  states: {
+    red: {
+      entry: (ctx) =&gt; { ctx.count++; console.log("🔴 RED — Stop!"); },
+      on: { TIMER: "green" },
+    },
+    green: {
+      entry: () =&gt; console.log("🟢 GREEN — Go!"),
+      on: { TIMER: "yellow" },
+    },
+    yellow: {
+      entry: () =&gt; console.log("🟡 YELLOW — Slow down!"),
+      on: { TIMER: "red" },
+    },
+  }
+});
+
+trafficLight.send("TIMER"); // → green
+trafficLight.send("TIMER"); // → yellow
+trafficLight.send("TIMER"); // → red
+
+// Usage: Order Status (with guards)
+const orderMachine = new StateMachine({
+  initial: "idle",
+  context: { items: [], payment: null },
+  states: {
+    idle: {
+      on: {
+        ADD_ITEM: {
+          target: "cart",
+          actions: (ctx, item) =&gt; { ctx.items.push(item); }
+        }
+      }
+    },
+    cart: {
+      on: {
+        ADD_ITEM: {
+          target: "cart",
+          actions: (ctx, item) =&gt; { ctx.items.push(item); }
+        },
+        CHECKOUT: {
+          target: "payment",
+          guard: (ctx) =&gt; ctx.items.length &gt; 0, // Can't checkout empty cart
+        },
+        CLEAR: { target: "idle", actions: (ctx) =&gt; { ctx.items = []; } }
+      }
+    },
+    payment: {
+      on: {
+        PAY_SUCCESS: { target: "confirmed", actions: (ctx, p) =&gt; { ctx.payment = p; } },
+        PAY_FAIL: "cart",
+        CANCEL: "cart",
+      }
+    },
+    confirmed: {
+      entry: (ctx) =&gt; console.log(`Order confirmed! ${ctx.items.length} items`),
+      on: { SHIP: "shipped" }
+    },
+    shipped: {
+      on: { DELIVER: "delivered" }
+    },
+    delivered: { /* Terminal state — no transitions */ }
+  }
+});
+
+orderMachine.send("ADD_ITEM", { id: 1, name: "Laptop" });
+orderMachine.send("CHECKOUT");
+orderMachine.send("PAY_SUCCESS", { method: "UPI", amount: 50000 });</code></pre>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="machine-coding-part1-ui-components.html">← Part 1: UI Components</a>
+  <a href="machine-coding-part3-advanced-patterns.html">Part 3: Advanced Patterns →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

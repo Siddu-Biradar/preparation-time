@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar / Date Picker Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f9fa; padding: 24px; }
+    h2 { margin-bottom: 16px; color: #1a2530; }
+    .calendar { width: 320px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #1a5276; color: white; }
+    .month-year { font-weight: 600; font-size: 16px; }
+    .nav-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 4px 12px; border-radius: 6px; }
+    .nav-btn:hover { background: rgba(255,255,255,0.2); }
+    .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); padding: 8px 12px; background: #f0f7fc; }
+    .calendar-weekdays span { text-align: center; font-size: 11px; font-weight: 600; color: #666; }
+    .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); padding: 8px 12px 12px; gap: 4px; }
+    .day { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-size: 13px; cursor: pointer; margin: auto; transition: all 0.15s; }
+    .day:hover:not(.empty):not(.disabled) { background: #d6eaf8; }
+    .day.empty { cursor: default; }
+    .day.today { font-weight: 700; color: #1a5276; border: 2px solid #1a5276; }
+    .day.selected { background: #1a5276; color: white; font-weight: 600; }
+    .day.in-range { background: #d6eaf8; border-radius: 4px; }
+    .day.disabled { color: #ccc; cursor: not-allowed; }
+    .mode-toggle { margin-top: 16px; }
+    .mode-toggle button { padding: 8px 16px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 6px; margin-right: 8px; }
+    .mode-toggle button.active { background: #1a5276; color: white; border-color: #1a5276; }
+    .selected-date { margin-top: 12px; font-size: 14px; color: #333; padding: 10px; background: #f0f7fc; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>📅 Calendar / Date Picker</h2>
+  <div class="mode-toggle">
+    <button class="active" id="single-btn">Single Date</button>
+    <button id="range-btn">Date Range</button>
+  </div>
+  <div id="calendar" style="margin-top:16px"></div>
+  <div class="selected-date" id="output">Click a date to select</div>
+
+  <script>
+    class DatePicker {
+      constructor(container, options = {}) {
+        this.container = container;
+        this.selectedDate = null;
+        this.mode = options.mode || 'single';
+        this.onChange = options.onChange || (() => {});
+        this.rangeStart = null;
+        this.rangeEnd = null;
+        const today = new Date();
+        this.currentMonth = today.getMonth();
+        this.currentYear = today.getFullYear();
+        this.render();
+      }
+
+      render() {
+        const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+        const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
+        const monthName = new Date(this.currentYear, this.currentMonth).toLocaleString('default', { month: 'long' });
+
+        let html = `<div class="calendar"><div class="calendar-header">
+          <button class="nav-btn" data-action="prev">‹</button>
+          <span class="month-year">${monthName} ${this.currentYear}</span>
+          <button class="nav-btn" data-action="next">›</button>
+        </div><div class="calendar-weekdays">
+          ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<span>${d}</span>`).join('')}
+        </div><div class="calendar-days">`;
+
+        for (let i = 0; i < firstDay; i++) html += `<span class="day empty"></span>`;
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = new Date(this.currentYear, this.currentMonth, day);
+          const classes = ['day',
+            this.isToday(date) ? 'today' : '',
+            this.isSelected(date) ? 'selected' : '',
+            this.isInRange(date) ? 'in-range' : '',
+          ].filter(Boolean).join(' ');
+          html += `<span class="${classes}" data-date="${date.toISOString()}">${day}</span>`;
+        }
+        html += `</div></div>`;
+        this.container.innerHTML = html;
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        this.container.addEventListener('click', (e) => {
+          if (e.target.dataset.action === 'prev') { this.navigate(-1); return; }
+          if (e.target.dataset.action === 'next') { this.navigate(1); return; }
+          if (e.target.classList.contains('day') && !e.target.classList.contains('empty')) {
+            this.selectDate(new Date(e.target.dataset.date));
+          }
+        });
+      }
+
+      selectDate(date) {
+        if (this.mode === 'single') {
+          this.selectedDate = date;
+          this.onChange(date);
+        } else {
+          if (!this.rangeStart || this.rangeEnd) {
+            this.rangeStart = date; this.rangeEnd = null;
+          } else {
+            if (date < this.rangeStart) { this.rangeEnd = this.rangeStart; this.rangeStart = date; }
+            else { this.rangeEnd = date; }
+            this.onChange({ start: this.rangeStart, end: this.rangeEnd });
+          }
+        }
+        this.render();
+      }
+
+      navigate(dir) {
+        this.currentMonth += dir;
+        if (this.currentMonth > 11) { this.currentMonth = 0; this.currentYear++; }
+        if (this.currentMonth < 0) { this.currentMonth = 11; this.currentYear--; }
+        this.render();
+      }
+
+      isToday(d) { return d.toDateString() === new Date().toDateString(); }
+      isSelected(d) {
+        if (this.mode === 'single') return this.selectedDate?.toDateString() === d.toDateString();
+        return this.rangeStart?.toDateString() === d.toDateString() || this.rangeEnd?.toDateString() === d.toDateString();
+      }
+      isInRange(d) {
+        if (this.mode !== 'range' || !this.rangeStart || !this.rangeEnd) return false;
+        return d > this.rangeStart && d < this.rangeEnd;
+      }
+    }
+
+    const output = document.getElementById('output');
+    let picker = new DatePicker(document.getElementById('calendar'), {
+      mode: 'single',
+      onChange: (d) => { output.textContent = `Selected: ${d.toLocaleDateString()}`; }
+    });
+
+    document.getElementById('single-btn').addEventListener('click', () => {
+      document.getElementById('single-btn').classList.add('active');
+      document.getElementById('range-btn').classList.remove('active');
+      picker = new DatePicker(document.getElementById('calendar'), {
+        mode: 'single',
+        onChange: (d) => { output.textContent = `Selected: ${d.toLocaleDateString()}`; }
+      });
+    });
+    document.getElementById('range-btn').addEventListener('click', () => {
+      document.getElementById('range-btn').classList.add('active');
+      document.getElementById('single-btn').classList.remove('active');
+      picker = new DatePicker(document.getElementById('calendar'), {
+        mode: 'range',
+        onChange: (r) => { output.textContent = `Range: ${r.start.toLocaleDateString()} → ${r.end.toLocaleDateString()}`; }
+      });
+    });
+  </script>
+</body>
+</html>

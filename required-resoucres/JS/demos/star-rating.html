@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star Rating Component</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f5f5f5; }
+    
+    .rating-container {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+      text-align: center;
+      margin: 0 auto;
+    }
+    .rating-container h2 { margin-bottom: 16px; color: #333; }
+    
+    .stars {
+      display: inline-flex;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .stars.readonly { cursor: default; }
+    
+    .star {
+      font-size: 40px;
+      color: #d1d5db;
+      transition: transform 0.1s ease, color 0.15s ease;
+      position: relative;
+      display: inline-block;
+    }
+    .star:hover { transform: scale(1.2); }
+    .star.filled { color: #fbbf24; }
+    .star.half {
+      background: linear-gradient(90deg, #fbbf24 50%, #d1d5db 50%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .rating-value {
+      margin-top: 16px;
+      font-size: 20px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .demo-section {
+      max-width: 400px;
+      margin: 24px auto;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .demo-section h3 { margin-bottom: 12px; color: #333; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="rating-container">
+  <h2>Rate this product</h2>
+  <div class="stars" id="stars" role="radiogroup" aria-label="Star rating"></div>
+  <div class="rating-value" id="rating-value">0 / 5</div>
+</div>
+
+<div class="demo-section">
+  <h3>Half-Star Rating</h3>
+  <div class="stars" id="stars-half" role="radiogroup" aria-label="Half star rating"></div>
+  <div class="rating-value" id="rating-value-half">0 / 5</div>
+</div>
+
+<div class="demo-section">
+  <h3>Read-only (3.5 stars)</h3>
+  <div class="stars readonly" id="stars-readonly" role="img" aria-label="Rating: 3.5 out of 5"></div>
+</div>
+
+<script>
+class StarRating {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.maxStars = options.maxStars || 5;
+    this.value = options.initialValue || 0;
+    this.allowHalf = options.allowHalf || false;
+    this.readOnly = options.readOnly || false;
+    this.onChange = options.onChange || (() => {});
+    this.displayEl = options.displayEl || null;
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = '';
+    if (this.readOnly) this.container.classList.add('readonly');
+
+    for (let i = 1; i <= this.maxStars; i++) {
+      const star = document.createElement('span');
+      star.className = 'star';
+      star.textContent = '★';
+      star.dataset.value = i;
+      star.setAttribute('role', this.readOnly ? 'presentation' : 'radio');
+      star.setAttribute('aria-label', `${i} star${i > 1 ? 's' : ''}`);
+      if (!this.readOnly) star.setAttribute('tabindex', '0');
+      this.container.appendChild(star);
+
+      if (!this.readOnly) {
+        star.addEventListener('click', (e) => this.handleClick(e, i));
+        star.addEventListener('mousemove', (e) => this.handleHover(e, i));
+        star.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.handleClick(e, i); }
+        });
+      }
+    }
+
+    if (!this.readOnly) {
+      this.container.addEventListener('mouseleave', () => this.updateDisplay(this.value));
+    }
+    this.updateDisplay(this.value);
+  }
+
+  handleClick(e, starIndex) {
+    let value = starIndex;
+    if (this.allowHalf) {
+      const rect = e.target.closest('.star').getBoundingClientRect();
+      if (e.clientX - rect.left < rect.width / 2) value -= 0.5;
+    }
+    this.value = this.value === value ? 0 : value;
+    this.updateDisplay(this.value);
+    this.onChange(this.value);
+  }
+
+  handleHover(e, starIndex) {
+    let value = starIndex;
+    if (this.allowHalf) {
+      const rect = e.target.closest('.star').getBoundingClientRect();
+      if (e.clientX - rect.left < rect.width / 2) value -= 0.5;
+    }
+    this.updateDisplay(value);
+  }
+
+  updateDisplay(displayValue) {
+    const stars = this.container.querySelectorAll('.star');
+    stars.forEach((star, index) => {
+      const num = index + 1;
+      star.classList.remove('filled', 'half');
+      star.style.transform = '';
+      if (displayValue >= num) {
+        star.classList.add('filled');
+      } else if (this.allowHalf && displayValue >= num - 0.5) {
+        star.classList.add('half');
+      }
+    });
+    if (this.displayEl) {
+      this.displayEl.textContent = `${displayValue} / ${this.maxStars}`;
+    }
+  }
+}
+
+// Demo 1: Basic star rating
+new StarRating(document.getElementById('stars'), {
+  maxStars: 5,
+  initialValue: 0,
+  allowHalf: false,
+  displayEl: document.getElementById('rating-value'),
+  onChange: (val) => console.log('Rating:', val)
+});
+
+// Demo 2: Half-star rating
+new StarRating(document.getElementById('stars-half'), {
+  maxStars: 5,
+  initialValue: 0,
+  allowHalf: true,
+  displayEl: document.getElementById('rating-value-half'),
+  onChange: (val) => console.log('Half rating:', val)
+});
+
+// Demo 3: Read-only
+new StarRating(document.getElementById('stars-readonly'), {
+  maxStars: 5,
+  initialValue: 3.5,
+  allowHalf: true,
+  readOnly: true
+});
+</script>
+</body>
+</html>

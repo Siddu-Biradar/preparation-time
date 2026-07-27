@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker for Backend &amp; Full-Stack Engineers — Part 1: Fundamentals &amp; Theory</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .tag { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+    .not-devops { border-left-color: #7a3a12; background: #f7e7dd; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Docker for Backend &amp; Full-Stack Engineers</h1>
+  <p class="subtitle">Part 1 — Fundamentals &amp; Theory (what YOU need to build, run, and debug your own service in a container — not cluster/infra administration)</p>
+  <div class="pill-row">
+    <span class="pill">Image vs Container</span>
+    <span class="pill">Dockerfile</span>
+    <span class="pill">Multi-stage Builds</span>
+    <span class="pill">Layer Caching</span>
+    <span class="pill">Volumes</span>
+    <span class="pill">Networking</span>
+    <span class="pill">Compose</span>
+    <span class="pill">Debugging Playbook</span>
+  </div>
+</div>
+
+<div class="callout not-devops">
+<strong>🎯 Scope of this guide:</strong> This is written for a <strong>Backend/Full-Stack developer</strong> interview or day-to-day workflow — NOT a DevOps/SRE deep-dive. You will NOT find Docker Swarm, registry administration, or CI runner internals here. You WILL find exactly what you need to: write a correct Dockerfile for your own Go/Node service, run it locally with Compose, persist data, expose ports, and debug it when it crashes — the things interviewers expect a backend engineer to know.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#why-containers">Why Containers? (VM vs Container)</a></li>
+    <li><a href="#image-vs-container">Image vs Container vs Registry</a></li>
+    <li><a href="#dockerfile-anatomy">Anatomy of a Dockerfile</a></li>
+    <li><a href="#cmd-entrypoint">CMD vs ENTRYPOINT vs RUN</a></li>
+    <li><a href="#multi-stage">Multi-Stage Builds (Go &amp; Node examples)</a></li>
+    <li><a href="#layer-caching">Layer Caching &amp; .dockerignore</a></li>
+    <li><a href="#volumes">Volumes vs Bind Mounts vs tmpfs</a></li>
+    <li><a href="#networking">Container Networking Basics</a></li>
+    <li><a href="#compose">Docker Compose for Local Dev</a></li>
+    <li><a href="#env-secrets">Environment Variables &amp; Secrets</a></li>
+    <li><a href="#healthchecks">Healthchecks &amp; Restart Policies</a></li>
+    <li><a href="#cli-commands">Daily-Driver CLI Commands</a></li>
+    <li><a href="#debug-playbook">Debugging a Broken Container — Playbook</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="why-containers">1. Why Containers? (VM vs Container)</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<h3>1.0 What is an Operating System &amp; a Kernel? (the piece everything else builds on)</h3>
+<p>Your laptop's <strong>Operating System</strong> (macOS, Windows, Linux) is the software layer that sits between physical hardware (CPU, RAM, disk, network card) and every application you run. The <strong>kernel</strong> is the core of that OS — the part with direct, privileged access to hardware. It decides which process gets CPU time next (scheduling), hands out chunks of memory to programs, and mediates every disk/network operation. Every single program on your machine — a text editor, a browser, <code>docker</code> itself — ultimately makes requests ("system calls") to this one kernel. This matters because both VMs and containers exist to solve the same underlying problem — <em>"how do I run multiple isolated things on one physical machine without them interfering with each other"</em> — but they solve it at two very different layers, which is the whole reason interviewers ask about it.</p>
+
+<h3>1.1 What is a Virtual Machine (VM)?</h3>
+<p>A Virtual Machine is a piece of software (running on top of a program called a <strong>hypervisor</strong>, e.g. VMware, VirtualBox, or the hypervisor built into macOS/Windows) that <strong>pretends to be an entire physical computer</strong>. It emulates virtual hardware — a virtual CPU, virtual RAM, a virtual disk, a virtual network card — and then a <strong>complete, independent guest Operating System (with its own separate kernel)</strong> is installed and booted inside that virtual hardware, exactly as if it were a real machine.</p>
+<ul>
+  <li><strong>Hypervisor</strong> — the software that creates and manages VMs. <em>Type 1</em> (bare-metal, e.g. VMware ESXi, runs directly on hardware — used in data centers/cloud) vs <em>Type 2</em> (hosted, e.g. VirtualBox/Parallels, runs as an app on top of your existing OS — used on laptops).</li>
+  <li><strong>Guest OS</strong> — the full operating system installed inside the VM. If your host is macOS and you spin up a VM, that VM can run a completely different OS (e.g. full Ubuntu Linux) with its own kernel, its own drivers, its own entire filesystem — the host and guest kernels do not share anything.</li>
+  <li><strong>Why it's heavy</strong> — booting a VM means booting an entire second operating system from scratch (kernel init, drivers, system services) before your actual application even starts. That's why VMs take minutes to boot and consume gigabytes of disk just for the guest OS, before your app's code takes a single byte.</li>
+  <li><strong>Why it's very strongly isolated</strong> — because the isolation boundary is virtual <em>hardware</em>, a VM has no more visibility into another VM (or the host) than a real physical computer would have into the computer sitting next to it on a desk. This is why VMs are still used when you need to run genuinely different/untrusted OSes on the same physical hardware, or need the strongest possible isolation guarantee (e.g. multi-tenant cloud infrastructure, where AWS/Azure/GCP use VMs to isolate different customers from each other at the hardware level).</li>
+</ul>
+
+<h3>1.2 What is a Container?</h3>
+<p>A Container takes a completely different approach: instead of emulating hardware and booting a second kernel, it runs as <strong>an isolated process (or group of processes) directly on the host's existing kernel</strong> — there is no guest OS, no second kernel, no virtual hardware. The "isolation" a container has is an illusion created by the host Linux kernel itself, using two built-in kernel features:</p>
+<ul>
+  <li><strong>Namespaces</strong> — give a process its own <em>view</em> of the system, even though it's running on the same shared kernel as everything else. A process in a PID namespace thinks it's PID 1 on a brand-new machine, even though the host sees it as just another regular process among hundreds. Docker uses PID (process IDs), NET (network interfaces/ports), MNT (filesystem mounts), UTS (hostname), IPC (inter-process communication), and USER (user/group IDs) namespaces to give each container this illusion of "being its own machine."</li>
+  <li><strong>cgroups (control groups)</strong> — limit and account for how much CPU, memory, disk I/O, etc. a process (or group of processes) is allowed to consume, so one container can't starve the others of resources on the shared host.</li>
+  <li><strong>Union/overlay filesystem</strong> — stacks read-only image layers with one thin writable layer on top, so the container sees what looks like its own private, complete filesystem, without actually copying the whole OS filesystem per container.</li>
+</ul>
+<p>Because there's no second kernel to boot and no hardware to emulate — a container is "born" simply by the host kernel setting up these namespaces/cgroups around a process and starting it — containers start in milliseconds and only need to ship the extra files your app actually needs (often tens of MBs), not an entire OS.</p>
+
+<div class="callout">
+<strong>One-sentence summary to say out loud in an interview:</strong> "A VM virtualizes <em>hardware</em> and boots a full second OS/kernel per VM; a container virtualizes the <em>OS</em> — all containers share one host kernel, and Linux namespaces + cgroups create the illusion of isolation without the cost of booting a separate kernel."
+</div>
+
+<h3>1.3 VM vs Container — side by side</h3>
+<table>
+  <tr><th>Aspect</th><th>Virtual Machine</th><th>Container</th></tr>
+  <tr><td>What's isolated</td><td>Full virtual hardware + its own guest kernel</td><td>Processes on the SAME host kernel (namespaces + cgroups)</td></tr>
+  <tr><td>Boot time</td><td>Minutes (boots a whole OS)</td><td>Milliseconds–seconds (just starts a process)</td></tr>
+  <tr><td>Size</td><td>GBs (full OS)</td><td>MBs–hundreds of MBs</td></tr>
+  <tr><td>Isolation strength</td><td>Full hardware-level (hypervisor) — strongest</td><td>Process-level (shared kernel) — weaker than a VM, but sufficient for most app isolation needs</td></tr>
+  <tr><td>Density per host</td><td>Low (tens)</td><td>High (hundreds+)</td></tr>
+  <tr><td>Use case here</td><td>Rarely used for app deployment now</td><td>Standard way to ship every DI microservice (Go/Node) in this workspace</td></tr>
+</table>
+
+<div class="callout">
+<strong>Interview framing:</strong> "Docker doesn't run its own kernel — it isolates processes using Linux kernel primitives (namespaces + cgroups) and packages the filesystem as layered images." If asked "is Docker a VM?" — the answer is <strong>no</strong>.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="image-vs-container">2. Image vs Container vs Registry</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<ul>
+  <li><strong>Image</strong> — a read-only, immutable template (layered filesystem + metadata like default CMD/ENV). Built once from a Dockerfile.</li>
+  <li><strong>Container</strong> — a running (or stopped) <em>instance</em> of an image, with its own writable layer on top and its own process namespace. You can run many containers from one image.</li>
+  <li><strong>Registry</strong> — where images are stored/versioned/pulled from (Docker Hub, or in this workspace's case, the internal Kyndryl <strong>JFrog Artifactory</strong> Docker registry — see <code>AFAAS_DOCKER_REGISTRY</code> used by <code>bdg-sw-devx-di-jfrog</code>'s build).</li>
+</ul>
+
+<pre><code># Image → Container relationship
+docker build -t di-jfrog:local .        # builds an IMAGE from a Dockerfile
+docker run -d --name jfrog1 di-jfrog:local   # creates + starts a CONTAINER from that image
+docker run -d --name jfrog2 di-jfrog:local   # a SECOND, independent container, same image
+docker images                            # list images (templates)
+docker ps -a                             # list containers (running instances)</code></pre>
+
+<div class="callout">
+<strong>Analogy interviewers like:</strong> Image = class, Container = object/instance. You compile a class once; you can instantiate it many times, each with independent state.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="dockerfile-anatomy">3. Anatomy of a Dockerfile</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<h3>3.0 What is a Dockerfile, actually?</h3>
+<p>A <strong>Dockerfile</strong> is just a plain text file (no extension, literally named <code>Dockerfile</code>) containing a list of step-by-step instructions for how to assemble an image — think of it as a recipe. Each line is one instruction (<code>FROM</code>, <code>RUN</code>, <code>COPY</code>, etc.), and when you run <code>docker build</code>, Docker executes these instructions <strong>in order, one at a time, top to bottom</strong>, and commits the filesystem result of each instruction as a new, cacheable layer stacked on top of the previous one. The final image is just the sum of all those layers. You write a Dockerfile once per service (usually committed alongside the source code); anyone can then run <code>docker build</code> against it to reproduce the exact same image, on any machine, without manually installing anything themselves.</p>
+
+<p>A minimal but realistic Dockerfile for a Go backend service (matches the shape of <code>bdg-sw-devx-di-jfrog</code> / <code>bdg-sw-devx-di-application-manager</code> in this workspace):</p>
+
+<pre><code>FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+FROM alpine:3.19
+RUN adduser -D -u 1000 appuser
+WORKDIR /app
+COPY --from=builder /app/main .
+COPY config.json .
+USER appuser
+EXPOSE 8080
+ENTRYPOINT ["./main"]</code></pre>
+
+<table>
+  <tr><th>Instruction</th><th>Purpose</th></tr>
+  <tr><td><code>FROM</code></td><td>Base image to start from (alpine = small, distroless = smaller/no shell, slim = fewer OS packages).</td></tr>
+  <tr><td><code>WORKDIR</code></td><td>Sets the working directory for subsequent instructions (and the container's default CWD).</td></tr>
+  <tr><td><code>COPY</code></td><td>Copies files from the build context into the image.</td></tr>
+  <tr><td><code>RUN</code></td><td>Executes a command <strong>at build time</strong> and commits the result as a new layer (e.g. installing deps, compiling).</td></tr>
+  <tr><td><code>ENV</code></td><td>Sets environment variables baked into the image (visible at both build &amp; run time).</td></tr>
+  <tr><td><code>ARG</code></td><td>Build-time-only variable (not present in the final running container unless also set via ENV).</td></tr>
+  <tr><td><code>EXPOSE</code></td><td>Documents which port the app listens on (does NOT actually publish it — that's <code>-p</code> at <code>docker run</code>).</td></tr>
+  <tr><td><code>USER</code></td><td>Switches to a non-root user for the remaining instructions/runtime (security best practice).</td></tr>
+  <tr><td><code>CMD</code> / <code>ENTRYPOINT</code></td><td>Defines the default process the container runs (see next section).</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cmd-entrypoint">4. CMD vs ENTRYPOINT vs RUN</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>This is one of the most commonly asked Docker questions in backend interviews.</p>
+
+<table>
+  <tr><th></th><th>RUN</th><th>CMD</th><th>ENTRYPOINT</th></tr>
+  <tr><td>When it executes</td><td>Build time</td><td>Container start (as default)</td><td>Container start (always)</td></tr>
+  <tr><td>Overridable?</td><td>N/A</td><td>Yes — fully replaced by <code>docker run image &lt;args&gt;</code></td><td>No (args passed become arguments to it, unless <code>--entrypoint</code> is used)</td></tr>
+  <tr><td>Typical use</td><td>Install deps, compile</td><td>Default command/args</td><td>Fixed executable that should always run</td></tr>
+</table>
+
+<pre><code># CMD only — fully replaceable
+CMD ["./main", "--port=8080"]
+$ docker run myimg                 # runs: ./main --port=8080
+$ docker run myimg ./main --port=9090   # CMD fully overridden
+
+# ENTRYPOINT + CMD combo (most flexible, most common in real Dockerfiles)
+ENTRYPOINT ["./main"]
+CMD ["--port=8080"]                # default args, CAN be overridden
+$ docker run myimg                 # runs: ./main --port=8080
+$ docker run myimg --port=9090     # runs: ./main --port=9090 (only CMD part replaced)</code></pre>
+
+<div class="callout">
+<strong>Quick answer for interviews:</strong> "ENTRYPOINT defines the fixed executable; CMD defines default arguments to it that a caller can override at <code>docker run</code>. Using both together is the recommended pattern for a service that should always run the same binary but allow flag overrides."
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="multi-stage">5. Multi-Stage Builds</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>Multi-stage builds let you use a heavy "build" image (with compilers/toolchains) and copy only the final artifact into a slim "runtime" image — dramatically reducing final image size and attack surface.</p>
+
+<h3>Go example (compiled binary, no runtime needed)</h3>
+<pre><code>FROM golang:1.22 AS builder
+WORKDIR /src
+COPY . .
+RUN go build -o /out/app .
+
+FROM gcr.io/distroless/static-debian12
+COPY --from=builder /out/app /app
+ENTRYPOINT ["/app"]
+# Final image: just the binary + distroless base — often &lt; 20MB, no shell, no package manager</code></pre>
+
+<h3>Node/Angular example (matches bdg-sw-devx-di-web-component build)</h3>
+<pre><code>FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist/mcmp-devops-overview-ui /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+# Final image: only compiled static assets + nginx — the entire node_modules/toolchain is discarded</code></pre>
+
+<div class="callout">
+<strong>Why interviewers ask this:</strong> It tests whether you understand that each <code>FROM</code> starts a fresh stage, that only <code>COPY --from=&lt;stage&gt;</code> artifacts survive into later stages, and that this is the standard way to keep production images small and secure (no compiler/toolchain shipped to prod).
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="layer-caching">6. Layer Caching &amp; .dockerignore</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>Each Dockerfile instruction creates a cacheable layer. Docker reuses a cached layer if the instruction AND all previous layers are unchanged. This is why dependency installation is ordered <em>before</em> copying full source code:</p>
+
+<pre><code># GOOD — deps only reinstall when go.mod/go.sum actually change
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o main .
+
+# BAD — any source change invalidates the cached "go mod download" layer too,
+# forcing a full re-download on every single code edit
+COPY . .
+RUN go mod download
+RUN go build -o main .</code></pre>
+
+<p><code>.dockerignore</code> excludes files from the build context (sent to the Docker daemon before building) — same purpose as <code>.gitignore</code> but for builds:</p>
+<pre><code>.git
+node_modules
+dist
+*.log
+.env
+coverage/</code></pre>
+
+<div class="callout">
+<strong>Interview point:</strong> A large/irrelevant build context (e.g. forgetting to exclude <code>node_modules</code> or <code>.git</code>) slows every build even if those files aren't referenced, because Docker has to transfer the whole context to the build daemon first.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="volumes">7. Volumes vs Bind Mounts vs tmpfs</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<table>
+  <tr><th>Type</th><th>Managed by</th><th>Use case</th></tr>
+  <tr><td><strong>Volume</strong></td><td>Docker (stored under <code>/var/lib/docker/volumes</code>)</td><td>Persistent app data (e.g. a local MongoDB's data dir) — survives container removal, portable, backup-friendly.</td></tr>
+  <tr><td><strong>Bind mount</strong></td><td>You (any host path)</td><td>Local development — mount your source code into the container for live-reload; mount config files from host.</td></tr>
+  <tr><td><strong>tmpfs</strong></td><td>Host RAM only</td><td>Sensitive temp data that should never touch disk (e.g. short-lived secrets).</td></tr>
+</table>
+
+<pre><code># Named volume — Docker manages storage, persists across container recreation
+docker run -v jfrog-mongo-data:/data/db mongo:7
+
+# Bind mount — your local source tree lives inside the container (dev mode)
+docker run -v $(pwd):/app -w /app node:20 npm start
+
+# tmpfs — RAM-only, gone when container stops
+docker run --tmpfs /run node:20</code></pre>
+
+<div class="callout warning">
+<strong>Key fact:</strong> A container's own writable layer is <strong>deleted</strong> when the container is removed (<code>docker rm</code>). Anything you need to keep MUST live in a volume or bind mount — this is the #1 reason a "works on my machine, lost my data after restart" bug happens.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="networking">8. Container Networking Basics</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<h3>8.0 Quick refresher: IP address, port, and NAT</h3>
+<p>Before container-specific networking makes sense, three plain networking terms are worth being precise about: an <strong>IP address</strong> identifies a machine (or, inside Docker, a container) on a network. A <strong>port</strong> is a number (0–65535) that lets many different services run on the same IP address without colliding — e.g. a web server on port 80 and a database on port 5432 can both run on the same machine's IP. <strong>NAT (Network Address Translation)</strong> is the technique your home router (and Docker's bridge network) uses to let many private, internal IP addresses share one public-facing IP — it rewrites packets on the way in/out so the outside world only ever sees one address, while internally traffic gets routed to the right container/device.</p>
+<p>Docker gives every container its own private IP address on a virtual network, isolated from your host's real network by default, which is why you explicitly need <code>-p host:container</code> to make a container's port reachable from outside — without it, the container is only reachable from other containers on the same Docker network.</p>
+
+<ul>
+  <li><strong>bridge (default)</strong> — containers get a private IP on a virtual bridge network; reach the outside world via NAT; reach each other by name only if on the same user-defined bridge network (default bridge does NOT support name-based DNS — user-defined ones do).</li>
+  <li><strong>host</strong> — container shares the host's network namespace directly (no port mapping needed, but no isolation).</li>
+  <li><strong>none</strong> — no networking at all.</li>
+</ul>
+
+<pre><code># Publish a port: host_port:container_port
+docker run -p 8080:80 nginx
+# Now http://localhost:8080 on your machine reaches port 80 INSIDE the container
+
+# User-defined network — enables container-to-container DNS by name
+docker network create di-net
+docker run --network di-net --name mongo mongo:7
+docker run --network di-net --name jfrog-svc di-jfrog:local
+# Inside jfrog-svc, connecting to "mongo:27017" resolves via Docker's embedded DNS</code></pre>
+
+<div class="callout">
+<strong>Interview trap:</strong> "Can two containers on the default bridge network talk to each other by container name?" — <strong>No</strong> (only by IP). Only <strong>user-defined</strong> bridge networks (or Compose, which creates one automatically) provide automatic DNS resolution by service/container name. This is exactly why Compose files just work with hostnames like <code>mongo</code> or <code>redis</code>.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="compose">9. Docker Compose for Local Dev</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<p>Compose is the standard way a backend/full-stack dev spins up a service + its dependencies (DB, cache) locally with one command. Example modeled on this workspace's <code>di-jfrog</code> (Go + MongoDB):</p>
+
+<pre><code>version: "3.9"
+services:
+  jfrog-service:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=mongodb://mongo:27017/jfrog
+      - AFAAS_URL=https://artifactory.internal.kyndryl.com
+    depends_on:
+      - mongo
+    volumes:
+      - ./config.json:/app/config.json:ro
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:</code></pre>
+
+<pre><code>docker compose up -d          # build (if needed) + start all services in background
+docker compose logs -f jfrog-service   # tail logs of one service
+docker compose down           # stop and remove containers (add -v to also remove volumes)
+docker compose ps             # list running services in this project</code></pre>
+
+<div class="callout warning">
+<strong>Interview trap — <code>depends_on</code> is NOT a readiness check.</strong> It only guarantees Mongo's <em>container</em> starts before the app container starts — not that Mongo is actually accepting connections yet. Real apps handle this with retry/backoff connection logic in code, or a <code>healthcheck:</code> + <code>condition: service_healthy</code> in Compose.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="env-secrets">10. Environment Variables &amp; Secrets</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<ul>
+  <li><code>ENV</code> in a Dockerfile — baked into the image, visible via <code>docker inspect</code>. Never put real secrets here (they end up in the image layer history, readable by anyone with image access).</li>
+  <li><code>docker run -e KEY=value</code> or Compose <code>environment:</code> — injected at container start, not baked into the image.</li>
+  <li><code>--env-file .env</code> — loads many vars from a file (keep <code>.env</code> in <code>.gitignore</code> and <code>.dockerignore</code>).</li>
+  <li><strong>Docker secrets / mounted secret files</strong> — for anything sensitive (API tokens, DB passwords), mount as a file (e.g. into <code>/run/secrets/</code>) rather than an env var where possible, since env vars are visible to any process in the container and can leak into logs/crash dumps more easily.</li>
+</ul>
+
+<div class="callout">
+<strong>Ties back to this workspace:</strong> <code>bdg-sw-devx-di-jfrog</code>'s build docs reference <code>ARTIFACTORY_PASS</code>, <code>INIT_USER</code> etc. as required environment variables for the build step — exactly the "inject at runtime, never bake into the image" pattern.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="healthchecks">11. Healthchecks &amp; Restart Policies</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+
+<pre><code>HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD wget -q --spider http://localhost:8080/health || exit 1</code></pre>
+
+<table>
+  <tr><th>Restart policy</th><th>Behavior</th></tr>
+  <tr><td><code>no</code> (default)</td><td>Never automatically restart.</td></tr>
+  <tr><td><code>on-failure[:N]</code></td><td>Restart only if the container exits with a non-zero code, up to N times.</td></tr>
+  <tr><td><code>always</code></td><td>Always restart, even after a Docker daemon restart.</td></tr>
+  <tr><td><code>unless-stopped</code></td><td>Always restart unless the user explicitly stopped it.</td></tr>
+</table>
+
+<div class="callout">
+<strong>Why a backend dev needs this:</strong> The <code>/health</code> endpoint you expose in your service isn't just for Kubernetes probes (covered in the K8s guide) — Docker itself, and orchestrators like ECS/Compose, use the same HEALTHCHECK to decide whether a container is "really" up before routing traffic to it.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cli-commands">12. Daily-Driver CLI Commands</h2>
+<span class="difficulty d-easy">EASY</span>
+
+<pre><code>docker build -t myapp:dev .              # build image from Dockerfile in current dir
+docker run -d -p 8080:8080 --name app myapp:dev   # run detached, map port, name it
+docker ps                                # list running containers
+docker ps -a                             # include stopped containers
+docker logs -f app                       # tail logs (follow)
+docker exec -it app sh                   # shell into a running container
+docker inspect app                       # full JSON metadata (env vars, mounts, network, etc.)
+docker stop app && docker rm app         # stop then remove
+docker system prune -a                   # remove all unused images/containers/networks (careful!)
+docker cp app:/app/config.json ./local.json   # copy a file out of a container</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="debug-playbook">13. Debugging a Broken Container — Playbook</h2>
+<span class="difficulty d-hard">HARD</span>
+
+<p>This is the single most common real-world/interview scenario: "your container keeps exiting / won't start — what do you check?"</p>
+
+<ol>
+  <li><strong>Check exit code first:</strong> <code>docker ps -a</code> shows the last exit code. <code>0</code> = clean exit (often means your process finished immediately — e.g. CMD was wrong and returned right away). <code>137</code> = SIGKILL (often OOM-killed — check memory limits). <code>1</code>/other = app-level crash.</li>
+  <li><strong>Read the logs:</strong> <code>docker logs app</code> — most crashes print a stack trace or config error here.</li>
+  <li><strong>Check if it's even trying to run the right command:</strong> <code>docker inspect app --format '{{.Config.Cmd}} {{.Config.Entrypoint}}'</code>.</li>
+  <li><strong>Get a shell in a similar (fresh) container to poke around:</strong> <code>docker run -it --entrypoint sh myapp:dev</code> (bypasses the normal ENTRYPOINT so you land in a shell instead of immediately crashing again).</li>
+  <li><strong>Check environment variables actually present:</strong> <code>docker exec app env</code> (only works if the container is still running — if it keeps crash-looping, use step 4 instead).</li>
+  <li><strong>Check port/network binding:</strong> is the app listening on <code>0.0.0.0</code> inside the container (not <code>127.0.0.1</code>, which is invisible from outside the container even with <code>-p</code> mapped)?</li>
+  <li><strong>Check volume/file permissions:</strong> especially if you added a non-root <code>USER</code> — a common failure is the app can't write to a mounted directory owned by a different UID.</li>
+</ol>
+
+<div class="callout warning">
+<strong>Classic gotcha asked in interviews:</strong> "My container exits immediately with code 0 even though my app should run forever." — Usually the process listens on localhost only, or the main process is a shell script that itself exits after spawning a background process (PID 1 must be the actual long-running process, or use something like <code>tini</code>/<code>exec</code> to hand off signals correctly).
+</div>
+
+<div class="nav-links">
+  <a href="docker-phase1-fundamentals-theory.html">← You are on Docker Part 1</a>
+  <a href="docker-phase2-interview-questions.html">Docker Part 2 — Interview Questions →</a>
+</div>
+
+</main>
+</body>
+</html>

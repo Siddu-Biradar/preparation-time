@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Full Stack AI Engineer Roadmap — 0 to Production (Honest Guide)</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f5ff;
+    --panel: #ffffff;
+    --panel-2: #f5f3ff;
+    --text: #1b1b2e;
+    --muted: #5b607a;
+    --accent: #7c3aed;
+    --accent-dark: #5b21b6;
+    --accent-2: #0891b2;
+    --border: #e5e0f8;
+    --border-strong: #c4b5fd;
+    --success: #16a34a;
+    --warn: #b45309;
+    --danger: #dc2626;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.07), 0 1px 2px rgba(16, 24, 40, 0.05);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+    background: var(--bg-alt);
+    color: var(--text);
+    line-height: 1.65;
+  }
+  header {
+    padding: 52px 24px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #ede9fe 0%, #ffffff 100%);
+  }
+  header h1 { margin: 0 0 10px; font-size: clamp(26px, 4vw, 42px); letter-spacing: -0.5px; color: #0f1621; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); max-width: 840px; margin: 0 auto; }
+  .container { max-width: 1140px; margin: 0 auto; padding: 24px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0 0; }
+  .pill { border: 1px solid var(--border-strong); background: #fff; color: var(--muted); padding: 6px 12px; border-radius: 999px; font-size: 13px; }
+  .pill.accent { color: var(--accent-dark); border-color: rgba(124,58,237,0.35); background: #ede9fe; }
+
+  /* ---- VERDICT SECTION ---- */
+  .verdict {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    color: #e0e7ff; border-radius: 16px; padding: 32px 36px;
+    margin: 28px 0; box-shadow: 0 8px 30px rgba(91,33,182,0.3);
+  }
+  .verdict h2 { margin: 0 0 10px; font-size: 26px; color: #c7d2fe; }
+  .verdict h2 span { color: #fbbf24; }
+  .verdict .vs-grid { display: grid; gap: 20px; grid-template-columns: 1fr 1fr; margin: 20px 0; }
+  @media (max-width: 640px) { .verdict .vs-grid { grid-template-columns: 1fr; } }
+  .vs-card {
+    border-radius: 12px; padding: 20px 22px;
+    border: 2px solid;
+  }
+  .vs-card.winner { background: rgba(16,163,74,0.12); border-color: #4ade80; }
+  .vs-card.loser { background: rgba(220,38,38,0.08); border-color: #f87171; }
+  .vs-card h3 { margin: 0 0 10px; font-size: 16px; }
+  .vs-card.winner h3 { color: #86efac; }
+  .vs-card.loser h3 { color: #fca5a5; }
+  .vs-card ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.8; }
+  .verdict-final {
+    background: rgba(251,191,36,0.15); border: 1px solid #fbbf24;
+    border-radius: 10px; padding: 16px 20px; margin-top: 16px;
+    font-size: 15px; line-height: 1.7; color: #fef3c7;
+  }
+  .verdict-final b { color: #fde68a; }
+
+  /* ---- PHASE ---- */
+  .phase {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px 26px; margin: 22px 0;
+    box-shadow: var(--shadow);
+  }
+  .phase h2 {
+    margin: 0 0 6px; font-size: 22px; color: #0f1621;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .phase h2 .tag {
+    font-size: 12px; color: #fff; background: var(--accent);
+    padding: 3px 10px; border-radius: 6px; font-weight: 700;
+  }
+  .phase h2 .tag.green { background: #16a34a; }
+  .phase h2 .tag.orange { background: #b45309; }
+  .phase h2 .tag.red { background: #dc2626; }
+  .phase h2 .tag.blue { background: #0891b2; }
+  .phase h2 .tag.teal { background: #0f766e; }
+  .phase h2 .tag.pink { background: #be185d; }
+  .phase .sub { color: var(--muted); margin-top: 0; }
+
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 10px;
+  }
+  .card {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .card h3 {
+    margin: 0 0 10px; font-size: 14px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;
+  }
+  ul { margin: 6px 0 0; padding-left: 20px; }
+  li { margin: 5px 0; }
+  a { color: var(--accent-dark); text-decoration: none; border-bottom: 1px dashed rgba(91,33,182,0.35); }
+  a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  code {
+    background: #ede9fe; color: #5b21b6;
+    padding: 2px 6px; border-radius: 4px; font-size: 13px;
+    border: 1px solid var(--border);
+  }
+  .project {
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px; background: #f5f3ff;
+    border-radius: 0 8px 8px 0; margin: 12px 0;
+  }
+  .project b { color: var(--accent-dark); }
+  .callout {
+    background: #f5f3ff; border: 1px solid rgba(124,58,237,0.3);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+  }
+  .callout b { color: var(--accent-dark); }
+  .warn {
+    background: #fff8eb; border: 1px solid #f5d69a;
+    border-left: 4px solid var(--warn);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+    color: #7a4a05;
+  }
+  .danger-box {
+    background: #fff1f2; border: 1px solid #fecdd3;
+    border-left: 4px solid var(--danger);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+    color: #9f1239;
+  }
+  .success-box {
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-left: 4px solid var(--success);
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+    color: #14532d;
+  }
+  .videos {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    margin: 12px 0;
+  }
+  .video {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    transition: box-shadow .15s ease, transform .1s ease;
+  }
+  .video:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .video .title { font-weight: 600; color: var(--text); }
+  .video small { color: var(--muted); display: block; margin-top: 4px; font-size: 12px; }
+  .video.featured { background: linear-gradient(135deg, #ede9fe 0%, #f0fdf4 100%); border-color: var(--accent); border-left: 4px solid var(--accent); }
+  .video.featured .title { color: var(--accent-dark); }
+  footer {
+    text-align: center; color: var(--muted); padding: 40px 20px;
+    border-top: 1px solid var(--border); margin-top: 40px; font-size: 14px;
+    background: #fff;
+  }
+  .toc { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px; margin: 20px 0; box-shadow: var(--shadow); }
+  .toc h3 { margin-top: 0; color: var(--accent-dark); }
+  .toc ol { columns: 2; column-gap: 30px; padding-left: 20px; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+  .concept { margin: 14px 0 6px; padding: 8px 0 4px; border-top: 1px dashed var(--border); }
+  .concept:first-of-type { border-top: none; }
+  .concept h4 { margin: 0 0 6px; font-size: 15px; color: #0f1621; }
+  .concept h4::before { content: "▸ "; color: var(--accent); font-weight: 700; }
+
+  .checklist { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-top: 12px; }
+  .check { background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--success); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+  .check::before { content: "✓ "; color: var(--success); font-weight: bold; }
+
+  /* Salary badge */
+  .salary-band {
+    display: inline-block; background: #ecfdf5; border: 1px solid #6ee7b7;
+    color: #065f46; padding: 4px 10px; border-radius: 6px; font-size: 13px;
+    font-weight: 600; margin: 4px 2px;
+  }
+
+  /* Floating TOC */
+  .floating-toc { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+  .floating-toc > summary {
+    list-style: none; cursor: pointer;
+    background: var(--accent); color: #fff;
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700;
+    box-shadow: 0 4px 14px rgba(91,33,182,.4);
+    transition: transform .15s ease, background .15s ease;
+    user-select: none;
+  }
+  .floating-toc > summary::-webkit-details-marker { display: none; }
+  .floating-toc > summary:hover { background: var(--accent-dark); transform: scale(1.05); }
+  .floating-toc[open] > summary { background: var(--accent-dark); border-radius: 50% 50% 0 0; }
+  .floating-toc[open] > summary::after { content: "✕"; }
+  .floating-toc:not([open]) > summary::after { content: "≡"; }
+  .ft-panel {
+    position: absolute; bottom: 64px; right: 0;
+    width: min(400px, calc(100vw - 40px));
+    max-height: 75vh; overflow-y: auto;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: 0 10px 30px rgba(16, 24, 40, .15);
+    padding: 16px 20px;
+  }
+  .ft-panel h4 { margin: 0 0 10px; color: var(--accent-dark); font-size: 14px; text-transform: uppercase; letter-spacing: .5px; }
+  .ft-panel ol { margin: 0; padding-left: 22px; }
+  .ft-panel li { margin: 6px 0; font-size: 14px; }
+  .ft-panel a { color: var(--accent-dark); text-decoration: none; border: none; }
+  .ft-panel a:hover { text-decoration: underline; }
+  @media (max-width: 480px) { .floating-toc { bottom: 14px; right: 14px; } .floating-toc > summary { width: 50px; height: 50px; } }
+
+  /* Phase timeline indicator */
+  .timeline-bar {
+    display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 16px;
+  }
+  .timeline-bar .tl-item {
+    font-size: 12px; background: #ede9fe; color: var(--accent-dark);
+    border-radius: 6px; padding: 3px 10px; border: 1px solid var(--border-strong);
+  }
+  .timeline-bar .tl-item.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* Stack badge */
+  .stack-badge {
+    display: inline-block; font-size: 12px; padding: 2px 8px;
+    border-radius: 4px; margin: 2px; font-weight: 600;
+    background: #ede9fe; color: #5b21b6; border: 1px solid var(--border-strong);
+  }
+  .stack-badge.py { background: #fef9c3; color: #713f12; border-color: #fde047; }
+  .stack-badge.js { background: #fef9c3; color: #713f12; border-color: #fbbf24; }
+  .stack-badge.react { background: #e0f2fe; color: #0c4a6e; border-color: #7dd3fc; }
+  .stack-badge.go { background: #e0f9f9; color: #134e4a; border-color: #5eead4; }
+  .stack-badge.ml { background: #fdf2f8; color: #701a75; border-color: #f0abfc; }
+  .stack-badge.infra { background: #fef3c7; color: #78350f; border-color: #fcd34d; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 Full Stack <span>AI Engineer</span> Roadmap — 0 to Production</h1>
+  <p>Built specifically for a <b>frontend developer (4 yrs)</b> learning backend (Go) who wants to become a production-grade Full Stack AI Engineer. Every phase is honest, ordered, and paired with real resources.</p>
+  <div class="legend">
+    <span class="pill accent">Duration: 9–12 months</span>
+    <span class="pill">12 phases + specialization</span>
+    <span class="pill accent">Includes: LLMs · RAG · Agents · MLOps</span>
+    <span class="pill">Light theme · Your career map</span>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ================================================================
+     HONEST VERDICT — MOST IMPORTANT SECTION — READ FIRST
+     ================================================================ -->
+<section id="verdict">
+  <div class="verdict">
+    <h2>⚖️ Honest Answer: <span>Full Stack AI</span> vs Pure AI Engineer — Which is Worth It?</h2>
+    <p style="font-size:15px;color:#c7d2fe;margin:0 0 16px;">You asked for honesty. Here it is — no sugarcoating. This is the most important section of this entire document.</p>
+
+    <div class="vs-grid">
+      <div class="vs-card winner">
+        <h3>✅ Full Stack AI Engineer — RECOMMENDED FOR YOU</h3>
+        <ul>
+          <li>You already have 4 years frontend + learning backend — you're <b>70% there already</b></li>
+          <li>Companies want engineers who can <b>ship AI-powered products</b>, not researchers</li>
+          <li>10x more job openings than pure AI research roles — hiring is extremely hot right now</li>
+          <li>Salary range: <b>$120k–$250k+</b> (even higher at AI-first companies and big tech)</li>
+          <li>Time to your first AI job: <b>9–12 months</b> (studying 15–20 hrs/week) — add 6–12 months if full-time employed while learning</li>
+          <li>You build things people actually use — RAG apps, AI agents, LLM tools, AI SaaS</li>
+          <li>No PhD required. No deep research background required. Engineer mindset is enough.</li>
+          <li>The entire industry is shifting here — every company needs Full Stack AI devs right now</li>
+          <li>Math requirement: <b>moderate</b> — intuition-level is sufficient for most use cases</li>
+          <li>Your React/Angular skills become <b>a superpower</b> — most AI backends lack good frontends</li>
+        </ul>
+      </div>
+      <div class="vs-card loser">
+        <h3>⚠️ Pure AI Engineer (ML Research) — Not Recommended For Your Profile</h3>
+        <ul>
+          <li>Typically requires a <b>Masters or PhD in ML/Math/CS</b> at top companies (Google DeepMind, OpenAI, Anthropic)</li>
+          <li>Deep math wall: Linear Algebra, Calculus, Probability Theory, Statistics — 6–12 months of math-heavy study alone</li>
+          <li>Time to first research role: <b>2–4 years</b> minimum from your current position</li>
+          <li>Most job postings at FAANG/AI labs have 500+ PhD applicants per role</li>
+          <li>Pure ML roles are shrinking as LLMs reduce the need for custom model training</li>
+          <li>Research output (papers) expected — not just shipping products</li>
+          <li>Salary ceiling is higher ($200k–$500k at labs) but entry bar is brutal</li>
+          <li>If you don't <b>genuinely love math</b> and research, this path leads to burnout</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="verdict-final">
+      <b>🎯 Final Verdict (Honest):</b> For YOUR specific profile — 4 years frontend, learning backend, practical career focus — <b>Full Stack AI Engineer is the clear winner.</b>
+      <br><br>
+      Pure AI is not "better" — it's just a completely different path requiring years of academic foundations. Most companies don't need model researchers. They need engineers who can take an LLM API, wire it to a database, build a RAG pipeline, deploy it with streaming responses, and ship it with a beautiful UI.
+      <br><br>
+      <b>That is you. And the market is screaming for you.</b>
+      <br><br>
+      However — if 6 months from now you find yourself deeply passionate about model internals, math, and want to contribute to research — that's when you <i>optionally</i> go deeper. But start with Full Stack AI. Build real things. Ship them. Then decide.
+    </div>
+  </div>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <h3>📚 Table of Contents</h3>
+  <ol>
+    <li><a href="#verdict">⚖️ Honest Answer: Full Stack AI vs Pure AI</a></li>
+    <li><a href="#courses">▶ Recommended Core Courses (Start Here)</a></li>
+    <li><a href="#phase0">Phase 0 — Setup &amp; AI Foundation Mindset</a></li>
+    <li><a href="#phase1">Phase 1 — Python for AI Engineers</a></li>
+    <li><a href="#phase2">Phase 2 — Math for AI (Intuition-First)</a></li>
+    <li><a href="#phase3">Phase 3 — Machine Learning Fundamentals</a></li>
+    <li><a href="#phase4">Phase 4 — Deep Learning Foundations</a></li>
+    <li><a href="#phase5">Phase 5 — LLMs &amp; Generative AI</a></li>
+    <li><a href="#phase6">Phase 6 — RAG Systems &amp; Vector Databases</a></li>
+    <li><a href="#phase7">Phase 7 — AI Agents &amp; Orchestration</a></li>
+    <li><a href="#phase8">Phase 8 — Backend APIs for AI</a></li>
+    <li><a href="#phase9">Phase 9 — Frontend for AI (React + Streaming)</a></li>
+    <li><a href="#phase10">Phase 10 — MLOps &amp; Production Deployment</a></li>
+    <li><a href="#phase11">Phase 11 — AI System Design</a></li>
+    <li><a href="#phase12">Phase 12 — Specialization Track</a></li>
+    <li><a href="#projects">Capstone Projects</a></li>
+    <li><a href="#resources">Master Resource List</a></li>
+    <li><a href="#jobsearch">Job Search Playbook</a></li>
+  </ol>
+</div>
+
+<!-- ================================================================
+     COURSES — START HERE
+     ================================================================ -->
+<section class="phase" id="courses">
+  <h2><span class="tag">▶ Start Here</span> Recommended Core Courses — Pick Your Path</h2>
+  <p class="sub">Do not start Phase 1 until you've locked in one beginner course. Don't skip around — depth beats breadth.</p>
+
+  <div class="callout">
+    <b>🎯 Strategy:</b> Your background (4 yrs frontend, learning Go) means you already know software engineering fundamentals. You do NOT need to re-learn how computers work. Focus on: <b>Python fluency → ML concepts → LLMs → building real AI apps.</b> You will move faster than a pure beginner.
+  </div>
+
+  <div class="concept">
+    <h4>⭐ Tier 1 — Complete AI Foundations (Pick ONE)</h4>
+    <div class="grid">
+
+      <div class="card" style="border-left: 4px solid #7c3aed;">
+        <h3 style="color:#7c3aed;">🥇 Best Overall — Andrew Ng AI Specializations</h3>
+        <p style="font-size:14px;margin:6px 0 4px;font-weight:600;">Machine Learning Specialization + Deep Learning Specialization</p>
+        <p style="font-size:13px;color:#5b6675;">Coursera · deeplearning.ai · Andrew Ng · ~4 months</p>
+        <ul style="margin-top:8px;">
+          <li>The #1 rated ML course in the world. Period.</li>
+          <li>Covers: supervised, unsupervised, reinforcement learning</li>
+          <li>Deep learning: CNNs, RNNs, transformers, optimization</li>
+          <li>Math explained visually — no PhD required</li>
+          <li>Free to audit. Take both specializations back to back.</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <a href="https://www.coursera.org/specializations/machine-learning-introduction" target="_blank" style="display:inline-block;background:#7c3aed;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;border:none;">▶ Open Coursera</a>
+        </div>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #0891b2;">
+        <h3 style="color:#0891b2;">🥈 Best for LLMs Specifically</h3>
+        <p style="font-size:14px;margin:6px 0 4px;font-weight:600;">LangChain for LLM Application Development + LLMOps</p>
+        <p style="font-size:13px;color:#5b6675;">deeplearning.ai · Andrew Ng + Harrison Chase · Free short courses</p>
+        <ul style="margin-top:8px;">
+          <li>All courses are free and 1–3 hours each</li>
+          <li>Covers: LangChain, RAG, Agents, Vector DBs, Fine-tuning</li>
+          <li>Practical focus — you ship a working app in each course</li>
+          <li>Start with "LangChain for LLM Application Development"</li>
+          <li>Take 5–8 short courses over 2 weeks for maximum density</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <a href="https://learn.deeplearning.ai/" target="_blank" style="display:inline-block;background:#0891b2;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;border:none;">▶ Open deeplearning.ai</a>
+        </div>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #16a34a;">
+        <h3 style="color:#16a34a;">🥉 Best Free YouTube — freeCodeCamp ML</h3>
+        <p style="font-size:14px;margin:6px 0 4px;font-weight:600;">Machine Learning with Python (Full Course)</p>
+        <p style="font-size:13px;color:#5b6675;">freeCodeCamp · ~10 hours · 2022</p>
+        <ul style="margin-top:8px;">
+          <li>Pure YouTube — no sign-up required</li>
+          <li>Python, NumPy, TensorFlow, Scikit-learn end-to-end</li>
+          <li>Covers regression, classification, neural networks</li>
+          <li>Hands-on: 6 real ML projects included</li>
+          <li>Best if you can't access Coursera or prefer 100% free</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <a href="https://www.youtube.com/watch?v=tPYj3fFJGjk" target="_blank" style="display:inline-block;background:#16a34a;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;border:none;">▶ Watch on YouTube</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>🔥 Tier 2 — Advanced: LLMs, Agents, and AI Engineering</h4>
+    <div class="grid">
+
+      <div class="card" style="border-left: 4px solid #dc2626;">
+        <h3 style="color:#dc2626;">Neural Networks: Zero to Hero (Karpathy)</h3>
+        <p style="font-size:13px;color:#5b6675;">Andrej Karpathy (ex-Tesla AI, OpenAI) · YouTube Playlist · ~20 hours</p>
+        <ul style="margin-top:8px;">
+          <li>The best neural network series ever made — by the person who built Tesla Autopilot</li>
+          <li>Builds a neural net from scratch using only Python and numpy</li>
+          <li>Builds a GPT from scratch — you will understand how ChatGPT actually works internally</li>
+          <li>Dense and hard — worth every minute. Watch after Andrew Ng's ML course.</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <a href="https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ" target="_blank" style="display:inline-block;background:#dc2626;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;border:none;">▶ Watch Playlist</a>
+        </div>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #b45309;">
+        <h3 style="color:#b45309;">fast.ai — Practical Deep Learning for Coders</h3>
+        <p style="font-size:13px;color:#5b6675;">Jeremy Howard · fast.ai · Free · ~20 hours</p>
+        <ul style="margin-top:8px;">
+          <li>"Top-down" approach — build a working model on day 1, then understand why it works</li>
+          <li>Covers: computer vision, NLP, tabular, diffusion models</li>
+          <li>Used by professionals who went on to win Kaggle competitions</li>
+          <li>Best for engineers who learn by doing, not by lectures</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <a href="https://course.fast.ai/" target="_blank" style="display:inline-block;background:#b45309;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;border:none;">▶ Open fast.ai</a>
+        </div>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #0f766e;">
+        <h3 style="color:#0f766e;">Full Stack LLM Bootcamp</h3>
+        <p style="font-size:13px;color:#5b6675;">The Full Stack · Berkeley · Free YouTube · 2023</p>
+        <ul style="margin-top:8px;">
+          <li>Covers: LLM fundamentals, prompt engineering, fine-tuning, deployment</li>
+          <li>Lectures from industry engineers (not just academics)</li>
+          <li>Includes: LangChain, RLHF, LLMOps, user interfaces</li>
+          <li>Perfect bridge between ML theory and production AI engineering</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <a href="https://fullstackdeeplearning.com/llm-bootcamp/" target="_blank" style="display:inline-block;background:#0f766e;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;border:none;">▶ Open Course</a>
+        </div>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #9333ea;">
+        <h3 style="color:#9333ea;">Hugging Face NLP Course</h3>
+        <p style="font-size:13px;color:#5b6675;">Hugging Face · Free · Online · huggingface.co</p>
+        <ul style="margin-top:8px;">
+          <li>Official course on transformers, tokenizers, and fine-tuning</li>
+          <li>Covers BERT, GPT-2, T5 hands-on</li>
+          <li>Dataset handling, model hub, inference API</li>
+          <li>Essential for anyone working with open-source LLMs</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <a href="https://huggingface.co/learn/nlp-course" target="_blank" style="display:inline-block;background:#9333ea;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;border:none;">▶ Open HF Course</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>🗺️ Suggested Course Order (Month-by-Month)</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Month 1 — Foundations</h3>
+        <ul>
+          <li>✅ Python crash course (if needed — 1 week)</li>
+          <li>✅ Andrew Ng: ML Specialization (Week 1–4)</li>
+          <li>✅ NumPy + Pandas basics</li>
+          <li>✅ deeplearning.ai short: "Prompt Engineering for Developers"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Month 2 — Deep Learning + LLMs</h3>
+        <ul>
+          <li>✅ Andrew Ng: Deep Learning Specialization</li>
+          <li>✅ Karpathy: first 3 videos of Zero to Hero</li>
+          <li>✅ deeplearning.ai short: "LangChain for LLM Development"</li>
+          <li>✅ Build first project: simple chatbot with memory</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Month 3 — RAG + Agents</h3>
+        <ul>
+          <li>✅ deeplearning.ai short: "Building Systems with ChatGPT API"</li>
+          <li>✅ deeplearning.ai short: "LangChain: Chat with Your Data (RAG)"</li>
+          <li>✅ Karpathy: "Let's build GPT" video (transformers from scratch)</li>
+          <li>✅ Hugging Face NLP Course (chapters 1–4)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Month 4+ — Production Engineering</h3>
+        <ul>
+          <li>✅ Full Stack LLM Bootcamp (Berkeley)</li>
+          <li>✅ fast.ai (practical deep learning)</li>
+          <li>✅ MLOps courses + deployment</li>
+          <li>✅ Build capstone projects from this roadmap</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>⚠️ Warning:</b> Don't collect courses like trophies. The trap is watching 20 courses and building nothing. After each course section, stop and build something — even if small. A working RAG app beats 10 certificates.
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 0 — SETUP
+     ================================================================ -->
+<section class="phase" id="phase0">
+  <h2><span class="tag">Phase 0</span> Setup &amp; AI Foundation Mindset</h2>
+  <p class="sub">Duration: 1–2 weeks · One-time setup. Skip nothing.</p>
+
+  <div class="timeline-bar">
+    <span class="tl-item active">Week 1–2</span>
+    <span class="tl-item">Total roadmap: Month 1</span>
+  </div>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Get your development environment ready for AI work. Understand what a Full Stack AI Engineer actually does day-to-day before diving into study.
+  </div>
+
+  <div class="concept">
+    <h4>What Does a Full Stack AI Engineer Actually Build?</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Day-to-Day Work</h3>
+        <ul>
+          <li>Build RAG pipelines — connect documents to LLMs so they answer questions from your data</li>
+          <li>Create AI agents — autonomous systems that can use tools, search the web, run code</li>
+          <li>Integrate OpenAI/Anthropic/Gemini APIs into existing products</li>
+          <li>Design streaming chat interfaces with React/Next.js</li>
+          <li>Optimize token costs and response latency for production</li>
+          <li>Fine-tune open-source models (Llama, Mistral) for specific use cases</li>
+          <li>Set up vector databases (Pinecone, Weaviate) for semantic search</li>
+          <li>Deploy AI apps with Docker, FastAPI, and Kubernetes</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Your Stack as a Full Stack AI Engineer</h3>
+        <ul>
+          <li><span class="stack-badge py">Python</span> — AI/ML code, scripts, backends</li>
+          <li><span class="stack-badge react">React / Next.js</span> — AI-powered frontends (you already know this!)</li>
+          <li><span class="stack-badge go">Go</span> — high-performance AI microservices (you're learning this!)</li>
+          <li><span class="stack-badge ml">PyTorch</span> — deep learning models</li>
+          <li><span class="stack-badge ml">LangChain / LangGraph</span> — LLM orchestration</li>
+          <li><span class="stack-badge ml">OpenAI API / HuggingFace</span> — LLM integration</li>
+          <li><span class="stack-badge infra">Docker + FastAPI</span> — deployment</li>
+          <li><span class="stack-badge infra">Pinecone / ChromaDB</span> — vector databases</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Environment Setup</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Core Tools</h3>
+        <ul>
+          <li><b>Python 3.11+</b> — use <a href="https://github.com/pyenv/pyenv" target="_blank">pyenv</a> to manage versions (same concept as nvm for Node)</li>
+          <li><b>pip + virtualenv / poetry</b> — <code>python -m venv .venv &amp;&amp; source .venv/bin/activate</code></li>
+          <li><b>Conda / Miniconda</b> — alternative env manager, preferred for ML projects with CUDA deps</li>
+          <li><b>Jupyter Notebook / JupyterLab</b> — <code>pip install jupyterlab</code>, then <code>jupyter lab</code></li>
+          <li><b>VS Code Extensions</b>: Python (Microsoft), Pylance, Jupyter, GitHub Copilot</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>AI-Specific Tools</h3>
+        <ul>
+          <li><b>OpenAI API key</b> — sign up at platform.openai.com. Start with $5 credit.</li>
+          <li><b>Hugging Face account</b> — free. Access to 500k+ open-source models</li>
+          <li><b>Ollama</b> — run LLMs locally on your Mac: <code>brew install ollama</code> then <code>ollama run llama3</code> (use <code>run</code>, not <code>pull</code>, to pull + run immediately)</li>
+          <li><b>Open WebUI</b> — a local ChatGPT-like UI on top of Ollama for testing models: <code>docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data ghcr.io/open-webui/open-webui:main</code> then visit localhost:3000</li>
+          <li><b>LangChain v0.3+</b>: <code>pip install langchain langchain-openai</code> — <b>⚠️ major API changes happened in v0.1.0 (2024)</b>. Old tutorials will have broken imports. Always use the <a href="https://python.langchain.com/docs/" target="_blank">current docs</a>.</li>
+          <li><b>LiteLLM</b>: <code>pip install litellm</code> — unified interface to 100+ LLM providers. Swap OpenAI for Claude/Llama/Gemini with one line. Use in production to avoid vendor lock-in.</li>
+          <li><b>ChromaDB</b> (local vector DB): <code>pip install chromadb</code></li>
+          <li><b>FastAPI</b>: <code>pip install fastapi uvicorn</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Jupyter Basics You Must Know</h3>
+        <ul>
+          <li><code>Shift+Enter</code> — run cell and move to next</li>
+          <li><code>Ctrl+Enter</code> — run cell and stay</li>
+          <li><code>B</code> — insert cell below (in command mode)</li>
+          <li><code>M</code> — change cell to Markdown</li>
+          <li><code>Esc</code> — enter command mode from edit mode</li>
+          <li><code>?function_name</code> — show docs for any function</li>
+          <li>Use <code>%time</code> and <code>%timeit</code> to benchmark cells</li>
+          <li>Use <code>!pip install package</code> to install from notebook</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>AI-Assisted Coding Tools (Use Daily)</h3>
+        <ul>
+          <li><b>Cursor</b> — the #1 AI code editor in 2025. VS Code-compatible, with deeply integrated GPT-4o/Claude. Understands your entire codebase. <a href="https://cursor.com" target="_blank">cursor.com</a></li>
+          <li><b>GitHub Copilot</b> — inline code suggestions in VS Code. Already installed? Enable it. If not: install the extension and use your student/org plan.</li>
+          <li><b>Windsurf (Codeium)</b> — free Cursor alternative with agentic "Cascade" mode that edits multiple files autonomously.</li>
+          <li><b>Continue.dev</b> — open-source AI coding extension that connects to any LLM including local Ollama models. <code>ext install Continue.continue</code></li>
+          <li><b>Why this matters</b>: As an AI engineer, you should be using AI tools to write your AI code. It's not cheating — it's the new standard. Engineers who use AI coding tools are 2–3× more productive.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="videos">
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=HW29067qVWk" target="_blank" class="title">Jupyter Notebook Tutorial</a><small>Corey Schafer · 30 min</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=IEEBpFmXW28" target="_blank" class="title">Python Virtual Environments</a><small>Corey Schafer · 15 min</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=ub9EAlFdLRo" target="_blank" class="title">Setup VS Code for Python &amp; AI</a><small>Tech With Tim · 20 min</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=jHOkCf5Z1bU" target="_blank" class="title">Ollama + Local LLMs on Mac</a><small>Matt Williams · 15 min</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 1 — PYTHON FOR AI
+     ================================================================ -->
+<section class="phase" id="phase1">
+  <h2><span class="tag">Phase 1</span> Python for AI Engineers</h2>
+  <p class="sub">Duration: 3–4 weeks · You know JavaScript — Python will feel familiar with some key differences.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Python fluency at the level needed for AI work. Not general software engineering Python — specifically: NumPy, Pandas, data manipulation, and Python OOP patterns used in ML libraries.
+  </div>
+
+  <div class="concept">
+    <h4>Python Fundamentals (Accelerated — 1 week)</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>JS → Python Mental Model</h3>
+        <ul>
+          <li><code>let x = 5</code> → <code>x = 5</code> (no declaration keyword)</li>
+          <li><code>console.log()</code> → <code>print()</code></li>
+          <li><code>function fn() {}</code> → <code>def fn():</code> (indentation, no braces)</li>
+          <li><code>[] map filter</code> → <code>list comprehensions</code>: <code>[x*2 for x in lst]</code></li>
+          <li><code>object {}</code> → <code>dict {}</code> (same concept)</li>
+          <li><code>class Foo {}</code> → <code>class Foo:</code> with <code>def __init__(self):</code></li>
+          <li><code>async/await</code> → same syntax in Python, but different event loop (asyncio)</li>
+          <li><code>null</code> → <code>None</code> in Python</li>
+          <li><code>===</code> → <code>==</code> (Python has no ===, uses <code>is</code> for identity)</li>
+          <li>No semicolons. Indentation IS the syntax.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Python Unique Concepts</h3>
+        <ul>
+          <li><b>List comprehensions</b>: <code>[x**2 for x in range(10) if x % 2 == 0]</code></li>
+          <li><b>Tuples</b>: immutable lists <code>(1, 2, 3)</code> — used heavily in ML for shapes</li>
+          <li><b>Unpacking</b>: <code>a, b, c = (1, 2, 3)</code> — also <code>*args</code> and <code>**kwargs</code></li>
+          <li><b>f-strings</b>: <code>f"Hello {name}, score: {score:.2f}"</code></li>
+          <li><b>With statement</b>: <code>with open('file') as f:</code> — context manager, auto-closes</li>
+          <li><b>Generators</b>: <code>yield</code> keyword — lazy iterators, memory-efficient for large datasets</li>
+          <li><b>Decorators</b>: <code>@property</code>, <code>@staticmethod</code> — used everywhere in ML libs</li>
+          <li><b>Type hints</b>: <code>def fn(x: int) -&gt; str:</code> — not enforced but great for clarity</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>NumPy — The Foundation of All ML</h3>
+        <ul>
+          <li>All AI computations happen on arrays (tensors = multi-dim arrays)</li>
+          <li><code>import numpy as np</code></li>
+          <li><code>np.array([1,2,3])</code> — create 1D array</li>
+          <li><code>np.zeros((3,4))</code> — 3×4 matrix of zeros</li>
+          <li><code>arr.shape</code> — get dimensions, e.g., <code>(1000, 768)</code></li>
+          <li><code>arr.reshape(n, -1)</code> — reshape, <code>-1</code> infers the dim</li>
+          <li><code>arr[0:5, :]</code> — slicing: first 5 rows, all columns</li>
+          <li><code>np.dot(a, b)</code> — matrix multiplication (core of neural nets)</li>
+          <li><code>arr.mean(), arr.std()</code> — statistics for normalization</li>
+          <li>Broadcasting: <code>arr + 5</code> adds 5 to every element (no loop needed)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pandas — Data Manipulation</h3>
+        <ul>
+          <li><code>import pandas as pd</code></li>
+          <li><code>df = pd.read_csv('data.csv')</code></li>
+          <li><code>df.head()</code>, <code>df.describe()</code>, <code>df.info()</code></li>
+          <li><code>df['column']</code> — select column (Series)</li>
+          <li><code>df[df['col'] &gt; 5]</code> — filter rows</li>
+          <li><code>df.groupby('category').mean()</code> — aggregation</li>
+          <li><code>df.dropna()</code> — remove rows with missing values</li>
+          <li><code>df.fillna(0)</code> — fill missing values</li>
+          <li><code>df.apply(func)</code> — apply function to each row/column</li>
+          <li><code>df.merge(other, on='id')</code> — join dataframes (like SQL JOIN)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Matplotlib &amp; Seaborn — Visualizations</h3>
+        <ul>
+          <li><code>import matplotlib.pyplot as plt</code></li>
+          <li><code>plt.plot(x, y)</code>, <code>plt.scatter(x, y)</code></li>
+          <li><code>plt.xlabel('x'), plt.ylabel('y'), plt.title('title')</code></li>
+          <li><code>plt.show()</code> — render the plot</li>
+          <li><code>plt.savefig('plot.png')</code> — save to file</li>
+          <li><b>Seaborn</b>: <code>import seaborn as sns</code></li>
+          <li><code>sns.heatmap(corr_matrix)</code> — correlation heatmap</li>
+          <li><code>sns.histplot(df['col'])</code> — distribution plot</li>
+          <li>In Jupyter: add <code>%matplotlib inline</code> at top to show plots inline</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Mini Project — Data Explorer:</b> Load any CSV dataset (e.g., Titanic from Kaggle), use Pandas to clean it (handle nulls, convert types), compute statistics (mean, median, std per group), and create 3 plots (histogram, scatter, heatmap) using Matplotlib/Seaborn.
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=rfscVS0vtbw" target="_blank" class="title">Python for Beginners (4h Full Course)</a><small>freeCodeCamp · Start here if Python is new</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=QUT1VHiLmmI" target="_blank" class="title">NumPy Full Course</a><small>freeCodeCamp · 1 hour</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=vmEHCJofslg" target="_blank" class="title">Pandas Tutorial for Beginners</a><small>Corey Schafer · 6-part series</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=a9UrKTVEeZA" target="_blank" class="title">Matplotlib Tutorial</a><small>Corey Schafer · 9-part series</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 2 — MATH FOR AI
+     ================================================================ -->
+<section class="phase" id="phase2">
+  <h2><span class="tag green">Phase 2</span> Math for AI — Intuition First, Not Proofs</h2>
+  <p class="sub">Duration: 4–6 weeks (run parallel with Phase 3) · You need intuition, not a math degree.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Understand what a dot product means. Understand what a gradient is. Understand what probability tells you. You do NOT need to derive equations from scratch. You need to understand them deeply enough to know when and why to use them.
+  </div>
+
+  <div class="warn">
+    <b>⚠️ Honest Warning About Math:</b> Many people spend 6 months doing pure math courses before touching ML. This is a mistake. Learn math <i>just-in-time</i> — when you hit a concept in ML that needs math, go learn that math. 3Blue1Brown is your best friend here.
+  </div>
+
+  <div class="concept">
+    <h4>Linear Algebra — The Language of Neural Networks</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Core Concepts</h3>
+        <ul>
+          <li><b>Scalar</b>: single number (5, 3.14)</li>
+          <li><b>Vector</b>: ordered list of numbers <code>[0.2, 0.8, 0.5]</code> — represents a point in space or a "feature embedding"</li>
+          <li><b>Matrix</b>: 2D grid of numbers — weights in a neural network ARE a matrix</li>
+          <li><b>Tensor</b>: N-dimensional array (1D=vector, 2D=matrix, 3D=batch of images)</li>
+          <li><b>Dot Product</b>: <code>a · b = sum(a[i] * b[i])</code> — measures similarity between vectors. Cosine similarity in vector search uses this.</li>
+          <li><b>Matrix Multiplication</b>: how layers in a neural network transform data</li>
+          <li><b>Transpose</b>: flip rows and columns</li>
+          <li><b>Norm</b>: length of a vector — <code>||v|| = sqrt(sum(v[i]^2))</code></li>
+          <li><b>Eigenvalues/Eigenvectors</b>: used in PCA (dimensionality reduction)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Why It Matters in AI</h3>
+        <ul>
+          <li>A text embedding is a <b>vector</b> of 768–1536 numbers representing meaning</li>
+          <li>Cosine similarity between two vectors = how similar two documents are (RAG)</li>
+          <li>Every layer in GPT is a <b>matrix multiplication</b> (attention = Q * K^T)</li>
+          <li>A batch of 32 images becomes a <b>tensor</b> of shape (32, 224, 224, 3)</li>
+          <li>Fine-tuning = adjusting <b>matrix values</b> (weights) by tiny amounts</li>
+          <li>LoRA (fine-tuning method) = decomposing a large matrix into two small matrices</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video featured">🎥 <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab" target="_blank" class="title">Essence of Linear Algebra (3Blue1Brown)</a><small>Best visual explainer. 16 videos. Watch all.</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/watch?v=fNk_zzaMoSs" target="_blank" class="title">Vectors (3Blue1Brown)</a><small>Chapter 1 of Essence of LA · 10 min</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Calculus — Specifically: Gradients and Backpropagation</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>What You Actually Need to Know</h3>
+        <ul>
+          <li><b>Derivative</b>: rate of change. How much does output change when input changes a tiny bit?</li>
+          <li><b>Gradient</b>: the derivative of a function with many inputs — which direction goes "uphill" fastest?</li>
+          <li><b>Gradient Descent</b>: walk downhill (opposite of gradient) to minimize error. This is HOW neural networks learn.</li>
+          <li><b>Chain Rule</b>: derivative of f(g(x)) = f'(g(x)) * g'(x). Used in backpropagation through layers.</li>
+          <li><b>Learning Rate</b>: how big each step is in gradient descent</li>
+          <li><b>Loss Function</b>: what you're trying to minimize (e.g., mean squared error, cross-entropy)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video featured">🎥 <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr" target="_blank" class="title">Essence of Calculus (3Blue1Brown)</a><small>12 videos. Pure visual intuition. No textbook needed.</small></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Probability &amp; Statistics — For Model Understanding</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Core Concepts</h3>
+        <ul>
+          <li><b>Mean, Median, Standard Deviation</b> — for understanding data distributions</li>
+          <li><b>Probability</b>: P(A) — likelihood of event. LLMs output probability distributions over tokens.</li>
+          <li><b>Conditional Probability</b>: P(A|B) — probability of A given B already happened</li>
+          <li><b>Bayes' Theorem</b>: P(A|B) = P(B|A) * P(A) / P(B) — used in many ML algorithms</li>
+          <li><b>Normal Distribution</b>: the bell curve. Model weights often initialized from this.</li>
+          <li><b>Softmax</b>: converts raw scores to probabilities that sum to 1 — used in every classifier and LLM output layer</li>
+          <li><b>Temperature</b>: controls randomness in LLM sampling (you'll use this in OpenAI API)</li>
+          <li><b>Cross-Entropy Loss</b>: how different are two probability distributions? Used to train classifiers and LLMs.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="videos">
+      <div class="video featured">🎥 <a href="https://www.youtube.com/c/joshstarmer" target="_blank" class="title">StatQuest with Josh Starmer</a><small>Best statistics for ML channel on YouTube. Clear, funny, accurate.</small></div>
+      <div class="video">🎥 <a href="https://www.youtube.com/watch?v=SzZ6tbwekCI" target="_blank" class="title">Probability for Machine Learning</a><small>StatQuest · Core playlist</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 3 — ML FUNDAMENTALS
+     ================================================================ -->
+<section class="phase" id="phase3">
+  <h2><span class="tag orange">Phase 3</span> Machine Learning Fundamentals</h2>
+  <p class="sub">Duration: 4–6 weeks · You need to understand ML before you can build with LLMs intelligently.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Understand how models learn, evaluate, and fail. You don't need to build production ML pipelines — you need deep intuition about how data → features → model → predictions works, so you can debug AI systems and design them correctly.
+  </div>
+
+  <div class="concept">
+    <h4>Core ML Concepts Every Full Stack AI Engineer Must Know</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Types of Learning</h3>
+        <ul>
+          <li><b>Supervised Learning</b>: model learns from labeled data (input → label). Classification, regression.</li>
+          <li><b>Unsupervised Learning</b>: finds patterns in unlabeled data. Clustering (k-means), dimensionality reduction (PCA).</li>
+          <li><b>Self-supervised Learning</b>: model creates its own labels from data structure — HOW GPT was trained (predict next token)</li>
+          <li><b>Reinforcement Learning from Human Feedback (RLHF)</b>: how ChatGPT was fine-tuned to be helpful</li>
+          <li><b>Few-shot / Zero-shot Learning</b>: give LLM a task with 0 or few examples → it generalizes. Core to prompt engineering.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Model Evaluation</h3>
+        <ul>
+          <li><b>Training / Validation / Test split</b>: never evaluate on training data</li>
+          <li><b>Overfitting</b>: model memorizes training data, fails on new data. A major RAG pipeline failure mode.</li>
+          <li><b>Underfitting</b>: model is too simple, learns nothing useful</li>
+          <li><b>Accuracy, Precision, Recall, F1</b>: different metrics for classification. Know when to use each.</li>
+          <li><b>ROC-AUC</b>: overall model discriminative ability</li>
+          <li><b>Confusion Matrix</b>: visual summary of true/false positives and negatives</li>
+          <li><b>Cross-validation</b>: evaluate model robustness by rotating the test split</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Key Algorithms (Know Conceptually)</h3>
+        <ul>
+          <li><b>Linear Regression</b>: predict a continuous value — simplest model, fits a line</li>
+          <li><b>Logistic Regression</b>: classification — outputs probability via sigmoid</li>
+          <li><b>Decision Trees</b>: if-else splits on features — explainable, interpretable</li>
+          <li><b>Random Forest</b>: ensemble of trees, much stronger than single tree</li>
+          <li><b>Gradient Boosting (XGBoost)</b>: state-of-the-art for tabular data</li>
+          <li><b>K-Nearest Neighbors</b>: classify based on k closest training examples — conceptually how vector search works</li>
+          <li><b>K-Means Clustering</b>: group unlabeled data into k clusters</li>
+          <li><b>Support Vector Machine (SVM)</b>: finds optimal boundary between classes</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Feature Engineering</h3>
+        <ul>
+          <li><b>Normalization / Standardization</b>: scale features to similar ranges so gradient descent works properly</li>
+          <li><b>One-hot encoding</b>: convert categorical strings to binary vectors</li>
+          <li><b>Feature selection</b>: remove irrelevant features that add noise</li>
+          <li><b>Embeddings</b>: convert high-dimensional sparse data (words, IDs) to dense low-dimensional vectors. THIS is the bridge from ML to LLMs.</li>
+          <li><b>Dimensionality Reduction</b>: PCA, UMAP — visualize high-dim data in 2D/3D</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Hands-on with Scikit-learn</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Scikit-learn Pattern</h3>
+        <ul>
+          <li>All models follow: <code>model.fit(X_train, y_train)</code> → <code>model.predict(X_test)</code></li>
+          <li><code>from sklearn.linear_model import LinearRegression</code></li>
+          <li><code>from sklearn.ensemble import RandomForestClassifier</code></li>
+          <li><code>from sklearn.model_selection import train_test_split</code></li>
+          <li><code>from sklearn.metrics import accuracy_score, classification_report</code></li>
+          <li><code>from sklearn.preprocessing import StandardScaler</code></li>
+          <li><code>from sklearn.pipeline import Pipeline</code> — chain preprocessing + model together</li>
+          <li>Use <code>GridSearchCV</code> or <code>RandomizedSearchCV</code> to tune hyperparameters</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Project — Spam Classifier:</b> Use the UCI SMS Spam dataset. Clean text, extract TF-IDF features, train a Logistic Regression and a Random Forest. Compare accuracy, precision, recall. Deploy as a simple FastAPI endpoint that accepts a message string and returns spam probability.
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=i_LwzRVP7bg" target="_blank" class="title">Machine Learning Course — freeCodeCamp (10h)</a><small>Best free end-to-end ML with Python</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/playlist?list=PLblh5JKOoLUICTaGLRoHQDuF_7q2GfuJF" target="_blank" class="title">StatQuest ML Series</a><small>Every algorithm explained with cartoons</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=0Lt9w-BxKFQ" target="_blank" class="title">Scikit-learn Tutorial</a><small>Patrick Loeber · Complete walkthrough</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 4 — DEEP LEARNING
+     ================================================================ -->
+<section class="phase" id="phase4">
+  <h2><span class="tag red">Phase 4</span> Deep Learning Foundations</h2>
+  <p class="sub">Duration: 4–6 weeks · The backbone of everything: LLMs, image models, speech models.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Understand how neural networks work at the engineering level. Be able to read PyTorch code, understand what each layer does, train a model, debug why it's not converging, and explain transformers to anyone.
+  </div>
+
+  <div class="concept">
+    <h4>Neural Network Fundamentals</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Core Architecture</h3>
+        <ul>
+          <li><b>Neuron</b>: takes inputs, multiplies by weights, adds bias, passes through activation function</li>
+          <li><b>Layer</b>: collection of neurons processing in parallel. Each layer = one matrix multiplication.</li>
+          <li><b>Activation Functions</b>: ReLU (most common), Sigmoid (binary output), Tanh, GELU (used in GPT)</li>
+          <li><b>Forward Pass</b>: data flows from input → hidden layers → output, producing a prediction</li>
+          <li><b>Loss Calculation</b>: compare prediction to ground truth (MSE, cross-entropy)</li>
+          <li><b>Backpropagation</b>: compute gradients of loss with respect to every weight using chain rule</li>
+          <li><b>Optimizer</b>: Adam (most common), SGD, AdamW — update weights using gradients</li>
+          <li><b>Training Loop</b>: forward → loss → backward → update → repeat for N epochs</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Key Architectures</h3>
+        <ul>
+          <li><b>MLP (Multi-Layer Perceptron)</b>: stacked dense layers. Foundation of everything.</li>
+          <li><b>CNN (Convolutional Neural Network)</b>: spatial pattern recognition. Used in image processing.</li>
+          <li><b>RNN / LSTM</b>: sequential data. Predecessor to transformers. Still used in time-series.</li>
+          <li><b>Transformer</b>: the architecture behind ALL modern LLMs (GPT, BERT, Llama, Gemini)</li>
+          <li><b>Attention Mechanism</b>: the core of transformers — allows the model to "pay attention" to different parts of the input simultaneously</li>
+          <li><b>Encoder-only</b>: BERT — good for understanding/classification tasks</li>
+          <li><b>Decoder-only</b>: GPT, Llama — good for text generation</li>
+          <li><b>Encoder-Decoder</b>: T5, Bart — good for translation, summarization</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>PyTorch Essentials</h3>
+        <ul>
+          <li><code>import torch</code>, <code>import torch.nn as nn</code></li>
+          <li><code>torch.tensor([1.0, 2.0])</code> — create tensor</li>
+          <li><code>x.shape</code> — get shape, same as numpy</li>
+          <li><code>nn.Linear(in, out)</code> — fully connected layer</li>
+          <li><code>nn.ReLU()</code>, <code>nn.Sigmoid()</code> — activation layers</li>
+          <li><code>nn.Sequential(layer1, layer2, ...)</code> — stack layers</li>
+          <li><code>loss.backward()</code> — compute gradients</li>
+          <li><code>optimizer.step()</code> — update weights</li>
+          <li><code>optimizer.zero_grad()</code> — clear previous gradients before each step</li>
+          <li><code>model.train()</code> vs <code>model.eval()</code> — changes dropout/batchnorm behavior</li>
+          <li><code>torch.no_grad()</code> — disable gradient tracking for inference (saves memory)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>The Transformer (Deep Dive — Essential)</h3>
+        <ul>
+          <li><b>Tokenization</b>: text → integers (token IDs). "Hello world" → [15496, 995]</li>
+          <li><b>Embeddings</b>: token IDs → vectors (768-dim for GPT-2, 4096-dim for Llama)</li>
+          <li><b>Positional Encoding</b>: adds position information to embeddings (order matters in language)</li>
+          <li><b>Self-Attention</b>: each token "looks at" all other tokens to understand context. This is why GPT understands "it" refers to the right noun.</li>
+          <li><b>Multi-Head Attention</b>: run attention multiple times in parallel, each "head" learns different relationships</li>
+          <li><b>Feed-Forward Network</b>: after attention, each token processed through an MLP</li>
+          <li><b>Layer Normalization</b>: normalize activations for stable training</li>
+          <li><b>Context Window</b>: max tokens the model can "see" at once (GPT-4 = 128k tokens)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Project — Train a Text Classifier:</b> Using PyTorch, build a sentiment classifier on the IMDB dataset. Use a pre-trained embedding layer, 2 LSTM layers, then a linear + sigmoid output. Achieve >88% accuracy. Package as a FastAPI service.
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank" class="title">But what is a neural network? (3Blue1Brown)</a><small>The clearest explanation ever made · 19 min</small></div>
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=VMj-3S1tku0" target="_blank" class="title">Micrograd — Backprop from Scratch (Karpathy)</a><small>Build autograd engine in 1 hour · Life-changing</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=ySEx_Bqxvvo" target="_blank" class="title">Illustrated Guide to Transformers</a><small>Michael Phi · Best transformer visual explainer</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY" target="_blank" class="title">Let's Build GPT from Scratch (Karpathy)</a><small>2h — Build a mini GPT. Essential watch.</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=GY7S4LvS9mA" target="_blank" class="title">PyTorch for Deep Learning (Full Course)</a><small>freeCodeCamp · 25 hours</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 5 — LLMs & GENERATIVE AI
+     ================================================================ -->
+<section class="phase" id="phase5">
+  <h2><span class="tag">Phase 5</span> LLMs &amp; Generative AI</h2>
+  <p class="sub">Duration: 4–6 weeks · THIS is where your career transformation accelerates. This is the most in-demand skill in tech right now.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Master the OpenAI API, prompt engineering, embeddings, and the Hugging Face ecosystem. Be able to build an AI-powered feature in any product within a day.
+  </div>
+
+  <div class="concept">
+    <h4>OpenAI API — The Starting Point</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Core API Calls</h3>
+        <ul>
+          <li><b>Chat Completions</b>: <code>openai.chat.completions.create(model="gpt-4o", messages=[...])</code></li>
+          <li><b>System Message</b>: sets the AI's role and behavior. Most important part of any prompt.</li>
+          <li><b>User Message</b>: what the user typed</li>
+          <li><b>Assistant Message</b>: previous AI response — for multi-turn conversations</li>
+          <li><b>Embeddings</b>: <code>openai.embeddings.create(model="text-embedding-3-large", input="text")</code></li>
+          <li><b>Streaming</b>: <code>stream=True</code> parameter — tokens flow in real-time like ChatGPT</li>
+          <li><b>Function Calling / Tool Use</b>: give the model a list of tools it can call — the foundation of AI agents</li>
+          <li><b>JSON Mode</b>: <code>response_format={"type": "json_object"}</code> — get structured JSON back every time</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Prompt Engineering — Advanced</h3>
+        <ul>
+          <li><b>Zero-shot</b>: "Translate this to French: …" — no examples</li>
+          <li><b>Few-shot</b>: provide 2–3 examples before the actual task</li>
+          <li><b>Chain of Thought (CoT)</b>: "Think step by step" — dramatically improves reasoning</li>
+          <li><b>ReAct</b>: Reasoning + Acting pattern for agents (think → act → observe → repeat)</li>
+          <li><b>Self-consistency</b>: generate multiple responses and vote on the majority</li>
+          <li><b>Prompt templating</b>: use LangChain PromptTemplate for dynamic prompts with variables</li>
+          <li><b>System prompt design</b>: role, constraints, output format, tone — write these carefully</li>
+          <li><b>Token counting</b>: <code>tiktoken</code> library — count tokens before sending to avoid overflows</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Key Parameters</h3>
+        <ul>
+          <li><b>temperature</b>: 0 = deterministic, 1 = creative, 2 = random. Use 0 for factual tasks, 0.7–1.0 for creative.</li>
+          <li><b>max_tokens</b>: max output length. Always set this to avoid unexpected long responses.</li>
+          <li><b>top_p</b>: nucleus sampling — alternative to temperature. Usually set one or the other, not both.</li>
+          <li><b>frequency_penalty</b>: reduces word repetition (0–2, default 0)</li>
+          <li><b>presence_penalty</b>: encourages new topics (0–2)</li>
+          <li><b>seed</b>: makes output deterministic for the same input (use for testing)</li>
+          <li><b>context_window</b>: GPT-4o = 128k tokens as of 2025 = ~90k words. <b>Note:</b> context window limits change across model versions — always verify at platform.openai.com</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Open-Source LLMs (Hugging Face)</h3>
+        <ul>
+          <li><b>Llama 3 (Meta)</b>: best open-source model for most tasks. 8B, 70B versions.</li>
+          <li><b>Mistral / Mixtral</b>: excellent for coding and instruction following</li>
+          <li><b>Phi-3 (Microsoft)</b>: small but very capable — runs on a laptop CPU</li>
+          <li><b>Gemma (Google)</b>: strong reasoning, available in 2B and 7B</li>
+          <li><b>Use via Ollama</b>: <code>ollama run llama3</code> — run on your Mac, free, private</li>
+          <li><b>Use via HuggingFace Inference API</b>: free tier, easy to start</li>
+          <li><b>Transformers library</b>: <code>from transformers import pipeline</code> — load and run any HF model in 5 lines</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Anthropic Claude API — Must Know in 2025</h3>
+        <ul>
+          <li>Claude (Anthropic) is OpenAI's biggest competitor and often outperforms GPT-4o on reasoning, coding, and long-context tasks</li>
+          <li><code>pip install anthropic</code></li>
+          <li><code>client = anthropic.Anthropic(api_key="...")</code></li>
+          <li><b>Models</b>: <code>claude-opus-4</code> (most capable), <code>claude-sonnet-4</code> (best balance), <code>claude-haiku-3-5</code> (fast + cheap)</li>
+          <li><b>200k token context window</b> — can read entire codebases in one call</li>
+          <li><b>Extended Thinking</b>: Claude can "think" step-by-step internally before answering — better for hard reasoning problems</li>
+          <li><b>Artifacts</b>: Claude can produce standalone code/documents. Great for code generation use cases.</li>
+          <li><b>Computer Use</b>: Claude can control a computer (click, type, screenshot) — foundation for browser automation agents</li>
+          <li>Use LiteLLM to swap between OpenAI and Claude with zero code changes</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Structured Outputs &amp; Whisper (Speech AI)</h3>
+        <ul>
+          <li><b>Structured Outputs (OpenAI)</b>: <code>response_format={"type": "json_schema", "json_schema": {...}}</code> — 100% guaranteed schema adherence. More reliable than JSON mode. Use this for extracting data from documents.</li>
+          <li><b>Structured Outputs with Pydantic</b>: <code>openai.beta.chat.completions.parse(model=..., response_format=MyPydanticModel)</code> — get a typed Pydantic object back, not raw JSON</li>
+          <li><b>Whisper (OpenAI)</b>: open-source speech-to-text model — transcribes audio/video in 99 languages. <code>pip install openai-whisper</code> or use API: <code>openai.audio.transcriptions.create(model="whisper-1", file=...)</code></li>
+          <li><b>Use cases</b>: transcribe meeting recordings, build voice-controlled AI apps, index podcast content for RAG</li>
+          <li><b>TTS (Text-to-Speech)</b>: <code>openai.audio.speech.create(model="tts-1", voice="alloy", input="text")</code> — convert AI responses to natural speech</li>
+          <li><b>Voice AI app pattern</b>: Whisper (speech→text) → GPT-4o (think) → TTS (text→speech) = a full voice assistant in 30 lines</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Project — AI Writing Assistant:</b> Build a streaming writing assistant with React + FastAPI backend. Features: edit, summarize, translate, expand text. Use function calling to detect intent. Support multiple models (OpenAI + local Llama via Ollama). Add conversation history with context windowing.
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=aywZrzNaKjs" target="_blank" class="title">LangChain Crash Course for Beginners</a><small>Patrick Loeber · Best LangChain intro (verify syntax against <a href="https://python.langchain.com/docs/" target="_blank">current docs</a> — API changes frequently)</small></div>
+    <div class="video featured">🎥 <a href="https://learn.deeplearning.ai/courses/chatgpt-prompt-eng" target="_blank" class="title">ChatGPT Prompt Engineering (Andrew Ng)</a><small>deeplearning.ai · Free 1.5h course — DO THIS FIRST</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=ub9EAlFdLRo" target="_blank" class="title">Build with OpenAI API (Full Course)</a><small>Tech With Tim · Complete practical guide</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=00GKzGyWFEs" target="_blank" class="title">HuggingFace Transformers Course</a><small>NLP with Transformers end-to-end</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 6 — RAG & VECTOR DATABASES
+     ================================================================ -->
+<section class="phase" id="phase6">
+  <h2><span class="tag blue">Phase 6</span> RAG Systems &amp; Vector Databases</h2>
+  <p class="sub">Duration: 3–4 weeks · The #1 skill companies are hiring for right now. RAG is in every AI product.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Build production-quality Retrieval Augmented Generation systems. Understand embeddings, chunking strategies, vector search, and how to evaluate RAG quality.
+  </div>
+
+  <div class="concept">
+    <h4>What is RAG and Why It Matters</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>The Problem RAG Solves</h3>
+        <ul>
+          <li>LLMs have a knowledge cutoff date — they don't know about your company's docs</li>
+          <li>LLMs hallucinate — they make up facts when they don't know the answer</li>
+          <li>LLMs can't fit entire document libraries in context window</li>
+          <li><b>RAG solution</b>: store your documents in a vector DB, at query time retrieve the most relevant chunks, inject them into the LLM's context</li>
+          <li>Result: accurate, grounded answers from YOUR data without fine-tuning</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>RAG Pipeline Architecture</h3>
+        <ul>
+          <li><b>Step 1 — Ingestion</b>: load documents (PDF, Word, web, code) → clean → chunk → embed → store in vector DB</li>
+          <li><b>Step 2 — Retrieval</b>: embed user query → find top-k similar chunks in vector DB via cosine similarity</li>
+          <li><b>Step 3 — Augmentation</b>: inject retrieved chunks into system prompt as context</li>
+          <li><b>Step 4 — Generation</b>: LLM generates answer grounded in retrieved context</li>
+          <li><b>Step 5 — Evaluation</b>: measure faithfulness, relevance, groundedness (RAGAS framework)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Embeddings Deep Dive</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>What Are Embeddings</h3>
+        <ul>
+          <li>An embedding model converts text → a dense vector of floats (e.g., 1536 dimensions for text-embedding-3-large)</li>
+          <li>Similar meaning = vectors are mathematically close (high cosine similarity)</li>
+          <li>"king" - "man" + "woman" ≈ "queen" — this is the famous word2vec analogy, still true in modern embeddings</li>
+          <li><b>OpenAI</b>: <code>text-embedding-3-small</code> (1536-dim, cheap), <code>text-embedding-3-large</code> (3072-dim, best)</li>
+          <li><b>Open-source</b>: <code>sentence-transformers/all-MiniLM-L6-v2</code> — free, runs locally, surprisingly good</li>
+          <li>Multimodal embeddings: embed text AND images in the same space (CLIP)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Chunking Strategies</h3>
+        <ul>
+          <li><b>Fixed-size chunking</b>: split every N characters/tokens. Simple but naive — cuts mid-sentence.</li>
+          <li><b>Recursive character splitting</b>: LangChain's default — split by paragraph, sentence, word. Much better.</li>
+          <li><b>Semantic chunking</b>: split at semantic boundaries using embedding similarity — best quality.</li>
+          <li><b>Chunk overlap</b>: include 10–20% of previous chunk to avoid context loss at boundaries</li>
+          <li><b>Chunk size</b>: 256–512 tokens = good for precise retrieval. 1024 = more context per chunk.</li>
+          <li><b>Metadata</b>: attach source, page number, date to each chunk for citation in answers</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>Vector Databases</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Options Comparison</h3>
+        <ul>
+          <li><b>ChromaDB</b> — local, zero-config, Python-native. Perfect for dev and small projects. <code>pip install chromadb</code></li>
+          <li><b>Pinecone</b> — managed cloud, fastest at scale, great for production SaaS. Has a generous free tier.</li>
+          <li><b>Supabase</b> — <b>best for full-stack devs.</b> Managed Postgres with pgvector built-in + auth + file storage + realtime subscriptions — all in one. You already know React; Supabase's JS SDK is dead simple. <code>npm install @supabase/supabase-js</code></li>
+          <li><b>Weaviate</b> — open-source + cloud, built-in BM25 hybrid search, good for enterprise</li>
+          <li><b>Qdrant</b> — Rust-based, high performance, open-source. Best for self-hosted production.</li>
+          <li><b>pgvector</b> — vector extension for raw PostgreSQL. If you self-host Postgres, use this.</li>
+          <li><b>FAISS</b> (Facebook AI Similarity Search) — library, not a server. In-memory, blazing fast.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>LangChain RAG Patterns</h3>
+        <ul>
+          <li><code>from langchain_community.document_loaders import PyPDFLoader</code></li>
+          <li><code>from langchain.text_splitter import RecursiveCharacterTextSplitter</code></li>
+          <li><code>from langchain_openai import OpenAIEmbeddings</code></li>
+          <li><code>from langchain_community.vectorstores import Chroma</code></li>
+          <li><code>vectorstore = Chroma.from_documents(docs, embeddings)</code></li>
+          <li><code>retriever = vectorstore.as_retriever(search_kwargs={"k": 4})</code></li>
+          <li><code>from langchain.chains import RetrievalQA</code></li>
+          <li>Use <b>RAGAS</b> framework to evaluate RAG quality: faithfulness, answer relevancy, context precision</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Advanced RAG Techniques</h3>
+        <ul>
+          <li><b>Hybrid Search</b>: combine vector similarity (semantic) + BM25 (keyword) for better retrieval</li>
+          <li><b>HyDE (Hypothetical Document Embeddings)</b>: generate a hypothetical answer, embed it, then search — finds better context</li>
+          <li><b>Re-ranking</b>: use a cross-encoder model to re-rank top-20 retrieved chunks to top-3</li>
+          <li><b>Parent Document Retriever</b>: embed small chunks for precision, retrieve parent chunks for context</li>
+          <li><b>Multi-query retrieval</b>: generate multiple queries from one question, merge results</li>
+          <li><b>Contextual compression</b>: extract only the relevant portion of each retrieved chunk</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Project — AI Document Q&amp;A App:</b> Build a full-stack RAG app. Users upload PDFs/docs → get chunked, embedded, stored in Pinecone. Users ask questions → relevant chunks retrieved → GPT-4o generates cited answers. React frontend with streaming. FastAPI backend. Show source document + page number for each answer. Deploy to Railway or Fly.io.
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://learn.deeplearning.ai/courses/langchain-chat-with-your-data" target="_blank" class="title">LangChain: Chat with Your Data (Andrew Ng)</a><small>deeplearning.ai · Free · The best RAG course</small></div>
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=tcqEUSNCn8I" target="_blank" class="title">RAG from Scratch (LangChain)</a><small>LangChain official · 30-part YouTube series</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=dXxQ0LR-3Hg" target="_blank" class="title">Pinecone + LangChain + OpenAI RAG Tutorial</a><small>James Briggs · Best practical RAG guide</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=2TJxpyO3ei4" target="_blank" class="title">Advanced RAG Techniques</a><small>Sam Witteveen · Covers hybrid search, reranking, HyDE</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 7 — AI AGENTS & ORCHESTRATION
+     ================================================================ -->
+<section class="phase" id="phase7">
+  <h2><span class="tag teal">Phase 7</span> AI Agents &amp; Orchestration</h2>
+  <p class="sub">Duration: 3–4 weeks · The frontier of AI engineering. Agents are autonomous AI systems that think and act.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Build AI agents that can use tools, search the web, write and run code, interact with APIs, and complete multi-step tasks autonomously.
+  </div>
+
+  <div class="concept">
+    <h4>What Are AI Agents?</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Agent vs. Chatbot</h3>
+        <ul>
+          <li><b>Chatbot</b>: takes input → calls LLM → returns output. One step. Done.</li>
+          <li><b>Agent</b>: takes goal → plans steps → uses tools → observes result → adjusts plan → repeats until goal is complete</li>
+          <li>Agents can: search the web, read/write files, call APIs, run Python code, send emails, query databases</li>
+          <li><b>ReAct loop</b>: Reason → Act → Observe → Reason → Act → … until task complete</li>
+          <li>Risk: agents can make mistakes and compound them. Guardrails are essential in production.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Core Components</h3>
+        <ul>
+          <li><b>LLM Brain</b>: the decision-making core (GPT-4o, Claude, Llama)</li>
+          <li><b>Tools</b>: functions the LLM can call (search, calculator, file reader, API caller)</li>
+          <li><b>Memory</b>: short-term (conversation history) + long-term (vector DB storage)</li>
+          <li><b>Planning</b>: break complex goal into sub-tasks (ReAct, Tree of Thoughts)</li>
+          <li><b>Executor</b>: actually runs the tool calls and returns results to the LLM</li>
+          <li><b>Guardrails</b>: validate inputs/outputs, prevent harmful actions, require confirmation for irreversible actions</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>LangChain Agents</h3>
+        <ul>
+          <li><code>from langchain.agents import create_openai_tools_agent</code></li>
+          <li><code>from langchain.agents import AgentExecutor</code></li>
+          <li><code>@tool</code> decorator — turn any Python function into an LLM-callable tool</li>
+          <li>Built-in tools: DuckDuckGo search, Wikipedia, Python REPL, file system, calculator</li>
+          <li>Custom tools: wrap any API as a tool with a schema and docstring</li>
+          <li><code>verbose=True</code> to see the agent's reasoning steps</li>
+          <li><b>Tavily API</b>: real-time web search built for agents (much better than DuckDuckGo for production). <code>pip install tavily-python</code> — get free API key at tavily.com</li>
+          <li><b>E2B Code Sandbox</b>: let agents safely execute Python code in an isolated cloud environment — essential for coding agents. <code>pip install e2b-code-interpreter</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>LangGraph — Multi-Step Agent Workflows</h3>
+        <ul>
+          <li>LangGraph is the evolution beyond LangChain agents — builds <b>stateful, cyclical agent workflows as graphs</b></li>
+          <li>Each node = an action (call LLM, use tool, run code). Edges = flow between nodes.</li>
+          <li>Supports: branching, looping, human-in-the-loop, parallel execution</li>
+          <li>Used for: complex research agents, coding agents, customer service bots with escalation</li>
+          <li><code>from langgraph.graph import StateGraph, END</code></li>
+          <li>This is what powers many production AI agents at scale</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Multi-Agent Systems</h3>
+        <ul>
+          <li><b>CrewAI</b>: define a crew of specialized agents with roles (researcher, writer, critic) that collaborate on tasks</li>
+          <li><b>AutoGen (Microsoft)</b>: framework for conversational multi-agent systems — agents talk to each other</li>
+          <li><b>Pydantic AI</b>: emerging type-safe agent framework gaining significant adoption in 2025 as a cleaner alternative to LangChain. Strong integration with Pydantic validation. <code>pip install pydantic-ai</code></li>
+          <li><b>MCP (Model Context Protocol)</b>: Anthropic's open protocol that lets LLMs connect to data sources and tools in a standardized way. Think of it as a USB standard for LLM tool connections. Every major IDE, Claude, Cursor, and most agent frameworks support MCP. Learn to <b>build MCP servers</b> — it is the future of tool integration. <a href="https://modelcontextprotocol.io" target="_blank">modelcontextprotocol.io</a></li>
+          <li><b>Use case</b>: research agent gathers info → writer agent drafts → editor agent reviews → publisher agent posts</li>
+          <li>Each agent is an LLM with a specific system prompt, tools, and memory</li>
+          <li>Emergent behavior — agents can surprise you. Always add output validation.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Project — Research Agent:</b> Build an agent that takes a topic as input and produces a comprehensive research report. Tools: web search (DuckDuckGo/Serper API), Wikipedia, arxiv paper search, Python code runner. Use LangGraph for the workflow: plan → search → summarize → write → format → done. Output as a formatted markdown/PDF report.
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://learn.deeplearning.ai/courses/functions-tools-agents-langchain" target="_blank" class="title">Functions, Tools and Agents with LangChain</a><small>deeplearning.ai · Free · Essential agent course</small></div>
+    <div class="video featured">🎥 <a href="https://learn.deeplearning.ai/courses/multi-ai-agent-systems-with-crewai" target="_blank" class="title">Multi AI Agent Systems with CrewAI</a><small>deeplearning.ai · Free · CrewAI hands-on</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=GpFjkxAHlKA" target="_blank" class="title">LangGraph Tutorial (Harrison Chase)</a><small>LangChain official · Complete LangGraph guide</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=ly7kzLBCMDc" target="_blank" class="title">AutoGen Multi-Agent Tutorial</a><small>Microsoft · Building collaborative agent systems</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 8 — BACKEND APIs FOR AI
+     ================================================================ -->
+<section class="phase" id="phase8">
+  <h2><span class="tag orange">Phase 8</span> Backend APIs for AI</h2>
+  <p class="sub">Duration: 3–4 weeks · Expose your AI pipelines as production-grade APIs.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Build robust, scalable FastAPI services that wrap your AI pipelines. Handle streaming, async processing, rate limiting, and cost management. Integrate with your Go microservices.
+  </div>
+
+  <div class="concept">
+    <h4>FastAPI for AI Backends</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>FastAPI Essentials</h3>
+        <ul>
+          <li>FastAPI is the de-facto standard for AI backends in Python (90% of AI startups use it)</li>
+          <li>Async-first, automatically generates OpenAPI docs, Pydantic validation built-in</li>
+          <li><code>@app.post("/chat")</code> — define routes with HTTP methods</li>
+          <li>Pydantic models for request/response schemas — type-safe by default</li>
+          <li><code>uvicorn main:app --reload</code> — run in dev mode</li>
+          <li>Background tasks: <code>BackgroundTasks</code> — for async model inference, sending emails</li>
+          <li>Dependency injection: <code>Depends()</code> — for auth, DB sessions, shared clients</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Streaming Responses (Critical)</h3>
+        <ul>
+          <li>Users expect streaming — nobody waits 10 seconds for the full response</li>
+          <li>FastAPI: <code>from fastapi.responses import StreamingResponse</code></li>
+          <li>Use <code>async def stream_generator():</code> as an async generator that <code>yield</code>s chunks</li>
+          <li>Client receives: Server-Sent Events (SSE) or chunked transfer encoding</li>
+          <li>OpenAI streaming: <code>stream=True</code> returns a generator you can iterate</li>
+          <li>Abort signal: handle client disconnects cleanly to stop the model inference</li>
+          <li>React side: use <code>EventSource</code> or the Vercel AI SDK for streaming UI</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Production Concerns</h3>
+        <ul>
+          <li><b>Rate limiting</b>: use slowapi or a Redis-backed rate limiter — LLM calls are expensive</li>
+          <li><b>Token budgeting</b>: count input tokens before calling API, reject if over budget</li>
+          <li><b>Cost tracking</b>: log tokens per request per user — track spend in a database</li>
+          <li><b>Caching</b>: OpenAI's native <b>prompt caching</b> (50% discount on repeated system prompts ≥1024 tokens) is the easiest win. For full response caching, use Redis + semantic similarity lookup.</li>
+          <li><b>Timeout handling</b>: LLM calls can take 30–60s. Use <code>asyncio.wait_for</code> with timeouts.</li>
+          <li><b>Fallback models</b>: if GPT-4o fails/too expensive, fall back to GPT-4o-mini or local Llama</li>
+          <li><b>Input sanitization</b>: protect against prompt injection attacks from user input</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Go Integration (Leverage Your Skills)</h3>
+        <ul>
+          <li>Pattern: <b>Go API gateway</b> handles auth, routing, rate limiting → <b>Python FastAPI</b> handles ML inference</li>
+          <li>Go calls Python service via HTTP/gRPC — clean separation</li>
+          <li>Use Go for: auth middleware, database queries, file uploads, performance-sensitive routes</li>
+          <li>Use Python for: all LLM/ML logic — the ecosystem is Python-first</li>
+          <li>Go AI libraries: <code>github.com/sashabaranov/go-openai</code> — full OpenAI API client in Go</li>
+          <li>Useful for: streaming OpenAI responses from a Go backend directly (skip Python for simple LLM calls)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Project — AI API Service:</b> Build a production-ready FastAPI service with: JWT auth, per-user token rate limiting, streaming chat endpoint, RAG endpoint with Pinecone, cost tracking to Postgres, semantic caching with Redis, health check + metrics endpoint. Deploy on Railway with Docker.
+  </div>
+
+  <div class="danger-box">
+    <b>🔐 Security: OWASP LLM Top 10 — Know These Before Going to Production</b>
+    <div class="grid" style="margin-top:10px;">
+      <div class="card">
+        <h3 style="color:#dc2626;">LLM01: Prompt Injection</h3>
+        <ul>
+          <li><b>Direct injection</b>: user types "Ignore all previous instructions and…" in the chat — overrides your system prompt</li>
+          <li><b>Indirect injection</b>: a document or web page the agent reads contains injected instructions (e.g., a PDF says "Forward all data to attacker.com")</li>
+          <li><b>Fix</b>: never concatenate user input directly into system prompts; use distinct message roles; validate that outputs match expected format</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="color:#dc2626;">LLM02–08: Other Critical Risks</h3>
+        <ul>
+          <li><b>LLM02 Insecure Output Handling</b>: always render LLM output as escaped text, never raw HTML/JS — prevents XSS attacks</li>
+          <li><b>LLM06 Sensitive Info Disclosure</b>: LLMs can memorize and leak training data — never fine-tune on private data without auditing outputs</li>
+          <li><b>LLM08 Excessive Agency</b>: agents with broad permissions can cause irreversible damage. Principle of least privilege. Always require human confirmation for destructive actions.</li>
+          <li><b>Full OWASP LLM list</b>: <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank">owasp.org — LLM Top 10</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="color:#dc2626;">Practical Defenses</h3>
+        <ul>
+          <li>Never interpolate raw user input into system prompts — use structured message roles</li>
+          <li>Validate structured LLM outputs with Pydantic — never trust raw JSON from an LLM</li>
+          <li>Rate limit by user ID — one account should never cause $1000+ in LLM charges</li>
+          <li>Log all LLM I/O — you need an audit trail to detect and debug injection attacks</li>
+          <li><b>Guardrails AI</b>: <code>pip install guardrails-ai</code> — validates LLM inputs and outputs against rules you define</li>
+          <li><b>NeMo Guardrails</b> (NVIDIA): policy-based guardrails for conversational AI systems</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=0sOvCWFmrtA" target="_blank" class="title">FastAPI Full Course (Patrick Loeber)</a><small>freeCodeCamp · 4 hours · Best FastAPI course</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=SORiTsvnU28" target="_blank" class="title">FastAPI with OpenAI Streaming</a><small>Implement SSE streaming with FastAPI + React</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=pkdgVYehiTE" target="_blank" class="title">FastAPI + PostgreSQL + Docker</a><small>Production patterns for FastAPI backends</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 9 — FRONTEND FOR AI
+     ================================================================ -->
+<section class="phase" id="phase9">
+  <h2><span class="tag pink">Phase 9</span> Frontend for AI</h2>
+  <p class="sub">Duration: 2–3 weeks · Your secret weapon. Most AI engineers can't build a good UI. You can.</p>
+
+  <div class="callout">
+    <b>🎯 THIS IS YOUR SUPERPOWER:</b> You have 4 years of frontend experience. Every other AI engineer in the room struggles with React, streaming UI, and UX. You will ship AI products 3× faster because you can do both ends. Do not underestimate this advantage.
+  </div>
+
+  <div class="concept">
+    <h4>AI-Specific Frontend Patterns</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Vercel AI SDK (Most Important)</h3>
+        <ul>
+          <li>The #1 tool for building AI UIs in React/Next.js — abstracts streaming, tool calls, multi-step agents</li>
+          <li><code>npm install ai @ai-sdk/openai</code></li>
+          <li><code>useChat()</code> hook: handles messages state, streaming, input, and submission</li>
+          <li><code>useCompletion()</code>: for non-chat text generation (autocomplete, summarize)</li>
+          <li>Server Actions (Next.js): call AI SDK directly from server, stream to client</li>
+          <li>Supports: OpenAI, Anthropic, Google, Mistral, Ollama, and any OpenAI-compatible endpoint</li>
+          <li>Handles tool calls: render UI components based on tool outputs from the LLM</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Streaming UI Patterns</h3>
+        <ul>
+          <li>Display text as it streams — never wait for full response</li>
+          <li>Use <code>ReactMarkdown</code> to render markdown from streaming LLM output</li>
+          <li>Show "thinking" / spinner until first token arrives</li>
+          <li>Abort button — allow users to stop generation mid-stream</li>
+          <li>Auto-scroll to bottom as new tokens stream in</li>
+          <li>Code blocks with syntax highlighting: <code>react-syntax-highlighter</code></li>
+          <li>Handle partial JSON gracefully when streaming structured output</li>
+          <li><b>Agent step streaming</b>: with LangGraph, you can stream each agent step (tool call, observation, thinking) to the UI. Use <code>graph.astream_events()</code> on the backend and SSE to push each event to the React frontend — users see the agent "thinking" in real-time instead of waiting 30s for a final answer</li>
+          <li><b>Vercel AI SDK + tool calls</b>: the SDK's <code>useChat()</code> hook automatically renders tool call progress and results as they stream — use this for agent UIs</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>AI UX Design Patterns</h3>
+        <ul>
+          <li><b>Suggested prompts</b>: show clickable example queries to reduce blank-page anxiety</li>
+          <li><b>Regenerate button</b>: let users retry a response with the same input</li>
+          <li><b>Edit message</b>: allow editing previous user message and regenerating</li>
+          <li><b>Source citations</b>: show which documents were used (for RAG apps)</li>
+          <li><b>Confidence indicators</b>: when unsure, indicate uncertainty to users</li>
+          <li><b>Copy button</b> on each AI response</li>
+          <li><b>Token/cost indicator</b>: show users their usage (builds trust)</li>
+          <li><b>Voice input</b>: integrate Web Speech API for hands-free queries</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>File Handling for AI</h3>
+        <ul>
+          <li>PDF upload → extract text → chunk → RAG: use <code>pdf-lib</code> or send to backend</li>
+          <li>Image upload → send to vision models: <code>gpt-4o</code> accepts base64 image input</li>
+          <li>Drag &amp; drop multi-file upload with progress indicators</li>
+          <li>Chunked uploads for large files (avoid 10MB API limits)</li>
+          <li>Show extracted content preview before processing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <b>🔨 Project — Full Stack AI Chat App:</b> Next.js 14 + Vercel AI SDK + FastAPI backend. Features: streaming chat with GPT-4o, PDF upload + RAG, markdown rendering with code highlighting, conversation history (saved to Postgres), dark/light mode, mobile responsive, share chat link, export conversation as PDF.
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=O74xvVAVxlk" target="_blank" class="title">Build a ChatGPT Clone with Next.js + Vercel AI SDK</a><small>Lee Robinson (Vercel) · Official tutorial</small></div>
+    <div class="video featured">🎥 <a href="https://sdk.vercel.ai/docs/introduction" target="_blank" class="title">Vercel AI SDK Documentation</a><small>sdk.vercel.ai — Best docs for AI frontend development</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=SjjPo4PkBhM" target="_blank" class="title">Next.js AI Application Full Course</a><small>Build full-stack AI app end-to-end</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 10 — MLOPS & DEPLOYMENT
+     ================================================================ -->
+<section class="phase" id="phase10">
+  <h2><span class="tag red">Phase 10</span> MLOps &amp; Production Deployment</h2>
+  <p class="sub">Duration: 3–4 weeks · Shipping is more important than building. Learn to deploy and monitor AI apps.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Deploy AI applications to production. Monitor LLM behavior, track costs, debug failures, fine-tune models, and scale reliably.
+  </div>
+
+  <div class="concept">
+    <h4>Deploying AI Applications</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Deployment Platforms</h3>
+        <ul>
+          <li><b>Railway</b> — easiest. Push Docker → it runs. Free tier available. Best for side projects.</li>
+          <li><b>Fly.io</b> — fast global edge deployment. Good for low-latency AI APIs.</li>
+          <li><b>Render</b> — zero-config Docker deployment. Free tier available.</li>
+          <li><b>AWS / GCP / Azure</b> — for production at scale. ECS (containers), Lambda (serverless), SageMaker (ML specific)</li>
+          <li><b>Modal</b> — serverless GPU deployment. Pay per inference call. Best for running open-source models in cloud.</li>
+          <li><b>vLLM</b> — de-facto standard for self-hosted LLM serving at scale (Llama, Mistral, Phi). Extremely fast via PagedAttention. Use when Modal costs too much at scale: <code>pip install vllm</code></li>
+          <li><b>Replicate</b> — run ML models via API. No infra setup. Good for image/video models.</li>
+          <li><b>Hugging Face Spaces</b> — free demo hosting for ML apps</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Fine-Tuning Basics</h3>
+        <ul>
+          <li><b>When to fine-tune</b>: when prompt engineering hits a ceiling, need consistent format/style/domain knowledge</li>
+          <li><b>OpenAI fine-tuning</b>: upload JSONL dataset → train → use your custom model ID. Realistically costs <b>$50–200+ for typical 1000-example datasets</b> depending on model size and token count.</li>
+          <li><b>LoRA (Low-Rank Adaptation)</b>: fine-tune only a small subset of weights. 10× less compute than full fine-tuning.</li>
+          <li><b>QLoRA</b>: quantized LoRA — run on consumer GPU (16GB VRAM). Fine-tune Llama on your laptop.</li>
+          <li><b>Tools</b>: Unsloth, Axolotl, LLaMA Factory — make fine-tuning Llama/Mistral easy</li>
+          <li><b>Dataset size</b>: 100 examples = style/format. 1000+ = domain knowledge. 10k+ = significant capability shift.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>LLMOps — Observability for AI</h3>
+        <ul>
+          <li><b>LangSmith</b>: trace every LLM call, see prompts + responses, identify errors. Essential for debugging agents.</li>
+          <li><b>Weights &amp; Biases (WandB)</b>: log model training runs, compare experiments, track metrics</li>
+          <li><b>Helicone</b>: proxy LLM calls, log everything, set rate limits, analyze cost per user</li>
+          <li><b>Traceloop / OpenTelemetry</b>: open-source LLM observability — works with any LLM provider</li>
+          <li><b>What to monitor</b>: latency, token usage, cost, error rate, hallucination rate, user feedback</li>
+          <li><b>Prompt versioning</b>: store prompts in a DB or file, version them like code. Bad prompts kill products.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>AI Evaluation — How to Measure Quality</h3>
+        <ul>
+          <li><b>RAGAS</b>: the standard for evaluating RAG pipelines. Metrics: faithfulness (is the answer grounded in the retrieved context?), answer relevancy, context precision. <code>pip install ragas</code></li>
+          <li><b>LLM-as-Judge</b>: use GPT-4o to evaluate outputs from a weaker model. Prompt: "Rate this answer 1–5 for accuracy, helpfulness, and tone. Explain why." Cheap and scalable.</li>
+          <li><b>DeepEval</b>: open-source LLM evaluation framework. Write unit tests for LLM outputs — just like Jest for AI. <code>pip install deepeval</code></li>
+          <li><b>PromptFoo</b>: run your prompts against test cases and compare across models. CLI tool. Perfect for prompt regression testing before deployment. <code>npm install -g promptfoo</code></li>
+          <li><b>Prompt Regression Testing</b>: before changing any prompt in production, run it against 20 golden test cases. If pass rate drops, don't deploy the change.</li>
+          <li><b>Human evaluation</b>: for high-stakes outputs (medical, legal), build an internal review UI where domain experts rate responses. Collect ground truth for fine-tuning.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Docker for AI Apps</h3>
+        <ul>
+          <li>Your AI Dockerfile: <code>FROM python:3.11-slim</code> as base (smaller than full Python)</li>
+          <li>Multi-stage builds: build stage installs deps → final stage copies only what's needed</li>
+          <li>Model weights can be HUGE (7B model = 14GB). Use model APIs or mount volumes, don't bake into image.</li>
+          <li>GPU Docker: <code>FROM nvidia/cuda:12.1-base</code> — required for running local models with CUDA</li>
+          <li><code>docker compose</code> for local dev: API + vector DB + Redis + Postgres all in one command</li>
+          <li>Health checks: always add <code>HEALTHCHECK</code> to Dockerfile for AI services (model loading takes time)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=fis26HvvDII" target="_blank" class="title">LangSmith Full Tutorial (LangChain)</a><small>LangChain official · Complete LLMOps observability</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=Q9vSaT2JRa4" target="_blank" class="title">Fine-tuning LLMs (Mistral/Llama with LoRA)</a><small>Maxime Labonne · Best fine-tuning walkthrough</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=bi0cKgmRuiA" target="_blank" class="title">Deploy FastAPI + ML Model with Docker</a><small>Patrick Loeber · Production deployment guide</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=y5qQANilixc" target="_blank" class="title">Run LLMs on Modal (Serverless GPU)</a><small>Deploy Llama on cloud GPU for production</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 11 — AI SYSTEM DESIGN
+     ================================================================ -->
+<section class="phase" id="phase11">
+  <h2><span class="tag">Phase 11</span> AI System Design</h2>
+  <p class="sub">Duration: 2–3 weeks · Separate senior engineers from juniors. Design AI systems that scale, stay affordable, and don't hallucinate.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Given a product requirement, design the full AI system architecture: data flow, models, vector DBs, caching layers, APIs, frontend, monitoring. Defend your design in an interview or stakeholder meeting.
+  </div>
+
+  <div class="concept">
+    <h4>Key AI System Design Patterns</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>RAG System Architecture</h3>
+        <ul>
+          <li>Ingestion pipeline: S3/GCS → Doc parser → Chunker → Embedder → Vector DB</li>
+          <li>Query pipeline: User query → Intent classifier → Query rewriter → Retriever → Re-ranker → LLM → Response</li>
+          <li>Async ingestion: use a job queue (Celery/Redis) for large document processing</li>
+          <li>Separate read/write paths: bulk ingestion ≠ real-time search path</li>
+          <li>Cache embeddings of frequent queries to reduce costs</li>
+          <li>Multi-tenant: each tenant's documents in a separate namespace in the vector DB</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Cost Optimization</h3>
+        <ul>
+          <li>Use smaller models for simple tasks: GPT-4o-mini for classification, GPT-4o for complex reasoning</li>
+          <li>Prompt caching: OpenAI caches up to 128k token system prompts — repeat it exactly for 50% cost reduction</li>
+          <li>Batch API: for offline tasks, use OpenAI batch API (50% discount, 24h turnaround)</li>
+          <li>Semantic caching: OpenAI native prompt caching covers system prompts automatically. For full response caching, store (query_embedding, response) in Redis and retrieve on cosine similarity hit above 0.98</li>
+          <li>Compress context: remove irrelevant information before sending to LLM</li>
+          <li>Local models for low-stakes tasks: use Ollama/Phi-3 for tasks that don't need GPT-4 quality</li>
+          <li>Set hard cost limits: never let a single user cause $100+ in LLM costs</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Reliability &amp; Safety</h3>
+        <ul>
+          <li><b>Guardrails</b>: use NeMo Guardrails or Guardrails AI to prevent harmful/off-topic outputs</li>
+          <li><b>Output validation</b>: use Pydantic to validate structured LLM outputs — never trust raw LLM JSON</li>
+          <li><b>Hallucination detection</b>: cross-reference answers with retrieved context. Low overlap = possible hallucination.</li>
+          <li><b>Human-in-the-loop</b>: for high-stakes actions (send email, delete data), require human confirmation</li>
+          <li><b>Fallback chains</b>: GPT-4o fails → GPT-4o-mini → cached response → "I don't know" — never show a raw error</li>
+          <li><b>Prompt injection protection</b>: never directly embed user input into system prompts without sanitization</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Interview: Common AI System Design Questions</h3>
+        <ul>
+          <li>Design a customer support chatbot for a SaaS product (RAG + fallback to human)</li>
+          <li>Design a code review AI assistant (context management, large file handling)</li>
+          <li>Design a multi-tenant AI document search system (isolation, cost per tenant)</li>
+          <li>Design a real-time AI news summarizer (streaming ingestion, freshness vs. cost)</li>
+          <li>Design an AI agent that can book flights (tool use, confirmation flows, error handling)</li>
+          <li>How would you reduce LLM costs by 80% for an existing AI product?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="videos">
+    <div class="video featured">🎥 <a href="https://www.youtube.com/watch?v=21EiKfQYZXc" target="_blank" class="title">LLM Application Architecture Patterns</a><small>AI Engineering Summit · Production patterns</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=d4yCWBGFCEs" target="_blank" class="title">Building Production LLM Apps</a><small>Chip Huyen · Author of "AI Engineering" book</small></div>
+    <div class="video">🎥 <a href="https://www.youtube.com/watch?v=vw-KWfKwvTQ" target="_blank" class="title">AI System Design Interview</a><small>ML system design patterns — senior engineer prep</small></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PHASE 12 — SPECIALIZATION
+     ================================================================ -->
+<section class="phase" id="phase12">
+  <h2><span class="tag blue">Phase 12</span> Specialization Track (Choose One)</h2>
+  <p class="sub">Duration: 3–4 weeks · After Phase 11, you're a Full Stack AI Engineer. Now go deep in one domain to become irreplaceable.</p>
+
+  <div class="callout">
+    <b>🎯 Goal:</b> Pick one track and go deep. Being "okay at everything" is less valuable than being excellent at one thing that companies urgently need.
+  </div>
+
+  <div class="concept">
+    <h4>Choose Your Specialization</h4>
+    <div class="grid">
+
+      <div class="card" style="border-left: 4px solid #7c3aed;">
+        <h3 style="color:#7c3aed;">🤖 Track A: LLM Fine-Tuning &amp; Model Development</h3>
+        <ul>
+          <li>Master LoRA, QLoRA, DPO, RLHF fine-tuning workflows</li>
+          <li>Build custom instruction-tuned models for specific domains (legal, medical, code)</li>
+          <li>Learn model quantization (GGUF, GPTQ, AWQ) for efficient deployment</li>
+          <li>Contribute to open-source models on Hugging Face</li>
+          <li>Target companies: AI startups, LLM providers, companies building vertical AI</li>
+          <li><b>Key tools</b>: Unsloth, Axolotl, trl library, WandB, Modal</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #0891b2;">
+        <h3 style="color:#0891b2;">👁️ Track B: Computer Vision + Multimodal AI</h3>
+        <ul>
+          <li>Object detection: YOLO, DETR, Detectron2</li>
+          <li>Image generation: Stable Diffusion, DALL-E, ControlNet</li>
+          <li>Video AI: optical flow, video generation (Sora architecture)</li>
+          <li>Multimodal LLMs: GPT-4o vision, LLaVA, Gemini Vision</li>
+          <li>Target companies: autonomous vehicles, medical imaging, retail, security</li>
+          <li><b>Key tools</b>: OpenCV, PIL, timm (PyTorch Image Models), diffusers library</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #16a34a;">
+        <h3 style="color:#16a34a;">🏗️ Track C: AI Platform / Infrastructure Engineering</h3>
+        <ul>
+          <li>Build internal AI platforms for teams: prompt playgrounds, model routers, evaluation pipelines</li>
+          <li>Model serving at scale: vLLM, TGI (Text Generation Inference), TorchServe</li>
+          <li>Kubernetes for ML: KubeFlow, Ray Serve, Seldon Core</li>
+          <li>Vector DB infrastructure: self-hosted Qdrant/Weaviate at scale</li>
+          <li>Target companies: Big tech, AI-first companies, platform teams</li>
+          <li><b>Key tools</b>: vLLM, Ray, KubeFlow, MLflow, Seldon</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-left: 4px solid #dc2626;">
+        <h3 style="color:#dc2626;">🕵️ Track D: AI Agents &amp; Autonomous Systems (Recommended)</h3>
+        <ul>
+          <li>Advanced LangGraph workflows: parallel agents, conditional branching, human-in-the-loop</li>
+          <li>Computer use agents: control browser/desktop (Anthropic Computer Use)</li>
+          <li>Coding agents: build GitHub Copilot-like systems with code execution sandboxes</li>
+          <li>Long-running agents: memory management, task persistence, checkpoint/resume</li>
+          <li>Target companies: Every tech company is building agents right now — highest demand track</li>
+          <li><b>Key tools</b>: LangGraph, CrewAI, E2B (code sandbox), Playwright (browser automation)</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>🎯 Recommendation:</b> Given your background, <b>Track D (AI Agents)</b> is the most valuable right now. The combination of strong frontend skills + Go backend + LLM agent expertise is extremely rare and extremely valued. Companies like Salesforce, Microsoft, Google, and thousands of startups are hiring specifically for this.
+  </div>
+</section>
+
+<!-- ================================================================
+     PROJECTS
+     ================================================================ -->
+<section class="phase" id="projects">
+  <h2><span class="tag green">Capstone</span> Projects to Build &amp; Ship</h2>
+  <p class="sub">Projects matter more than certificates. Ship at least 3 of these to GitHub with a live demo and a good README.</p>
+
+  <div class="callout">
+    <b>📣 Rule:</b> Every project must be <b>live on the internet</b> with a real URL. Screenshots don't count. Companies want to see working demos.
+  </div>
+
+  <div class="grid">
+    <div class="project" style="border-left-color: #7c3aed;">
+      <b>🔨 Project 1 — AI Portfolio Search (Phase 1–3 Skill)</b>
+      <ul>
+        <li>Index your own work projects as documents</li>
+        <li>Build a RAG-powered portfolio site where recruiters ask questions and get relevant project info</li>
+        <li>Stack: Next.js + ChromaDB + OpenAI embeddings + FastAPI</li>
+        <li><b>Why it matters</b>: shows AI skills + frontend skills + live demo at every interview</li>
+      </ul>
+    </div>
+    <div class="project" style="border-left-color: #0891b2;">
+      <b>🔨 Project 2 — RAG Document Q&amp;A Platform (Phase 6 Skill)</b>
+      <ul>
+        <li>Full-stack app: users upload PDFs, ask questions, get cited answers with source page numbers</li>
+        <li>Stack: React + Next.js + FastAPI + Pinecone + PostgreSQL for history</li>
+        <li>Features: streaming, multi-document support, export answers, shareable links</li>
+        <li><b>Why it matters</b>: the most-requested skill in AI job postings</li>
+      </ul>
+    </div>
+    <div class="project" style="border-left-color: #16a34a;">
+      <b>🔨 Project 3 — AI Research Agent (Phase 7 Skill)</b>
+      <ul>
+        <li>Agent that takes a topic → searches web → reads papers → synthesizes → writes report</li>
+        <li>Stack: LangGraph + Tavily search API + OpenAI + FastAPI + React</li>
+        <li>Features: live progress tracking (each agent step shows in UI), export as PDF, cost estimate</li>
+        <li><b>Why it matters</b>: demonstrates agent architecture knowledge — a rare and hot skill</li>
+      </ul>
+    </div>
+    <div class="project" style="border-left-color: #b45309;">
+      <b>🔨 Project 4 — AI SaaS MVP (Phase 8–9 Combined)</b>
+      <ul>
+        <li>Pick a niche: "AI for [legal contracts / code review / customer emails / study notes]"</li>
+        <li>Build a complete SaaS: auth (Clerk/Supabase), subscription (Stripe), AI feature, usage dashboard</li>
+        <li>Stack: Next.js + FastAPI + Postgres + OpenAI + Stripe + Railway deployment</li>
+        <li><b>Why it matters</b>: shows you can ship a real product end-to-end, not just a demo</li>
+      </ul>
+    </div>
+    <div class="project" style="border-left-color: #dc2626;">
+      <b>🔨 Project 5 — Fine-tuned Domain Expert Model (Phase 10 Skill)</b>
+      <ul>
+        <li>Fine-tune Llama 3.1 8B with QLoRA on a domain dataset (legal, medical, customer support)</li>
+        <li>Deploy to Modal or Hugging Face Inference Endpoint</li>
+        <li>Compare base model vs fine-tuned on 20 benchmark questions — show improvement metrics</li>
+        <li><b>Why it matters</b>: most devs only use API models. Fine-tuning shows depth.</li>
+      </ul>
+    </div>
+    <div class="project" style="border-left-color: #7c3aed; background: #f5f3ff;">
+      <b>🏆 Capstone — Full Stack AI Product (Month 10–12)</b>
+      <ul>
+        <li>Build one comprehensive AI-powered product that combines everything: RAG + Agents + Fine-tuning + Streaming UI + Auth + Billing + MLOps</li>
+        <li>Example: "AI-powered code review tool" — users paste GitHub repo URL → agent clones it → reviews all PRs → gives actionable suggestions → fine-tuned on best practices</li>
+        <li>Write a detailed technical blog post about how you built it (technical content = job magnet)</li>
+        <li><b>This becomes your headline project in every interview and on your resume</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     RESOURCES
+     ================================================================ -->
+<section class="phase" id="resources">
+  <h2><span class="tag teal">Master List</span> Essential Resources</h2>
+  <p class="sub">Curated — not exhaustive. Quality over quantity.</p>
+
+  <div class="concept">
+    <h4>📚 Books (The Best Ones)</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Must-Read Books</h3>
+        <ul>
+          <li><b>"AI Engineering"</b> by Chip Huyen (2024) — the definitive book for Full Stack AI Engineers. Practical, not academic.</li>
+          <li><b>"Designing Machine Learning Systems"</b> by Chip Huyen — how ML systems work in production</li>
+          <li><b>"Hands-On Machine Learning"</b> by Aurélien Géron — the best ML textbook (3rd ed, 2022)</li>
+          <li><b>"Deep Learning"</b> by Goodfellow, Bengio — academic reference, use when you need math depth</li>
+          <li><b>"Build a Large Language Model"</b> by Sebastian Raschka — build GPT from scratch in PyTorch</li>
+          <li><b>"LLM Engineer's Handbook"</b> by Paul Iusztin — production LLM systems from data to deployment</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Key Newsletters &amp; Blogs</h3>
+        <ul>
+          <li><a href="https://newsletter.pragmaticengineer.com/" target="_blank">The Pragmatic Engineer</a> — engineering career + AI coverage</li>
+          <li><a href="https://www.latent.space/" target="_blank">Latent Space</a> — top AI engineering podcast + newsletter</li>
+          <li><a href="https://lilianweng.github.io/" target="_blank">Lilian Weng's Blog</a> — OpenAI researcher, deep but accessible AI posts</li>
+          <li><a href="https://www.deeplearning.ai/the-batch/" target="_blank">The Batch (deeplearning.ai)</a> — Andrew Ng's weekly AI roundup</li>
+          <li><a href="https://huggingface.co/blog" target="_blank">Hugging Face Blog</a> — practical ML + model releases</li>
+          <li><a href="https://eugeneyan.com/" target="_blank">Eugene Yan's Blog</a> — ML engineering at Amazon</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>🔧 Essential Libraries Reference</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>AI / LLM Core</h3>
+        <ul>
+          <li><code>openai</code> — OpenAI Python SDK</li>
+          <li><code>anthropic</code> — Anthropic (Claude) SDK</li>
+          <li><code>langchain</code> — LLM orchestration framework</li>
+          <li><code>langgraph</code> — stateful agent workflows</li>
+          <li><code>litellm</code> — unified interface to 100+ LLM providers (avoid lock-in)</li>
+          <li><code>transformers</code> — Hugging Face model library</li>
+          <li><code>sentence-transformers</code> — local embedding models</li>
+          <li><code>tiktoken</code> — OpenAI tokenizer (count tokens)</li>
+          <li><code>pydantic-ai</code> — type-safe agent framework (emerging)</li>
+          <li><code>openai-whisper</code> — speech-to-text (local)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Vector DBs &amp; Data</h3>
+        <ul>
+          <li><code>chromadb</code> — local vector DB</li>
+          <li><code>pinecone-client</code> — managed vector DB</li>
+          <li><code>qdrant-client</code> — Qdrant vector DB</li>
+          <li><code>faiss-cpu</code> — Facebook similarity search</li>
+          <li><code>supabase</code> — full-stack BaaS with pgvector built-in</li>
+          <li><code>numpy</code>, <code>pandas</code> — data manipulation</li>
+          <li><code>scikit-learn</code> — ML algorithms</li>
+          <li><code>datasets</code> — Hugging Face datasets</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Deep Learning</h3>
+        <ul>
+          <li><code>torch</code> — PyTorch</li>
+          <li><code>torchvision</code> — image models</li>
+          <li><code>lightning</code> — PyTorch Lightning (simplifies training)</li>
+          <li><code>diffusers</code> — Stable Diffusion + image gen</li>
+          <li><code>peft</code> — LoRA, QLoRA fine-tuning</li>
+          <li><code>trl</code> — RLHF training library</li>
+          <li><code>bitsandbytes</code> — model quantization</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Backend &amp; Deployment</h3>
+        <ul>
+          <li><code>fastapi</code> — async Python API framework</li>
+          <li><code>uvicorn</code> — ASGI server for FastAPI</li>
+          <li><code>sqlalchemy</code> — Python ORM</li>
+          <li><code>alembic</code> — DB migrations</li>
+          <li><code>celery</code> — async task queue</li>
+          <li><code>redis</code> — caching + message queue</li>
+          <li><code>docker</code>, <code>docker-compose</code> — containerization</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>AI Evaluation &amp; Testing</h3>
+        <ul>
+          <li><code>ragas</code> — RAG evaluation (faithfulness, relevancy, context precision)</li>
+          <li><code>deepeval</code> — unit testing framework for LLM outputs</li>
+          <li><code>guardrails-ai</code> — validate LLM input/output against rules</li>
+          <li><code>langsmith</code> — trace, debug, and monitor LLM apps</li>
+          <li><code>wandb</code> (Weights &amp; Biases) — experiment tracking for ML</li>
+          <li><code>promptfoo</code> — CLI for prompt testing across models (npm)</li>
+          <li><code>vllm</code> — fast inference server for self-hosted LLMs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     JOB SEARCH
+     ================================================================ -->
+<section class="phase" id="jobsearch">
+  <h2><span class="tag green">Job Search</span> Full Stack AI Engineer Job Playbook</h2>
+  <p class="sub">How to position yourself, what to put on your resume, and where to apply.</p>
+
+  <div class="concept">
+    <h4>How to Position Yourself</h4>
+    <div class="grid">
+      <div class="card">
+        <h3>Your Unique Value Proposition</h3>
+        <ul>
+          <li>You are not "a React dev who learned AI" — you are a <b>Full Stack AI Engineer who ships end-to-end AI products</b></li>
+          <li>Emphasize: you can build the AI backend AND the AI-powered UI — most candidates can only do one</li>
+          <li>Your Go backend skills are a bonus — Go + Python + AI is an extremely rare combo</li>
+          <li>Lead with your shipped projects. "I built X that does Y" beats "I know LangChain"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Salary Expectations (2025–2026)</h3>
+        <ul>
+          <li><span class="salary-band">Junior FSAI: $90k–$130k</span></li>
+          <li><span class="salary-band">Mid FSAI: $130k–$180k</span></li>
+          <li><span class="salary-band">Senior FSAI: $200k–$300k</span></li>
+          <li><span class="salary-band">AI Tech Lead: $220k–$320k</span></li>
+          <li><span class="salary-band">AI-first startup (equity): $150k + significant upside</span></li>
+          <li>Remote roles often pay US rates globally — target US-based companies if outside US</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Where to Apply</h3>
+        <ul>
+          <li><b>YC company jobs</b>: <a href="https://www.workatastartup.com/" target="_blank">workatastartup.com</a> — hundreds of AI startups hiring</li>
+          <li><b>AngelList / Wellfound</b> — startup jobs, filter by "AI" + remote</li>
+          <li><b>LinkedIn</b>: search "AI Engineer" + "LLM" + "LangChain" — apply within 1 hour of posting</li>
+          <li><b>Contra</b>: freelance AI project work (good for building experience + income)</li>
+          <li><b>Direct DMs on Twitter/X</b>: AI founders frequently post "we're hiring" — reply with your project</li>
+          <li><b>Hugging Face Jobs</b>: many AI companies post here specifically</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Resume Tips for AI Roles</h3>
+        <ul>
+          <li>Quantify: "Built RAG system that reduced support tickets by 40%", not "built AI chatbot"</li>
+          <li>List specific models: "GPT-4o, Llama 3, text-embedding-3-large" — not just "OpenAI API"</li>
+          <li>Mention vector DBs by name: Pinecone, Weaviate, ChromaDB</li>
+          <li>Include GitHub links for every project with live demo URLs</li>
+          <li>Add a "Selected AI Projects" section at the top — before work experience</li>
+          <li>One page. Dense. No filler. Recruiters spend 10 seconds on first pass.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-box">
+    <b>✅ 12-Month Milestone Checklist:</b>
+    <div class="checklist" style="margin-top:12px;">
+      <div class="check">Python proficient — numpy, pandas, scikit-learn</div>
+      <div class="check">Deep learning intuition — can explain transformers clearly</div>
+      <div class="check">LLM API mastery — OpenAI, streaming, function calling</div>
+      <div class="check">Built and deployed a RAG system with vector DB</div>
+      <div class="check">Built an AI agent with multi-step tool use</div>
+      <div class="check">Full-stack AI app with React + FastAPI live on the internet</div>
+      <div class="check">Fine-tuned an open-source model (even if tiny dataset)</div>
+      <div class="check">Set up LLMOps monitoring (LangSmith or equivalent)</div>
+      <div class="check">Can design an AI system under interview conditions</div>
+      <div class="check">3+ public GitHub projects with live demos and good READMEs</div>
+      <div class="check">1 technical blog post about something you built</div>
+      <div class="check">LinkedIn updated: "Full Stack AI Engineer" — applied to 20+ roles</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<!-- FLOATING TOC -->
+<details class="floating-toc">
+  <summary></summary>
+  <div class="ft-panel">
+    <h4>🤖 Full Stack AI Roadmap</h4>
+    <ol>
+      <li><a href="#verdict">⚖️ Full Stack AI vs Pure AI</a></li>
+      <li><a href="#courses">▶ Recommended Courses</a></li>
+      <li><a href="#phase0">Phase 0 — Setup</a></li>
+      <li><a href="#phase1">Phase 1 — Python for AI</a></li>
+      <li><a href="#phase2">Phase 2 — Math for AI</a></li>
+      <li><a href="#phase3">Phase 3 — ML Fundamentals</a></li>
+      <li><a href="#phase4">Phase 4 — Deep Learning</a></li>
+      <li><a href="#phase5">Phase 5 — LLMs &amp; GenAI</a></li>
+      <li><a href="#phase6">Phase 6 — RAG Systems</a></li>
+      <li><a href="#phase7">Phase 7 — AI Agents</a></li>
+      <li><a href="#phase8">Phase 8 — Backend APIs</a></li>
+      <li><a href="#phase9">Phase 9 — Frontend for AI</a></li>
+      <li><a href="#phase10">Phase 10 — MLOps</a></li>
+      <li><a href="#phase11">Phase 11 — System Design</a></li>
+      <li><a href="#phase12">Phase 12 — Specialization</a></li>
+      <li><a href="#projects">Capstone Projects</a></li>
+      <li><a href="#resources">Resources</a></li>
+      <li><a href="#jobsearch">Job Search</a></li>
+    </ol>
+  </div>
+</details>
+
+<footer>
+  <p>Full Stack AI Engineer Roadmap · Built for a developer who already has 4 years frontend + learning backend (Go)</p>
+  <p style="margin-top:6px;font-size:13px;">Your React skills are a superpower in the AI space. Most AI engineers can't build a good UI. You can. Use that.</p>
+</footer>
+
+</body>
+</html>

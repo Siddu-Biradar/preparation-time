@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Coding Round — Part 5: Games, Comments & Multi-Step Form</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 18pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 14pt; margin-top: 20px; }
+    h4 { font-size: 11.5pt; margin-top: 14px; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; }
+    .d-easy { background: #d4edda; color: #155724; }
+    .d-medium { background: #fff3cd; color: #856404; }
+    .d-hard { background: #f8d7da; color: #721c24; }
+    .d-expert { background: #e2d9f3; color: #3d1f6e; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .companies { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+    .live-demo { border: 2px solid var(--accent-soft); border-radius: 12px; margin: 14px 0 18px; overflow: hidden; background: #fff; }
+    .live-demo-header { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); }
+    .live-demo iframe { width: 100%; height: 420px; border: none; display: block; }
+    details.html-source { margin: -10px 0 18px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    details.html-source summary { padding: 10px 14px; background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--accent); cursor: pointer; user-select: none; }
+    details.html-source summary:hover { background: #d6eaf8; }
+    details.html-source pre { margin: 0; border: none; border-radius: 0; max-height: 400px; overflow-y: auto; font-size: 9pt; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Machine Coding — Part 5</h1>
+  <p class="subtitle">Games, Chat, Interactive Widgets — Snake, Typing Test, Emoji Picker & More</p>
+  <div class="pill-row">
+    <span class="pill">Atlassian Signature</span>
+    <span class="pill">E-commerce Must</span>
+    <span class="pill">State Machine Pattern</span>
+    <span class="pill">12 Problems</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#nested-comments">Nested / Threaded Comments (Reddit-style)</a></li>
+    <li><a href="#multi-step-form">Multi-Step Form / Wizard</a></li>
+    <li><a href="#memory-game">Memory Card Flip Game</a></li>
+    <li><a href="#traffic-light">Traffic Light System</a></li>
+    <li><a href="#snake-game">Snake Game</a></li>
+    <li><a href="#typing-test">Typing Speed Test</a></li>
+    <li><a href="#poll-widget">Poll / Voting Widget</a></li>
+    <li><a href="#emoji-picker">Emoji Picker</a></li>
+    <li><a href="#progress-stepper">Progress Stepper</a></li>
+    <li><a href="#image-gallery">Image Gallery with Lightbox</a></li>
+    <li><a href="#chat-interface">Chat Interface (WhatsApp-style)</a></li>
+    <li><a href="#breadcrumb-nav">Breadcrumb Navigation</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="nested-comments">1. Nested / Threaded Comments (Reddit-style)</h2>
+<span class="difficulty d-hard">HARD</span>
+<p class="companies">Asked at: Atlassian (Jira/Confluence), Flipkart, Microsoft, Reddit, Notion</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class CommentSystem {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.comments = options.comments || [];
+    this.currentUser = options.currentUser || { id: "user1", name: "You" };
+    this.maxDepth = options.maxDepth || 5;
+    this.onAdd = options.onAdd || (() =&gt; {});
+    this.onDelete = options.onDelete || (() =&gt; {});
+    this.onEdit = options.onEdit || (() =&gt; {});
+
+    this.replyingTo = null;
+    this.editingId = null;
+    this.collapsedIds = new Set();
+    this.nextId = this.getMaxId(this.comments) + 1;
+
+    this.render();
+  }
+
+  getMaxId(comments) {
+    let max = 0;
+    comments.forEach((c) =&gt; {
+      max = Math.max(max, c.id);
+      if (c.replies) max = Math.max(max, this.getMaxId(c.replies));
+    });
+    return max;
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "font-family:sans-serif;max-width:700px";
+
+    // Top-level comment input
+    const topInput = this.createCommentInput(null);
+    this.container.appendChild(topInput);
+
+    // Render comment tree
+    const tree = this.renderComments(this.comments, 0);
+    this.container.appendChild(tree);
+  }
+
+  renderComments(comments, depth) {
+    const wrapper = document.createElement("div");
+
+    comments.forEach((comment) =&gt; {
+      const commentEl = document.createElement("div");
+      commentEl.className = "comment";
+      commentEl.style.cssText = `
+        margin-left:${depth * 24}px;margin-top:12px;
+        border-left:${depth &gt; 0 ? "2px solid #e5e7eb" : "none"};
+        padding-left:${depth &gt; 0 ? "12px" : "0"};
+      `;
+
+      const isCollapsed = this.collapsedIds.has(comment.id);
+
+      // Header
+      const header = document.createElement("div");
+      header.style.cssText = "display:flex;align-items:center;gap:8px;margin-bottom:4px";
+
+      // Collapse toggle
+      if (comment.replies &amp;&amp; comment.replies.length &gt; 0) {
+        const toggle = document.createElement("button");
+        toggle.textContent = isCollapsed ? "[+]" : "[\u2013]";
+        toggle.style.cssText = "border:none;background:none;cursor:pointer;color:#6b7280;font-size:12px;font-family:monospace;padding:0";
+        toggle.addEventListener("click", () =&gt; {
+          if (isCollapsed) this.collapsedIds.delete(comment.id);
+          else this.collapsedIds.add(comment.id);
+          this.render();
+        });
+        header.appendChild(toggle);
+      }
+
+      const author = document.createElement("span");
+      author.textContent = comment.author.name;
+      author.style.cssText = "font-weight:600;font-size:13px;color:#1f2937";
+      header.appendChild(author);
+
+      const time = document.createElement("span");
+      time.textContent = this.timeAgo(comment.timestamp);
+      time.style.cssText = "font-size:11px;color:#9ca3af";
+      header.appendChild(time);
+
+      if (comment.edited) {
+        const edited = document.createElement("span");
+        edited.textContent = "(edited)";
+        edited.style.cssText = "font-size:11px;color:#9ca3af;font-style:italic";
+        header.appendChild(edited);
+      }
+
+      commentEl.appendChild(header);
+
+      if (!isCollapsed) {
+        // Body
+        if (this.editingId === comment.id) {
+          const editInput = this.createEditInput(comment);
+          commentEl.appendChild(editInput);
+        } else {
+          const body = document.createElement("p");
+          body.textContent = comment.text;
+          body.style.cssText = "margin:4px 0 8px;font-size:14px;line-height:1.5;color:#374151";
+          commentEl.appendChild(body);
+        }
+
+        // Actions
+        const actions = document.createElement("div");
+        actions.style.cssText = "display:flex;gap:12px;font-size:12px";
+
+        // Reply button (if not at max depth)
+        if (depth &lt; this.maxDepth) {
+          const replyBtn = document.createElement("button");
+          replyBtn.textContent = "Reply";
+          replyBtn.style.cssText = "border:none;background:none;cursor:pointer;color:#6b7280;font-size:12px;font-weight:500";
+          replyBtn.addEventListener("click", () =&gt; {
+            this.replyingTo = this.replyingTo === comment.id ? null : comment.id;
+            this.render();
+          });
+          actions.appendChild(replyBtn);
+        }
+
+        // Edit/Delete (only own comments)
+        if (comment.author.id === this.currentUser.id) {
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.style.cssText = "border:none;background:none;cursor:pointer;color:#6b7280;font-size:12px";
+          editBtn.addEventListener("click", () =&gt; {
+            this.editingId = comment.id;
+            this.render();
+          });
+          actions.appendChild(editBtn);
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.style.cssText = "border:none;background:none;cursor:pointer;color:#dc3545;font-size:12px";
+          deleteBtn.addEventListener("click", () =&gt; {
+            if (confirm("Delete this comment?")) {
+              this.deleteComment(this.comments, comment.id);
+              this.onDelete(comment.id);
+              this.render();
+            }
+          });
+          actions.appendChild(deleteBtn);
+        }
+
+        commentEl.appendChild(actions);
+
+        // Reply input
+        if (this.replyingTo === comment.id) {
+          const replyInput = this.createCommentInput(comment.id);
+          commentEl.appendChild(replyInput);
+        }
+
+        // Nested replies
+        if (comment.replies &amp;&amp; comment.replies.length &gt; 0) {
+          const replies = this.renderComments(comment.replies, depth + 1);
+          commentEl.appendChild(replies);
+        }
+      } else {
+        // Collapsed summary
+        const summary = document.createElement("span");
+        const replyCount = this.countReplies(comment);
+        summary.textContent = `${replyCount} ${replyCount === 1 ? "reply" : "replies"} hidden`;
+        summary.style.cssText = "font-size:11px;color:#9ca3af;font-style:italic";
+        commentEl.appendChild(summary);
+      }
+
+      wrapper.appendChild(commentEl);
+    });
+
+    return wrapper;
+  }
+
+  createCommentInput(parentId) {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "margin:12px 0;display:flex;gap:8px";
+
+    const textarea = document.createElement("textarea");
+    textarea.placeholder = parentId ? "Write a reply..." : "Add a comment...";
+    textarea.rows = parentId ? 2 : 3;
+    textarea.style.cssText = `
+      flex:1;padding:10px 12px;border:1px solid #d1d5db;border-radius:6px;
+      font-size:13px;font-family:sans-serif;resize:vertical;outline:none;
+      transition:border-color 0.2s;
+    `;
+    textarea.addEventListener("focus", () =&gt; { textarea.style.borderColor = "#2563eb"; });
+    textarea.addEventListener("blur", () =&gt; { textarea.style.borderColor = "#d1d5db"; });
+
+    const submitBtn = document.createElement("button");
+    submitBtn.textContent = parentId ? "Reply" : "Comment";
+    submitBtn.style.cssText = `
+      padding:8px 16px;background:#2563eb;color:white;border:none;
+      border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;
+      align-self:flex-end;
+    `;
+    submitBtn.addEventListener("click", () =&gt; {
+      const text = textarea.value.trim();
+      if (!text) return;
+
+      const newComment = {
+        id: this.nextId++,
+        text,
+        author: this.currentUser,
+        timestamp: Date.now(),
+        replies: [],
+      };
+
+      if (parentId) {
+        this.addReply(this.comments, parentId, newComment);
+      } else {
+        this.comments.unshift(newComment);
+      }
+
+      this.replyingTo = null;
+      this.onAdd(newComment, parentId);
+      this.render();
+    });
+
+    wrapper.appendChild(textarea);
+    wrapper.appendChild(submitBtn);
+    return wrapper;
+  }
+
+  createEditInput(comment) {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "margin:4px 0 8px";
+
+    const textarea = document.createElement("textarea");
+    textarea.value = comment.text;
+    textarea.rows = 2;
+    textarea.style.cssText = `
+      width:100%;padding:8px 10px;border:1px solid #2563eb;border-radius:4px;
+      font-size:13px;font-family:sans-serif;resize:vertical;outline:none;
+    `;
+
+    const btnRow = document.createElement("div");
+    btnRow.style.cssText = "display:flex;gap:8px;margin-top:6px";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "Save";
+    saveBtn.style.cssText = "padding:4px 12px;background:#2563eb;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer";
+    saveBtn.addEventListener("click", () =&gt; {
+      const newText = textarea.value.trim();
+      if (newText &amp;&amp; newText !== comment.text) {
+        comment.text = newText;
+        comment.edited = true;
+        this.onEdit(comment.id, newText);
+      }
+      this.editingId = null;
+      this.render();
+    });
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.style.cssText = "padding:4px 12px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;font-size:12px;cursor:pointer";
+    cancelBtn.addEventListener("click", () =&gt; {
+      this.editingId = null;
+      this.render();
+    });
+
+    btnRow.appendChild(saveBtn);
+    btnRow.appendChild(cancelBtn);
+    wrapper.appendChild(textarea);
+    wrapper.appendChild(btnRow);
+    return wrapper;
+  }
+
+  addReply(comments, parentId, newComment) {
+    for (const comment of comments) {
+      if (comment.id === parentId) {
+        if (!comment.replies) comment.replies = [];
+        comment.replies.push(newComment);
+        return true;
+      }
+      if (comment.replies &amp;&amp; this.addReply(comment.replies, parentId, newComment)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  deleteComment(comments, id) {
+    const index = comments.findIndex((c) =&gt; c.id === id);
+    if (index !== -1) {
+      comments.splice(index, 1);
+      return true;
+    }
+    for (const comment of comments) {
+      if (comment.replies &amp;&amp; this.deleteComment(comment.replies, id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  countReplies(comment) {
+    if (!comment.replies) return 0;
+    return comment.replies.reduce((sum, r) =&gt; sum + 1 + this.countReplies(r), 0);
+  }
+
+  timeAgo(timestamp) {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    if (seconds &lt; 60) return "just now";
+    if (seconds &lt; 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds &lt; 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
+  }
+}
+
+// Usage:
+const comments = new CommentSystem(document.getElementById("comments"), {
+  currentUser: { id: "u1", name: "Siddu" },
+  maxDepth: 4,
+  comments: [
+    {
+      id: 1, text: "Great implementation! One suggestion...",
+      author: { id: "u2", name: "Reviewer" }, timestamp: Date.now() - 3600000,
+      replies: [
+        {
+          id: 2, text: "Thanks! What would you change?",
+          author: { id: "u1", name: "Siddu" }, timestamp: Date.now() - 1800000,
+          replies: []
+        }
+      ]
+    }
+  ],
+  onAdd: (comment, parentId) =&gt; console.log("Added:", comment, "to:", parentId),
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Recursive vs iterative rendering:</strong> Recursive is cleaner, but stack overflow risk at 100+ depth — use iterative with explicit stack</li>
+  <li><strong>Optimistic updates:</strong> Show comment immediately, revert on API failure</li>
+  <li><strong>Pagination:</strong> "Load more replies" button at depth limits or for 10+ replies</li>
+  <li><strong>Real-time:</strong> WebSocket for live comment updates from other users</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="multi-step-form">2. Multi-Step Form / Wizard</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Amazon, Swiggy, Meesho, CRED, Groww</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class MultiStepForm {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.steps = options.steps || [];
+    this.onSubmit = options.onSubmit || (() =&gt; {});
+    this.onStepChange = options.onStepChange || (() =&gt; {});
+    this.allowSkip = options.allowSkip || false;
+
+    this.currentStep = 0;
+    this.formData = {};
+    this.errors = {};
+    this.visited = new Set([0]);
+
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "font-family:sans-serif;max-width:600px;margin:0 auto";
+
+    // Progress indicator
+    const progress = this.renderProgress();
+    this.container.appendChild(progress);
+
+    // Step content
+    const stepWrapper = document.createElement("div");
+    stepWrapper.style.cssText = "padding:24px;border:1px solid #e5e7eb;border-radius:8px;margin-top:20px;background:white";
+
+    const step = this.steps[this.currentStep];
+
+    // Step title
+    const title = document.createElement("h3");
+    title.textContent = step.title;
+    title.style.cssText = "margin:0 0 4px;font-size:18px;color:#1f2937";
+    stepWrapper.appendChild(title);
+
+    if (step.description) {
+      const desc = document.createElement("p");
+      desc.textContent = step.description;
+      desc.style.cssText = "margin:0 0 20px;font-size:13px;color:#6b7280";
+      stepWrapper.appendChild(desc);
+    }
+
+    // Render fields
+    step.fields.forEach((field) =&gt; {
+      const fieldEl = this.renderField(field);
+      stepWrapper.appendChild(fieldEl);
+    });
+
+    // Navigation buttons
+    const nav = document.createElement("div");
+    nav.style.cssText = "display:flex;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px solid #f3f4f6";
+
+    if (this.currentStep &gt; 0) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "\u2190 Back";
+      prevBtn.style.cssText = "padding:10px 20px;border:1px solid #d1d5db;border-radius:6px;background:white;cursor:pointer;font-size:14px";
+      prevBtn.addEventListener("click", () =&gt; this.prev());
+      nav.appendChild(prevBtn);
+    } else {
+      nav.appendChild(document.createElement("span"));
+    }
+
+    const isLast = this.currentStep === this.steps.length - 1;
+    const nextBtn = document.createElement("button");
+    nextBtn.textContent = isLast ? "Submit \u2713" : "Next \u2192";
+    nextBtn.style.cssText = `
+      padding:10px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;
+      font-weight:600;color:white;
+      background:${isLast ? "#16a34a" : "#2563eb"};
+    `;
+    nextBtn.addEventListener("click", () =&gt; {
+      if (isLast) this.submit();
+      else this.next();
+    });
+    nav.appendChild(nextBtn);
+
+    stepWrapper.appendChild(nav);
+    this.container.appendChild(stepWrapper);
+
+    // Summary (on last step, show all collected data)
+    if (isLast &amp;&amp; Object.keys(this.formData).length &gt; 0) {
+      const summary = this.renderSummary();
+      this.container.appendChild(summary);
+    }
+  }
+
+  renderProgress() {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "display:flex;align-items:center;justify-content:center;gap:0";
+
+    this.steps.forEach((step, i) =&gt; {
+      const isActive = i === this.currentStep;
+      const isCompleted = i &lt; this.currentStep;
+      const isVisited = this.visited.has(i);
+
+      const stepEl = document.createElement("div");
+      stepEl.style.cssText = "display:flex;flex-direction:column;align-items:center;position:relative;min-width:80px";
+
+      const circle = document.createElement("div");
+      circle.textContent = isCompleted ? "\u2713" : i + 1;
+      circle.style.cssText = `
+        width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:13px;font-weight:600;
+        border:2px solid ${isActive ? "#2563eb" : isCompleted ? "#16a34a" : "#d1d5db"};
+        background:${isActive ? "#2563eb" : isCompleted ? "#16a34a" : "white"};
+        color:${isActive || isCompleted ? "white" : "#6b7280"};
+        transition:all 0.3s ease;
+      `;
+
+      const label = document.createElement("span");
+      label.textContent = step.title;
+      label.style.cssText = `
+        font-size:11px;margin-top:4px;color:${isActive ? "#2563eb" : "#6b7280"};
+        font-weight:${isActive ? "600" : "400"};text-align:center;
+      `;
+
+      stepEl.appendChild(circle);
+      stepEl.appendChild(label);
+      wrapper.appendChild(stepEl);
+
+      // Connector line
+      if (i &lt; this.steps.length - 1) {
+        const line = document.createElement("div");
+        line.style.cssText = `
+          height:2px;width:40px;margin:0 4px;margin-bottom:18px;
+          background:${i &lt; this.currentStep ? "#16a34a" : "#e5e7eb"};
+          transition:background 0.3s;
+        `;
+        wrapper.appendChild(line);
+      }
+    });
+
+    return wrapper;
+  }
+
+  renderField(field) {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "margin-bottom:16px";
+
+    const label = document.createElement("label");
+    label.textContent = field.label + (field.required ? " *" : "");
+    label.style.cssText = "display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:4px";
+    wrapper.appendChild(label);
+
+    let input;
+    const value = this.formData[field.name] || field.defaultValue || "";
+
+    switch (field.type) {
+      case "select":
+        input = document.createElement("select");
+        input.style.cssText = "width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;outline:none";
+        const defaultOpt = document.createElement("option");
+        defaultOpt.value = "";
+        defaultOpt.textContent = field.placeholder || "Select...";
+        input.appendChild(defaultOpt);
+        field.options.forEach((opt) =&gt; {
+          const option = document.createElement("option");
+          option.value = opt.value || opt;
+          option.textContent = opt.label || opt;
+          if (value === (opt.value || opt)) option.selected = true;
+          input.appendChild(option);
+        });
+        break;
+
+      case "textarea":
+        input = document.createElement("textarea");
+        input.rows = 3;
+        input.value = value;
+        input.placeholder = field.placeholder || "";
+        input.style.cssText = "width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;outline:none;resize:vertical;font-family:inherit";
+        break;
+
+      case "radio":
+        input = document.createElement("div");
+        input.style.cssText = "display:flex;flex-wrap:wrap;gap:12px;margin-top:4px";
+        field.options.forEach((opt) =&gt; {
+          const radioLabel = document.createElement("label");
+          radioLabel.style.cssText = "display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px";
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = field.name;
+          radio.value = opt.value || opt;
+          if (value === (opt.value || opt)) radio.checked = true;
+          radio.addEventListener("change", () =&gt; {
+            this.formData[field.name] = radio.value;
+          });
+          radioLabel.appendChild(radio);
+          radioLabel.appendChild(document.createTextNode(opt.label || opt));
+          input.appendChild(radioLabel);
+        });
+        wrapper.appendChild(input);
+        // Show error if exists
+        if (this.errors[field.name]) {
+          const err = document.createElement("span");
+          err.textContent = this.errors[field.name];
+          err.style.cssText = "color:#dc3545;font-size:12px;margin-top:4px;display:block";
+          wrapper.appendChild(err);
+        }
+        return wrapper;
+
+      default: // text, email, number, tel, date
+        input = document.createElement("input");
+        input.type = field.type || "text";
+        input.value = value;
+        input.placeholder = field.placeholder || "";
+        input.style.cssText = "width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;outline:none";
+    }
+
+    if (input.tagName !== "DIV") {
+      input.addEventListener("input", (e) =&gt; {
+        this.formData[field.name] = e.target.value;
+        // Clear error on input
+        if (this.errors[field.name]) {
+          delete this.errors[field.name];
+          const errEl = wrapper.querySelector(".field-error");
+          if (errEl) errEl.remove();
+        }
+      });
+      input.addEventListener("change", (e) =&gt; {
+        this.formData[field.name] = e.target.value;
+      });
+      wrapper.appendChild(input);
+    }
+
+    // Error message
+    if (this.errors[field.name]) {
+      const err = document.createElement("span");
+      err.className = "field-error";
+      err.textContent = this.errors[field.name];
+      err.style.cssText = "color:#dc3545;font-size:12px;margin-top:4px;display:block";
+      wrapper.appendChild(err);
+      if (input.style) input.style.borderColor = "#dc3545";
+    }
+
+    return wrapper;
+  }
+
+  renderSummary() {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "margin-top:20px;padding:16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px";
+
+    const title = document.createElement("h4");
+    title.textContent = "Summary";
+    title.style.cssText = "margin:0 0 12px;font-size:14px;color:#374151";
+    wrapper.appendChild(title);
+
+    Object.entries(this.formData).forEach(([key, value]) =&gt; {
+      if (!value) return;
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #f3f4f6";
+      const keyEl = document.createElement("span");
+      keyEl.textContent = key.replace(/([A-Z])/g, " $1").replace(/^./, (s) =&gt; s.toUpperCase());
+      keyEl.style.color = "#6b7280";
+      const valEl = document.createElement("span");
+      valEl.textContent = value;
+      valEl.style.fontWeight = "500";
+      row.appendChild(keyEl);
+      row.appendChild(valEl);
+      wrapper.appendChild(row);
+    });
+
+    return wrapper;
+  }
+
+  validateStep() {
+    const step = this.steps[this.currentStep];
+    this.errors = {};
+    let isValid = true;
+
+    step.fields.forEach((field) =&gt; {
+      const value = this.formData[field.name] || "";
+
+      if (field.required &amp;&amp; !value.trim()) {
+        this.errors[field.name] = `${field.label} is required`;
+        isValid = false;
+      } else if (field.validate &amp;&amp; value) {
+        const error = field.validate(value, this.formData);
+        if (error) {
+          this.errors[field.name] = error;
+          isValid = false;
+        }
+      }
+    });
+
+    return isValid;
+  }
+
+  next() {
+    if (!this.validateStep()) {
+      this.render();
+      return;
+    }
+    this.currentStep = Math.min(this.currentStep + 1, this.steps.length - 1);
+    this.visited.add(this.currentStep);
+    this.onStepChange(this.currentStep, this.formData);
+    this.render();
+  }
+
+  prev() {
+    this.currentStep = Math.max(this.currentStep - 1, 0);
+    this.render();
+  }
+
+  goTo(step) {
+    if (this.allowSkip || this.visited.has(step)) {
+      this.currentStep = step;
+      this.render();
+    }
+  }
+
+  submit() {
+    if (!this.validateStep()) {
+      this.render();
+      return;
+    }
+    this.onSubmit(this.formData);
+  }
+
+  getData() { return { ...this.formData }; }
+  reset() {
+    this.formData = {};
+    this.errors = {};
+    this.currentStep = 0;
+    this.visited = new Set([0]);
+    this.render();
+  }
+}
+
+// Usage:
+const wizard = new MultiStepForm(document.getElementById("signup-wizard"), {
+  steps: [
+    {
+      title: "Personal Info",
+      description: "Tell us about yourself",
+      fields: [
+        { name: "fullName", label: "Full Name", type: "text", required: true, placeholder: "John Doe" },
+        { name: "email", label: "Email", type: "email", required: true,
+          validate: (v) =&gt; /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : "Invalid email" },
+        { name: "phone", label: "Phone", type: "tel", required: true },
+      ],
+    },
+    {
+      title: "Address",
+      description: "Where should we deliver?",
+      fields: [
+        { name: "address", label: "Street Address", type: "text", required: true },
+        { name: "city", label: "City", type: "select", required: true,
+          options: ["Bangalore", "Mumbai", "Delhi", "Hyderabad", "Pune"] },
+        { name: "pincode", label: "Pincode", type: "text", required: true,
+          validate: (v) =&gt; /^\d{6}$/.test(v) ? null : "Must be 6 digits" },
+      ],
+    },
+    {
+      title: "Preferences",
+      description: "Almost done!",
+      fields: [
+        { name: "plan", label: "Plan", type: "radio", required: true,
+          options: [{ value: "free", label: "Free" }, { value: "pro", label: "Pro - \u20b9499/mo" }] },
+        { name: "notes", label: "Additional Notes", type: "textarea" },
+      ],
+    },
+  ],
+  onSubmit: (data) =&gt; {
+    console.log("Form submitted:", data);
+    alert("Success! Check console for data.");
+  },
+  onStepChange: (step, data) =&gt; console.log("Step:", step, data),
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Persistence:</strong> Save formData to localStorage after each step — restore on page reload</li>
+  <li><strong>Conditional steps:</strong> Skip step 2 if user selected "digital delivery" in step 1</li>
+  <li><strong>Async validation:</strong> Check email uniqueness via API before proceeding</li>
+  <li><strong>Animations:</strong> Slide transition between steps (translateX) for polished UX</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="memory-game">3. Memory Card Flip Game</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Amazon, Flipkart, Swiggy, Myntra, Meesho</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class MemoryGame {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.gridSize = options.gridSize || 4; // 4x4 = 16 cards = 8 pairs
+    this.theme = options.theme || "emoji";
+    this.onWin = options.onWin || (() =&gt; {});
+
+    this.cards = [];
+    this.flippedCards = [];
+    this.matchedPairs = new Set();
+    this.moves = 0;
+    this.startTime = null;
+    this.timerInterval = null;
+    this.isLocked = false; // Prevent clicking during animation
+
+    this.init();
+  }
+
+  init() {
+    const totalCards = this.gridSize * this.gridSize;
+    const pairsNeeded = totalCards / 2;
+
+    const emojis = ["\ud83d\ude80", "\ud83c\udf1f", "\ud83c\udf3a", "\ud83c\udf52", "\ud83d\udc27",
+                    "\ud83c\udfb5", "\ud83d\udca1", "\ud83c\udf08", "\ud83c\udf1e", "\ud83c\udf0d",
+                    "\ud83c\udf53", "\ud83c\udf55", "\ud83e\udd84", "\ud83d\udc33", "\ud83c\udf3b",
+                    "\ud83d\ude97", "\u26bd", "\ud83c\udfa8"];
+    const symbols = emojis.slice(0, pairsNeeded);
+
+    // Create pairs and shuffle
+    this.cards = [...symbols, ...symbols]
+      .map((symbol, index) =&gt; ({ id: index, symbol, matched: false }))
+      .sort(() =&gt; Math.random() - 0.5);
+
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "font-family:sans-serif;text-align:center;max-width:500px;margin:0 auto";
+
+    // Header (score + timer)
+    const header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:12px;background:#f8f9fa;border-radius:8px";
+
+    this.movesEl = document.createElement("span");
+    this.movesEl.textContent = `Moves: ${this.moves}`;
+    this.movesEl.style.cssText = "font-size:14px;font-weight:600";
+
+    this.timerEl = document.createElement("span");
+    this.timerEl.textContent = "Time: 0:00";
+    this.timerEl.style.cssText = "font-size:14px;font-weight:600";
+
+    const resetBtn = document.createElement("button");
+    resetBtn.textContent = "\ud83d\udd04 Reset";
+    resetBtn.style.cssText = "padding:6px 12px;border:1px solid #d1d5db;border-radius:4px;background:white;cursor:pointer;font-size:13px";
+    resetBtn.addEventListener("click", () =&gt; this.reset());
+
+    header.appendChild(this.movesEl);
+    header.appendChild(this.timerEl);
+    header.appendChild(resetBtn);
+    this.container.appendChild(header);
+
+    // Game grid
+    const grid = document.createElement("div");
+    grid.style.cssText = `
+      display:grid;grid-template-columns:repeat(${this.gridSize}, 1fr);
+      gap:8px;perspective:1000px;
+    `;
+
+    this.cards.forEach((card, index) =&gt; {
+      const cardEl = document.createElement("div");
+      cardEl.className = "memory-card";
+      cardEl.dataset.index = index;
+      const isFlipped = this.flippedCards.includes(index) || this.matchedPairs.has(card.symbol);
+
+      cardEl.style.cssText = `
+        aspect-ratio:1;border-radius:8px;cursor:pointer;position:relative;
+        transform-style:preserve-3d;transition:transform 0.4s ease;
+        transform:${isFlipped ? "rotateY(180deg)" : "rotateY(0)"};
+      `;
+
+      // Front (hidden side)
+      const front = document.createElement("div");
+      front.style.cssText = `
+        position:absolute;inset:0;border-radius:8px;display:flex;
+        align-items:center;justify-content:center;backface-visibility:hidden;
+        background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+        font-size:24px;color:white;border:2px solid #5a67d8;
+      `;
+      front.textContent = "?";
+
+      // Back (shown when flipped)
+      const back = document.createElement("div");
+      back.style.cssText = `
+        position:absolute;inset:0;border-radius:8px;display:flex;
+        align-items:center;justify-content:center;backface-visibility:hidden;
+        transform:rotateY(180deg);font-size:${this.gridSize &lt;= 4 ? "36px" : "28px"};
+        background:${this.matchedPairs.has(card.symbol) ? "#d4edda" : "white"};
+        border:2px solid ${this.matchedPairs.has(card.symbol) ? "#28a745" : "#e5e7eb"};
+      `;
+      back.textContent = card.symbol;
+
+      cardEl.appendChild(front);
+      cardEl.appendChild(back);
+
+      if (!this.matchedPairs.has(card.symbol)) {
+        cardEl.addEventListener("click", () =&gt; this.flipCard(index));
+      }
+
+      grid.appendChild(cardEl);
+    });
+
+    this.container.appendChild(grid);
+
+    // Win message
+    if (this.matchedPairs.size === this.cards.length / 2) {
+      this.showWinMessage();
+    }
+  }
+
+  flipCard(index) {
+    // Guards
+    if (this.isLocked) return;
+    if (this.flippedCards.includes(index)) return;
+    if (this.matchedPairs.has(this.cards[index].symbol)) return;
+    if (this.flippedCards.length &gt;= 2) return;
+
+    // Start timer on first flip
+    if (!this.startTime) {
+      this.startTime = Date.now();
+      this.timerInterval = setInterval(() =&gt; this.updateTimer(), 1000);
+    }
+
+    this.flippedCards.push(index);
+    this.render();
+
+    // Check for match when 2 cards are flipped
+    if (this.flippedCards.length === 2) {
+      this.moves++;
+      this.movesEl.textContent = `Moves: ${this.moves}`;
+      this.checkMatch();
+    }
+  }
+
+  checkMatch() {
+    const [first, second] = this.flippedCards;
+    const card1 = this.cards[first];
+    const card2 = this.cards[second];
+
+    if (card1.symbol === card2.symbol) {
+      // Match found!
+      this.matchedPairs.add(card1.symbol);
+      this.flippedCards = [];
+
+      // Check win condition
+      if (this.matchedPairs.size === this.cards.length / 2) {
+        clearInterval(this.timerInterval);
+        this.onWin({ moves: this.moves, time: this.getElapsedTime() });
+      }
+      this.render();
+    } else {
+      // No match — flip back after delay
+      this.isLocked = true;
+      setTimeout(() =&gt; {
+        this.flippedCards = [];
+        this.isLocked = false;
+        this.render();
+      }, 800);
+    }
+  }
+
+  updateTimer() {
+    if (this.timerEl) {
+      this.timerEl.textContent = `Time: ${this.getElapsedTime()}`;
+    }
+  }
+
+  getElapsedTime() {
+    if (!this.startTime) return "0:00";
+    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+    const min = Math.floor(elapsed / 60);
+    const sec = (elapsed % 60).toString().padStart(2, "0");
+    return `${min}:${sec}`;
+  }
+
+  showWinMessage() {
+    const overlay = document.createElement("div");
+    overlay.style.cssText = `
+      margin-top:16px;padding:20px;background:#d4edda;border-radius:8px;
+      text-align:center;border:1px solid #c3e6cb;
+    `;
+    overlay.innerHTML = `
+      &lt;h3 style="margin:0 0 8px;color:#155724"&gt;\ud83c\udf89 Congratulations!&lt;/h3&gt;
+      &lt;p style="margin:0;color:#155724;font-size:14px"&gt;
+        Completed in ${this.moves} moves and ${this.getElapsedTime()}
+      &lt;/p&gt;
+    `.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    // Note: Using DOM methods in real implementation
+    const h3 = document.createElement("h3");
+    h3.textContent = "\ud83c\udf89 Congratulations!";
+    h3.style.cssText = "margin:0 0 8px;color:#155724";
+    const p = document.createElement("p");
+    p.textContent = `Completed in ${this.moves} moves and ${this.getElapsedTime()}`;
+    p.style.cssText = "margin:0;color:#155724;font-size:14px";
+    overlay.innerHTML = "";
+    overlay.appendChild(h3);
+    overlay.appendChild(p);
+    this.container.appendChild(overlay);
+  }
+
+  reset() {
+    clearInterval(this.timerInterval);
+    this.flippedCards = [];
+    this.matchedPairs = new Set();
+    this.moves = 0;
+    this.startTime = null;
+    this.isLocked = false;
+    // Reshuffle
+    this.cards.sort(() =&gt; Math.random() - 0.5);
+    this.render();
+  }
+}
+
+// Usage:
+const game = new MemoryGame(document.getElementById("memory-game"), {
+  gridSize: 4, // 4x4 grid (8 pairs)
+  onWin: ({ moves, time }) =&gt; {
+    console.log(`Won in ${moves} moves, ${time}`);
+  },
+});</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>Lock mechanism:</strong> Must prevent 3rd card flip during animation — use isLocked flag</li>
+  <li><strong>CSS 3D flip:</strong> Use transform-style: preserve-3d + backface-visibility: hidden</li>
+  <li><strong>Difficulty levels:</strong> 3x4 (easy), 4x4 (medium), 4x5 (hard), 6x6 (expert)</li>
+  <li><strong>Score persistence:</strong> Store best scores in localStorage by grid size</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="traffic-light">4. Traffic Light System</h2>
+<span class="difficulty d-easy">EASY-MEDIUM</span>
+<p class="companies">Asked at: Uber, Google, Microsoft, PhonePe, Atlassian</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class TrafficLight {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.config = options.config || [
+      { color: "red", duration: 5000, label: "Stop" },
+      { color: "yellow", duration: 2000, label: "Ready" },
+      { color: "green", duration: 4000, label: "Go" },
+    ];
+    this.onStateChange = options.onStateChange || (() =&gt; {});
+    this.pedestrianMode = options.pedestrianMode || false;
+
+    this.currentIndex = 0;
+    this.timeoutId = null;
+    this.remainingTime = 0;
+    this.intervalId = null;
+    this.isPaused = false;
+    this.isPedestrianActive = false;
+
+    this.render();
+    this.start();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:16px;font-family:sans-serif";
+
+    // Traffic light housing
+    const housing = document.createElement("div");
+    housing.style.cssText = `
+      background:#1a1a2e;border-radius:16px;padding:20px 16px;
+      display:flex;flex-direction:column;gap:12px;align-items:center;
+      box-shadow:0 8px 24px rgba(0,0,0,0.3);
+    `;
+
+    this.config.forEach((light, i) =&gt; {
+      const lamp = document.createElement("div");
+      const isActive = i === this.currentIndex;
+      lamp.style.cssText = `
+        width:60px;height:60px;border-radius:50%;
+        background:${isActive ? light.color : "#333"};
+        opacity:${isActive ? "1" : "0.3"};
+        box-shadow:${isActive ? `0 0 20px ${light.color}, 0 0 40px ${light.color}` : "none"};
+        transition:all 0.3s ease;
+        border:3px solid #444;
+      `;
+      housing.appendChild(lamp);
+    });
+
+    this.container.appendChild(housing);
+
+    // Status display
+    const status = document.createElement("div");
+    status.style.cssText = "text-align:center";
+
+    const currentState = this.config[this.currentIndex];
+    const stateLabel = document.createElement("div");
+    stateLabel.textContent = this.isPedestrianActive ? "\ud83d\udeb6 WALK" : currentState.label;
+    stateLabel.style.cssText = `font-size:18px;font-weight:700;color:${currentState.color};text-transform:uppercase`;
+    status.appendChild(stateLabel);
+
+    this.countdownEl = document.createElement("div");
+    this.countdownEl.textContent = `${Math.ceil(this.remainingTime / 1000)}s`;
+    this.countdownEl.style.cssText = "font-size:24px;font-weight:700;color:#333;margin-top:4px;font-family:monospace";
+    status.appendChild(this.countdownEl);
+
+    this.container.appendChild(status);
+
+    // Controls
+    const controls = document.createElement("div");
+    controls.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;justify-content:center";
+
+    const pauseBtn = document.createElement("button");
+    pauseBtn.textContent = this.isPaused ? "\u25b6 Resume" : "\u23f8 Pause";
+    pauseBtn.style.cssText = "padding:8px 16px;border:1px solid #d1d5db;border-radius:6px;background:white;cursor:pointer;font-size:13px";
+    pauseBtn.addEventListener("click", () =&gt; this.isPaused ? this.resume() : this.pause());
+    controls.appendChild(pauseBtn);
+
+    if (this.pedestrianMode) {
+      const pedBtn = document.createElement("button");
+      pedBtn.textContent = "\ud83d\udeb6 Pedestrian Cross";
+      pedBtn.disabled = this.isPedestrianActive;
+      pedBtn.style.cssText = `
+        padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;
+        background:${this.isPedestrianActive ? "#d1d5db" : "#f59e0b"};
+        color:${this.isPedestrianActive ? "#666" : "white"};font-weight:600;
+      `;
+      pedBtn.addEventListener("click", () =&gt; this.triggerPedestrian());
+      controls.appendChild(pedBtn);
+    }
+
+    this.container.appendChild(controls);
+  }
+
+  start() {
+    this.cycle();
+  }
+
+  cycle() {
+    const current = this.config[this.currentIndex];
+    this.remainingTime = current.duration;
+    this.onStateChange(current);
+    this.render();
+
+    // Countdown display
+    this.intervalId = setInterval(() =&gt; {
+      if (!this.isPaused) {
+        this.remainingTime -= 100;
+        if (this.countdownEl) {
+          this.countdownEl.textContent = `${Math.max(0, Math.ceil(this.remainingTime / 1000))}s`;
+        }
+      }
+    }, 100);
+
+    // Move to next state
+    this.timeoutId = setTimeout(() =&gt; {
+      clearInterval(this.intervalId);
+      this.currentIndex = (this.currentIndex + 1) % this.config.length;
+      this.cycle();
+    }, current.duration);
+  }
+
+  pause() {
+    this.isPaused = true;
+    clearTimeout(this.timeoutId);
+    clearInterval(this.intervalId);
+    this.render();
+  }
+
+  resume() {
+    this.isPaused = false;
+    this.render();
+
+    // Resume with remaining time
+    this.intervalId = setInterval(() =&gt; {
+      this.remainingTime -= 100;
+      if (this.countdownEl) {
+        this.countdownEl.textContent = `${Math.max(0, Math.ceil(this.remainingTime / 1000))}s`;
+      }
+    }, 100);
+
+    this.timeoutId = setTimeout(() =&gt; {
+      clearInterval(this.intervalId);
+      this.currentIndex = (this.currentIndex + 1) % this.config.length;
+      this.cycle();
+    }, this.remainingTime);
+  }
+
+  triggerPedestrian() {
+    if (this.isPedestrianActive) return;
+    this.isPedestrianActive = true;
+
+    // Interrupt current cycle — force RED for vehicles
+    clearTimeout(this.timeoutId);
+    clearInterval(this.intervalId);
+
+    // Set to red (pedestrian walk)
+    this.currentIndex = 0; // Red
+    this.remainingTime = 6000; // 6 seconds for pedestrian
+    this.render();
+
+    this.intervalId = setInterval(() =&gt; {
+      this.remainingTime -= 100;
+      if (this.countdownEl) {
+        this.countdownEl.textContent = `${Math.max(0, Math.ceil(this.remainingTime / 1000))}s`;
+      }
+    }, 100);
+
+    this.timeoutId = setTimeout(() =&gt; {
+      clearInterval(this.intervalId);
+      this.isPedestrianActive = false;
+      // Resume from yellow (transitioning back to green)
+      this.currentIndex = 1;
+      this.cycle();
+    }, 6000);
+  }
+
+  destroy() {
+    clearTimeout(this.timeoutId);
+    clearInterval(this.intervalId);
+  }
+}
+
+// Usage:
+const traffic = new TrafficLight(document.getElementById("traffic"), {
+  pedestrianMode: true,
+  config: [
+    { color: "red", duration: 5000, label: "Stop" },
+    { color: "yellow", duration: 2000, label: "Caution" },
+    { color: "green", duration: 4000, label: "Go" },
+  ],
+  onStateChange: (state) =&gt; console.log("Light:", state.color),
+});
+
+// Intersection with multiple lights
+class Intersection {
+  constructor(container) {
+    this.lights = {
+      north: new TrafficLight(container.querySelector("#north"), {
+        config: [
+          { color: "green", duration: 4000, label: "Go" },
+          { color: "yellow", duration: 2000, label: "Slow" },
+          { color: "red", duration: 5000, label: "Stop" },
+        ],
+      }),
+      east: new TrafficLight(container.querySelector("#east"), {
+        config: [
+          { color: "red", duration: 6000, label: "Stop" },
+          { color: "green", duration: 4000, label: "Go" },
+          { color: "yellow", duration: 2000, label: "Slow" },
+        ],
+      }),
+    };
+  }
+}</code></pre>
+
+<h3>Interview Follow-ups</h3>
+<ul>
+  <li><strong>State machine pattern:</strong> This is a textbook finite state machine — states (red/yellow/green), transitions (timers), and events (pedestrian button)</li>
+  <li><strong>setTimeout chaining vs setInterval:</strong> setTimeout chaining is safer — avoids drift and overlap issues</li>
+  <li><strong>Emergency vehicle override:</strong> Add priority interrupt that forces all lights to red except the lane the vehicle approaches from</li>
+  <li><strong>Configurable durations:</strong> Rush hour vs night mode (longer green in main direction at night)</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="snake-game">5. Snake Game</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Amazon, Flipkart, Meesho, Swiggy</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Click Start, use Arrow Keys to play</div>
+  <iframe src="demos/snake-game.html" loading="lazy" style="height:560px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class SnakeGame {
+  constructor(canvas, options = {}) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.gridSize = options.gridSize || 20;
+    this.speed = options.speed || 150; // ms per frame
+    this.cols = Math.floor(canvas.width / this.gridSize);
+    this.rows = Math.floor(canvas.height / this.gridSize);
+    
+    this.reset();
+    this.bindControls();
+  }
+
+  reset() {
+    this.snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 5 }];
+    this.direction = { x: 1, y: 0 };
+    this.nextDirection = { x: 1, y: 0 };
+    this.food = this.randomFood();
+    this.score = 0;
+    this.gameOver = false;
+    this.intervalId = null;
+  }
+
+  start() {
+    this.reset();
+    this.intervalId = setInterval(() =&gt; this.tick(), this.speed);
+  }
+
+  tick() {
+    // Update direction (prevents 180-degree turns)
+    this.direction = this.nextDirection;
+    
+    // Calculate new head
+    const head = {
+      x: this.snake[0].x + this.direction.x,
+      y: this.snake[0].y + this.direction.y,
+    };
+
+    // Wall collision (wrap-around or game over)
+    if (head.x &lt; 0 || head.x &gt;= this.cols || head.y &lt; 0 || head.y &gt;= this.rows) {
+      return this.endGame();
+    }
+
+    // Self collision
+    if (this.snake.some(seg =&gt; seg.x === head.x && seg.y === head.y)) {
+      return this.endGame();
+    }
+
+    this.snake.unshift(head);
+
+    // Eat food
+    if (head.x === this.food.x && head.y === this.food.y) {
+      this.score += 10;
+      this.food = this.randomFood();
+    } else {
+      this.snake.pop(); // Remove tail if no food eaten
+    }
+
+    this.draw();
+  }
+
+  draw() {
+    const { ctx, gridSize } = this;
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Snake
+    this.snake.forEach((seg, i) =&gt; {
+      ctx.fillStyle = i === 0 ? '#27ae60' : '#2ecc71';
+      ctx.fillRect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2);
+    });
+
+    // Food
+    ctx.fillStyle = '#e74c3c';
+    ctx.beginPath();
+    ctx.arc(this.food.x * gridSize + gridSize/2, this.food.y * gridSize + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Score
+    ctx.fillStyle = 'white';
+    ctx.font = '14px monospace';
+    ctx.fillText(`Score: ${this.score}`, 10, 20);
+  }
+
+  bindControls() {
+    const dirMap = { ArrowUp: {x:0,y:-1}, ArrowDown: {x:0,y:1}, ArrowLeft: {x:-1,y:0}, ArrowRight: {x:1,y:0} };
+    document.addEventListener('keydown', (e) =&gt; {
+      const dir = dirMap[e.key];
+      if (!dir) return;
+      // Prevent reversing
+      if (dir.x !== -this.direction.x || dir.y !== -this.direction.y) {
+        this.nextDirection = dir;
+      }
+    });
+  }
+
+  randomFood() {
+    let pos;
+    do {
+      pos = { x: Math.floor(Math.random() * this.cols), y: Math.floor(Math.random() * this.rows) };
+    } while (this.snake.some(s =&gt; s.x === pos.x && s.y === pos.y));
+    return pos;
+  }
+
+  endGame() {
+    this.gameOver = true;
+    clearInterval(this.intervalId);
+    this.ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = 'white';
+    this.ctx.font = '24px sans-serif';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText(`Game Over! Score: ${this.score}`, this.canvas.width/2, this.canvas.height/2);
+  }
+}</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="typing-test">6. Typing Speed Test</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Razorpay, Meesho, 10xClub</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Start typing to begin the test</div>
+  <iframe src="demos/typing-test.html" loading="lazy" style="height:480px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class TypingTest {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.duration = options.duration || 60; // seconds
+    this.paragraphs = options.paragraphs || [
+      "The quick brown fox jumps over the lazy dog near the riverbank.",
+      "JavaScript is a high-level interpreted programming language.",
+      "Practice makes perfect when it comes to coding interviews.",
+    ];
+    
+    this.reset();
+    this.render();
+  }
+
+  reset() {
+    this.text = this.paragraphs[Math.floor(Math.random() * this.paragraphs.length)];
+    this.typed = '';
+    this.startTime = null;
+    this.timeLeft = this.duration;
+    this.errors = 0;
+    this.isRunning = false;
+    this.timerId = null;
+    this.charIndex = 0;
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="typing-test"&gt;
+        &lt;div class="stats"&gt;
+          &lt;span&gt;Time: &lt;strong id="time"&gt;${this.timeLeft}s&lt;/strong&gt;&lt;/span&gt;
+          &lt;span&gt;WPM: &lt;strong id="wpm"&gt;0&lt;/strong&gt;&lt;/span&gt;
+          &lt;span&gt;Accuracy: &lt;strong id="accuracy"&gt;100%&lt;/strong&gt;&lt;/span&gt;
+          &lt;span&gt;Errors: &lt;strong id="errors"&gt;0&lt;/strong&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class="text-display" id="text-display"&gt;&lt;/div&gt;
+        &lt;input type="text" class="type-input" id="type-input" placeholder="Start typing..." autofocus&gt;
+        &lt;button class="restart-btn" id="restart"&gt;Restart&lt;/button&gt;
+      &lt;/div&gt;
+    `;
+    this.renderText();
+    this.bindEvents();
+  }
+
+  renderText() {
+    const display = this.container.querySelector('#text-display');
+    display.innerHTML = this.text.split('').map((char, i) =&gt; {
+      let cls = '';
+      if (i &lt; this.charIndex) cls = this.typed[i] === char ? 'correct' : 'incorrect';
+      else if (i === this.charIndex) cls = 'current';
+      return `&lt;span class="${cls}"&gt;${char}&lt;/span&gt;`;
+    }).join('');
+  }
+
+  bindEvents() {
+    const input = this.container.querySelector('#type-input');
+    
+    input.addEventListener('input', (e) =&gt; {
+      if (!this.isRunning) this.start();
+      
+      const value = e.target.value;
+      this.charIndex = value.length;
+      this.typed = value;
+      
+      // Count errors
+      this.errors = 0;
+      for (let i = 0; i &lt; value.length; i++) {
+        if (value[i] !== this.text[i]) this.errors++;
+      }
+      
+      this.renderText();
+      this.updateStats();
+
+      // Finished the text
+      if (value.length &gt;= this.text.length) this.finish();
+    });
+
+    this.container.querySelector('#restart').addEventListener('click', () =&gt; {
+      this.reset();
+      this.render();
+    });
+  }
+
+  start() {
+    this.isRunning = true;
+    this.startTime = Date.now();
+    this.timerId = setInterval(() =&gt; {
+      this.timeLeft = this.duration - Math.floor((Date.now() - this.startTime) / 1000);
+      this.container.querySelector('#time').textContent = this.timeLeft + 's';
+      if (this.timeLeft &lt;= 0) this.finish();
+    }, 1000);
+  }
+
+  finish() {
+    this.isRunning = false;
+    clearInterval(this.timerId);
+    this.updateStats();
+    this.container.querySelector('#type-input').disabled = true;
+  }
+
+  updateStats() {
+    const elapsed = (Date.now() - (this.startTime || Date.now())) / 1000 / 60; // minutes
+    const words = this.typed.split(' ').filter(w =&gt; w).length;
+    const wpm = elapsed &gt; 0 ? Math.round(words / elapsed) : 0;
+    const accuracy = this.charIndex &gt; 0 ? Math.round(((this.charIndex - this.errors) / this.charIndex) * 100) : 100;
+
+    this.container.querySelector('#wpm').textContent = wpm;
+    this.container.querySelector('#accuracy').textContent = accuracy + '%';
+    this.container.querySelector('#errors').textContent = this.errors;
+  }
+}</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="poll-widget">7. Poll / Voting Widget</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Swiggy, Flipkart, LinkedIn, Meesho</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class PollWidget {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.question = options.question || 'What is your favorite framework?';
+    this.options = options.options || ['React', 'Angular', 'Vue', 'Svelte'];
+    this.votes = new Array(this.options.length).fill(0);
+    this.hasVoted = false;
+    this.selectedIndex = -1;
+    this.allowChange = options.allowChange || false;
+    
+    this.render();
+  }
+
+  get totalVotes() { return this.votes.reduce((a, b) =&gt; a + b, 0); }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="poll"&gt;
+        &lt;h3 class="poll-question"&gt;${this.question}&lt;/h3&gt;
+        &lt;div class="poll-options"&gt;
+          ${this.options.map((opt, i) =&gt; this.renderOption(opt, i)).join('')}
+        &lt;/div&gt;
+        &lt;p class="poll-total"&gt;${this.totalVotes} votes&lt;/p&gt;
+      &lt;/div&gt;
+    `;
+    this.bindEvents();
+  }
+
+  renderOption(text, index) {
+    const percentage = this.totalVotes ? Math.round((this.votes[index] / this.totalVotes) * 100) : 0;
+    const isSelected = this.selectedIndex === index;
+    
+    if (!this.hasVoted) {
+      return `&lt;button class="poll-option" data-index="${index}"&gt;${text}&lt;/button&gt;`;
+    }
+    
+    return `
+      &lt;div class="poll-result ${isSelected ? 'selected' : ''}"&gt;
+        &lt;div class="poll-bar" style="width:${percentage}%"&gt;&lt;/div&gt;
+        &lt;span class="poll-text"&gt;${text}&lt;/span&gt;
+        &lt;span class="poll-percent"&gt;${percentage}%&lt;/span&gt;
+      &lt;/div&gt;
+    `;
+  }
+
+  bindEvents() {
+    this.container.querySelectorAll('.poll-option').forEach(btn =&gt; {
+      btn.addEventListener('click', () =&gt; this.vote(parseInt(btn.dataset.index)));
+    });
+  }
+
+  vote(index) {
+    if (this.hasVoted && !this.allowChange) return;
+    if (this.selectedIndex &gt;= 0) this.votes[this.selectedIndex]--; // Undo previous
+    
+    this.selectedIndex = index;
+    this.votes[index]++;
+    this.hasVoted = true;
+    this.render();
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="emoji-picker">8. Emoji Picker</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Slack, Discord, Flipkart, Freshworks</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class EmojiPicker {
+  constructor(triggerEl, options = {}) {
+    this.trigger = triggerEl;
+    this.onSelect = options.onSelect || (() =&gt; {});
+    this.isOpen = false;
+    this.searchQuery = '';
+    this.recentEmojis = JSON.parse(localStorage.getItem('recent-emojis') || '[]');
+    
+    this.categories = {
+      'Smileys': ['😀','😂','🥹','😍','🤔','😎','🥳','😴','🤯','😡','🥺','😇'],
+      'Gestures': ['👍','👎','👏','🙏','✌️','🤝','💪','👋','🫡','🤌'],
+      'Animals': ['🐶','🐱','🦊','🐻','🐼','🐨','🦁','🐸','🐧','🦋'],
+      'Food': ['🍕','🍔','🍟','🌮','🍣','🍰','☕','🍺','🧋','🍎'],
+      'Activities': ['⚽','🏀','🎮','🎬','🎵','✈️','🏖️','🎯','🧩','🎨'],
+      'Objects': ['💻','📱','⌨️','🖥️','📷','💡','🔑','📚','✏️','🗑️'],
+    };
+
+    this.createDOM();
+    this.bindEvents();
+  }
+
+  createDOM() {
+    this.picker = document.createElement('div');
+    this.picker.className = 'emoji-picker';
+    this.picker.innerHTML = `
+      &lt;div class="emoji-search"&gt;
+        &lt;input type="text" placeholder="Search emojis..." class="emoji-search-input"&gt;
+      &lt;/div&gt;
+      &lt;div class="emoji-categories"&gt;
+        ${Object.keys(this.categories).map(cat =&gt; `&lt;button class="cat-btn" data-cat="${cat}"&gt;${this.categories[cat][0]}&lt;/button&gt;`).join('')}
+      &lt;/div&gt;
+      &lt;div class="emoji-grid" id="emoji-grid"&gt;&lt;/div&gt;
+    `;
+    document.body.appendChild(this.picker);
+    this.renderGrid();
+  }
+
+  renderGrid(category = null) {
+    const grid = this.picker.querySelector('#emoji-grid');
+    let html = '';
+    
+    if (this.recentEmojis.length && !this.searchQuery) {
+      html += `&lt;div class="emoji-section"&gt;&lt;h4&gt;Recent&lt;/h4&gt;&lt;div class="emojis"&gt;${this.recentEmojis.map(e =&gt; `&lt;button class="emoji-btn" data-emoji="${e}"&gt;${e}&lt;/button&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;`;
+    }
+
+    const cats = category ? { [category]: this.categories[category] } : this.categories;
+    
+    for (const [name, emojis] of Object.entries(cats)) {
+      const filtered = this.searchQuery ? emojis.filter(e =&gt; e.includes(this.searchQuery)) : emojis;
+      if (filtered.length === 0) continue;
+      html += `&lt;div class="emoji-section"&gt;&lt;h4&gt;${name}&lt;/h4&gt;&lt;div class="emojis"&gt;${filtered.map(e =&gt; `&lt;button class="emoji-btn" data-emoji="${e}"&gt;${e}&lt;/button&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;`;
+    }
+    grid.innerHTML = html;
+  }
+
+  bindEvents() {
+    this.trigger.addEventListener('click', () =&gt; this.toggle());
+
+    this.picker.querySelector('.emoji-search-input').addEventListener('input', (e) =&gt; {
+      this.searchQuery = e.target.value;
+      this.renderGrid();
+    });
+
+    this.picker.addEventListener('click', (e) =&gt; {
+      const emoji = e.target.dataset.emoji;
+      if (emoji) this.selectEmoji(emoji);
+      const cat = e.target.dataset.cat;
+      if (cat) this.renderGrid(cat);
+    });
+
+    document.addEventListener('click', (e) =&gt; {
+      if (!this.picker.contains(e.target) && e.target !== this.trigger && this.isOpen) this.close();
+    });
+  }
+
+  selectEmoji(emoji) {
+    this.recentEmojis = [emoji, ...this.recentEmojis.filter(e =&gt; e !== emoji)].slice(0, 12);
+    localStorage.setItem('recent-emojis', JSON.stringify(this.recentEmojis));
+    this.onSelect(emoji);
+    this.close();
+  }
+
+  toggle() { this.isOpen ? this.close() : this.open(); }
+  open() {
+    this.isOpen = true;
+    const rect = this.trigger.getBoundingClientRect();
+    this.picker.style.top = (rect.bottom + 8) + 'px';
+    this.picker.style.left = rect.left + 'px';
+    this.picker.classList.add('visible');
+  }
+  close() { this.isOpen = false; this.picker.classList.remove('visible'); }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="progress-stepper">9. Progress Stepper / Multi-Step Indicator</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Razorpay, PhonePe, Flipkart, Swiggy</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class ProgressStepper {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.steps = options.steps || ['Cart', 'Shipping', 'Payment', 'Confirm'];
+    this.currentStep = options.initialStep || 0;
+    this.completedSteps = new Set();
+    this.onStepChange = options.onStepChange || (() =&gt; {});
+    this.allowClickNavigation = options.clickable !== false;
+    
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="stepper"&gt;
+        ${this.steps.map((step, i) =&gt; `
+          &lt;div class="step ${i === this.currentStep ? 'active' : ''} ${this.completedSteps.has(i) ? 'completed' : ''} ${i &lt; this.currentStep ? 'past' : ''}" data-step="${i}"&gt;
+            &lt;div class="step-circle"&gt;${this.completedSteps.has(i) ? '✓' : i + 1}&lt;/div&gt;
+            &lt;span class="step-label"&gt;${step}&lt;/span&gt;
+          &lt;/div&gt;
+          ${i &lt; this.steps.length - 1 ? '&lt;div class="step-line ' + (i &lt; this.currentStep ? 'filled' : '') + '"&gt;&lt;/div&gt;' : ''}
+        `).join('')}
+      &lt;/div&gt;
+      &lt;div class="stepper-controls"&gt;
+        &lt;button class="prev-btn" ${this.currentStep === 0 ? 'disabled' : ''}&gt;← Previous&lt;/button&gt;
+        &lt;button class="next-btn"&gt;${this.currentStep === this.steps.length - 1 ? 'Finish' : 'Next →'}&lt;/button&gt;
+      &lt;/div&gt;
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.container.querySelector('.prev-btn').addEventListener('click', () =&gt; this.prev());
+    this.container.querySelector('.next-btn').addEventListener('click', () =&gt; this.next());
+    
+    if (this.allowClickNavigation) {
+      this.container.querySelectorAll('.step').forEach(el =&gt; {
+        el.addEventListener('click', () =&gt; {
+          const idx = parseInt(el.dataset.step);
+          if (idx &lt;= this.currentStep || this.completedSteps.has(idx - 1)) this.goTo(idx);
+        });
+      });
+    }
+  }
+
+  next() {
+    this.completedSteps.add(this.currentStep);
+    if (this.currentStep &lt; this.steps.length - 1) {
+      this.currentStep++;
+      this.onStepChange(this.currentStep);
+      this.render();
+    }
+  }
+
+  prev() {
+    if (this.currentStep &gt; 0) {
+      this.currentStep--;
+      this.onStepChange(this.currentStep);
+      this.render();
+    }
+  }
+
+  goTo(step) {
+    this.currentStep = step;
+    this.onStepChange(step);
+    this.render();
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="image-gallery">10. Image Gallery with Lightbox</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Flipkart, Amazon, Google Photos, Myntra</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class ImageGallery {
+  constructor(container, images, options = {}) {
+    this.container = container;
+    this.images = images; // [{src, thumb, alt, caption}]
+    this.columns = options.columns || 3;
+    this.onImageClick = options.onImageClick || null;
+    
+    this.lightbox = null;
+    this.currentIndex = 0;
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="gallery" style="display:grid; grid-template-columns:repeat(${this.columns},1fr); gap:8px"&gt;
+        ${this.images.map((img, i) =&gt; `
+          &lt;div class="gallery-item" data-index="${i}"&gt;
+            &lt;img src="${img.thumb || img.src}" alt="${img.alt || ''}" loading="lazy"&gt;
+          &lt;/div&gt;
+        `).join('')}
+      &lt;/div&gt;
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.container.querySelectorAll('.gallery-item').forEach(item =&gt; {
+      item.addEventListener('click', () =&gt; this.openLightbox(parseInt(item.dataset.index)));
+    });
+  }
+
+  openLightbox(index) {
+    this.currentIndex = index;
+    
+    if (!this.lightbox) {
+      this.lightbox = document.createElement('div');
+      this.lightbox.className = 'lightbox';
+      this.lightbox.innerHTML = `
+        &lt;div class="lb-overlay"&gt;&lt;/div&gt;
+        &lt;button class="lb-close"&gt;✕&lt;/button&gt;
+        &lt;button class="lb-prev"&gt;‹&lt;/button&gt;
+        &lt;button class="lb-next"&gt;›&lt;/button&gt;
+        &lt;div class="lb-content"&gt;
+          &lt;img class="lb-image"&gt;
+          &lt;p class="lb-caption"&gt;&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class="lb-counter"&gt;&lt;/div&gt;
+      `;
+      document.body.appendChild(this.lightbox);
+      
+      this.lightbox.querySelector('.lb-overlay').addEventListener('click', () =&gt; this.closeLightbox());
+      this.lightbox.querySelector('.lb-close').addEventListener('click', () =&gt; this.closeLightbox());
+      this.lightbox.querySelector('.lb-prev').addEventListener('click', () =&gt; this.navigate(-1));
+      this.lightbox.querySelector('.lb-next').addEventListener('click', () =&gt; this.navigate(1));
+      
+      document.addEventListener('keydown', (e) =&gt; {
+        if (!this.lightbox.classList.contains('active')) return;
+        if (e.key === 'Escape') this.closeLightbox();
+        if (e.key === 'ArrowLeft') this.navigate(-1);
+        if (e.key === 'ArrowRight') this.navigate(1);
+      });
+    }
+
+    this.updateLightbox();
+    this.lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  updateLightbox() {
+    const img = this.images[this.currentIndex];
+    this.lightbox.querySelector('.lb-image').src = img.src;
+    this.lightbox.querySelector('.lb-caption').textContent = img.caption || '';
+    this.lightbox.querySelector('.lb-counter').textContent = `${this.currentIndex + 1} / ${this.images.length}`;
+  }
+
+  navigate(dir) {
+    this.currentIndex = (this.currentIndex + dir + this.images.length) % this.images.length;
+    this.updateLightbox();
+  }
+
+  closeLightbox() {
+    this.lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="chat-interface">11. Chat Interface (WhatsApp-style)</h2>
+<span class="difficulty d-medium">MEDIUM</span>
+<p class="companies">Asked at: Google, Flipkart, Slack, Microsoft Teams</p>
+
+<div class="live-demo">
+  <div class="live-demo-header">▶ Live Demo — Type messages, bot responds automatically</div>
+  <iframe src="demos/chat-interface.html" loading="lazy" style="height:520px"></iframe>
+</div>
+
+<details class="html-source">
+<summary>📋 Complete HTML Source Code — Copy this in interview</summary>
+<pre><code>class ChatInterface {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.messages = options.messages || [];
+    this.currentUser = options.currentUser || { id: 'me', name: 'You', avatar: '👤' };
+    this.onSend = options.onSend || (() =&gt; {});
+    this.typingUsers = new Set();
+
+    this.render();
+    this.scrollToBottom();
+  }
+
+  render() {
+    this.container.innerHTML = `
+      &lt;div class="chat"&gt;
+        &lt;div class="chat-messages" id="chat-messages"&gt;
+          ${this.messages.map(msg =&gt; this.renderMessage(msg)).join('')}
+          ${this.typingUsers.size ? this.renderTyping() : ''}
+        &lt;/div&gt;
+        &lt;div class="chat-input"&gt;
+          &lt;input type="text" id="msg-input" placeholder="Type a message..." autocomplete="off"&gt;
+          &lt;button id="send-btn"&gt;Send&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;
+    this.bindEvents();
+  }
+
+  renderMessage(msg) {
+    const isMine = msg.userId === this.currentUser.id;
+    const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    return `
+      &lt;div class="message ${isMine ? 'mine' : 'theirs'}"&gt;
+        ${!isMine ? `&lt;span class="msg-avatar"&gt;${msg.avatar || '👤'}&lt;/span&gt;` : ''}
+        &lt;div class="msg-bubble"&gt;
+          ${!isMine ? `&lt;span class="msg-name"&gt;${msg.name}&lt;/span&gt;` : ''}
+          &lt;p&gt;${this.escapeHtml(msg.text)}&lt;/p&gt;
+          &lt;span class="msg-time"&gt;${time} ${isMine ? (msg.read ? '✓✓' : '✓') : ''}&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;
+  }
+
+  renderTyping() {
+    return `&lt;div class="typing-indicator"&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;`;
+  }
+
+  bindEvents() {
+    const input = this.container.querySelector('#msg-input');
+    const sendBtn = this.container.querySelector('#send-btn');
+
+    const send = () =&gt; {
+      const text = input.value.trim();
+      if (!text) return;
+      
+      const msg = {
+        id: Date.now().toString(),
+        userId: this.currentUser.id,
+        name: this.currentUser.name,
+        avatar: this.currentUser.avatar,
+        text,
+        timestamp: Date.now(),
+        read: false,
+      };
+      
+      this.messages.push(msg);
+      input.value = '';
+      this.render();
+      this.scrollToBottom();
+      this.onSend(msg);
+    };
+
+    sendBtn.addEventListener('click', send);
+    input.addEventListener('keydown', (e) =&gt; { if (e.key === 'Enter') send(); });
+  }
+
+  addMessage(msg) {
+    this.messages.push(msg);
+    this.render();
+    this.scrollToBottom();
+  }
+
+  setTyping(userId, isTyping) {
+    isTyping ? this.typingUsers.add(userId) : this.typingUsers.delete(userId);
+    this.render();
+  }
+
+  scrollToBottom() {
+    const el = this.container.querySelector('#chat-messages');
+    if (el) el.scrollTop = el.scrollHeight;
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+}</code></pre>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="breadcrumb-nav">12. Breadcrumb Navigation (Dynamic)</h2>
+<span class="difficulty d-easy">EASY</span>
+<p class="companies">Asked at: Amazon, Flipkart, Atlassian, Zoho</p>
+
+<h3>Complete Implementation</h3>
+<pre><code>class Breadcrumb {
+  constructor(container, options = {}) {
+    this.container = container;
+    this.items = options.items || []; // [{label, href, icon?}]
+    this.separator = options.separator || '›';
+    this.maxItems = options.maxItems || 5; // Collapse if more
+    this.onNavigate = options.onNavigate || (() =&gt; {});
+
+    this.render();
+  }
+
+  render() {
+    let displayItems = [...this.items];
+    let collapsed = false;
+
+    // Collapse middle items if too many
+    if (displayItems.length &gt; this.maxItems) {
+      const first = displayItems.slice(0, 1);
+      const last = displayItems.slice(-2);
+      displayItems = [...first, { label: '...', isCollapsed: true }, ...last];
+      collapsed = true;
+    }
+
+    this.container.innerHTML = `
+      &lt;nav class="breadcrumb" aria-label="Breadcrumb"&gt;
+        &lt;ol&gt;
+          ${displayItems.map((item, i) =&gt; {
+            const isLast = i === displayItems.length - 1;
+            if (item.isCollapsed) {
+              return `&lt;li class="breadcrumb-collapsed"&gt;
+                &lt;button class="collapse-btn" aria-label="Show hidden items"&gt;•••&lt;/button&gt;
+                &lt;div class="collapse-menu"&gt;
+                  ${this.items.slice(1, -2).map(it =&gt; `&lt;a href="${it.href || '#'}"&gt;${it.label}&lt;/a&gt;`).join('')}
+                &lt;/div&gt;
+              &lt;/li&gt;`;
+            }
+            return `&lt;li&gt;
+              ${isLast 
+                ? `&lt;span class="current" aria-current="page"&gt;${item.icon || ''}${item.label}&lt;/span&gt;`
+                : `&lt;a href="${item.href || '#'}" data-index="${i}"&gt;${item.icon || ''}${item.label}&lt;/a&gt;`}
+              ${!isLast ? `&lt;span class="separator"&gt;${this.separator}&lt;/span&gt;` : ''}
+            &lt;/li&gt;`;
+          }).join('')}
+        &lt;/ol&gt;
+      &lt;/nav&gt;
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.container.querySelectorAll('a[data-index]').forEach(link =&gt; {
+      link.addEventListener('click', (e) =&gt; {
+        e.preventDefault();
+        const idx = parseInt(link.dataset.index);
+        this.onNavigate(this.items[idx], idx);
+      });
+    });
+
+    const collapseBtn = this.container.querySelector('.collapse-btn');
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', () =&gt; {
+        collapseBtn.nextElementSibling.classList.toggle('visible');
+      });
+    }
+  }
+
+  push(item) { this.items.push(item); this.render(); }
+  pop() { this.items.pop(); this.render(); }
+  setItems(items) { this.items = items; this.render(); }
+}</code></pre>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="machine-coding-part4-high-frequency.html">← Part 4: High Frequency</a>
+  <a href="machine-coding-part6-utilities.html">Part 6: Utilities →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

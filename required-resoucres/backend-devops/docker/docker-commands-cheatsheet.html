@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker Commands Cheatsheet — Common &amp; Medium Use Cases</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root {
+      --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f;
+      --line: #d8d0c3; --accent: #1a5276; --accent-soft: #d6eaf8;
+      --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin-bottom: 8px; }
+    h2 { font-size: 17pt; margin-top: 30px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 12.5pt; margin-top: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 6px 0 12px 22px; padding: 0; }
+    li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.6pt; line-height: 1.5; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.6pt; }
+    pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #edf3f7 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #1a3d5c; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #b3d4e8; }
+    .callout { border-left: 4px solid var(--accent); background: #f0f7fc; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; }
+    .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc ol { margin: 8px 0 0 20px; }
+    .toc li { margin-bottom: 4px; }
+    .freq { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; margin-left: 6px; }
+    .f-daily { background: #d4edda; color: #155724; }
+    .f-medium { background: #fff3cd; color: #856404; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Docker Commands Cheatsheet</h1>
+  <p class="subtitle">Most Common (daily-driver) &amp; Medium Use-Case Commands — Backend/Full-Stack Reference</p>
+  <div class="pill-row">
+    <span class="pill">Images</span>
+    <span class="pill">Containers</span>
+    <span class="pill">Logs/Exec/Debug</span>
+    <span class="pill">Volumes</span>
+    <span class="pill">Networking</span>
+    <span class="pill">Compose</span>
+    <span class="pill">Cleanup</span>
+    <span class="pill">Registry (JFrog Artifactory)</span>
+  </div>
+</div>
+
+<div class="callout">
+<strong>Legend:</strong> <span class="freq f-daily">DAILY</span> = you'll run this constantly during normal dev work. <span class="freq f-medium">MEDIUM</span> = less frequent, but expect to need it every week or so (or in an interview scenario). Companion theory: <a href="docker-phase1-fundamentals-theory.html">Docker Part 1</a> · Companion Q&amp;A: <a href="docker-phase2-interview-questions.html">Docker Part 2</a>.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#images">Image Management</a></li>
+    <li><a href="#containers">Container Lifecycle</a></li>
+    <li><a href="#debug">Inspecting, Logs &amp; Debugging</a></li>
+    <li><a href="#volumes-cmd">Volumes &amp; Copying Data</a></li>
+    <li><a href="#network-cmd">Networking</a></li>
+    <li><a href="#compose-cmd">Docker Compose</a></li>
+    <li><a href="#cleanup">Cleanup &amp; Maintenance</a></li>
+    <li><a href="#registry">Registry / Private Artifactory Auth</a></li>
+    <li><a href="#advanced">Medium/Advanced Daily Use</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="images">1. Image Management</h2>
+
+<pre><code># Build an image from the Dockerfile in the current directory
+docker build -t di-jfrog:local .                         # DAILY
+
+# Build with a specific Dockerfile path and build-time args
+docker build -f docker/Dockerfile --build-arg API_URL=https://x -t app:dev .   # MEDIUM
+
+# List local images
+docker images                                             # DAILY
+
+# Remove an image (add -f to force if containers reference it)
+docker rmi di-jfrog:local                                 # MEDIUM
+
+# Tag an image (e.g. before pushing to a registry)
+docker tag di-jfrog:local kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.2.0   # DAILY
+
+# Pull / push
+docker pull mongo:7                                       # DAILY
+docker push kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.2.0   # DAILY
+
+# Show the layer history of an image (great for debugging image size)
+docker history di-jfrog:local                             # MEDIUM
+
+# Inspect full image metadata (env, entrypoint, exposed ports, layers)
+docker inspect di-jfrog:local                             # MEDIUM
+
+# Save/load an image as a tar file (air-gapped transfer, no registry access)
+docker save -o app.tar di-jfrog:local                     # MEDIUM
+docker load -i app.tar                                    # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="containers">2. Container Lifecycle</h2>
+
+<pre><code># Run in background, map a port, name it
+docker run -d -p 8080:8080 --name jfrog-svc di-jfrog:local     # DAILY
+
+# Run interactively and auto-remove when it exits (great for one-off debugging)
+docker run -it --rm alpine sh                              # DAILY
+
+# Run with env vars and a volume mounted
+docker run -d -p 8080:8080 \
+  -e DATABASE_URL=mongodb://mongo:27017/jfrog \
+  -v $(pwd)/config.json:/app/config.json:ro \
+  --name jfrog-svc di-jfrog:local                          # DAILY
+
+# List running containers / all containers (including stopped)
+docker ps                                                  # DAILY
+docker ps -a                                                # DAILY
+
+# Start / stop / restart an existing (stopped) container
+docker start jfrog-svc                                     # DAILY
+docker stop jfrog-svc                                       # DAILY
+docker restart jfrog-svc                                    # DAILY
+
+# Remove a container (must be stopped, or add -f)
+docker rm jfrog-svc                                         # DAILY
+docker rm -f jfrog-svc                                       # MEDIUM
+
+# Rename a running/stopped container
+docker rename jfrog-svc jfrog-svc-old                       # MEDIUM
+
+# Pause/unpause all processes in a container (freezes without stopping)
+docker pause jfrog-svc && docker unpause jfrog-svc          # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="debug">3. Inspecting, Logs &amp; Debugging</h2>
+
+<pre><code># Tail logs (follow), with timestamps, last N lines
+docker logs -f jfrog-svc                                    # DAILY
+docker logs --tail 100 -t jfrog-svc                         # DAILY
+
+# Shell into a running container
+docker exec -it jfrog-svc sh                                 # DAILY
+docker exec -it jfrog-svc bash                               # DAILY (if bash is available)
+
+# Run a one-off command inside a running container without a full shell
+docker exec jfrog-svc env                                     # MEDIUM
+docker exec jfrog-svc cat /app/config.json                    # MEDIUM
+
+# Full container metadata: env vars, mounts, network, restart count, exit code
+docker inspect jfrog-svc                                      # DAILY
+docker inspect --format '{{.State.ExitCode}}' jfrog-svc        # MEDIUM
+docker inspect --format '{{.State.OOMKilled}}' jfrog-svc       # MEDIUM
+
+# Live resource usage (CPU/mem) — like `top` for containers
+docker stats                                                   # MEDIUM
+docker stats jfrog-svc --no-stream                              # MEDIUM
+
+# Processes running inside a container
+docker top jfrog-svc                                            # MEDIUM
+
+# Diff of filesystem changes vs the image (added/changed/deleted files)
+docker diff jfrog-svc                                            # MEDIUM
+
+# Bypass a crashing ENTRYPOINT to get a shell for debugging
+docker run -it --entrypoint sh di-jfrog:local                    # MEDIUM
+
+# Which ports are published, from where
+docker port jfrog-svc                                             # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="volumes-cmd">4. Volumes &amp; Copying Data</h2>
+
+<pre><code># Create/list/inspect/remove a named volume
+docker volume create mongo-data                             # MEDIUM
+docker volume ls                                              # DAILY
+docker volume inspect mongo-data                               # MEDIUM
+docker volume rm mongo-data                                     # MEDIUM
+
+# Run with a named volume (persists Mongo data across container recreation)
+docker run -d -v mongo-data:/data/db --name mongo mongo:7      # DAILY
+
+# Copy a file OUT of a container (e.g. grab a generated log/config)
+docker cp jfrog-svc:/app/config.json ./local-config.json        # MEDIUM
+
+# Copy a file INTO a running container
+docker cp ./patched-config.json jfrog-svc:/app/config.json        # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="network-cmd">5. Networking</h2>
+
+<pre><code># Create a user-defined network (enables name-based DNS between containers)
+docker network create di-net                                   # MEDIUM
+
+# Run containers attached to it
+docker run -d --network di-net --name mongo mongo:7              # DAILY
+docker run -d --network di-net --name jfrog-svc di-jfrog:local    # DAILY
+
+# List / inspect networks (see which containers are attached, subnet, etc.)
+docker network ls                                                 # MEDIUM
+docker network inspect di-net                                       # MEDIUM
+
+# Connect/disconnect a running container to/from a network
+docker network connect di-net some-other-container                    # MEDIUM
+docker network disconnect di-net some-other-container                  # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="compose-cmd">6. Docker Compose</h2>
+
+<pre><code># Build (if needed) and start everything in the background
+docker compose up -d                                            # DAILY
+
+# Rebuild images before starting (after a Dockerfile/dependency change)
+docker compose up -d --build                                     # DAILY
+
+# Tail logs of one service, or all services
+docker compose logs -f jfrog-service                               # DAILY
+docker compose logs -f                                              # DAILY
+
+# List running services in this Compose project
+docker compose ps                                                    # DAILY
+
+# Shell into a service container (by service name, not container name)
+docker compose exec jfrog-service sh                                   # DAILY
+
+# Stop and remove containers/networks (add -v to also remove volumes = wipes data)
+docker compose down                                                     # DAILY
+docker compose down -v                                                    # MEDIUM
+
+# Restart just one service
+docker compose restart jfrog-service                                        # MEDIUM
+
+# Validate/print the fully-resolved compose config (great for debugging env var interpolation)
+docker compose config                                                        # MEDIUM</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="cleanup">7. Cleanup &amp; Maintenance</h2>
+
+<pre><code># See disk usage breakdown (images/containers/volumes/build cache)
+docker system df                                              # MEDIUM
+
+# Remove all stopped containers, unused networks, dangling images, build cache
+docker system prune                                             # MEDIUM
+docker system prune -a                                            # MEDIUM (also removes unused, non-dangling images — careful)
+
+# Remove only unused images / stopped containers / unused volumes individually
+docker image prune -a                                              # MEDIUM
+docker container prune                                               # MEDIUM
+docker volume prune                                                    # MEDIUM (destructive — removes unattached volumes/data)</code></pre>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="registry">8. Registry / Private Artifactory Auth</h2>
+
+<pre><code># Log in to a private registry (e.g. Kyndryl's JFrog Artifactory Docker registry)
+docker login kyndryl.jfrog.io -u $INIT_USER -p $ARTIFACTORY_PASS   # DAILY (in CI), MEDIUM (locally)
+
+docker logout kyndryl.jfrog.io                                       # MEDIUM
+
+# Pull/push against that registry once authenticated
+docker pull kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.2.0   # DAILY
+docker push kyndryl.jfrog.io/ibmcb-docker-local/dash/portal_jfrog_app:1.2.0     # DAILY</code></pre>
+
+<div class="callout warning">
+<strong>Never</strong> pass <code>-p</code> with a plaintext password in shared shell history/scripts in real usage — prefer <code>--password-stdin</code> (<code>echo "$ARTIFACTORY_PASS" | docker login kyndryl.jfrog.io -u "$INIT_USER" --password-stdin</code>) so the secret doesn't linger in process listings or shell history.
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2 id="advanced">9. Medium/Advanced Daily Use</h2>
+
+<pre><code># Limit resources at run time (mirrors K8s requests/limits, useful for local repro of OOM issues)
+docker run -d --memory=512m --cpus=0.5 --name jfrog-svc di-jfrog:local    # MEDIUM
+
+# Override the healthcheck defined in the image, or disable it
+docker run --health-cmd="curl -f http://localhost:8080/health || exit 1" \
+  --health-interval=30s di-jfrog:local                                     # MEDIUM
+docker run --no-healthcheck di-jfrog:local                                   # MEDIUM
+
+# Attach vs exec — attach connects to the MAIN process's stdin/stdout (risky: Ctrl+C can kill it);
+# exec starts a NEW process inside the container (safe for poking around)
+docker attach jfrog-svc                                                       # MEDIUM (use with care)
+docker exec -it jfrog-svc sh                                                     # DAILY (preferred for debugging)
+
+# Export a container's filesystem as a tarball (different from `save`, which exports an IMAGE)
+docker export jfrog-svc -o container-fs.tar                                       # MEDIUM
+
+# Multi-architecture build (e.g. amd64 + arm64) via buildx — relevant on Apple Silicon dev machines
+docker buildx build --platform linux/amd64,linux/arm64 -t di-jfrog:multi .           # MEDIUM
+
+# Show real-time events from the Docker daemon (container start/stop/die, useful while debugging)
+docker events --filter container=jfrog-svc                                            # MEDIUM</code></pre>
+
+<div class="nav-links">
+  <a href="docker-phase2-interview-questions.html">← Docker Part 2 — Interview Questions</a>
+  <a href="docker-visual-cheatsheet.html">Docker Visual Cheatsheet →</a>
+</div>
+
+</main>
+</body>
+</html>

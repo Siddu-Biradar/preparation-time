@@ -24,6 +24,58 @@
     .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
     .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
     .yt-links { background: #fef9f0; border: 1px solid #f0dcc0; border-radius: 8px; padding: 8px 12px; margin: 8px 0 14px; font-size: 9.6pt; } .yt-links summary { cursor: pointer; font-family: "Avenir Next", sans-serif; font-weight: 600; color: #c0392b; } .yt-links ul { margin: 6px 0 2px 18px; padding: 0; } .yt-links li { margin-bottom: 4px; } .yt-links a { color: #c0392b; text-decoration: none; } .yt-links a:hover { text-decoration: underline; }
+    /* Visual Diagram Styles */
+    .visual-diagram { border: 2px solid #2c3e50; border-radius: 16px; padding: 24px; margin: 20px 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #ecf0f1; font-family: "Avenir Next", "Helvetica Neue", sans-serif; overflow-x: auto; }
+    .visual-diagram h4 { color: #f39c12; margin: 0 0 16px; font-size: 13pt; text-align: center; border: none; }
+    .diagram-container { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+    .diagram-box { border-radius: 12px; padding: 14px 16px; min-width: 160px; text-align: center; position: relative; }
+    .diagram-box h5 { margin: 0 0 8px; font-size: 10.5pt; letter-spacing: 0.5px; text-transform: uppercase; }
+    .diagram-box ul { list-style: none; margin: 0; padding: 0; font-size: 9.2pt; text-align: left; }
+    .diagram-box li { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .diagram-box li:last-child { border-bottom: none; }
+    .box-stack { background: linear-gradient(180deg, #e74c3c, #c0392b); border: 2px solid #ff6b6b; }
+    .box-webapi { background: linear-gradient(180deg, #2980b9, #1a5276); border: 2px solid #5dade2; }
+    .box-micro { background: linear-gradient(180deg, #27ae60, #1e8449); border: 2px solid #58d68d; }
+    .box-macro { background: linear-gradient(180deg, #f39c12, #d68910); border: 2px solid #f7dc6f; color: #1a1a2e; }
+    .box-eventloop { background: linear-gradient(180deg, #8e44ad, #6c3483); border: 2px solid #bb8fce; }
+    .diagram-arrow { font-size: 22px; color: #f39c12; display: flex; align-items: center; font-weight: bold; }
+    .diagram-flow { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; margin-top: 16px; }
+    .flow-step { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 700px; padding: 10px 16px; border-radius: 8px; font-size: 10pt; }
+    .flow-step .step-num { background: #f39c12; color: #1a1a2e; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; font-size: 11pt; }
+    .flow-step .step-text { flex: 1; }
+    .flow-step.step-sync { background: rgba(231,76,60,0.2); border-left: 4px solid #e74c3c; }
+    .flow-step.step-micro { background: rgba(39,174,96,0.2); border-left: 4px solid #27ae60; }
+    .flow-step.step-render { background: rgba(142,68,173,0.2); border-left: 4px solid #8e44ad; }
+    .flow-step.step-macro { background: rgba(243,156,18,0.2); border-left: 4px solid #f39c12; }
+    .flow-step.step-loop { background: rgba(52,152,219,0.2); border-left: 4px solid #3498db; }
+    .diagram-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 9pt; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .timeline-diagram { margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #0a0a23, #1a1a3e); border: 2px solid #2c3e50; border-radius: 16px; color: #ecf0f1; font-family: "Avenir Next", sans-serif; }
+    .timeline-diagram h4 { color: #f39c12; text-align: center; margin: 0 0 20px; }
+    .timeline-track { position: relative; padding: 12px 0; margin: 10px 0; }
+    .timeline-track::before { content: ''; position: absolute; top: 50%; left: 40px; right: 20px; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; }
+    .timeline-label { position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-size: 8.5pt; font-weight: 700; width: 36px; text-align: right; }
+    .timeline-events { display: flex; gap: 8px; margin-left: 50px; position: relative; z-index: 1; }
+    .timeline-event { padding: 6px 10px; border-radius: 6px; font-size: 8.5pt; white-space: nowrap; font-weight: 600; }
+    .te-sync { background: #e74c3c; }
+    .te-micro { background: #27ae60; }
+    .te-render { background: #8e44ad; }
+    .te-macro { background: #f39c12; color: #1a1a2e; }
+    .te-raf { background: #9b59b6; }
+    .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    @media (max-width: 600px) { .comparison-grid { grid-template-columns: 1fr; } .diagram-container { flex-direction: column; align-items: center; } }
+    .comparison-card { border-radius: 12px; padding: 16px; }
+    .comparison-card h5 { margin: 0 0 10px; font-size: 11pt; }
+    .comparison-card ul { margin: 0; padding: 0 0 0 16px; font-size: 9.5pt; }
+    .comparison-card li { margin-bottom: 5px; }
+    .card-good { background: rgba(39,174,96,0.15); border: 2px solid #27ae60; }
+    .card-bad { background: rgba(231,76,60,0.15); border: 2px solid #e74c3c; }
+    .card-timer { background: rgba(52,152,219,0.15); border: 2px solid #3498db; }
+    .card-raf { background: rgba(142,68,173,0.15); border: 2px solid #8e44ad; }
+    .visual-rule { display: flex; align-items: center; gap: 10px; padding: 10px 14px; margin: 6px 0; border-radius: 8px; font-size: 9.8pt; background: rgba(243,156,18,0.1); border: 1px solid rgba(243,156,18,0.3); }
+    .visual-rule .rule-icon { font-size: 18px; flex-shrink: 0; }
+    .visual-rule strong { color: #f39c12; }
     .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
     .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
     .difficulty { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt; font-weight: 700; font-family: "Avenir Next", sans-serif; } .d-easy { background: #d4edda; color: #155724; } .d-medium { background: #fff3cd; color: #856404; } .d-hard { background: #f8d7da; color: #721c24; } .d-expert { background: #e2d9f3; color: #3d1f6e; }
@@ -75,6 +127,22 @@
 
 <p>JavaScript is <strong>single-threaded</strong> — it has ONE call stack. But it handles asynchronous operations through the <strong>Event Loop</strong>, which coordinates between the call stack, Web APIs, and callback queues.</p>
 
+<h4>What Problem Does the Event Loop Solve?</h4>
+<p>Imagine you're a chef (JavaScript) working alone in a kitchen (single thread). You can only do ONE thing at a time — chop vegetables OR stir soup, never both simultaneously. Now a customer orders a dish that takes 30 minutes to bake. Without the Event Loop, you'd stand there staring at the oven for 30 minutes, unable to serve anyone else. That's what "blocking" means — your ONE thread is stuck waiting.</p>
+
+<p>The Event Loop is like having kitchen assistants (Web APIs/Browser threads) who can watch the oven FOR you. You tell them "notify me when it's done," then continue chopping vegetables (executing other code). When the timer beeps, the assistant puts a note on your counter (callback queue). When you finish your current task and look at the counter (call stack is empty), you pick up the note and handle it.</p>
+
+<p><strong>This is the fundamental insight:</strong> JavaScript itself never does async work. It DELEGATES to the browser's C++ threads (timers, network, DOM events) and the Event Loop COORDINATES when those results come back to JavaScript's single thread.</p>
+
+<h4>How It Actually Works — Complete Mental Model</h4>
+<p>Think of the entire system as having these components working together:</p>
+<ol>
+  <li><strong>Call Stack</strong> — The single lane where JS code executes. Functions go in (push) and come out (pop). Only one function runs at a time.</li>
+  <li><strong>Web APIs</strong> — The browser's multi-threaded workers. When JS calls <code>setTimeout</code>, <code>fetch</code>, or adds an event listener, it's handing work OFF to these C++ threads. They run in parallel to JS.</li>
+  <li><strong>Callback Queues</strong> — Waiting rooms where completed callbacks sit until the Call Stack is free to handle them. There are TWO queues with different priorities.</li>
+  <li><strong>Event Loop</strong> — The "traffic controller" that constantly checks: "Is the call stack empty? If yes, should I move a callback from the queue to the stack?"</li>
+</ol>
+
 <pre><code>/*
 ┌───────────────────────────────────────────────────────────────────┐
 │                      BROWSER ENVIRONMENT                          │
@@ -108,10 +176,169 @@
 │  │  • MutationObs      │  │  • I/O callbacks                   │  │
 │  │  • process.nextTick │  │  • UI rendering                    │  │
 │  └─────────────────────┘  │  • requestAnimationFrame           │  │
-│                            │  • MessageChannel                 │  │
-│                            └───────────────────────────────────┘  │
+│                           │  • MessageChannel                  │  │
+│                           └─────────────────────────────────── ┘  │
 └───────────────────────────────────────────────────────────────────┘
 */</code></pre>
+
+<!-- ═══ VISUAL DIAGRAM: Event Loop Architecture ═══ -->
+<div class="visual-diagram">
+  <h4>🔄 Event Loop — Complete Architecture Diagram</h4>
+
+  <!-- Plain English Explanation -->
+  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:16px 18px;margin-bottom:20px;font-size:10pt;line-height:1.7;">
+    <p style="margin:0 0 12px;color:#f39c12;font-weight:700;font-size:11pt;">📖 Reading This Diagram — What Each Part Does:</p>
+    
+    <p style="margin:0 0 10px;"><span style="color:#e74c3c;font-weight:700;">📚 Call Stack (Red Box)</span> — This is JavaScript's "one hand." It can only hold one task at a time. Functions stack on top of each other (like plates). The top plate (function) finishes first, gets removed, then the one below runs. When you call <code style="background:rgba(0,0,0,0.3);color:#fff;">a()</code> which calls <code style="background:rgba(0,0,0,0.3);color:#fff;">b()</code> which calls <code style="background:rgba(0,0,0,0.3);color:#fff;">c()</code>, the stack is: <code style="background:rgba(0,0,0,0.3);color:#fff;">c → b → a → global</code>. c finishes first, then b, then a.</p>
+    
+    <p style="margin:0 0 10px;"><span style="color:#5dade2;font-weight:700;">🌐 Web APIs (Blue Box)</span> — These are the browser's helpers that work <strong>in parallel</strong>. When JS encounters <code style="background:rgba(0,0,0,0.3);color:#fff;">setTimeout</code>, <code style="background:rgba(0,0,0,0.3);color:#fff;">fetch</code>, or an event listener, it hands the job to the browser and moves on. The browser uses its own C++ threads to count timers, make network requests, etc. — JS doesn't wait!</p>
+    
+    <p style="margin:0 0 10px;"><span style="color:#27ae60;font-weight:700;">⚡ Microtask Queue (Green Box)</span> — The VIP waiting room. When Promises resolve or <code style="background:rgba(0,0,0,0.3);color:#fff;">queueMicrotask()</code> is called, callbacks go here. <strong>Rule: EVERY callback in this room gets served before ANYONE in the regular room.</strong> Even if new VIPs arrive while serving, they also get served immediately.</p>
+    
+    <p style="margin:0 0 10px;"><span style="color:#f39c12;font-weight:700;">📋 Macrotask Queue (Yellow Box)</span> — The regular waiting room. <code style="background:rgba(0,0,0,0.3);color:#fff;">setTimeout</code> callbacks, click events, and I/O results wait here. <strong>Rule: Only ONE person from this room is served per cycle</strong>, and only after the VIP room is completely empty.</p>
+    
+    <p style="margin:0;"><span style="color:#bb8fce;font-weight:700;">🔄 Event Loop (Purple Box)</span> — The receptionist/traffic controller. It constantly asks: "Is the call stack empty?" If yes → first serves ALL VIPs (microtasks), then serves ONE regular customer (macrotask), then checks VIPs again. This loop never stops — it IS what keeps your app alive and responsive.</p>
+  </div>
+
+  <!-- How to read the arrows -->
+  <div style="background:rgba(243,156,18,0.08);border:1px dashed rgba(243,156,18,0.4);border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:9.5pt;">
+    <p style="margin:0 0 6px;font-weight:700;color:#f39c12;">🔀 The Flow (follow the arrows):</p>
+    <p style="margin:0;line-height:1.8;">
+      <strong>Call Stack</strong> encounters async code (setTimeout, fetch, etc.) 
+      <span style="color:#f39c12;font-weight:bold;"> → </span> delegates to <strong>Web APIs</strong> (browser handles it in background) 
+      <span style="color:#f39c12;font-weight:bold;"> → </span> when done, Web API puts callback into the appropriate <strong>Queue</strong> (Microtask or Macrotask) 
+      <span style="color:#f39c12;font-weight:bold;"> → </span> <strong>Event Loop</strong> waits for call stack to empty 
+      <span style="color:#f39c12;font-weight:bold;"> → </span> moves callback from queue back to <strong>Call Stack</strong> to execute
+    </p>
+  </div>
+
+  <div class="diagram-container">
+    <div class="diagram-box box-stack">
+      <h5>📚 Call Stack</h5>
+      <ul>
+        <li>▸ function3()</li>
+        <li>▸ function2()</li>
+        <li>▸ function1()</li>
+        <li>▸ global()</li>
+      </ul>
+      <p style="font-size:8pt;margin:6px 0 0;opacity:0.85">LIFO — One function at a time</p>
+    </div>
+    <div class="diagram-arrow">→</div>
+    <div class="diagram-box box-webapi">
+      <h5>🌐 Web APIs (Browser)</h5>
+      <ul>
+        <li>⏱ setTimeout / setInterval</li>
+        <li>🌍 fetch / XMLHttpRequest</li>
+        <li>🖱 DOM Events (click, scroll)</li>
+        <li>📍 Geolocation</li>
+        <li>👷 Web Workers</li>
+      </ul>
+      <p style="font-size:8pt;margin:6px 0 0;opacity:0.85">Runs in separate C++ threads!</p>
+    </div>
+    <div class="diagram-arrow">↓</div>
+    <div class="diagram-box box-eventloop">
+      <h5>🔄 Event Loop</h5>
+      <p style="font-size:9pt;margin:4px 0">Checks: "Is call stack empty?"<br>If YES → move callback to stack</p>
+      <p style="font-size:8.5pt;margin:4px 0;opacity:0.9">⚡ Microtasks FIRST, then 1 Macrotask</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+    <div class="diagram-box box-micro" style="min-width:200px;">
+      <h5>⚡ Microtask Queue (VIP)</h5>
+      <ul>
+        <li>✓ Promise .then/.catch/.finally</li>
+        <li>✓ queueMicrotask()</li>
+        <li>✓ MutationObserver</li>
+        <li>✓ await (after resolved)</li>
+      </ul>
+      <p style="font-size:8pt;margin:6px 0 0;background:rgba(0,0,0,0.2);padding:4px 6px;border-radius:4px;">🏆 ALL drained before ANY macrotask</p>
+    </div>
+    <div class="diagram-box box-macro" style="min-width:200px;">
+      <h5>📋 Macrotask Queue (Regular)</h5>
+      <ul>
+        <li>• setTimeout / setInterval</li>
+        <li>• I/O callbacks</li>
+        <li>• UI rendering events</li>
+        <li>• MessageChannel</li>
+        <li>• requestAnimationFrame</li>
+      </ul>
+      <p style="font-size:8pt;margin:6px 0 0;background:rgba(0,0,0,0.2);padding:4px 6px;border-radius:4px;">☝️ Only ONE per Event Loop cycle</p>
+    </div>
+  </div>
+
+  <!-- Event Loop Cycle Steps -->
+  <h4 style="margin-top:24px;">🎯 Event Loop Cycle — Step by Step</h4>
+  <div class="diagram-flow">
+    <div class="flow-step step-sync">
+      <span class="step-num">1</span>
+      <span class="step-text"><strong>Execute Sync Code</strong> — Run all code on the call stack until it's completely empty</span>
+    </div>
+    <div class="flow-step step-micro">
+      <span class="step-num">2</span>
+      <span class="step-text"><strong>Drain ALL Microtasks</strong> — Execute every microtask (even newly added ones during this phase!)</span>
+    </div>
+    <div class="flow-step step-render">
+      <span class="step-num">3</span>
+      <span class="step-text"><strong>Render (if needed)</strong> — Run rAF callbacks → Style → Layout → Paint (~every 16.6ms)</span>
+    </div>
+    <div class="flow-step step-macro">
+      <span class="step-num">4</span>
+      <span class="step-text"><strong>Pick ONE Macrotask</strong> — Take the oldest macrotask from the queue, execute it</span>
+    </div>
+    <div class="flow-step step-loop">
+      <span class="step-num">5</span>
+      <span class="step-text"><strong>Repeat from Step 2</strong> — Back to draining microtasks → render → macrotask → forever</span>
+    </div>
+  </div>
+
+  <!-- Key Interview Rules -->
+  <h4 style="margin-top:20px;">🎤 Golden Rules for Interviews</h4>
+  <div class="visual-rule"><span class="rule-icon">1️⃣</span> <strong>Sync ALWAYS first</strong> — All synchronous code runs to completion before anything async</div>
+  <div class="visual-rule"><span class="rule-icon">2️⃣</span> <strong>Microtasks beat Macrotasks</strong> — Promise.then() runs before setTimeout(fn, 0) ALWAYS</div>
+  <div class="visual-rule"><span class="rule-icon">3️⃣</span> <strong>Drain completely</strong> — ALL microtasks execute (even newly added) before ONE macrotask</div>
+  <div class="visual-rule"><span class="rule-icon">4️⃣</span> <strong>setTimeout(fn, 0) ≠ immediate</strong> — It means "after sync + microtasks + render opportunity"</div>
+  <div class="visual-rule"><span class="rule-icon">5️⃣</span> <strong>Promise executor is sync</strong> — <code style="background:rgba(0,0,0,0.3);color:#fff;">new Promise(fn)</code> runs fn immediately, only .then() is async</div>
+
+  <!-- Real-World Trace: Following One Code Example Through the Architecture -->
+  <h4 style="margin-top:24px;">🕵️ Real Trace — Watch Code Travel Through the Diagram</h4>
+  <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:16px;font-size:9.5pt;line-height:1.8;">
+    <p style="margin:0 0 8px;color:#f39c12;font-weight:700;">Code: <code style="background:rgba(0,0,0,0.3);color:#fff;font-size:9pt;">setTimeout(() => console.log("hi"), 1000)</code></p>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <span style="background:#e74c3c;padding:2px 8px;border-radius:4px;font-weight:700;white-space:nowrap;font-size:8.5pt;">Call Stack</span>
+        <span>JS sees <code style="background:rgba(0,0,0,0.3);color:#fff;">setTimeout()</code>. It does NOT start a timer itself. It calls the browser's timer API and says: "Here's a callback, call it after 1000ms." Then JS <strong>immediately moves to the next line</strong> — it doesn't wait.</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <span style="background:#3498db;padding:2px 8px;border-radius:4px;font-weight:700;white-space:nowrap;font-size:8.5pt;">Web API</span>
+        <span>The browser starts a C++ timer thread counting 1000ms. Meanwhile, JS is free to run other code. After 1000ms, the browser's timer finishes and <strong>pushes the callback into the Macrotask Queue</strong>.</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <span style="background:#f39c12;color:#1a1a2e;padding:2px 8px;border-radius:4px;font-weight:700;white-space:nowrap;font-size:8.5pt;">Macrotask Q</span>
+        <span>The callback <code style="background:rgba(0,0,0,0.3);color:#fff;">() => console.log("hi")</code> sits in the queue waiting. It can NOT jump to the call stack until the stack is empty AND all microtasks are done.</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <span style="background:#8e44ad;padding:2px 8px;border-radius:4px;font-weight:700;white-space:nowrap;font-size:8.5pt;">Event Loop</span>
+        <span>Keeps checking: "Call stack empty? Microtask queue empty?" When BOTH are yes → picks up our callback and pushes it onto the call stack.</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <span style="background:#e74c3c;padding:2px 8px;border-radius:4px;font-weight:700;white-space:nowrap;font-size:8.5pt;">Call Stack</span>
+        <span>Finally executes <code style="background:rgba(0,0,0,0.3);color:#fff;">console.log("hi")</code>. Prints "hi". Function pops off. Done! 🎉</span>
+      </div>
+    </div>
+    <p style="margin:12px 0 0;padding:8px 12px;background:rgba(231,76,60,0.15);border-radius:6px;border-left:3px solid #e74c3c;">
+      <strong>💡 Key Takeaway:</strong> The 1000ms is the MINIMUM wait — if the call stack is busy running a 3-second loop when the timer expires, the callback waits in the queue until that loop finishes. Total wait = 3000ms, not 1000ms!
+    </p>
+  </div>
+
+  <div class="diagram-legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#e74c3c;"></span> Call Stack / Sync</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#5dade2;"></span> Web APIs</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#27ae60;"></span> Microtask Queue</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#f39c12;"></span> Macrotask Queue</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#8e44ad;"></span> Event Loop / Render</div>
+  </div>
+</div>
+<!-- ═══ END VISUAL DIAGRAM ═══ -->
 
 <h4>Event Loop Algorithm (Precise)</h4>
 <ol>
@@ -126,6 +353,38 @@
   <li>Pick ONE macrotask from the Macrotask Queue and execute it</li>
   <li>Go to step 2 (check microtasks again)</li>
 </ol>
+
+<h4>Why This Order Matters — Step-by-Step Walkthrough</h4>
+<p>Let's trace what actually happens when the browser encounters this code:</p>
+<pre><code>console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve().then(() => console.log("C"));
+console.log("D");</code></pre>
+
+<p><strong>Step 1: Synchronous execution begins.</strong> The engine starts reading your script top-to-bottom. The entire script is itself a macrotask (the first one).</p>
+<ul>
+  <li><code>console.log("A")</code> → pushed to call stack, executes, prints "A", popped off.</li>
+  <li><code>setTimeout(..., 0)</code> → JS calls the Web API: "Hey browser, set a timer for 0ms and here's the callback." The browser starts a timer in C++. JS moves on immediately (doesn't wait).</li>
+  <li><code>Promise.resolve().then(...)</code> → The Promise is already resolved (instantly). The <code>.then()</code> callback is scheduled into the <strong>Microtask Queue</strong>. JS moves on.</li>
+  <li><code>console.log("D")</code> → pushed to call stack, executes, prints "D", popped off.</li>
+</ul>
+<p>Call stack is now empty. Current state: Microtask Queue has <code>[() => log("C")]</code>. The browser timer (0ms) completes and moves the callback to Macrotask Queue: <code>[() => log("B")]</code>.</p>
+
+<p><strong>Step 2: Event Loop checks — call stack empty? Yes! Drain microtask queue.</strong></p>
+<ul>
+  <li>Picks <code>() => console.log("C")</code> from microtask queue, pushes to call stack, executes, prints "C".</li>
+  <li>Microtask queue is now empty.</li>
+</ul>
+
+<p><strong>Step 3: Render opportunity.</strong> Browser may repaint if needed (skip for now).</p>
+
+<p><strong>Step 4: Pick ONE macrotask.</strong></p>
+<ul>
+  <li>Picks <code>() => console.log("B")</code> from macrotask queue, pushes to call stack, executes, prints "B".</li>
+</ul>
+
+<p><strong>Final Output: A → D → C → B</strong></p>
+<p>The key insight: Microtasks (Promises) ALWAYS run before macrotasks (setTimeout), even if setTimeout has 0ms delay. The 0ms timer just means "as soon as possible after current execution + microtasks."</p>
 
 <pre><code>// Classic event loop demonstration:
 console.log("1: Sync");
@@ -172,6 +431,13 @@ console.log("F");</code></pre>
 
 <h3>Theory</h3>
 
+<h4>Why Two Queues? What's the Difference?</h4>
+<p>Think of it like an airport. The <strong>Macrotask Queue</strong> is the regular boarding line — one person (task) enters the plane (call stack) at a time, with breaks between each. The <strong>Microtask Queue</strong> is the VIP fast-track — between every regular passenger, ALL VIP passengers get through first, no matter how many are waiting.</p>
+
+<p><strong>Why does this priority system exist?</strong> Microtasks exist for things that need to happen IMMEDIATELY after the current operation, before the browser has a chance to do anything else (render, handle clicks, run timers). Promises use microtasks because when you <code>.then()</code> on a resolved Promise, you expect the callback to run NOW-ish, not after a render frame or another timer. If Promise callbacks went to the macrotask queue, you'd see visual "flickers" as the browser renders intermediate states between Promise chains.</p>
+
+<p><strong>The critical rule:</strong> After each macrotask completes, the Event Loop drains the ENTIRE microtask queue before doing anything else. If a microtask adds more microtasks, those also run immediately. This means microtasks can "starve" everything else — if they keep adding more microtasks, the browser never gets to render or handle user input.</p>
+
 <table>
 <tr><th>Microtasks (higher priority)</th><th>Macrotasks (lower priority)</th></tr>
 <tr><td>Promise .then/.catch/.finally</td><td>setTimeout / setInterval</td></tr>
@@ -181,6 +447,170 @@ console.log("F");</code></pre>
 <tr><td>await (after resolved)</td><td>UI rendering</td></tr>
 <tr><td></td><td>MessageChannel / postMessage</td></tr>
 </table>
+
+<!-- ═══ VISUAL DIAGRAM: Microtask vs Macrotask ═══ -->
+<div class="visual-diagram">
+  <h4>⚡ Microtask vs Macrotask — Priority & Execution Visual</h4>
+
+  <!-- Plain English Explanation of This Diagram -->
+  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:16px 18px;margin-bottom:20px;font-size:10pt;line-height:1.7;">
+    <p style="margin:0 0 12px;color:#f39c12;font-weight:700;font-size:11pt;">📖 Understanding This Diagram — What You're Looking At:</p>
+    
+    <p style="margin:0 0 10px;"><span style="font-weight:700;color:#27ae60;">✈️ Airport Analogy (Top Section)</span> — Imagine an airport gate. There are two lines: a <strong>VIP Fast-Track</strong> (green) and a <strong>Regular Line</strong> (yellow). The plane door (call stack) can only board one person at a time. The rule is: ALL VIPs must board before even ONE regular passenger. And here's the twist — if a VIP already on the plane invites another VIP, that new VIP also boards before any regular passenger. That's exactly how microtasks work — they cut the line!</p>
+    
+    <p style="margin:0 0 10px;"><span style="font-weight:700;color:#3498db;">⏱️ Execution Timeline (Middle Section)</span> — This shows the EXACT order things run in one cycle of the Event Loop. Read it left-to-right like a train track:
+    <br>• <span style="color:#e74c3c;">Phase 1 (Red)</span>: All your normal synchronous code (<code style="background:rgba(0,0,0,0.3);color:#fff;">console.log</code>, variable assignments, loops) runs FIRST, fully to completion.
+    <br>• <span style="color:#27ae60;">Phase 2 (Green)</span>: ALL waiting microtasks execute — every single <code style="background:rgba(0,0,0,0.3);color:#fff;">.then()</code>, every <code style="background:rgba(0,0,0,0.3);color:#fff;">await</code> continuation, every <code style="background:rgba(0,0,0,0.3);color:#fff;">queueMicrotask()</code>. ALL of them. Not one — ALL.
+    <br>• <span style="color:#8e44ad;">Phase 3 (Purple)</span>: Browser MAY render the screen (recalculate styles, layout, paint pixels). This is why UI updates appear smooth — they happen between tasks.
+    <br>• <span style="color:#f39c12;">Phase 4 (Yellow)</span>: Exactly ONE macrotask gets to run (one <code style="background:rgba(0,0,0,0.3);color:#fff;">setTimeout</code> callback, or one click handler, etc.).
+    <br>• Then it <strong>loops back to Phase 2</strong> — check microtasks again!</p>
+    
+    <p style="margin:0 0 10px;"><span style="font-weight:700;color:#27ae60;">🚰 "Drain Completely" (Bottom-Left)</span> — Shows what happens when one microtask creates another. Microtask A runs → it creates Microtask B → B also runs immediately → B creates C → C also runs NOW. The Event Loop refuses to leave until the microtask queue is bone-dry empty. This is powerful but dangerous (see starvation warning).</p>
+    
+    <p style="margin:0 0 10px;"><span style="font-weight:700;color:#f39c12;">☝️ Macrotask Behavior (Bottom-Right)</span> — Shows the opposite: Macrotask A finishes → Event Loop does NOT immediately run Macrotask B. Instead it goes: check microtasks → maybe render → THEN Macrotask B. Each macrotask gets its own "turn" with microtask-checking between each one.</p>
+    
+    <p style="margin:0;"><span style="font-weight:700;color:#e74c3c;">⚠️ Starvation Warning (Red Box)</span> — The danger of microtasks: if they keep adding more microtasks forever (like an infinite recursive Promise chain), the macrotask queue starves — setTimeout callbacks NEVER run, the browser NEVER paints, and the page <strong>freezes completely</strong>. This is a real interview question: "Can microtasks block rendering?"— YES!</p>
+  </div>
+
+  <!-- Real-World Example Walkthrough -->
+  <div style="background:rgba(243,156,18,0.08);border:1px dashed rgba(243,156,18,0.4);border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:9.5pt;">
+    <p style="margin:0 0 8px;font-weight:700;color:#f39c12;">🔬 Quick Proof — Why Does This Print in This Order?</p>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;">
+        <p style="margin:0 0 4px;font-weight:600;color:#ecf0f1;">Code:</p>
+        <code style="background:rgba(0,0,0,0.3);color:#fff;display:block;padding:8px 10px;border-radius:6px;font-size:8.5pt;line-height:1.6;">
+          console.log("A");<br>
+          setTimeout(() => console.log("B"), 0);<br>
+          Promise.resolve().then(() => console.log("C"));<br>
+          console.log("D");
+        </code>
+      </div>
+      <div style="flex:1;min-width:220px;">
+        <p style="margin:0 0 4px;font-weight:600;color:#ecf0f1;">Output & Why:</p>
+        <div style="font-size:9pt;line-height:1.8;">
+          <span style="background:#e74c3c;padding:2px 6px;border-radius:3px;font-weight:600;">A</span> ← Sync (Phase 1)<br>
+          <span style="background:#e74c3c;padding:2px 6px;border-radius:3px;font-weight:600;">D</span> ← Sync (Phase 1)<br>
+          <span style="background:#27ae60;padding:2px 6px;border-radius:3px;font-weight:600;">C</span> ← Microtask (Phase 2) — Promise<br>
+          <span style="background:#f39c12;color:#1a1a2e;padding:2px 6px;border-radius:3px;font-weight:600;">B</span> ← Macrotask (Phase 4) — setTimeout
+        </div>
+        <p style="margin:8px 0 0;font-size:8.5pt;opacity:0.8;">Promise.then() ALWAYS beats setTimeout(fn, 0)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Airport Analogy Visual -->
+  <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:16px;margin-bottom:20px;">
+    <p style="text-align:center;font-size:11pt;margin:0 0 12px;color:#f39c12;font-weight:700;">✈️ Airport Boarding Analogy</p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;align-items:stretch;">
+      <div style="background:rgba(39,174,96,0.2);border:2px solid #27ae60;border-radius:10px;padding:14px;flex:1;min-width:200px;max-width:300px;">
+        <p style="text-align:center;font-weight:700;color:#27ae60;margin:0 0 8px;font-size:11pt;">⚡ VIP Fast-Track</p>
+        <p style="text-align:center;font-size:9pt;margin:0 0 6px;opacity:0.9;">(Microtask Queue)</p>
+        <p style="font-size:9pt;margin:0;text-align:center;">ALL VIP passengers board<br><strong>before ANY regular passenger</strong><br>Even if more VIPs arrive mid-boarding!</p>
+      </div>
+      <div style="display:flex;align-items:center;font-size:24px;color:#f39c12;">→</div>
+      <div style="background:rgba(243,156,18,0.2);border:2px solid #f39c12;border-radius:10px;padding:14px;flex:1;min-width:200px;max-width:300px;">
+        <p style="text-align:center;font-weight:700;color:#f39c12;margin:0 0 8px;font-size:11pt;">📋 Regular Line</p>
+        <p style="text-align:center;font-size:9pt;margin:0 0 6px;opacity:0.9;">(Macrotask Queue)</p>
+        <p style="font-size:9pt;margin:0;text-align:center;">Only ONE person boards at a time<br><strong>Must wait for ALL VIPs first</strong><br>After each person → check VIP line again</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Execution Timeline Visual -->
+  <p style="text-align:center;font-size:11pt;margin:0 0 12px;color:#f39c12;font-weight:700;">⏱️ Execution Order Timeline</p>
+  <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:16px;overflow-x:auto;">
+    <div style="display:flex;align-items:center;gap:4px;min-width:600px;">
+      <!-- Sync block -->
+      <div style="background:#e74c3c;padding:8px 12px;border-radius:6px;text-align:center;min-width:80px;">
+        <div style="font-size:8pt;opacity:0.8;">PHASE 1</div>
+        <div style="font-size:9.5pt;font-weight:700;">Sync Code</div>
+        <div style="font-size:7.5pt;margin-top:2px;">console.log()</div>
+      </div>
+      <div style="color:#f39c12;font-weight:bold;">→</div>
+      <!-- Microtask block -->
+      <div style="background:#27ae60;padding:8px 12px;border-radius:6px;text-align:center;min-width:100px;">
+        <div style="font-size:8pt;opacity:0.8;">PHASE 2</div>
+        <div style="font-size:9.5pt;font-weight:700;">ALL Microtasks</div>
+        <div style="font-size:7.5pt;margin-top:2px;">Promise.then()<br>queueMicrotask()</div>
+      </div>
+      <div style="color:#f39c12;font-weight:bold;">→</div>
+      <!-- Render block -->
+      <div style="background:#8e44ad;padding:8px 12px;border-radius:6px;text-align:center;min-width:80px;">
+        <div style="font-size:8pt;opacity:0.8;">PHASE 3</div>
+        <div style="font-size:9.5pt;font-weight:700;">Render</div>
+        <div style="font-size:7.5pt;margin-top:2px;">rAF → Style<br>→ Layout → Paint</div>
+      </div>
+      <div style="color:#f39c12;font-weight:bold;">→</div>
+      <!-- Macrotask block -->
+      <div style="background:#f39c12;color:#1a1a2e;padding:8px 12px;border-radius:6px;text-align:center;min-width:90px;">
+        <div style="font-size:8pt;opacity:0.8;">PHASE 4</div>
+        <div style="font-size:9.5pt;font-weight:700;">ONE Macrotask</div>
+        <div style="font-size:7.5pt;margin-top:2px;">setTimeout()</div>
+      </div>
+      <div style="color:#f39c12;font-weight:bold;">→</div>
+      <!-- Loop back -->
+      <div style="background:#3498db;padding:8px 12px;border-radius:6px;text-align:center;min-width:70px;">
+        <div style="font-size:9.5pt;font-weight:700;">🔁 Loop</div>
+        <div style="font-size:7.5pt;margin-top:2px;">Back to<br>Phase 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- "Drain Completely" Visualization -->
+  <p style="text-align:center;font-size:11pt;margin:20px 0 12px;color:#f39c12;font-weight:700;">🚰 "Drain Completely" — What It Actually Means</p>
+  <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:16px;">
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+      <div style="flex:1;min-width:250px;max-width:320px;">
+        <p style="color:#27ae60;font-weight:700;text-align:center;margin:0 0 8px;">✅ Microtask Behavior</p>
+        <div style="background:rgba(39,174,96,0.15);border-radius:8px;padding:10px;font-size:9pt;">
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(39,174,96,0.3);border-radius:4px;">→ Microtask A executes</div>
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(39,174,96,0.3);border-radius:4px;">→ A adds Microtask B (runs NOW too!)</div>
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(39,174,96,0.3);border-radius:4px;">→ B adds Microtask C (also runs NOW!)</div>
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(39,174,96,0.3);border-radius:4px;">→ Queue empty → THEN move on</div>
+          <p style="text-align:center;margin:8px 0 0;font-weight:700;color:#27ae60;">ALL run in same cycle ✓</p>
+        </div>
+      </div>
+      <div style="flex:1;min-width:250px;max-width:320px;">
+        <p style="color:#f39c12;font-weight:700;text-align:center;margin:0 0 8px;">☝️ Macrotask Behavior</p>
+        <div style="background:rgba(243,156,18,0.15);border-radius:8px;padding:10px;font-size:9pt;">
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(243,156,18,0.3);border-radius:4px;color:#1a1a2e;">→ Macrotask A executes</div>
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(142,68,173,0.3);border-radius:4px;">→ Check microtasks (drain all)</div>
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(142,68,173,0.3);border-radius:4px;">→ Maybe render</div>
+          <div style="padding:4px 8px;margin:3px 0;background:rgba(243,156,18,0.3);border-radius:4px;color:#1a1a2e;">→ THEN Macrotask B (next cycle)</div>
+          <p style="text-align:center;margin:8px 0 0;font-weight:700;color:#f39c12;">Only ONE per cycle ☝️</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Starvation Warning -->
+  <div style="margin-top:16px;background:rgba(231,76,60,0.15);border:2px solid #e74c3c;border-radius:10px;padding:14px;">
+    <p style="margin:0;font-size:10pt;"><span style="font-size:16px;">⚠️</span> <strong style="color:#e74c3c;">Starvation Risk:</strong> If microtasks keep adding more microtasks infinitely → macrotasks NEVER run → browser NEVER renders → <strong>page freezes!</strong></p>
+    <p style="margin:6px 0 0;font-size:9pt;opacity:0.8;">Example: <code style="background:rgba(0,0,0,0.3);color:#ff6b6b;padding:2px 6px;border-radius:3px;">function loop() { Promise.resolve().then(loop); } loop();</code> ← 💀 Page dies</p>
+  </div>
+</div>
+<!-- ═══ END VISUAL DIAGRAM ═══ -->
+
+<h4>What "Drain Completely" Means in Practice</h4>
+<p>When the Event Loop starts processing microtasks, it doesn't stop until the queue is EMPTY. Even if a microtask adds a NEW microtask while processing, that new one also gets processed in the same cycle. This is fundamentally different from macrotasks where only ONE is processed per Event Loop iteration.</p>
+<pre><code>// Demonstrates "drain completely" behavior:
+Promise.resolve().then(() => {
+  console.log("Microtask 1");
+  // This adds ANOTHER microtask while we're processing microtasks!
+  Promise.resolve().then(() => {
+    console.log("Microtask 2 (added by Microtask 1)");
+    // And another one!
+    Promise.resolve().then(() => console.log("Microtask 3 (added by 2)"));
+  });
+});
+setTimeout(() => console.log("Macrotask"), 0);
+
+// Output:
+// "Microtask 1"
+// "Microtask 2 (added by Microtask 1)"
+// "Microtask 3 (added by 2)"
+// "Macrotask"
+// ALL microtasks (including dynamically added ones) run BEFORE the setTimeout!</code></pre>
 
 <div class="callout warning">
 <strong>Key Difference:</strong> After EACH macrotask, ALL pending microtasks are drained. Microtasks can starve macrotasks! If a microtask schedules more microtasks recursively, the macrotask queue (and rendering) gets blocked forever.
@@ -251,6 +681,190 @@ console.log("script end");</code></pre>
 
 <h3>Theory</h3>
 
+<h4>How Timers Actually Work Under the Hood</h4>
+<p><code>setTimeout</code> and <code>setInterval</code> are NOT JavaScript features — they're <strong>Web APIs</strong> provided by the browser (or Node.js runtime). When you call <code>setTimeout(callback, 1000)</code>, here's what actually happens:</p>
+<ol>
+  <li>JavaScript calls the browser's timer API: "Start counting 1000ms, and here's a function to call when done."</li>
+  <li>The browser starts a <strong>separate C++ timer thread</strong>. JavaScript's call stack is FREE — it continues executing the next line immediately.</li>
+  <li>After 1000ms, the browser's timer thread moves the callback to the <strong>Macrotask Queue</strong>.</li>
+  <li>The Event Loop waits until the call stack is empty, then picks up the callback and executes it.</li>
+</ol>
+
+<p><strong>Critical insight:</strong> The delay (1000ms) is the MINIMUM wait time, not a guarantee. If the call stack is busy running a 2-second synchronous operation when the timer expires, the callback sits in the queue and only runs after that operation finishes (~3 seconds total). This is why <code>setTimeout(fn, 0)</code> doesn't mean "immediately" — it means "after the current execution and all microtasks complete."</p>
+
+<!-- ═══ VISUAL DIAGRAM: Timers ═══ -->
+<div class="visual-diagram">
+  <h4>⏱️ setTimeout / setInterval / rAF — Complete Visual Guide</h4>
+
+  <!-- How setTimeout Works Step by Step -->
+  <p style="text-align:center;font-size:11pt;margin:0 0 14px;color:#f39c12;font-weight:700;">🔧 How setTimeout(callback, 1000) Works Under the Hood</p>
+  <div class="diagram-flow">
+    <div class="flow-step step-sync">
+      <span class="step-num">1</span>
+      <span class="step-text"><strong>JS calls browser API:</strong> "Hey browser, start a 1000ms timer and here's my callback"</span>
+    </div>
+    <div class="flow-step" style="background:rgba(52,152,219,0.2);border-left:4px solid #3498db;">
+      <span class="step-num">2</span>
+      <span class="step-text"><strong>Browser C++ thread:</strong> Starts counting in a SEPARATE thread. JS is FREE — continues next line immediately!</span>
+    </div>
+    <div class="flow-step step-macro">
+      <span class="step-num">3</span>
+      <span class="step-text"><strong>Timer expires:</strong> Browser moves callback → Macrotask Queue (NOT directly to call stack!)</span>
+    </div>
+    <div class="flow-step step-micro">
+      <span class="step-num">4</span>
+      <span class="step-text"><strong>Event Loop:</strong> Waits for call stack to be empty + all microtasks drained → THEN picks up callback</span>
+    </div>
+  </div>
+
+  <!-- setTimeout(fn, 0) — Why Not Immediate -->
+  <div style="margin-top:20px;background:rgba(231,76,60,0.1);border:2px solid #e74c3c;border-radius:12px;padding:16px;">
+    <p style="margin:0 0 10px;font-size:11pt;font-weight:700;color:#e74c3c;text-align:center;">❌ setTimeout(fn, 0) Does NOT Mean "Execute Immediately"</p>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;">
+      <div style="background:#e74c3c;padding:6px 10px;border-radius:6px;font-size:8.5pt;font-weight:600;">Sync Code</div>
+      <span style="color:#f39c12;font-weight:bold;">→</span>
+      <div style="background:#27ae60;padding:6px 10px;border-radius:6px;font-size:8.5pt;font-weight:600;">ALL Microtasks</div>
+      <span style="color:#f39c12;font-weight:bold;">→</span>
+      <div style="background:#8e44ad;padding:6px 10px;border-radius:6px;font-size:8.5pt;font-weight:600;">Render (maybe)</div>
+      <span style="color:#f39c12;font-weight:bold;">→</span>
+      <div style="background:#f39c12;color:#1a1a2e;padding:6px 10px;border-radius:6px;font-size:8.5pt;font-weight:600;">THEN setTimeout(fn,0) runs</div>
+    </div>
+    <p style="margin:10px 0 0;font-size:9pt;text-align:center;opacity:0.85;">+ Browser clamps minimum to ~4ms | Background tabs: throttled to 1000ms!</p>
+  </div>
+
+  <!-- Delay is MINIMUM, not Guarantee -->
+  <p style="text-align:center;font-size:11pt;margin:24px 0 12px;color:#f39c12;font-weight:700;">⏳ "Delay = MINIMUM wait, NOT a guarantee"</p>
+  <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:16px;overflow-x:auto;">
+    <div style="position:relative;min-width:500px;">
+      <!-- Time axis -->
+      <div style="display:flex;align-items:center;margin-bottom:8px;">
+        <span style="font-size:8pt;width:60px;">Time →</span>
+        <div style="flex:1;height:2px;background:rgba(255,255,255,0.3);position:relative;">
+          <span style="position:absolute;left:0;top:6px;font-size:7.5pt;">0ms</span>
+          <span style="position:absolute;left:20%;top:6px;font-size:7.5pt;">100ms</span>
+          <span style="position:absolute;left:60%;top:6px;font-size:7.5pt;">500ms</span>
+          <span style="position:absolute;left:100%;top:6px;font-size:7.5pt;transform:translateX(-100%);">600ms</span>
+        </div>
+      </div>
+      <!-- Scenario 1: Ideal -->
+      <div style="display:flex;align-items:center;margin:20px 0 8px;">
+        <span style="font-size:8pt;width:60px;color:#27ae60;">Ideal:</span>
+        <div style="flex:1;position:relative;height:28px;">
+          <div style="position:absolute;left:0;width:15%;height:100%;background:#e74c3c;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7.5pt;">Sync (50ms)</div>
+          <div style="position:absolute;left:20%;width:12%;height:100%;background:#27ae60;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7.5pt;">✅ CB runs @100ms</div>
+        </div>
+      </div>
+      <!-- Scenario 2: Blocked -->
+      <div style="display:flex;align-items:center;margin:8px 0;">
+        <span style="font-size:8pt;width:60px;color:#e74c3c;">Blocked:</span>
+        <div style="flex:1;position:relative;height:28px;">
+          <div style="position:absolute;left:0;width:60%;height:100%;background:#e74c3c;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7.5pt;">Heavy sync work (500ms) 🐌</div>
+          <div style="position:absolute;left:62%;width:12%;height:100%;background:#f39c12;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7.5pt;color:#1a1a2e;">CB @500ms!</div>
+        </div>
+      </div>
+      <p style="text-align:center;margin:12px 0 0;font-size:9pt;color:#ff6b6b;">setTimeout(fn, 100) but call stack busy for 500ms → callback actually runs at ~500ms, NOT 100ms!</p>
+    </div>
+  </div>
+
+  <!-- setTimeout vs setInterval vs rAF Comparison -->
+  <p style="text-align:center;font-size:11pt;margin:24px 0 12px;color:#f39c12;font-weight:700;">⚔️ setTimeout vs setInterval vs requestAnimationFrame</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;">
+    <!-- setTimeout -->
+    <div style="background:rgba(52,152,219,0.15);border:2px solid #3498db;border-radius:10px;padding:14px;">
+      <p style="text-align:center;font-weight:700;color:#3498db;margin:0 0 8px;font-size:10.5pt;">⏱ setTimeout</p>
+      <ul style="font-size:8.5pt;margin:0;padding:0 0 0 14px;">
+        <li>Runs callback <strong>ONCE</strong></li>
+        <li>After <em>minimum</em> delay</li>
+        <li>Cancel: <code style="background:rgba(0,0,0,0.3);color:#fff;font-size:8pt;">clearTimeout(id)</code></li>
+        <li>Returns numeric timer ID</li>
+        <li>Min delay: ~4ms (active tab)</li>
+      </ul>
+      <p style="text-align:center;font-size:8pt;margin:8px 0 0;padding:4px;background:rgba(52,152,219,0.2);border-radius:4px;">✅ Use for: delays, debounce, polling</p>
+    </div>
+    <!-- setInterval -->
+    <div style="background:rgba(243,156,18,0.15);border:2px solid #f39c12;border-radius:10px;padding:14px;">
+      <p style="text-align:center;font-weight:700;color:#f39c12;margin:0 0 8px;font-size:10.5pt;">🔄 setInterval</p>
+      <ul style="font-size:8.5pt;margin:0;padding:0 0 0 14px;">
+        <li>Runs callback <strong>REPEATEDLY</strong></li>
+        <li>Every N ms (approximately)</li>
+        <li>Cancel: <code style="background:rgba(0,0,0,0.3);color:#fff;font-size:8pt;">clearInterval(id)</code></li>
+        <li>⚠️ Callbacks can STACK UP</li>
+        <li>⚠️ Timer drift over time</li>
+      </ul>
+      <p style="text-align:center;font-size:8pt;margin:8px 0 0;padding:4px;background:rgba(231,76,60,0.2);border-radius:4px;">❌ Pros avoid it — use nested setTimeout</p>
+    </div>
+    <!-- requestAnimationFrame -->
+    <div style="background:rgba(142,68,173,0.15);border:2px solid #9b59b6;border-radius:10px;padding:14px;">
+      <p style="text-align:center;font-weight:700;color:#9b59b6;margin:0 0 8px;font-size:10.5pt;">🎨 requestAnimationFrame</p>
+      <ul style="font-size:8.5pt;margin:0;padding:0 0 0 14px;">
+        <li>Synced to <strong>display refresh</strong></li>
+        <li>~60fps = every ~16.6ms</li>
+        <li>Cancel: <code style="background:rgba(0,0,0,0.3);color:#fff;font-size:8pt;">cancelAnimationFrame(id)</code></li>
+        <li>✅ Pauses in hidden tabs</li>
+        <li>✅ High-res timestamp param</li>
+      </ul>
+      <p style="text-align:center;font-size:8pt;margin:8px 0 0;padding:4px;background:rgba(39,174,96,0.2);border-radius:4px;">✅ Use for: animations, visual updates</p>
+    </div>
+  </div>
+
+  <!-- setInterval Stacking Problem Visual -->
+  <p style="text-align:center;font-size:11pt;margin:24px 0 12px;color:#e74c3c;font-weight:700;">💀 setInterval's Stacking Problem</p>
+  <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:16px;">
+    <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+      <div style="flex:1;min-width:240px;max-width:320px;">
+        <p style="color:#e74c3c;font-weight:700;text-align:center;margin:0 0 8px;font-size:9.5pt;">❌ setInterval(heavyTask, 100)</p>
+        <div style="font-size:8.5pt;background:rgba(231,76,60,0.1);padding:10px;border-radius:6px;">
+          <div style="display:flex;gap:2px;margin:3px 0;">
+            <div style="background:#e74c3c;padding:3px 6px;border-radius:3px;flex:3;">Task 1 (150ms)</div>
+            <div style="background:#f39c12;padding:3px 6px;border-radius:3px;flex:1;font-size:7pt;color:#1a1a2e;">queued!</div>
+          </div>
+          <div style="display:flex;gap:2px;margin:3px 0;">
+            <div style="background:#e74c3c;padding:3px 6px;border-radius:3px;flex:3;">Task 2 (150ms)</div>
+            <div style="background:#f39c12;padding:3px 6px;border-radius:3px;flex:1;font-size:7pt;color:#1a1a2e;">queued!</div>
+          </div>
+          <p style="margin:6px 0 0;color:#ff6b6b;text-align:center;font-size:8pt;">Tasks overlap → callbacks pile up! 💀</p>
+        </div>
+      </div>
+      <div style="flex:1;min-width:240px;max-width:320px;">
+        <p style="color:#27ae60;font-weight:700;text-align:center;margin:0 0 8px;font-size:9.5pt;">✅ Nested setTimeout (the fix)</p>
+        <div style="font-size:8.5pt;background:rgba(39,174,96,0.1);padding:10px;border-radius:6px;">
+          <div style="display:flex;gap:2px;margin:3px 0;">
+            <div style="background:#27ae60;padding:3px 6px;border-radius:3px;flex:3;">Task 1 (150ms)</div>
+            <div style="background:#3498db;padding:3px 6px;border-radius:3px;flex:1;font-size:7pt;">wait 100ms</div>
+          </div>
+          <div style="display:flex;gap:2px;margin:3px 0;">
+            <div style="background:#27ae60;padding:3px 6px;border-radius:3px;flex:3;">Task 2 (150ms)</div>
+            <div style="background:#3498db;padding:3px 6px;border-radius:3px;flex:1;font-size:7pt;">wait 100ms</div>
+          </div>
+          <p style="margin:6px 0 0;color:#27ae60;text-align:center;font-size:8pt;">Schedules AFTER completion → no stacking ✅</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timer Minimum Delays Quick Reference -->
+  <p style="text-align:center;font-size:11pt;margin:24px 0 12px;color:#f39c12;font-weight:700;">📋 Timer Delay Quick Reference (Interview Must-Know)</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;">
+    <div style="background:rgba(39,174,96,0.15);border:1px solid #27ae60;border-radius:8px;padding:10px;text-align:center;">
+      <p style="font-size:14pt;margin:0;">~4ms</p>
+      <p style="font-size:8.5pt;margin:4px 0 0;opacity:0.85;">Active tab minimum<br>(HTML spec)</p>
+    </div>
+    <div style="background:rgba(243,156,18,0.15);border:1px solid #f39c12;border-radius:8px;padding:10px;text-align:center;">
+      <p style="font-size:14pt;margin:0;">~1000ms</p>
+      <p style="font-size:8.5pt;margin:4px 0 0;opacity:0.85;">Background tab<br>(browser throttles)</p>
+    </div>
+    <div style="background:rgba(231,76,60,0.15);border:1px solid #e74c3c;border-radius:8px;padding:10px;text-align:center;">
+      <p style="font-size:14pt;margin:0;">4ms forced</p>
+      <p style="font-size:8.5pt;margin:4px 0 0;opacity:0.85;">Nested setTimeout<br>(5+ levels deep)</p>
+    </div>
+    <div style="background:rgba(142,68,173,0.15);border:1px solid #9b59b6;border-radius:8px;padding:10px;text-align:center;">
+      <p style="font-size:14pt;margin:0;">~16.6ms</p>
+      <p style="font-size:8.5pt;margin:4px 0 0;opacity:0.85;">requestAnimationFrame<br>(60fps refresh)</p>
+    </div>
+  </div>
+</div>
+<!-- ═══ END VISUAL DIAGRAM ═══ -->
+
 <pre><code>// setTimeout — execute ONCE after delay
 const timerId = setTimeout(() => console.log("delayed"), 1000);
 clearTimeout(timerId); // Cancel before execution
@@ -258,6 +872,12 @@ clearTimeout(timerId); // Cancel before execution
 // IMPORTANT: delay is MINIMUM, not guaranteed
 setTimeout(() => console.log("hello"), 100);
 // If call stack is busy for 500ms, callback runs at ~500ms, not 100ms
+
+// Why setTimeout(fn, 0) is never truly 0ms:
+// 1. Browser clamps minimum delay to ~4ms (HTML spec)
+// 2. Even with 0ms, callback goes to macrotask queue
+// 3. Must wait for: current sync code + ALL microtasks + render
+// 4. In background tabs, browsers throttle to minimum 1000ms!
 
 // Nested setTimeout (preferred over setInterval for precise intervals)
 function poll() {
@@ -273,12 +893,24 @@ const intervalId = setInterval(() => {
 }, 1000);
 clearInterval(intervalId);
 
-// ⚠️ setInterval problems:
+// ⚠️ setInterval problems (why pros avoid it):
 // 1. Callbacks can stack up if execution takes longer than interval
-// 2. Timer drift (not perfectly accurate)
-// 3. Continues even if tab is background (throttled to 1/sec)
+//    Example: setInterval(heavyTask, 100) — if heavyTask takes 150ms,
+//    next callback is already queued before previous finishes!
+// 2. Timer drift: intervals aren't precise, they accumulate error over time
+// 3. Continues in background tabs (throttled to 1/sec, but wastes battery)
+// 4. No guarantee of exact timing — same "minimum delay" issue as setTimeout
+
+// WHY nested setTimeout is better than setInterval:
+// setInterval fires every N ms REGARDLESS of whether previous callback finished
+// Nested setTimeout waits for previous to FINISH, then schedules next
+// This guarantees at least N ms GAP between executions (no stacking)
 
 // requestAnimationFrame — sync with display refresh (60fps = ~16.6ms)
+// Think of rAF as: "call my function right BEFORE the next screen paint"
+// Your monitor refreshes ~60 times/sec. rAF syncs your code with that rhythm.
+// This is why animations look smooth with rAF but janky with setTimeout —
+// setTimeout fires at arbitrary times, possibly mid-frame or between frames.
 let animationId;
 function animate(timestamp) {
   // timestamp = high-resolution time (performance.now())
@@ -308,6 +940,13 @@ cancelAnimationFrame(animationId); // Stop animation
 </ul></details>
 
 <h3>Theory</h3>
+
+<h4>What Are Callbacks and Why Do They Cause Problems?</h4>
+<p>A callback is simply a function you pass to another function, saying "call this when you're done." It's the most primitive way to handle asynchronous operations. But the real problem isn't the nesting — it's <strong>Inversion of Control</strong>.</p>
+
+<p><strong>Inversion of Control explained:</strong> When you pass a callback to a third-party library (like a payment processor), you're handing YOUR function to THEIR code and <em>trusting</em> them to: (1) call it exactly once, (2) call it at the right time, (3) pass the correct arguments, (4) handle errors properly. You have ZERO control over any of this. Imagine giving your house keys to a stranger and trusting they'll only enter once, at the right time, and lock up properly. That's what callbacks do with your program's control flow.</p>
+
+<p><strong>Why callback hell isn't just about ugly indentation:</strong> The real issues are: you can't use try/catch (the callback runs in a different call stack than the code that set it up), you can't return values from async operations (there's nobody to return TO), and composing multiple operations requires deeply nested callbacks where each depends on the previous. Error handling becomes repetitive and easy to forget at each level.</p>
 
 <pre><code>// Callback: function passed as argument to be called later
 function fetchData(url, onSuccess, onError) {
@@ -356,7 +995,14 @@ getUser(userId, (user) => {
 
 <h3>Theory</h3>
 
-<p>A <strong>Promise</strong> is an object representing the eventual completion (or failure) of an asynchronous operation. It provides a standard interface for handling async results.</p>
+<h4>What a Promise Actually IS</h4>
+<p>A <strong>Promise</strong> is an object that acts as a <em>placeholder for a value that doesn't exist yet</em>. Think of it like ordering food at a restaurant — the waiter gives you a receipt (the Promise). That receipt isn't food, but it <em>represents</em> the food that will come later. You can decide now what you'll do when the food arrives (.then) and what you'll do if the kitchen says they're out (.catch).</p>
+
+<p><strong>Why Promises solve the Inversion of Control problem:</strong> With callbacks, YOU give your function to THEM. With Promises, THEY give a Promise object back to YOU. You retain control — you decide when to attach handlers, how many to attach, and you're guaranteed the Promise settles exactly once. It's like the difference between giving someone your phone vs them giving you a tracking number.</p>
+
+<p><strong>Key mental model:</strong> The executor function (the function you pass to <code>new Promise()</code>) runs <em>synchronously</em> — it executes immediately when you create the Promise. But <code>.then()</code> callbacks ALWAYS run asynchronously (as microtasks), even if the Promise is already resolved. This ensures predictable ordering.</p>
+
+<p><strong>Why .then() returns a NEW Promise:</strong> This is what enables chaining. Each <code>.then()</code> wraps your return value in a fresh Promise. If you return a plain value (like 42), the next <code>.then()</code> gets it immediately. If you return another Promise, the chain PAUSES and waits for it to settle. This is how you sequence async operations without nesting — each step is a flat <code>.then()</code> in a chain.</p>
 
 <h4>Promise States</h4>
 <pre><code>// A Promise is in one of three states:
@@ -595,6 +1241,24 @@ await promise; // "done"</code></pre>
 </ul></details>
 
 <h3>Theory</h3>
+
+<h4>What async/await Actually Does Under the Hood</h4>
+<p><code>async/await</code> is <strong>syntactic sugar over Promises</strong> — it doesn't add new capability, it makes Promises easier to read and write. But understanding what happens behind the scenes is crucial for interviews:</p>
+
+<p><strong>What <code>async</code> does:</strong> Marking a function <code>async</code> means it ALWAYS returns a Promise. If you return a plain value (like "hello"), it's automatically wrapped in <code>Promise.resolve("hello")</code>. If you throw inside an async function, the returned Promise is rejected with that error. The function itself starts executing synchronously until it hits its first <code>await</code>.</p>
+
+<p><strong>What <code>await</code> does (the critical part):</strong> <code>await</code> essentially SPLITS your function into two halves. Everything before the <code>await</code> runs synchronously. When it hits <code>await</code>, it:</p>
+<ol>
+  <li>Evaluates the expression after <code>await</code> (e.g., calls <code>fetch()</code> — this is synchronous!)</li>
+  <li>Wraps the result in a Promise if it isn't one already</li>
+  <li><strong>Immediately returns</strong> from the async function (back to whoever called it)</li>
+  <li>When the awaited Promise settles, the <em>rest of the function</em> is scheduled as a <strong>microtask</strong></li>
+  <li>The function resumes where it left off, with the resolved value of the Promise</li>
+</ol>
+
+<p><strong>Mental model:</strong> Think of <code>await</code> as saving a bookmark in your function. The function "pauses," lets other code run, and when the Promise resolves, it comes back to the bookmark and continues. The JS engine actually transforms async/await into a state machine (similar to generators) where each <code>await</code> is a state transition point.</p>
+
+<p><strong>Common misconception:</strong> <code>await</code> does NOT block the thread! It only "pauses" the async function — the Event Loop continues processing other tasks. This is why you can have multiple async functions "running" at the same time — they take turns on the call stack.</p>
 
 <pre><code>// async function ALWAYS returns a Promise
 async function greet() {
@@ -976,6 +1640,15 @@ await promise; // Throws AbortError after 2s</code></pre>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
 
+<div class="callout" style="margin-top: 30px;">
+  <strong>Phase 5 Companion Files:</strong>
+  <ul style="margin: 6px 0 0 18px;">
+    <li><a href="phase5A-generators-output-drills.html">Phase 5A: Generators, Async Iterators & Output Prediction (15 Drills)</a></li>
+    <li><a href="phase5B-interview-qa-nodejs.html">Phase 5B: Interview Q&A, Node.js Event Loop & Race Conditions</a></li>
+    <li><a href="machine-coding-async-patterns.html">Phase 5C: Machine Coding — Async Patterns (Promise Polyfills, Retry, Concurrency, Rate Limiter)</a></li>
+  </ul>
+</div>
+
 <div class="nav-links">
   <a href="phase4-prototypes-classes-oop.html">← Phase 4: Prototypes & OOP</a>
   <a href="phase6-dom-events-browser-apis.html">Phase 6: DOM & Browser APIs →</a>
@@ -983,5 +1656,7 @@ await promise; // Throws AbortError after 2s</code></pre>
 
 </main>
 <script src="js-notes-inline.js"></script>
+<script src="inline-annotations.js"></script>
+<script src="nav.js"></script>
 </body>
 </html>

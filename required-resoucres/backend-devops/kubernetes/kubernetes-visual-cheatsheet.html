@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Visual Cheatsheet — One-Page Reference</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  :root {
+    --ink: #1d1d1b; --paper: #ffffff; --bg: #eef1f5;
+    --blue: #2472c8; --blue-soft: #e3f0fc;
+    --green: #0d9c66; --green-soft: #e1f7ee;
+    --purple: #8e44ad; --purple-soft: #f3e8fa;
+    --orange: #c0642a; --orange-soft: #fbe9dd;
+    --teal: #128a92; --teal-soft: #ddf3f4;
+    --red: #c0392b; --red-soft: #fbe4e1;
+    --amber: #b7930b; --amber-soft: #fbf1d3;
+    --slate: #445; --slate-soft: #e6e9ef;
+    --line: #d7dbe3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14.5px;
+  }
+  main { max-width: 1600px; margin: 0 auto; padding: 18px 20px 26px; }
+  code, .mono { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+
+  /* ── Header ───────────────────────────── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, #0b2d4d, #123f66);
+    color: #fff; border-radius: 14px; padding: 14px 22px; margin-bottom: 12px;
+  }
+  .header h1 { margin: 0; font-size: 29px; letter-spacing: -0.02em; }
+  .header p { margin: 3px 0 0; font-size: 14px; color: #cfe2f4; }
+  .header .badge {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px; padding: 6px 14px; font-size: 13px; white-space: nowrap;
+  }
+
+  /* ── Pipeline diagram ─────────────────── */
+  .pipeline {
+    display: flex; align-items: stretch; gap: 6px; margin-bottom: 12px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 12px 14px; overflow-x: auto;
+  }
+  .p-step {
+    flex: 1; min-width: 128px; border-radius: 10px; padding: 10px 12px;
+    text-align: center; font-weight: 700; color: #fff; position: relative; font-size: 13.5px;
+  }
+  .p-step small { display: block; font-weight: 500; margin-top: 4px; font-size: 11.5px; opacity: 0.95; }
+  .p-arrow { align-self: center; font-size: 24px; color: var(--slate); padding: 0 3px; }
+  .p-1 { background: var(--blue); } .p-2 { background: var(--green); }
+  .p-3 { background: var(--purple); } .p-4 { background: var(--orange); }
+  .p-5 { background: var(--teal); }
+
+  /* ── Architecture / hierarchy visual ──── */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;
+  }
+  .stack-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px;
+  }
+  .stack-card h3 { margin: 0 0 10px; font-size: 17px; }
+  .stack {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .layer {
+    border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; color: #fff;
+    display: flex; justify-content: space-between;
+  }
+  .layer span.tag { font-weight: 400; opacity: 0.85; font-size: 11.5px; }
+  .l-hw { background: #566; }
+  .l-host-os { background: #45607a; }
+  .l-hv { background: #7c5cbf; }
+  .l-gos { background: #2e86c1; }
+  .l-app-vm { background: #16a085; }
+  .l-kernel { background: #45607a; }
+  .l-engine { background: #d68910; }
+  .l-app-c1 { background: #16a085; }
+  .l-app-c2 { background: #148f77; }
+  .l-app-c3 { background: #117a65; }
+  .stat-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .stat { background: var(--slate-soft); border-radius: 8px; padding: 5px 11px; font-size: 12.5px; }
+  .stat b { color: var(--ink); }
+
+  /* ── Category card grid ───────────────── */
+  .grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px;
+  }
+  .card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .card .head {
+    padding: 9px 13px; font-weight: 700; color: #fff; font-size: 15px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card .body { padding: 10px 13px; flex: 1; }
+  .card .body div.cmd { margin-bottom: 7px; line-height: 1.4; }
+  .card .body code {
+    background: var(--slate-soft); border-radius: 4px; padding: 2px 5px; font-size: 12.5px; color: #1a2530;
+  }
+  .card .body .desc { color: #555; font-size: 12px; }
+  .h-blue { background: var(--blue); } .c-blue { background: var(--blue-soft); }
+  .h-green { background: var(--green); } .c-green { background: var(--green-soft); }
+  .h-purple { background: var(--purple); } .c-purple { background: var(--purple-soft); }
+  .h-orange { background: var(--orange); } .c-orange { background: var(--orange-soft); }
+  .h-teal { background: var(--teal); } .c-teal { background: var(--teal-soft); }
+  .h-red { background: var(--red); } .c-red { background: var(--red-soft); }
+  .h-amber { background: var(--amber); } .c-amber { background: var(--amber-soft); }
+  .h-slate { background: #364559; } .c-slate { background: var(--slate-soft); }
+
+  /* ── Bottom strips: object glossary + pod status ── */
+  .strips { display: grid; grid-template-columns: 2.1fr 1fr; gap: 10px; }
+  .strip-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px;
+  }
+  .strip-card h3 { margin: 0 0 10px; font-size: 16px; }
+  .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .instr-pill {
+    border-radius: 8px; padding: 6px 11px; font-size: 12.5px; background: var(--blue-soft);
+    border: 1px solid #b9d9f2; display: flex; gap: 6px; align-items: baseline;
+  }
+  .instr-pill b { font-family: monospace; color: var(--blue); font-size: 13px; }
+  .exit-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .exit-table td, .exit-table th { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+  .exit-table th { color: #555; font-weight: 700; }
+  .exit-table td.code-cell { font-family: monospace; font-weight: 700; }
+  .footer-note {
+    margin-top: 12px; font-size: 12.5px; color: #556; text-align: center;
+  }
+  .footer-note a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .nav-links {
+    display: flex; justify-content: space-between; margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid var(--line); font-size: 14px;
+  }
+  .nav-links a { color: var(--blue); text-decoration: none; font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+
+  <div class="header">
+    <div>
+      <h1>☸️ Kubernetes Visual Cheatsheet</h1>
+      <p>One-page reference — deploy → scale → route traffic → debug. Companion deep-dives: Kubernetes Part 1 (theory), Part 2 (interview Q&amp;A), and the full text Commands Cheatsheet.</p>
+    </div>
+    <span class="badge">Backend / Full-Stack scope — not cluster admin/SRE</span>
+  </div>
+
+  <!-- Deploy → Route pipeline -->
+  <div class="pipeline">
+    <div class="p-step p-1">YAML / Helm Chart<small>Deployment, Service, Ingress specs</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-1">kubectl apply -f / helm upgrade<small>declares desired state</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-2">Deployment<small>manages a ReplicaSet</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-2">ReplicaSet<small>ensures N Pods running</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-4">Pods<small>your containers, scheduled to Nodes</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-3">Service<small>stable IP, load-balances Pods</small></div>
+    <div class="p-arrow">→</div>
+    <div class="p-step p-5">Ingress<small>routes external HTTP traffic in</small></div>
+  </div>
+
+  <!-- Architecture & ownership hierarchy visual -->
+  <div class="compare">
+    <div class="stack-card">
+      <h3>🏗️ Cluster Architecture — Control Plane vs Worker Node</h3>
+      <div class="stack">
+        <div class="layer l-app-vm">Your Pods (Containers) <span class="tag">what you actually deploy</span></div>
+        <div class="layer l-engine">kubelet + kube-proxy + container runtime <span class="tag">runs on every Worker Node</span></div>
+        <div class="layer l-kernel">Worker Node OS / Kernel</div>
+        <div class="layer l-gos">Control Plane <span class="tag">API Server, Scheduler, Controller Mgr, etcd</span></div>
+        <div class="layer l-hw">Physical / Cloud Infrastructure</div>
+      </div>
+      <div class="stat-row">
+        <span class="stat">Nodes: <b>many machines</b></span>
+        <span class="stat">Pods: <b>many per node</b></span>
+        <span class="stat">Self-healing: <b>automatic</b></span>
+      </div>
+    </div>
+    <div class="stack-card">
+      <h3>📐 Resource Ownership Hierarchy</h3>
+      <div class="stack">
+        <div class="layer l-app-c1">Deployment <span class="tag">declares replica count + rollout strategy</span></div>
+        <div class="layer l-app-c2">ReplicaSet <span class="tag">auto-created; keeps N Pods alive</span></div>
+        <div class="layer l-app-c3">Pod(s) <span class="tag">1+ containers, shared network/IP</span></div>
+        <div class="layer l-gos">Container(s) <span class="tag">your actual running app process</span></div>
+      </div>
+      <div class="stat-row">
+        <span class="stat">Update via: <b>rollout</b></span>
+        <span class="stat">Rollback: <b>1 command</b></span>
+        <span class="stat">Self-heals: <b>ReplicaSet</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category cards -->
+  <div class="grid">
+
+    <div class="card">
+      <div class="head h-blue">🧭 Cluster &amp; Context</div>
+      <div class="body c-blue">
+        <div class="cmd"><code>kubectl cluster-info</code> / <code>get nodes -o wide</code></div>
+        <div class="cmd"><code>kubectl config get-contexts</code></div>
+        <div class="cmd"><code>kubectl config use-context my-dev-cluster</code></div>
+        <div class="cmd"><code>kubectl config set-context --current --namespace=dash</code></div>
+        <div class="cmd"><code>kubectl api-resources</code> / <code>explain deploy.spec</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-green">📦 Pods</div>
+      <div class="body c-green">
+        <div class="cmd"><code>kubectl get pods -o wide</code></div>
+        <div class="cmd"><code>kubectl describe pod app-abc123</code></div>
+        <div class="cmd"><code>kubectl logs -f app-abc123 --previous</code></div>
+        <div class="cmd"><code>kubectl exec -it app-abc123 -- sh</code></div>
+        <div class="cmd"><code>kubectl delete pod app-abc123</code></div>
+        <div class="cmd"><code>kubectl top pod app-abc123</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-purple">🚀 Deployments &amp; Rollouts</div>
+      <div class="body c-purple">
+        <div class="cmd"><code>kubectl get / describe deployment app</code></div>
+        <div class="cmd"><code>kubectl scale deployment app --replicas=5</code></div>
+        <div class="cmd"><code>kubectl set image deploy/app app=img:tag</code></div>
+        <div class="cmd"><code>kubectl rollout status deployment/app</code></div>
+        <div class="cmd"><code>kubectl rollout undo deployment/app</code></div>
+        <div class="cmd"><code>kubectl rollout restart deployment/app</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-orange">🌐 Services &amp; Ingress</div>
+      <div class="body c-orange">
+        <div class="cmd"><code>kubectl get svc</code> / <code>describe svc app-svc</code></div>
+        <div class="cmd"><code>kubectl get endpoints app-svc</code></div>
+        <div class="cmd"><code>kubectl port-forward svc/app-svc 8080:80</code></div>
+        <div class="cmd"><code>kubectl expose deployment app --port=80</code></div>
+        <div class="cmd"><code>kubectl get / describe ingress app-ing</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-teal">🔧 ConfigMaps &amp; Secrets</div>
+      <div class="body c-teal">
+        <div class="cmd"><code>kubectl create configmap app-cfg \<br>&nbsp;&nbsp;--from-literal=LOG_LEVEL=debug</code></div>
+        <div class="cmd"><code>kubectl create secret generic app-secret \<br>&nbsp;&nbsp;--from-literal=DB_PASS=xxxx</code></div>
+        <div class="cmd"><code>kubectl get configmap app-cfg -o yaml</code></div>
+        <div class="cmd"><code>kubectl get secret app-secret -o jsonpath='{.data.DB_PASS}' | base64 -d</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-slate">🏷️ Namespaces &amp; Labels</div>
+      <div class="body c-slate">
+        <div class="cmd"><code>kubectl get namespaces</code></div>
+        <div class="cmd"><code>kubectl get pods -n dash</code> / <code>-A</code></div>
+        <div class="cmd"><code>kubectl label pod app debug=true</code></div>
+        <div class="cmd"><code>kubectl get pods -l app=di-jfrog</code></div>
+        <div class="cmd"><code>kubectl annotate pod app owner=squad-di</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-red">🔍 Debugging</div>
+      <div class="body c-red">
+        <div class="cmd"><code>kubectl describe pod app-abc123</code> <span class="desc">#1 debugging command</span></div>
+        <div class="cmd"><code>kubectl get events --sort-by='.lastTimestamp'</code></div>
+        <div class="cmd"><code>kubectl debug -it app-abc123 \<br>&nbsp;&nbsp;--image=busybox --target=app</code></div>
+        <div class="cmd"><code>kubectl get pod app-abc123 -o yaml</code></div>
+        <div class="cmd"><code>kubectl get pod app-abc123 -o jsonpath='{.status.conditions}'</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head h-amber">⛵ Helm</div>
+      <div class="body c-amber">
+        <div class="cmd"><code>helm upgrade --install app ./chart \<br>&nbsp;&nbsp;-f values.yaml</code></div>
+        <div class="cmd"><code>helm get values app</code></div>
+        <div class="cmd"><code>helm template ./chart -f values.yaml</code></div>
+        <div class="cmd"><code>helm list</code> / <code>helm history app</code></div>
+        <div class="cmd"><code>helm rollback app 3</code></div>
+        <div class="cmd"><code>helm lint ./chart</code></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Object glossary + pod status quick reference -->
+  <div class="strips">
+    <div class="strip-card">
+      <h3>📚 Kubernetes Object Quick Reference</h3>
+      <div class="pill-grid">
+        <span class="instr-pill"><b>Pod</b> smallest deployable unit</span>
+        <span class="instr-pill"><b>Deployment</b> manages rollout/rollback</span>
+        <span class="instr-pill"><b>ReplicaSet</b> keeps N pod replicas alive</span>
+        <span class="instr-pill"><b>Service</b> stable virtual IP + load balancing</span>
+        <span class="instr-pill"><b>Ingress</b> HTTP(S) routing into cluster</span>
+        <span class="instr-pill"><b>ConfigMap</b> non-secret config data</span>
+        <span class="instr-pill"><b>Secret</b> base64 data (NOT encrypted)</span>
+        <span class="instr-pill"><b>Namespace</b> logical isolation boundary</span>
+        <span class="instr-pill"><b>Job</b> run-to-completion task</span>
+        <span class="instr-pill"><b>CronJob</b> scheduled Job</span>
+        <span class="instr-pill"><b>Init Container</b> runs before main container</span>
+        <span class="instr-pill"><b>HPA</b> autoscales replicas on load</span>
+      </div>
+    </div>
+    <div class="strip-card">
+      <h3>🚦 Pod Status Quick Reference</h3>
+      <table class="exit-table">
+        <tr><th>Status</th><th>Meaning</th></tr>
+        <tr><td class="code-cell">Running</td><td>Healthy, containers up</td></tr>
+        <tr><td class="code-cell">Pending</td><td>Not yet scheduled / image pulling</td></tr>
+        <tr><td class="code-cell">CrashLoopBackOff</td><td>Container keeps crashing &amp; restarting</td></tr>
+        <tr><td class="code-cell">ImagePullBackOff</td><td>Can't pull image (bad tag/auth)</td></tr>
+        <tr><td class="code-cell">Evicted</td><td>Node ran out of resources</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <p class="footer-note">Full details: <a href="kubernetes-phase1-fundamentals-theory.html">Kubernetes Part 1 — Fundamentals</a> · <a href="kubernetes-phase2-interview-questions.html">Part 2 — Interview Q&amp;A</a> · <a href="kubernetes-commands-cheatsheet.html">Full Text Commands Cheatsheet</a></p>
+
+  <div class="nav-links">
+    <a href="kubernetes-commands-cheatsheet.html">← Kubernetes Commands Cheatsheet</a>
+    <a href="../docker/docker-phase1-fundamentals-theory.html">Back to Docker Part 1 →</a>
+  </div>
+
+</main>
+</body>
+</html>

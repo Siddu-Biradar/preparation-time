@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drag & Drop Sortable List</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #f0f2f5; }
+
+    .container { max-width: 500px; margin: 0 auto; }
+    .container h1 { text-align: center; margin-bottom: 8px; }
+    .container p { text-align: center; color: #666; margin-bottom: 24px; font-size: 14px; }
+
+    .sortable-list {
+      background: white;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      list-style: none;
+      min-height: 100px;
+    }
+
+    .sortable-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      margin: 6px 0;
+      background: #fafafa;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s;
+      user-select: none;
+    }
+    .sortable-item:hover { background: #f0f7ff; border-color: #d0e3f5; }
+    .sortable-item:active { cursor: grabbing; }
+    .sortable-item.dragging {
+      opacity: 0.5;
+      background: #e8f4fd;
+      border-color: #4a90d9;
+      transform: scale(0.98);
+    }
+    .sortable-item.over {
+      border-color: #4a90d9;
+      background: #e8f4fd;
+      transform: translateY(4px);
+    }
+
+    .drag-handle {
+      font-size: 18px; color: #bbb;
+      flex-shrink: 0;
+    }
+    .item-content { flex: 1; font-size: 15px; color: #333; }
+    .item-badge {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      background: #4a90d9; color: white; border-radius: 50%;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+
+    .output {
+      margin-top: 20px; padding: 16px;
+      background: #1a1a2e; color: #00d9a3; border-radius: 10px;
+      font-family: monospace; font-size: 13px; line-height: 1.6;
+      max-height: 120px; overflow-y: auto;
+    }
+    .output-title { color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🔀 Drag & Drop Sortable</h1>
+  <p>Drag items to reorder. Order updates live below.</p>
+
+  <ul class="sortable-list" id="sortable-list"></ul>
+
+  <div class="output">
+    <div class="output-title">Current Order:</div>
+    <div id="order-output"></div>
+  </div>
+</div>
+
+<script>
+const initialItems = [
+  { id: 1, text: 'Learn HTML & CSS Fundamentals' },
+  { id: 2, text: 'Master JavaScript Core Concepts' },
+  { id: 3, text: 'Build Projects with React/Angular' },
+  { id: 4, text: 'Study Data Structures & Algorithms' },
+  { id: 5, text: 'Practice System Design' },
+  { id: 6, text: 'Mock Interviews & Behavioral Prep' },
+  { id: 7, text: 'Apply to Companies & Network' },
+];
+
+class SortableList {
+  constructor(listEl, items) {
+    this.listEl = listEl;
+    this.items = [...items];
+    this.draggedIndex = null;
+    this.render();
+    this.updateOutput();
+  }
+
+  render() {
+    this.listEl.innerHTML = '';
+    this.items.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'sortable-item';
+      li.draggable = true;
+      li.dataset.index = index;
+      li.innerHTML = `
+        <span class="drag-handle">⠿</span>
+        <span class="item-content">${item.text}</span>
+        <span class="item-badge">${index + 1}</span>
+      `;
+      this.bindDragEvents(li, index);
+      this.listEl.appendChild(li);
+    });
+  }
+
+  bindDragEvents(el, index) {
+    el.addEventListener('dragstart', (e) => {
+      this.draggedIndex = index;
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', index);
+    });
+
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      this.clearOverStates();
+      this.draggedIndex = null;
+    });
+
+    el.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (index !== this.draggedIndex) {
+        this.clearOverStates();
+        el.classList.add('over');
+      }
+    });
+
+    el.addEventListener('dragleave', () => {
+      el.classList.remove('over');
+    });
+
+    el.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (this.draggedIndex === null || this.draggedIndex === index) return;
+      
+      // Reorder items
+      const [moved] = this.items.splice(this.draggedIndex, 1);
+      this.items.splice(index, 0, moved);
+      
+      this.render();
+      this.updateOutput();
+    });
+
+    // Touch support
+    el.addEventListener('touchstart', (e) => this.handleTouchStart(e, index), { passive: false });
+    el.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+    el.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+  }
+
+  handleTouchStart(e, index) {
+    this.draggedIndex = index;
+    this.touchStartY = e.touches[0].clientY;
+    const el = e.currentTarget;
+    el.classList.add('dragging');
+  }
+
+  handleTouchMove(e) {
+    e.preventDefault();
+    const touchY = e.touches[0].clientY;
+    const items = this.listEl.querySelectorAll('.sortable-item');
+    this.clearOverStates();
+    
+    items.forEach((item, i) => {
+      if (i === this.draggedIndex) return;
+      const rect = item.getBoundingClientRect();
+      if (touchY > rect.top && touchY < rect.bottom) {
+        item.classList.add('over');
+        this.touchOverIndex = i;
+      }
+    });
+  }
+
+  handleTouchEnd() {
+    if (this.touchOverIndex !== undefined && this.touchOverIndex !== this.draggedIndex) {
+      const [moved] = this.items.splice(this.draggedIndex, 1);
+      this.items.splice(this.touchOverIndex, 0, moved);
+    }
+    this.touchOverIndex = undefined;
+    this.draggedIndex = null;
+    this.render();
+    this.updateOutput();
+  }
+
+  clearOverStates() {
+    this.listEl.querySelectorAll('.sortable-item').forEach(el => el.classList.remove('over'));
+  }
+
+  updateOutput() {
+    const output = document.getElementById('order-output');
+    output.textContent = this.items.map((item, i) => `${i + 1}. ${item.text}`).join('\n');
+  }
+}
+
+new SortableList(document.getElementById('sortable-list'), initialItems);
+</script>
+</body>
+</html>

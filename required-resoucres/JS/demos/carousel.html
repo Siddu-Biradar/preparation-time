@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Carousel / Slider</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; padding: 40px; background: #1a1a2e; min-height: 100vh; }
+
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { text-align: center; color: white; margin-bottom: 24px; }
+
+    .carousel {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      background: #000;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      position: relative;
+    }
+    .carousel-slide img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      display: block;
+    }
+    .carousel-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      padding: 20px 24px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+    }
+    .carousel-caption h3 { font-size: 18px; margin-bottom: 4px; }
+    .carousel-caption p { font-size: 13px; opacity: 0.8; }
+
+    /* Arrows */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.9);
+      border: none; border-radius: 50%;
+      font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: transform 0.15s, background 0.2s;
+      z-index: 10;
+    }
+    .carousel-btn:hover { background: white; transform: translateY(-50%) scale(1.1); }
+    .carousel-btn.prev { left: 14px; }
+    .carousel-btn.next { right: 14px; }
+
+    /* Dots */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      background: rgba(0,0,0,0.4);
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      border: none;
+    }
+    .dot.active { background: white; transform: scale(1.3); }
+    .dot:hover { background: rgba(255,255,255,0.7); }
+
+    /* Controls */
+    .controls {
+      display: flex; justify-content: center; gap: 12px; margin-top: 16px;
+    }
+    .controls button {
+      padding: 8px 16px; border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px; background: transparent; color: white;
+      font-size: 13px; cursor: pointer; font-weight: 600;
+    }
+    .controls button:hover { background: rgba(255,255,255,0.1); }
+    .controls button.active-ctrl { background: rgba(74,144,217,0.6); border-color: #4a90d9; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🖼️ Image Carousel</h1>
+
+  <div class="carousel" id="carousel">
+    <div class="carousel-track" id="track"></div>
+    <button class="carousel-btn prev" id="prev-btn">‹</button>
+    <button class="carousel-btn next" id="next-btn">›</button>
+    <div class="carousel-dots" id="dots"></div>
+  </div>
+
+  <div class="controls">
+    <button id="autoplay-btn" class="active-ctrl" onclick="toggleAutoplay()">⏸ Pause</button>
+    <button onclick="carousel.goTo(0)">Go to 1st</button>
+    <button onclick="carousel.goTo(carousel.slides.length - 1)">Go to Last</button>
+  </div>
+</div>
+
+<script>
+class Carousel {
+  constructor(container, slides, options = {}) {
+    this.container = container;
+    this.slides = slides;
+    this.track = container.querySelector('#track');
+    this.dotsContainer = container.querySelector('#dots');
+    this.autoPlay = options.autoPlay !== false;
+    this.interval = options.interval || 3000;
+    this.infinite = options.infinite !== false;
+    
+    this.currentIndex = 0;
+    this.autoTimer = null;
+    this.isHovered = false;
+
+    this.render();
+    this.bindEvents();
+    if (this.autoPlay) this.startAuto();
+  }
+
+  render() {
+    // Slides
+    this.track.innerHTML = this.slides.map((slide, i) => `
+      <div class="carousel-slide">
+        <img src="${slide.image}" alt="${slide.alt}">
+        <div class="carousel-caption">
+          <h3>${slide.title}</h3>
+          <p>${slide.description}</p>
+        </div>
+      </div>
+    `).join('');
+
+    // Dots
+    this.dotsContainer.innerHTML = this.slides.map((_, i) => 
+      `<button class="dot ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Slide ${i+1}"></button>`
+    ).join('');
+  }
+
+  bindEvents() {
+    document.getElementById('prev-btn').addEventListener('click', () => this.prev());
+    document.getElementById('next-btn').addEventListener('click', () => this.next());
+    
+    this.dotsContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('dot')) {
+        this.goTo(parseInt(e.target.dataset.index));
+      }
+    });
+
+    // Pause on hover
+    this.container.addEventListener('mouseenter', () => { this.isHovered = true; this.stopAuto(); });
+    this.container.addEventListener('mouseleave', () => { this.isHovered = false; if (this.autoPlay) this.startAuto(); });
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') this.prev();
+      if (e.key === 'ArrowRight') this.next();
+    });
+
+    // Touch swipe
+    let touchStartX = 0;
+    this.container.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    this.container.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) diff > 0 ? this.next() : this.prev();
+    });
+  }
+
+  goTo(index) {
+    if (this.infinite) {
+      this.currentIndex = (index + this.slides.length) % this.slides.length;
+    } else {
+      this.currentIndex = Math.max(0, Math.min(index, this.slides.length - 1));
+    }
+    this.track.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+    this.updateDots();
+  }
+
+  next() { this.goTo(this.currentIndex + 1); }
+  prev() { this.goTo(this.currentIndex - 1); }
+
+  updateDots() {
+    this.dotsContainer.querySelectorAll('.dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === this.currentIndex);
+    });
+  }
+
+  startAuto() {
+    this.stopAuto();
+    this.autoTimer = setInterval(() => this.next(), this.interval);
+  }
+
+  stopAuto() { clearInterval(this.autoTimer); }
+}
+
+// Placeholder images using CSS gradients (no external deps)
+const slides = [
+  { image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="700" height="380"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs><rect fill="url(#g)" width="700" height="380"/><text x="350" y="200" font-family="sans-serif" font-size="40" fill="white" text-anchor="middle">🏔️ Mountains</text></svg>'), alt: 'Mountains', title: 'Mountain Landscape', description: 'Beautiful snow-capped peaks at sunrise' },
+  { image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="700" height="380"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f093fb"/><stop offset="100%" style="stop-color:#f5576c"/></linearGradient></defs><rect fill="url(#g)" width="700" height="380"/><text x="350" y="200" font-family="sans-serif" font-size="40" fill="white" text-anchor="middle">🌅 Sunset</text></svg>'), alt: 'Sunset', title: 'Ocean Sunset', description: 'Golden hour by the coast' },
+  { image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="700" height="380"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4facfe"/><stop offset="100%" style="stop-color:#00f2fe"/></linearGradient></defs><rect fill="url(#g)" width="700" height="380"/><text x="350" y="200" font-family="sans-serif" font-size="40" fill="white" text-anchor="middle">🌊 Ocean</text></svg>'), alt: 'Ocean', title: 'Deep Blue', description: 'Underwater world exploration' },
+  { image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="700" height="380"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#43e97b"/><stop offset="100%" style="stop-color:#38f9d7"/></linearGradient></defs><rect fill="url(#g)" width="700" height="380"/><text x="350" y="200" font-family="sans-serif" font-size="40" fill="white" text-anchor="middle">🌿 Forest</text></svg>'), alt: 'Forest', title: 'Emerald Forest', description: 'Ancient trees and fresh air' },
+  { image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="700" height="380"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fa709a"/><stop offset="100%" style="stop-color:#fee140"/></linearGradient></defs><rect fill="url(#g)" width="700" height="380"/><text x="350" y="200" font-family="sans-serif" font-size="40" fill="white" text-anchor="middle">🏙️ City</text></svg>'), alt: 'City', title: 'Urban Skyline', description: 'City lights and modern architecture' },
+];
+
+const carousel = new Carousel(document.getElementById('carousel'), slides, {
+  autoPlay: true,
+  interval: 3000,
+  infinite: true,
+});
+
+function toggleAutoplay() {
+  const btn = document.getElementById('autoplay-btn');
+  carousel.autoPlay = !carousel.autoPlay;
+  if (carousel.autoPlay) {
+    carousel.startAuto();
+    btn.textContent = '⏸ Pause';
+    btn.classList.add('active-ctrl');
+  } else {
+    carousel.stopAuto();
+    btn.textContent = '▶ Play';
+    btn.classList.remove('active-ctrl');
+  }
+}
+</script>
+</body>
+</html>

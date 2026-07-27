@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 16: NgRx Enterprise & RxJS Advanced</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .interview { border-left: 4px solid #1565c0; background: #e8f0fe; padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10.2pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; } th { background: var(--accent-soft); font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .toc { background: #f9f6f0; border: 1px solid var(--line); padding: 16px 20px; border-radius: 10px; margin-bottom: 24px; }
+    .toc ol { margin: 8px 0 0 18px; } .toc li { margin-bottom: 4px; } .toc a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 16: NgRx Enterprise & RxJS Advanced</h1>
+  <p class="subtitle">Angular Mastery — Enterprise State, Custom Operators, Schedulers, Marble Testing (16 of 16)</p>
+  <div class="pill-row">
+    <span class="pill">NgRx Entity</span>
+    <span class="pill">Router Store</span>
+    <span class="pill">Meta-Reducers</span>
+    <span class="pill">Advanced Effects</span>
+    <span class="pill">Custom Operators</span>
+    <span class="pill">RxJS Schedulers</span>
+    <span class="pill">Marble Testing</span>
+    <span class="pill">Request Deduplication</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h3 style="margin-top:0;">Table of Contents</h3>
+  <ol>
+    <li><a href="#entity">NgRx Entity Adapter — CRUD at Scale</a></li>
+    <li><a href="#router-store">NgRx Router Store</a></li>
+    <li><a href="#meta-reducers">Meta-Reducers (Middleware Pattern)</a></li>
+    <li><a href="#effects-advanced">Advanced Effects Patterns</a></li>
+    <li><a href="#signal-store-advanced">NgRx SignalStore — Advanced Features</a></li>
+    <li><a href="#custom-operators">Custom RxJS Operators</a></li>
+    <li><a href="#schedulers">RxJS Schedulers Deep Dive</a></li>
+    <li><a href="#marble-testing">Marble Testing — Complete Guide</a></li>
+    <li><a href="#deduplication">HTTP Request Deduplication</a></li>
+    <li><a href="#patterns">Enterprise RxJS Patterns</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="entity">1. NgRx Entity Adapter — CRUD at Scale</h2>
+
+<p>EntityAdapter provides a standard way to manage normalized collections. Instead of arrays, it uses a dictionary (Record) + id array for O(1) lookups.</p>
+
+<h3>Entity State Structure</h3>
+<pre><code>// What EntityAdapter manages:
+interface EntityState&lt;T&gt; {
+  ids: string[] | number[];      // Ordered array of IDs (controls display order)
+  entities: Record&lt;string | number, T&gt;;  // Dictionary for O(1) lookup
+}
+
+// Example — ProductState:
+// {
+//   ids: [1, 3, 5],
+//   entities: {
+//     1: { id: 1, name: 'Widget', price: 10 },
+//     3: { id: 3, name: 'Gadget', price: 25 },
+//     5: { id: 5, name: 'Tool', price: 15 }
+//   }
+// }</code></pre>
+
+<h3>Complete Entity Setup</h3>
+<pre><code>import { createEntityAdapter, EntityState } from '@ngrx/entity';
+
+// 1. Define entity interface
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+}
+
+// 2. Create adapter (optionally with sort)
+const productAdapter = createEntityAdapter&lt;Product&gt;({
+  selectId: (product) => product.id,        // Custom ID selector (default: entity.id)
+  sortComparer: (a, b) => a.name.localeCompare(b.name), // Keep sorted by name
+});
+
+// 3. Define state (can extend with additional properties)
+interface ProductState extends EntityState&lt;Product&gt; {
+  loading: boolean;
+  selectedId: number | null;
+  error: string | null;
+}
+
+// 4. Initial state
+const initialState: ProductState = productAdapter.getInitialState({
+  loading: false,
+  selectedId: null,
+  error: null
+});
+
+// 5. Reducer using adapter methods
+const productReducer = createReducer(
+  initialState,
+
+  on(ProductActions.loadSuccess, (state, { products }) =>
+    productAdapter.setAll(products, { ...state, loading: false })
+  ),
+
+  on(ProductActions.addSuccess, (state, { product }) =>
+    productAdapter.addOne(product, state)
+  ),
+
+  on(ProductActions.updateSuccess, (state, { update }) =>
+    productAdapter.updateOne(update, state)
+    // update = { id: 5, changes: { price: 20 } }
+  ),
+
+  on(ProductActions.deleteSuccess, (state, { id }) =>
+    productAdapter.removeOne(id, state)
+  ),
+
+  on(ProductActions.upsertMany, (state, { products }) =>
+    productAdapter.upsertMany(products, state)
+    // Adds if doesn't exist, updates if exists
+  ),
+);
+
+// 6. Selectors (adapter generates them)
+const { selectAll, selectEntities, selectIds, selectTotal } =
+  productAdapter.getSelectors();
+
+// Feature selector
+const selectProductState = createFeatureSelector&lt;ProductState&gt;('products');
+const selectAllProducts = createSelector(selectProductState, selectAll);
+const selectProductEntities = createSelector(selectProductState, selectEntities);
+const selectProductCount = createSelector(selectProductState, selectTotal);
+const selectSelectedProduct = createSelector(
+  selectProductEntities,
+  selectProductState,
+  (entities, state) => state.selectedId ? entities[state.selectedId] : null
+);</code></pre>
+
+<h3>All Adapter Methods</h3>
+<table>
+  <tr><th>Method</th><th>Purpose</th><th>Behavior</th></tr>
+  <tr><td><code>addOne / addMany</code></td><td>Add entities</td><td>Skips if ID already exists</td></tr>
+  <tr><td><code>setOne / setAll</code></td><td>Replace entity/all entities</td><td>Overwrites existing</td></tr>
+  <tr><td><code>upsertOne / upsertMany</code></td><td>Add or update</td><td>Adds if new, merges if exists</td></tr>
+  <tr><td><code>updateOne / updateMany</code></td><td>Partial update</td><td>Only updates provided fields</td></tr>
+  <tr><td><code>removeOne / removeMany / removeAll</code></td><td>Delete</td><td>By ID(s)</td></tr>
+  <tr><td><code>mapOne / map</code></td><td>Transform entities</td><td>Apply function to one/all</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="router-store">2. NgRx Router Store</h2>
+
+<p>Syncs Angular Router state into the NgRx store, making route params/data available via selectors (instead of injecting ActivatedRoute everywhere).</p>
+
+<pre><code>// Setup
+import { provideRouterStore, routerReducer } from '@ngrx/router-store';
+
+// app.config.ts
+providers: [
+  provideStore({ router: routerReducer }),
+  provideRouterStore()  // Syncs router state to store
+]
+
+// Custom serializer (control what gets stored)
+import { RouterStateSerializer } from '@ngrx/router-store';
+
+interface AppRouterState {
+  url: string;
+  params: Record&lt;string, string&gt;;
+  queryParams: Record&lt;string, string&gt;;
+  data: Record&lt;string, any&gt;;
+}
+
+class CustomSerializer implements RouterStateSerializer&lt;AppRouterState&gt; {
+  serialize(routerState: RouterStateSnapshot): AppRouterState {
+    let route = routerState.root;
+    while (route.firstChild) route = route.firstChild;
+    return {
+      url: routerState.url,
+      params: route.params,
+      queryParams: routerState.root.queryParams,
+      data: route.data
+    };
+  }
+}
+
+// Register:
+provideRouterStore({ serializer: CustomSerializer })</code></pre>
+
+<h3>Router Selectors</h3>
+<pre><code>import { getRouterSelectors } from '@ngrx/router-store';
+
+const { selectUrl, selectRouteParams, selectQueryParams, selectRouteData } =
+  getRouterSelectors();
+
+// Usage in component or other selectors:
+const selectProductId = createSelector(
+  selectRouteParams,
+  (params) => params['id'] ? +params['id'] : null
+);
+
+const selectCurrentProduct = createSelector(
+  selectProductEntities,
+  selectProductId,
+  (entities, id) => id ? entities[id] : null
+);
+
+// In component:
+currentProduct = this.store.selectSignal(selectCurrentProduct);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="meta-reducers">3. Meta-Reducers (Middleware Pattern)</h2>
+
+<p>Meta-reducers wrap ALL reducers. They receive a reducer and return a new reducer — like middleware. Every action passes through all meta-reducers before reaching the actual reducer.</p>
+
+<pre><code>// Meta-reducer signature:
+type MetaReducer&lt;T&gt; = (reducer: ActionReducer&lt;T&gt;) => ActionReducer&lt;T&gt;;
+
+// 1. Logger Meta-Reducer (most common interview question)
+function logger(reducer: ActionReducer&lt;any&gt;): ActionReducer&lt;any&gt; {
+  return (state, action) => {
+    console.group(action.type);
+    console.log('Previous State:', state);
+    console.log('Action:', action);
+    const nextState = reducer(state, action);  // Call actual reducer
+    console.log('Next State:', nextState);
+    console.groupEnd();
+    return nextState;
+  };
+}
+
+// 2. State Hydration (localStorage persistence)
+function hydrationMetaReducer(reducer: ActionReducer&lt;any&gt;): ActionReducer&lt;any&gt; {
+  return (state, action) => {
+    if (action.type === '@ngrx/store/init') {
+      const stored = localStorage.getItem('appState');
+      if (stored) return JSON.parse(stored);
+    }
+    const nextState = reducer(state, action);
+    localStorage.setItem('appState', JSON.stringify(nextState));
+    return nextState;
+  };
+}
+
+// 3. Reset State on Logout
+function resetOnLogout(reducer: ActionReducer&lt;any&gt;): ActionReducer&lt;any&gt; {
+  return (state, action) => {
+    if (action.type === '[Auth] Logout') {
+      state = undefined;  // Forces all reducers to return initial state
+    }
+    return reducer(state, action);
+  };
+}
+
+// 4. Undo/Redo Meta-Reducer
+function undoRedo(reducer: ActionReducer&lt;any&gt;): ActionReducer&lt;any&gt; {
+  const history: any[] = [];
+  let currentIndex = -1;
+
+  return (state, action) => {
+    switch (action.type) {
+      case '[App] Undo':
+        return currentIndex > 0 ? history[--currentIndex] : state;
+      case '[App] Redo':
+        return currentIndex < history.length - 1 ? history[++currentIndex] : state;
+      default:
+        const nextState = reducer(state, action);
+        history.splice(++currentIndex);
+        history.push(nextState);
+        return nextState;
+    }
+  };
+}
+
+// Register meta-reducers (order matters — first wraps outermost):
+provideStore(reducers, {
+  metaReducers: [logger, hydrationMetaReducer, resetOnLogout]
+})
+// Execution: logger → hydration → resetOnLogout → actual reducer</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>What is a meta-reducer? → Higher-order function that wraps all reducers; like middleware for the store</li>
+  <li>In what order do meta-reducers execute? → First in array is outermost (wraps everything)</li>
+  <li>How would you implement undo/redo with NgRx? → Meta-reducer maintaining history stack</li>
+  <li>How do you persist NgRx state to localStorage? → Hydration meta-reducer that checks on init and saves on every action</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="effects-advanced">4. Advanced Effects Patterns</h2>
+
+<h3>Optimistic Updates with Rollback</h3>
+<pre><code>// Optimistic: Update UI immediately, rollback if API fails
+deleteProduct$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ProductActions.delete),
+    concatMap(({ id }) =>
+      this.api.deleteProduct(id).pipe(
+        map(() => ProductActions.deleteConfirmed({ id })),
+        catchError(() => of(
+          ProductActions.deleteRollback({ id }),
+          NotificationActions.error({ message: 'Delete failed' })
+        ))
+      )
+    )
+  )
+);
+
+// In reducer:
+on(ProductActions.delete, (state, { id }) =>
+  productAdapter.removeOne(id, state)  // Optimistic removal
+),
+on(ProductActions.deleteRollback, (state, { id }) =>
+  productAdapter.addOne(state.lastDeleted!, state)  // Restore
+),</code></pre>
+
+<h3>Polling Effect</h3>
+<pre><code>// Poll API every 30 seconds while user is on page
+pollData$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(DashboardActions.enter),
+    switchMap(() =>
+      timer(0, 30_000).pipe(  // Start immediately, then every 30s
+        switchMap(() => this.api.getDashboard()),
+        map(data => DashboardActions.dataLoaded({ data })),
+        catchError(err => of(DashboardActions.pollError({ err }))),
+        takeUntil(this.actions$.pipe(ofType(DashboardActions.leave)))
+      )
+    )
+  )
+);</code></pre>
+
+<h3>Effect with Condition (Only dispatch if needed)</h3>
+<pre><code>// Load products only if not already in store
+loadIfNeeded$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ProductActions.loadIfNeeded),
+    concatLatestFrom(() => this.store.select(selectProductsLoaded)),
+    filter(([_, loaded]) => !loaded),  // Skip if already loaded
+    switchMap(() =>
+      this.api.getProducts().pipe(
+        map(products => ProductActions.loadSuccess({ products })),
+        catchError(err => of(ProductActions.loadFailure({ error: err.message })))
+      )
+    )
+  )
+);</code></pre>
+
+<h3>Non-dispatching Effects</h3>
+<pre><code>// Effects that DON'T dispatch a new action (side effects only)
+logActions$ = createEffect(() =>
+  this.actions$.pipe(
+    tap(action => this.analytics.trackAction(action.type))
+  ),
+  { dispatch: false }  // ← Important! Otherwise infinite loop
+);
+
+// Navigate after login
+navigateOnLogin$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(AuthActions.loginSuccess),
+    tap(({ returnUrl }) => this.router.navigateByUrl(returnUrl || '/dashboard'))
+  ),
+  { dispatch: false }
+);</code></pre>
+
+<h3>Functional Effects (NgRx 15+)</h3>
+<pre><code>// No class needed — functional approach
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+
+export const loadProducts = createEffect(
+  (actions$ = inject(Actions), api = inject(ProductApi)) =>
+    actions$.pipe(
+      ofType(ProductActions.load),
+      exhaustMap(() =>
+        api.getAll().pipe(
+          map(products => ProductActions.loadSuccess({ products })),
+          catchError(error => of(ProductActions.loadFailure({ error })))
+        )
+      )
+    ),
+  { functional: true }
+);
+
+// Register in providers:
+provideEffects({ loadProducts, deleteProduct, ... })</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="signal-store-advanced">5. NgRx SignalStore — Advanced Features</h2>
+
+<pre><code>import { signalStore, withState, withComputed, withMethods, withHooks, patchState } from '@ngrx/signals';
+import { withEntities, setAllEntities, addEntity, removeEntity } from '@ngrx/signals/entities';
+
+// Advanced SignalStore with entities + custom features
+export const ProductStore = signalStore(
+  { providedIn: 'root' },  // Singleton
+
+  // Entities
+  withEntities&lt;Product&gt;(),
+
+  // Additional state
+  withState({
+    loading: false,
+    filter: '',
+    selectedId: null as number | null
+  }),
+
+  // Computed (derived signals)
+  withComputed(({ entities, filter, selectedId }) => ({
+    filteredProducts: computed(() => {
+      const f = filter().toLowerCase();
+      return entities().filter(p => p.name.toLowerCase().includes(f));
+    }),
+    selectedProduct: computed(() =>
+      entities().find(p => p.id === selectedId())
+    ),
+    totalPrice: computed(() =>
+      entities().reduce((sum, p) => sum + p.price, 0)
+    )
+  })),
+
+  // Methods
+  withMethods((store, api = inject(ProductApi)) => ({
+    async loadAll() {
+      patchState(store, { loading: true });
+      const products = await firstValueFrom(api.getAll());
+      patchState(store, setAllEntities(products), { loading: false });
+    },
+    select(id: number) {
+      patchState(store, { selectedId: id });
+    },
+    async delete(id: number) {
+      patchState(store, removeEntity(id));  // Optimistic
+      try {
+        await firstValueFrom(api.delete(id));
+      } catch {
+        // Rollback: reload all
+        this.loadAll();
+      }
+    },
+    setFilter(filter: string) {
+      patchState(store, { filter });
+    }
+  })),
+
+  // Lifecycle hooks
+  withHooks({
+    onInit(store) {
+      store.loadAll();  // Auto-load on first injection
+    },
+    onDestroy() {
+      console.log('Store destroyed');
+    }
+  })
+);
+
+// Custom Store Feature (reusable across stores)
+function withLoading() {
+  return signalStoreFeature(
+    withState({ loading: false, error: null as string | null }),
+    withMethods((store) => ({
+      setLoading() { patchState(store, { loading: true, error: null }); },
+      setLoaded() { patchState(store, { loading: false }); },
+      setError(error: string) { patchState(store, { loading: false, error }); }
+    }))
+  );
+}
+
+// Usage:
+const MyStore = signalStore(
+  withLoading(),  // Reusable feature
+  withEntities&lt;Item&gt;(),
+  withMethods(/* ... */)
+);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="custom-operators">6. Custom RxJS Operators</h2>
+
+<h3>Building Pipeable Operators</h3>
+<pre><code>import { Observable, OperatorFunction, MonoTypeOperatorFunction } from 'rxjs';
+
+// Pattern: A function that takes config → returns OperatorFunction
+
+// 1. Simple: Debug operator
+function debug&lt;T&gt;(tag: string): MonoTypeOperatorFunction&lt;T&gt; {
+  return (source: Observable&lt;T&gt;) =>
+    source.pipe(
+      tap({
+        next: (val) => console.log(`[${tag}] next:`, val),
+        error: (err) => console.error(`[${tag}] error:`, err),
+        complete: () => console.log(`[${tag}] complete`)
+      })
+    );
+}
+
+// Usage: this.data$.pipe(debug('user-data'), map(...))
+
+// 2. Transform: filterNil (remove null/undefined)
+function filterNil&lt;T&gt;(): OperatorFunction&lt;T | null | undefined, T&gt; {
+  return (source) => source.pipe(
+    filter((value): value is T => value != null)
+  );
+}
+
+// Usage: this.user$.pipe(filterNil(), map(u => u.name)) // u is guaranteed non-null
+
+// 3. Stateful: distinctUntilKeyChanged with deep comparison
+function distinctByKey&lt;T, K extends keyof T&gt;(key: K): MonoTypeOperatorFunction&lt;T&gt; {
+  return (source) => source.pipe(
+    distinctUntilChanged((prev, curr) =>
+      JSON.stringify(prev[key]) === JSON.stringify(curr[key])
+    )
+  );
+}
+
+// 4. Complex: retryWithBackoff
+function retryWithBackoff&lt;T&gt;(config: {
+  maxRetries: number;
+  initialDelay: number;
+  retryWhen?: (error: any) => boolean;
+}): MonoTypeOperatorFunction&lt;T&gt; {
+  return (source) => source.pipe(
+    retry({
+      count: config.maxRetries,
+      delay: (error, retryCount) => {
+        if (config.retryWhen && !config.retryWhen(error)) {
+          throw error; // Don't retry
+        }
+        const delay = config.initialDelay * Math.pow(2, retryCount - 1);
+        console.log(`Retry #${retryCount} in ${delay}ms`);
+        return timer(delay);
+      }
+    })
+  );
+}
+
+// Usage:
+this.http.get('/api/data').pipe(
+  retryWithBackoff({
+    maxRetries: 3,
+    initialDelay: 1000,
+    retryWhen: (err) => err.status >= 500  // Only retry server errors
+  })
+)</code></pre>
+
+<h3>Higher-Order Custom Operator</h3>
+<pre><code>// Operator that takes an observable as parameter
+function takeUntilDestroyed&lt;T&gt;(destroyRef?: DestroyRef): MonoTypeOperatorFunction&lt;T&gt; {
+  const ref = destroyRef ?? inject(DestroyRef);
+  const destroy$ = new Observable&lt;void&gt;(subscriber => {
+    ref.onDestroy(() => {
+      subscriber.next();
+      subscriber.complete();
+    });
+  });
+  return (source) => source.pipe(takeUntil(destroy$));
+}
+
+// Operator that wraps inner observables with caching
+function cacheResult&lt;T&gt;(duration: number): OperatorFunction&lt;Observable&lt;T&gt;, T&gt; {
+  let cached: T | undefined;
+  let lastFetch = 0;
+
+  return (source: Observable&lt;Observable&lt;T&gt;&gt;) =>
+    source.pipe(
+      switchMap(inner$ => {
+        if (cached && Date.now() - lastFetch < duration) {
+          return of(cached);
+        }
+        return inner$.pipe(
+          tap(val => { cached = val; lastFetch = Date.now(); })
+        );
+      })
+    );
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="schedulers">7. RxJS Schedulers Deep Dive</h2>
+
+<p>Schedulers control WHEN work is executed. They're rarely used directly in application code but are critical for testing and performance optimization.</p>
+
+<table>
+  <tr><th>Scheduler</th><th>Execution</th><th>Use Case</th></tr>
+  <tr><td><code>queueScheduler</code></td><td>Synchronous, FIFO queue (current call stack)</td><td>Recursive operations, prevent stack overflow</td></tr>
+  <tr><td><code>asapScheduler</code></td><td>Microtask (Promise.resolve)</td><td>After current sync code, before setTimeout</td></tr>
+  <tr><td><code>asyncScheduler</code></td><td>Macrotask (setTimeout)</td><td>Default for time-based operators (delay, interval)</td></tr>
+  <tr><td><code>animationFrameScheduler</code></td><td>Before next browser repaint (rAF)</td><td>Smooth animations, DOM reads/writes</td></tr>
+</table>
+
+<pre><code>import { asyncScheduler, asapScheduler, queueScheduler, animationFrameScheduler,
+         observeOn, subscribeOn, scheduled } from 'rxjs';
+
+// 1. observeOn — control WHERE emissions are processed
+source$.pipe(
+  observeOn(animationFrameScheduler)  // Process each emission in rAF
+).subscribe(val => {
+  // This runs in requestAnimationFrame — smooth for DOM updates
+  element.style.transform = `translateX(${val}px)`;
+});
+
+// 2. subscribeOn — control WHEN subscription happens
+of(1, 2, 3).pipe(
+  subscribeOn(asyncScheduler)  // Delay subscription to next macrotask
+).subscribe(console.log);
+console.log('sync');
+// Output: "sync", 1, 2, 3 (subscription deferred)
+
+// 3. scheduled — create observable ON a scheduler
+scheduled([1, 2, 3], asapScheduler).subscribe(console.log);
+// Emissions delivered via microtasks (between sync code and setTimeout)
+
+// 4. animationFrameScheduler for smooth scrolling
+interval(0, animationFrameScheduler).pipe(
+  take(60),  // 60 frames
+  map(frame => frame * 10)  // 10px per frame
+).subscribe(offset => {
+  window.scrollTo(0, offset);  // Smooth 60fps scroll
+});
+
+// 5. queueScheduler prevents stack overflow in recursion
+const factorial = (n: number): Observable&lt;number&gt; =>
+  n <= 1
+    ? scheduled([1], queueScheduler)
+    : scheduled([n], queueScheduler).pipe(
+        mergeMap(x => factorial(x - 1).pipe(map(r => x * r)))
+      );</code></pre>
+
+<h3>Scheduler in Testing (TestScheduler)</h3>
+<pre><code>// TestScheduler virtualizes time — tests run INSTANTLY regardless of delays
+import { TestScheduler } from 'rxjs/testing';
+
+const scheduler = new TestScheduler((actual, expected) => {
+  expect(actual).toEqual(expected);
+});
+
+scheduler.run(({ cold, hot, expectObservable, expectSubscriptions }) => {
+  // Virtual time — no actual waiting!
+  const source$ = cold('--a--b--c|');
+  const result$ = source$.pipe(delay(10));  // 10ms delay
+  
+  // In marble notation: 10ms = 10 frames
+  expectObservable(result$).toBe('------------a--b--c|');
+});</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="marble-testing">8. Marble Testing — Complete Guide</h2>
+
+<h3>Marble Syntax</h3>
+<table>
+  <tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr>
+  <tr><td><code>-</code></td><td>1 frame of time (1ms in TestScheduler run)</td><td><code>---</code> = 3ms pass</td></tr>
+  <tr><td><code>a-z</code></td><td>Emission (value from values map)</td><td><code>--a--b</code></td></tr>
+  <tr><td><code>|</code></td><td>Complete</td><td><code>--a--|</code></td></tr>
+  <tr><td><code>#</code></td><td>Error</td><td><code>--a--#</code></td></tr>
+  <tr><td><code>()</code></td><td>Synchronous grouping (same frame)</td><td><code>--(abc|)</code> = a,b,c,complete on frame 2</td></tr>
+  <tr><td><code>^</code></td><td>Subscription point (in hot)</td><td><code>--^--a</code></td></tr>
+  <tr><td><code>!</code></td><td>Unsubscription point</td><td><code>^---!</code></td></tr>
+  <tr><td><code>&nbsp;</code> (space)</td><td>Ignored (readability)</td><td><code>-- a -- b</code></td></tr>
+  <tr><td><code>10ms</code></td><td>Time progression</td><td><code>10ms a</code></td></tr>
+</table>
+
+<h3>Cold vs Hot in Marble Testing</h3>
+<pre><code>scheduler.run(({ cold, hot, expectObservable }) => {
+  // COLD: Starts from beginning for each subscriber
+  // Subscription starts at frame 0 of the marble string
+  const cold$ = cold('--a--b--c|', { a: 1, b: 2, c: 3 });
+
+  // HOT: Already "running" — subscriber joins mid-stream
+  // ^ marks where subscription happens
+  const hot$ = hot('--a--b--^--c--d|', { a: 1, b: 2, c: 3, d: 4 });
+  // Subscriber only sees c and d (joined after ^)
+});</code></pre>
+
+<h3>Complete Testing Examples</h3>
+<pre><code>describe('SearchService', () => {
+  let scheduler: TestScheduler;
+
+  beforeEach(() => {
+    scheduler = new TestScheduler((actual, expected) => {
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  it('should debounce search input and use switchMap', () => {
+    scheduler.run(({ cold, expectObservable }) => {
+      // Simulate user typing with 300ms debounce
+      const input$  = cold('--a--b-----c--|');
+      const apiResp = cold('--x|');  // API takes 2 frames
+
+      const result$ = input$.pipe(
+        debounceTime(5),   // 5ms debounce
+        switchMap(() => apiResp)
+      );
+
+      // a: emitted at 2, debounce waits 5 → triggers at 7, api responds at 9
+      // b: emitted at 5, debounce waits 5 → triggers at 10, CANCELS a's request, api responds at 12
+      // c: emitted at 11, debounce waits 5 → triggers at 16... wait that's after complete
+      expectObservable(result$).toBe('---------x----x---|');
+    });
+  });
+
+  it('should retry 3 times on error', () => {
+    scheduler.run(({ cold, expectObservable }) => {
+      let attempt = 0;
+      const source$ = defer(() => {
+        attempt++;
+        if (attempt < 3) return cold('#');  // Fail first 2 times
+        return cold('--a|');                 // Succeed on 3rd
+      });
+
+      const result$ = source$.pipe(retry(3));
+      expectObservable(result$).toBe('--a|');
+    });
+  });
+
+  it('should test subscription timing', () => {
+    scheduler.run(({ hot, expectObservable, expectSubscriptions }) => {
+      const source$ = hot('--a--b--c--d--|');
+      const result$ = source$.pipe(take(2));
+
+      expectObservable(result$).toBe('--a--(b|)');
+      expectSubscriptions(source$.subscriptions).toBe('^---!');
+      // Subscribes at 0, unsubscribes at frame 4 (after getting 2 values)
+    });
+  });
+});</code></pre>
+
+<h3>Testing Effects with Marble Diagrams</h3>
+<pre><code>describe('ProductEffects', () => {
+  it('should load products on action', () => {
+    scheduler.run(({ hot, cold, expectObservable }) => {
+      // Mock the actions stream
+      const actions$ = hot('-a', { a: ProductActions.load() });
+      
+      // Mock API response
+      const apiResponse = cold('--b|', { b: [{ id: 1, name: 'Widget' }] });
+      const api = { getAll: () => apiResponse };
+
+      // Create effect
+      const effect$ = actions$.pipe(
+        ofType(ProductActions.load),
+        switchMap(() => api.getAll().pipe(
+          map(products => ProductActions.loadSuccess({ products }))
+        ))
+      );
+
+      expectObservable(effect$).toBe('---c', {
+        c: ProductActions.loadSuccess({ products: [{ id: 1, name: 'Widget' }] })
+      });
+    });
+  });
+});</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>What does <code>(abc|)</code> mean in marble notation? → a, b, c emitted and complete all on the SAME frame (synchronous)</li>
+  <li>What's the difference between cold and hot in testing? → cold starts fresh per subscriber; hot has a subscription point (^)</li>
+  <li>How do you test debounceTime? → TestScheduler virtualizes time; no actual waiting needed</li>
+  <li>What does <code>^---!</code> in expectSubscriptions mean? → Subscribe at frame 0, unsubscribe at frame 4</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="deduplication">9. HTTP Request Deduplication</h2>
+
+<h3>shareReplay Pattern</h3>
+<pre><code>// PROBLEM: Multiple components call the same API simultaneously
+// → Multiple network requests for the same data!
+
+// SOLUTION 1: shareReplay in service
+@Injectable({ providedIn: 'root' })
+export class ConfigService {
+  // Single shared request — all subscribers get same response
+  config$ = this.http.get&lt;Config&gt;('/api/config').pipe(
+    shareReplay({ bufferSize: 1, refCount: true })
+    // bufferSize: 1 → cache latest value for new subscribers
+    // refCount: true → resubscribe (refetch) after all unsubscribe
+  );
+
+  constructor(private http: HttpClient) {}
+}
+
+// ⚠️ GOTCHA: shareReplay WITHOUT refCount keeps the subscription alive forever
+// (memory leak if the source can error or the service is recreated)
+
+// SOLUTION 2: Deduplication Interceptor (advanced)
+const inFlightRequests = new Map&lt;string, Observable&lt;HttpEvent&lt;unknown&gt;&gt;&gt;();
+
+export const dedupeInterceptor: HttpInterceptorFn = (req, next) => {
+  // Only dedupe GET requests
+  if (req.method !== 'GET') return next(req);
+
+  const key = req.urlWithParams;
+
+  if (inFlightRequests.has(key)) {
+    return inFlightRequests.get(key)!;  // Return existing in-flight request
+  }
+
+  const shared$ = next(req).pipe(
+    finalize(() => inFlightRequests.delete(key)),  // Cleanup after complete/error
+    shareReplay(1)
+  );
+
+  inFlightRequests.set(key, shared$);
+  return shared$;
+};</code></pre>
+
+<h3>Signal-based Deduplication</h3>
+<pre><code>// Angular 19+ Resource API handles deduplication automatically
+@Component({ ... })
+class ProductDetailComponent {
+  id = input.required&lt;number&gt;();
+
+  // Automatically deduplicates — if id doesn't change, no new request
+  product = resource({
+    request: () => ({ id: this.id() }),
+    loader: ({ request }) => this.api.getProduct(request.id)
+  });
+}
+
+// The resource tracks the request signal. If the same request is made
+// while one is in-flight, it doesn't create a duplicate.</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="patterns">10. Enterprise RxJS Patterns</h2>
+
+<h3>Token Refresh Queue (Serial Execution)</h3>
+<pre><code>// Multiple 401 responses shouldn't trigger multiple refresh calls
+@Injectable({ providedIn: 'root' })
+class AuthTokenService {
+  private refreshing = false;
+  private refreshSubject = new BehaviorSubject&lt;string | null&gt;(null);
+
+  refreshToken(): Observable&lt;string&gt; {
+    if (this.refreshing) {
+      // Already refreshing — wait for the result
+      return this.refreshSubject.pipe(
+        filter(token => token !== null),
+        take(1)
+      );
+    }
+
+    this.refreshing = true;
+    this.refreshSubject.next(null);
+
+    return this.http.post&lt;{ token: string }&gt;('/auth/refresh', {}).pipe(
+      tap(({ token }) => {
+        this.refreshing = false;
+        this.refreshSubject.next(token);
+      }),
+      map(({ token }) => token),
+      catchError(err => {
+        this.refreshing = false;
+        this.refreshSubject.error(err);
+        this.refreshSubject = new BehaviorSubject&lt;string | null&gt;(null);
+        return throwError(() => err);
+      })
+    );
+  }
+}</code></pre>
+
+<h3>WebSocket with Auto-Reconnect</h3>
+<pre><code>function createReconnectingWebSocket(url: string): Observable&lt;MessageEvent&gt; {
+  return new Observable(subscriber => {
+    let ws: WebSocket;
+    let reconnectTimer: any;
+
+    function connect() {
+      ws = new WebSocket(url);
+      ws.onmessage = (msg) => subscriber.next(msg);
+      ws.onerror = (err) => console.warn('WS error:', err);
+      ws.onclose = (event) => {
+        if (!event.wasClean) {
+          // Reconnect with exponential backoff
+          const delay = Math.min(30000, 1000 * Math.pow(2, Math.random() * 3));
+          reconnectTimer = setTimeout(connect, delay);
+        }
+      };
+    }
+
+    connect();
+
+    return () => {
+      clearTimeout(reconnectTimer);
+      ws?.close(1000, 'Component destroyed');
+    };
+  }).pipe(
+    share()  // Share single connection among subscribers
+  );
+}
+
+// Usage:
+messages$ = createReconnectingWebSocket('wss://api.example.com/ws').pipe(
+  map(event => JSON.parse(event.data)),
+  retry({ delay: 5000 })  // Additional retry layer
+);</code></pre>
+
+<h3>Conditional Polling with Visibility API</h3>
+<pre><code>// Stop polling when tab is hidden, resume when visible
+function smartPoll&lt;T&gt;(apiCall: () => Observable&lt;T&gt;, intervalMs: number): Observable&lt;T&gt; {
+  const visibility$ = fromEvent(document, 'visibilitychange').pipe(
+    map(() => document.visibilityState === 'visible'),
+    startWith(true)
+  );
+
+  return visibility$.pipe(
+    switchMap(visible =>
+      visible
+        ? timer(0, intervalMs).pipe(switchMap(() => apiCall()))
+        : EMPTY  // Stop polling when hidden
+    )
+  );
+}
+
+// Usage:
+notifications$ = smartPoll(() => this.http.get('/api/notifications'), 10_000);</code></pre>
+
+<h3>Race Condition Prevention (exhaustMap + queue)</h3>
+<pre><code>// Form submissions that must be sequential (not lost, not duplicated)
+@Component({ ... })
+class OrderComponent {
+  private submitQueue = new Subject&lt;Order&gt;();
+
+  orders$ = this.submitQueue.pipe(
+    // concatMap queues requests — ensures order, no loss
+    concatMap(order =>
+      this.api.createOrder(order).pipe(
+        catchError(err => {
+          this.snackbar.open(`Failed: ${err.message}`);
+          return EMPTY;  // Skip failed, continue queue
+        })
+      )
+    )
+  );
+
+  submit(order: Order) {
+    this.submitQueue.next(order);  // Just queue it
+  }
+}</code></pre>
+
+<h3>Combining Multiple Async Sources with Loading State</h3>
+<pre><code>// Dashboard that needs data from 3 APIs with unified loading
+interface DashboardState {
+  users: User[] | null;
+  orders: Order[] | null;
+  stats: Stats | null;
+  loading: boolean;
+  error: string | null;
+}
+
+dashboard$ = forkJoin({
+  users: this.userApi.getAll(),
+  orders: this.orderApi.getRecent(),
+  stats: this.statsApi.getSummary()
+}).pipe(
+  map(({ users, orders, stats }): DashboardState => ({
+    users, orders, stats, loading: false, error: null
+  })),
+  startWith({ users: null, orders: null, stats: null, loading: true, error: null }),
+  catchError(err => of({
+    users: null, orders: null, stats: null, loading: false, error: err.message
+  }))
+);
+
+// Alternative with individual loading (show data as it arrives):
+dashboard$ = combineLatest({
+  users: this.userApi.getAll().pipe(startWith(null)),
+  orders: this.orderApi.getRecent().pipe(startWith(null)),
+  stats: this.statsApi.getSummary().pipe(startWith(null))
+}).pipe(
+  map(data => ({
+    ...data,
+    loading: !data.users || !data.orders || !data.stats
+  }))
+);</code></pre>
+
+<div class="interview">
+<strong>🎯 Interview Questions:</strong>
+<ul>
+  <li>How do you prevent duplicate HTTP requests? → shareReplay, deduplication interceptor, or Resource API</li>
+  <li>shareReplay: what does refCount do? → When true, resubscribes after all unsubscribe (refetches). When false, keeps subscription alive forever</li>
+  <li>How to handle multiple 401s triggering token refresh? → BehaviorSubject gate: first 401 triggers refresh, others wait for result</li>
+  <li>forkJoin vs combineLatest for parallel requests? → forkJoin waits for ALL to complete (use for one-shot). combineLatest emits on each (use for streams)</li>
+  <li>How to write a custom pipeable operator? → Function returning <code>(source: Observable&lt;T&gt;) => Observable&lt;R&gt;</code></li>
+</ul>
+</div>
+
+<div class="nav-links">
+  <a href="phase15-internals-output-prediction.html">← Phase 15: Internals & Output Prediction</a>
+  <a href="angular-index.html">📚 Index</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

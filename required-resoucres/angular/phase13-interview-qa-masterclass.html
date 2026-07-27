@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 13: Interview Q&A Masterclass</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .qa { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .qa h4 { color: #8b4513; margin-top: 0; }
+    .qa .answer { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #f0d4b8; }
+    details { margin: 6px 0; }
+    details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 13: Interview Q&A Masterclass</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (13 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">150+ Questions</span>
+    <span class="pill">Expert Answers</span>
+    <span class="pill">Code Examples</span>
+    <span class="pill">Tricky Edge Cases</span>
+    <span class="pill">Architecture</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Core Angular</h2>
+
+<div class="qa">
+<h4>Q: What is the difference between a Component and a Directive?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>A <strong>Component</strong> is a Directive WITH a template. Every component is technically a directive, but with associated HTML. A <strong>Directive</strong> modifies behavior/appearance of existing DOM elements without its own template.</p>
+<ul>
+  <li>Component: <code>@Component({ template: '...' })</code> — has its own view</li>
+  <li>Structural Directive: <code>@Directive({ selector: '[appIf]' })</code> — adds/removes DOM</li>
+  <li>Attribute Directive: <code>@Directive({ selector: '[appHighlight]' })</code> — modifies existing element</li>
+</ul>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: Explain Angular's change detection. How does Zone.js fit in?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>Change detection is Angular's mechanism to keep the DOM in sync with component state. Zone.js monkey-patches async APIs (setTimeout, Promises, events) to notify Angular when "something happened." Angular then runs change detection from root to leaves, checking all template bindings.</p>
+<p><strong>Default strategy:</strong> Checks ALL components top-down on every trigger.</p>
+<p><strong>OnPush strategy:</strong> Skips component unless: @Input reference changes, event from component/child, async pipe emits, or markForCheck() called.</p>
+<p><strong>Zoneless (Angular 18+):</strong> No Zone.js. Change detection driven by signals — Angular knows exactly which component's template to update.</p>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: What's the difference between constructor and ngOnInit?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p><strong>Constructor:</strong> TypeScript class constructor. Called when DI creates the instance. @Input values are NOT available yet. Use only for DI assignment.</p>
+<p><strong>ngOnInit:</strong> Angular lifecycle hook. Called once AFTER first ngOnChanges (after @Input bindings are set). Use for initialization logic, API calls, setting up subscriptions.</p>
+<pre><code>constructor(private service: MyService) {
+  // this.myInput is undefined here!
+}
+ngOnInit() {
+  // this.myInput has its value here
+  this.service.load(this.myInput);
+}</code></pre>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: How does Dependency Injection work in Angular?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>Angular's DI is a hierarchical injector system. When a class requests a dependency, Angular looks up the injector tree (Element Injector hierarchy first, then Module Injector hierarchy) to find a provider. The injector creates/returns the singleton instance for that scope.</p>
+<p>Key concepts: <strong>Token</strong> (what to look for), <strong>Provider</strong> (how to create it), <strong>Injector</strong> (container that holds instances).</p>
+<p>Registration methods: <code>providedIn: 'root'</code> (tree-shakable singleton), component <code>providers</code> (new instance per component), route <code>providers</code> (scoped to route).</p>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: Explain ViewEncapsulation modes.</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<ul>
+  <li><strong>Emulated (default):</strong> Angular adds unique attributes (_ngcontent-xxx) to component elements and rewrites CSS selectors to scope styles. Not real Shadow DOM but achieves similar isolation.</li>
+  <li><strong>ShadowDom:</strong> Uses native Shadow DOM. True style isolation. External styles don't leak in, component styles don't leak out. Best isolation but limited browser support for older versions.</li>
+  <li><strong>None:</strong> No encapsulation. Styles are global — affect entire app. Use for global themes or utility classes.</li>
+</ul>
+</div></details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>RxJS & Async</h2>
+
+<div class="qa">
+<h4>Q: Explain switchMap vs mergeMap vs concatMap vs exhaustMap</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<ul>
+  <li><strong>switchMap:</strong> Cancels previous inner observable when new emission arrives. Use for: search typeahead, route-based data loading.</li>
+  <li><strong>mergeMap:</strong> Runs all inner observables concurrently (no cancellation). Use for: parallel uploads, independent actions.</li>
+  <li><strong>concatMap:</strong> Queues inner observables — waits for previous to complete. Use for: sequential operations where order matters.</li>
+  <li><strong>exhaustMap:</strong> Ignores new emissions while current inner is still running. Use for: login button, form submit (prevent double-click).</li>
+</ul>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: How do you prevent memory leaks from observables?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<ol>
+  <li><strong>async pipe</strong> — Auto-subscribes/unsubscribes in template (best approach)</li>
+  <li><strong>takeUntilDestroyed()</strong> — Angular 16+ (cleanest in component class)</li>
+  <li><strong>DestroyRef + takeUntilDestroyed(ref)</strong> — For code outside injection context</li>
+  <li><strong>takeUntil(destroy$)</strong> — Pre-Angular 16 pattern with Subject</li>
+  <li><strong>Subscription management</strong> — Store subscription, call .unsubscribe() in ngOnDestroy</li>
+</ol>
+<p>You DON'T need to unsubscribe from: HTTP calls (complete after response), finite observables (of, from array), router observables in routed components.</p>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: What is the async pipe? Why is it considered a best practice?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>The async pipe subscribes to an Observable/Promise, returns the latest value, and automatically unsubscribes when the component is destroyed. Benefits:</p>
+<ul>
+  <li>No manual subscription management (no memory leaks)</li>
+  <li>Works with OnPush change detection (calls markForCheck internally)</li>
+  <li>Cleaner templates (no component property needed)</li>
+  <li>Handles null/undefined gracefully</li>
+</ul>
+<pre><code>// Before: manual subscription (error-prone)
+ngOnInit() { this.sub = this.data$.subscribe(d => this.data = d); }
+ngOnDestroy() { this.sub.unsubscribe(); }
+
+// After: async pipe (clean)
+template: `@if (data$ | async; as data) { {{ data.title }} }`</code></pre>
+</div></details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Performance & Optimization</h2>
+
+<div class="qa">
+<h4>Q: Why shouldn't you call functions in Angular templates?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>Functions in templates run on EVERY change detection cycle. With default CD, a function like <code>{{ getTotal() }}</code> runs potentially dozens of times per second (on every click, mousemove, timer, etc.).</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+  <li>Use a <strong>pure pipe</strong> — only recalculates when input reference changes</li>
+  <li>Use <strong>computed()</strong> signal — memoized, only recalculates when dependencies change</li>
+  <li>Pre-compute in the component and store in a property</li>
+</ul>
+<pre><code>// BAD
+{{ getFilteredItems().length }}
+
+// GOOD — computed signal
+filteredCount = computed(() => this.items().filter(i => i.active).length);
+// Template: {{ filteredCount() }}
+
+// GOOD — pure pipe
+// Template: {{ items | filter:'active' | count }}</code></pre>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: How does lazy loading work? What are the benefits?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>Lazy loading splits your app into chunks that load on-demand when the user navigates to specific routes. Instead of loading the entire app upfront (large initial bundle), only the code needed for the current view is loaded.</p>
+<pre><code>{ path: 'admin', loadComponent: () => import('./admin.component').then(m => m.AdminComponent) }</code></pre>
+<p><strong>Benefits:</strong> Faster initial load, smaller initial bundle, users only download what they use.</p>
+<p><strong>@defer:</strong> Angular 17+ adds component-level lazy loading (load on viewport, interaction, hover, timer).</p>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: What is OnPush change detection? When would a component NOT re-render?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>OnPush tells Angular to skip this component during CD unless specific triggers occur:</p>
+<p><strong>WILL trigger CD:</strong></p>
+<ol>
+  <li>@Input reference changes (new object, not mutation)</li>
+  <li>Event originates from this component or its children</li>
+  <li>Async pipe receives new value</li>
+  <li>Signal read in template changes</li>
+  <li>markForCheck() or detectChanges() called manually</li>
+</ol>
+<p><strong>WON'T trigger:</strong> Parent CD running (if inputs unchanged), setTimeout in a service, object mutation (this.items.push()), BehaviorSubject.next() without async pipe.</p>
+</div></details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Modern Angular (Signals & v17+)</h2>
+
+<div class="qa">
+<h4>Q: What are Angular Signals? How do they compare to RxJS?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>Signals are synchronous reactive primitives. They hold a value and notify consumers when it changes. Unlike Observables (push-based, async), signals are pull-based and synchronous.</p>
+<table>
+<tr><th>Signals</th><th>RxJS</th></tr>
+<tr><td>Synchronous read: <code>value()</code></td><td>Async: <code>.subscribe()</code></td></tr>
+<tr><td>Always have a value</td><td>May not have emitted yet</td></tr>
+<tr><td>No unsubscription needed</td><td>Must unsubscribe</td></tr>
+<tr><td>Simple state management</td><td>Complex async orchestration</td></tr>
+<tr><td>Fine-grained reactivity</td><td>Stream transformation</td></tr>
+</table>
+<p><strong>Use Signals for:</strong> UI state, component state, simple derived state.</p>
+<p><strong>Use RxJS for:</strong> HTTP requests, WebSockets, complex async flows, debouncing, retry logic, race conditions.</p>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: What is the @defer block? How does it improve performance?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p><code>@defer</code> enables component-level code splitting and lazy loading without routing. The deferred component's code is in a separate JS chunk that only loads when the trigger condition is met.</p>
+<pre><code>@defer (on viewport; prefetch on idle) {
+  &lt;app-heavy-chart /&gt;
+} @placeholder {
+  &lt;div style="height:300px"&gt;&lt;/div&gt;
+} @loading (minimum 200ms) {
+  &lt;app-spinner /&gt;
+}</code></pre>
+<p><strong>Triggers:</strong> on viewport, on interaction, on hover, on idle, on timer(5s), when condition.</p>
+<p><strong>Performance benefit:</strong> Initial bundle doesn't include deferred components — they load only when needed, reducing Time to Interactive.</p>
+</div></details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Architecture & Design</h2>
+
+<div class="qa">
+<h4>Q: How would you architect a large-scale Angular application?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<ul>
+  <li><strong>Core module/folder:</strong> Singleton services, guards, interceptors, models</li>
+  <li><strong>Shared module/folder:</strong> Reusable components, directives, pipes</li>
+  <li><strong>Feature folders:</strong> Each feature is self-contained, lazy-loaded via routes</li>
+  <li><strong>Smart/Dumb pattern:</strong> Container components handle logic; presentational components are pure UI</li>
+  <li><strong>State management:</strong> NgRx for complex, signals/services for simple</li>
+  <li><strong>Strict typing:</strong> Interfaces for all API responses, no <code>any</code></li>
+  <li><strong>OnPush everywhere:</strong> Performance by default</li>
+  <li><strong>Nx monorepo:</strong> For multiple apps sharing libraries</li>
+  <li><strong>Barrel exports:</strong> index.ts in each module for clean imports</li>
+  <li><strong>Environment configs:</strong> Different configs for dev/staging/prod</li>
+</ul>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: How do you handle authentication in an Angular SPA?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<ol>
+  <li><strong>Login:</strong> POST credentials to API → receive JWT (access + refresh token)</li>
+  <li><strong>Storage:</strong> HttpOnly cookies (most secure) or in-memory (sessionStorage for refresh)</li>
+  <li><strong>Interceptor:</strong> Attach Bearer token to every API request</li>
+  <li><strong>Token refresh:</strong> Interceptor detects 401, uses refresh token to get new access token, retries failed request</li>
+  <li><strong>Route guards:</strong> canActivate checks if user is authenticated + has required role</li>
+  <li><strong>Auto-logout:</strong> On token expiry or inactivity timeout</li>
+</ol>
+<pre><code>// Auth interceptor with token refresh
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const auth = inject(AuthService);
+  const token = auth.getAccessToken();
+  
+  const authReq = token 
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
+
+  return next(authReq).pipe(
+    catchError(err => {
+      if (err.status === 401 && !req.url.includes('/refresh')) {
+        return auth.refreshToken().pipe(
+          switchMap(newToken => {
+            const retryReq = req.clone({
+              setHeaders: { Authorization: `Bearer ${newToken}` }
+            });
+            return next(retryReq);
+          })
+        );
+      }
+      return throwError(() => err);
+    })
+  );
+};</code></pre>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: Explain the Ivy renderer. What problems did it solve?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>Ivy is Angular's compilation and rendering engine (default since Angular 9, replaced View Engine). Key improvements:</p>
+<ul>
+  <li><strong>Smaller bundles:</strong> Better tree-shaking. Unused Angular features are removed from bundle.</li>
+  <li><strong>Faster compilation:</strong> Each component compiled independently (locality principle). Faster rebuilds.</li>
+  <li><strong>Better debugging:</strong> Component classes are directly debuggable (no generated wrapper code).</li>
+  <li><strong>Dynamic components simplified:</strong> No more entryComponents or ComponentFactoryResolver.</li>
+  <li><strong>Template type checking:</strong> Strict mode catches template errors at build time.</li>
+  <li><strong>Lazy-loading improvements:</strong> Components can be lazy-loaded without NgModule.</li>
+</ul>
+</div></details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Tricky Questions</h2>
+
+<div class="qa">
+<h4>Q: What happens if two components provide the same service in their providers array?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>Each component gets its OWN instance of the service. Angular's hierarchical DI creates a new instance at each provider registration point. Children of each component share their parent's instance (unless they also provide it).</p>
+<pre><code>// ParentA providers: [MyService]  → Instance A
+//   ChildA (no providers) → uses Instance A
+// ParentB providers: [MyService]  → Instance B (different!)
+//   ChildB (no providers) → uses Instance B</code></pre>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: Can you use two structural directives on the same element?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p><strong>No.</strong> Each element can only have ONE structural directive (because each desugars to an ng-template wrapper). Solutions:</p>
+<pre><code>// Problem: *ngIf and *ngFor on same element — ERROR
+&lt;li *ngIf="show" *ngFor="let item of items"&gt; ✗
+
+// Solution 1: ng-container
+&lt;ng-container *ngIf="show"&gt;
+  &lt;li *ngFor="let item of items"&gt;{{ item }}&lt;/li&gt;
+&lt;/ng-container&gt;
+
+// Solution 2: New control flow (Angular 17+) — no restriction
+@if (show) {
+  @for (item of items; track item.id) {
+    &lt;li&gt;{{ item }}&lt;/li&gt;
+  }
+}</code></pre>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: What is ExpressionChangedAfterItHasBeenCheckedError?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p>This error occurs in development mode when Angular's second CD pass (verification pass) detects that a value changed AFTER it was already rendered. Angular runs CD twice in dev mode to catch this.</p>
+<p><strong>Common causes:</strong></p>
+<ul>
+  <li>Modifying parent state from child's lifecycle hooks (e.g., in ngAfterViewInit)</li>
+  <li>Service updating shared state during CD cycle</li>
+  <li>Getters that return new object references each time</li>
+</ul>
+<p><strong>Fixes:</strong> Use setTimeout (moves to next CD cycle), use ChangeDetectorRef.detectChanges() after change, restructure to avoid child→parent data flow during CD, use signals.</p>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: What is the difference between providers and viewProviders?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p><strong>providers:</strong> Service available to the component, its view children, AND projected content (ng-content).</p>
+<p><strong>viewProviders:</strong> Service available to the component and its view children ONLY. Projected content CANNOT access it.</p>
+<p>Use case: When you want to provide a service to your component's internal template but hide it from consumers who project content into your component.</p>
+</div></details>
+</div>
+
+<div class="qa">
+<h4>Q: How does Angular handle security (XSS, CSRF)?</h4>
+<details><summary>Answer</summary>
+<div class="answer">
+<p><strong>XSS Protection:</strong></p>
+<ul>
+  <li>All interpolation (<code>{{ }}</code>) is automatically sanitized — HTML entities escaped</li>
+  <li>[innerHTML] binding is sanitized (scripts, event handlers stripped)</li>
+  <li>AOT compilation prevents template injection (no eval)</li>
+  <li>DomSanitizer provides bypass methods for TRUSTED content only</li>
+</ul>
+<p><strong>CSRF Protection:</strong></p>
+<ul>
+  <li>HttpClient automatically reads XSRF-TOKEN cookie and sends X-XSRF-TOKEN header</li>
+  <li>Configurable via provideHttpClient(withXsrfConfiguration(...))</li>
+</ul>
+</div></details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Quick-Fire Round (One-Liners)</h2>
+
+<table>
+<tr><th>Question</th><th>Answer</th></tr>
+<tr><td>What is AOT?</td><td>Ahead-of-Time compilation — templates compiled at build time, not in browser</td></tr>
+<tr><td>What is tree-shaking?</td><td>Dead code elimination — unused code removed from bundle during build</td></tr>
+<tr><td>What is the purpose of trackBy?</td><td>Helps Angular identify items in *ngFor/track in @for to reuse DOM nodes efficiently</td></tr>
+<tr><td>What does the async pipe return for null?</td><td>Returns null (renders nothing / falsy in @if)</td></tr>
+<tr><td>Can services have services?</td><td>Yes — services can inject other services (full DI support)</td></tr>
+<tr><td>What is forRoot vs forChild?</td><td>forRoot: singleton providers for app root. forChild: for lazy-loaded feature modules</td></tr>
+<tr><td>What is a resolver?</td><td>Fetches data BEFORE route activates, so component has data immediately</td></tr>
+<tr><td>What is the inject() function?</td><td>Modern DI alternative to constructor injection. Works in injection context (constructor, field init, factory)</td></tr>
+<tr><td>When to use Subject vs BehaviorSubject?</td><td>BehaviorSubject when you need an initial/current value. Subject for pure event streams.</td></tr>
+<tr><td>What is ng-container?</td><td>Angular element that doesn't render to DOM. Used for structural directives without extra elements.</td></tr>
+<tr><td>What is standalone: true?</td><td>Component that doesn't need NgModule — imports its own dependencies</td></tr>
+<tr><td>What is provideRouter()?</td><td>Standalone API for configuring the router (replaces RouterModule.forRoot)</td></tr>
+<tr><td>What is DestroyRef?</td><td>Injectable token that allows registering cleanup callbacks for when a scope is destroyed</td></tr>
+<tr><td>Can a pipe be impure?</td><td>Yes: <code>pure: false</code> — runs every CD cycle. Expensive — avoid when possible</td></tr>
+<tr><td>What is the host property in @Component?</td><td>Alternative to @HostBinding/@HostListener for binding to the component's host element</td></tr>
+</table>
+
+<div class="nav-links">
+  <a href="phase12-machine-coding.html">← Phase 12: Machine Coding</a>
+  <a href="phase14-advanced-topics.html">Phase 14: Advanced Topics →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>

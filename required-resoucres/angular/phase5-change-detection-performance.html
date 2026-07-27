@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular Mastery — Phase 5: Change Detection & Performance</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { --bg: #f4f1ea; --paper: #fffdf8; --ink: #1d1d1b; --muted: #5c584f; --line: #d8d0c3; --accent: #c3002f; --accent-soft: #fce4ec; --warning: #7a3a12; --warning-soft: #f7e7dd; --code: #f3efe7; }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+    body { margin: 0; font-family: "Georgia", "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 11.4pt; }
+    main { max-width: 940px; margin: 0 auto; background: var(--paper); padding: 28px 34px 44px; }
+    h1, h2, h3, h4 { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.2; margin: 0 0 10px; color: #1a2530; }
+    h1 { font-size: 28pt; letter-spacing: -0.03em; margin-bottom: 8px; } h2 { font-size: 19pt; margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--line); } h3 { font-size: 14.5pt; margin-top: 20px; } h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px; } ul, ol { margin: 6px 0 12px 22px; padding: 0; } li { margin: 0 0 6px; }
+    code, pre { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font-size: 9.8pt; line-height: 1.45; margin: 10px 0 14px; }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; font-size: 9.8pt; } pre code { background: none; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.4pt; } th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; } th { background: #fce4ec; font-family: "Avenir Next", sans-serif; font-weight: 700; }
+    .hero { padding: 18px 18px 14px; border: 1px solid var(--line); background: linear-gradient(135deg, #f9f6f0 0%, #fce4ec 100%); border-radius: 14px; margin-bottom: 22px; }
+    .subtitle { font-family: "Avenir Next", sans-serif; color: var(--muted); font-size: 11.2pt; margin-bottom: 12px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: #880e4f; font-family: "Avenir Next", sans-serif; font-size: 9.4pt; border: 1px solid #f8bbd0; }
+    .callout { border-left: 4px solid var(--accent); background: #fef0f3; padding: 10px 12px; margin: 12px 0 16px; border-radius: 0 8px 8px 0; } .warning { border-left-color: var(--warning); background: var(--warning-soft); }
+    .toc { background: #f9f7f3; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; } .toc a { color: var(--accent); text-decoration: none; } .toc ol { margin: 8px 0 0 20px; } .toc li { margin-bottom: 4px; }
+    .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); } .nav-links a { color: var(--accent); text-decoration: none; font-family: "Avenir Next", sans-serif; font-weight: 600; }
+    .exercise { background: #f0fdf4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .exercise h4 { color: #1b7340; margin-top: 0; }
+    .interview { background: #fdf6f0; border: 1px solid #f0d4b8; border-radius: 10px; padding: 14px 16px; margin: 14px 0; } .interview h4 { color: #8b4513; margin-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <h1>Phase 5: Change Detection & Performance</h1>
+  <p class="subtitle">Angular Mastery — Zero to Hero Series (5 of 13)</p>
+  <div class="pill-row">
+    <span class="pill">Zone.js</span>
+    <span class="pill">Change Detection</span>
+    <span class="pill">OnPush Strategy</span>
+    <span class="pill">Lazy Loading</span>
+    <span class="pill">trackBy / track</span>
+    <span class="pill">Bundle Optimization</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#zone-js">Zone.js — How Angular Knows When to Update</a></li>
+    <li><a href="#cd-mechanism">Change Detection Mechanism</a></li>
+    <li><a href="#default-vs-onpush">Default vs OnPush Strategy</a></li>
+    <li><a href="#onpush-deep">OnPush Deep Dive — When Does It Check?</a></li>
+    <li><a href="#manual-cd">Manual Change Detection Control</a></li>
+    <li><a href="#zoneless">Zoneless Angular (Angular 18+)</a></li>
+    <li><a href="#lazy-loading">Lazy Loading & Code Splitting</a></li>
+    <li><a href="#virtual-scroll">Virtual Scrolling & Large Lists</a></li>
+    <li><a href="#bundle-optimization">Bundle Optimization Techniques</a></li>
+    <li><a href="#performance-checklist">Performance Checklist</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="zone-js">1. Zone.js — How Angular Knows When to Update</h2>
+
+<h3>What is Zone.js?</h3>
+<p>Zone.js is a library that <strong>monkey-patches all async browser APIs</strong> (setTimeout, Promise, addEventListener, XHR, fetch, etc.) to notify Angular when async operations happen. Angular uses this to know when to run change detection.</p>
+
+<h4>What Zone.js Patches</h4>
+<pre><code>// Zone.js intercepts ALL of these:
+setTimeout / setInterval / clearTimeout / clearInterval
+Promise.then / catch / finally
+addEventListener / removeEventListener
+XMLHttpRequest (open, send)
+fetch
+requestAnimationFrame
+MutationObserver
+WebSocket (onmessage, onerror)
+// ... and more
+
+// What happens when you click a button:
+// 1. Click event fires
+// 2. Zone.js detects async event completed
+// 3. Zone.js notifies Angular: "Something happened!"
+// 4. Angular runs change detection from ROOT to ALL components
+// 5. DOM updated where bindings changed</code></pre>
+
+<h4>NgZone</h4>
+<pre><code>@Injectable({ providedIn: 'root' })
+export class PerformanceService {
+  private ngZone = inject(NgZone);
+
+  // Run code OUTSIDE Angular zone (won't trigger change detection)
+  initHeavyAnimation() {
+    this.ngZone.runOutsideAngular(() => {
+      // This interval won't trigger change detection on every tick
+      setInterval(() => {
+        this.updateCanvasAnimation();  // DOM manipulation without Angular overhead
+      }, 16);  // 60fps
+    });
+  }
+
+  // When you need to come BACK into Angular zone
+  notifyAngular(data: any) {
+    this.ngZone.run(() => {
+      // This WILL trigger change detection
+      this.data = data;
+    });
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="cd-mechanism">2. Change Detection Mechanism</h2>
+
+<h3>How Change Detection Works</h3>
+<pre><code>// Angular's CD algorithm (simplified):
+// 1. Start at root component
+// 2. For EACH component in the tree (top-down):
+//    a. Update input bindings
+//    b. Run ngOnChanges (if inputs changed)
+//    c. Run ngDoCheck
+//    d. Update DOM bindings (check if {{ expression }} values changed)
+//    e. Run ngAfterContentChecked
+//    f. Run ngAfterViewChecked
+//    g. Move to child components
+// 3. After full tree checked, DOM is up to date
+
+// With DEFAULT strategy:
+// EVERY component is checked on EVERY trigger
+// Even if nothing changed in that component!
+
+// Component tree:
+//     AppComponent          ← checked
+//     ├── HeaderComponent   ← checked  
+//     ├── SidebarComponent  ← checked
+//     └── MainComponent     ← checked
+//         ├── ListComponent ← checked
+//         │   ├── Item1     ← checked
+//         │   ├── Item2     ← checked
+//         │   └── Item3     ← checked
+//         └── FooterComponent ← checked
+// One click anywhere → ALL 9 components checked!</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="default-vs-onpush">3. Default vs OnPush Strategy</h2>
+
+<table>
+<tr><th>Aspect</th><th>Default</th><th>OnPush</th></tr>
+<tr><td>Trigger</td><td>Any async event (Zone.js)</td><td>Only specific triggers (see below)</td></tr>
+<tr><td>Scope</td><td>Check component + all descendants</td><td>Skip unless triggered</td></tr>
+<tr><td>Performance</td><td>Can be slow with many components</td><td>Much faster — checks only when needed</td></tr>
+<tr><td>Immutability required</td><td>No (detects mutations)</td><td>YES (must create new references)</td></tr>
+<tr><td>Best for</td><td>Simple apps, prototypes</td><td>Production apps, performance-critical</td></tr>
+</table>
+
+<pre><code>@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    &lt;h2&gt;{{ user.name }}&lt;/h2&gt;
+    &lt;p&gt;{{ user.email }}&lt;/p&gt;
+  `
+})
+export class UserCardComponent {
+  @Input() user!: User;
+}
+
+// Parent with Default:
+// This WON'T update UserCard (same object reference!):
+this.user.name = 'New Name';  // ❌ Mutation — OnPush won't detect
+
+// This WILL update UserCard (new reference):
+this.user = { ...this.user, name: 'New Name' };  // ✓ New object</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="onpush-deep">4. OnPush Deep Dive — When Does It Check?</h2>
+
+<p>An OnPush component is checked ONLY when:</p>
+<ol>
+  <li><strong>@Input reference changes</strong> — New object/array reference (not mutation)</li>
+  <li><strong>Event from the component or its children</strong> — (click), (keyup), etc.</li>
+  <li><strong>Async pipe emits a new value</strong> — The pipe calls <code>markForCheck()</code></li>
+  <li><strong>Manual markForCheck() / detectChanges()</strong> — You explicitly tell Angular</li>
+  <li><strong>Signal value changes</strong> — (Angular 17+ with signals in template)</li>
+</ol>
+
+<pre><code>// Things that WON'T trigger OnPush CD:
+// - setTimeout/setInterval (unless inside the component itself + Zone.js)
+// - Service method modifying a property (unless you markForCheck)
+// - Parent's CD running (won't cascade down if inputs unchanged)
+
+// Common pattern with OnPush + Observables:
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    &lt;!-- async pipe handles markForCheck automatically! --&gt;
+    @if (user$ | async; as user) {
+      &lt;h1&gt;{{ user.name }}&lt;/h1&gt;
+      &lt;p&gt;{{ user.email }}&lt;/p&gt;
+    }
+    
+    @for (item of items$ | async; track item.id) {
+      &lt;app-item [data]="item" /&gt;
+    }
+  `
+})
+export class SmartComponent {
+  user$ = this.userService.currentUser$;
+  items$ = this.itemService.getItems();
+  // No manual subscription needed!
+  // async pipe subscribes, unsubscribes, AND triggers CD on new values
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="manual-cd">5. Manual Change Detection Control</h2>
+
+<pre><code>export class ManualCDComponent {
+  private cdr = inject(ChangeDetectorRef);
+
+  // markForCheck() — mark this component AND ancestors for checking
+  // Used with OnPush when data changes outside normal triggers
+  updateFromWebSocket(data: any) {
+    this.data = data;
+    this.cdr.markForCheck();  // "Hey Angular, check me next cycle"
+  }
+
+  // detectChanges() — run CD immediately for this component + children
+  // Synchronous — updates DOM right now
+  forceUpdate() {
+    this.someValue = computeExpensiveValue();
+    this.cdr.detectChanges();  // Update DOM NOW
+  }
+
+  // detach() — completely remove this component from CD tree
+  // reattach() — add it back
+  // Use for components that rarely change (e.g., static header)
+  ngOnInit() {
+    this.cdr.detach();  // Never checked automatically
+
+    // Only check when specific observable emits
+    this.dataService.criticalUpdates$.subscribe(data => {
+      this.data = data;
+      this.cdr.detectChanges();
+    });
+  }
+}</code></pre>
+
+<div class="callout warning">
+<strong>Performance Anti-patterns:</strong>
+<ul>
+  <li>Calling <code>detectChanges()</code> in a loop</li>
+  <li>Function calls in templates: <code>{{ getFullName() }}</code> — recalculated EVERY CD cycle</li>
+  <li>Complex expressions in templates: <code>{{ items.filter(x => x.active).length }}</code></li>
+  <li>Not using trackBy/track with *ngFor/@for</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="zoneless">6. Zoneless Angular (Angular 18+)</h2>
+
+<h3>The Future: No Zone.js</h3>
+<pre><code>// app.config.ts — Enable zoneless mode
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideExperimentalZonelessChangeDetection(),
+    provideRouter(routes),
+    provideHttpClient()
+  ]
+};
+
+// Benefits:
+// 1. Smaller bundle (Zone.js removed — ~13KB gzipped saved)
+// 2. Faster startup (no monkey-patching)
+// 3. Better debugging (no Zone.js stack frames)
+// 4. More predictable CD (only when signals/async pipe change)
+// 5. Better SSR performance
+
+// How it works without Zone.js:
+// Angular tracks reactivity through SIGNALS
+// When a signal changes, Angular knows exactly which components to update
+// No need to check the entire tree
+
+@Component({
+  template: `
+    &lt;h1&gt;{{ name() }}&lt;/h1&gt;        &lt;!-- Signal in template --&gt;
+    &lt;p&gt;Count: {{ count() }}&lt;/p&gt;
+    &lt;button (click)="increment()"&gt;+&lt;/button&gt;
+  `
+})
+export class ZonelessComponent {
+  name = signal('Angular');
+  count = signal(0);
+
+  increment() {
+    this.count.update(c => c + 1);
+    // Angular automatically detects signal change and updates DOM
+    // No Zone.js needed!
+  }
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="lazy-loading">7. Lazy Loading & Code Splitting</h2>
+
+<h3>Route-level Lazy Loading</h3>
+<pre><code>// app.routes.ts
+export const routes: Routes = [
+  { path: '', component: HomeComponent },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./features/dashboard/dashboard.component')
+      .then(m => m.DashboardComponent)
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes')
+      .then(m => m.ADMIN_ROUTES),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'reports',
+    loadComponent: () => import('./features/reports/reports.component')
+      .then(m => m.ReportsComponent),
+    // Route-level providers (scoped to this route and children)
+    providers: [ReportsService]
+  }
+];
+
+// admin.routes.ts (child routes)
+export const ADMIN_ROUTES: Routes = [
+  { path: '', component: AdminDashboardComponent },
+  { path: 'users', loadComponent: () => import('./users/users.component').then(m => m.UsersComponent) },
+  { path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent) }
+];</code></pre>
+
+<h3>Preloading Strategies</h3>
+<pre><code>import { PreloadAllModules } from '@angular/router';
+
+// Preload ALL lazy routes after initial load
+provideRouter(routes, withPreloading(PreloadAllModules))
+
+// Custom preloading strategy
+@Injectable({ providedIn: 'root' })
+export class SelectivePreloadStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable&lt;any&gt;): Observable&lt;any&gt; {
+    // Only preload routes marked with data: { preload: true }
+    return route.data?.['preload'] ? load() : of(null);
+  }
+}
+
+// Route config
+{ path: 'dashboard', loadComponent: ..., data: { preload: true } }  // Will preload
+{ path: 'admin', loadComponent: ..., data: { preload: false } }     // Won't preload</code></pre>
+
+<h3>@defer — Deferrable Views (Angular 17+)</h3>
+<pre><code>&lt;!-- Lazy-load a component only when visible in viewport --&gt;
+@defer (on viewport) {
+  &lt;app-heavy-chart [data]="chartData" /&gt;
+} @loading (minimum 200ms) {
+  &lt;app-skeleton-chart /&gt;
+} @placeholder {
+  &lt;div class="chart-placeholder"&gt;Chart will load when scrolled into view&lt;/div&gt;
+} @error {
+  &lt;p&gt;Failed to load chart component&lt;/p&gt;
+}
+
+&lt;!-- Trigger options: --&gt;
+@defer (on viewport)           &lt;!-- When element enters viewport --&gt;
+@defer (on interaction)        &lt;!-- On first click/focus/input --&gt;
+@defer (on hover)              &lt;!-- On mouse hover --&gt;
+@defer (on idle)               &lt;!-- When browser is idle --&gt;
+@defer (on timer(5s))          &lt;!-- After 5 seconds --&gt;
+@defer (on immediate)          &lt;!-- Next tick (still lazy-loaded chunk) --&gt;
+@defer (when condition)        &lt;!-- When expression becomes true --&gt;
+@defer (on viewport; prefetch on idle)  &lt;!-- Prefetch chunk on idle, render on viewport --&gt;</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="virtual-scroll">8. Virtual Scrolling & Large Lists</h2>
+
+<pre><code>// Install: ng add @angular/cdk
+import { ScrollingModule } from '@angular/cdk/scrolling';
+
+@Component({
+  imports: [ScrollingModule],
+  template: `
+    &lt;!-- Only renders visible items + buffer --&gt;
+    &lt;cdk-virtual-scroll-viewport itemSize="48" class="list-viewport"&gt;
+      &lt;div *cdkVirtualFor="let item of items; trackBy: trackById" class="list-item"&gt;
+        {{ item.name }}
+      &lt;/div&gt;
+    &lt;/cdk-virtual-scroll-viewport&gt;
+  `,
+  styles: [`
+    .list-viewport { height: 400px; width: 100%; }
+    .list-item { height: 48px; display: flex; align-items: center; }
+  `]
+})
+export class VirtualListComponent {
+  items = Array.from({ length: 100000 }, (_, i) => ({ id: i, name: `Item ${i}` }));
+  trackById = (index: number, item: any) => item.id;
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="bundle-optimization">9. Bundle Optimization Techniques</h2>
+
+<pre><code>// 1. Tree-shaking: Use providedIn: 'root' for services
+// 2. Lazy loading: Split code by routes
+// 3. Bundle budgets in angular.json:
+"budgets": [
+  { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" }
+]
+
+// 4. Import only what you need from libraries
+import { map, filter } from 'rxjs/operators';  // ✓ Tree-shakable
+import * as rxjs from 'rxjs';  // ✗ Imports EVERYTHING
+
+// 5. Use the Angular Image Directive
+import { NgOptimizedImage } from '@angular/common';
+// &lt;img ngSrc="hero.jpg" width="400" height="300" priority /&gt;
+
+// 6. Analyze your bundle
+// ng build --stats-json
+// npx webpack-bundle-analyzer dist/my-app/stats.json
+
+// 7. Runtime performance: trackBy in ngFor
+@for (user of users; track user.id) {  // Reuses DOM nodes
+  &lt;app-user-card [user]="user" /&gt;
+}
+
+// 8. Memoize expensive computations
+// Bad: {{ getFilteredItems() }}  — runs every CD cycle!
+// Good: Use a pipe or computed signal
+filteredItems = computed(() => 
+  this.items().filter(i => i.active)
+);</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="performance-checklist">10. Performance Checklist</h2>
+
+<div class="exercise">
+<h4>✅ Angular Performance Checklist</h4>
+<ol>
+  <li><strong>OnPush everywhere</strong> — Set ChangeDetectionStrategy.OnPush on ALL components</li>
+  <li><strong>Async pipe</strong> — Use in templates instead of manual subscriptions</li>
+  <li><strong>track in @for</strong> — Always provide a unique identifier</li>
+  <li><strong>No function calls in templates</strong> — Use pipes, computed signals, or memoization</li>
+  <li><strong>Lazy load routes</strong> — Split bundle by feature</li>
+  <li><strong>@defer for heavy components</strong> — Load on viewport/interaction</li>
+  <li><strong>Virtual scrolling</strong> — For lists > 100 items</li>
+  <li><strong>RunOutsideAngular</strong> — For animations, scroll handlers, resize observers</li>
+  <li><strong>Pure pipes</strong> — Over impure pipes or template functions</li>
+  <li><strong>Preloading strategy</strong> — Preload critical routes on idle</li>
+  <li><strong>Image optimization</strong> — NgOptimizedImage directive</li>
+  <li><strong>Bundle budgets</strong> — Set warnings in angular.json</li>
+  <li><strong>Signals</strong> — Use computed() instead of getter functions</li>
+  <li><strong>Detach rarely-changing components</strong> — cdr.detach() for static UI</li>
+</ol>
+</div>
+
+<div class="interview">
+<h4>🎯 Top Interview Questions — Phase 5</h4>
+<ol>
+  <li>How does Angular's change detection work? Explain the mechanism.</li>
+  <li>What is Zone.js? Why does Angular need it? How can you work without it?</li>
+  <li>Explain the difference between Default and OnPush change detection strategies.</li>
+  <li>When does OnPush re-render a component? List all triggers.</li>
+  <li>What's the difference between markForCheck() and detectChanges()?</li>
+  <li>Why shouldn't you call functions in templates? What are the alternatives?</li>
+  <li>How does @defer work? What triggers are available?</li>
+  <li>Explain lazy loading in Angular. Route-level vs component-level.</li>
+  <li>What is virtual scrolling? When would you use it?</li>
+  <li>How would you debug performance issues in an Angular app?</li>
+  <li>What is zoneless Angular? How do signals enable it?</li>
+  <li>How would you optimize a component that renders 10,000 items?</li>
+</ol>
+</div>
+
+<!-- Navigation -->
+<div class="nav-links">
+  <a href="phase4-rxjs-reactive-patterns.html">← Phase 4: RxJS</a>
+  <a href="phase6-routing-navigation.html">Phase 6: Routing & Navigation →</a>
+</div>
+
+</main>
+<script src="nav.js"></script>
+</body>
+</html>
